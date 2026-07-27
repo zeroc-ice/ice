@@ -625,7 +625,7 @@ namespace Ice
         /// @param size The number of bytes to skip.
         void skip(size_type size)
         {
-            if (i + size > b.end())
+            if (size > static_cast<size_type>(b.end() - i))
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }

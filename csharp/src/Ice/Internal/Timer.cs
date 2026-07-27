@@ -36,8 +36,15 @@ public sealed class Timer
         _thread.Join();
     }
 
-    public void schedule(TimerTask task, long delay)
+    public void schedule(TimerTask task, TimeSpan delay)
     {
+        if (delay < TimeSpan.Zero || delay > TimeSpan.FromMilliseconds(int.MaxValue))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(delay),
+                $"The timer delay must be between 0 and {int.MaxValue} milliseconds.");
+        }
+
         lock (_mutex)
         {
             if (_instance == null)
@@ -45,7 +52,11 @@ public sealed class Timer
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-            var token = new Token(Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
+            var token = new Token(
+                Time.currentMonotonicTimeMillis() + (long)delay.TotalMilliseconds,
+                ++_tokenId,
+                0,
+                task);
 
             try
             {
@@ -187,6 +198,9 @@ public sealed class Timer
                     }
 
                     _wakeUpTime = first.scheduledTime;
+                    // The wait duration fits in an int: schedule rejects delays larger than int.MaxValue, and the
+                    // monotonic clock only moves forward after that.
+                    Debug.Assert(first.scheduledTime - now <= int.MaxValue);
                     Monitor.Wait(_mutex, (int)(first.scheduledTime - now));
                 }
 

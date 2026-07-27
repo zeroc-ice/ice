@@ -34,14 +34,21 @@ Breaking change(s):
 Changelog entries are added as fragment files (`changelog.d/<section>/<id>.md`), not by editing `CHANGELOG.md`.
 See `changelog.d/README.md` for the convention.
 
+A fragment describes a change that users of valid programs with valid configurations can notice during normal
+operations. Most fixes don't qualify: when in doubt, do not request a fragment.
+
 ### Requires changelog fragment:
 
-- Non-trivial bug fixes, features, API changes, security fixes, performance improvements
+- Non-trivial bug fixes that affect valid programs, features, API changes, security fixes, performance improvements
 - Breaking changes, deprecations
 - Multi-language changes
 
 ### Doesn't require fragment:
 
+- Fixes that only change how invalid input is handled — invalid configuration or property values, malformed or
+  crafted wire input, invalid API arguments — even when the previous behavior was a crash. Programs are not
+  supposed to provide invalid input, and how it fails is not behavior anyone may rely on.
+- Hardening and defensive fixes whose trigger cannot occur during normal operations
 - Comment/whitespace-only changes
 - Internal refactoring with no behavioral changes
 - Test-only, CI/CD, and build system changes

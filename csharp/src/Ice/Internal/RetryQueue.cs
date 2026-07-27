@@ -67,6 +67,7 @@ public class RetryQueue
 
     public void add(ProxyOutgoingAsyncBase outAsync, int interval)
     {
+        Debug.Assert(interval >= 0);
         lock (_mutex)
         {
             if (_instance == null)
@@ -75,7 +76,7 @@ public class RetryQueue
             }
             var task = new RetryTask(_instance, this, outAsync);
             outAsync.cancelable(task); // This will throw if the request is canceled.
-            _instance.timer().schedule(task, interval);
+            _instance.timer().schedule(task, TimeSpan.FromMilliseconds(interval));
             _requests.Add(task, null);
         }
     }

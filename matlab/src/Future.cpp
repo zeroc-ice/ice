@@ -4,6 +4,9 @@
 #include "Util.h"
 #include "ice.h"
 
+#include <algorithm>
+#include <cmath>
+
 using namespace std;
 using namespace IceMatlab;
 
@@ -20,16 +23,24 @@ IceMatlab::Future::token(function<void()> t)
 bool
 IceMatlab::Future::waitForState(State state, double timeout)
 {
+    if (std::isnan(timeout))
+    {
+        throw std::invalid_argument("timeout must be a number");
+    }
+
     unique_lock<mutex> lock(_mutex);
-    if (timeout < 0)
+    if (timeout < 0 || std::isinf(timeout))
     {
         _cond.wait(lock, [this, state] { return this->stateImpl() >= state; });
         return !_exception;
     }
     else
     {
-        auto now = chrono::system_clock::now();
-        auto stop = now + chrono::milliseconds(static_cast<long long>(timeout * 1000));
+        // Cap the delay well below the point where the conversion to milliseconds, or the addition to the current
+        // time, would overflow. The cap is over 30 years, so it's indistinguishable from an unlimited wait.
+        constexpr double maxTimeout = 1'000'000'000.0;
+        auto delay = chrono::milliseconds(static_cast<long long>(std::min(timeout, maxTimeout) * 1000));
+        auto stop = chrono::steady_clock::now() + delay;
         bool b = _cond.wait_until(lock, stop, [this, state] { return this->stateImpl() >= state; });
         return b && !_exception;
     }

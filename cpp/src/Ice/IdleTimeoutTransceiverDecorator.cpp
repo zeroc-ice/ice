@@ -70,15 +70,18 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
 
 IdleTimeoutTransceiverDecorator::~IdleTimeoutTransceiverDecorator()
 {
-    // Since ConnectionI is noexcept, decoratorInit always sets _heartbeatTimerTask.
-    assert(_heartbeatTimerTask);
-    _timer->cancel(_heartbeatTimerTask);
+    // _heartbeatTimerTask remains null when the connection creation fails before decoratorInit is called.
+    if (_heartbeatTimerTask)
+    {
+        _timer->cancel(_heartbeatTimerTask);
+    }
     disableIdleCheck();
 }
 
 void
 IdleTimeoutTransceiverDecorator::close()
 {
+    assert(_heartbeatTimerTask); // close is only called on a connection that completed decoratorInit.
     _timer->cancel(_heartbeatTimerTask);
     disableIdleCheck();
     _decoratee->close();

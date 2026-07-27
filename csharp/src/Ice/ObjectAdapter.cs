@@ -1492,12 +1492,31 @@ public sealed class ObjectAdapter
 
     private Object createDispatchPipeline()
     {
-        Object dispatchPipeline = _servantManager; // the "final" dispatcher
-        foreach (Func<Object, Object> middleware in _middlewareStack)
+        try
         {
-            dispatchPipeline = middleware(dispatchPipeline);
+            Object dispatchPipeline = _servantManager; // the "final" dispatcher
+            foreach (Func<Object, Object> middleware in _middlewareStack)
+            {
+                dispatchPipeline = middleware(dispatchPipeline);
+            }
+            return dispatchPipeline;
         }
-        _middlewareStack.Clear(); // we no longer need these functions
-        return dispatchPipeline;
+        catch (System.Exception ex)
+        {
+            _instance.initializationData().logger!.error(
+                $"failed to create the dispatch pipeline of object adapter '{_name}':\n{ex}");
+            return new FailedDispatchPipeline();
+        }
+        finally
+        {
+            _middlewareStack.Clear(); // we no longer need these functions
+        }
+    }
+
+    // Installed as the dispatch pipeline when the creation of the actual pipeline fails.
+    private class FailedDispatchPipeline : Ice.Object
+    {
+        public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
+            throw new UnknownException("The object adapter could not create its dispatch pipeline.");
     }
 }
