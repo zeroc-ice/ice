@@ -98,6 +98,7 @@ class PluginI implements Plugin {
 
     @Override
     public void destroy() {
+        // Called after initialize() completed successfully.
         if (_multicastAdapter != null) {
             _multicastAdapter.destroy();
         }
@@ -107,7 +108,7 @@ class PluginI implements Plugin {
         if (_locatorAdapter != null) {
             _locatorAdapter.destroy();
         }
-        if (_communicator.getDefaultLocator().equals(_locator)) {
+        if (_locator.equals(_communicator.getDefaultLocator())) {
             // Restore original default locator proxy, if the user didn't change it in the meantime
             _communicator.setDefaultLocator(_defaultLocator);
         }
