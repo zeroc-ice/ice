@@ -6,10 +6,6 @@
         "scripts/Controller.py",
         "scripts/LocalDriver.py",
         "scripts/NetworkProxy.py",
-        "scripts/collate_changelog.py",
-        "scripts/icehashpassword.py",
-        "scripts/ws_origin_probe.py",
-        "scripts/ws_ping_probe.py",
         "scripts/tests"
     ],
     "extraPaths": ["python/python"],
