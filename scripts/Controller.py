@@ -57,7 +57,7 @@ class ControllerDriver(Driver):
                 self.config.protocol = protocol
 
     @classmethod
-    def getSupportedArgs(self):
+    def getSupportedArgs(cls):
         return (
             "",
             [
@@ -77,7 +77,7 @@ class ControllerDriver(Driver):
         )
 
     @classmethod
-    def usage(self):
+    def usage(cls):
         print("")
         print("Controller driver options:")
         print("--id=<identity>       The identity of the controller object.")

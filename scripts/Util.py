@@ -3663,6 +3663,9 @@ class Driver:
             self.processes: dict[Process, RunningProcess] = {}
             self.dirs: list[str] = []
             self.files: list[str] = []
+            # Set by LocalDriver's remote runner to the proxy for the remote server side, and by
+            # ControllerDriver to the server side test case it runs.
+            self.serverTestCase: Any = None
 
         def getTestCase(self) -> TestCase:
             assert self.testcase is not None
