@@ -52,6 +52,14 @@
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
   </Folder>
+  <Folder Name="/DataStorm/partialReconnect/">
+    <Project Path="../test/DataStorm/partialReconnect/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/partialReconnect/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
   <Folder Name="/DataStorm/relayReconnect/">
     <Project Path="../test/DataStorm/relayReconnect/msbuild/reader/reader.vcxproj">
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
