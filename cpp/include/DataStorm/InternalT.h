@@ -393,12 +393,16 @@ namespace DataStormI
 
         void decode(const Ice::CommunicatorPtr& communicator) final
         {
-            if (!_encodedValue.empty())
+            // A remove sample carries no value.
+            if (event == DataStorm::SampleEvent::Remove)
             {
-                _hasValue = true;
-                _value = DecoderT<Value>::decode(communicator, _encodedValue);
-                _encodedValue.clear();
+                return;
             }
+
+            // A custom Encoder may encode a value to zero bytes; the Decoder defines the meaning of empty input.
+            _hasValue = true;
+            _value = DecoderT<Value>::decode(communicator, _encodedValue);
+            _encodedValue.clear();
         }
 
     private:
