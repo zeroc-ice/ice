@@ -175,7 +175,7 @@ class ThreadedServer:
                 server.serve_forever()
 
         self.thread = threading.Thread(target=serve_forever, args=(self.server,))
-        self.thread.setDaemon(True)
+        self.thread.daemon = True
         self.thread.start()
 
     def shutdown(self) -> None:

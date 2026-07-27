@@ -389,7 +389,7 @@ class LocalDriver(Driver):
             self.total = total
 
     @classmethod
-    def getSupportedArgs(cls):
+    def getSupportedArgs(cls) -> tuple[str, list[str]]:
         return (
             "",
             [
@@ -409,7 +409,7 @@ class LocalDriver(Driver):
         )
 
     @classmethod
-    def usage(cls):
+    def usage(cls) -> None:
         print("")
         print("Local driver options:")
         print("--cross=<mapping>     Run with servers from given mapping.")
@@ -632,7 +632,7 @@ class LocalDriver(Driver):
             if not server:
                 continue
 
-            current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
+            current.writeln("[ running {0} test - {1} ]".format(testcase, time.strftime("%x %X")))
             if not self.all:
                 current.config = current.config.cloneRunnable(current)
             confStr = str(current.config)
@@ -696,7 +696,7 @@ class LocalDriver(Driver):
             return
 
         if not testcase.getParent():
-            current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
+            current.writeln("[ running {0} test - {1} ]".format(testcase, time.strftime("%x %X")))
             if not self.all:
                 current.config = current.config.cloneRunnable(current)
             confStr = str(current.config)
@@ -715,10 +715,10 @@ class LocalDriver(Driver):
         else:
             return Driver.getHost(self, protocol, ipv6)
 
-    def isWorkerThread(self):
+    def isWorkerThread(self) -> bool:
         return hasattr(self.threadlocal, "num")
 
-    def isInterrupted(self):
+    def isInterrupted(self) -> bool:
         return self.executor.isInterrupted()
 
     def setInterrupt(self, value: bool) -> None:

@@ -8,14 +8,9 @@ from Util import Client, ClientServerTestCase, Driver, Linux, Process, Props, Se
 domainId = uuid.uuid4()  # Ensures each test uses a unique domain ID
 
 
-def _serverIndex(process: Process) -> object:
-    # The server index the test passes through Process.args; args is only a callable when a
-    # process computes them, which these do not.
-    assert not callable(process.args)
-    return process.args[0]
-
-
 def props(process: Process, current: Driver.Current) -> Props:
+    # args is only a callable when a process computes them, which these do not.
+    assert not callable(process.args)
     return {
         "IceDiscovery.Timeout": 50,
         "IceDiscovery.RetryCount": 20,
@@ -24,7 +19,7 @@ def props(process: Process, current: Driver.Current) -> Props:
         "IceDiscovery.Port": current.driver.getTestPort(10),
         "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
         # This is used for the trace file
-        "Ice.ProgramName": "server{}".format(_serverIndex(process)) if isinstance(process, Server) else "client",
+        "Ice.ProgramName": "server{}".format(process.args[0]) if isinstance(process, Server) else "client",
     }
 
 
