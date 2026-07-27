@@ -704,7 +704,9 @@ final class ServiceManagerI implements ServiceManager {
                 throw new FailureException("ServiceManager: invalid arguments for service `" + name + "'", ex);
             }
 
-            assert (args.length > 0);
+            if (args.length == 0) {
+                throw new FailureException("ServiceManager: invalid arguments for service '" + name + "'");
+            }
 
             final String entryPoint = args[0];
 

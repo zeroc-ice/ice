@@ -202,7 +202,9 @@ final class PluginManagerI implements PluginManager {
                 throw new PluginInitializationException("invalid arguments for plug-in `" + name + "'", ex);
             }
 
-            assert (args.length > 0);
+            if (args.length == 0) {
+                throw new PluginInitializationException("invalid arguments for plug-in '" + name + "'");
+            }
 
             entryPoint = args[0];
 

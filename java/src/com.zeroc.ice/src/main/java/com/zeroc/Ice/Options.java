@@ -171,19 +171,25 @@ public final class Options {
 
                                 // Process control-chars.
                                 case 'c' -> {
-                                    c = line.charAt(++i);
-                                    if ((Character.toUpperCase(c) >= 'A'
-                                        && Character.toUpperCase(c) <= 'Z') || c == '@' || (c >= '[' && c <= '_')) {
-                                        arg.append((char) (Character.toUpperCase(c) - '@'));
+                                    if (i == line.length() - 1) {
+                                        // Nothing after the \c: keep it unchanged. The missing closing quote is
+                                        // reported after the loop.
+                                        arg.append("\\c");
                                     } else {
-                                        // Bash does not define what should happen if a
-                                        // \c is not followed by a recognized control character.
-                                        // We simply treat this case like other
-                                        // unrecognized escape sequences, that is, we
-                                        // preserve the escape sequence unchanged.
-                                        arg.append('\\');
-                                        arg.append('c');
-                                        arg.append(c);
+                                        c = line.charAt(++i);
+                                        if ((Character.toUpperCase(c) >= 'A'
+                                            && Character.toUpperCase(c) <= 'Z') || c == '@' || (c >= '[' && c <= '_')) {
+                                            arg.append((char) (Character.toUpperCase(c) - '@'));
+                                        } else {
+                                            // Bash does not define what should happen if a
+                                            // \c is not followed by a recognized control character.
+                                            // We simply treat this case like other
+                                            // unrecognized escape sequences, that is, we
+                                            // preserve the escape sequence unchanged.
+                                            arg.append('\\');
+                                            arg.append('c');
+                                            arg.append(c);
+                                        }
                                     }
                                 }
 
