@@ -290,7 +290,7 @@ public abstract class IPEndpointI : EndpointI
             {
                 port_ = int.Parse(argument, CultureInfo.InvariantCulture);
             }
-            catch (FormatException ex)
+            catch (System.Exception ex) when (ex is FormatException or OverflowException)
             {
                 throw new ParseException($"invalid port value '{argument}' in endpoint '{endpoint}'", ex);
             }

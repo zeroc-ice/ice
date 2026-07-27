@@ -1468,7 +1468,18 @@ public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, Outgo
     {
         if (_cancellationToken.CanBeCanceled)
         {
-            _cancellationToken.Register(og.cancel);
+            CancellationTokenRegistration registration = _cancellationToken.Register(og.cancel);
+            _ = disposeRegistrationAsync();
+
+            // Dispose of the registration when the task of this TaskCompletionSource completes; otherwise, a
+            // long-lived cancellation token would retain a reference to every invocation created with it.
+            async Task disposeRegistrationAsync()
+            {
+                // SuppressThrowing requires a non-generic Task; the outcome of the invocation is observed by
+                // the application through the task of this TaskCompletionSource.
+                await ((Task)this.Task).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+                registration.Dispose();
+            }
         }
     }
 

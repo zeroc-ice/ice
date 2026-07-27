@@ -243,6 +243,15 @@ public class AllTests : global::Test.AllTests
         {
         }
 
+        try
+        {
+            communicator.stringToProxy("test:tcp -p 99999999999999"); // greater than int.MaxValue
+            test(false);
+        }
+        catch (ParseException)
+        {
+        }
+
         //
         // Test invalid endpoint syntax
         //

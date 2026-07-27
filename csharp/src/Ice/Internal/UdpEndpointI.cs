@@ -323,7 +323,7 @@ internal sealed class UdpEndpointI : IPEndpointI
             {
                 _mcastTtl = int.Parse(argument, CultureInfo.InvariantCulture);
             }
-            catch (FormatException ex)
+            catch (System.Exception ex) when (ex is FormatException or OverflowException)
             {
                 throw new ParseException($"invalid TTL value '{argument}' in endpoint '{endpoint}'", ex);
             }
