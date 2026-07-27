@@ -5,8 +5,7 @@
     "ignore": [
         "scripts/Controller.py",
         "scripts/LocalDriver.py",
-        "scripts/NetworkProxy.py",
-        "scripts/tests"
+        "scripts/NetworkProxy.py"
     ],
     "extraPaths": ["python/python"],
     // The test framework modules under scripts import each other by name, so scripts is on the
@@ -14,7 +13,9 @@
     "executionEnvironments": [
         {
             "root": "scripts",
-            "extraPaths": ["scripts", "python/python"]
+            // "." is for the scripts.tests.* package imports; loadTestSuites puts the repository
+            // root on sys.path at run time.
+            "extraPaths": [".", "scripts", "python/python"]
         }
     ],
     "typeCheckingMode": "standard",

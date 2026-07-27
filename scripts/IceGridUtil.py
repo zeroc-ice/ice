@@ -287,7 +287,7 @@ class IceGridTestCase(TestCase):
         name: str = "IceGrid",
         icegridregistry: IceGridRegistry | list[IceGridRegistry] | None = None,
         icegridnode: IceGridNode | list[IceGridNode] | None = None,
-        application: str = "application.xml",
+        application: str | None = "application.xml",
         variables: dict[str, Any] = {},
         targets: list[str] = [],
         exevars: dict[str, str] = {},

@@ -21,7 +21,7 @@ import traceback
 import uuid
 import xml.sax.saxutils
 from collections import OrderedDict
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from io import StringIO
 from pathlib import Path
 from platform import machine as platform_machine
@@ -929,6 +929,16 @@ class Mapping(object):
         return None
 
     @classmethod
+    def requireByPath(cls, path: str) -> Mapping:
+        """
+        As getByPath, for callers that know the path belongs to a mapping, such as a test.py being
+        loaded by that mapping.
+        """
+        mapping = cls.getByPath(path)
+        assert mapping is not None, "no mapping found for `{0}'".format(path)
+        return mapping
+
+    @classmethod
     def getAllByPath(cls, path: str) -> list[Mapping]:
         path = os.path.abspath(path)
         mappings: list[Mapping] = []
@@ -1295,7 +1305,7 @@ class Process(Runnable):
     def __init__(
         self,
         exe: str | None = None,
-        outfilters: list[Expect.TraceFilter] | None = None,
+        outfilters: Sequence[Expect.TraceFilter] | None = None,
         quiet: bool = False,
         args: Args | Callable[[Process, Driver.Current], Args] | None = None,
         props: Props | Callable[[Process, Driver.Current], Props] | None = None,
@@ -1307,7 +1317,7 @@ class Process(Runnable):
     ):
         Runnable.__init__(self, desc)
         self.exe = exe
-        self.outfilters: list[Expect.TraceFilter] = outfilters or []
+        self.outfilters: list[Expect.TraceFilter] = list(outfilters) if outfilters else []
         self.quiet = quiet
         self.args = args or []
         self.props = props or {}
@@ -1779,9 +1789,9 @@ class TestCase(Runnable):
         self,
         name: str,
         client: Process | str | None = None,
-        clients: list[Runnable] | None = None,
+        clients: Sequence[Runnable] | None = None,
         server: Process | str | None = None,
-        servers: list[Process] | None = None,
+        servers: Sequence[Process] | None = None,
         args: Args | None = None,
         props: Props | None = None,
         envs: Envs | None = None,
@@ -1805,7 +1815,7 @@ class TestCase(Runnable):
         # Setup client list, "client" can be a string in which case it's assumed to
         # to the client executable name.
         #
-        self.clients: list[Runnable] | None = clients
+        self.clients: list[Runnable] | None = list(clients) if clients is not None else None
         if client:
             client = Client(exe=client) if isinstance(client, str) else client
             self.clients = [client] if not self.clients else self.clients + [client]
@@ -1814,7 +1824,7 @@ class TestCase(Runnable):
         # Setup server list, "server" can be a string in which case it's assumed to
         # to the server executable name.
         #
-        self.servers: list[Process] | None = servers
+        self.servers: list[Process] | None = list(servers) if servers is not None else None
         if server:
             server = Server(exe=server) if isinstance(server, str) else server
             self.servers = [server] if not self.servers else self.servers + [server]
@@ -2271,7 +2281,7 @@ class TestSuite(object):
     def __init__(
         self,
         path: str,
-        testcases: list[TestCase] | None = None,
+        testcases: Sequence[TestCase] | None = None,
         options: Options | Callable[[Driver.Current], Options] | None = None,
         libDirs: list[str] | None = None,
         runOnMainThread: bool = False,

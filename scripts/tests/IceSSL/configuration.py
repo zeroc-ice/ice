@@ -8,6 +8,7 @@ from Util import (
     ClientServerTestCase,
     CppMapping,
     Darwin,
+    Driver,
     Server,
     TestSuite,
     Windows,
@@ -19,7 +20,7 @@ certsPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", 
 
 
 class ConfigurationTestCase(ClientServerTestCase):
-    def setupServerSide(self, current):
+    def setupServerSide(self, current: Driver.Current) -> None:
         # Nothing to do if we're not running this test with the C++ mapping
         if not isinstance(self.getMapping(), CppMapping):
             return
@@ -54,7 +55,7 @@ class ConfigurationTestCase(ClientServerTestCase):
                 out = run(f"openssl x509 -subject_hash -noout -in {certFile}")
                 shutil.copyfile(certFile, f"{certsPath}/{out}.0")
 
-    def teardownServerSide(self, current, success):
+    def teardownServerSide(self, current: Driver.Current, success: bool) -> None:
         # Nothing to do if we're not running this test with the C++ mapping
         if not isinstance(self.getMapping(), CppMapping):
             return

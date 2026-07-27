@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import base64
 import http.server
 import os
@@ -7,31 +9,38 @@ import sys
 import threading
 import traceback
 import urllib.parse
+from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from functools import partial
+from typing import Any
 
 from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric.types import PrivateKeyTypes
 from cryptography.hazmat.primitives.serialization import Encoding
-from cryptography.x509 import ReasonFlags, SubjectKeyIdentifier, load_pem_x509_certificate, ocsp
+from cryptography.x509 import Certificate, ReasonFlags, SubjectKeyIdentifier, load_pem_x509_certificate, ocsp
+
+# The in-memory certificate database: issuer SKI -> {issuer_cert, issuer_key, certificates,
+# revocations}. The values are of mixed types, so the entries are typed loosely.
+CertificateDb = dict[bytes, dict[str, Any]]
 
 
-def load_certificate(path):
+def load_certificate(path: str) -> Certificate:
     with open(path, "rb") as f:
         return load_pem_x509_certificate(f.read())
 
 
-def load_private_key(path, password):
+def load_private_key(path: str, password: bytes | None) -> PrivateKeyTypes:
     with open(path, "rb") as f:
         return serialization.load_pem_private_key(f.read(), password)
 
 
-def load_db(basepath):
+def load_db(basepath: str) -> CertificateDb:
     """
     create an in memory database of issuer/certificates and issuer/revocations
     the issuer SKI is used as the issuer key and the certificate serial number
     as the certificates and revocations key.
     """
-    db = {}
+    db: CertificateDb = {}
     for ca_dir, certs in [
         ("ca4", ["server_cert.pem", "server_revoked_cert.pem", "i1/i1_cert.pem"]),
         ("ca4/i1", ["server_cert.pem"]),
@@ -45,7 +54,7 @@ def load_db(basepath):
         db[issuer_sha1]["issuer_cert"] = issuer_cert
         db[issuer_sha1]["issuer_key"] = issuer_key
 
-        certificates = {}
+        certificates: dict[int, Certificate] = {}
         for filename in certs:
             cert = load_certificate(os.path.join(ca_dir, filename))
             certificates[cert.serial_number] = cert
@@ -55,7 +64,7 @@ def load_db(basepath):
         # see https://pki-tutorial.readthedocs.io/en/latest/cadb.html
         # in our case it only contains revocation info
         with open("{}/index.txt".format(ca_dir)) as index:
-            revocations = {}
+            revocations: dict[int, dict[str, Any]] = {}
             lines = index.readlines()
             for line in lines:
                 tokens = line.split("\t")
@@ -77,23 +86,23 @@ def load_db(basepath):
 class OCSPHandler(http.server.BaseHTTPRequestHandler):
     "A simple handler for OCSP GET/POST requests"
 
-    def __init__(self, db, *args, **kwargs):
+    def __init__(self, db: CertificateDb, *args: Any, **kwargs: Any):
         self._db = db
         # BaseHTTPRequestHandler calls do_GET **inside** __init__ !!!
         # So we have to call super().__init__ after setting attributes.
         super().__init__(*args, **kwargs)
 
-    def do_POST(self):
+    def do_POST(self) -> None:
         length = int(self.headers["Content-Length"])
         data = self.rfile.read(length)
         self.validate(data)
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         # unquote the URL and then base64 decode it striping the first /
         data = base64.b64decode(urllib.parse.unquote(self.path[1:]))
         self.validate(data)
 
-    def validate(self, data):
+    def validate(self, data: bytes) -> None:
         response = None
         this_update = datetime.now(timezone.utc)
         next_update = this_update + timedelta(seconds=60)
@@ -102,13 +111,13 @@ class OCSPHandler(http.server.BaseHTTPRequestHandler):
             serial = request.serial_number
             issuer = self._db.get(request.issuer_key_hash)
             if issuer:
-                issuer_cert = issuer.get("issuer_cert")
-                issuer_key = issuer.get("issuer_key")
-                subject_cert = issuer.get("certificates").get(serial)
+                issuer_cert = issuer["issuer_cert"]
+                issuer_key = issuer["issuer_key"]
+                subject_cert = issuer["certificates"].get(serial)
                 if subject_cert is None:
                     response = ocsp.OCSPResponseBuilder.build_unsuccessful(ocsp.OCSPResponseStatus.UNAUTHORIZED)
                 else:
-                    cert_info = issuer.get("revocations").get(serial)
+                    cert_info = issuer["revocations"].get(serial)
                     revoked = cert_info is not None
 
                     builder = ocsp.OCSPResponseBuilder().add_response(
@@ -136,17 +145,13 @@ class OCSPHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(response.public_bytes(Encoding.DER))
 
 
-def createOCSPServer(host, port, basepath):
+def createOCSPServer(host: str, port: int, basepath: str) -> ThreadedServer:
     db = load_db(basepath)
     handler = partial(OCSPHandler, db)
     return ThreadedServer(host, port, handler)
 
 
-def createCRLServer(
-    host,
-    port,
-    basepath,
-):
+def createCRLServer(host: str, port: int, basepath: str) -> ThreadedServer:
     handler = partial(http.server.SimpleHTTPRequestHandler, directory=basepath)
     return ThreadedServer(host, port, handler)
 
@@ -154,13 +159,18 @@ def createCRLServer(
 class ThreadedServer:
     # run HTTPServer in its own thread
 
-    def __init__(self, hostname, port, handler):
+    def __init__(
+        self,
+        hostname: str,
+        port: int,
+        handler: Callable[..., http.server.BaseHTTPRequestHandler],
+    ):
         self.handler = handler
         self.server = http.server.HTTPServer((hostname, port), handler)
-        self.thread = None
+        self.thread: threading.Thread | None = None
 
-    def start(self):
-        def serve_forever(server):
+    def start(self) -> None:
+        def serve_forever(server: http.server.HTTPServer) -> None:
             with server:
                 server.serve_forever()
 
@@ -168,6 +178,7 @@ class ThreadedServer:
         self.thread.setDaemon(True)
         self.thread.start()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.server.shutdown()
+        assert self.thread is not None
         self.thread.join()

@@ -1,13 +1,13 @@
 # Copyright (c) ZeroC, Inc.
 
 
-from Util import Client, ClientServerTestCase, Server, TestSuite
+from Util import Client, ClientServerTestCase, Driver, Server, TestSuite
 
 traceProps = {"Ice.Trace.Network": 3, "Ice.Trace.Retry": 1, "Ice.Trace.Protocol": 1}
 
 
 class UdpTestCase(ClientServerTestCase):
-    def setupServerSide(self, current):
+    def setupServerSide(self, current: Driver.Current) -> None:
         if current.config.android:
             self.servers = [Server(ready="McastTestAdapter", traceProps=traceProps)]
         else:
@@ -18,7 +18,7 @@ class UdpTestCase(ClientServerTestCase):
                 for i in range(0, 5)
             ]
 
-    def setupClientSide(self, current):
+    def setupClientSide(self, current: Driver.Current) -> None:
         if current.config.android:
             self.clients = [Client(traceProps=traceProps)]
         else:

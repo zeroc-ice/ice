@@ -3,12 +3,19 @@
 import re
 import uuid
 
-from Util import Client, ClientServerTestCase, Linux, Server, TestSuite, platform
+from Util import Client, ClientServerTestCase, Driver, Linux, Process, Props, Server, TestSuite, platform
 
 domainId = uuid.uuid4()  # Ensures each test uses a unique domain ID
 
 
-def props(process, current):
+def _serverIndex(process: Process) -> object:
+    # The server index the test passes through Process.args; args is only a callable when a
+    # process computes them, which these do not.
+    assert not callable(process.args)
+    return process.args[0]
+
+
+def props(process: Process, current: Driver.Current) -> Props:
     return {
         "IceDiscovery.Timeout": 50,
         "IceDiscovery.RetryCount": 20,
@@ -17,7 +24,7 @@ def props(process, current):
         "IceDiscovery.Port": current.driver.getTestPort(10),
         "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
         # This is used for the trace file
-        "Ice.ProgramName": "server{}".format(process.args[0]) if isinstance(process, Server) else "client",
+        "Ice.ProgramName": "server{}".format(_serverIndex(process)) if isinstance(process, Server) else "client",
     }
 
 
@@ -29,7 +36,7 @@ traceProps = {"Ice.Trace.Locator": 2, "Ice.Trace.Protocol": 1, "Ice.Trace.Networ
 suppressDiscoveryWarning = False
 
 
-def suppressWarning(x):
+def suppressWarning(x: str) -> str:
     global suppressDiscoveryWarning
     if re.search("-! .* warning: .*failed to lookup adapter.*\n", x):
         suppressDiscoveryWarning = True
@@ -42,7 +49,7 @@ def suppressWarning(x):
 
 
 # Filter-out the warning about invalid lookup proxy
-outfilters = [lambda x: suppressWarning(x)]
+outfilters = [suppressWarning]
 
 TestSuite(
     __name__,
