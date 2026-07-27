@@ -1045,7 +1045,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout.</param>
+    /// <param name="newTimeout">The new invocation timeout. A positive timeout is rounded down to the nearest
+    /// millisecond.</param>
     /// <returns>The new proxy with the specified invocation timeout.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
     /// <see cref="int.MaxValue"/> milliseconds.</exception>
