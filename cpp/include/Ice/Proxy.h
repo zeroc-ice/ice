@@ -184,7 +184,7 @@ namespace Ice
         [[nodiscard]] Prx ice_locatorCacheTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
             return fromReference(
-                asPrx()._locatorCacheTimeout(std::chrono::duration_cast<std::chrono::seconds>(timeout)));
+                asPrx()._locatorCacheTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)));
         }
 
         /// Creates a proxy that is identical to this proxy, but uses oneway invocations.
