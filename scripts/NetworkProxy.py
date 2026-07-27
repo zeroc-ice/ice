@@ -122,9 +122,11 @@ class BaseProxy(threading.Thread):
                 self.cond.notify()
             except Exception as ex:
                 self.failed = ex
-                assert self.socket is not None
-                self.socket.close()
-                self.socket = None
+                # socket() itself can fail, leaving nothing to close. Notify either way, otherwise the
+                # constructor sits out its full 60 second wait before reporting the failure.
+                if self.socket:
+                    self.socket.close()
+                    self.socket = None
                 self.cond.notify()
                 return
 
