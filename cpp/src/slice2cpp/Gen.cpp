@@ -232,10 +232,11 @@ namespace
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {
+        // 'lines' is empty when the doc comment has a tag with no description, such as a bare '@param a'. The caller
+        // already wrote the tag itself, so there is nothing more to write.
         auto l = lines.cbegin();
-        if (!commentFirst)
+        if (!commentFirst && l != lines.cend())
         {
-            assert(l != lines.cend());
             out << *l;
             l++;
         }
@@ -415,7 +416,14 @@ namespace
             if (q != paramDoc.end()) // it's documented
             {
                 auto outParamDoc = q->second;
-                outParamDoc.front().insert(0, "- `" + param->mappedName() + "` ");
+                if (outParamDoc.empty()) // documented by a bare '@param', with no description
+                {
+                    outParamDoc.push_back("- `" + param->mappedName() + '`');
+                }
+                else
+                {
+                    outParamDoc.front().insert(0, "- `" + param->mappedName() + "` ");
+                }
                 result.splice(result.end(), std::move(outParamDoc));
             }
         }

@@ -71,6 +71,14 @@ module Test
         /// @throws CommentDummy It should be okay for the description of an exception to start on one line,
         ///     and then continue onto the next line. Whitespace should be stripped correctly too.
         bool splitMultilineCommentTest(int param) throws CommentDummy;
+
+        /// This tests that doc-comment tags with no description at all are accepted. The description is optional, so
+        /// none of these produce a warning; they used to make the language mappings read from an empty list.
+        /// @param param
+        /// @param myOut
+        /// @return
+        /// @throws CommentDummy
+        bool bareCommentTagTest(int param, out int myOut) throws CommentDummy;
     }
 
     /// Unterminated link tag: {@link CommentDummy

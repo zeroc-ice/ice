@@ -1964,7 +1964,13 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const StringList& lines)
     // subsequent lines. We assume the caller prepended a leading " * " for the first
     // line if necessary.
     //
-    assert(!lines.empty());
+    // 'lines' is empty when the doc comment has a tag with no description, such as a bare '@throws Ex'. The caller
+    // already wrote the tag itself, so there is nothing more to write.
+    if (lines.empty())
+    {
+        return;
+    }
+
     StringList l = lines;
     out << l.front();
     l.pop_front();
