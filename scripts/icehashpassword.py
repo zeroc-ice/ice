@@ -6,8 +6,8 @@ import getopt
 import getpass
 import sys
 
-# passlib is not a declared dependency: this script is run as a subprocess by the Glacier2 tests,
-# and CI installs it separately. Its submodules also resolve their algorithms dynamically, so
+# passlib is not a declared dependency: whoever runs the Glacier2 tests installs it, since this
+# script runs as a subprocess of them. Its submodules also resolve their algorithms dynamically, so
 # declaring it would not make the uses below checkable either.
 import passlib.hash  # pyright: ignore[reportMissingImports]
 import passlib.hosts  # pyright: ignore[reportMissingImports]
