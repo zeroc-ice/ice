@@ -2,14 +2,15 @@
     "include": ["python", "scripts"],
     "exclude": ["python/dist", "python/.venv"],
     "extraPaths": ["python/python"],
-    // The test framework modules under scripts import each other by name, so scripts is on the
-    // search path for the files it contains.
+    // The test framework modules under scripts import each other by name; "root" is what puts scripts
+    // itself on the search path for the files it contains.
     "executionEnvironments": [
         {
             "root": "scripts",
-            // "." is for the scripts.tests.* package imports; loadTestSuites puts the repository
-            // root on sys.path at run time.
-            "extraPaths": [".", "scripts", "python/python"]
+            // "." is for the scripts.tests.* package imports; loadTestSuites puts the repository root
+            // on sys.path at run time. "python/python" is repeated from the top-level extraPaths
+            // because an execution environment replaces those rather than adding to them.
+            "extraPaths": [".", "python/python"]
         }
     ],
     "typeCheckingMode": "standard",
