@@ -121,17 +121,9 @@ jobs:
             working_directory: "java"
             build_cpp_and_python: true
             build_android_controller: true
-            # A single device, and only the configuration under test -- --all would fan each suite
-            # out over configurations that don't apply to Bluetooth. Keep test_all a quoted string:
-            # a YAML boolean false is falsy in the `matrix.test_all || 'true'` default below.
             test_workers: 1
-            test_all: "false"
-            # Successful runs of this job take 23-29 minutes (worst observed: 29), so 60 gives 2x
-            # headroom over anything seen while still bounding a wedged runner. This is deliberately
-            # below the sum of the individual step limits: a run slow enough to hit 60 minutes is
-            # pathological here, and we accept that such a run is cut at the job level (skipping the
-            # always() diagnostics) in exchange for not tying up a runner for hours.
-            job_timeout: 60
+            test_all: "false" # quoted: a YAML false is falsy in `matrix.test_all || 'true'`
+            job_timeout: 60 # ~2x the observed runtime, to bound a wedged emulator
             # setup-android-bt exports $BT_CLIENT and $BT_ADDR; these flags are interpolated into a bash
             # command, so the shell expands them at run time.
             test_flags: >-
@@ -181,6 +173,7 @@ jobs:
             build_cpp_and_python: true
             test_workers: 1
             test_all: "false" # quoted: a YAML false is falsy in `matrix.test_all || 'true'`
+            job_timeout: 45 # ~2x the observed runtime, to bound a wedged setup
             # --cross=cpp skips the collocated case, which has no server side and so leaves
             # Ice.Default.Host as an IP address IceBT rejects. The suites are the ones the
             # android-bt job runs, so both transports cover the same ground.
@@ -193,10 +186,9 @@ jobs:
               Ice/operations Ice/ami
 
     runs-on: ${{ matrix.os }}
-    # Only android-bt sets this, restoring the bound its standalone workflow had; everything else
-    # keeps GitHub's default. A job-level limit has to clear the sum of the step limits on its
-    # longest path, not just observed runtimes, or a slow-but-valid run is killed -- and being
-    # killed here also skips the always() diagnostics and artifact steps.
+    # Only the Bluetooth jobs set job_timeout; everything else keeps GitHub's default. Note a job
+    # killed here skips the always() diagnostics and upload steps, so set it well above the job's
+    # normal runtime.
     timeout-minutes: ${{ matrix.job_timeout || 360 }}
     steps:
       - name: Checkout repository
