@@ -1,10 +1,14 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import select
 import socket
-import sys
 import threading
 import time
+
+# The remote address a connection proxies to, and the peer address accept() reports.
+Address = tuple[str, int]
 
 
 class InvalidRequest(Exception):
@@ -12,23 +16,26 @@ class InvalidRequest(Exception):
 
 
 class BaseConnection(threading.Thread):
-    def __init__(self, socket, remote):
+    def __init__(self, sock: socket.socket, remote: Address):
         threading.Thread.__init__(self)
-        self.socket = socket
+        self.socket: socket.socket | None = sock
         self.remote = remote
-        self.remoteSocket = None
+        self.remoteSocket: socket.socket | None = None
         self.closed = False
 
-    def response(self, code):
-        pass
+    def response(self, success: bool) -> bytes:
+        # Overridden per protocol to build the reply to a connect request.
+        raise NotImplementedError()
 
-    def sendResponse(self, success):
+    def sendResponse(self, success: bool) -> None:
+        assert self.socket is not None
         self.socket.sendall(self.response(success))
 
-    def request(self, data):
-        pass
+    def request(self, sock: socket.socket) -> Address:
+        # Overridden per protocol to read the connect request and return the address it asks for.
+        raise NotImplementedError()
 
-    def close(self):
+    def close(self) -> None:
         if self.closed:
             return
         self.closed = True
@@ -43,8 +50,9 @@ class BaseConnection(threading.Thread):
         except Exception:
             pass
 
-    def run(self):
+    def run(self) -> None:
         try:
+            assert self.socket is not None
             remoteAddr = self.request(self.socket)
             self.remoteSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
@@ -56,9 +64,10 @@ class BaseConnection(threading.Thread):
 
             try:
                 while not self.closed:
-                    readables, writeables, exceptions = select.select([self.socket, self.remoteSocket], [], [])
+                    readables, _, _ = select.select([self.socket, self.remoteSocket], [], [])
                     for r in readables:
                         w = self.remoteSocket if r == self.socket else self.socket
+                        assert w is not None
                         data = r.recv(4096)
                         if len(data) == 0:
                             self.closed = True
@@ -78,14 +87,14 @@ class BaseConnection(threading.Thread):
 
 
 class BaseProxy(threading.Thread):
-    def __init__(self, port):
+    def __init__(self, port: int):
         threading.Thread.__init__(self)
         self.port = port
         self.closed = False
         self.cond = threading.Condition()
-        self.socket = None
-        self.failed = None
-        self.connections = []
+        self.socket: socket.socket | None = None
+        self.failed: BaseException | None = None
+        self.connections: list[BaseConnection] = []
         self.start()
         with self.cond:
             while not self.socket and not self.failed:
@@ -93,10 +102,11 @@ class BaseProxy(threading.Thread):
         if self.failed:
             raise self.failed
 
-    def createConnection(self):
-        return None
+    def createConnection(self, sock: socket.socket, peer: Address) -> BaseConnection:
+        # Overridden to build the protocol specific connection.
+        raise NotImplementedError()
 
-    def run(self):
+    def run(self) -> None:
         with self.cond:
             try:
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -112,12 +122,14 @@ class BaseProxy(threading.Thread):
                 self.cond.notify()
             except Exception as ex:
                 self.failed = ex
+                assert self.socket is not None
                 self.socket.close()
                 self.socket = None
                 self.cond.notify()
                 return
 
         try:
+            assert self.socket is not None
             while not self.closed:
                 incoming, peer = self.socket.accept()
                 connection = self.createConnection(incoming, peer)
@@ -127,10 +139,11 @@ class BaseProxy(threading.Thread):
         except Exception:
             pass
         finally:
-            self.socket.close()
+            if self.socket:
+                self.socket.close()
             self.socket = None
 
-    def terminate(self):
+    def terminate(self) -> None:
         with self.cond:
             if self.closed:
                 return
@@ -142,37 +155,35 @@ class BaseProxy(threading.Thread):
                 except Exception as ex:
                     print(ex)
 
+        connectToSelf = None
         try:
             connectToSelf = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             connectToSelf.connect(("127.0.0.1", self.port))
         except Exception as ex:
             print(ex)
         finally:
-            connectToSelf.close()
-            connectToSelf = None
+            if connectToSelf:
+                connectToSelf.close()
         self.join()
 
 
 class SocksConnection(BaseConnection):
-    def request(self, s):
-        def decode(c):
-            return ord(c) if sys.version_info[0] == 2 else c
-
-        data = s.recv(9)  # Read the 9 bytes request
+    def request(self, sock: socket.socket) -> Address:
+        data = sock.recv(9)  # Read the 9 bytes request
 
         if not data or len(data) == 0:
             raise InvalidRequest
-        if decode(data[0]) != 4:
+        if data[0] != 4:
             raise InvalidRequest
-        if decode(data[1]) != 1:
+        if data[1] != 1:
             raise InvalidRequest
 
-        port = (decode(data[2]) << 8) + decode(data[3])
+        port = (data[2] << 8) + data[3]
         addr = socket.inet_ntoa(data[4:8])
         return (addr, port)
 
-    def response(self, success):
-        def encode(c):
+    def response(self, success: bool) -> bytes:
+        def encode(c: int) -> str:
             return chr(c)
 
         packet = encode(0)
@@ -183,22 +194,22 @@ class SocksConnection(BaseConnection):
         packet += encode(0)
         packet += encode(0)
         packet += encode(0)
-        return packet if sys.version_info[0] == 2 else bytes(packet, "ascii")
+        return bytes(packet, "ascii")
 
 
 class SocksProxy(BaseProxy):
-    def createConnection(self, socket, peer):
-        return SocksConnection(socket, peer)
+    def createConnection(self, sock: socket.socket, peer: Address) -> BaseConnection:
+        return SocksConnection(sock, peer)
 
 
 class HttpConnection(BaseConnection):
-    def request(self, s):
-        def decode(c):
-            return c[0] if sys.version_info[0] == 2 else chr(c[0])
+    def request(self, sock: socket.socket) -> Address:
+        def decode(c: bytes) -> str:
+            return chr(c[0])
 
         data = ""
         while len(data) < 4 or data[len(data) - 4 :] != "\r\n\r\n":
-            data += decode(s.recv(1))
+            data += decode(sock.recv(1))
 
         if data.find("CONNECT ") != 0:
             raise InvalidRequest
@@ -215,14 +226,15 @@ class HttpConnection(BaseConnection):
         port = int(data[sep + 1 : space])
         return (host, port)
 
-    def response(self, success):
+    def response(self, success: bool) -> bytes:
         if success:
             s = "HTTP/1.1 200 OK\r\nServer: CERN/3.0 libwww/2.17\r\n\r\n"
         else:
             s = "HTTP/1.1 404\r\n\r\n"
-        return s if sys.version_info[0] == 2 else bytes(s, "ascii")
+        return bytes(s, "ascii")
 
-    def sendResponse(self, success):
+    def sendResponse(self, success: bool) -> None:
+        assert self.socket is not None
         if not success:
             self.socket.sendall(self.response(False))
             return
@@ -239,5 +251,5 @@ class HttpConnection(BaseConnection):
 
 
 class HttpProxy(BaseProxy):
-    def createConnection(self, socket, peer):
-        return HttpConnection(socket, peer)
+    def createConnection(self, sock: socket.socket, peer: Address) -> BaseConnection:
+        return HttpConnection(sock, peer)

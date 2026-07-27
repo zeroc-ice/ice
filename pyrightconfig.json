@@ -4,8 +4,7 @@
     // Not annotated yet; drop entries as these files get type hints.
     "ignore": [
         "scripts/Controller.py",
-        "scripts/LocalDriver.py",
-        "scripts/NetworkProxy.py"
+        "scripts/LocalDriver.py"
     ],
     "extraPaths": ["python/python"],
     // The test framework modules under scripts import each other by name, so scripts is on the
