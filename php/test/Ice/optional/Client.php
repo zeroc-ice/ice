@@ -45,6 +45,7 @@ function allTests($helper)
     test($mo1->h == Ice\None);
     test($mo1->i == Ice\None);
     test($mo1->j == Ice\None);
+    test($mo1->oprx == Ice\None);
     test($mo1->bs == Ice\None);
     test($mo1->ss == Ice\None);
     test($mo1->iid == Ice\None);
@@ -70,7 +71,7 @@ function allTests($helper)
     $vs = new Test\VarStruct("hello");
     $prx = Test\MyInterfacePrxHelper::createProxy($communicator, "test");
     $mo1 = new Test\MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', Test\MyEnum::MyEnumMember,
-                      $prx, array(5), array('test', 'test2'), array(4=>3), array('test'=>10),
+                      $prx, $communicator->stringToProxy('test'), array(5), array('test', 'test2'), array(4=>3), array('test'=>10),
                       $fs, $vs, array(1), array(Test\MyEnum::MyEnumMember, Test\MyEnum::MyEnumMember), array($fs), array($vs),
                       array($prx), array(4=>Test\MyEnum::MyEnumMember), array(4=>$fs), array(5=>$vs),
                       array(5=>$prx), array(false, true, false));
@@ -85,6 +86,7 @@ function allTests($helper)
     test($mo1->h == "test");
     test($mo1->i == Test\MyEnum::MyEnumMember);
     test($mo1->j == $prx);
+    test($mo1->oprx == $communicator->stringToProxy('test'));
     test($mo1->bs == array(5));
     test($mo1->ss == array("test", "test2"));
     test($mo1->iid[4] == 3);
@@ -135,6 +137,7 @@ function allTests($helper)
     test($mo4->h == Ice\None);
     test($mo4->i == Ice\None);
     test($mo4->j == Ice\None);
+    test($mo4->oprx == Ice\None);
     test($mo4->bs == Ice\None);
     test($mo4->ss == Ice\None);
     test($mo4->iid == Ice\None);
@@ -166,6 +169,7 @@ function allTests($helper)
     test($mo5->h == $mo1->h);
     test($mo5->i == $mo1->i);
     test($mo5->j == $mo1->j);
+    test($mo5->oprx == $mo1->oprx);
     test($mo5->bs[0] == 5);
     test($mo5->ss == $mo1->ss);
     test($mo5->iid[4] == 3);
@@ -211,6 +215,7 @@ function allTests($helper)
     test($mo7->h == $mo1->h);
     test($mo7->i == Ice\None);
     test($mo7->j == $mo1->j);
+    test($mo7->oprx == Ice\None);
     test($mo7->bs[0] == 5);
     test($mo7->ss == Ice\None);
     test($mo7->iid[4] == 3);
@@ -238,6 +243,7 @@ function allTests($helper)
     $mo8->e = $mo5->e;
     $mo8->g = $mo5->g;
     $mo8->i = $mo5->i;
+    $mo8->oprx = $mo5->oprx;
     $mo8->ss = $mo5->ss;
     $mo8->sid = $mo5->sid;
     $mo8->vs = $mo5->vs;
@@ -261,6 +267,7 @@ function allTests($helper)
     test($mo9->h == Ice\None);
     test($mo9->i == $mo1->i);
     test($mo9->j == Ice\None);
+    test($mo9->oprx == $mo1->oprx);
     test($mo9->bs == Ice\None);
     test($mo9->ss == $mo1->ss);
     test($mo9->iid == Ice\None);

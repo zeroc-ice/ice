@@ -33,6 +33,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(mo1.h is None)
     test(mo1.i is None)
     test(mo1.j is None)
+    test(mo1.oprx is None)
     test(mo1.bs is None)
     test(mo1.ss is None)
     test(mo1.iid is None)
@@ -67,6 +68,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
         "test",
         Test.MyEnum.MyEnumMember,
         Test.MyInterfacePrx(communicator, "test"),
+        Ice.ObjectPrx(communicator, "test"),
         bytes([5]),
         ["test", "test2"],
         {4: 3},
@@ -95,6 +97,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(mo1.h == "test")
     test(mo1.i == Test.MyEnum.MyEnumMember)
     test(mo1.j == Test.MyInterfacePrx(communicator, "test"))
+    test(mo1.oprx == Ice.ObjectPrx(communicator, "test"))
     test(mo1.bs == bytes([5]))
     test(mo1.ss == ["test", "test2"])
     assert mo1.iid is not None
@@ -161,6 +164,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(mo4.h is None)
     test(mo4.i is None)
     test(mo4.j is None)
+    test(mo4.oprx is None)
     test(mo4.bs is None)
     test(mo4.ss is None)
     test(mo4.iid is None)
@@ -193,6 +197,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(mo5.h == mo1.h)
     test(mo5.i == mo1.i)
     test(mo5.j == mo1.j)
+    test(mo5.oprx == mo1.oprx)
     assert mo5.bs is not None
     test(mo5.bs[0] == 5)
     test(mo5.ss == mo1.ss)
@@ -250,6 +255,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(mo7.h == mo1.h)
     test(mo7.i is None)
     test(mo7.j == mo1.j)
+    test(mo7.oprx is None)
     assert mo7.bs is not None
     test(mo7.bs[0] == 5)
     test(mo7.ss is None)
@@ -281,6 +287,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     mo8.e = mo5.e
     mo8.g = mo5.g
     mo8.i = mo5.i
+    mo8.oprx = mo5.oprx
     mo8.ss = mo5.ss
     mo8.sid = mo5.sid
     mo8.vs = mo5.vs
@@ -305,6 +312,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(mo9.h is None)
     test(mo9.i == mo1.i)
     test(mo9.j is None)
+    test(mo9.oprx == mo1.oprx)
     test(mo9.bs is None)
     test(mo9.ss == mo1.ss)
     test(mo9.iid is None)

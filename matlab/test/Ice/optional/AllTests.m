@@ -11,10 +11,6 @@ classdef AllTests
             AllTests.skipUnknownOptionals(communicator);
             fprintf('ok\n');
 
-            fprintf('testing optional proxies without a proxy type... ');
-            AllTests.bareOptionalProxies(communicator);
-            fprintf('ok\n');
-
             ref = ['initial:', helper.getTestEndpoint()];
             initial = InitialPrx(communicator, ref);
 
@@ -38,6 +34,7 @@ classdef AllTests
             assert(mo1.h == Ice.Unset);
             assert(mo1.i == Ice.Unset);
             assert(isempty(mo1.j));
+            assert(isempty(mo1.oprx));
             assert(mo1.bs == Ice.Unset);
             assert(mo1.ss == Ice.Unset);
             assert(mo1.iid == Ice.Unset);
@@ -75,6 +72,7 @@ classdef AllTests
             imipd{5} = MyInterfacePrx(communicator, 'test');
             mo1 = MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', MyEnum.MyEnumMember, ...
                                      MyInterfacePrx(communicator, 'test'), ...
+                                     communicator.stringToProxy('test'), ...
                                      [5], {'test', 'test2'}, iid, sid, fs, vs, [1], ...
                                      [MyEnum.MyEnumMember, MyEnum.MyEnumMember], ...
                                      [ fs ], [ vs ], { MyInterfacePrx(communicator, 'test') }, ...
@@ -90,6 +88,7 @@ classdef AllTests
             assert(strcmp(mo1.h, 'test'));
             assert(mo1.i == MyEnum.MyEnumMember);
             assert(mo1.j == communicator.stringToProxy('test'));
+            assert(mo1.oprx == communicator.stringToProxy('test'));
             assert(mo1.bs == [5])
             assert(isequal(mo1.ss, {'test', 'test2'}));
             assert(mo1.iid(4) == 3);
@@ -139,6 +138,7 @@ classdef AllTests
             assert(mo4.h == Ice.Unset);
             assert(mo4.i == Ice.Unset);
             assert(isempty(mo4.j)); % we don't use Unset for optional proxies
+            assert(isempty(mo4.oprx));
             assert(mo4.bs == Ice.Unset);
             assert(mo4.ss == Ice.Unset);
             assert(mo4.iid == Ice.Unset);
@@ -170,6 +170,7 @@ classdef AllTests
             assert(strcmp(mo5.h, mo1.h));
             assert(mo5.i == mo1.i);
             assert(mo5.j == mo1.j);
+            assert(mo5.oprx == mo1.oprx);
             assert(mo5.bs(1) == 5);
             assert(isequal(mo5.ss, mo1.ss));
             assert(mo5.iid(4) == 3);
@@ -215,6 +216,7 @@ classdef AllTests
             assert(strcmp(mo7.h, mo1.h));
             assert(mo7.i == Ice.Unset);
             assert(mo7.j == mo1.j);
+            assert(isempty(mo7.oprx));
             assert(mo7.bs(1) == 5);
             assert(mo7.ss == Ice.Unset);
             assert(mo7.iid(4) == 3);
@@ -242,6 +244,7 @@ classdef AllTests
             mo8.e = mo5.e;
             mo8.g = mo5.g;
             mo8.i = mo5.i;
+            mo8.oprx = mo5.oprx;
             mo8.ss = mo5.ss;
             mo8.sid = mo5.sid;
             mo8.vs = mo5.vs;
@@ -265,6 +268,7 @@ classdef AllTests
             assert(mo9.h == Ice.Unset);
             assert(mo9.i == mo1.i);
             assert(isempty(mo9.j)); % optional proxy
+            assert(mo9.oprx == mo1.oprx);
             assert(mo9.bs == Ice.Unset);
             assert(isequal(mo9.ss, mo1.ss));
             assert(mo9.iid == Ice.Unset);
@@ -800,29 +804,6 @@ classdef AllTests
             assert(is.readOptional(1, Ice.OptionalFormat.F4), 'tag 1 should be present');
             assert(is.readInt() == 11111, 'tag 1 value mismatch');
             % Tags 30, 50 and 300 are left unread; endEncapsulation must skip them cleanly.
-            is.endEncapsulation();
-        end
-
-        function bareOptionalProxies(communicator)
-            % Marshal a set and an unset optional proxy, and read them back with the untyped form of
-            % readProxyOpt - the form generated for `optional(N) Object*`, which yields an Ice.ObjectPrx.
-            encoding = Ice.EncodingVersion(1, 1);
-            prx = communicator.stringToProxy('test:tcp -h 127.0.0.1 -p 10000');
-
-            os = Ice.OutputStream(encoding);
-            os.startEncapsulation(Ice.FormatType.SlicedFormat);
-            os.writeProxyOpt(1, prx);
-            os.writeProxyOpt(2, Ice.ObjectPrx.empty); % unset: nothing is written for tag 2
-            os.endEncapsulation();
-            data = os.finished();
-
-            is = Ice.InputStream(communicator, encoding, data);
-            is.startEncapsulation();
-            p1 = is.readProxyOpt(1);
-            assert(isa(p1, 'Ice.ObjectPrx'), 'tag 1 should be an Ice.ObjectPrx');
-            assert(p1 == prx, 'tag 1 proxy mismatch');
-            p2 = is.readProxyOpt(2);
-            assert(isa(p2, 'Ice.ObjectPrx') && isempty(p2), 'tag 2 should be an empty Ice.ObjectPrx');
             is.endEncapsulation();
         end
     end
