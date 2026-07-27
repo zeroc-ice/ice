@@ -611,13 +611,20 @@ class LocalDriver(Driver):
 
         client = testcase.getClientTestCase()
         assert client is not None
-        for cross in self.crossMappings():
+
+        # None is the ordinary, non-cross run: the test still has to run once against its own server
+        # mapping when neither --cross nor --all-cross is given. crossMappings() has no entry for it,
+        # because getMappings() must not report a mapping the driver isn't cross testing with.
+        crossTargets: list[Mapping | None] = (
+            list(self.crossMappings()) if self.allCross else [self.cross if isinstance(self.cross, Mapping) else None]
+        )
+        for cross in crossTargets:
             # Only run cross tests with allCross
             if self.allCross and cross == testcase.getMapping():
                 continue
 
             # Skip if the cross test server mapping is another mapping than the cross mapping
-            if cross != cross.getServerMapping():
+            if cross is not None and cross != cross.getServerMapping():
                 continue
 
             # Skip if the mapping doesn't provide the test case
@@ -634,7 +641,7 @@ class LocalDriver(Driver):
                 current.desc = confStr
             else:
                 current.desc = ""
-            if cross:
+            if cross is not None:
                 current.writeln("- Mappings: {0},{1}".format(client.getMapping(), server.getMapping()))
                 current.desc += (" " if current.desc else "") + "cross={0}".format(server.getMapping())
             if not current.config.canRun(current.testsuite.getId(), current) or not testcase.canRun(current):
