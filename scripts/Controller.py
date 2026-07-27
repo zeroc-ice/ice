@@ -53,8 +53,12 @@ class ControllerDriver(Driver):
             self.cross = cross
             self.host = host
             self.args = args
-            if protocol:
-                self.config.protocol = protocol
+            # No protocol means "unset", which is what the controller always asks for: getCurrent's
+            # only caller omits it. Assigning "" rather than skipping the assignment keeps that, since
+            # config.protocol otherwise stays at its "tcp" default and would then be published as
+            # Ice.Default.Protocol. Every reader only tests it for truthiness or equality, so "" and
+            # the None this used to store are indistinguishable to them.
+            self.config.protocol = protocol or ""
 
     @classmethod
     def getSupportedArgs(cls):
