@@ -79,13 +79,19 @@ runs:
         sudo dbus-daemon --config-file=/tmp/bus2.conf --fork
         sudo sh -c "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
           nohup /usr/libexec/bluetooth/bluetoothd -n > '$GITHUB_WORKSPACE/bluetoothd2.log' 2>&1 &"
-        sleep 5
-        # Both daemons see both adapters; what matters is that the second one could register them.
-        if grep -q "Unable to register new adapter" "$GITHUB_WORKSPACE/bluetoothd2.log"; then
-          echo "the second bluetoothd could not claim the adapters"
+        # Wait for the second daemon to actually own an adapter, rather than sleeping and then
+        # checking the log for a failure line: a daemon that is merely slow logs nothing, so that
+        # check passes for a daemon that has not started.
+        for _ in $(seq 1 30); do
+          sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
+            busctl --system tree org.bluez 2>/dev/null | grep -q "/org/bluez/hci" && break
+          sleep 1
+        done
+        sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
+          busctl --system tree org.bluez 2>/dev/null | grep -q "/org/bluez/hci" || {
+          echo "the second bluetoothd never claimed an adapter"
           tail -20 "$GITHUB_WORKSPACE/bluetoothd2.log"
-          exit 1
-        fi
+          exit 1; }
         # An agent per daemon, and each must outlive the pairing: BlueZ answers a pending
         # confirmation negatively as soon as the registering process exits, which surfaces as
         # org.bluez.Error.AuthenticationFailed. NoInputNoOutput selects "just works" pairing.
