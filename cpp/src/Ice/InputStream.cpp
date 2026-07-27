@@ -243,7 +243,8 @@ Ice::InputStream::startEncapsulation()
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    if (i - sizeof(std::int32_t) + sz > b.end())
+    // sz includes the 4 bytes of the size itself, which we've already read.
+    if (sz - 4 > b.end() - i)
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
@@ -305,7 +306,8 @@ Ice::InputStream::skipEmptyEncapsulation()
     {
         throw MarshalException{__FILE__, __LINE__, to_string(sz) + " is not a valid encapsulation size"};
     }
-    if (i - sizeof(std::int32_t) + sz > b.end())
+    // sz includes the 4 bytes of the size itself, which we've already read.
+    if (sz - 4 > b.end() - i)
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
@@ -342,7 +344,8 @@ Ice::InputStream::readEncapsulation(const std::byte*& v, std::int32_t& sz)
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    if (i - sizeof(std::int32_t) + sz > b.end())
+    // sz includes the 4 bytes of the size itself, which we've already read.
+    if (sz - 4 > b.end() - i)
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
@@ -368,7 +371,8 @@ Ice::InputStream::skipEncapsulation()
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    if (i - sizeof(int32_t) + sz > b.end())
+    // sz includes the 4 bytes of the size itself, which we've already read.
+    if (sz - 4 > b.end() - i)
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
