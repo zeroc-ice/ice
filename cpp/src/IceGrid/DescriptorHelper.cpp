@@ -752,7 +752,7 @@ Resolver::setVersion(const string& version)
         else if (_version > ICE_INT_VERSION && warningEnabled())
         {
             Ice::Warning out(_communicator->getLogger());
-            out << "invalid Ice version: " << _version << " is greater than the IceGrid ";
+            out << "Ice version " << v << " is greater than the IceGrid ";
             out << "registry version (" << ICE_STRING_VERSION << ")";
         }
     }

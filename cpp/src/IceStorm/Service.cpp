@@ -193,9 +193,9 @@ ServiceI::start([[maybe_unused]] const string& serviceName, const CommunicatorPt
             // Validate first that the adapter ids match for the node and the topic manager otherwise some other
             // deployment is being used.
             const string suffix = ".TopicManager";
-            if (topicManagerAdapterId.empty() || nodeAdapterId.empty() ||
-                topicManagerAdapterId.replace(topicManagerAdapterId.find(suffix), suffix.size(), ".Node") !=
-                    nodeAdapterId)
+            string::size_type suffixPos = topicManagerAdapterId.find(suffix);
+            if (topicManagerAdapterId.empty() || nodeAdapterId.empty() || suffixPos == string::npos ||
+                string{topicManagerAdapterId}.replace(suffixPos, suffix.size(), ".Node") != nodeAdapterId)
             {
                 Ice::Error error(communicator->getLogger());
                 error << "deployment error: '" << topicManagerAdapterId << "' prefix does not match '" << nodeAdapterId
@@ -218,7 +218,14 @@ ServiceI::start([[maybe_unused]] const string& serviceName, const CommunicatorPt
                 string adapterId = replica->ice_getAdapterId();
 
                 // Replace TopicManager with the node endpoint.
-                adapterId = adapterId.replace(adapterId.find(suffix), suffix.size(), ".Node");
+                string::size_type replicaSuffixPos = adapterId.find(suffix);
+                if (replicaSuffixPos == string::npos)
+                {
+                    Ice::Error error(communicator->getLogger());
+                    error << "deployment error: '" << adapterId << "' does not contain '" << suffix << "'";
+                    throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
+                }
+                adapterId.replace(replicaSuffixPos, suffix.size(), ".Node");
 
                 // The adapter id must start with the instance name.
                 if (adapterId.find(instanceName) != 0)
@@ -262,6 +269,17 @@ ServiceI::start([[maybe_unused]] const string& serviceName, const CommunicatorPt
             Ice::Error error(communicator->getLogger());
             error << "Replication requires at least 3 Nodes";
             throw IceBox::FailureException(__FILE__, __LINE__, "Replication requires at least 3 Nodes");
+        }
+
+        if (nodes.find(id) == nodes.end())
+        {
+            Ice::Error error(communicator->getLogger());
+            error << "invalid value for IceStorm.NodeId: no node with id " << id << "; the node ids are:";
+            for (const auto& node : nodes)
+            {
+                error << " " << node.first;
+            }
+            throw IceBox::FailureException(__FILE__, __LINE__, "invalid value for IceStorm.NodeId");
         }
 
         try
