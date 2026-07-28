@@ -252,6 +252,42 @@ public class AllTests : global::Test.AllTests
         {
         }
 
+        try
+        {
+            communicator.stringToProxy("test:tcp -h 127.0.0.1 -t 99999999999999"); // greater than int.MaxValue
+            test(false);
+        }
+        catch (ParseException)
+        {
+        }
+
+        try
+        {
+            communicator.stringToProxy("test:udp -h 127.0.0.1 --ttl 99999999999999"); // greater than int.MaxValue
+            test(false);
+        }
+        catch (ParseException)
+        {
+        }
+
+        try
+        {
+            communicator.stringToProxy("test:opaque -t 99999999999999 -v abcd"); // greater than short.MaxValue
+            test(false);
+        }
+        catch (ParseException)
+        {
+        }
+
+        try
+        {
+            communicator.stringToProxy("test -e 99999999999999.0"); // greater than byte.MaxValue
+            test(false);
+        }
+        catch (ParseException)
+        {
+        }
+
         //
         // Test invalid endpoint syntax
         //
