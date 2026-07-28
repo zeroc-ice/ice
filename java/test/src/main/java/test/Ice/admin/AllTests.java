@@ -437,6 +437,32 @@ public class AllTests {
 
             rcom.destroy();
         }
+        {
+            // With KeepLogs=1 and KeepTraces=1, a new message evicts the previous message of the
+            // same category, regardless of the messages of the other category in between.
+            Map<String, String> props = new HashMap<>();
+            props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
+            props.put("Ice.Admin.InstanceName", "Test");
+            props.put("NullLogger", "1");
+            props.put("Ice.Admin.Logger.KeepLogs", "1");
+            props.put("Ice.Admin.Logger.KeepTraces", "1");
+            RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
+
+            rcom.print("print1");
+            rcom.trace("testCat", "trace1");
+            rcom.print("print2");
+            rcom.trace("testCat", "trace2");
+
+            LoggerAdminPrx logger = LoggerAdminPrx.checkedCast(rcom.getAdmin(), "Logger");
+            test(logger != null);
+
+            LoggerAdmin.GetLogResult r = logger.getLog(null, null, -1);
+            test(r.returnValue.length == 2);
+            test("print2".equals(r.returnValue[0].message));
+            test("trace2".equals(r.returnValue[1].message));
+
+            rcom.destroy();
+        }
         out.println("ok");
 
         out.print("testing custom facet... ");
