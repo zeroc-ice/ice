@@ -1538,6 +1538,8 @@ export class InputStream {
             this._encapsStack = this._encapsCache;
             if (this._encapsStack !== null) {
                 this._encapsCache = this._encapsCache.next;
+                // Detach the reused node from the cache: as the outermost encapsulation it has no next.
+                this._encapsStack.next = null;
             } else {
                 this._encapsStack = new ReadEncaps();
             }
