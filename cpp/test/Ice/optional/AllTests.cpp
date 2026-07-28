@@ -314,6 +314,7 @@ allTests(Test::TestHelper* helper, const Ice::SliceLoaderPtr& sliceLoader)
     mo1->h = string("test");
     mo1->i = MyEnum::MyEnumMember;
     mo1->j = MyInterfacePrx(communicator, "test");
+    mo1->oprx = Ice::ObjectPrx(communicator, "test");
     mo1->bs = ByteSeq();
     (*mo1->bs).push_back(byte{5});
     mo1->ss = StringSeq();
@@ -371,6 +372,7 @@ allTests(Test::TestHelper* helper, const Ice::SliceLoaderPtr& sliceLoader)
     test(mo3->h == string("test"));
     test(mo3->i = MyEnum::MyEnumMember);
     test(mo3->j = MyInterfacePrx(communicator, "test"));
+    test(mo3->oprx == mo1->oprx);
     test(mo3->bs == mo1->bs);
     test(mo3->ss == mo1->ss);
     test(mo3->iid == mo1->iid);
@@ -431,6 +433,7 @@ allTests(Test::TestHelper* helper, const Ice::SliceLoaderPtr& sliceLoader)
     test(!mo4->h);
     test(!mo4->i);
     test(!mo4->j);
+    test(!mo4->oprx);
     test(!mo4->bs);
     test(!mo4->ss);
     test(!mo4->iid);
@@ -463,6 +466,7 @@ allTests(Test::TestHelper* helper, const Ice::SliceLoaderPtr& sliceLoader)
     test(mo5->h == mo1->h);
     test(mo5->i == mo1->i);
     test(mo5->j == mo1->j);
+    test(mo5->oprx == mo1->oprx);
     test(mo5->bs == mo1->bs);
     test(mo5->ss == mo1->ss);
     test(mo5->iid == mo1->iid);
@@ -500,6 +504,7 @@ allTests(Test::TestHelper* helper, const Ice::SliceLoaderPtr& sliceLoader)
     mo6->e = nullopt;
     mo6->g = nullopt;
     mo6->i = nullopt;
+    mo6->oprx = nullopt;
     mo6->ss = nullopt;
     mo6->sid = nullopt;
     mo6->vs = nullopt;
@@ -523,6 +528,7 @@ allTests(Test::TestHelper* helper, const Ice::SliceLoaderPtr& sliceLoader)
     test(mo7->h == mo1->h);
     test(!mo7->i);
     test(mo7->j == mo1->j);
+    test(!mo7->oprx);
     test(mo7->bs == mo1->bs);
     test(!mo7->ss);
     test(mo7->iid == mo1->iid);
@@ -568,6 +574,7 @@ allTests(Test::TestHelper* helper, const Ice::SliceLoaderPtr& sliceLoader)
     test(!mo9->h);
     test(mo9->i == mo1->i);
     test(!mo9->j);
+    test(mo9->oprx == mo1->oprx);
     test(!mo9->bs);
     test(mo9->ss == mo1->ss);
     test(!mo9->iid);
