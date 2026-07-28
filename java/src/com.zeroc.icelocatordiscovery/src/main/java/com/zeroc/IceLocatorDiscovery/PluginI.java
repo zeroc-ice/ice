@@ -610,13 +610,14 @@ class PluginI implements Plugin {
 
     @Override
     public void destroy() {
+        // Called after initialize() completed successfully.
         if (_replyAdapter != null) {
             _replyAdapter.destroy();
         }
         if (_locatorAdapter != null) {
             _locatorAdapter.destroy();
         }
-        if (_communicator.getDefaultLocator().equals(_locatorPrx)) {
+        if (_locatorPrx.equals(_communicator.getDefaultLocator())) {
             // Restore original default locator proxy, if the user didn't change it in the meantime
             _communicator.setDefaultLocator(_defaultLocator);
         }
