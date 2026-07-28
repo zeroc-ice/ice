@@ -329,46 +329,56 @@ public final class ObjectAdapter {
             _state = StateDestroying;
         }
 
-        if (_routerInfo != null) {
-            // Remove entry from the router manager.
-            _instance.routerManager().erase(_routerInfo.getRouter());
+        try {
+            if (_routerInfo != null) {
+                // Remove entry from the router manager.
+                _instance.routerManager().erase(_routerInfo.getRouter());
 
-            // Clear this object adapter with the router.
-            _routerInfo.setAdapter(null);
-        }
-
-        _instance.outgoingConnectionFactory().removeAdapter(this);
-
-        // Now it's also time to clean up our servants and servant locators.
-        _servantManager.destroy();
-
-        // Destroy the thread pool.
-        if (_threadPool != null) {
-            _threadPool.destroy();
-            try {
-                _threadPool.joinWithAllThreads();
-            } catch (InterruptedException e) {
-                throw new OperationInterruptedException(e);
+                // Clear this object adapter with the router.
+                _routerInfo.setAdapter(null);
             }
-        }
 
-        _objectAdapterFactory.removeObjectAdapter(this);
+            _instance.outgoingConnectionFactory().removeAdapter(this);
 
-        synchronized (this) {
-            _incomingConnectionFactories.clear();
+            // Now it's also time to clean up our servants and servant locators.
+            _servantManager.destroy();
 
-            // Remove object references (some of them cyclic).
-            _instance = null;
-            _threadPool = null;
-            _routerInfo = null;
-            _publishedEndpoints = new EndpointI[0];
-            _locatorInfo = null;
-            _reference = null;
-            _objectAdapterFactory = null;
+            // Destroy the thread pool.
+            if (_threadPool != null) {
+                _threadPool.destroy();
+                try {
+                    _threadPool.joinWithAllThreads();
+                } catch (InterruptedException e) {
+                    throw new OperationInterruptedException(e);
+                }
+            }
 
-            // Signal that destroying is complete.
-            _state = StateDestroyed;
-            notifyAll();
+            _objectAdapterFactory.removeObjectAdapter(this);
+
+            synchronized (this) {
+                _incomingConnectionFactories.clear();
+
+                // Remove object references (some of them cyclic).
+                _instance = null;
+                _threadPool = null;
+                _routerInfo = null;
+                _publishedEndpoints = new EndpointI[0];
+                _locatorInfo = null;
+                _reference = null;
+                _objectAdapterFactory = null;
+
+                // Signal that destroying is complete.
+                _state = StateDestroyed;
+                notifyAll();
+            }
+        } finally {
+            synchronized (this) {
+                if (_state == StateDestroying) {
+                    // The destruction was interrupted: restore a state that allows destroy to be called again.
+                    _state = StateDeactivated;
+                    notifyAll();
+                }
+            }
         }
     }
 

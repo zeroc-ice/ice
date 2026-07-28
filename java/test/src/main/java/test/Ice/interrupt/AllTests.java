@@ -462,6 +462,35 @@ public class AllTests {
         }
         out.println("ok");
 
+        out.print("testing ObjectAdapter.destroy interrupt... ");
+        out.flush();
+        {
+            InitializationData initData = new InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("DestroyAdapter.ThreadPool.Size", "1");
+            Communicator ic = helper.initialize(initData);
+            ObjectAdapter adapter = ic.createObjectAdapter("DestroyAdapter");
+            adapter.activate();
+
+            // Deactivate first so that destroy proceeds directly to joining with the adapter's thread pool.
+            adapter.deactivate();
+            adapter.waitForDeactivate();
+
+            Thread.currentThread().interrupt();
+            try {
+                adapter.destroy();
+                failIfNotInterrupted();
+            } catch (OperationInterruptedException ex) {
+                // Expected: destroy joins with the adapter's thread pool, and Thread.join throws
+                // InterruptedException immediately because the interrupted flag is set.
+            }
+
+            // destroy can be called again after an interrupt.
+            adapter.destroy();
+            ic.destroy();
+        }
+        out.println("ok");
+
         out.print("testing server interrupt... ");
         out.flush();
         {
