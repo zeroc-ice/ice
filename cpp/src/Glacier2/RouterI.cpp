@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "RouterI.h"
+#include "../Ice/Random.h"
 #include "FilterManager.h"
 #include "ForwardObserver.h"
 #include "Glacier2/Session.h"
@@ -39,8 +40,7 @@ Glacier2::RouterI::RouterI(
     {
         Identity ident = {"dummy", ""};
 
-        random_device rd;
-        mt19937 gen(rd());
+        mt19937 gen = IceInternal::createMT19937();
         uniform_int_distribution<> dist(33, 126); // We use ASCII 33-126 (from ! to ~, w/o space).
         for (unsigned int i = 0; i < 20; ++i)
         {
