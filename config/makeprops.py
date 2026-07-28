@@ -110,14 +110,14 @@ class PropertyHandler(ContentHandler):
 
         if propertyArrayName and defaultValue:
             print(
-                sys.stderr,
                 f"Property '{name}' cannot have both a class and a default value",
+                file=sys.stderr,
             )
 
         if propertyArrayName and usesRegex:
             print(
-                sys.stderr,
                 f"Property '{name}' cannot have both a class and use a regex",
+                file=sys.stderr,
             )
 
         return self.createProperty(
@@ -130,19 +130,19 @@ class PropertyHandler(ContentHandler):
 
     def validateKnownAttributes(self, validAttrs: list[str], attrs: AttributesImpl) -> None:
         if "name" not in attrs:
-            print(sys.stderr, "missing name attribute")
+            print("missing name attribute", file=sys.stderr)
 
         for a in attrs.keys():
             if a not in validAttrs:
-                print(sys.stderr, "invalid attribute '%s'" % a)
+                print("invalid attribute '%s'" % a, file=sys.stderr)
 
     def validateLanguages(self, attrs: AttributesImpl) -> bool:
         languageAttr = attrs.get("languages", None)
         # If no language attribute is specified issue a warning and skip code generation for this element
         if languageAttr is None:
             print(
-                sys.stderr,
                 "missing languages attribute in property element %s" % attrs.get("name"),
+                file=sys.stderr,
             )
             return False
 
@@ -151,17 +151,17 @@ class PropertyHandler(ContentHandler):
         for lang in languages:
             if lang not in [lang.value for lang in Language]:
                 print(
-                    sys.stderr,
                     "invalid language '%s' in property element %s" % (lang, attrs.get("name")),
+                    file=sys.stderr,
                 )
                 return False
 
         # All should be by itself. Issue a warning but continue generation for this element.
         if Language.ALL in languages and len(languages) > 1:
             print(
-                sys.stderr,
                 "Invalid languages attribute in property element: %s. 'all' must be specified alone."
                 % attrs.get("name"),
+                file=sys.stderr,
             )
 
         # True if the current language is in the list of languages or if the list contains 'all'
@@ -660,7 +660,7 @@ class MultiHandler(ContentHandler):
 
 def main() -> None:
     if len(sys.argv) != 1 and len(sys.argv) != 3:
-        print(sys.stderr, "makeprops.py does not take any arguments")
+        print("makeprops.py does not take any arguments", file=sys.stderr)
         sys.exit(1)
 
     # Find the top-level directory of the Ice repository
@@ -669,8 +669,8 @@ def main() -> None:
 
     if not os.path.exists(propsFile):
         print(
-            sys.stderr,
             "Cannot find top-level directory. Please run this script from the Ice repository.",
+            file=sys.stderr,
         )
         sys.exit(1)
 
@@ -696,7 +696,7 @@ def main() -> None:
         contentHandler.writeProperties()
         contentHandler.moveFiles(topLevel)
     except Exception as ex:
-        print(sys.stderr, str(ex))
+        print(str(ex), file=sys.stderr)
         contentHandler.cleanup()
         sys.exit(1)
 
