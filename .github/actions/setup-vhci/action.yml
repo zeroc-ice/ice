@@ -74,17 +74,19 @@ runs:
         sudo dbus-daemon --config-file=/tmp/bus2.conf --fork
         sudo sh -c "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
           nohup /usr/libexec/bluetooth/bluetoothd -n > '$GITHUB_WORKSPACE/bluetoothd2.log' 2>&1 &"
-        # Wait for the second daemon to actually own an adapter, rather than sleeping and then
+        # Wait for the second daemon to actually own both adapters, rather than sleeping and then
         # checking the log for a failure line: a daemon that is merely slow logs nothing, so that
-        # check passes for a daemon that has not started.
-        for _ in $(seq 1 30); do
+        # check passes for a daemon that has not started. Both daemons manage both controllers --
+        # they are not split one apiece -- so a tree missing either one means a half-started daemon.
+        bus2() {
           sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
-            busctl --system tree org.bluez 2>/dev/null | grep -q "/org/bluez/hci" && break
-          sleep 1
-        done
-        sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
-          busctl --system tree org.bluez 2>/dev/null | grep -q "/org/bluez/hci" || {
-          echo "the second bluetoothd never claimed an adapter"
+            busctl --system tree org.bluez 2>/dev/null
+        }
+        adapters() { bus2 | grep -qE "/org/bluez/hci0$" && bus2 | grep -qE "/org/bluez/hci1$"; }
+        for _ in $(seq 1 30); do adapters && break; sleep 1; done
+        adapters || {
+          echo "the second bluetoothd did not claim both adapters"
+          bus2
           tail -20 "$GITHUB_WORKSPACE/bluetoothd2.log"
           exit 1; }
         # An agent per daemon. The system-bus one must outlive the pairing, which runs entirely on
@@ -137,18 +139,26 @@ runs:
           exit 1; }
         echo "bonded: $BT_CLIENT_ADDR <-> $BT_ADDR"
 
-        # Diagnostics, not assertions. The client talks to the second daemon, which was started
-        # before the pairing and so learns the bond only from live mgmt events -- if that ever
-        # fails it surfaces as an IceBT "unknown address" test failure rather than a setup one.
-        # Printing both buses here is what makes that case diagnosable; asserting a specific
-        # object path needs a run's worth of evidence about which daemon owns which adapter.
-        echo "=== system bus ==="
-        sudo busctl --system tree org.bluez 2>&1 | head -20 || true
-        echo "=== private bus ==="
+        # The client talks to the second daemon, which started before the pairing and so never took
+        # part in it -- it learns the bond only from live mgmt events. Assert it ended up knowing
+        # the peer, because a miss here otherwise surfaces much later as an IceBT "unknown address"
+        # test failure, pointing at the tests rather than at setup. Matching the device object
+        # anywhere on that bus rather than under a fixed adapter: both daemons manage both
+        # controllers, so which one carries it is not something to hardcode.
+        peer="dev_${BT_ADDR//:/_}"
+        for _ in $(seq 1 15); do
+          sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
+            busctl --system tree org.bluez 2>/dev/null | grep -q "$peer" && break
+          sleep 1
+        done
         sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
-          busctl --system tree org.bluez 2>&1 | head -20 || true
-        echo "=== stored keys ==="
-        sudo find /var/lib/bluetooth -name info 2>/dev/null || true
+          busctl --system tree org.bluez 2>/dev/null | grep -q "$peer" || {
+          echo "the second bluetoothd has no device object for $BT_ADDR"
+          sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
+            busctl --system tree org.bluez 2>&1 | head -20
+          tail -20 "$GITHUB_WORKSPACE/bluetoothd2.log"
+          exit 1; }
+        echo "second bluetoothd knows $BT_ADDR"
 
     - name: Start the server-side process controller
       shell: bash
@@ -159,6 +169,11 @@ runs:
         # Ice.Default.Host, and startServerSide hands the same value back to the client.
         nohup python3 ../scripts/Controller.py --id=server --host-bt="$BT_ADDR" \
           > "$GITHUB_WORKSPACE/controller.log" 2>&1 &
+        # Liveness, not readiness -- unlike the bluetoothd poll above, which waits on an observable
+        # D-Bus tree. Controller.py prints nothing when it comes up (controller.log is empty on a
+        # fully successful run), so there is no marker to poll for. This catches the common failure,
+        # an immediate exit; a controller that starts but never registers shows up as the first
+        # test failing to reach it.
         sleep 10
         kill -0 $! 2>/dev/null || {
           echo "server controller exited early"; cat "$GITHUB_WORKSPACE/controller.log"; exit 1; }
