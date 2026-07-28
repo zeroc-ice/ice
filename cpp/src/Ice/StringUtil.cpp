@@ -354,6 +354,10 @@ namespace
 
         if (s[start] != '\\')
         {
+            if (static_cast<unsigned char>(s[start]) > 127)
+            {
+                pureASCII = false;
+            }
             result.push_back(checkChar(s, start++));
         }
         else if (start + 1 == end)

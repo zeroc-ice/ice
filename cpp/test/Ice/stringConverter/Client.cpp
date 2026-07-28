@@ -3,6 +3,7 @@
 #include "../../../src/Ice/Endian.h"
 #include "Ice/Ice.h"
 #include "Ice/IconvStringConverter.h"
+#include "Ice/StringUtil.h"
 #include "Test.h"
 #include "TestHelper.h"
 
@@ -127,6 +128,20 @@ Client::run(int argc, char** argv)
         identStr = identityToString(ident, Ice::ToStringMode::Compat);
         test(identStr == "cat/tu me fends le c\\305\\223ur!");
         test(Ice::stringToIdentity(identStr) == ident);
+
+        cout << "ok" << endl;
+
+        cout << "testing unescapeString subranges... " << flush;
+
+        // unescapeString(s, start, end, special) must return exactly the [start, end) subrange.
+        test(IceInternal::unescapeString("abcdef", 2, 4, "") == "cd");
+
+        // Same with a subrange that contains an escape sequence and a non-ASCII character, which takes
+        // the string-converter path.
+        string escaped = "xx\\t";
+        escaped += char(0xE9); // é in ISO Latin 9
+        escaped += "zz";
+        test(IceInternal::unescapeString(escaped, 2, 5, "") == string("\t") + char(0xE9));
 
         cout << "ok" << endl;
 
