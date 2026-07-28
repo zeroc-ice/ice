@@ -43,6 +43,12 @@ from typing import Iterable, List
 
 LOGGER = logging.getLogger(__name__)
 
+# Timeouts (in seconds) for the external commands. Without them, a wedged gdb or coredumpctl
+# hangs the CI job until the job-level timeout.
+LIST_TIMEOUT = 60
+EXTRACT_TIMEOUT = 300
+GDB_TIMEOUT = 300
+
 # Matches lines from GDB's "info shared" output, e.g.:
 #   0x00007f... 0x00007f... Yes         /home/runner/work/ice/ice/cpp/lib/libIce.so.3.8
 #   0x00007f... 0x00007f... Yes (*)     /lib/x86_64-linux-gnu/libstdc++.so.6
@@ -51,11 +57,16 @@ SHARED_LIB_RE = re.compile(r"^\s*0x[0-9A-Fa-f]+\s+0x[0-9A-Fa-f]+\s+\S+(?:\s+\(\*
 
 def list_coredumps() -> list[dict]:
     """Return a list of core dump entries from ``coredumpctl``."""
-    result = subprocess.run(
-        ["coredumpctl", "list", "--json=short", "--no-pager"],
-        capture_output=True,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            ["coredumpctl", "list", "--json=short", "--no-pager"],
+            capture_output=True,
+            text=True,
+            timeout=LIST_TIMEOUT,
+        )
+    except subprocess.TimeoutExpired:
+        LOGGER.error("coredumpctl list timed out after %d seconds", LIST_TIMEOUT)
+        return []
     if result.returncode != 0:
         LOGGER.info("coredumpctl list returned %d: %s", result.returncode, result.stderr.strip())
         return []
@@ -68,10 +79,15 @@ def list_coredumps() -> list[dict]:
 
 def extract_core(pid: int, dest: Path) -> bool:
     """Extract the core file for *pid* to *dest*. Returns True on success."""
-    result = subprocess.run(
-        ["coredumpctl", "dump", str(pid), "--output", str(dest), "--no-pager"],
-        capture_output=True,
-    )
+    try:
+        result = subprocess.run(
+            ["coredumpctl", "dump", str(pid), "--output", str(dest), "--no-pager"],
+            capture_output=True,
+            timeout=EXTRACT_TIMEOUT,
+        )
+    except subprocess.TimeoutExpired:
+        LOGGER.error("coredumpctl dump timed out after %d seconds for PID %d", EXTRACT_TIMEOUT, pid)
+        return False
     if result.returncode != 0:
         LOGGER.error("coredumpctl dump failed for PID %d: %s", pid, result.stderr.decode(errors="replace").strip())
         return False
@@ -85,6 +101,10 @@ def run_gdb(executable: Path, core: Path, output: Path) -> None:
         "-q",
         "-n",
         "-batch",
+        # Batch mode auto-answers "y" to every query, including the prompt that enables
+        # debuginfod; without this gdb can stall on network downloads for each library.
+        "-iex",
+        "set debuginfod enabled off",
         "-ex",
         "thread apply all bt full",
         "-ex",
@@ -95,7 +115,10 @@ def run_gdb(executable: Path, core: Path, output: Path) -> None:
     ]
     LOGGER.debug("Running: %s", " ".join(cmd))
     with open(output, "w", encoding="utf-8", errors="replace") as fp:
-        subprocess.run(cmd, stdout=fp, stderr=subprocess.STDOUT)
+        try:
+            subprocess.run(cmd, stdout=fp, stderr=subprocess.STDOUT, timeout=GDB_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            LOGGER.error("gdb timed out after %d seconds for %s", GDB_TIMEOUT, core)
 
 
 def parse_shared_libs(gdb_output: Path) -> Iterable[Path]:
