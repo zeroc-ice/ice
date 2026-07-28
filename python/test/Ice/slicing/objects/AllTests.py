@@ -5,7 +5,7 @@
 import gc
 import sys
 import threading
-from typing import TypeVar, cast
+from typing import Optional, TypeVar, cast
 
 from generated.test.Ice.slicing.objects import Test
 from generated.test.Ice.slicing.objects.client_private import Test as ClientPrivateTest

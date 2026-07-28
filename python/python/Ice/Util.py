@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, overload
 
 import IcePy
 
+from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
 from .Communicator import Communicator
 from .InitializationData import InitializationData
 from .Properties import Properties

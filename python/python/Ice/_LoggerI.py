@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from typing import final
+from typing import Self, final
 
 import IcePy
 
