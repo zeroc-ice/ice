@@ -33,15 +33,25 @@ void ::Writer::run(int argc, char* argv[])
         writer.waitForReaders();
         writer.add("base");
 
-        // Wait until the reader has consumed the base value, then close the session connection and publish while it is
-        // down. The reader cannot learn of the closure before close completes, and reconnecting takes a full session
-        // handshake, so both samples land in the gap.
+        // Wait until the reader has consumed the base value, then hold this node's adapter before closing the session
+        // connection. A held adapter stops reading requests, so the reader cannot re-establish the session until the
+        // adapter is activated again. Without it the gap is not observable: the session reconnect is attempted
+        // immediately, and the reader resumes before the two samples below are published.
         auto sample = makeSingleKeyReader(barrier, "ready").getNextUnread();
+        auto adapter = node.getCommunicator()->getDefaultObjectAdapter();
+        adapter->hold();
+        adapter->waitForHold();
+
         auto connection = node.getSessionConnection(sample.getSession());
         test(connection);
         connection->close().get();
+
+        // Publish once the session is gone, so both samples land in the gap.
+        writer.waitForNoReaders();
         writer.update("second");
         writer.partialUpdate<string>("append")("-tail");
+
+        adapter->activate();
 
         // Wait until the reader has consumed the value it resumed with, so this partial update is delivered live
         // rather than folded into the initialization batch.

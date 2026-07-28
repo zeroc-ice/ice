@@ -219,7 +219,7 @@ internal sealed class TcpEndpointI : IPEndpointI
                             throw new ParseException($"invalid timeout value '{argument}' in endpoint '{endpoint}'");
                         }
                     }
-                    catch (System.FormatException ex)
+                    catch (System.Exception ex) when (ex is System.FormatException or System.OverflowException)
                     {
                         throw new ParseException($"invalid timeout value '{argument}' in endpoint '{endpoint}'", ex);
                     }

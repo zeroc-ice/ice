@@ -253,7 +253,7 @@ internal sealed class OpaqueEndpointI : EndpointI
                 {
                     t = int.Parse(argument, CultureInfo.InvariantCulture);
                 }
-                catch (FormatException ex)
+                catch (System.Exception ex) when (ex is FormatException or OverflowException)
                 {
                     throw new ParseException($"invalid type value '{argument}' in endpoint '{endpoint}'", ex);
                 }

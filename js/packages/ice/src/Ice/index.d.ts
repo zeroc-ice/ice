@@ -38,7 +38,6 @@
 /// <reference path="./Current.d.ts" />
 /// <reference path="./Promise.d.ts" />
 /// <reference path="./Communicator.d.ts" />
-/// <reference path="./UUID.d.ts" />
 /// <reference path="./HashMap.d.ts" />
 /// <reference path="./Router.d.ts" />
 /// <reference path="./Exception.d.ts" />

@@ -313,6 +313,14 @@ public sealed class Options
                                 //
                                 case 'c':
                                 {
+                                    if (i == l.Length - 1)
+                                    {
+                                        // Nothing after the \c: keep it unchanged. The missing closing quote is
+                                        // reported after the loop.
+                                        arg += "\\c";
+                                        break;
+                                    }
+
                                     c = l[++i];
                                     if (
                                         (char.ToUpper(c, CultureInfo.InvariantCulture) >= 'A' &&

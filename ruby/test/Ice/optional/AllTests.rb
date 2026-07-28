@@ -25,6 +25,7 @@ def allTests(helper, communicator)
     test(mo1.h == nil)
     test(mo1.i == nil)
     test(mo1.j == nil)
+    test(mo1.oprx == nil)
     test(mo1.bs == nil)
     test(mo1.ss == nil)
     test(mo1.iid == nil)
@@ -50,6 +51,7 @@ def allTests(helper, communicator)
     vs = Test::VarStruct.new("hello")
     mo1 = Test::MultiOptional.new(15, true, 19, 78, 99, 5.5, 1.0, "test", Test::MyEnum::MyEnumMember, \
                                   Test::MyInterfacePrx.new(communicator, "test"), \
+                                  communicator.stringToProxy("test"), \
                                   [5], ["test", "test2"], {4=>3}, {"test"=>10}, fs, vs, [1], \
                                   [Test::MyEnum::MyEnumMember, Test::MyEnum::MyEnumMember], [ fs ], [ vs ], \
                                   [ Test::MyInterfacePrx.new(communicator, "test") ], \
@@ -67,6 +69,7 @@ def allTests(helper, communicator)
     test(mo1.h == "test")
     test(mo1.i == Test::MyEnum::MyEnumMember)
     test(mo1.j == communicator.stringToProxy("test"))
+    test(mo1.oprx == communicator.stringToProxy("test"))
     test(mo1.bs == [5])
     test(mo1.ss == ["test", "test2"])
     test(mo1.iid[4] == 3)
@@ -117,6 +120,7 @@ def allTests(helper, communicator)
     test(mo4.h == nil)
     test(mo4.i == nil)
     test(mo4.j == nil)
+    test(mo4.oprx == nil)
     test(mo4.bs == nil)
     test(mo4.ss == nil)
     test(mo4.iid == nil)
@@ -148,6 +152,7 @@ def allTests(helper, communicator)
     test(mo5.h == mo1.h)
     test(mo5.i == mo1.i)
     test(mo5.j == mo1.j)
+    test(mo5.oprx == mo1.oprx)
     test(mo5.bs.unpack("C*") == [0x05])
     test(mo5.ss == mo1.ss)
     test(mo5.iid[4] == 3)
@@ -193,6 +198,7 @@ def allTests(helper, communicator)
     test(mo7.h == mo1.h)
     test(mo7.i == nil)
     test(mo7.j == mo1.j)
+    test(mo7.oprx == nil)
     test(mo7.bs.unpack("C*") == [0x05])
     test(mo7.ss == nil)
     test(mo7.iid[4] == 3)
@@ -220,6 +226,7 @@ def allTests(helper, communicator)
     mo8.e = mo5.e
     mo8.g = mo5.g
     mo8.i = mo5.i
+    mo8.oprx = mo5.oprx
     mo8.ss = mo5.ss
     mo8.sid = mo5.sid
     mo8.vs = mo5.vs
@@ -243,6 +250,7 @@ def allTests(helper, communicator)
     test(mo9.h == nil)
     test(mo9.i == mo1.i)
     test(mo9.j == nil)
+    test(mo9.oprx == mo1.oprx)
     test(mo9.bs == nil)
     test(mo9.ss == mo1.ss)
     test(mo9.iid == nil)

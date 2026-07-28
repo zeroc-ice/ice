@@ -8,11 +8,16 @@
 # current per-key base instead, delivered as a single full update carrying the resolved value. The scenarios in
 # DataStorm/partial cover the same re-seeding for readers that join fresh, with a last sample id of 0.
 #
-# The writer opens the gap by closing the session connection and publishing immediately afterwards, which is only
-# reliable while the two nodes share a single connection. This test therefore pins the topology: multicast is disabled
-# and the writer runs as a client with no server endpoint, so the reader can never connect back to it. Given more than
-# one connection between the nodes - multicast, or a relay chain - DataStorm can route the writer's publisher session
-# and the barrier's subscriber session over different connections, and closing one would leave the other delivering.
+# The writer opens the gap by holding its node adapter and closing the session connection, then publishes and
+# activates the adapter again. A held adapter stops reading requests, so the reader cannot re-establish the session
+# while the samples are published. This requires the writer to be the node that listens, because only the node whose
+# adapter is held can decide when the gap ends: the barrier that would otherwise carry that decision runs over the
+# session being interrupted.
+#
+# The topology is pinned for the same reason the gap is: multicast is disabled and the reader has no server endpoint,
+# so a single connection carries every session between the two nodes. Given more than one connection - multicast, or a
+# relay chain - DataStorm can route the writer's publisher session and the barrier's subscriber session over different
+# connections, and closing one would leave the other delivering.
 #
 
 from DataStormUtil import Reader, Writer
@@ -24,15 +29,15 @@ traceProps = {
     "DataStorm.Trace.Data": 2,
 }
 
-# The reader listens and never connects out; the writer only connects in. One connection carries every session between
+# The writer listens and never connects out; the reader only connects in. One connection carries every session between
 # them, so closing it interrupts the writer's data session.
-readerProps = {
+writerProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Endpoints": "tcp -p {port1}",
     "DataStorm.Node.ConnectTo": "",
 }
 
-writerProps = {
+readerProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 0,
     "DataStorm.Node.ConnectTo": "tcp -p {port1}",
@@ -43,8 +48,8 @@ TestSuite(
     [
         ClientServerTestCase(
             name="partial update after reconnect across a history gap",
-            client=Writer(props=writerProps),
-            server=Reader(props=readerProps),
+            client=Reader(props=readerProps),
+            server=Writer(props=writerProps),
             traceProps=traceProps,
         )
     ],

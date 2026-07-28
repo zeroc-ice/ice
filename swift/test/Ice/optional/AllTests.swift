@@ -213,6 +213,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
     mo1.h = "test"
     mo1.i = .MyEnumMember
     mo1.j = try uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
+    mo1.oprx = try communicator.stringToProxy("test")
     mo1.bs = ByteSeq([5])
     mo1.ss = ["test", "test2"]
     mo1.iid = [4: 3]
@@ -251,6 +252,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
     try test(mo1.h! == "test")
     try test(mo1.i! == .MyEnumMember)
     try test(mo1.j! == communicator.stringToProxy("test"))
+    try test(mo1.oprx! == communicator.stringToProxy("test"))
     try test(mo1.bs! == ByteSeq([5]))
     try test(mo1.ss! == ["test", "test2"])
     try test(mo1.iid![4]! == 3)
@@ -299,6 +301,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
         try test(mo4.h == nil)
         try test(mo4.i == nil)
         try test(mo4.j == nil)
+        try test(mo4.oprx == nil)
         try test(mo4.bs == nil)
         try test(mo4.ss == nil)
         try test(mo4.iid == nil)
@@ -338,6 +341,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
         try test(mo5.h == mo1.h)
         try test(mo5.i == mo1.i)
         try test(mo5.j == mo1.j)
+        try test(mo5.oprx == mo1.oprx)
         try test(mo5.bs == mo1.bs)
         try test(mo5.ss == mo1.ss)
         try test(mo5.iid![4] == 3)
@@ -377,6 +381,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
         mo8.e = mo5.e
         mo8.g = mo5.g
         mo8.i = mo5.i
+        mo8.oprx = mo5.oprx
         mo8.ss = mo5.ss
         mo8.sid = mo5.sid
         mo8.vs = mo5.vs
@@ -403,6 +408,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
         try test(mo7.h == mo1.h)
         try test(mo7.i == nil)
         try test(mo7.j == mo1.j)
+        try test(mo7.oprx == nil)
         try test(mo7.bs == mo1.bs)
         try test(mo7.ss == nil)
         try test(mo7.iid![4] == 3)
@@ -438,6 +444,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
         try test(mo9.h == nil)
         try test(mo9.i == mo1.i)
         try test(mo9.j == nil)
+        try test(mo9.oprx == mo1.oprx)
         try test(mo9.bs == nil)
         try test(mo9.ss == mo1.ss)
         try test(mo9.iid == nil)
