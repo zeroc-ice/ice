@@ -45,6 +45,10 @@ namespace DataStorm
     {
         static Counter decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq& data)
         {
+            if (!data.empty() && data[0] == std::byte{0xFF})
+            {
+                throw std::runtime_error("undecodable counter");
+            }
             return Counter{data.empty() ? 0 : static_cast<int>(data[0])};
         }
     };
@@ -470,6 +474,60 @@ void ::Reader::run(int argc, char* argv[])
         test(sample.getEvent() == SampleEvent::PartialUpdate);
         test(sample.getUpdateTag() == "increment");
         test(sample.getValue().value == 5); // resolved against the empty-encoded base
+    }
+
+    // Two readers of the same key on one node hold different values for it, because only one of them applies the
+    // priority discard policy. A partial update accepted by both is resolved against each reader's own value.
+    Topic<string, StockPtr> perReaderTopic(node, "perReaderTopic");
+    perReaderTopic.setReaderDefaultConfig(config);
+    perReaderTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    {
+        auto noDiscardReader = makeSingleKeyReader(perReaderTopic, "AAPL", "noDiscard");
+
+        ReaderConfig priorityConfig = config;
+        priorityConfig.discardPolicy = DiscardPolicy::Priority;
+        auto priorityReader = makeSingleKeyReader(perReaderTopic, "AAPL", "priority", priorityConfig);
+
+        auto sample = noDiscardReader.getNextUnread();
+        test(sample.getValue()->price == 12.0f); // the high-priority full value
+
+        sample = noDiscardReader.getNextUnread();
+        test(sample.getValue()->price == 100.0f); // the low-priority full value, accepted by this reader
+
+        sample = noDiscardReader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::PartialUpdate);
+        test(sample.getValue()->price == 15.0f);
+        test(sample.getValue()->lastBid == 101.0f); // resolved against the low-priority value
+        test(sample.getValue()->lastAsk == 102.0f);
+
+        // The priority reader discarded the low-priority full value, so it still holds the high-priority one.
+        sample = priorityReader.getNextUnread();
+        test(sample.getValue()->price == 12.0f);
+
+        sample = priorityReader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::PartialUpdate);
+        test(sample.getValue()->price == 15.0f);
+        test(sample.getValue()->lastBid == 13.0f); // resolved against the high-priority value, not the other reader's
+        test(sample.getValue()->lastAsk == 14.0f);
+    }
+
+    // A full value that the Decoder rejects is dropped by every reader of the key on the node: each of them keeps the
+    // value it had and resynchronizes on the next full value that decodes.
+    Topic<string, Counter> decodeErrorTopic(node, "decodeErrorTopic");
+    decodeErrorTopic.setReaderDefaultConfig(config);
+    {
+        auto reader1 = makeSingleKeyReader(decodeErrorTopic, "key", "reader1");
+        auto reader2 = makeSingleKeyReader(decodeErrorTopic, "key", "reader2");
+
+        auto sample = reader1.getNextUnread();
+        test(sample.getValue().value == 1);
+        sample = reader1.getNextUnread();
+        test(sample.getValue().value == 2); // the undecodable value was dropped, not delivered as a default value
+
+        sample = reader2.getNextUnread();
+        test(sample.getValue().value == 1);
+        sample = reader2.getNextUnread();
+        test(sample.getValue().value == 2);
     }
 }
 
