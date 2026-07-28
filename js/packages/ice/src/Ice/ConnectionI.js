@@ -764,7 +764,7 @@ export class ConnectionI {
         this.setState(StateClosed, ex);
 
         if (requestCount > 0) {
-            console.assert(this._upcallCount > requestCount);
+            console.assert(this._upcallCount >= requestCount);
             this._upcallCount -= requestCount;
             console.assert(this._upcallCount >= 0);
             if (this._upcallCount === 0) {
@@ -1301,7 +1301,9 @@ export class ConnectionI {
                         // A batched request occupies at least 12 bytes on the wire (a 2-byte identity, a 1-byte
                         // facet path, a 1-byte operation name, a 1-byte operation mode, a 1-byte context, and a
                         // 6-byte parameters encapsulation). Reject a count larger than the remaining message
-                        // data could possibly hold.
+                        // data could possibly hold. The message size is already capped at Ice.MessageSizeMax, so
+                        // this also keeps requestCount well within range when it is accumulated into the dispatch
+                        // counters below.
                         const minBatchRequestSize = 12;
                         if (requestCount > (info.stream.size - info.stream.pos) / minBatchRequestSize) {
                             throw new MarshalException(
@@ -1314,7 +1316,7 @@ export class ConnectionI {
                         this._upcallCount += info.requestCount;
 
                         this.cancelInactivityTimer();
-                        ++this._dispatchCount;
+                        this._dispatchCount += info.requestCount;
                     }
                     break;
                 }
