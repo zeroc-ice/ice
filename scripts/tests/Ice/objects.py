@@ -6,11 +6,21 @@
 # a client stack overflow if the client stack is too small compared to the
 # Java server stack.
 #
-from Util import ClientServerTestCase, CollocatedTestCase, JavaMapping, Mapping, Server, TestSuite
+from Util import (
+    ClientServerTestCase,
+    CollocatedTestCase,
+    Driver,
+    JavaMapping,
+    Mapping,
+    Process,
+    Props,
+    Server,
+    TestSuite,
+)
 
 
 class ObjectClientServerTestCase(ClientServerTestCase):
-    def getProps(self, process, current):
+    def getProps(self, process: Process, current: Driver.Current) -> Props:
         props = ClientServerTestCase.getProps(self, process, current)
         if isinstance(process.getMapping(current), JavaMapping) and isinstance(process, Server):
             props["Ice.ThreadPool.Server.StackSize"] = 512 * 1024
@@ -31,7 +41,7 @@ testcases = [
     ObjectClientServerTestCase("client/server with 1.0 encoding", props={"Ice.Default.EncodingVersion": "1.0"}),
 ]
 
-if Mapping.getByPath(__name__).hasSource("Ice/objects", "collocated"):
+if Mapping.requireByPath(__name__).hasSource("Ice/objects", "collocated"):
     testcases += [CollocatedTestCase()]
 
 TestSuite(__name__, testcases)

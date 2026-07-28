@@ -1,11 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
 from IceBoxUtil import IceBox, IceBoxAdmin
-from Util import ClientServerTestCase, TestSuite
+from Util import ClientServerTestCase, Driver, TestSuite
 
 
 class IceBoxAdminTestCase(ClientServerTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         admin = IceBoxAdmin(args=['--Ice.Config="{testdir}/config.admin"'])
         current.write("testing service stop...")
         admin.run(current, args=["stop", "TestService"])

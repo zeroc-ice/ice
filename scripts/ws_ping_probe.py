@@ -27,11 +27,11 @@ _OP_PONG = 0xA
 class _Reader:
     """A buffered socket reader, primed with the bytes already read past the upgrade response."""
 
-    def __init__(self, sock, buf=b""):
+    def __init__(self, sock: socket.socket, buf: bytes = b""):
         self._sock = sock
         self._buf = buf
 
-    def recvn(self, n):
+    def recvn(self, n: int) -> bytes:
         """Read exactly n bytes, raising if the connection closes first."""
         while len(self._buf) < n:
             chunk = self._sock.recv(n - len(self._buf))
@@ -42,7 +42,7 @@ class _Reader:
         return buf
 
 
-def _upgrade(sock, host, port):
+def _upgrade(sock: socket.socket, host: str, port: int) -> bytes:
     """
     Perform the WebSocket upgrade handshake; raise unless the server returns 101.
 
@@ -78,7 +78,7 @@ def _upgrade(sock, host, port):
     return buf.partition(b"\r\n\r\n")[2]
 
 
-def _client_frame(opcode, payload):
+def _client_frame(opcode: int, payload: bytes) -> bytes:
     """Build a masked client->server frame. Clients MUST mask (RFC 6455 5.3)."""
     # Control frames carry at most 125 bytes, so a 7-bit length is always enough here.
     assert len(payload) < 126
@@ -87,7 +87,7 @@ def _client_frame(opcode, payload):
     return bytes([0x80 | opcode, 0x80 | len(payload)]) + mask + masked
 
 
-def _read_frame(reader):
+def _read_frame(reader: _Reader) -> tuple[int, bytes]:
     """Read one server->client frame and return (opcode, payload). Server frames are unmasked."""
     b0, b1 = reader.recvn(2)
     opcode = b0 & 0x0F
@@ -104,7 +104,7 @@ def _read_frame(reader):
     return opcode, payload
 
 
-def ping_pong(host, port, payload=b"", timeout=10.0):
+def ping_pong(host: str, port: int, payload: bytes = b"", timeout: float = 10.0) -> bytes:
     """
     Upgrade, send a PING with the given payload, and return the PONG payload.
 
