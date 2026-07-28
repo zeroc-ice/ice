@@ -941,6 +941,20 @@ public class AllTests {
                 cb.check();
             }
             {
+                // A close callback that throws: the exception is logged and the connection still
+                // finishes (a stranded connection would hang Communicator.destroy at the end of the
+                // test).
+                p.ice_ping(); // Establishes a new working connection: the previous one is closed.
+                Connection con = p.ice_getConnection();
+                Callback cb = new Callback();
+                con.setCloseCallback(c -> {
+                    cb.called();
+                    throw new RuntimeException("close callback");
+                });
+                con.close();
+                cb.check();
+            }
+            {
                 //
                 // Remote case.
                 //
