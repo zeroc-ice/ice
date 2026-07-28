@@ -1,7 +1,24 @@
 {
-    "include": ["python", "scripts"],
-    "exclude": ["python/dist", "python/.venv"],
-    "extraPaths": ["python/python"],
+    "include": [
+        "allTests.py",
+        "config",
+        "cpp",
+        "csharp",
+        "java",
+        "js",
+        "matlab",
+        "packaging",
+        "php",
+        "python",
+        "ruby",
+        "scripts",
+        "swift"
+    ],
+    "exclude": ["python/dist", "python/.venv", "**/node_modules"],
+    // scripts is on the search path for every tree, not just its own execution environment: the
+    // test.py files under cpp/test and friends import the framework by name, the way loadTestSuites
+    // runs them.
+    "extraPaths": ["python/python", "scripts"],
     // The test framework modules under scripts import each other by name; "root" is what puts scripts
     // itself on the search path for the files it contains.
     "executionEnvironments": [
