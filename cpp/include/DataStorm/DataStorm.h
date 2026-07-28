@@ -356,7 +356,7 @@ namespace DataStorm
         /// @throws NodeShutdownException Thrown when the node is shut down while waiting.
         void waitForNoWriters() const;
 
-        /// Sets the default configuration used to construct readers.
+        /// Sets the default configuration used to construct writers.
         /// @param config The default writer configuration.
         void setWriterDefaultConfig(const WriterConfig& config) noexcept;
 
