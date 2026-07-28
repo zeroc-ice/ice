@@ -235,7 +235,7 @@ namespace DataStorm
         [[nodiscard]] bool hasReaders() const noexcept;
 
         /// Waits for the given number of readers to be online.
-        /// @param count The number of readers to wait.
+        /// @param count The number of readers to wait for.
         /// @throws NodeShutdownException Thrown when the node is shut down while waiting.
         void waitForReaders(unsigned int count = 1) const;
 
@@ -356,7 +356,7 @@ namespace DataStorm
         /// @throws NodeShutdownException Thrown when the node is shut down while waiting.
         void waitForNoWriters() const;
 
-        /// Sets the default configuration used to construct readers.
+        /// Sets the default configuration used to construct writers.
         /// @param config The default writer configuration.
         void setWriterDefaultConfig(const WriterConfig& config) noexcept;
 
@@ -365,7 +365,7 @@ namespace DataStorm
         [[nodiscard]] bool hasReaders() const noexcept;
 
         /// Waits for the given number of data readers to be online.
-        /// @param count The number of data readers to wait.
+        /// @param count The number of data readers to wait for.
         /// @throws NodeShutdownException Thrown when the node is shut down while waiting.
         void waitForReaders(unsigned int count = 1) const;
 

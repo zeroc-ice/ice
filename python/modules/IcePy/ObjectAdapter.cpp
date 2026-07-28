@@ -53,6 +53,7 @@ namespace IcePy
 
         void deactivate(string_view) final;
 
+        /// Returns a new reference to the Python servant locator.
         PyObject* getObject();
 
     private:
@@ -207,7 +208,9 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr
 
     ServantWrapperPtr wrapper{dynamic_pointer_cast<ServantWrapper>(c->servant)};
 
-    PyObjectHandle res{PyObject_CallMethod(_locator, "finished", "OOO", c->current, wrapper->getObject(), c->cookie)};
+    // Adopt the new reference returned by getObject: the "O" format increfs the argument on its own.
+    PyObjectHandle servant{wrapper->getObject()};
+    PyObjectHandle res{PyObject_CallMethod(_locator, "finished", "OOO", c->current, servant.get(), c->cookie)};
     if (PyErr_Occurred())
     {
         // Retrieve the exception before another Python API call clears it.
@@ -834,7 +837,9 @@ adapterRemoveAllFacets(ObjectAdapterObject* self, PyObject* args)
     {
         auto wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
         assert(wrapper);
-        if (PyDict_SetItemString(result.get(), facet.c_str(), wrapper->getObject()) < 0)
+        // Adopt the new reference returned by getObject: PyDict_SetItemString increfs the value on its own.
+        PyObjectHandle servant{wrapper->getObject()};
+        if (PyDict_SetItemString(result.get(), facet.c_str(), servant.get()) < 0)
         {
             return nullptr;
         }
@@ -1006,7 +1011,9 @@ adapterFindAllFacets(ObjectAdapterObject* self, PyObject* args)
     {
         auto wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
         assert(wrapper);
-        if (PyDict_SetItemString(result.get(), facet.c_str(), wrapper->getObject()) < 0)
+        // Adopt the new reference returned by getObject: PyDict_SetItemString increfs the value on its own.
+        PyObjectHandle servant{wrapper->getObject()};
+        if (PyDict_SetItemString(result.get(), facet.c_str(), servant.get()) < 0)
         {
             return nullptr;
         }

@@ -296,7 +296,7 @@ namespace DataStormI
         void waitForListeners(int count) const;
         [[nodiscard]] bool hasListeners() const;
 
-        [[nodiscard]] TopicI* getTopic() const { return _parent.get(); }
+        [[nodiscard]] const std::shared_ptr<TopicI>& getTopic() const { return _parent; }
 
     protected:
         virtual bool addConnectedKey(const std::shared_ptr<Key>& key, const std::shared_ptr<Subscriber>& subscriber);

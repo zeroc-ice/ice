@@ -2,11 +2,11 @@
 
 import os
 
-from Util import ClientTestCase, SliceTranslator, TestSuite
+from Util import ClientTestCase, Driver, SliceTranslator, TestSuite
 
 
 class SliceGenerationTestCase(ClientTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         current.write("testing list-generated... ")
 
         slice2java = SliceTranslator("slice2java", quiet=True)

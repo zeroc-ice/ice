@@ -509,7 +509,6 @@ void ::Writer::run(int argc, char* argv[])
     {
         Topic<string, string> topic(node, "lateEmptyBatch");
         Topic<string, int> barrier(node, "lateEmptyBatchBarrier");
-        Topic<string, int> ready(node, "lateEmptyBatchReady");
 
         auto writer = makeMultiKeyWriter(topic, {"elemA", "elemB"}, "", config);
         writer.add("elemA", "valueA"); // elemB is covered but never written
@@ -518,8 +517,11 @@ void ::Writer::run(int argc, char* argv[])
         barrierWriter.waitForReaders();
         barrierWriter.update(0);
 
+        // Wait for the late reader: its attachment queues the empty initialization batch, and the update below is
+        // delivered after that batch on the same session.
+        writer.waitForReaders(1);
+
         // Delivered only if the empty initialization batch for elemB marked the reader initialized.
-        [[maybe_unused]] auto _ = makeSingleKeyReader(ready, "ready").getNextUnread();
         writer.update("elemB", "valueB");
         writer.waitForNoReaders();
     }

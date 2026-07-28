@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from Util import ClientServerTestCase, Server, TestSuite
+from Util import ClientServerTestCase, Driver, Server, TestSuite
 from ws_origin_probe import probe
 from ws_ping_probe import ping_pong
 
@@ -8,8 +8,9 @@ from ws_ping_probe import ping_pong
 ALLOWED_ORIGIN = "https://allowed.example.com"
 
 
-def _runCases(current, cases):
+def _runCases(current: Driver.Current, cases: list[tuple[str | None, bool, str]]) -> None:
     host = current.host
+    assert host is not None
     port = current.driver.getTestPort(0)
     for origin, expected_accepted, label in cases:
         accepted, status = probe(host, port, origin)
@@ -30,7 +31,7 @@ class WSAllowedOriginsTestCase(ClientServerTestCase):
             ),
         )
 
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         current.write("testing AllowedOrigins enforcement... ")
         _runCases(
             current,
@@ -66,7 +67,7 @@ class WSAllowedOriginsWildcardTestCase(ClientServerTestCase):
             ),
         )
 
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         current.write("testing AllowedOrigins=* is permissive... ")
         _runCases(
             current,
@@ -96,7 +97,7 @@ class WSAllowedOriginsPortTestCase(ClientServerTestCase):
             ),
         )
 
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         current.write("testing AllowedOrigins port canonicalization... ")
         _runCases(
             current,
@@ -129,9 +130,10 @@ class WSPingTestCase(ClientServerTestCase):
             server=Server(quiet=True, waitForShutdown=False),
         )
 
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         current.write("testing WebSocket ping/pong control frames... ")
         host = current.host
+        assert host is not None
         port = current.driver.getTestPort(0)
         if ping_pong(host, port, b"") != b"":
             raise RuntimeError("zero-length ping: server did not return an empty pong")

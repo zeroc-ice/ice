@@ -1,11 +1,13 @@
 # Copyright (c) ZeroC, Inc.
 
 
-from Util import Client, ClientServerTestCase, Server, TestSuite
+from Util import Client, ClientServerTestCase, Driver, Process, Props, Server, TestSuite
 
 
 # This is used for the trace file
-def props(process, current):
+def props(process: Process, current: Driver.Current) -> Props:
+    # args is only a callable when a process computes them, which these servers do not.
+    assert not callable(process.args)
     return {"Ice.ProgramName": "server{}".format(process.args[0])}
 
 

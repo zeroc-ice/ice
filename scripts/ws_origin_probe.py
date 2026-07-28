@@ -35,7 +35,7 @@ import socket
 import sys
 
 
-def probe(host, port, origin, timeout=5.0):
+def probe(host: str, port: int, origin: str | None, timeout: float = 5.0) -> tuple[bool, str]:
     """
     Send a WebSocket upgrade and return (accepted, status_line).
 
@@ -72,12 +72,13 @@ def probe(host, port, origin, timeout=5.0):
         return status_line.startswith("HTTP/1.1 101"), status_line
 
 
-def run_cases(host, port, allowed_origins):
+def run_cases(host: str, port: int, allowed_origins: list[str]) -> int:
     """
     Run the standard battery of cases. Each case has an expected outcome.
     Returns 0 if all matched expectations, 1 otherwise.
     """
-    cases = [
+    # (Origin header value or None to omit it, label, whether the upgrade should be accepted)
+    cases: list[tuple[str | None, str, bool]] = [
         (None, "absent Origin (non-browser client)", True),
     ]
     for origin in allowed_origins:
@@ -102,7 +103,7 @@ def run_cases(host, port, allowed_origins):
     return 0 if failures == 0 else 1
 
 
-def main():
+def main() -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("host")
     p.add_argument("port", type=int)

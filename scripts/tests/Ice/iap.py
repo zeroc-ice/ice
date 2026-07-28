@@ -1,12 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
-from Util import ClientTestCase, TestSuite
+from Util import ClientTestCase, Driver, TestSuite
 
 
 # The iAP transport is iOS-only; these tests exercise it without accessory hardware and only run on the
 # iOS simulator / device.
 class IAPTestCase(ClientTestCase):
-    def canRun(self, current):
+    def canRun(self, current: Driver.Current) -> bool:
         return "iphone" in current.config.buildPlatform
 
 

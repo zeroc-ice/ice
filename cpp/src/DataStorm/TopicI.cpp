@@ -312,7 +312,7 @@ TopicI::attach(int64_t topicId, shared_ptr<SessionI> session, SessionPrx peerSes
     // If the topic ID is successfully added, instruct the session to subscribe to the topic.
     if (p->second.topics.insert(topicId).second)
     {
-        p->first->subscribe(topicId, this);
+        p->first->subscribe(topicId, shared_from_this());
     }
 }
 
@@ -323,7 +323,7 @@ TopicI::detach(int64_t topicId, const shared_ptr<SessionI>& session)
     if (p != _listeners.end() && p->second.topics.erase(topicId))
     {
         // If the topic ID is removed, instruct the session to unsubscribe from the topic.
-        session->unsubscribe(topicId, this);
+        session->unsubscribe(topicId, shared_from_this());
 
         // If the session has no remaining subscribed topics, remove its listener from the list.
         if (p->second.topics.empty())
@@ -761,6 +761,7 @@ void
 TopicI::disconnect()
 {
     map<shared_ptr<SessionI>, Listener> listeners;
+    auto self = shared_from_this();
     {
         unique_lock<mutex> lock(_mutex);
         listeners.swap(_listeners);
@@ -770,7 +771,7 @@ TopicI::disconnect()
     {
         for (const auto& id : listener.topics)
         {
-            session->disconnect(id, this);
+            session->disconnect(id, self);
         }
     }
 

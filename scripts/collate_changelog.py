@@ -13,6 +13,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
+from typing import NoReturn
 
 # Ordered (directory, heading) taxonomy. Fragment directories under changelog.d/ must appear here; sections
 # without fragments are omitted from the output.
@@ -45,18 +46,18 @@ PACKAGING_SECTION = ("packaging", "Packaging Changes")
 FRAGMENTS_PLACEHOLDER_PREFIX = "Unreleased changes are recorded as fragments"
 
 
-def die(message):
+def die(message: str) -> NoReturn:
     print(f"error: {message}", file=sys.stderr)
     sys.exit(1)
 
 
-def read_fragments(changelog_d):
+def read_fragments(changelog_d: Path) -> dict[str, list[str]]:
     """Return {section directory name: [fragment text, ...]}, with fragments ordered by filename."""
     if not changelog_d.is_dir():
         die(f"{changelog_d} does not exist")
 
     known = {name for name, _ in LANGUAGE_SECTIONS + SERVICE_SECTIONS + [PACKAGING_SECTION]}
-    fragments = {}
+    fragments: dict[str, list[str]] = {}
     for path in sorted(changelog_d.iterdir()):
         if path.name == "README.md":
             continue
@@ -72,9 +73,9 @@ def read_fragments(changelog_d):
     return fragments
 
 
-def bullet_lines(text):
+def bullet_lines(text: str) -> list[str]:
     """Return the fragment's lines with a blank line between top-level bullets."""
-    lines = []
+    lines: list[str] = []
     for line in text.splitlines():
         if line.startswith("- ") and lines and lines[-1] != "":
             lines.append("")
@@ -82,11 +83,11 @@ def bullet_lines(text):
     return lines
 
 
-def collate(fragments):
+def collate(fragments: dict[str, list[str]]) -> list[str]:
     """Return the collated '### ...' sections as a list of lines."""
-    lines = []
+    lines: list[str] = []
 
-    def add_section(heading, texts):
+    def add_section(heading: str, texts: list[str]) -> None:
         lines.extend([heading, ""])
         for text in texts:
             lines.extend(bullet_lines(text))
@@ -108,7 +109,7 @@ def collate(fragments):
     return lines[:-1]  # drop the trailing blank line
 
 
-def remove_placeholder(lines):
+def remove_placeholder(lines: list[str]) -> list[str]:
     """Remove the paragraph pointing readers at changelog.d/, if present."""
     for start, line in enumerate(lines):
         if line.startswith(FRAGMENTS_PLACEHOLDER_PREFIX):
@@ -121,7 +122,7 @@ def remove_placeholder(lines):
     return lines
 
 
-def insert_sections(changelog, version, sections):
+def insert_sections(changelog: Path, version: str, sections: list[str]) -> list[str]:
     """Return the changelog lines with the collated sections added to the '## Changes in Ice <version>' section,
     creating that section if necessary."""
     lines = changelog.read_text(encoding="utf-8").splitlines()
@@ -148,7 +149,7 @@ def insert_sections(changelog, version, sections):
         die(f"{changelog} contains no '## Changes in Ice <version>' heading")
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Collate changelog.d/ fragments into the changelog.")
     parser.add_argument("version", help="the release version, e.g. 3.9.0")
     parser.add_argument(

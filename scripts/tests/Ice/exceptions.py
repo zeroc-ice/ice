@@ -15,7 +15,7 @@ testcases = [
 ]
 
 # If the mapping has AMD servers, also run with the AMD servers
-if Mapping.getByPath(__name__).hasSource("Ice/exceptions", "serveramd"):
+if Mapping.requireByPath(__name__).hasSource("Ice/exceptions", "serveramd"):
     testcases += [
         ClientAMDServerTestCase("client/amd server with compact format"),
         ClientAMDServerTestCase(
@@ -28,7 +28,7 @@ if Mapping.getByPath(__name__).hasSource("Ice/exceptions", "serveramd"):
         ),
     ]
 
-if Mapping.getByPath(__name__).hasSource("Ice/exceptions", "collocated"):
+if Mapping.requireByPath(__name__).hasSource("Ice/exceptions", "collocated"):
     testcases += [CollocatedTestCase()]
 
 TestSuite(__name__, testcases)

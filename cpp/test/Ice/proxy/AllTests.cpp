@@ -669,6 +669,10 @@ allTests(TestHelper* helper)
     test(base->ice_locatorCacheTimeout(-2)->ice_getLocatorCacheTimeout() == -2s);
     test(base->ice_locatorCacheTimeout(-2s)->ice_getLocatorCacheTimeout() == -2s);
 
+    test(base->ice_locatorCacheTimeout(2000ms)->ice_getLocatorCacheTimeout() == 2s);
+    test(base->ice_locatorCacheTimeout(1500ms)->ice_getLocatorCacheTimeout() == 1500ms);
+    test(base->ice_locatorCacheTimeout(-500ms)->ice_getLocatorCacheTimeout() == -500ms);
+
     cout << "ok" << endl;
 
     cout << "testing proxy comparison... " << flush;

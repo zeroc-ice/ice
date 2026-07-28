@@ -17,7 +17,7 @@ import traceback
 from collections.abc import Callable
 from typing import Literal, Protocol, TextIO, overload
 
-__all__ = ["Expect", "EOF", "TIMEOUT"]
+__all__ = ["Expect", "TIMEOUT"]
 
 win32 = sys.platform == "win32"
 
@@ -26,16 +26,6 @@ win32 = sys.platform == "win32"
 # on Windows only. Everywhere else, use win32.
 if sys.platform == "win32":
     import ctypes
-
-
-class EOF:
-    """Raised when EOF is read from a child."""
-
-    def __init__(self, value: object):
-        self.value = value
-
-    def __str__(self) -> str:
-        return str(self.value)
 
 
 class TIMEOUT(Exception):
@@ -420,9 +410,8 @@ def splitCommand(command_line: str) -> list[str]:
             elif c == r'"':
                 state = state_doublequote
             elif c.isspace():
-                if state == state_whitespace:
-                    None
-                else:
+                # Runs of whitespace collapse: only the first one ends the current argument.
+                if state != state_whitespace:
                     arg_list.append(arg)
                     arg = ""
                     state = state_whitespace
