@@ -81,32 +81,15 @@ internal sealed class Network
 
     internal static bool isMulticast(IPEndPoint addr)
     {
-        string ip = addr.Address.ToString().ToUpperInvariant();
         if (addr.AddressFamily == AddressFamily.InterNetwork)
         {
-            char[] splitChars = { '.' };
-            string[] arr = ip.Split(splitChars);
-            try
-            {
-                int i = int.Parse(arr[0], CultureInfo.InvariantCulture);
-                if (i >= 223 && i <= 239)
-                {
-                    return true;
-                }
-            }
-            catch (FormatException)
-            {
-                return false;
-            }
+            byte firstOctet = addr.Address.GetAddressBytes()[0];
+            return firstOctet >= 224 && firstOctet <= 239;
         }
         else // AddressFamily.InterNetworkV6
         {
-            if (ip.StartsWith("FF", StringComparison.Ordinal))
-            {
-                return true;
-            }
+            return addr.Address.IsIPv6Multicast;
         }
-        return false;
     }
 
     internal static bool isIPv6Supported()

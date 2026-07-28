@@ -157,7 +157,7 @@ public sealed class Protocol
             majVersion = int.Parse(majStr, CultureInfo.InvariantCulture);
             minVersion = int.Parse(minStr, CultureInfo.InvariantCulture);
         }
-        catch (FormatException ex)
+        catch (System.Exception ex) when (ex is FormatException or OverflowException)
         {
             throw new ParseException($"invalid version value in '{str}'", ex);
         }
