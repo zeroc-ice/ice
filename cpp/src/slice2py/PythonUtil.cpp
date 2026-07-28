@@ -691,19 +691,25 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     addRuntimeImport("Ice.ObjectPrx", "checkedCastAsync", p);
     addRuntimeImport("Ice.ObjectPrx", "uncheckedCast", p);
 
+    // Required by the checkedCast and uncheckedCast signatures.
     addTypingImport("Ice.ObjectPrx", "ObjectPrx", p);
-    addTypingImport("Ice.Current", "Current", p);
 
-    // Required by the core operations, ice_isA, ice_ids, ice_id, and ice_ping.
+    // Awaitable is required by checkedCastAsync, and Sequence by the _ice_ids class variable.
     addTypingImport("collections.abc", "Awaitable", p);
     addTypingImport("collections.abc", "Sequence", p);
 
     // Add imports required for operation parameters and return types.
-    const OperationList& operations = p->allOperations();
+    // Only the operations defined in this interface matter: the generated code for operations inherited from base
+    // interfaces is emitted with the base interface, and the proxy and skeleton classes inherit it from the base
+    // classes.
+    const OperationList& operations = p->operations();
     if (!operations.empty())
     {
         addRuntimeImport("abc", "abstractmethod", p);
         addRuntimeImport("Ice.OperationMode", "OperationMode", p);
+
+        // The skeleton methods take a Current parameter.
+        addTypingImport("Ice.Current", "Current", p);
     }
 
     for (const auto& op : operations)
@@ -801,8 +807,10 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
                               dynamic_pointer_cast<Exception>(source);
 
     auto builtin = dynamic_pointer_cast<Builtin>(sequence->type());
-    if (builtin && builtin->kind() <= Builtin::KindDouble)
+    if (!needsRunTimeImport && builtin && builtin->kind() <= Builtin::KindDouble)
     {
+        // Buffer only appears in marshaling-direction type hints (operation in-parameters and dispatch return
+        // values), never in field annotations.
         addTypingImport("collections.abc", "Buffer", source);
     }
 
@@ -1596,9 +1604,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out.inc();
     writeDocstring(p, out, "proxy class");
 
-    const string communicatorAlias = getImportAlias(p, "Ice.Communicator", "Communicator");
     const string objectPrxAlias = getImportAlias(p, "Ice.ObjectPrx", "ObjectPrx");
-    const string currentAlias = getImportAlias(p, "Ice.Current", "Current");
     const string formatTypeAlias = getImportAlias(p, "Ice.FormatType", "FormatType");
 
     for (const auto& operation : operations)
@@ -2676,101 +2682,121 @@ namespace
     void writeImports(
         const Python::ModuleImportsMap& runtimeImports,
         const Python::ModuleImportsMap& typingImports,
+        bool usesIcePy,
         Output& out)
     {
-        out << sp;
-        out << nl << "from __future__ import annotations";
-        out << nl << "import IcePy";
-
+        // Collect the names bound by the runtime imports. Typing imports for names that are already imported at
+        // runtime are skipped.
         set<string> allImports;
-
-        // Write the runtime imports.
         for (const auto& [moduleName, moduleImports] : runtimeImports)
         {
-            out << sp;
             if (moduleImports.imported)
             {
-                out << nl << "import " << moduleName;
+                allImports.insert(moduleImports.moduleAlias.empty() ? moduleName : moduleImports.moduleAlias);
+            }
+
+            for (const auto& [name, alias] : moduleImports.definitions)
+            {
+                allImports.insert(alias.empty() ? name : alias);
+            }
+        }
+
+        // Build the `if TYPE_CHECKING:` block. It can end up empty when every typing import was skipped because the
+        // corresponding name is already imported at runtime.
+        Python::BufferedOutput outT;
+        outT << sp;
+        outT << nl << "if TYPE_CHECKING:";
+        outT.inc();
+        bool hasTypingImports = false;
+        for (const auto& [moduleName, moduleImports] : typingImports)
+        {
+            if (moduleImports.imported)
+            {
+                outT << nl << "import " << moduleName;
                 if (moduleImports.moduleAlias.empty())
                 {
                     allImports.insert(moduleName);
                 }
                 else
                 {
-                    out << " as " << moduleImports.moduleAlias;
+                    outT << " as " << moduleImports.moduleAlias;
                     allImports.insert(moduleImports.moduleAlias);
+                }
+                hasTypingImports = true;
+            }
+
+            for (const auto& [name, alias] : moduleImports.definitions)
+            {
+                bool alreadyImported = !allImports.insert(alias.empty() ? name : alias).second;
+
+                if (alreadyImported)
+                {
+                    continue; // Skip already imported names.
+                }
+
+                outT << nl << "from " << moduleName << " import " << name;
+                if (!alias.empty())
+                {
+                    outT << " as " << alias;
+                }
+                hasTypingImports = true;
+            }
+        }
+        outT.dec();
+
+        out << sp;
+        out << nl << "from __future__ import annotations";
+        if (usesIcePy)
+        {
+            out << nl << "import IcePy";
+        }
+
+        // Write the runtime imports, skipping the TYPE_CHECKING import when the typing block is empty. The
+        // ImportVisitor registers TYPE_CHECKING whenever it registers a typing import, but the emitted block can
+        // still end up empty.
+        for (const auto& [moduleName, moduleImports] : runtimeImports)
+        {
+            auto skipImport = [&](const string& name)
+            { return !hasTypingImports && moduleName == "typing" && name == "TYPE_CHECKING"; };
+
+            bool emitsAnything = moduleImports.imported ||
+                                 any_of(
+                                     moduleImports.definitions.begin(),
+                                     moduleImports.definitions.end(),
+                                     [&](const auto& definition) { return !skipImport(definition.first); });
+            if (!emitsAnything)
+            {
+                continue;
+            }
+
+            out << sp;
+            if (moduleImports.imported)
+            {
+                out << nl << "import " << moduleName;
+                if (!moduleImports.moduleAlias.empty())
+                {
+                    out << " as " << moduleImports.moduleAlias;
                 }
             }
 
-            if (!moduleImports.definitions.empty())
+            for (const auto& [name, alias] : moduleImports.definitions)
             {
-                for (const auto& [name, alias] : moduleImports.definitions)
+                if (skipImport(name))
                 {
-                    out << nl << "from " << moduleName << " import " << name;
-                    if (!alias.empty())
-                    {
-                        out << " as " << alias;
-                        allImports.insert(alias);
-                    }
-                    else
-                    {
-                        allImports.insert(name);
-                    }
+                    continue;
+                }
+
+                out << nl << "from " << moduleName << " import " << name;
+                if (!alias.empty())
+                {
+                    out << " as " << alias;
                 }
             }
         }
 
-        // Write typing imports
-        if (!typingImports.empty())
+        if (hasTypingImports)
         {
-            Python::BufferedOutput outT;
-            outT << sp;
-            outT << nl << "if TYPE_CHECKING:";
-            outT.inc();
-            bool hasTypingImports = false;
-            for (const auto& [moduleName, moduleImports] : typingImports)
-            {
-                if (moduleImports.imported)
-                {
-                    outT << nl << "import " << moduleName;
-                    if (moduleImports.moduleAlias.empty())
-                    {
-                        allImports.insert(moduleName);
-                    }
-                    else
-                    {
-                        outT << " as " << moduleImports.moduleAlias;
-                        allImports.insert(moduleImports.moduleAlias);
-                    }
-                    hasTypingImports = true;
-                }
-
-                if (!moduleImports.definitions.empty())
-                {
-                    for (const auto& [name, alias] : moduleImports.definitions)
-                    {
-                        bool alreadyImported = !allImports.insert(alias.empty() ? name : alias).second;
-
-                        if (alreadyImported)
-                        {
-                            continue; // Skip already imported names.
-                        }
-
-                        outT << nl << "from " << moduleName << " import " << name;
-                        if (!alias.empty())
-                        {
-                            outT << " as " << alias;
-                        }
-                        hasTypingImports = true;
-                    }
-                }
-            }
-            outT.dec();
-
-            if (hasTypingImports)
-            {
-                out << outT.str();
-            }
+            out << outT.str();
         }
     }
 }
@@ -2871,7 +2897,9 @@ Slice::Python::compile(
         {
             Python::BufferedOutput out;
             writeHeader(out);
-            writeImports(runtimeImports[fragment.moduleName], typingImports[fragment.moduleName], out);
+            // Fragments that only define constants don't reference IcePy, and don't need to import it.
+            const bool usesIcePy = fragment.code.find("IcePy") != string::npos;
+            writeImports(runtimeImports[fragment.moduleName], typingImports[fragment.moduleName], usesIcePy, out);
             out << sp;
             out << fragment.code;
 
