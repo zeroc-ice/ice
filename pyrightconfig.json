@@ -10,7 +10,11 @@
             // "." is for the scripts.tests.* package imports; loadTestSuites puts the repository root
             // on sys.path at run time. "python/python" is repeated from the top-level extraPaths
             // because an execution environment replaces those rather than adding to them.
-            "extraPaths": [".", "python/python"]
+            "extraPaths": [".", "python/python"],
+            // Only here, not at the top level: slice2py emits a fixed import preamble -- IcePy,
+            // TYPE_CHECKING, the _Xxx_t type markers -- whether or not a given generated file uses
+            // every name, so the rule reports hundreds of them once the Slice code is built.
+            "reportUnusedImport": "error"
         }
     ],
     "typeCheckingMode": "standard",
@@ -21,7 +25,6 @@
     "reportUnnecessaryComparison": "error",
     "reportUnusedClass": "error",
     "reportUnusedFunction": "error",
-    "reportUnusedImport": "error",
     "reportUnusedVariable": "error",
     "pythonVersion": "3.12"
 }
