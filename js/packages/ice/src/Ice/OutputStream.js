@@ -528,7 +528,7 @@ export class OutputStream {
 
     clear() {
         if (this._encapsStack !== null) {
-            console.assert(this._encapsStack.next);
+            console.assert(this._encapsStack.next === null);
             this._encapsStack.next = this._encapsCache;
             this._encapsCache = this._encapsStack;
             this._encapsCache.reset();
@@ -876,6 +876,8 @@ export class OutputStream {
             this._encapsStack = this._encapsCache;
             if (this._encapsStack) {
                 this._encapsCache = this._encapsCache.next;
+                // Detach the reused node from the cache: as the outermost encapsulation it has no next.
+                this._encapsStack.next = null;
             } else {
                 this._encapsStack = new WriteEncaps();
             }
