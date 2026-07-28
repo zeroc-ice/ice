@@ -694,7 +694,8 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Required by the checkedCast and uncheckedCast signatures.
     addTypingImport("Ice.ObjectPrx", "ObjectPrx", p);
 
-    // Awaitable is required by checkedCastAsync, and Sequence by the _ice_ids class variable.
+    // Used by every interface, with or without operations: checkedCastAsync returns an Awaitable, _ice_ids is a
+    // Sequence, and operation type hints use both.
     addTypingImport("collections.abc", "Awaitable", p);
     addTypingImport("collections.abc", "Sequence", p);
 
