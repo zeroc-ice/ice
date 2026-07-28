@@ -480,30 +480,6 @@ Slice::Python::CodeVisitor::operationReturnTypeHint(const OperationPtr& operatio
     return " -> " + returnTypeHint(operation, methodKind);
 }
 
-string
-Slice::Python::formatFields(const DataMemberList& members)
-{
-    if (members.empty())
-    {
-        return "";
-    }
-
-    ostringstream os;
-    bool first = true;
-    os << "{format_fields(";
-    for (const auto& dataMember : members)
-    {
-        if (!first)
-        {
-            os << ", ";
-        }
-        first = false;
-        os << dataMember->mappedName() << "=self." << dataMember->mappedName();
-    }
-    os << ")}";
-    return os.str();
-}
-
 Python::CodeFragment
 Slice::Python::createCodeFragmentForPythonModule(const ContainedPtr& contained, const string& code)
 {
