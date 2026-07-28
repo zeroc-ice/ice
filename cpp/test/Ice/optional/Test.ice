@@ -75,6 +75,7 @@ module Test
         optional(8) string h;
         optional(9) MyEnum i;
         optional(10) MyInterface* j;
+        optional(11) Object* oprx;
         optional(12) ByteSeq bs;
         optional(13) StringSeq ss;
         optional(14) IntIntDict iid;

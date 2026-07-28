@@ -48,6 +48,7 @@ public class AllTests : global::Test.AllTests
         mo1.h = "test";
         mo1.i = Test.MyEnum.MyEnumMember;
         mo1.j = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test"));
+        mo1.oprx = communicator.stringToProxy("test");
         mo1.bs = [5];
         mo1.ss = ["test", "test2"];
         mo1.iid = new Dictionary<int, int>
@@ -100,6 +101,7 @@ public class AllTests : global::Test.AllTests
         test(mo1.h == "test");
         test(mo1.i.Value == Test.MyEnum.MyEnumMember);
         test(mo1.j.Equals(communicator.stringToProxy("test")));
+        test(mo1.oprx.Equals(communicator.stringToProxy("test")));
         test(ArraysEqual(mo1.bs, [(byte)5]));
         test(ArraysEqual(mo1.ss, ["test", "test2"]));
         test(mo1.iid[4] == 3);
@@ -142,6 +144,7 @@ public class AllTests : global::Test.AllTests
         test(mo4.h is null);
         test(mo4.i is null);
         test(mo4.j is null);
+        test(mo4.oprx is null);
         test(mo4.bs is null);
         test(mo4.ss is null);
         test(mo4.iid is null);
@@ -173,6 +176,7 @@ public class AllTests : global::Test.AllTests
         test(mo5.h == mo1.h);
         test(mo5.i.Value == mo1.i.Value);
         test(mo5.j.Equals(mo1.j));
+        test(mo5.oprx.Equals(mo1.oprx));
         test(ArraysEqual(mo5.bs, mo1.bs));
         test(ArraysEqual(mo5.ss, mo1.ss));
         test(mo5.iid[4] == 3);
@@ -218,6 +222,7 @@ public class AllTests : global::Test.AllTests
         test(mo7.h == mo1.h);
         test(mo7.i is null);
         test(mo7.j.Equals(mo1.j));
+        test(mo7.oprx is null);
         test(ArraysEqual(mo7.bs, mo1.bs));
         test(mo7.ss is null);
         test(mo7.iid[4] == 3);
@@ -245,6 +250,7 @@ public class AllTests : global::Test.AllTests
         mo8.e = mo5.e;
         mo8.g = mo5.g;
         mo8.i = mo5.i;
+        mo8.oprx = mo5.oprx;
         mo8.ss = mo5.ss;
         mo8.sid = mo5.sid;
         mo8.vs = mo5.vs;
@@ -268,6 +274,7 @@ public class AllTests : global::Test.AllTests
         test(mo9.h is null);
         test(mo9.i.Equals(mo1.i));
         test(mo9.j is null);
+        test(mo9.oprx.Equals(mo1.oprx));
         test(mo9.bs is null);
         test(ArraysEqual(mo9.ss, mo1.ss));
         test(mo9.iid is null);
