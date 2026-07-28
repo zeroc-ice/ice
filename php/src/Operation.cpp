@@ -376,7 +376,7 @@ IcePHP::TypedInvocation::prepareRequest(
     }
 
     // The operation's configuration (zend_function) forces out parameters to be passed by reference.
-#ifdef DEBUG
+#ifndef NDEBUG
     for (int i = static_cast<int>(_op->inParams.size()); i < _op->numParams; ++i)
     {
         assert(Z_ISREF(args[i]));
