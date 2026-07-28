@@ -1932,8 +1932,12 @@ Slice::JavaVisitor::writeExceptionDocComment(Output& out, const OperationPtr& op
         // Try to locate the exception's definition using the name given in the comment.
         ExceptionPtr ex = op->container()->lookupException(name, false);
         string scopedName = (ex ? getUnqualified(ex, getPackage(op)) : name);
-        out << nl << " * @throws " << scopedName << ' ';
-        writeDocCommentLines(out, lines);
+        out << nl << " * @throws " << scopedName;
+        if (!lines.empty())
+        {
+            out << ' ';
+            writeDocCommentLines(out, lines);
+        }
     }
 }
 
