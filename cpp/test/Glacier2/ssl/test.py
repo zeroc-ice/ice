@@ -1,10 +1,10 @@
 # Copyright (c) ZeroC, Inc.
 
 from Glacier2Util import Glacier2Router, Glacier2TestSuite
-from Util import Client, ClientServerTestCase, Server
+from Util import Client, ClientServerTestCase, Driver, Process, Props, Server
 
 
-def routerProps(process, current):
+def routerProps(process: Process, current: Driver.Current) -> Props:
     return {
         "Ice.Warn.Dispatch": "0",
         "Glacier2.AddConnectionContext": "1",
@@ -26,8 +26,8 @@ def routerProps(process, current):
 #
 
 
-def sslProps(process, current):
-    return current.testcase.getMapping().getSSLProps(process, current)
+def sslProps(process: Process, current: Driver.Current) -> Props:
+    return current.getTestCase().getMapping().getSSLProps(process, current)
 
 
 Glacier2TestSuite(

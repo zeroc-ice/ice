@@ -5,10 +5,10 @@ import os
 import subprocess
 import sys
 
-from Util import Client, ClientTestCase, TestSuite, Windows, platform
+from Util import Client, ClientTestCase, Driver, Mapping, Process, TestSuite, Windows, platform
 
 
-def test(process, current, match, enc, mapping):
+def test(process: Process, current: Driver.Current, match: bytes, enc: str, mapping: Mapping) -> None:
     cmd = process.getCommandLine(current)
     p = subprocess.Popen(
         cmd,
@@ -16,7 +16,7 @@ def test(process, current, match, enc, mapping):
         stderr=subprocess.STDOUT,
         env=mapping.getEnv(process, current),
     )
-    out, err = p.communicate()
+    out, _ = p.communicate()
     ret = p.poll()
     if ret != 0:
         raise RuntimeError("%s failed! status %s " % (cmd, ret))
@@ -25,7 +25,7 @@ def test(process, current, match, enc, mapping):
 
 
 class IceLoggerTestCase(ClientTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         client1 = Client(exe="client1")
         client2 = Client(exe="client2")
         client3 = Client(exe="client3")
@@ -133,7 +133,7 @@ class IceLoggerTestCase(ClientTestCase):
 
         print("ok")
 
-    def teardownClientSide(self, current, success):
+    def teardownClientSide(self, current: Driver.Current, success: bool) -> None:
         self.clean()
 
     def clean(self):

@@ -1,15 +1,17 @@
 # Copyright (c) ZeroC, Inc.
 
-from Util import Client, ClientTestCase, TestSuite
+from typing import Any
+
+from Util import Client, ClientTestCase, Driver, TestSuite
 
 
 class IniClient(Client):
-    def __init__(self, iceOptions, iceProfile=None, *args, **kargs):
+    def __init__(self, iceOptions: str, iceProfile: str | None = None, *args: Any, **kargs: Any):
         Client.__init__(self, *args, **kargs)
         self.iceOptions = iceOptions
         self.iceProfile = iceProfile
 
-    def setup(self, current):
+    def setup(self, current: Driver.Current) -> None:
         if self.iceProfile:
             current.createFile(
                 "ice.profiles",
@@ -21,11 +23,11 @@ class IniClient(Client):
             )
         current.write("testing... ")
 
-    def teardown(self, current, success):
+    def teardown(self, current: Driver.Current, success: bool) -> None:
         if success:
             current.writeln("ok")
 
-    def getPhpArgs(self, current):
+    def getPhpArgs(self, current: Driver.Current) -> list[str]:
         if self.iceProfile:
             return ["-d", 'ice.profiles="ice.profiles"']
         else:

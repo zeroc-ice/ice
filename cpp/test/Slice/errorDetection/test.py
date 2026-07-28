@@ -5,11 +5,11 @@ import os
 import re
 import shutil
 
-from Util import ClientTestCase, SliceTranslator, TestSuite
+from Util import ClientTestCase, Driver, SliceTranslator, TestSuite
 
 
 class SliceErrorDetectionTestCase(ClientTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         testdir = current.testsuite.getPath()
         slice2cpp = SliceTranslator("slice2cpp", quiet=True)
 
