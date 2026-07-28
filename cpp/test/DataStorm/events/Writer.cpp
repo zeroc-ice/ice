@@ -517,9 +517,8 @@ void ::Writer::run(int argc, char* argv[])
         barrierWriter.waitForReaders();
         barrierWriter.update(0);
 
-        // Wait for the late reader on this writer rather than for a signal published by the reader: the reader
-        // publishes on its publisher session while it acknowledges this writer's attachment on its subscriber
-        // session, and the two sessions are independent, so a signal can arrive before the acknowledgment.
+        // Wait for the late reader: its attachment queues the empty initialization batch, and the update below is
+        // delivered after that batch on the same session.
         writer.waitForReaders(1);
 
         // Delivered only if the empty initialization batch for elemB marked the reader initialized.
