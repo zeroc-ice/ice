@@ -400,11 +400,6 @@ namespace DataStormI
             }
 
             // A custom Encoder may encode a value to zero bytes; the Decoder defines the meaning of empty input.
-            //
-            // The sample is only marked as having a value once the Decoder returned one. A received sample is shared
-            // by all the elements subscribed to the writer element that published it, so marking it beforehand would
-            // let a Decoder that throws leave the sample claiming a value it never got, and the elements that decode
-            // it after the first one would take that default-constructed value for the published one.
             _value = DecoderT<Value>::decode(communicator, _encodedValue);
             _hasValue = true;
             _encodedValue.clear();

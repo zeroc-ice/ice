@@ -1626,8 +1626,7 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                 // A full value is decoded into the sample the same way whatever element receives it, so the elements
                 // subscribed to this writer element share a single sample, decoded once. A partial update is not: each
                 // element resolves it against its own current value for the key and the resolved value is written into
-                // the sample, so each element gets a sample of its own. Sharing one would let the value resolved by
-                // whichever element is served first surface in all the others.
+                // the sample, so each element gets a sample of its own.
                 shared_ptr<Sample> sharedSample;
                 if (dataSample.event != DataStorm::SampleEvent::PartialUpdate)
                 {
