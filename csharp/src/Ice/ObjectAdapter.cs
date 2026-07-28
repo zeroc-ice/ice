@@ -1161,19 +1161,19 @@ public sealed class ObjectAdapter
                 }
                 else
                 {
-                    // Make sure the dispatch thread pool is created before we create the incoming connection
-                    // factories: the on-demand creation of the server thread pool can throw (for example, when a
-                    // thread pool property has an invalid value), and it must not fail once we start creating
-                    // connections.
+                    // An adapter with endpoints accepts incoming connections, and each connection needs the
+                    // adapter's dispatch thread pool. Create it before the first connection factory: its
+                    // on-demand creation reads the thread pool properties and can throw, and it must not fail
+                    // once connections exist.
                     getThreadPool();
-                }
 
-                foreach (EndpointI endp in endpoints)
-                {
-                    foreach (EndpointI expanded in endp.expandHost())
+                    foreach (EndpointI endp in endpoints)
                     {
-                        var factory = new IncomingConnectionFactory(instance, expanded, this);
-                        _incomingConnectionFactories.Add(factory);
+                        foreach (EndpointI expanded in endp.expandHost())
+                        {
+                            var factory = new IncomingConnectionFactory(instance, expanded, this);
+                            _incomingConnectionFactories.Add(factory);
+                        }
                     }
                 }
             }

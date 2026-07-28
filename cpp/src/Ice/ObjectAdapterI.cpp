@@ -1035,20 +1035,20 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             }
             else
             {
-                // Make sure the dispatch thread pool is created before we create the incoming connection
-                // factories: the on-demand creation of the server thread pool can throw (for example, when a
-                // thread pool property has an invalid value), and it must not fail once we start creating
-                // connections.
-                getThreadPool();
-            }
+                // An adapter with endpoints accepts incoming connections, and each connection needs the
+                // adapter's dispatch thread pool. Create it before the first connection factory: its
+                // on-demand creation reads the thread pool properties and can throw, and it must not fail
+                // once connections exist.
+                [[maybe_unused]] auto _ = getThreadPool();
 
-            for (const auto& endpoint : endpoints)
-            {
-                for (const auto& expanded : endpoint->expandHost())
+                for (const auto& endpoint : endpoints)
                 {
-                    auto factory = make_shared<IncomingConnectionFactory>(_instance, expanded, shared_from_this());
-                    factory->initialize();
-                    _incomingConnectionFactories.push_back(factory);
+                    for (const auto& expanded : endpoint->expandHost())
+                    {
+                        auto factory = make_shared<IncomingConnectionFactory>(_instance, expanded, shared_from_this());
+                        factory->initialize();
+                        _incomingConnectionFactories.push_back(factory);
+                    }
                 }
             }
         }
