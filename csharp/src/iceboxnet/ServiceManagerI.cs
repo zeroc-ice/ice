@@ -865,7 +865,10 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
                 throw new FailureException($"ServiceManager: invalid arguments for service '{name}'.", ex);
             }
 
-            Debug.Assert(args.Length > 0);
+            if (args.Length == 0)
+            {
+                throw new FailureException($"ServiceManager: no entry point specified for service '{name}'.");
+            }
 
             entryPoint = args[0];
 

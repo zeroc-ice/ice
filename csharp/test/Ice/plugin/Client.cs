@@ -32,6 +32,22 @@ public class Client : Test.TestHelper
         }
 
         {
+            Console.Write("testing a whitespace-only plug-in specification... ");
+            Console.Out.Flush();
+            try
+            {
+                var properties = new Ice.Properties();
+                properties.setProperty("Ice.Plugin.Test", " ");
+                using Communicator _ = initialize(properties);
+                test(false);
+            }
+            catch (Ice.PluginInitializationException)
+            {
+            }
+            Console.WriteLine("ok");
+        }
+
+        {
             Console.Write("testing a simple plug-in that fails to initialize... ");
             Console.Out.Flush();
             try

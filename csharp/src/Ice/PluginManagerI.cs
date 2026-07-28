@@ -274,7 +274,10 @@ internal sealed class PluginManagerI : PluginManager
                 throw new PluginInitializationException($"Invalid arguments for plug-in '{name}'.", ex);
             }
 
-            Debug.Assert(args.Length > 0);
+            if (args.Length == 0)
+            {
+                throw new PluginInitializationException($"No entry point specified for plug-in '{name}'.");
+            }
 
             entryPoint = args[0];
 

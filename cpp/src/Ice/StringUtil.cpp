@@ -354,6 +354,10 @@ namespace
 
         if (s[start] != '\\')
         {
+            if (static_cast<unsigned char>(s[start]) > 127)
+            {
+                pureASCII = false;
+            }
             result.push_back(checkChar(s, start++));
         }
         else if (start + 1 == end)
@@ -586,7 +590,7 @@ IceInternal::unescapeString(
         {
             checkChar(s, p++);
         }
-        return s.substr(start, end);
+        return s.substr(start, end - start);
     }
     else
     {
@@ -606,7 +610,7 @@ IceInternal::unescapeString(
 
             if (!inputIsPureASCII)
             {
-                u8s = nativeToUTF8(s.substr(start, end), stringConverter);
+                u8s = nativeToUTF8(s.substr(start, end - start), stringConverter);
                 inputStringPtr = &u8s;
                 start = 0;
                 end = u8s.size();

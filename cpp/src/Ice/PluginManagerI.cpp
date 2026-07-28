@@ -279,7 +279,13 @@ Ice::PluginManagerI::loadPlugin(PluginFactoryFunc factoryFunc, const string& nam
                 "invalid arguments for plug-in '" + name + "':\n" + string{ex.what()});
         }
 
-        assert(!args.empty());
+        if (args.empty())
+        {
+            throw PluginInitializationException(
+                __FILE__,
+                __LINE__,
+                "no entry point specified for plug-in '" + name + "'");
+        }
 
         //
         // Shift the arguments.
