@@ -79,9 +79,10 @@ public class Client : Test.TestHelper
             "-Dir=\"test",
             "-Dir='test",
             "-Dir=$'test",
+            "-Dir=$'test\\c", // trailing \c inside an unterminated $'...' quote
         ];
 
-        for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < badQuoteCommands.Length; ++i)
         {
             try
             {

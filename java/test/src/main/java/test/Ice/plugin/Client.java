@@ -34,6 +34,18 @@ public class Client extends TestHelper {
         }
 
         {
+            printWriter.print("testing a whitespace-only plug-in specification... ");
+            printWriter.flush();
+            Properties properties = createTestProperties(args);
+            properties.setProperty("Ice.Plugin.Test", " ");
+            try (Communicator communicator = initialize(properties)) {
+                test(false);
+            } catch (PluginInitializationException ex) {
+            }
+            printWriter.println("ok");
+        }
+
+        {
             printWriter.print("testing a simple plug-in that fails to initialize... ");
             printWriter.flush();
             Properties properties = createTestProperties(args);

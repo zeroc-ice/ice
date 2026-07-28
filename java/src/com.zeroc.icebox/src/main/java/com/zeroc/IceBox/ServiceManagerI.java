@@ -701,11 +701,11 @@ final class ServiceManagerI implements ServiceManager {
             try {
                 args = Options.split(value);
             } catch (ParseException ex) {
-                throw new FailureException("ServiceManager: invalid arguments for service `" + name + "'", ex);
+                throw new FailureException("ServiceManager: invalid arguments for service '" + name + "'", ex);
             }
 
             if (args.length == 0) {
-                throw new FailureException("ServiceManager: invalid arguments for service '" + name + "'");
+                throw new FailureException("ServiceManager: no entry point specified for service '" + name + "'");
             }
 
             final String entryPoint = args[0];

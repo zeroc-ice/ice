@@ -43,7 +43,7 @@ namespace
                 throw FailureException(
                     __FILE__,
                     __LINE__,
-                    "ServiceManager: invalid arguments for service '" + name + "'");
+                    "ServiceManager: no entry point specified for service '" + name + "'");
             }
 
             //

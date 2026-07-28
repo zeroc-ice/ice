@@ -199,11 +199,11 @@ final class PluginManagerI implements PluginManager {
             try {
                 args = Options.split(pluginSpec);
             } catch (ParseException ex) {
-                throw new PluginInitializationException("invalid arguments for plug-in `" + name + "'", ex);
+                throw new PluginInitializationException("invalid arguments for plug-in '" + name + "'", ex);
             }
 
             if (args.length == 0) {
-                throw new PluginInitializationException("invalid arguments for plug-in '" + name + "'");
+                throw new PluginInitializationException("no entry point specified for plug-in '" + name + "'");
             }
 
             entryPoint = args[0];

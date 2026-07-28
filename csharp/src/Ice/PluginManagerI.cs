@@ -276,7 +276,7 @@ internal sealed class PluginManagerI : PluginManager
 
             if (args.Length == 0)
             {
-                throw new PluginInitializationException($"Invalid arguments for plug-in '{name}'.");
+                throw new PluginInitializationException($"No entry point specified for plug-in '{name}'.");
             }
 
             entryPoint = args[0];
