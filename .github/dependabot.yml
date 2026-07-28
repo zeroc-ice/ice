@@ -25,7 +25,9 @@ updates:
       js-major:
         update-types: ["major"]
 
-  - package-ecosystem: "pip"
+  # uv, not pip: pip does not read uv.lock, which is where the dev group -- pyright above all -- is
+  # pinned. python/docs below is plain requirements.txt and stays on pip.
+  - package-ecosystem: "uv"
     directory: "/python"
     schedule:
       interval: "monthly"
