@@ -144,7 +144,8 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for the invocation timeout.
-        /// @param timeout The new invocation timeout (in milliseconds).
+        /// @param timeout The new invocation timeout (in milliseconds). Any negative value means infinite and is
+        /// normalized to -1.
         /// @return A proxy with the new timeout.
         [[nodiscard]] Prx ice_invocationTimeout(int timeout) const
         {
@@ -152,13 +153,17 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for the invocation timeout.
-        /// @param timeout The new invocation timeout.
+        /// @param timeout The new invocation timeout. Any negative duration means infinite and is normalized to
+        /// -1 millisecond; a duration that is not a whole number of milliseconds is rounded up to the next whole
+        /// number of milliseconds.
         /// @return A proxy with the new timeout.
         template<class Rep, class Period>
         [[nodiscard]] Prx ice_invocationTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            return fromReference(
-                asPrx()._invocationTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)));
+            return fromReference(asPrx()._invocationTimeout(
+                timeout < std::chrono::duration<Rep, Period>::zero()
+                    ? std::chrono::milliseconds(-1)
+                    : std::chrono::ceil<std::chrono::milliseconds>(timeout)));
         }
 
         /// Creates a proxy that is identical to this proxy, except for the locator.
@@ -170,7 +175,8 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for the locator cache timeout.
-        /// @param timeout The new locator cache timeout (in seconds).
+        /// @param timeout The new locator cache timeout (in seconds). Any negative value means infinite and is
+        /// normalized to -1.
         /// @return A proxy with the new timeout.
         [[nodiscard]] Prx ice_locatorCacheTimeout(int timeout) const
         {
@@ -178,13 +184,17 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for the locator cache timeout.
-        /// @param timeout The new locator cache timeout.
+        /// @param timeout The new locator cache timeout. Any negative duration means infinite and is normalized to
+        /// -1 second; a duration that is not a whole number of seconds is rounded up to the next whole number of
+        /// seconds.
         /// @return A proxy with the new timeout.
         template<class Rep, class Period>
         [[nodiscard]] Prx ice_locatorCacheTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            return fromReference(
-                asPrx()._locatorCacheTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)));
+            return fromReference(asPrx()._locatorCacheTimeout(
+                timeout < std::chrono::duration<Rep, Period>::zero()
+                    ? std::chrono::seconds(-1)
+                    : std::chrono::ceil<std::chrono::seconds>(timeout)));
         }
 
         /// Creates a proxy that is identical to this proxy, but uses oneway invocations.

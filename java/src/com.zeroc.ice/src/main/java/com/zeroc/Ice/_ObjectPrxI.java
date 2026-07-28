@@ -379,6 +379,8 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
 
     @Override
     public ObjectPrx ice_locatorCacheTimeout(Duration newTimeout) {
+        newTimeout =
+            newTimeout.isNegative() ? Duration.ofSeconds(-1) : roundUp(newTimeout, 1_000_000_000);
         if (newTimeout.equals(_reference.getLocatorCacheTimeout())) {
             return this;
         } else {
@@ -393,11 +395,27 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
 
     @Override
     public ObjectPrx ice_invocationTimeout(Duration newTimeout) {
+        newTimeout =
+            newTimeout.isNegative() ? Duration.ofMillis(-1) : roundUp(newTimeout, 1_000_000);
         if (newTimeout.equals(_reference.getInvocationTimeout())) {
             return this;
         } else {
             return _newInstance(_reference.changeInvocationTimeout(newTimeout));
         }
+    }
+
+    // Rounds a nonnegative timeout up to a whole number of the given unit (a divisor of one second, in
+    // nanoseconds); a timeout within one unit of the maximum representable duration is rounded down instead.
+    private static Duration roundUp(Duration timeout, int unitNanos) {
+        int remainder = timeout.getNano() % unitNanos;
+        if (remainder == 0) {
+            return timeout;
+        }
+        int nanos = timeout.getNano() - remainder;
+        if (!(timeout.getSeconds() == Long.MAX_VALUE && nanos == 1_000_000_000 - unitNanos)) {
+            nanos += unitNanos;
+        }
+        return Duration.ofSeconds(timeout.getSeconds(), nanos);
     }
 
     @Override

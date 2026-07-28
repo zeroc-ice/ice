@@ -623,6 +623,17 @@ allTests(TestHelper* helper)
     test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200");
     test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500");
 
+    // A negative timeout is emitted as -1, and a positive timeout is rounded up to the next whole number of the
+    // property's unit.
+    b1 = b1->ice_locatorCacheTimeout(1500ms)->ice_invocationTimeout(-2);
+    proxyProps = communicator->proxyToProperty(b1, "Test");
+    test(proxyProps["Test.LocatorCacheTimeout"] == "2");
+    test(proxyProps["Test.InvocationTimeout"] == "-1");
+
+    b1 = b1->ice_locatorCacheTimeout(-500ms);
+    proxyProps = communicator->proxyToProperty(b1, "Test");
+    test(proxyProps["Test.LocatorCacheTimeout"] == "-1");
+
     cout << "ok" << endl;
 
     cout << "testing ice_getCommunicator... " << flush;
@@ -655,8 +666,8 @@ allTests(TestHelper* helper)
     test(base->ice_invocationTimeout(-1)->ice_getInvocationTimeout() == -1ms);
     test(base->ice_invocationTimeout(-1ms)->ice_getInvocationTimeout() == -1ms);
 
-    test(base->ice_invocationTimeout(-2)->ice_getInvocationTimeout() == -2ms);
-    test(base->ice_invocationTimeout(-2ms)->ice_getInvocationTimeout() == -2ms);
+    test(base->ice_invocationTimeout(-2)->ice_getInvocationTimeout() == -1ms);
+    test(base->ice_invocationTimeout(-2ms)->ice_getInvocationTimeout() == -1ms);
 
     test(base->ice_locatorCacheTimeout(10)->ice_getLocatorCacheTimeout() == 10s);
 
@@ -666,12 +677,18 @@ allTests(TestHelper* helper)
     test(base->ice_locatorCacheTimeout(-1)->ice_getLocatorCacheTimeout() == -1s);
     test(base->ice_locatorCacheTimeout(-1s)->ice_getLocatorCacheTimeout() == -1s);
 
-    test(base->ice_locatorCacheTimeout(-2)->ice_getLocatorCacheTimeout() == -2s);
-    test(base->ice_locatorCacheTimeout(-2s)->ice_getLocatorCacheTimeout() == -2s);
+    test(base->ice_locatorCacheTimeout(-2)->ice_getLocatorCacheTimeout() == -1s);
+    test(base->ice_locatorCacheTimeout(-2s)->ice_getLocatorCacheTimeout() == -1s);
 
     test(base->ice_locatorCacheTimeout(2000ms)->ice_getLocatorCacheTimeout() == 2s);
-    test(base->ice_locatorCacheTimeout(1500ms)->ice_getLocatorCacheTimeout() == 1500ms);
-    test(base->ice_locatorCacheTimeout(-500ms)->ice_getLocatorCacheTimeout() == -500ms);
+
+    // A duration that is not a whole number of the timeout's unit is rounded up to the next whole number, and any
+    // negative duration is normalized to -1.
+    test(base->ice_locatorCacheTimeout(1500ms)->ice_getLocatorCacheTimeout() == 2s);
+    test(base->ice_locatorCacheTimeout(500us)->ice_getLocatorCacheTimeout() == 1s);
+    test(base->ice_locatorCacheTimeout(-500ms)->ice_getLocatorCacheTimeout() == -1s);
+    test(base->ice_invocationTimeout(1500us)->ice_getInvocationTimeout() == 2ms);
+    test(base->ice_invocationTimeout(-500us)->ice_getInvocationTimeout() == -1ms);
 
     cout << "ok" << endl;
 

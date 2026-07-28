@@ -34,6 +34,7 @@ import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -625,6 +626,17 @@ public class AllTests {
         test("200".equals(proxyProps.get("Test.Locator.Router.LocatorCacheTimeout")));
         test("1500".equals(proxyProps.get("Test.Locator.Router.InvocationTimeout")));
 
+        // A negative timeout is emitted as -1, and a positive timeout is rounded up to the next
+        // whole number of the property's unit.
+        b1 = b1.ice_locatorCacheTimeout(Duration.ofMillis(1500)).ice_invocationTimeout(-2);
+        proxyProps = communicator.proxyToProperty(b1, "Test");
+        test("2".equals(proxyProps.get("Test.LocatorCacheTimeout")));
+        test("-1".equals(proxyProps.get("Test.InvocationTimeout")));
+
+        b1 = b1.ice_locatorCacheTimeout(Duration.ofMillis(-500));
+        proxyProps = communicator.proxyToProperty(b1, "Test");
+        test("-1".equals(proxyProps.get("Test.LocatorCacheTimeout")));
+
         out.println("ok");
 
         out.print("testing ice_getCommunicator... ");
@@ -668,7 +680,7 @@ public class AllTests {
         test(
             base.ice_invocationTimeout(-2)
                 .ice_getInvocationTimeout()
-                .equals(Duration.ofMillis(-2)));
+                .equals(Duration.ofMillis(-1)));
 
         test(
             base.ice_locatorCacheTimeout(10)
@@ -682,7 +694,32 @@ public class AllTests {
         test(
             base.ice_locatorCacheTimeout(-2)
                 .ice_getLocatorCacheTimeout()
-                .equals(Duration.ofSeconds(-2)));
+                .equals(Duration.ofSeconds(-1)));
+
+        // A duration that is not a whole number of the timeout's unit is rounded up to the next
+        // whole number, and any negative duration is normalized to -1.
+        test(
+            base.ice_locatorCacheTimeout(Duration.ofMillis(1500))
+                .ice_getLocatorCacheTimeout()
+                .equals(Duration.ofSeconds(2)));
+        test(
+            base.ice_locatorCacheTimeout(Duration.ofNanos(-500_000))
+                .ice_getLocatorCacheTimeout()
+                .equals(Duration.ofSeconds(-1)));
+        test(
+            base.ice_invocationTimeout(Duration.ofNanos(1_500_000))
+                .ice_getInvocationTimeout()
+                .equals(Duration.ofMillis(2)));
+        test(
+            base.ice_invocationTimeout(Duration.ofNanos(-500_000))
+                .ice_getInvocationTimeout()
+                .equals(Duration.ofMillis(-1)));
+
+        // The maximum representable duration cannot be rounded up; it must not overflow.
+        test(
+            !base.ice_locatorCacheTimeout(ChronoUnit.FOREVER.getDuration())
+                .ice_getLocatorCacheTimeout()
+                .isNegative());
 
         // Ensure that the proxy methods can be called unambiguously with the correct return type.
         var diamondInterface = DiamondInterfacePrx.uncheckedCast(base);
