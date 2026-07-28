@@ -525,6 +525,9 @@ namespace IceBT
             }
             catch (const DBus::Exception& ex)
             {
+                // Always remove the local service so we don't leak the profile and its callback chain on the
+                // long-lived DBus connection. removeService is a no-op if the service was already removed.
+                _dbusConnection->removeService(path);
                 throw BluetoothException{__FILE__, __LINE__, ex.reason};
             }
         }
