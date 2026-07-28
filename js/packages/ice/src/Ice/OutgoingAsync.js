@@ -69,6 +69,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
         this._cnt = 0;
         this._sent = false;
         this._handler = null;
+        this._timeoutToken = undefined;
     }
 
     completedEx(ex) {
@@ -141,18 +142,30 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
     markSent(done) {
         this._sent = true;
         if (done) {
-            if (this._timeoutToken) {
-                this._instance.timer().cancel(this._timeoutToken);
-            }
+            this.cancelTimeoutToken();
         }
         super.markSent.call(this, done);
     }
 
+    markFinished(ok, completed) {
+        this.cancelTimeoutToken();
+        super.markFinished.call(this, ok, completed);
+    }
+
     markFinishedEx(ex) {
-        if (this._timeoutToken) {
-            this._instance.timer().cancel(this._timeoutToken);
-        }
+        this.cancelTimeoutToken();
         super.markFinishedEx.call(this, ex);
+    }
+
+    cancelTimeoutToken() {
+        // The timer hands out 0 as its first token, so the token must be compared against undefined rather than
+        // tested for truthiness. We clear the token before cancelling it, so that a completion path that runs
+        // again after timer() throws doesn't throw a second time and leave the invocation unresolved.
+        if (this._timeoutToken !== undefined) {
+            const token = this._timeoutToken;
+            this._timeoutToken = undefined;
+            this._instance.timer().cancel(token);
+        }
     }
 
     handleRetryAfterException(ex) {
