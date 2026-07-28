@@ -274,7 +274,11 @@ ServiceI::start([[maybe_unused]] const string& serviceName, const CommunicatorPt
         if (nodes.find(id) == nodes.end())
         {
             Ice::Error error(communicator->getLogger());
-            error << "invalid value for IceStorm.NodeId: no node with id " << id;
+            error << "invalid value for IceStorm.NodeId: no node with id " << id << "; the node ids are:";
+            for (const auto& node : nodes)
+            {
+                error << " " << node.first;
+            }
             throw IceBox::FailureException(__FILE__, __LINE__, "invalid value for IceStorm.NodeId");
         }
 
