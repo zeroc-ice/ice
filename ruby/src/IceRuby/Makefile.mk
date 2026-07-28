@@ -12,7 +12,7 @@ IceRuby_dependencies     := IceDiscovery IceLocatorDiscovery Ice
 IceRuby_libs            := mcpp
 IceRuby_extra_sources   := $(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp) \
                            $(top_srcdir)/cpp/src/slice2rb/RubyUtil.cpp   \
-                           (top_srcdir)/cpp/src/slice2rb/Ruby.cpp        \
+                           $(top_srcdir)/cpp/src/slice2rb/Ruby.cpp       \
 
 #
 # On the default platform, always write the module in the ruby directory.
