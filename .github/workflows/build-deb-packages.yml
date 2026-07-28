@@ -18,6 +18,7 @@ on:
       deb_build_options:
         type: string
         required: false
+        default: "nocheck parallel=4"
 
 jobs:
   build:
@@ -58,7 +59,7 @@ jobs:
           - distribution: sid
             arch: arm64
     env:
-      DEB_BUILD_OPTIONS: "nocheck parallel=4"
+      DEB_BUILD_OPTIONS: ${{ inputs.deb_build_options }}
     steps:
       - name: Check out repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
