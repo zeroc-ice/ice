@@ -130,6 +130,17 @@ Client::run(int argc, char** argv)
     try
     {
         Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+        properties->setProperty("Ice.Plugin.Test", " ");
+        Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+        test(false);
+    }
+    catch (const Ice::PluginInitializationException&)
+    {
+    }
+
+    try
+    {
+        Ice::PropertiesPtr properties = createTestProperties(argc, argv);
         properties->setProperty(
             "Ice.Plugin.Test",
             pluginDir + "TestPlugin:createPluginWithArgs 'C:\\Program Files\\' --DatabasePath "

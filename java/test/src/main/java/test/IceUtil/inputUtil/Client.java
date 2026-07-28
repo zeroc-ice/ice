@@ -115,14 +115,15 @@ public class Client extends TestHelper {
             test(false);
         }
 
-        String[] parseExceptionCommands = new String[6];
+        String[] parseExceptionCommands = new String[7];
         parseExceptionCommands[0] = "\"";
         parseExceptionCommands[1] = "'";
         parseExceptionCommands[2] = "\\$'";
         parseExceptionCommands[3] = "-Dir=\"test";
         parseExceptionCommands[4] = "-Dir='test";
         parseExceptionCommands[5] = "-Dir=$'test";
-        for (int i = 0; i < 6; i++) {
+        parseExceptionCommands[6] = "-Dir=$'test\\c"; // trailing \c inside an unterminated $'...' quote
+        for (int i = 0; i < parseExceptionCommands.length; i++) {
             try {
                 Options.split(parseExceptionCommands[i]);
                 test(false);

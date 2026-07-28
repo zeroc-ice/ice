@@ -38,7 +38,13 @@ namespace
                     "ServiceManager: invalid arguments for service '" + name + "':\n" + string{ex.what()});
             }
 
-            assert(!args.empty());
+            if (args.empty())
+            {
+                throw FailureException(
+                    __FILE__,
+                    __LINE__,
+                    "ServiceManager: no entry point specified for service '" + name + "'");
+            }
 
             //
             // Shift the arguments.
