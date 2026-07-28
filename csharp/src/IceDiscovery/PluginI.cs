@@ -120,10 +120,11 @@ public sealed class PluginI : Ice.Plugin
 
     public void destroy()
     {
+        // Called after initialize() completed successfully.
         _multicastAdapter?.destroy();
         _replyAdapter?.destroy();
         _locatorAdapter?.destroy();
-        if (_communicator.getDefaultLocator().Equals(_locator))
+        if (_locator.Equals(_communicator.getDefaultLocator()))
         {
             // Restore original default locator proxy, if the user didn't change it in the meantime
             _communicator.setDefaultLocator(_defaultLocator);
