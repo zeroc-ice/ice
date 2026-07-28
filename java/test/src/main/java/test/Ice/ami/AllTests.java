@@ -7,6 +7,7 @@ import com.zeroc.Ice.CommunicatorDestroyedException;
 import com.zeroc.Ice.CompressBatch;
 import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.ConnectionAbortedException;
+import com.zeroc.Ice.ConnectionClosedException;
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.InitializationData;
@@ -540,10 +541,9 @@ public class AllTests {
                             p.ice_getConnection().createProxy(p.ice_getIdentity()))
                             .ice_batchOneway();
                     b1.opBatch();
-                    b1.ice_getConnection().close();
-                    CompletableFuture<Void> r =
-                        b1.ice_getConnection()
-                            .flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
+                    Connection con = b1.ice_getConnection();
+                    con.close();
+                    CompletableFuture<Void> r = con.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r)
                         .whenSent(
                             (sentSynchronously, ex) -> {
@@ -939,6 +939,21 @@ public class AllTests {
                     test(false);
                 }
                 cb.check();
+            }
+            {
+                // ice_getConnection establishes a new connection when the cached connection is closed.
+                Connection con = p.ice_getConnection();
+                ObjectPrx fixedPrx = p.ice_fixed(con);
+                con.close();
+                test(p.ice_getConnection() != con);
+
+                // A fixed proxy cannot establish a new connection.
+                try {
+                    fixedPrx.ice_getConnection();
+                    test(false);
+                } catch (ConnectionClosedException ex) {
+                    // Expected
+                }
             }
             {
                 //

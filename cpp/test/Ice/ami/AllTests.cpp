@@ -886,10 +886,11 @@ allTests(TestHelper* helper, bool collocated)
                 test(p->opBatchCount() == 0);
                 auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
-                b1->ice_getConnection()->close().get();
+                auto con = b1->ice_getConnection();
+                con->close().get();
 
                 promise<void> promise;
-                b1->ice_getConnection()->flushBatchRequestsAsync(
+                con->flushBatchRequestsAsync(
                     CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex) { promise.set_exception(ex); },
                     [&](bool) { promise.set_value(); });
@@ -1136,6 +1137,24 @@ allTests(TestHelper* helper, bool collocated)
                 con->close().get();
                 f.get(); // Should complete successfully.
                 fc.get();
+            }
+            {
+                // ice_getConnection establishes a new connection when the cached connection is closed.
+                auto con = p->ice_getConnection();
+                auto fixedPrx = p->ice_fixed(con);
+                con->close().get();
+                test(p->ice_getConnection() != con);
+
+                // A fixed proxy cannot establish a new connection.
+                try
+                {
+                    fixedPrx->ice_getConnection();
+                    test(false);
+                }
+                catch (const ConnectionClosedException&)
+                {
+                    // Expected
+                }
             }
             {
                 //

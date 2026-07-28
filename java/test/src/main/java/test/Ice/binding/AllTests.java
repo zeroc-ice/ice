@@ -82,9 +82,6 @@ public class AllTests {
             rcom.deactivateObjectAdapter(adapter);
 
             TestIntfPrx test3 = TestIntfPrx.uncheckedCast(test1);
-            test(test3.ice_getConnection() == test1.ice_getConnection());
-            test(test3.ice_getConnection() == test2.ice_getConnection());
-
             try {
                 test3.ice_ping();
                 test(false);

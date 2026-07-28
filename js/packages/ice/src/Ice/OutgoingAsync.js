@@ -562,6 +562,13 @@ export class ProxyFlushBatch extends ProxyOutgoingAsyncBase {
 
 export class ProxyGetConnection extends ProxyOutgoingAsyncBase {
     invokeRemote(connection) {
+        try {
+            connection.throwException();
+        } catch (ex) {
+            // The connection is closed: throw RetryException so that the caller clears the cached request handler
+            // and calls invokeRemote again with a new connection.
+            throw new RetryException(ex);
+        }
         this.markFinished(true, r => r.resolve(connection));
         return AsyncStatus.Sent;
     }

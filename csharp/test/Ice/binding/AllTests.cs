@@ -74,9 +74,6 @@ public class AllTests : global::Test.AllTests
             com.deactivateObjectAdapter(adapter);
 
             Test.TestIntfPrx test3 = Test.TestIntfPrxHelper.uncheckedCast(test1);
-            test(test3.ice_getConnection() == test1.ice_getConnection());
-            test(test3.ice_getConnection() == test2.ice_getConnection());
-
             try
             {
                 test3.ice_ping();

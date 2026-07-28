@@ -1208,6 +1208,16 @@ internal class ProxyGetConnection : ProxyOutgoingAsyncBase
 
     public override int invokeRemote(Ice.ConnectionI connection, bool compress, bool response)
     {
+        try
+        {
+            connection.throwException();
+        }
+        catch (Ice.LocalException ex)
+        {
+            // The connection is closed: throw RetryException so that the caller clears the cached request handler
+            // and calls invokeRemote again with a new connection.
+            throw new RetryException(ex);
+        }
         cachedConnection_ = connection;
         if (responseImpl(false, true, true))
         {

@@ -438,9 +438,10 @@ public class AllTests : global::Test.AllTests
                     Test.TestIntfPrx b1 = Test.TestIntfPrxHelper.uncheckedCast(
                         p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    await b1.ice_getConnection().closeAsync();
+                    Connection con = b1.ice_getConnection();
+                    await con.closeAsync();
                     var tcs = new TaskCompletionSource();
-                    Task t = b1.ice_getConnection().flushBatchRequestsAsync(
+                    Task t = con.flushBatchRequestsAsync(
                         CompressBatch.BasedOnProxy,
                         progress: new Progress<bool>(_ => tcs.SetResult()));
                     try
@@ -711,6 +712,24 @@ public class AllTests : global::Test.AllTests
                 await con.closeAsync();
                 await t; // Should complete successfully.
                 await tcs.Task;
+            }
+            {
+                // ice_getConnection establishes a new connection when the cached connection is closed.
+                Connection con = p.ice_getConnection();
+                ObjectPrx fixedPrx = p.ice_fixed(con);
+                await con.closeAsync();
+                test(p.ice_getConnection() != con);
+
+                // A fixed proxy cannot establish a new connection.
+                try
+                {
+                    fixedPrx.ice_getConnection();
+                    test(false);
+                }
+                catch (ConnectionClosedException)
+                {
+                    // Expected
+                }
             }
             {
                 //

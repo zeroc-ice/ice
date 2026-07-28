@@ -21,6 +21,13 @@ class ProxyGetConnection extends ProxyOutgoingAsyncBase<Connection> {
 
     @Override
     public int invokeRemote(ConnectionI connection, boolean compress, boolean response) throws RetryException {
+        try {
+            connection.throwException();
+        } catch (LocalException ex) {
+            // The connection is closed: throw RetryException so that the caller clears the cached request handler
+            // and calls invokeRemote again with a new connection.
+            throw new RetryException(ex);
+        }
         _cachedConnection = connection;
         if (finished(true, true)) {
             invokeCompletedAsync();
