@@ -158,9 +158,8 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
     }
 
     cancelTimeoutToken() {
-        // The timer hands out 0 as its first token, so the token must be compared against undefined rather than
-        // tested for truthiness. We clear the token before cancelling it, so that a completion path that runs
-        // again after timer() throws doesn't throw a second time and leave the invocation unresolved.
+        // 0 is a valid token. Clear it before calling timer() — which throws once the communicator is destroyed —
+        // so that a completion path running after that throw finds the token cleared and does nothing.
         if (this._timeoutToken !== undefined) {
             const token = this._timeoutToken;
             this._timeoutToken = undefined;
