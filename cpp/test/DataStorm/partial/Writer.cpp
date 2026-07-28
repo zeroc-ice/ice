@@ -49,6 +49,10 @@ namespace DataStorm
     {
         static Counter decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq& data)
         {
+            if (!data.empty() && data[0] == std::byte{0xFF})
+            {
+                throw std::runtime_error("undecodable counter");
+            }
             return Counter{data.empty() ? 0 : static_cast<int>(data[0])};
         }
     };
@@ -405,6 +409,52 @@ void ::Writer::run(int argc, char* argv[])
         writer.waitForReaders();
         writer.add(Counter{0}); // the full value 0 encodes to zero bytes
         writer.partialUpdate<int>("increment")(5);
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // Two readers of the same key on one node hold different values for it: the reader without a discard policy
+    // accepts the low-priority writer's full value, the reader using the priority discard policy discards it and keeps
+    // the high-priority writer's value. The partial update published next must be resolved against each reader's own
+    // value. Both writers deliver through the node's single session connection and the reader node dispatches samples
+    // serialized, so the reader processes the three samples in the order they are published here.
+    Topic<string, StockPtr> perReaderTopic(node, "perReaderTopic");
+    perReaderTopic.setWriterDefaultConfig(config);
+    perReaderTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    cout << "testing partial update resolved against each reader's own value... " << flush;
+    {
+        WriterConfig highPriority = config;
+        highPriority.priority = 10;
+        auto high = makeSingleKeyWriter(perReaderTopic, "AAPL", "high", highPriority);
+
+        WriterConfig lowPriority = config;
+        lowPriority.priority = 1;
+        auto low = makeSingleKeyWriter(perReaderTopic, "AAPL", "low", lowPriority);
+
+        high.waitForReaders(2);
+        low.waitForReaders(2);
+
+        high.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));      // accepted by both readers
+        low.update(make_shared<Stock>(100.0f, 101.0f, 102.0f)); // discarded by the priority reader
+        high.partialUpdate<float>("price")(15.0f);
+
+        high.waitForNoReaders();
+        low.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // A full value that the reader's Decoder rejects is dropped by every reader of the key on the node, and none of
+    // them keeps it as the key's value: they all carry on with the value they had and resynchronize on the next full
+    // value that decodes.
+    Topic<string, Counter> decodeErrorTopic(node, "decodeErrorTopic");
+    decodeErrorTopic.setWriterDefaultConfig(config);
+    cout << "testing full value that fails to decode... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(decodeErrorTopic, "key");
+        writer.waitForReaders(2);
+        writer.add(Counter{1});
+        writer.update(Counter{0xFF}); // the reader's Decoder throws on this value
+        writer.update(Counter{2});
         writer.waitForNoReaders();
     }
     cout << "ok" << endl;

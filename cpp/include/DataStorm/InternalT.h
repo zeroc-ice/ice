@@ -400,8 +400,8 @@ namespace DataStormI
             }
 
             // A custom Encoder may encode a value to zero bytes; the Decoder defines the meaning of empty input.
-            _hasValue = true;
             _value = DecoderT<Value>::decode(communicator, _encodedValue);
+            _hasValue = true;
             _encodedValue.clear();
         }
 

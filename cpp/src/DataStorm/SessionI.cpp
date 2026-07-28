@@ -1631,24 +1631,38 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                 }
                 assert(key);
 
-                auto sample = topic->getSampleFactory()->create(
-                    _id,
-                    elementSubscribers->name,
-                    dataSample.id,
-                    dataSample.event,
-                    key,
-                    topicSubscriber.tags[dataSample.tag],
-                    dataSample.value,
-                    dataSample.timestamp);
+                auto createSample = [&]
+                {
+                    return topic->getSampleFactory()->create(
+                        _id,
+                        elementSubscribers->name,
+                        dataSample.id,
+                        dataSample.event,
+                        key,
+                        topicSubscriber.tags[dataSample.tag],
+                        dataSample.value,
+                        dataSample.timestamp);
+                };
+
+                // A full value is decoded into the sample the same way whatever element receives it, so the elements
+                // subscribed to this writer element share a single sample, decoded once. A partial update is not: each
+                // element resolves it against its own current value for the key and the resolved value is written into
+                // the sample, so each element gets a sample of its own.
+                shared_ptr<Sample> sharedSample;
+                if (dataSample.event != DataStorm::SampleEvent::PartialUpdate)
+                {
+                    sharedSample = createSample();
+                }
 
                 for (auto& [element, elementSubscriber] : elementSubscribers->getSubscribers())
                 {
                     if (elementSubscriber.initialized &&
                         (dataSample.keyId <= 0 || elementSubscriber.keys.find(key) != elementSubscriber.keys.end()))
                     {
+                        auto elementSample = sharedSample ? sharedSample : createSample();
                         elementSubscriber.lastId = dataSample.id;
                         element->queue(
-                            sample,
+                            elementSample,
                             elementSubscribers->priority,
                             shared_from_this(),
                             current.facet,
