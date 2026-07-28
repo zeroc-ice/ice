@@ -2067,7 +2067,9 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
     out << nl << "__all__ = [\"" << name << "\"]";
     out << nl;
 
-    _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
+    CodeFragment fragment = createCodeFragmentForPythonModule(p, out.str());
+    fragment.usesIcePy = false;
+    _codeFragments.push_back(std::move(fragment));
 }
 
 void
@@ -2897,9 +2899,7 @@ Slice::Python::compile(
         {
             Python::BufferedOutput out;
             writeHeader(out);
-            // Fragments that only define constants don't reference IcePy, and don't need to import it.
-            const bool usesIcePy = fragment.code.find("IcePy") != string::npos;
-            writeImports(runtimeImports[fragment.moduleName], typingImports[fragment.moduleName], usesIcePy, out);
+            writeImports(runtimeImports[fragment.moduleName], typingImports[fragment.moduleName], fragment.usesIcePy, out);
             out << sp;
             out << fragment.code;
 

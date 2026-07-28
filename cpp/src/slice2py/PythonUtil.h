@@ -92,6 +92,9 @@ namespace Slice::Python
         /// Whether this code fragment is a package index file.
         bool isPackageIndex = false;
 
+        /// Whether the generated code references the IcePy module. Fragments that only define constants don't.
+        bool usesIcePy = true;
+
         /// The generated code.
         std::string code;
     };
