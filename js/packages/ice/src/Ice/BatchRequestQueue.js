@@ -29,7 +29,10 @@ export class BatchRequestQueue {
 
         try {
             if (this._maxSize > 0 && this._batchStream.size >= this._maxSize) {
-                proxy.ice_flushBatchRequests(); // Auto flush
+                // Auto flush. We don't wait for the flush to complete, and we discard any failure, like the other
+                // language mappings. The no-op rejection handler is required because an unhandled promise rejection
+                // terminates the process in Node.js.
+                proxy.ice_flushBatchRequests().catch(() => {});
             }
 
             console.assert(this._batchMarker < this._batchStream.size);
