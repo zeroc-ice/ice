@@ -175,6 +175,16 @@ namespace DataStormI
                 }
             }
 
+            /// Returns the local key matching a remote key id, or `nullptr` when this session holds no subscription
+            /// for that id. Samples from a keyed writer carry only the key id, and the sample paths resolve it
+            /// through this method. It never inserts: an entry with a null key would be indistinguishable from a
+            /// real subscription and would defeat the callers' unknown-key checks.
+            [[nodiscard]] std::shared_ptr<Key> findKey(std::int64_t keyId) const
+            {
+                auto p = keys.find(keyId);
+                return p == keys.end() ? nullptr : p->second.first;
+            }
+
             // A map of remote keys to local keys and the number of local elements subscribing to a remote element.
             // - Key: The remote key ID.
             // - Value: A pair containing the local key and a map of remote element IDs to the number of local elements
