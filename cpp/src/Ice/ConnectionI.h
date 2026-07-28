@@ -249,7 +249,7 @@ namespace Ice
             const IceInternal::EndpointIPtr&,
             const std::shared_ptr<ObjectAdapterI>&,
             std::function<void(const ConnectionIPtr&)>,
-            const ConnectionOptions&) noexcept;
+            const ConnectionOptions&);
 
         static ConnectionIPtr create(
             const Ice::CommunicatorPtr&,

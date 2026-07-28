@@ -22,6 +22,38 @@ public:
     void run(int, char**) override;
 };
 
+// A value type with a custom encoding whose default value (0) encodes to zero bytes. The default Ice encoding never
+// produces an empty byte sequence, so only a custom Encoder can, and such a full value must remain a usable
+// partial-update base.
+struct Counter
+{
+    int value = 0;
+};
+
+namespace DataStorm
+{
+    template<> struct Encoder<Counter>
+    {
+        static Ice::ByteSeq encode(const Ice::CommunicatorPtr&, const Counter& value)
+        {
+            // The default value encodes to zero bytes; any other value encodes to a single byte.
+            if (value.value == 0)
+            {
+                return {};
+            }
+            return {static_cast<std::byte>(value.value)};
+        }
+    };
+
+    template<> struct Decoder<Counter>
+    {
+        static Counter decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq& data)
+        {
+            return Counter{data.empty() ? 0 : static_cast<int>(data[0])};
+        }
+    };
+}
+
 void ::Writer::run(int argc, char* argv[])
 {
     Node node(argc, argv);
@@ -358,6 +390,22 @@ void ::Writer::run(int argc, char* argv[])
         writer.partialUpdate<float>("price")(15.0f);
         test(writer.getLast().getEvent() == SampleEvent::PartialUpdate);
         test(writer.getLast().getValue() == nullptr); // the null base was cloned to null, not dereferenced
+    }
+    cout << "ok" << endl;
+
+    // A full value whose custom encoding is empty (here Counter's default value) is still a usable partial-update
+    // base. The reader must decode the empty encoding into a value-bearing sample rather than treat it as value-less
+    // and discard the following partial update for want of a base.
+    Topic<string, Counter> emptyEncodedTopic(node, "emptyEncodedTopic");
+    emptyEncodedTopic.setWriterDefaultConfig(config);
+    emptyEncodedTopic.setUpdater<int>("increment", [](Counter& counter, int delta) { counter.value += delta; });
+    cout << "testing partial update against an empty-encoded full value... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(emptyEncodedTopic, "key");
+        writer.waitForReaders();
+        writer.add(Counter{0}); // the full value 0 encodes to zero bytes
+        writer.partialUpdate<int>("increment")(5);
+        writer.waitForNoReaders();
     }
     cout << "ok" << endl;
 }

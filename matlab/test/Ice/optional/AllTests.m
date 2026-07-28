@@ -11,6 +11,10 @@ classdef AllTests
             AllTests.skipUnknownOptionals(communicator);
             fprintf('ok\n');
 
+            fprintf('testing optional proxies without a proxy type... ');
+            AllTests.bareOptionalProxies(communicator);
+            fprintf('ok\n');
+
             ref = ['initial:', helper.getTestEndpoint()];
             initial = InitialPrx(communicator, ref);
 
@@ -796,6 +800,29 @@ classdef AllTests
             assert(is.readOptional(1, Ice.OptionalFormat.F4), 'tag 1 should be present');
             assert(is.readInt() == 11111, 'tag 1 value mismatch');
             % Tags 30, 50 and 300 are left unread; endEncapsulation must skip them cleanly.
+            is.endEncapsulation();
+        end
+
+        function bareOptionalProxies(communicator)
+            % Marshal a set and an unset optional proxy, and read them back with the untyped form of
+            % readProxyOpt - the form generated for `optional(N) Object*`, which yields an Ice.ObjectPrx.
+            encoding = Ice.EncodingVersion(1, 1);
+            prx = communicator.stringToProxy('test:tcp -h 127.0.0.1 -p 10000');
+
+            os = Ice.OutputStream(encoding);
+            os.startEncapsulation(Ice.FormatType.SlicedFormat);
+            os.writeProxyOpt(1, prx);
+            os.writeProxyOpt(2, Ice.ObjectPrx.empty); % unset: nothing is written for tag 2
+            os.endEncapsulation();
+            data = os.finished();
+
+            is = Ice.InputStream(communicator, encoding, data);
+            is.startEncapsulation();
+            p1 = is.readProxyOpt(1);
+            assert(isa(p1, 'Ice.ObjectPrx'), 'tag 1 should be an Ice.ObjectPrx');
+            assert(p1 == prx, 'tag 1 proxy mismatch');
+            p2 = is.readProxyOpt(2);
+            assert(isa(p2, 'Ice.ObjectPrx') && isempty(p2), 'tag 2 should be an empty Ice.ObjectPrx');
             is.endEncapsulation();
         end
     end

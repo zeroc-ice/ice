@@ -1,11 +1,14 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
 
-from Util import Mapping, ProcessFromBinDir, ProcessIsReleaseOnly, Server
+from typing import Any
+
+from Util import Driver, Mapping, ProcessFromBinDir, ProcessIsReleaseOnly, Props, Server
 
 
 class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
-    def __init__(self, *args, **kargs):
+    def __init__(self, *args: Any, **kargs: Any):
         Server.__init__(
             self,
             "icebridge",
@@ -15,10 +18,11 @@ class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
             **kargs,
         )
 
-    def getExe(self, current):
+    def getExe(self, current: Driver.Current) -> str:
+        assert self.exe is not None
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
-    def getProps(self, current):
+    def getProps(self, current: Driver.Current) -> Props:
         props = Server.getProps(self, current)
         props.update(
             {

@@ -158,16 +158,9 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Current&)
         auto p = _topics.begin();
         while (p != _topics.end())
         {
-            auto detach = [this, topicId = p->first](TopicI* topic, TopicSubscriber& subscriber)
+            auto detach = [this, topicId = p->first](const shared_ptr<TopicI>& topic)
             {
-                if (subscriber.getAll().empty())
-                {
-                    // No element subscriptions: nothing to detach. The element subscribers are also what keeps the
-                    // topic alive (each element holds its parent topic), so the topic must not be dereferenced here.
-                    return;
-                }
                 unique_lock<mutex> topicLock(topic->getMutex());
-                _topicLock = &topicLock;
                 if (topic->isDestroyed())
                 {
                     // The topic is being destroyed: TopicI::disconnect detaches its elements only while the
@@ -181,7 +174,6 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Current&)
                     // session from the topic's listeners.
                     topic->detach(topicId, shared_from_this());
                 }
-                _topicLock = nullptr;
             };
             if (p->second.reap(_sessionInstanceId, detach))
             {
@@ -226,7 +218,7 @@ SessionI::attachTopic(TopicSpec spec, const Current&)
                 // If the topic spec has tags, decode them and add them to the subscriber.
                 if (!spec.tags.empty())
                 {
-                    auto& subscriber = _topics.at(spec.id).getSubscriber(topic.get());
+                    auto& subscriber = _topics.at(spec.id).getSubscriber(topic);
                     for (const auto& tag : spec.tags)
                     {
                         subscriber.tags[tag.id] =
@@ -250,8 +242,9 @@ SessionI::attachTopic(TopicSpec spec, const Current&)
                         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
                         out << _id << ": matched elements '" << spec << "' on '" << topic << "'";
                     }
-                    // Don't wait for the response here, the peer session will send an ack.
-                    _session->attachElementsAsync(topic->getId(), specs, true, nullptr);
+                    // Don't wait for the response here, the peer session will send an ack. The request is addressed
+                    // to the remote topic instance we are attaching to (spec.id).
+                    _session->attachElementsAsync(topic->getId(), spec.id, specs, true, nullptr);
                 }
             });
     }
@@ -272,10 +265,15 @@ SessionI::detachTopic(int64_t id, const Current&)
         return;
     }
 
-    for (auto& [topic, _] : t->second.getSubscribers())
+    for (auto& [topicRef, _] : t->second.getSubscribers())
     {
+        auto topic = topicRef.lock();
+        if (!topic)
+        {
+            continue;
+        }
+
         unique_lock<mutex> topicLock(topic->getMutex());
-        _topicLock = &topicLock;
         if (topic->isDestroyed())
         {
             // The topic is being destroyed: TopicI::disconnect detaches its elements only while the subscriber
@@ -291,7 +289,6 @@ SessionI::detachTopic(int64_t id, const Current&)
             }
             topic->detach(id, shared_from_this());
         }
-        _topicLock = nullptr;
     }
 
     // Erase the topic
@@ -309,7 +306,7 @@ SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, cons
 
     runWithTopics(
         topicId,
-        [&](TopicI* topic, TopicSubscriber& subscriber)
+        [&](const shared_ptr<TopicI>& topic, TopicSubscriber& subscriber)
         {
             if (_traceLevels->session > 2)
             {
@@ -340,7 +337,7 @@ SessionI::detachTags(int64_t topicId, LongSeq tags, const Current&)
 
     runWithTopics(
         topicId,
-        [&](TopicI* topic, TopicSubscriber& subscriber)
+        [&](const shared_ptr<TopicI>& topic, TopicSubscriber& subscriber)
         {
             if (_traceLevels->session > 2)
             {
@@ -366,7 +363,7 @@ SessionI::announceElements(int64_t topicId, ElementInfoSeq elements, const Curre
 
     runWithTopics(
         topicId,
-        [&](TopicI* topic, TopicSubscriber&)
+        [&](const shared_ptr<TopicI>& topic, TopicSubscriber&)
         {
             if (_traceLevels->session > 2)
             {
@@ -384,13 +381,14 @@ SessionI::announceElements(int64_t topicId, ElementInfoSeq elements, const Curre
                     out << _id << ": announcing elements matched '[" << specs << "]@" << topicId << "' on topic '"
                         << topic << "'";
                 }
-                _session->attachElementsAsync(topic->getId(), specs, false, nullptr);
+                // Addressed to the remote topic instance that announced these elements (topicId).
+                _session->attachElementsAsync(topic->getId(), topicId, specs, false, nullptr);
             }
         });
 }
 
 void
-SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initialize, const Current&)
+SessionI::attachElements(int64_t topicId, int64_t peerTopicId, ElementSpecSeq elements, bool initialize, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -399,12 +397,12 @@ SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initiali
     }
 
     auto now = chrono::system_clock::now();
-    // For each local topic that has a subscriber for the remote topic:
-    // - Attach the elements to the topic.
-    // - ACK the attached elements to the peer session.
+    // Attach the elements to the addressed local topic and ack them to the peer. Routing to exactly the addressed
+    // topic (rather than every same-name topic) keeps the echoed element and key ids unambiguous.
     runWithTopics(
         topicId,
-        [&](TopicI* topic, TopicSubscriber& subscriber)
+        peerTopicId,
+        [&](const shared_ptr<TopicI>& topic, TopicSubscriber& subscriber)
         {
             if (_traceLevels->session > 2)
             {
@@ -435,13 +433,14 @@ SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initiali
                     out << _id << ": attaching elements matched '[" << specAck << "]@" << topicId << "' on topic '"
                         << topic << "'";
                 }
-                _session->attachElementsAckAsync(topic->getId(), specAck, nullptr);
+                // Addressed back to the remote topic instance that sent attachElements (topicId).
+                _session->attachElementsAckAsync(topic->getId(), topicId, specAck, nullptr);
             }
         });
 }
 
 void
-SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const Current&)
+SessionI::attachElementsAck(int64_t topicId, int64_t peerTopicId, ElementSpecAckSeq elements, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -451,7 +450,8 @@ SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const C
     auto now = chrono::system_clock::now();
     runWithTopics(
         topicId,
-        [&](TopicI* topic, TopicSubscriber&)
+        peerTopicId,
+        [&](const shared_ptr<TopicI>& topic, TopicSubscriber&)
         {
             if (_traceLevels->session > 2)
             {
@@ -473,7 +473,8 @@ SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const C
                     out << _id << ": initializing elements '[" << initializationBatches << "]@" << topicId
                         << "' on topic '" << topic << "'";
                 }
-                _session->initSamplesAsync(topic->getId(), initializationBatches, nullptr);
+                // Addressed back to the remote topic instance that sent the ack (topicId).
+                _session->initSamplesAsync(topic->getId(), topicId, initializationBatches, nullptr);
             }
 
             if (!removedIds.empty())
@@ -494,7 +495,7 @@ SessionI::detachElements(int64_t id, LongSeq elements, const Current&)
 
     runWithTopics(
         id,
-        [&](TopicI* topic, TopicSubscriber& subscriber)
+        [&](const shared_ptr<TopicI>& topic, TopicSubscriber& subscriber)
         {
             if (_traceLevels->session > 2)
             {
@@ -525,7 +526,7 @@ SessionI::detachElements(int64_t id, LongSeq elements, const Current&)
 }
 
 void
-SessionI::initSamples(int64_t topicId, DataSamplesSeq initializationBatches, const Current&)
+SessionI::initSamples(int64_t topicId, int64_t peerTopicId, DataSamplesSeq initializationBatches, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -544,7 +545,8 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq initializationBatches, con
     {
         runWithTopics(
             topicId,
-            [&](TopicI* topic, TopicSubscriber& subscriber)
+            peerTopicId,
+            [&](const shared_ptr<TopicI>& topic, TopicSubscriber& subscriber)
             {
                 ElementSubscribers* elementSubscribers = subscriber.get(initializationBatch.id);
                 if (!elementSubscribers)
@@ -766,7 +768,9 @@ SessionI::disconnectedImpl(const ConnectionPtr& connection, exception_ptr ex)
         // The analyzer falsely flags the lambda's captures as undefined: it loses track of the closure once it
         // is stored in runWithTopics' std::function parameter.
         // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
-        runWithTopics(topicId, [topicId, self](TopicI* topic, TopicSubscriber&) { topic->detach(topicId, self); });
+        runWithTopics(
+            topicId,
+            [topicId, self](const shared_ptr<TopicI>& topic, TopicSubscriber&) { topic->detach(topicId, self); });
     }
 
     // The peer's wire disconnected() op is not a connection close, so unregister the session that connected()
@@ -953,10 +957,15 @@ SessionI::destroyImpl(const exception_ptr& ex)
         auto self = shared_from_this();
         for (auto& [topicId, subscribers] : _topics)
         {
-            for (auto& [topic, _] : subscribers.getSubscribers())
+            for (auto& [topicRef, _] : subscribers.getSubscribers())
             {
+                auto topic = topicRef.lock();
+                if (!topic)
+                {
+                    continue;
+                }
+
                 unique_lock<mutex> topicLock(topic->getMutex());
-                _topicLock = &topicLock;
                 if (topic->isDestroyed())
                 {
                     // The topic is being destroyed: TopicI::disconnect detaches its elements only while the
@@ -967,7 +976,6 @@ SessionI::destroyImpl(const exception_ptr& ex)
                 {
                     topic->detach(topicId, self);
                 }
-                _topicLock = nullptr;
             }
         }
         _topics.clear();
@@ -1065,7 +1073,7 @@ SessionI::setNode(NodePrx node)
 }
 
 void
-SessionI::subscribe(int64_t topicId, TopicI* topic)
+SessionI::subscribe(int64_t topicId, const shared_ptr<TopicI>& topic)
 {
     if (_traceLevels->session > 1)
     {
@@ -1077,7 +1085,7 @@ SessionI::subscribe(int64_t topicId, TopicI* topic)
 }
 
 void
-SessionI::unsubscribe(int64_t topicId, TopicI* topic)
+SessionI::unsubscribe(int64_t topicId, const shared_ptr<TopicI>& topic)
 {
     assert(_topics.find(topicId) != _topics.end());
     auto& subscriber = _topics.at(topicId).getSubscriber(topic);
@@ -1107,7 +1115,7 @@ SessionI::unsubscribe(int64_t topicId, TopicI* topic)
 }
 
 void
-SessionI::disconnect(int64_t topicId, TopicI* topic)
+SessionI::disconnect(int64_t topicId, const shared_ptr<TopicI>& topic)
 {
     lock_guard<mutex> lock(_mutex); // Called by TopicI::destroy
 
@@ -1125,12 +1133,10 @@ SessionI::disconnect(int64_t topicId, TopicI* topic)
     // disconnect() is called from TopicI::destroy() after the topic is marked destroyed, so detach the listeners
     // directly here instead of through runWithTopic, which skips destroyed topics. Skipping the unsubscribe (and the
     // element detachKey/detachFilter it drives) would leave TopicI::_listenerCount stale and trip a debug assert.
-    if (subscriber.getSubscribers().find(topic) != subscriber.getSubscribers().end())
+    if (subscriber.getSubscribers().find(weak_ptr<TopicI>{topic}) != subscriber.getSubscribers().end())
     {
         unique_lock<mutex> topicLock(topic->getMutex());
-        _topicLock = &topicLock;
         unsubscribe(topicId, topic);
-        _topicLock = nullptr;
     }
 
     subscriber.removeSubscriber(topic);
@@ -1425,39 +1431,96 @@ SessionI::runWithTopics(
         {
             continue;
         }
-        _topicLock = &lock;
         callback(topic);
-        _topicLock = nullptr;
     }
 }
 
 void
-SessionI::runWithTopics(int64_t topicId, const function<void(TopicI*, TopicSubscriber&)>& callback)
+SessionI::runWithTopics(int64_t topicId, const function<void(const shared_ptr<TopicI>&, TopicSubscriber&)>& callback)
 {
     auto t = _topics.find(topicId);
     if (t != _topics.end())
     {
-        for (auto& [topic, subscriber] : t->second.getSubscribers())
+        auto& subscribers = t->second.getSubscribers();
+        auto p = subscribers.begin();
+        while (p != subscribers.end())
         {
-            unique_lock<mutex> lock(topic->getMutex());
-            if (topic->isDestroyed())
+            // lock() can return the last owning reference, so the topic can be destroyed at the end of
+            // this iteration, while the session mutex is held.
+            auto topic = p->first.lock();
+            if (!topic)
             {
+                p = subscribers.erase(p);
                 continue;
             }
-            _topicLock = &lock;
-            callback(topic, subscriber);
-            _topicLock = nullptr;
+
+            unique_lock<mutex> lock(topic->getMutex());
+            if (!topic->isDestroyed())
+            {
+                callback(topic, p->second);
+            }
+            ++p;
         }
     }
 }
 
 void
-SessionI::runWithTopic(int64_t topicId, TopicI* topic, const function<void(TopicSubscriber&)>& callback)
+SessionI::runWithTopics(
+    int64_t topicId,
+    int64_t peerTopicId,
+    const function<void(const shared_ptr<TopicI>&, TopicSubscriber&)>& callback)
 {
     auto t = _topics.find(topicId);
     if (t != _topics.end())
     {
-        auto p = t->second.getSubscribers().find(topic);
+        auto& subscribers = t->second.getSubscribers();
+        auto p = subscribers.begin();
+        while (p != subscribers.end())
+        {
+            // lock() can return the last owning reference, so the topic can be destroyed at the end of
+            // this iteration, while the session mutex is held.
+            auto topic = p->first.lock();
+            if (!topic)
+            {
+                p = subscribers.erase(p);
+                continue;
+            }
+
+            if (topic->getId() != peerTopicId)
+            {
+                ++p;
+                continue;
+            }
+            unique_lock<mutex> lock(topic->getMutex());
+            if (!topic->isDestroyed())
+            {
+                callback(topic, p->second);
+            }
+            return;
+        }
+    }
+
+    // No local topic addressed by peerTopicId is subscribed to the remote topic: it was never attached, or was
+    // destroyed and reaped during the handshake. Dropping the request is correct, but trace it so it is not
+    // mistaken for a lost message.
+    if (_traceLevels->session > 2)
+    {
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": no local topic '" << peerTopicId << "' subscribed to remote topic '" << topicId
+            << "', ignoring the request";
+    }
+}
+
+void
+SessionI::runWithTopic(
+    int64_t topicId,
+    const shared_ptr<TopicI>& topic,
+    const function<void(TopicSubscriber&)>& callback)
+{
+    auto t = _topics.find(topicId);
+    if (t != _topics.end())
+    {
+        auto p = t->second.getSubscribers().find(weak_ptr<TopicI>{topic});
         if (p != t->second.getSubscribers().end())
         {
             unique_lock<mutex> lock(topic->getMutex());
@@ -1465,9 +1528,7 @@ SessionI::runWithTopic(int64_t topicId, TopicI* topic, const function<void(Topic
             {
                 return;
             }
-            _topicLock = &lock;
             callback(p->second);
-            _topicLock = nullptr;
         }
     }
 }
@@ -1514,7 +1575,7 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
     auto now = chrono::system_clock::now();
     runWithTopics(
         topicId,
-        [&](TopicI* topic, TopicSubscriber& topicSubscriber)
+        [&](const shared_ptr<TopicI>& topic, TopicSubscriber& topicSubscriber)
         {
             auto elementSubscribers = topicSubscriber.get(elementId);
             if (elementSubscribers && !elementSubscribers->getSubscribers().empty())

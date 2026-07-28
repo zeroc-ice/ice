@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import os
 import re
 
@@ -37,14 +39,14 @@ class Ice(Util.Component):
         "mx": [True],
     }
 
-    def getInstallDir(self, mapping, current):
+    def getInstallDir(self, mapping: Util.Mapping, current: Util.Driver.Current) -> str:
         # On Windows, the Ice MSI installation can only be used for C++
         envHomeName = (
             None if isinstance(Util.platform, Util.Windows) and not isinstance(mapping, Util.CppMapping) else "ICE_HOME"
         )
         return Util.Component._getInstallDir(self, mapping, current, envHomeName)
 
-    def getPhpExtension(self, mapping, current):
+    def getPhpExtension(self, mapping: Util.Mapping, current: Util.Driver.Current) -> str:
         if isinstance(Util.platform, Util.Windows):
             return (
                 "php_ice.dll"
@@ -54,10 +56,13 @@ class Ice(Util.Component):
         else:
             return "ice.so"
 
-    def getNugetPackageVersionFile(self, mapping):
+    def getNugetPackageVersionFile(self, mapping: Util.Mapping) -> str:
         if isinstance(mapping, Util.CSharpMapping):
             return os.path.join(Util.toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec")
         else:
+            # Every other mapping uses the C++ nuget package. It's only ever built on Windows, and is
+            # named after the platform toolset (for example zeroc.ice.v143.nuspec).
+            assert isinstance(Util.platform, Util.Windows)
             return os.path.join(
                 Util.toplevel,
                 "cpp",
@@ -65,7 +70,7 @@ class Ice(Util.Component):
                 "zeroc.ice.{0}.nuspec".format(Util.platform.getPlatformToolset()),
             )
 
-    def getFilters(self, mapping, config):
+    def getFilters(self, mapping: Util.Mapping, config: Util.Mapping.Config) -> tuple[list[str], list[str]]:
         if config.buildPlatform in ["iphoneos", "iphonesimulator"]:
             return (
                 ["Ice/.*", "IceSSL/configuration"],
@@ -121,8 +126,10 @@ class Ice(Util.Component):
             )
         return ([], [])
 
-    def canRun(self, testId, mapping, current):
-        parent = re.match(r"^([\w]*).*", testId).group(1)
+    def canRun(self, testId: str, mapping: Util.Mapping, current: Util.Driver.Current) -> bool:
+        match = re.match(r"^([\w]*).*", testId)
+        assert match is not None
+        parent = match.group(1)
         if isinstance(Util.platform, Util.Linux):
             if Util.platform.getLinuxId() in ["centos", "rhel", "fedora"] and current.config.buildPlatform == "x86":
                 #
@@ -134,10 +141,10 @@ class Ice(Util.Component):
 
         return True
 
-    def isMainThreadOnly(self, testId):
+    def isMainThreadOnly(self, testId: str) -> bool:
         return False  # By default, tests support being run concurrently
 
-    def getDefaultProcesses(self, mapping, processType, testId):
+    def getDefaultProcesses(self, mapping: Util.Mapping, processType: str, testId: str) -> list[Util.Process] | None:
         if testId.startswith("IceUtil"):
             return [Util.SimpleClient()]
         elif testId.startswith("IceGrid"):
@@ -145,9 +152,12 @@ class Ice(Util.Component):
                 return [IceGridUtil.IceGridClient()]
             if processType in ["server", "serveramd"]:
                 return [IceGridUtil.IceGridServer()]
+        return None
 
-    def getOptions(self, testcase, current):
-        parent = re.match(r"^([\w]*).*", testcase.getTestSuite().getId()).group(1)
+    def getOptions(self, testcase: Util.TestCase, current: Util.Driver.Current) -> Util.Options | None:
+        match = re.match(r"^([\w]*).*", testcase.getTestSuite().getId())
+        assert match is not None
+        parent = match.group(1)
         if parent not in [
             "Ice",
             "IceBox",
@@ -178,7 +188,7 @@ class Ice(Util.Component):
         else:
             return self.serviceOptions
 
-    def getRunOrder(self):
+    def getRunOrder(self) -> list[str]:
         return [
             "Slice",
             "IceUtil",
@@ -190,7 +200,7 @@ class Ice(Util.Component):
             "IceStorm",
         ]
 
-    def isCross(self, testId):
+    def isCross(self, testId: str) -> bool:
         return testId in [
             "Ice/ami",
             "Ice/exceptions",
@@ -206,9 +216,11 @@ class Ice(Util.Component):
             "Ice/optional",
         ]
 
-    def getSoVersion(self):
+    def getSoVersion(self) -> str:
         with open(os.path.join(Util.toplevel, "cpp", "include", "Ice", "Config.h"), "r") as config:
-            intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
+            match = re.search("ICE_INT_VERSION ([0-9]*)", config.read())
+            assert match is not None
+            intVersion = int(match.group(1))
             majorVersion = int(intVersion / 10000)
             minorVersion = int(intVersion / 100) - 100 * majorVersion
             patchVersion = intVersion % 100
