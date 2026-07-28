@@ -379,8 +379,12 @@ namespace
                 string direction = showOut && param->isOutParam() ? "[out]" : "";
 
                 // But when we emit the parameter's name, we want it to take 'cpp:identifier' metadata into account.
-                out << nl << "/// @param" << direction << ' ' << param->mappedName() << ' ';
-                writeDocLines(out, q->second, false);
+                out << nl << "/// @param" << direction << ' ' << param->mappedName();
+                if (!q->second.empty())
+                {
+                    out << ' ';
+                    writeDocLines(out, q->second, false);
+                }
             }
         }
 
@@ -415,7 +419,14 @@ namespace
             if (q != paramDoc.end()) // it's documented
             {
                 auto outParamDoc = q->second;
-                outParamDoc.front().insert(0, "- `" + param->mappedName() + "` ");
+                if (outParamDoc.empty()) // documented by a bare '@param', with no description
+                {
+                    outParamDoc.push_back("- `" + param->mappedName() + '`');
+                }
+                else
+                {
+                    outParamDoc.front().insert(0, "- `" + param->mappedName() + "` ");
+                }
                 result.splice(result.end(), std::move(outParamDoc));
             }
         }
@@ -434,8 +445,12 @@ namespace
             {
                 scopedName = ex->mappedScoped("::");
             }
-            out << nl << "/// @throws " << scopedName << " ";
-            writeDocLines(out, lines, false);
+            out << nl << "/// @throws " << scopedName;
+            if (!lines.empty())
+            {
+                out << ' ';
+                writeDocLines(out, lines, false);
+            }
         }
     }
 
