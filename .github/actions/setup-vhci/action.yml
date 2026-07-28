@@ -104,18 +104,25 @@ runs:
       shell: bash
       run: |
         # IceBT uses secure RFCOMM, which only works between bonded devices.
-        printf 'select %s\npower on\ndiscoverable on\npairable on\nquit\n' "$BT_ADDR" | sudo bluetoothctl
-        printf 'select %s\npower on\nquit\n' "$BT_CLIENT_ADDR" | sudo bluetoothctl
-        sudo bluetoothctl --timeout 20 scan on < /dev/null
-        # Stop discovery before pairing: pairing while a scan is running is unreliable, and
-        # bluetoothctl has been seen to segfault (exit 139) part-way through the pair when it does.
+        #
+        # Every bluetoothctl call below is non-fatal. The tool segfaults intermittently on these
+        # virtual controllers -- seen mid-pair on roughly a quarter of runs, cause not established
+        # -- and a composite step runs under `bash -eo pipefail`, so an unguarded crash fails setup
+        # even when the bond itself went through. The link key asserted below is the real gate.
+        printf 'select %s\npower on\ndiscoverable on\npairable on\nquit\n' "$BT_ADDR" | sudo bluetoothctl || true
+        printf 'select %s\npower on\nquit\n' "$BT_CLIENT_ADDR" | sudo bluetoothctl || true
+        sudo bluetoothctl --timeout 20 scan on < /dev/null || true
+        # Stop discovery before pairing: an active scan and a pairing attempt contend for the
+        # controller. This does not prevent the segfault above -- that has been observed with the
+        # scan already stopped.
         sudo bluetoothctl scan off < /dev/null || true
 
         # Assert on the stored link key rather than `bluetoothctl info`: the bond is what the tests
         # need, and the device object can be pruned while the key on disk remains valid.
         key="/var/lib/bluetooth/$BT_CLIENT_ADDR/$BT_ADDR/info"
-        # Retry, gating on that key rather than on bluetoothctl's exit status -- the bond is what
-        # matters and the tool itself can crash mid-pair.
+        # A second attempt has not been needed so far -- when pair segfaults the key is already
+        # written, so the loop breaks on the next check -- but it costs nothing on the happy path
+        # and covers a crash landing earlier in the exchange.
         for attempt in 1 2 3; do
           sudo grep -q "\[LinkKey\]" "$key" 2>/dev/null && break
           echo "pairing attempt $attempt"
