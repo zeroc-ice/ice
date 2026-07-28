@@ -512,6 +512,8 @@ Slice::Python::createCodeFragmentForPythonModule(const ContainedPtr& contained, 
         dynamic_pointer_cast<InterfaceDecl>(contained) || dynamic_pointer_cast<ClassDecl>(contained);
     fragment.moduleName = isForwardDeclaration ? getPythonModuleForForwardDeclaration(contained)
                                                : getPythonModuleForDefinition(contained);
+    // Every fragment defines or declares a meta type through IcePy, except the ones for constants.
+    fragment.usesIcePy = !dynamic_pointer_cast<Const>(contained);
     fragment.code = code;
     fragment.packageName = fragment.moduleName;
 
@@ -804,21 +806,23 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
     auto metadata = getSequenceMetadata(sequence, localMetadata);
     auto directive = metadata ? metadata->directive() : "";
 
-    auto needsRunTimeImport = dynamic_pointer_cast<ClassDef>(source) || dynamic_pointer_cast<Struct>(source) ||
-                              dynamic_pointer_cast<Exception>(source);
+    // Whether the sequence is a field of the source type. Fields need runtime imports for their default factory,
+    // and are annotated with the sequence's own type. Everywhere else the sequence appears in an operation
+    // signature, where it only needs type hints, in the marshaling direction as well as the unmarshaling one.
+    auto isField = dynamic_pointer_cast<ClassDef>(source) || dynamic_pointer_cast<Struct>(source) ||
+                   dynamic_pointer_cast<Exception>(source);
 
     auto builtin = dynamic_pointer_cast<Builtin>(sequence->type());
-    if (!needsRunTimeImport && builtin && builtin->kind() <= Builtin::KindDouble)
+    if (!isField && builtin && builtin->kind() <= Builtin::KindDouble)
     {
-        // Buffer only appears in marshaling-direction type hints (operation in-parameters and dispatch return
-        // values), never in field annotations.
+        // Marshaling-direction hints for a numeric sequence accept any Buffer.
         addTypingImport("collections.abc", "Buffer", source);
     }
 
     if (directive == "python:numpy.ndarray")
     {
         // Import numpy for using it in the field factory.
-        if (needsRunTimeImport)
+        if (isField)
         {
             addRuntimeImport("numpy", "", source);
         }
@@ -830,7 +834,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
     else if (directive == "python:array.array")
     {
         // Import array for using it in the field factory.
-        if (needsRunTimeImport)
+        if (isField)
         {
             addRuntimeImport("array", "array", source);
         }
@@ -845,7 +849,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
         auto [factory, typeHint] = splitMemoryviewArguments(arguments);
 
         // Import factory for using it in the field factory.
-        if (needsRunTimeImport)
+        if (isField)
         {
             auto [factoryPackage, factoryFunction] = splitFQN(factory);
             addRuntimeImport(factoryPackage, factoryFunction, source);
@@ -2068,9 +2072,7 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
     out << nl << "__all__ = [\"" << name << "\"]";
     out << nl;
 
-    CodeFragment fragment = createCodeFragmentForPythonModule(p, out.str());
-    fragment.usesIcePy = false;
-    _codeFragments.push_back(std::move(fragment));
+    _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
 }
 
 void
@@ -2754,20 +2756,18 @@ namespace
             out << nl << "import IcePy";
         }
 
-        // Write the runtime imports, skipping the TYPE_CHECKING import when the typing block is empty. The
-        // ImportVisitor registers TYPE_CHECKING whenever it registers a typing import, but the emitted block can
-        // still end up empty.
+        // Write the runtime imports.
         for (const auto& [moduleName, moduleImports] : runtimeImports)
         {
-            auto skipImport = [&](const string& name)
-            { return !hasTypingImports && moduleName == "typing" && name == "TYPE_CHECKING"; };
+            // The ImportVisitor registers a runtime TYPE_CHECKING import whenever it registers a typing import, but
+            // the block it's for can still end up empty. Drop the then-unused import.
+            set<pair<string, string>> definitions = moduleImports.definitions;
+            if (!hasTypingImports && moduleName == "typing")
+            {
+                definitions.erase({"TYPE_CHECKING", ""});
+            }
 
-            bool emitsAnything = moduleImports.imported ||
-                                 any_of(
-                                     moduleImports.definitions.begin(),
-                                     moduleImports.definitions.end(),
-                                     [&](const auto& definition) { return !skipImport(definition.first); });
-            if (!emitsAnything)
+            if (!moduleImports.imported && definitions.empty())
             {
                 continue;
             }
@@ -2782,13 +2782,8 @@ namespace
                 }
             }
 
-            for (const auto& [name, alias] : moduleImports.definitions)
+            for (const auto& [name, alias] : definitions)
             {
-                if (skipImport(name))
-                {
-                    continue;
-                }
-
                 out << nl << "from " << moduleName << " import " << name;
                 if (!alias.empty())
                 {
