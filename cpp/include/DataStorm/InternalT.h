@@ -387,7 +387,13 @@ namespace DataStormI
 
         [[nodiscard]] Ice::ByteSeq encodeValue(const Ice::CommunicatorPtr& communicator) final
         {
-            assert(_hasValue || event == DataStorm::SampleEvent::Remove);
+            // A remove sample carries no value.
+            if (event == DataStorm::SampleEvent::Remove)
+            {
+                return {};
+            }
+
+            assert(_hasValue);
             return EncoderT<Value>::encode(communicator, _value);
         }
 
@@ -407,8 +413,8 @@ namespace DataStormI
 
     private:
         bool _hasValue;
-        // Value-initialized so a value-less sample (such as a remove) holds a determinate default value: scalar
-        // types would otherwise be indeterminate, and encodeValue encodes this member for remove samples.
+        // Value-initialized because getValue() returns this member for a value-less sample, where it is documented to
+        // return a default value; a scalar type would otherwise be indeterminate.
         Value _value{};
     };
 

@@ -27,6 +27,19 @@ namespace
     {
         int value = 0;
     };
+
+    // A user type whose Encoder records what it was asked to encode, so a test can check which values a writer
+    // encodes.
+    struct PublishedValue
+    {
+        int value = 0;
+    };
+
+    vector<int>& encodedValues()
+    {
+        static vector<int> values;
+        return values;
+    }
 }
 
 namespace DataStorm
@@ -39,6 +52,23 @@ namespace DataStorm
     template<> struct Decoder<CustomValue>
     {
         static CustomValue decode(const Ice::ByteSeq& data) { return CustomValue{static_cast<int>(data[0])}; }
+    };
+
+    template<> struct Encoder<PublishedValue>
+    {
+        static Ice::ByteSeq encode(const Ice::CommunicatorPtr&, const PublishedValue& value)
+        {
+            encodedValues().push_back(value.value);
+            return {static_cast<std::byte>(value.value)};
+        }
+    };
+
+    template<> struct Decoder<PublishedValue>
+    {
+        static PublishedValue decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq& data)
+        {
+            return PublishedValue{static_cast<int>(data[0])};
+        }
     };
 }
 
@@ -354,6 +384,23 @@ void ::Writer::run(int argc, char* argv[])
 
         auto akws = make_shared<MultiKeyWriter<string, string>>(topic, vector<string>{});
         akws = make_shared<MultiKeyWriter<string, string>>(topic, vector<string>{}, "", WriterConfig());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing remove... " << flush;
+    {
+        // A remove sample carries no value, so publishing one encodes nothing.
+        Topic<string, PublishedValue> topic(node, "removetopic");
+
+        auto skw = makeSingleKeyWriter(topic, "key");
+        skw.add(PublishedValue{5});
+        skw.remove();
+        test((encodedValues() == vector<int>{5}));
+
+        auto mkw = makeMultiKeyWriter(topic, {"key"});
+        mkw.add("key", PublishedValue{7});
+        mkw.remove("key");
+        test((encodedValues() == vector<int>{5, 7}));
     }
     cout << "ok" << endl;
 
