@@ -326,7 +326,12 @@ allTests(Test::TestHelper* helper)
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
         initData.properties->setProperty("Ice.ServerIdleTime", "invalid");
-        Ice::CommunicatorHolder ich{Ice::initialize(initData)};
+        if (IceInternal::isMinBuild())
+        {
+            // In static builds, the Ice library does not register the IceUDP plug-in automatically.
+            initData.pluginFactories = {Ice::udpPluginFactory()};
+        }
+        Ice::CommunicatorHolder ich{Ice::initialize(std::move(initData))};
         try
         {
             ich->createObjectAdapterWithEndpoints("UdpAdapter", "udp -h 127.0.0.1 -p 0");
