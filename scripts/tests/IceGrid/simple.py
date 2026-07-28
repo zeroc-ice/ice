@@ -9,7 +9,7 @@ from IceGridUtil import (
     IceGridServer,
     IceGridTestCase,
 )
-from Util import ClientServerTestCase, Linux, TestSuite, Windows, platform
+from Util import ClientServerTestCase, Driver, Linux, Process, Props, TestSuite, Windows, platform
 
 serverProps = {
     "TestAdapter.Endpoints": "default",
@@ -22,7 +22,7 @@ registryProps = {"IceGrid.Registry.DynamicRegistration": 1}
 registryTraceProps = {"IceGrid.Registry.Trace.Discovery": 2, "Ice.Trace.Network": 1}
 
 
-def clientProps(process, current):
+def clientProps(process: Process, current: Driver.Current) -> Props:
     return {
         "IceLocatorDiscovery.Timeout": 50,
         "IceLocatorDiscovery.RetryCount": 5,

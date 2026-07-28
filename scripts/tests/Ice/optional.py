@@ -8,7 +8,7 @@ testcases = [
 ]
 
 # If the mapping has AMD servers, also run with the AMD servers
-if Mapping.getByPath(__name__).hasSource("Ice/optional", "serveramd"):
+if Mapping.requireByPath(__name__).hasSource("Ice/optional", "serveramd"):
     testcases += [
         ClientAMDServerTestCase("client/amd server with compact format"),
         ClientAMDServerTestCase(

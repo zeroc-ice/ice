@@ -6,14 +6,17 @@ import getopt
 import getpass
 import sys
 
-import passlib.hash
-import passlib.hosts
+# passlib is not a declared dependency: whoever runs the Glacier2 tests installs it, since this
+# script runs as a subprocess of them. Its submodules also resolve their algorithms dynamically, so
+# declaring it would not make the uses below checkable either.
+import passlib.hash  # pyright: ignore[reportMissingImports]
+import passlib.hosts  # pyright: ignore[reportMissingImports]
 
 usePBKDF2 = any(sys.platform == p for p in ["win32", "darwin", "cygwin"])
 useCryptExt = any(sys.platform.startswith(p) for p in ["linux", "freebsd", "gnukfreebsd"])
 
 
-def usage():
+def usage() -> None:
     print("Usage: icehashpassword [options]")
     print("")
     print("OPTIONS")
@@ -39,7 +42,7 @@ def usage():
     print("")
 
 
-def main():
+def main() -> int:
     digestAlgorithms = ()
     shortArgs = "h"
     longArgs = ["help"]

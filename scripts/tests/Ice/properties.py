@@ -1,10 +1,10 @@
 # Copyright (c) ZeroC, Inc.
 
-from Util import Client, ClientTestCase, MatlabMapping, PhpMapping, TestSuite
+from Util import Client, ClientTestCase, Driver, MatlabMapping, PhpMapping, TestSuite
 
 
 class PropertiesTestSuite(TestSuite):
-    def setup(self, current):
+    def setup(self, current: Driver.Current) -> None:
         if isinstance(self.getMapping(), PhpMapping) or isinstance(self.getMapping(), MatlabMapping):
             return
 

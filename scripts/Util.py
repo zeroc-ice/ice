@@ -21,13 +21,18 @@ import traceback
 import uuid
 import xml.sax.saxutils
 from collections import OrderedDict
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from io import StringIO
 from pathlib import Path
 from platform import machine as platform_machine
 from typing import IO, TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import Expect
+
+if TYPE_CHECKING:
+    # Ice is imported lazily at run time, since the tests can be listed without it being built.
+    # Importing it here as well gives the annotations below something real to refer to.
+    import Ice
 
 # Ice configuration properties passed to a process. Values are converted to strings by val().
 Props = dict[str, Any]
@@ -629,7 +634,7 @@ class Mapping(object):
         dotnetCoverageSession: str
 
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return (
                 "",
                 [
@@ -648,11 +653,11 @@ class Mapping(object):
             )
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             pass
 
         @classmethod
-        def commonUsage(self) -> None:
+        def commonUsage(cls) -> None:
             print("")
             print("Mapping options:")
             print("--protocol=<prot>     Run with the given protocol.")
@@ -910,31 +915,41 @@ class Mapping(object):
             return props
 
     @classmethod
-    def getByName(self, name: str) -> Mapping:
-        if name not in self.mappings:
-            raise RuntimeError("unknown mapping: `{0}', known mappings: `{1}'".format(name, list(self.mappings)))
-        return self.mappings[name]
+    def getByName(cls, name: str) -> Mapping:
+        if name not in cls.mappings:
+            raise RuntimeError("unknown mapping: `{0}', known mappings: `{1}'".format(name, list(cls.mappings)))
+        return cls.mappings[name]
 
     @classmethod
-    def getByPath(self, path: str) -> Mapping | None:
+    def getByPath(cls, path: str) -> Mapping | None:
         path = os.path.normpath(path)
-        for m in self.mappings.values():
+        for m in cls.mappings.values():
             if path.startswith(os.path.normpath(m.getTestDir())):
                 return m
         return None
 
     @classmethod
-    def getAllByPath(self, path: str) -> list[Mapping]:
+    def requireByPath(cls, path: str) -> Mapping:
+        """
+        As getByPath, for callers that know the path belongs to a mapping, such as a test.py being
+        loaded by that mapping.
+        """
+        mapping = cls.getByPath(path)
+        assert mapping is not None, "no mapping found for `{0}'".format(path)
+        return mapping
+
+    @classmethod
+    def getAllByPath(cls, path: str) -> list[Mapping]:
         path = os.path.abspath(path)
         mappings: list[Mapping] = []
-        for m in self.mappings.values():
+        for m in cls.mappings.values():
             if path.startswith(m.getPath() + os.sep):
                 mappings.append(m)
         return mappings
 
     @classmethod
     def add(
-        self,
+        cls,
         name: str,
         mapping: Mapping,
         component: Component,
@@ -944,25 +959,25 @@ class Mapping(object):
         name = name.replace("\\", "/")
         m = mapping.init(name, component, path)
         if enable:
-            self.mappings[name] = m
+            cls.mappings[name] = m
         else:
-            self.disabled[name] = m
+            cls.disabled[name] = m
 
     @classmethod
-    def disable(self, name: str) -> None:
-        m = self.mappings[name]
+    def disable(cls, name: str) -> None:
+        m = cls.mappings[name]
         if m:
-            self.disabled[name] = m
-            del self.mappings[name]
+            cls.disabled[name] = m
+            del cls.mappings[name]
 
     @classmethod
-    def remove(self, name: str) -> None:
-        del self.mappings[name]
+    def remove(cls, name: str) -> None:
+        del cls.mappings[name]
 
     @classmethod
-    def getAll(self, driver: Driver | None = None, includeDisabled: bool = False) -> list[Mapping]:
-        return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))] + (
-            [m for m in self.disabled.values() if not driver or driver.matchLanguage(str(m))] if includeDisabled else []
+    def getAll(cls, driver: Driver | None = None, includeDisabled: bool = False) -> list[Mapping]:
+        return [m for m in cls.mappings.values() if not driver or driver.matchLanguage(str(m))] + (
+            [m for m in cls.disabled.values() if not driver or driver.matchLanguage(str(m))] if includeDisabled else []
         )
 
     def __init__(self, path: str | None = None):
@@ -1290,7 +1305,7 @@ class Process(Runnable):
     def __init__(
         self,
         exe: str | None = None,
-        outfilters: list[Expect.TraceFilter] | None = None,
+        outfilters: Sequence[Expect.TraceFilter] | None = None,
         quiet: bool = False,
         args: Args | Callable[[Process, Driver.Current], Args] | None = None,
         props: Props | Callable[[Process, Driver.Current], Props] | None = None,
@@ -1302,7 +1317,7 @@ class Process(Runnable):
     ):
         Runnable.__init__(self, desc)
         self.exe = exe
-        self.outfilters: list[Expect.TraceFilter] = outfilters or []
+        self.outfilters: list[Expect.TraceFilter] = list(outfilters) if outfilters else []
         self.quiet = quiet
         self.args = args or []
         self.props = props or {}
@@ -1774,9 +1789,9 @@ class TestCase(Runnable):
         self,
         name: str,
         client: Process | str | None = None,
-        clients: list[Runnable] | None = None,
+        clients: Sequence[Runnable] | None = None,
         server: Process | str | None = None,
-        servers: list[Process] | None = None,
+        servers: Sequence[Process] | None = None,
         args: Args | None = None,
         props: Props | None = None,
         envs: Envs | None = None,
@@ -1800,7 +1815,7 @@ class TestCase(Runnable):
         # Setup client list, "client" can be a string in which case it's assumed to
         # to the client executable name.
         #
-        self.clients: list[Runnable] | None = clients
+        self.clients: list[Runnable] | None = list(clients) if clients is not None else None
         if client:
             client = Client(exe=client) if isinstance(client, str) else client
             self.clients = [client] if not self.clients else self.clients + [client]
@@ -1809,7 +1824,7 @@ class TestCase(Runnable):
         # Setup server list, "server" can be a string in which case it's assumed to
         # to the server executable name.
         #
-        self.servers: list[Process] | None = servers
+        self.servers: list[Process] | None = list(servers) if servers is not None else None
         if server:
             server = Server(exe=server) if isinstance(server, str) else server
             self.servers = [server] if not self.servers else self.servers + [server]
@@ -2266,7 +2281,7 @@ class TestSuite(object):
     def __init__(
         self,
         path: str,
-        testcases: list[TestCase] | None = None,
+        testcases: Sequence[TestCase] | None = None,
         options: Options | Callable[[Driver.Current], Options] | None = None,
         libDirs: list[str] | None = None,
         runOnMainThread: bool = False,
@@ -2544,11 +2559,12 @@ class RemoteProcessController(ProcessController):
             pass
 
     def __init__(self, current: Driver.Current, endpoints: str | None):
-        self.processControllerProxies: dict[Any, Any] = {}
+        # Keyed by the controller's identity; the values are generated ProcessControllerPrx proxies.
+        self.processControllerProxies: dict[Ice.Identity, Any] = {}
         self.controllerApps: list[Any] = []
         self.driver = current.driver
         self.cond = threading.Condition()
-        self.adapter: Any = None
+        self.adapter: Ice.ObjectAdapter | None = None
 
         comm = current.driver.getCommunicator()
         # Test.Common is generated at runtime by Ice.loadSlice, so it can't be resolved statically.
@@ -3647,6 +3663,9 @@ class Driver:
             self.processes: dict[Process, RunningProcess] = {}
             self.dirs: list[str] = []
             self.files: list[str] = []
+            # Set by LocalDriver's remote runner to the proxy for the remote server side, and by
+            # ControllerDriver to the server side test case it runs.
+            self.serverTestCase: Any = None
 
         def getTestCase(self) -> TestCase:
             assert self.testcase is not None
@@ -3720,26 +3739,26 @@ class Driver:
     cross: Mapping | str
 
     @classmethod
-    def add(self, name: str, driver: type[Driver], default: bool = False) -> None:
+    def add(cls, name: str, driver: type[Driver], default: bool = False) -> None:
         if default:
             Driver.driver = name
-        self.driver = name
-        self.drivers[name] = driver
+        cls.driver = name
+        cls.drivers[name] = driver
 
     @classmethod
-    def getAll(self) -> list[type[Driver]]:
-        return list(self.drivers.values())
+    def getAll(cls) -> list[type[Driver]]:
+        return list(cls.drivers.values())
 
     @classmethod
-    def create(self, options: list[Option], component: Component) -> Driver:
-        parseOptions(self, options)
-        driver = self.drivers.get(self.driver)
+    def create(cls, options: list[Option], component: Component) -> Driver:
+        parseOptions(cls, options)
+        driver = cls.drivers.get(cls.driver)
         if not driver:
-            raise RuntimeError("unknown driver `{0}'".format(self.driver))
+            raise RuntimeError("unknown driver `{0}'".format(cls.driver))
         return driver(options, component)
 
     @classmethod
-    def getSupportedArgs(self) -> tuple[str, list[str]]:
+    def getSupportedArgs(cls) -> tuple[str, list[str]]:
         return (
             "dlrR",
             [
@@ -3760,11 +3779,11 @@ class Driver:
         )
 
     @classmethod
-    def usage(self) -> None:
+    def usage(cls) -> None:
         pass
 
     @classmethod
-    def commonUsage(self) -> None:
+    def commonUsage(cls) -> None:
         print("")
         print("Driver options:")
         print("-d | --debug          Verbose information.")
@@ -3830,7 +3849,7 @@ class Driver:
             [re.compile(a) for a in self.rfilters],
         )
 
-        self.communicator: Any = None
+        self.communicator: Ice.Communicator | None = None
         self.interface = ""
         self.processControllers: dict[type[ProcessController], ProcessController] = {}
 
@@ -3876,7 +3895,8 @@ class Driver:
         # Overridden by the concrete driver to restrict the option combinations that are run.
         return options
 
-    def run(self, mappings: list[Mapping], testSuiteIds: list[str]) -> int:
+    def run(self, mappings: list[Mapping], testSuiteIds: list[str]) -> int | None:
+        # None is a success, as sys.exit reads it.
         raise NotImplementedError()
 
     def runTestSuite(self, current: Driver.Current) -> None:
@@ -3918,8 +3938,9 @@ class Driver:
             return False
         return True
 
-    def getCommunicator(self) -> Any:
+    def getCommunicator(self) -> "Ice.Communicator":
         self.initCommunicator()
+        assert self.communicator is not None
         return self.communicator
 
     def initCommunicator(self) -> None:
@@ -4011,11 +4032,11 @@ class Driver:
 class CppMapping(Mapping):
     class Config(Mapping.Config):
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return ("", ["cpp-config=", "cpp-platform=", "cpp-path=", "openssl"])
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
             print("C++ Mapping options:")
             print("--cpp-path=<path>         Path of alternate source tree for the C++ mapping.")
@@ -4149,11 +4170,11 @@ class CppMapping(Mapping):
 class JavaMapping(Mapping):
     class Config(Mapping.Config):
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return ("", ["device=", "avd=", "android", "jacoco="])
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
             print("Java Mapping options:")
             print("--android                 Run the Android tests.")
@@ -4254,11 +4275,11 @@ class JavaMapping(Mapping):
 class CSharpMapping(Mapping):
     class Config(Mapping.Config):
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return ("", ["csharp-config=", "coverage-session=", "target-framework="])
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
             print("C# mapping options:")
             print("--csharp-config=<config>        C# build configuration for .NET executables (overrides --config).")
@@ -4388,28 +4409,28 @@ class CppBasedMapping(Mapping):
         mappingDesc: str
 
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return (
                 "",
                 [
-                    self.mappingName + "-config=",
-                    self.mappingName + "-platform=",
+                    cls.mappingName + "-config=",
+                    cls.mappingName + "-platform=",
                     "openssl",
                 ],
             )
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
-            print(self.mappingDesc + " mapping options:")
+            print(cls.mappingDesc + " mapping options:")
             print(
                 "--{0}-config=<config>     {1} build configuration for native executables (overrides --config).".format(
-                    self.mappingName, self.mappingDesc
+                    cls.mappingName, cls.mappingDesc
                 )
             )
             print(
                 "--{0}-platform=<platform> {1} build platform for native executables (overrides --platform).".format(
-                    self.mappingName, self.mappingDesc
+                    cls.mappingName, cls.mappingDesc
                 )
             )
             print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
@@ -4446,11 +4467,11 @@ class PythonMapping(CppBasedMapping):
         mappingDesc = "Python"
 
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return ("", ["python=", "load-slice", "pip-package"])
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
             print("Python mapping options:")
             print("--python=<interpreter>   Choose the interpreter used to run python tests")
@@ -4730,11 +4751,11 @@ class JavaScriptMixin(_JavaScriptMixinBase):
 class JavaScriptMapping(JavaScriptMixin, Mapping):
     class Config(Mapping.Config):
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return ("", ["browser=", "worker", "coverage"])
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
             print("JavaScript mapping options:")
             print("--browser=<name>      Run with the given browser.")
