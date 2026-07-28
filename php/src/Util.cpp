@@ -82,7 +82,7 @@ namespace
         if (ce != cls)
         {
             ostringstream os;
-            os << "expected an instance of " << ce->name->val;
+            os << "expected an instance of " << cls->name->val;
             invalidArgument(os.str());
             return false;
         }
