@@ -232,11 +232,10 @@ namespace
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {
-        // 'lines' is empty when the doc comment has a tag with no description, such as a bare '@param a'. The caller
-        // already wrote the tag itself, so there is nothing more to write.
         auto l = lines.cbegin();
-        if (!commentFirst && l != lines.cend())
+        if (!commentFirst)
         {
+            assert(l != lines.cend());
             out << *l;
             l++;
         }
@@ -380,8 +379,12 @@ namespace
                 string direction = showOut && param->isOutParam() ? "[out]" : "";
 
                 // But when we emit the parameter's name, we want it to take 'cpp:identifier' metadata into account.
-                out << nl << "/// @param" << direction << ' ' << param->mappedName() << ' ';
-                writeDocLines(out, q->second, false);
+                out << nl << "/// @param" << direction << ' ' << param->mappedName();
+                if (!q->second.empty())
+                {
+                    out << ' ';
+                    writeDocLines(out, q->second, false);
+                }
             }
         }
 
@@ -442,8 +445,12 @@ namespace
             {
                 scopedName = ex->mappedScoped("::");
             }
-            out << nl << "/// @throws " << scopedName << " ";
-            writeDocLines(out, lines, false);
+            out << nl << "/// @throws " << scopedName;
+            if (!lines.empty())
+            {
+                out << ' ';
+                writeDocLines(out, lines, false);
+            }
         }
     }
 

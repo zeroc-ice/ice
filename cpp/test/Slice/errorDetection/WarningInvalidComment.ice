@@ -72,8 +72,7 @@ module Test
         ///     and then continue onto the next line. Whitespace should be stripped correctly too.
         bool splitMultilineCommentTest(int param) throws CommentDummy;
 
-        /// This tests that doc-comment tags with no description at all are accepted. The description is optional, so
-        /// none of these produce a warning; they used to make the language mappings read from an empty list.
+        /// This tests that doc-comment tags with no descriptions are accepted, without producing any warnings.
         /// @param param
         /// @param myOut
         /// @return

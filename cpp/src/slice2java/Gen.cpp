@@ -1932,8 +1932,12 @@ Slice::JavaVisitor::writeExceptionDocComment(Output& out, const OperationPtr& op
         // Try to locate the exception's definition using the name given in the comment.
         ExceptionPtr ex = op->container()->lookupException(name, false);
         string scopedName = (ex ? getUnqualified(ex, getPackage(op)) : name);
-        out << nl << " * @throws " << scopedName << ' ';
-        writeDocCommentLines(out, lines);
+        out << nl << " * @throws " << scopedName;
+        if (!lines.empty())
+        {
+            out << ' ';
+            writeDocCommentLines(out, lines);
+        }
     }
 }
 
@@ -1964,13 +1968,7 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const StringList& lines)
     // subsequent lines. We assume the caller prepended a leading " * " for the first
     // line if necessary.
     //
-    // 'lines' is empty when the doc comment has a tag with no description, such as a bare '@throws Ex'. The caller
-    // already wrote the tag itself, so there is nothing more to write.
-    if (lines.empty())
-    {
-        return;
-    }
-
+    assert(!lines.empty());
     StringList l = lines;
     out << l.front();
     l.pop_front();
