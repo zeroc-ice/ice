@@ -1142,6 +1142,7 @@ allTests(TestHelper* helper, bool collocated)
                 // ice_getConnection establishes a new connection when the cached connection is closed.
                 auto con = p->ice_getConnection();
                 auto fixedPrx = p->ice_fixed(con);
+                test(fixedPrx->ice_getConnection() == con); // Caches the fixed proxy's request handler.
                 con->close().get();
                 test(p->ice_getConnection() != con);
 

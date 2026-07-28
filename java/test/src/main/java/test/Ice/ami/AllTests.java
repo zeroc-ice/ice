@@ -944,6 +944,7 @@ public class AllTests {
                 // ice_getConnection establishes a new connection when the cached connection is closed.
                 Connection con = p.ice_getConnection();
                 ObjectPrx fixedPrx = p.ice_fixed(con);
+                test(fixedPrx.ice_getConnection() == con); // Caches the fixed proxy's request handler.
                 con.close();
                 test(p.ice_getConnection() != con);
 
