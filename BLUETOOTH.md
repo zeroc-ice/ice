@@ -1,10 +1,11 @@
 # Bluetooth Testing Guide
 
-Runs the Ice test suite over Bluetooth (IceBT). Three setups:
+Runs the Ice test suite over Bluetooth (IceBT). Four setups:
 
 - C++ client against an Android server — needs hardware
 - Android client against a C++ server — needs hardware
-- Android against Android on two emulators — no hardware; this is what CI runs
+- Android against Android on two emulators — no hardware; CI's `android-bt`
+- C++ against C++ on two virtual controllers — no hardware, Linux only; CI's `cpp-bt`
 
 ## Common flags
 
@@ -113,6 +114,70 @@ python scripts/Controller.py --android --device="$CLIENT" --bt-diagnostics
 
 Emulators can also be prepared or bonded one at a time, with `--device=<serial> --bt-setup=<apk>`
 and `--device=<serial> --bt-bond=<peer> --uuid=<uuid>`.
+
+## Two virtual controllers, no hardware (Linux)
+
+`btvirt` creates a pair of virtual Bluetooth controllers in the kernel, so a C++ client and a C++
+server can talk RFCOMM on one machine. This is what CI's `cpp-bt` configuration does; its setup is
+in `.github/actions/setup-vhci`. Linux only, and needs root.
+
+The awkward part is BlueZ, not the controllers. Ice registers the same RFCOMM UUID on the client
+and the server side, and BlueZ allows one registration per UUID **per daemon** (`src/profile.c`,
+"UUID already registered"). So the two sides must talk to different daemons: the stock system one
+serves the server side, and a second `bluetoothd` on a private D-Bus bus serves the client.
+
+```bash
+sudo apt-get install -y "linux-modules-extra-$(uname -r)" bluez bluez-test-tools bluez-tools
+for m in bluetooth rfcomm bnep hci_vhci; do sudo modprobe "$m"; done   # l2cap is built into bluetooth.ko
+```
+
+**1. Create the controllers.** `-B` (BR/EDR only) is load-bearing: with LE enabled the first daemon
+holds the GATT socket and the second cannot register an adapter at all — it fails with
+`l2cap_bind: Address already in use`.
+
+```bash
+sudo btvirt -B -l2 &
+sudo hciconfig hci0 up && sudo hciconfig hci1 up
+hciconfig -a | grep -E "^hci|BD Address"     # hci1 is the server, hci0 the client
+```
+
+**2. Start the second daemon** on its own bus, with a `<type>system</type>` config file listening on
+`unix:path=/tmp/bus2.sock`:
+
+```bash
+sudo dbus-daemon --config-file=/tmp/bus2.conf --fork
+sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock /usr/libexec/bluetooth/bluetoothd -n &
+```
+
+**3. Bond the pair.** Run an agent per daemon, as a *daemon* — an agent registered inside a
+`bluetoothctl` session dies with it, and BlueZ then answers the pending confirmation negatively,
+which surfaces as `org.bluez.Error.AuthenticationFailed`.
+
+```bash
+sudo bt-agent --capability=NoInputNoOutput &
+sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock bt-agent --capability=NoInputNoOutput &
+sudo bluetoothctl --timeout 20 scan on < /dev/null
+sudo bluetoothctl pair "$BT_ADDR"
+```
+
+Check the stored link key rather than `bluetoothctl info` — the device object can be pruned while
+the key on disk stays valid, and `bluetoothctl` segfaults intermittently mid-pair, so its exit
+status says little:
+
+```bash
+sudo sed -n '/^\[LinkKey\]/,/^\[/p' "/var/lib/bluetooth/$BT_CLIENT_ADDR/$BT_ADDR/info" | grep "^Key="
+```
+
+**4. Run the tests.** The server controller stays on the system bus; the client uses the second
+daemon. `--cross=cpp` skips the collocated case, which has no server side and so leaves
+`Ice.Default.Host` as an IP address IceBT rejects.
+
+```bash
+cd cpp
+python3 ../scripts/Controller.py --id=server --host-bt="$BT_ADDR" &
+DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
+  python3 allTests.py --server=server --protocol=bt --cross=cpp --host-bt="$BT_ADDR" Ice/operations
+```
 
 ## Finding Bluetooth addresses
 

@@ -169,7 +169,6 @@ jobs:
           - os: ubuntu-24.04-arm
             config: "cpp-bt"
             working_directory: "cpp"
-            bluetooth: true
             build_cpp_and_python: true
             test_workers: 1
             skip_all_configs: true
@@ -186,9 +185,10 @@ jobs:
               Ice/operations Ice/ami
 
     runs-on: ${{ matrix.os }}
-    # Only the Bluetooth jobs set job_timeout; everything else keeps GitHub's default. Note a job
-    # killed here skips the always() diagnostics and upload steps, so set it well above the job's
-    # normal runtime.
+    # Only the Bluetooth jobs set job_timeout; everything else keeps GitHub's default. These sit
+    # deliberately below the sum of their steps' own caps (cpp-bt 45 against 175, android-bt 60
+    # against 190), so the job cap is what bounds a wedged run. Keep them well above the job's
+    # normal runtime even so: a job killed here skips the always() diagnostics and upload steps.
     timeout-minutes: ${{ matrix.job_timeout || 360 }}
     steps:
       - name: Checkout repository
@@ -312,7 +312,7 @@ jobs:
         uses: ./.github/actions/setup-android-bt
 
       - name: Setup virtual Bluetooth controllers
-        if: matrix.bluetooth == true
+        if: matrix.config == 'cpp-bt'
         timeout-minutes: 20
         uses: ./.github/actions/setup-vhci
 
@@ -323,6 +323,9 @@ jobs:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.test_flags }}
           workers: ${{ matrix.test_workers || 4 }}
+          # Bluetooth opts out: --all fans each suite over configurations that don't apply to it.
+          # The polarity is load-bearing -- the natural-looking `matrix.test_all != false` reads
+          # null != false as 0 != 0, silently dropping --all from every job in the matrix.
           all: ${{ matrix.skip_all_configs != true }}
 
       # Runs before the diagnostics step so a bts failure still gets the adb/logcat dump.
@@ -334,6 +337,9 @@ jobs:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.bts_test_flags }}
           workers: ${{ matrix.test_workers || 4 }}
+          # Bluetooth opts out: --all fans each suite over configurations that don't apply to it.
+          # The polarity is load-bearing -- the natural-looking `matrix.test_all != false` reads
+          # null != false as 0 != 0, silently dropping --all from every job in the matrix.
           all: ${{ matrix.skip_all_configs != true }}
 
       - name: Bluetooth diagnostics
@@ -351,6 +357,29 @@ jobs:
             # its last command -- so keep the loop's status clean or diagnostics alone fails the job.
             timeout 60 python3 scripts/Controller.py --android --device="$d" --bt-diagnostics || true
           done
+        shell: bash
+
+      # The setup step's own failures are self-reporting; this covers a *test* failure, where
+      # nothing so far says whether the controllers, the bond, or the daemons are still healthy.
+      - name: Virtual Bluetooth diagnostics
+        if: always() && matrix.config == 'cpp-bt'
+        timeout-minutes: 5
+        run: |
+          # As above: keep the last command's status clean or diagnostics alone fails the job.
+          set +e
+          echo "=== controllers ==="; hciconfig -a
+          echo "=== bond ==="; sudo find /var/lib/bluetooth -name info -exec sh -c \
+            'echo "--- $1"; cat "$1"' _ {} \;
+          # -f: Controller.py runs as python3, so its name alone never matches.
+          echo "=== processes ==="; pgrep -af "btvirt|bluetoothd|bt-agent|Controller.py"
+          echo "=== system bus ==="; sudo busctl --system tree org.bluez 2>&1 | head -20
+          echo "=== private bus ==="
+          sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
+            busctl --system tree org.bluez 2>&1 | head -20
+          for f in btvirt bluetoothd2 bt-agent bt-agent2 controller; do
+            echo "=== $f.log ==="; tail -20 "$GITHUB_WORKSPACE/$f.log"
+          done
+          true
         shell: bash
 
       - name: Cross Test ${{ matrix.config }} on ${{ matrix.os }}

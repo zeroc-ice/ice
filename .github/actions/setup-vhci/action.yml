@@ -6,11 +6,6 @@ description: >
   Exports BT_ADDR (the server controller's address) and DBUS_SYSTEM_BUS_ADDRESS, which points later
   steps at the second bluetoothd. The steps below explain why each piece is shaped as it is.
 
-inputs:
-  working_directory:
-    description: "Directory to start the server-side process controller from"
-    default: "cpp"
-
 runs:
   using: "composite"
   steps:
@@ -92,9 +87,11 @@ runs:
           echo "the second bluetoothd never claimed an adapter"
           tail -20 "$GITHUB_WORKSPACE/bluetoothd2.log"
           exit 1; }
-        # An agent per daemon, and each must outlive the pairing: BlueZ answers a pending
-        # confirmation negatively as soon as the registering process exits, which surfaces as
-        # org.bluez.Error.AuthenticationFailed. NoInputNoOutput selects "just works" pairing.
+        # An agent per daemon. The system-bus one must outlive the pairing, which runs entirely on
+        # that bus: BlueZ answers a pending confirmation negatively as soon as the registering
+        # process exits, which surfaces as org.bluez.Error.AuthenticationFailed. The bus2 agent is
+        # for the client side, which talks to the second daemon once the tests start.
+        # NoInputNoOutput selects "just works" pairing.
         sudo sh -c "nohup bt-agent --capability=NoInputNoOutput > '$GITHUB_WORKSPACE/bt-agent.log' 2>&1 &"
         sudo sh -c "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
           nohup bt-agent --capability=NoInputNoOutput > '$GITHUB_WORKSPACE/bt-agent2.log' 2>&1 &"
@@ -120,26 +117,42 @@ runs:
         # Assert on the stored link key rather than `bluetoothctl info`: the bond is what the tests
         # need, and the device object can be pruned while the key on disk remains valid.
         key="/var/lib/bluetooth/$BT_CLIENT_ADDR/$BT_ADDR/info"
+        # Match the Key= field, not the [LinkKey] section header: pair can segfault part-way
+        # through writing this file, which would leave the header present and the key absent.
+        haskey() { sudo sed -n '/^\[LinkKey\]/,/^\[/p' "$key" 2>/dev/null | grep -q "^Key="; }
         # A second attempt has not been needed so far -- when pair segfaults the key is already
         # written, so the loop breaks on the next check -- but it costs nothing on the happy path
         # and covers a crash landing earlier in the exchange.
         for attempt in 1 2 3; do
-          sudo grep -q "\[LinkKey\]" "$key" 2>/dev/null && break
+          haskey && break
           echo "pairing attempt $attempt"
           sudo bluetoothctl --timeout 30 pair "$BT_ADDR" < /dev/null || echo "  pair exited $?"
           sudo bluetoothctl trust "$BT_ADDR" < /dev/null || true
           sleep 2
         done
-        sudo grep -q "\[LinkKey\]" "$key" 2>/dev/null || {
+        haskey || {
           echo "no link key at $key -- $BT_CLIENT_ADDR did not bond with $BT_ADDR"
           sudo find /var/lib/bluetooth -name info 2>/dev/null
           cat "$GITHUB_WORKSPACE/bt-agent.log" "$GITHUB_WORKSPACE/bt-agent2.log" 2>/dev/null
           exit 1; }
         echo "bonded: $BT_CLIENT_ADDR <-> $BT_ADDR"
 
+        # Diagnostics, not assertions. The client talks to the second daemon, which was started
+        # before the pairing and so learns the bond only from live mgmt events -- if that ever
+        # fails it surfaces as an IceBT "unknown address" test failure rather than a setup one.
+        # Printing both buses here is what makes that case diagnosable; asserting a specific
+        # object path needs a run's worth of evidence about which daemon owns which adapter.
+        echo "=== system bus ==="
+        sudo busctl --system tree org.bluez 2>&1 | head -20 || true
+        echo "=== private bus ==="
+        sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
+          busctl --system tree org.bluez 2>&1 | head -20 || true
+        echo "=== stored keys ==="
+        sudo find /var/lib/bluetooth -name info 2>/dev/null || true
+
     - name: Start the server-side process controller
       shell: bash
-      working-directory: ${{ inputs.working_directory }}
+      working-directory: cpp
       run: |
         # Runs against the system bus, so the servers it spawns register their RFCOMM profile
         # there. --host-bt is load-bearing here and inert on allTests: it becomes the server's
