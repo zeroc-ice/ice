@@ -23,6 +23,8 @@ namespace IcePy
         void error(const std::string&) final;
         std::string getPrefix() final;
         Ice::LoggerPtr cloneWithPrefix(std::string) final;
+
+        /// Returns a borrowed reference to the Python logger.
         PyObject* getObject();
 
     private:
