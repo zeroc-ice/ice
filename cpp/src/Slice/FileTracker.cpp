@@ -29,18 +29,9 @@ Slice::FileTracker::instance()
 void
 Slice::FileTracker::setSource(const string& source)
 {
-    _source = source;
     pair<map<string, list<string>>::iterator, bool> p = _generated.insert(make_pair(source, list<string>()));
     assert(p.second);
     _curr = p.first;
-}
-
-void
-Slice::FileTracker::error()
-{
-    assert(_curr != _generated.end());
-    _generated.erase(_curr);
-    _curr = _generated.end();
 }
 
 void

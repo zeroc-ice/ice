@@ -21,16 +21,6 @@ namespace Slice::Python
         Dispatch
     };
 
-    /// Represents the scope of an import statement—either required at runtime or only used for type hints.
-    enum class ImportScope
-    {
-        /// The import is required at runtime by the generated Python code.
-        RuntimeImport,
-
-        /// The import is only used for type hints and is not needed at runtime.
-        TypingImport
-    };
-
     // The context a type will be used in.
     enum class InterfaceTypeContext
     {
