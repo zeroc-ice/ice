@@ -374,7 +374,7 @@ public final class ObjectAdapter {
         } finally {
             synchronized (this) {
                 if (_state == StateDestroying) {
-                    // The destruction was interrupted: restore a state that allows destroy to be called again.
+                    // Destroy did not complete: restore a state that allows destroy to be called again.
                     _state = StateDeactivated;
                     notifyAll();
                 }
