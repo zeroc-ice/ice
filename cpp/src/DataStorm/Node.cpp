@@ -26,9 +26,10 @@ Node::defaultProperties()
     // own serialized thread pool (see Instance::init), but the sessions carried by a connection the node opened
     // are dispatched on the client thread pool, which the node does not otherwise configure.
     //
-    // The client thread pool ignores this setting while it holds a single thread, which is its default, so this
-    // matters only for a communicator configured to let the pool grow - the configuration in which the order
-    // would otherwise be lost.
+    // Ordering is at stake only for a communicator configured to let the client pool grow; a single-threaded pool
+    // cannot reorder anything. The setting is not free at that default size on Windows though: the IOCP path
+    // defers the next asynchronous read to the end of the upcall whatever the pool size, so a connection stops
+    // reading while it dispatches. See #6279.
     properties->setProperty("Ice.ThreadPool.Client.Serialize", "1");
     return properties;
 }

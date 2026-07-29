@@ -93,23 +93,38 @@ namespace Ice
     /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument starting
     /// with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
     /// configuration file and through a command-line argument, the command-line setting takes precedence.
+    /// @param initData Options for the new communicator. Its properties, when set, provide the defaults for the
+    /// properties parsed from @p argv: a property set in @p argv or in a configuration file overrides them.
     /// @return The new communicator.
-    template<typename ArgvT> inline CommunicatorPtr initialize(int& argc, ArgvT argv)
+    template<typename ArgvT> inline CommunicatorPtr initialize(int& argc, ArgvT argv, InitializationData initData)
     {
-        auto properties = std::make_shared<Properties>(argc, argv);
-        if (properties->getProperty("Ice.ProgramName").empty() && argc > 0)
+        initData.properties = std::make_shared<Properties>(argc, argv, initData.properties);
+        if (initData.properties->getProperty("Ice.ProgramName").empty() && argc > 0)
         {
             StringSeq args = argsToStringSeq(argc, argv);
             std::string programName = args[0];
             // Replace any backslashes in this value with forward slashes, in case this value is used by the event
             // logger.
             std::replace(programName.begin(), programName.end(), '\\', '/');
-            properties->setProperty("Ice.ProgramName", std::move(programName));
+            initData.properties->setProperty("Ice.ProgramName", std::move(programName));
         }
 
-        InitializationData initData;
-        initData.properties = properties;
         return initialize(std::move(initData));
+    }
+
+    /// Creates a new communicator, using Ice properties parsed from the command-line arguments.
+    /// @tparam ArgvT The type of the argument vector, such as char**, const char**, or wchar_t** (on Windows).
+    /// @param[in,out] argc The number of arguments in @p argv. When this function parses properties from @p argv, it
+    /// reshuffles the arguments so that the remaining arguments start at the beginning of @p argv, and updates @p argc
+    /// accordingly.
+    /// @param argv The command-line arguments. This function parses arguments starting with `--` and one of the
+    /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument starting
+    /// with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
+    /// configuration file and through a command-line argument, the command-line setting takes precedence.
+    /// @return The new communicator.
+    template<typename ArgvT> inline CommunicatorPtr initialize(int& argc, ArgvT argv)
+    {
+        return initialize(argc, argv, InitializationData{});
     }
 
     /// Gets the per-process logger.

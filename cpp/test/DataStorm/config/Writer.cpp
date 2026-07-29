@@ -26,6 +26,11 @@ void ::Writer::run(int argc, char* argv[])
         // connection the node opened are dispatched there, and they must be dispatched in order.
         test(node.getCommunicator()->getProperties()->getIceProperty("Ice.ThreadPool.Client.Serialize") == "1");
 
+        // A node created from NodeOptions creates its communicator through a separate path, which configures it
+        // the same way.
+        Node optionsNode{NodeOptions{}};
+        test(optionsNode.getCommunicator()->getProperties()->getIceProperty("Ice.ThreadPool.Client.Serialize") == "1");
+
         // The node sets it as a default, so an application that configures the property itself keeps its value.
         string args[]{
             argv[0],

@@ -6,7 +6,6 @@
 #include "Config.h"
 #include "InternalI.h"
 
-#include <algorithm>
 #include <functional>
 
 namespace DataStorm
@@ -31,9 +30,8 @@ namespace DataStorm
         /// @remark A DataStorm node requires the requests it receives on a connection to be dispatched in the order
         /// they were sent; a partial update is applied to the value left by the preceding sample. A node configures
         /// the communicators it creates accordingly, but it does not change the configuration of a communicator
-        /// supplied here. Such a communicator must leave `Ice.ThreadPool.Client` single-threaded, or set
-        /// `Ice.ThreadPool.Client.Serialize` to 1, before it is created. An executor set through
-        /// Ice::InitializationData must likewise preserve the dispatch order.
+        /// supplied here. Such a communicator must set `Ice.ThreadPool.Client.Serialize` to 1 before it is created.
+        /// An executor set through Ice::InitializationData must likewise preserve the dispatch order.
         Ice::CommunicatorPtr communicator{nullptr};
 
         /// Specifies whether or not the node owns the communicator.
@@ -103,8 +101,10 @@ namespace DataStorm
         Node& operator=(Node&& node) noexcept;
 
         /// Returns the Ice communicator associated with the node.
-        /// @remark A communicator the node created is configured for the ordered dispatch the node requires: it
-        /// sets `Ice.ThreadPool.Client.Serialize`, which applies to every connection the communicator opens.
+        /// @remark For a communicator the node created, the node defaults `Ice.ThreadPool.Client.Serialize` to 1 —
+        /// the ordered dispatch it requires. An application that sets this property itself keeps its own value and
+        /// is then responsible for the ordering. The setting applies to every connection the communicator opens: a
+        /// connection does not read while it dispatches.
         [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const noexcept;
 
         /// Returns the Ice connection associated with a session given a session identifier. Session identifiers are
@@ -121,25 +121,13 @@ namespace DataStorm
 
         template<typename ArgvT> NodeOptions createNodeOptions(int& argc, ArgvT argv)
         {
-            // Equivalent to Ice::initialize(argc, argv), except that the property set starts from the node
-            // defaults. They have to be in place before the communicator is created: the client thread pool reads
-            // its configuration when the communicator creates it.
-            auto properties = std::make_shared<Ice::Properties>(argc, argv, defaultProperties());
-            if (properties->getProperty("Ice.ProgramName").empty() && argc > 0)
-            {
-                Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-                std::string programName = args[0];
-                // Replace any backslashes in this value with forward slashes, in case this value is used by the
-                // event logger.
-                std::replace(programName.begin(), programName.end(), '\\', '/');
-                properties->setProperty("Ice.ProgramName", std::move(programName));
-            }
-
+            // The node defaults have to be in place before the communicator is created: the client thread pool
+            // reads its configuration when the communicator creates it.
             Ice::InitializationData initData;
-            initData.properties = std::move(properties);
+            initData.properties = defaultProperties();
 
             NodeOptions options;
-            options.communicator = Ice::initialize(std::move(initData));
+            options.communicator = Ice::initialize(argc, argv, std::move(initData));
             options.nodeOwnsCommunicator = true;
             return options;
         }
