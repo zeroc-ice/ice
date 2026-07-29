@@ -71,6 +71,85 @@ Client::run(int, char**)
         }
     }
     cout << "ok" << endl;
+
+    cout << "testing string to command line arguments... " << flush;
+    {
+        vector<string> args;
+
+        test(Options::split("").empty());
+
+        args = Options::split("\"\"");
+        test(args.size() == 1 && args[0].empty());
+        args = Options::split("''");
+        test(args.size() == 1 && args[0].empty());
+        args = Options::split("$''");
+        test(args.size() == 1 && args[0].empty());
+
+        args = Options::split("-a -b -c");
+        test(args.size() == 3 && args[0] == "-a" && args[1] == "-b" && args[2] == "-c");
+        args = Options::split("\"-a\" '-b' $'-c'");
+        test(args.size() == 3 && args[0] == "-a" && args[1] == "-b" && args[2] == "-c");
+        args = Options::split("  '-b' \"-a\" $'-c' ");
+        test(args.size() == 3 && args[0] == "-b" && args[1] == "-a" && args[2] == "-c");
+        args = Options::split(" $'-c' '-b' \"-a\"  ");
+        test(args.size() == 3 && args[0] == "-c" && args[1] == "-b" && args[2] == "-a");
+
+        // Single quote
+        args = Options::split("-Dir='C:\\\\test\\\\file'");                    // -Dir='C:\\test\\file'
+        test(args.size() == 1 && args[0] == "-Dir=C:\\\\test\\\\file");        // -Dir=C:\\test\\file
+        args = Options::split("-Dir='C:\\test\\file'");                        // -Dir='C:\test\file'
+        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file");            // -Dir=C:\test\file
+        args = Options::split("-Dir='C:\\test\\filewith\"quote'");             // -Dir='C:\test\filewith"quote'
+        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\filewith\"quote"); // -Dir=C:\test\filewith"quote
+
+        // Double quote
+        args = Options::split("-Dir=\"C:\\\\test\\\\file\"");                  // -Dir="C:\\test\\file"
+        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file");            // -Dir=C:\test\file
+        args = Options::split("-Dir=\"C:\\test\\file\"");                      // -Dir="C:\test\file"
+        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file");            // -Dir=C:\test\file
+        args = Options::split("-Dir=\"C:\\test\\filewith\\\"quote\"");         // -Dir="C:\test\filewith\"quote"
+        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\filewith\"quote"); // -Dir=C:\test\filewith"quote
+
+        // ANSI quote
+        args = Options::split("-Dir=$'C:\\\\test\\\\file'");                   // -Dir=$'C:\\test\\file'
+        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file");            // -Dir=C:\test\file
+        args = Options::split("-Dir=$'C:\\oest\\oile'");                       // -Dir='C:\oest\oile'
+        test(args.size() == 1 && args[0] == "-Dir=C:\\oest\\oile");            // -Dir=C:\oest\oile
+        args = Options::split("-Dir=$'C:\\oest\\oilewith\"quote'");            // -Dir=$'C:\oest\oilewith"quote'
+        test(args.size() == 1 && args[0] == "-Dir=C:\\oest\\oilewith\"quote"); // -Dir=C:\oest\oilewith"quote
+        args = Options::split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
+        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
+        args = Options::split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
+        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
+        args = Options::split("-Dir=$'\\cM\\c_'");                  // Control characters
+        test(args.size() == 1 && args[0] == "-Dir=\015\037");
+        args = Options::split("-Dir=$'C:\\\\\\146\\x66\\cMi'"); // -Dir=$'C:\\\146\x66i\cMi'
+        test(args.size() == 1 && args[0] == "-Dir=C:\\ff\015i");
+        args = Options::split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
+        test(args.size() == 1 && args[0] == "-Dir=C:\\\015ffi");
+
+        vector<string> badQuoteCommands{
+            "\"",
+            "'",
+            "\\$'",
+            "-Dir=\"test",
+            "-Dir='test",
+            "-Dir=$'test",
+            "-Dir=$'test\\c", // trailing \c inside an unterminated $'...' quote
+        };
+        for (const auto& badQuoteCommand : badQuoteCommands)
+        {
+            try
+            {
+                Options::split(badQuoteCommand);
+                test(false);
+            }
+            catch (const BadOptException&)
+            {
+            }
+        }
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(Client)
