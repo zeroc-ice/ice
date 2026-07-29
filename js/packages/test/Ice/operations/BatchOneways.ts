@@ -69,12 +69,14 @@ export async function batchOneways(prx: Test.MyInterfacePrx, helper: TestHelper)
     await batch.ice_flushBatchRequests();
     await batch.ice_ping();
 
-    // An auto-flush that cannot be delivered fails silently: the batched requests are lost, like any other oneway,
-    // and the failure is not reported to the caller that happened to fill the batch. Nothing listens on this
-    // endpoint, so the flush triggered by Ice.BatchAutoFlushSize cannot connect.
+    // Nothing listens on this endpoint.
     const unreachable = Test.MyInterfacePrx.uncheckedCast(
         new Test.MyInterfacePrx(prx.ice_getCommunicator(), `test:${helper.getTestEndpoint(1)}`).ice_batchOneway(),
     );
+
+    // Filling the batch past Ice.BatchAutoFlushSize triggers an auto-flush that cannot connect. It fails silently:
+    // the batched requests are lost, like any other oneway, and the failure is not reported to the caller that
+    // happened to fill the batch.
     for (let i = 0; i < 11; ++i) {
         await unreachable.opByteSOneway(bs1);
     }
