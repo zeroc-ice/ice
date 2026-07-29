@@ -95,37 +95,37 @@ Client::run(int, char**)
         test(args.size() == 3 && args[0] == "-c" && args[1] == "-b" && args[2] == "-a");
 
         // Single quote
-        args = Options::split("-Dir='C:\\\\test\\\\file'");                    // -Dir='C:\\test\\file'
-        test(args.size() == 1 && args[0] == "-Dir=C:\\\\test\\\\file");        // -Dir=C:\\test\\file
-        args = Options::split("-Dir='C:\\test\\file'");                        // -Dir='C:\test\file'
-        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file");            // -Dir=C:\test\file
-        args = Options::split("-Dir='C:\\test\\filewith\"quote'");             // -Dir='C:\test\filewith"quote'
-        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\filewith\"quote"); // -Dir=C:\test\filewith"quote
+        args = Options::split(R"(-Dir='C:\\test\\file')");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\\test\\file)");
+        args = Options::split(R"(-Dir='C:\test\file')");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\test\file)");
+        args = Options::split(R"(-Dir='C:\test\filewith"quote')");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\test\filewith"quote)");
 
         // Double quote
-        args = Options::split("-Dir=\"C:\\\\test\\\\file\"");                  // -Dir="C:\\test\\file"
-        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file");            // -Dir=C:\test\file
-        args = Options::split("-Dir=\"C:\\test\\file\"");                      // -Dir="C:\test\file"
-        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file");            // -Dir=C:\test\file
-        args = Options::split("-Dir=\"C:\\test\\filewith\\\"quote\"");         // -Dir="C:\test\filewith\"quote"
-        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\filewith\"quote"); // -Dir=C:\test\filewith"quote
+        args = Options::split(R"(-Dir="C:\\test\\file")");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\test\file)");
+        args = Options::split(R"(-Dir="C:\test\file")");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\test\file)");
+        args = Options::split(R"(-Dir="C:\test\filewith\"quote")");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\test\filewith"quote)");
 
         // ANSI quote
-        args = Options::split("-Dir=$'C:\\\\test\\\\file'");                   // -Dir=$'C:\\test\\file'
-        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file");            // -Dir=C:\test\file
-        args = Options::split("-Dir=$'C:\\oest\\oile'");                       // -Dir='C:\oest\oile'
-        test(args.size() == 1 && args[0] == "-Dir=C:\\oest\\oile");            // -Dir=C:\oest\oile
-        args = Options::split("-Dir=$'C:\\oest\\oilewith\"quote'");            // -Dir=$'C:\oest\oilewith"quote'
-        test(args.size() == 1 && args[0] == "-Dir=C:\\oest\\oilewith\"quote"); // -Dir=C:\oest\oilewith"quote
-        args = Options::split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
-        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
-        args = Options::split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
-        test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
-        args = Options::split("-Dir=$'\\cM\\c_'");                  // Control characters
+        args = Options::split(R"(-Dir=$'C:\\test\\file')");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\test\file)");
+        args = Options::split(R"(-Dir=$'C:\oest\oile')");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\oest\oile)");
+        args = Options::split(R"(-Dir=$'C:\oest\oilewith"quote')");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\oest\oilewith"quote)");
+        args = Options::split(R"(-Dir=$'\103\072\134\164\145\163\164\134\146\151\154\145')");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\test\file)");
+        args = Options::split(R"(-Dir=$'\x43\x3A\x5C\x74\x65\x73\x74\x5C\x66\x69\x6C\x65')");
+        test(args.size() == 1 && args[0] == R"(-Dir=C:\test\file)");
+        args = Options::split(R"(-Dir=$'\cM\c_')"); // Control characters
         test(args.size() == 1 && args[0] == "-Dir=\015\037");
-        args = Options::split("-Dir=$'C:\\\\\\146\\x66\\cMi'"); // -Dir=$'C:\\\146\x66i\cMi'
+        args = Options::split(R"(-Dir=$'C:\\\146\x66\cMi')");
         test(args.size() == 1 && args[0] == "-Dir=C:\\ff\015i");
-        args = Options::split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
+        args = Options::split(R"(-Dir=$'C:\\\cM\x66\146i')");
         test(args.size() == 1 && args[0] == "-Dir=C:\\\015ffi");
 
         vector<string> badQuoteCommands{
