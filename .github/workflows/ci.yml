@@ -379,10 +379,12 @@ jobs:
 
       - name: Process Linux crash dumps
         if: runner.os == 'Linux' && always()
+        timeout-minutes: 15
         run: |
           python3 scripts/process_linux_crash_dumps.py \
               --workspace $GITHUB_WORKSPACE \
-              --reports LinuxDumpReports
+              --reports LinuxDumpReports \
+              -v
         shell: bash
 
       - name: Upload Linux crash dump reports
@@ -403,6 +405,7 @@ jobs:
 
       - name: Process Windows crash dumps
         if: runner.os == 'Windows' && always()
+        timeout-minutes: 15
         shell: pwsh
         run: |
           $dumpDir   = Join-Path $env:GITHUB_WORKSPACE 'LocalDumps'
@@ -412,7 +415,8 @@ jobs:
               --dumps     $dumpDir `
               --workspace $env:GITHUB_WORKSPACE `
               --reports   $reportsDir `
-              --cdb "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe"
+              --cdb "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe" `
+              -v
 
       - name: Upload Windows crash dump reports
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
