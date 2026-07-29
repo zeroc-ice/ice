@@ -458,25 +458,21 @@ Slice::JsVisitor::getValue(const TypePtr& type)
             case Builtin::KindBool:
             {
                 return "false";
-                break;
             }
             case Builtin::KindByte:
             case Builtin::KindShort:
             case Builtin::KindInt:
             {
                 return "0";
-                break;
             }
             case Builtin::KindLong:
             {
                 return "0n";
-                break;
             }
             case Builtin::KindFloat:
             case Builtin::KindDouble:
             {
                 return "0.0";
-                break;
             }
             case Builtin::KindString:
             {
@@ -485,7 +481,6 @@ Slice::JsVisitor::getValue(const TypePtr& type)
             default:
             {
                 return "null";
-                break;
             }
         }
     }
