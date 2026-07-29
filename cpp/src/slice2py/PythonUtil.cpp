@@ -2904,7 +2904,11 @@ Slice::Python::compile(
         {
             Python::BufferedOutput out;
             writeHeader(out);
-            writeImports(runtimeImports[fragment.moduleName], typingImports[fragment.moduleName], fragment.usesIcePy, out);
+            writeImports(
+                runtimeImports[fragment.moduleName],
+                typingImports[fragment.moduleName],
+                fragment.usesIcePy,
+                out);
             out << sp;
             out << fragment.code;
 
