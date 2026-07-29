@@ -565,7 +565,7 @@ public class AllTests {
             props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "none");
             updateProps(clientProps, serverProps, props, "Connection");
 
-            metrics.ice_getConnection().close();
+            metrics.ice_getCachedConnection().close();
 
             MetricsPrx m = metrics.ice_connectionId("Con1");
             m.ice_ping();

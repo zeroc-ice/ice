@@ -606,7 +606,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
         updateProps(clientProps, serverProps, update.get(), props, "Connection");
 
-        metrics->ice_getConnection()->close().get();
+        metrics->ice_getCachedConnection()->close().get();
 
         // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the connection.
         this_thread::sleep_for(chrono::milliseconds(100));

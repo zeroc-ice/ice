@@ -11,6 +11,7 @@ import com.jgoodies.forms.util.LayoutStyle;
 
 import com.zeroc.Glacier2.RouterPrx;
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.Endpoint;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.LocalException;
@@ -301,7 +302,10 @@ public class SessionKeeper {
                 _adapter = null;
             }
 
-            _session.ice_getCachedConnection().setCloseCallback(null);
+            Connection connection = _session.ice_getCachedConnection();
+            if (connection != null) {
+                connection.setCloseCallback(null);
+            }
 
             if (destroySession) {
                 _coordinator.destroySession(_session, _routed);

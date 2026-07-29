@@ -683,7 +683,7 @@ public class AllTests : Test.AllTests
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
-            await metrics.ice_getConnection().closeAsync();
+            await metrics.ice_getCachedConnection().closeAsync();
 
             var m = (MetricsPrx)metrics.ice_connectionId("Con1");
             m.ice_ping();
