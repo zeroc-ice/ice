@@ -1036,13 +1036,15 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            newTimeout = roundUp(newTimeout, TimeSpan.TicksPerSecond);
+            // The limit is a whole number of seconds, so a timeout that passes this check still fits after
+            // rounding up.
             if (newTimeout > TimeSpan.FromSeconds(int.MaxValue))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(newTimeout),
                     $"The locator cache timeout cannot be greater than {int.MaxValue} seconds.");
             }
+            newTimeout = roundUp(newTimeout, TimeSpan.TicksPerSecond);
         }
 
         if (newTimeout == _reference.getLocatorCacheTimeout())
@@ -1087,13 +1089,15 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            newTimeout = roundUp(newTimeout, TimeSpan.TicksPerMillisecond);
+            // The limit is a whole number of milliseconds, so a timeout that passes this check still fits after
+            // rounding up.
             if (newTimeout > TimeSpan.FromMilliseconds(int.MaxValue))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(newTimeout),
                     $"The invocation timeout cannot be greater than {int.MaxValue} milliseconds.");
             }
+            newTimeout = roundUp(newTimeout, TimeSpan.TicksPerMillisecond);
         }
 
         if (newTimeout == _reference.getInvocationTimeout())
@@ -1752,18 +1756,15 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     [EditorBrowsable(EditorBrowsableState.Never)]
     protected abstract ObjectPrxHelperBase iceNewInstance(Reference reference);
 
-    // Rounds a nonnegative timeout up to a whole number of the given unit; a timeout within one unit of
-    // TimeSpan.MaxValue is rounded down instead, so this method never overflows. The caller rejects such a large
-    // result with its range check.
+    // Rounds a nonnegative timeout of at most int.MaxValue units up to a whole number of the given unit.
     private static TimeSpan roundUp(TimeSpan timeout, long ticksPerUnit)
     {
         long remainder = timeout.Ticks % ticksPerUnit;
-        long ticks = timeout.Ticks - remainder;
-        if (remainder > 0 && ticks <= long.MaxValue - ticksPerUnit)
+        if (remainder == 0)
         {
-            ticks += ticksPerUnit;
+            return timeout;
         }
-        return TimeSpan.FromTicks(ticks);
+        return TimeSpan.FromTicks(timeout.Ticks - remainder + ticksPerUnit);
     }
 
     private readonly Reference _reference;

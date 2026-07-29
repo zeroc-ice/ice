@@ -382,13 +382,15 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
         if (newTimeout.isNegative()) {
             newTimeout = Duration.ofSeconds(-1);
         } else {
-            newTimeout = roundUp(newTimeout, 1_000_000_000);
+            // The limit is a whole number of seconds, so a timeout that passes this check still fits after
+            // rounding up.
             if (newTimeout.compareTo(Duration.ofSeconds(Integer.MAX_VALUE)) > 0) {
                 throw new IllegalArgumentException(
                     "The locator cache timeout cannot be greater than "
                         + Integer.MAX_VALUE
                         + " seconds.");
             }
+            newTimeout = roundUp(newTimeout, 1_000_000_000);
         }
         if (newTimeout.equals(_reference.getLocatorCacheTimeout())) {
             return this;
@@ -407,13 +409,15 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
         if (newTimeout.isNegative()) {
             newTimeout = Duration.ofMillis(-1);
         } else {
-            newTimeout = roundUp(newTimeout, 1_000_000);
+            // The limit is a whole number of milliseconds, so a timeout that passes this check still fits after
+            // rounding up.
             if (newTimeout.compareTo(Duration.ofMillis(Integer.MAX_VALUE)) > 0) {
                 throw new IllegalArgumentException(
                     "The invocation timeout cannot be greater than "
                         + Integer.MAX_VALUE
                         + " milliseconds.");
             }
+            newTimeout = roundUp(newTimeout, 1_000_000);
         }
         if (newTimeout.equals(_reference.getInvocationTimeout())) {
             return this;
@@ -422,19 +426,14 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
         }
     }
 
-    // Rounds a nonnegative timeout up to a whole number of the given unit (a divisor of one second, in
-    // nanoseconds); a timeout within one unit of the maximum representable duration is rounded down instead, so
-    // this method never overflows. The caller rejects such a large result with its range check.
+    // Rounds a nonnegative timeout of at most Integer.MAX_VALUE units up to a whole number of the given unit
+    // (a divisor of one second, in nanoseconds).
     private static Duration roundUp(Duration timeout, int unitNanos) {
         int remainder = timeout.getNano() % unitNanos;
         if (remainder == 0) {
             return timeout;
         }
-        int nanos = timeout.getNano() - remainder;
-        if (!(timeout.getSeconds() == Long.MAX_VALUE && nanos == 1_000_000_000 - unitNanos)) {
-            nanos += unitNanos;
-        }
-        return Duration.ofSeconds(timeout.getSeconds(), nanos);
+        return Duration.ofSeconds(timeout.getSeconds(), timeout.getNano() - remainder + unitNanos);
     }
 
     @Override

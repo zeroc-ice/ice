@@ -169,12 +169,14 @@ namespace Ice
             {
                 return fromReference(asPrx()._invocationTimeout(std::chrono::milliseconds(-1)));
             }
-            auto roundedTimeout = std::chrono::ceil<std::chrono::milliseconds>(timeout);
-            if (roundedTimeout > std::chrono::milliseconds{std::numeric_limits<std::int32_t>::max()})
+            // Compare in a double-based representation that cannot overflow. The limit is a whole number of
+            // milliseconds, so a timeout that passes this check still fits after rounding up.
+            // The extra parentheses prevent the expansion of the max macro from Windows headers.
+            if (timeout > std::chrono::duration<double, std::milli>{(std::numeric_limits<std::int32_t>::max)()})
             {
                 throw std::invalid_argument("the invocation timeout cannot be greater than 2147483647 milliseconds");
             }
-            return fromReference(asPrx()._invocationTimeout(roundedTimeout));
+            return fromReference(asPrx()._invocationTimeout(std::chrono::ceil<std::chrono::milliseconds>(timeout)));
         }
 
         /// Creates a proxy that is identical to this proxy, except for the locator.
@@ -208,12 +210,14 @@ namespace Ice
             {
                 return fromReference(asPrx()._locatorCacheTimeout(std::chrono::seconds(-1)));
             }
-            auto roundedTimeout = std::chrono::ceil<std::chrono::seconds>(timeout);
-            if (roundedTimeout > std::chrono::seconds{std::numeric_limits<std::int32_t>::max()})
+            // Compare in a double-based representation that cannot overflow. The limit is a whole number of
+            // seconds, so a timeout that passes this check still fits after rounding up.
+            // The extra parentheses prevent the expansion of the max macro from Windows headers.
+            if (timeout > std::chrono::duration<double>{(std::numeric_limits<std::int32_t>::max)()})
             {
                 throw std::invalid_argument("the locator cache timeout cannot be greater than 2147483647 seconds");
             }
-            return fromReference(asPrx()._locatorCacheTimeout(roundedTimeout));
+            return fromReference(asPrx()._locatorCacheTimeout(std::chrono::ceil<std::chrono::seconds>(timeout)));
         }
 
         /// Creates a proxy that is identical to this proxy, but uses oneway invocations.

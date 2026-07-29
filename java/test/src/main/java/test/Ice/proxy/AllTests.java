@@ -731,6 +731,11 @@ public class AllTests {
             test(false);
         } catch (IllegalArgumentException ex) {
         }
+        try {
+            base.ice_invocationTimeout(ChronoUnit.FOREVER.getDuration());
+            test(false);
+        } catch (IllegalArgumentException ex) {
+        }
 
         // Ensure that the proxy methods can be called unambiguously with the correct return type.
         var diamondInterface = DiamondInterfacePrx.uncheckedCast(base);

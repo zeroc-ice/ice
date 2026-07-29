@@ -8,6 +8,8 @@
 #include "TestHelper.h"
 
 #include <array>
+#include <cstdint>
+#include <limits>
 #include <stdexcept>
 
 #ifdef _MSC_VER
@@ -697,6 +699,14 @@ allTests(TestHelper* helper)
     try
     {
         auto _ = base->ice_invocationTimeout(std::chrono::milliseconds{int64_t{numeric_limits<int32_t>::max()} + 1});
+        test(false);
+    }
+    catch (const std::invalid_argument&)
+    {
+    }
+    try
+    {
+        auto _ = base->ice_invocationTimeout(std::chrono::seconds::max());
         test(false);
     }
     catch (const std::invalid_argument&)
