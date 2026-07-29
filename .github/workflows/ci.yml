@@ -126,11 +126,16 @@ jobs:
             job_timeout: 60 # ~2x the observed runtime, to bound a wedged emulator
             # setup-android-bt exports $BT_CLIENT and $BT_ADDR; these flags are interpolated into a bash
             # command, so the shell expands them at run time.
+            #
+            # The suites are every id in Component.isCross (scripts/Component.py) -- the full set a
+            # --cross run can pair with a server, so nothing eligible is left untested. Keep this
+            # list and cpp-bt's in step with that function if it gains an entry.
             test_flags: >-
               --android --controller-app --protocol=bt --cross=java --server=server
               --device=$BT_CLIENT --host-bt=$BT_ADDR
               Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
-              Ice/inheritance Ice/objects Ice/optional Ice/proxy
+              Ice/inheritance Ice/invoke Ice/objects Ice/optional Ice/proxy
+              Ice/slicing/exceptions Ice/slicing/objects
             # bts is the same RFCOMM transport with SSL layered over it. The controller app bundles
             # the keystores it needs (res/raw/*.p12), so this only needs the protocol switched. Kept
             # to the core suites: it covers the SSL-over-Bluetooth path, not the marshalling again.
@@ -180,12 +185,13 @@ jobs:
             skip_all_configs: true
             job_timeout: 45 # ~2x the observed runtime, to bound a wedged setup
             # --cross=cpp skips the collocated case, which has no server side and so leaves
-            # Ice.Default.Host as an IP address IceBT rejects. The suites are the ones the
-            # android-bt job runs, so both transports cover the same ground.
+            # Ice.Default.Host as an IP address IceBT rejects. The suites are Component.isCross in
+            # full, matching android-bt, so both transports cover the same ground.
             test_flags: >-
               --server=server --protocol=bt --cross=cpp --host-bt=$BT_ADDR
               Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
-              Ice/inheritance Ice/objects Ice/optional Ice/proxy
+              Ice/inheritance Ice/invoke Ice/objects Ice/optional Ice/proxy
+              Ice/slicing/exceptions Ice/slicing/objects
             bts_test_flags: >-
               --server=server --protocol=bts --cross=cpp --host-bt=$BT_ADDR
               Ice/operations Ice/ami
