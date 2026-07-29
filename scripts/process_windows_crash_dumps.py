@@ -43,6 +43,10 @@ from typing import Iterable, List
 
 LOGGER = logging.getLogger(__name__)
 
+# Timeout (in seconds) for cdb, which downloads symbols from the Microsoft symbol server and can
+# otherwise hang the CI job until the job-level timeout.
+CDB_TIMEOUT = 300
+
 IMAGE_PATH_RE = re.compile(r"^\s*Image\s+path:\s+(.+)$", re.IGNORECASE)
 
 
@@ -59,7 +63,9 @@ def run_cdb(dump: Path, modules_txt: Path, cdb_exe: str) -> None:
         str(modules_txt),
     ]
     try:
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=CDB_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        LOGGER.error("cdb timed out after %d seconds for %s", CDB_TIMEOUT, dump)
     except FileNotFoundError as exc:
         LOGGER.error("Could not find cdb.exe - specify with --cdb or add it to PATH")
         raise SystemExit(1) from exc
