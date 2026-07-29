@@ -11,7 +11,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <stdexcept>
 #include <system_error>
 
 #if defined(__linux__)
@@ -51,7 +50,8 @@ IceInternal::generateRandom(char* buffer, size_t size)
     arc4random_buf(buffer, size);
 #elif defined(__linux__)
     // getrandom with flags == 0 deliberately blocks until the kernel's entropy pool is initialized; don't
-    // "fix" this with GRND_NONBLOCK.
+    // "fix" this with GRND_NONBLOCK. There is also deliberately no /dev/urandom fallback here: getrandom is
+    // available in every supported glibc (2.25+), so a failure is a real error, not a missing feature.
     size_t index = 0;
     while (index < size)
     {
@@ -64,7 +64,7 @@ IceInternal::generateRandom(char* buffer, size_t size)
             }
             if (n == 0)
             {
-                throw runtime_error("getrandom returned no data");
+                throw system_error(EIO, generic_category(), "getrandom returned no data");
             }
             throw system_error(errno, generic_category(), "getrandom failed");
         }
@@ -94,7 +94,7 @@ IceInternal::generateRandom(char* buffer, size_t size)
             close(fd);
             if (n == 0)
             {
-                throw runtime_error("unexpected EOF reading /dev/urandom");
+                throw system_error(EIO, generic_category(), "unexpected EOF reading /dev/urandom");
             }
             throw system_error(err, generic_category(), "cannot read /dev/urandom");
         }
