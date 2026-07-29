@@ -176,9 +176,6 @@ namespace Slice::Python
     /// @return The name of the meta-type for the given Slice definition.
     std::string getMetaType(const SyntaxTreeBasePtr& p);
 
-    /// Helper method to emit the generated code that format the fields of a type in __repr__ implementation.
-    std::string formatFields(const DataMemberList& members);
-
     CodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
 
     // Get a list of all definitions exported for the Python module corresponding to the given Slice definition.
