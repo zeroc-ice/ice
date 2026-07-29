@@ -955,6 +955,19 @@ public class AllTests {
                 cb.check();
             }
             {
+                // Setting a close callback on an already-closed connection invokes the callback
+                // immediately; an Error thrown by the callback is logged, not propagated.
+                p.ice_ping(); // Establishes a new working connection: the previous one is closed.
+                Connection con = p.ice_getConnection();
+                con.close();
+                Callback cb = new Callback();
+                con.setCloseCallback(c -> {
+                    cb.called();
+                    throw new AssertionError("close callback");
+                });
+                cb.check();
+            }
+            {
                 //
                 // Remote case.
                 //
