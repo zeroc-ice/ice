@@ -1,8 +1,7 @@
 {
-    // No "include": everything under the repository is checked, so a new Python file is covered
-    // wherever it lands. Naming "exclude" replaces pyright's own defaults rather than adding to
-    // them, so they are repeated here -- "**/.*" is what keeps the virtual environments out.
-    "exclude": ["**/node_modules", "**/__pycache__", "**/.*", "python/dist"],
+    // Neither "include" nor "exclude": everything under the repository is checked, so a new Python
+    // file is covered wherever it lands, and pyright's own excludes still keep out node_modules,
+    // __pycache__ and anything hidden, which is what holds the virtual environments back.
     // scripts is on the search path for every tree, not just its own execution environment: the
     // test.py files under cpp/test and friends import the framework by name, the way loadTestSuites
     // runs them.
