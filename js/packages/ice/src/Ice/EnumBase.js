@@ -46,6 +46,12 @@ class EnumHelper {
     readOptional(is, tag) {
         return this._enumType._readOpt(is, tag);
     }
+
+    // SequenceHelper.read consults this to sanity-check a sequence's declared element count against the
+    // remaining buffer. An enum marshals as a size, which occupies at least one byte.
+    get minWireSize() {
+        return 1;
+    }
 }
 
 export function defineEnum(enumerators) {
@@ -67,8 +73,6 @@ export function defineEnum(enumerators) {
             maxValue = value;
         }
     }
-
-    Object.defineProperty(type, "minWireSize", { get: () => 1 });
 
     type._write = function (os, v) {
         os.writeEnum(v);
