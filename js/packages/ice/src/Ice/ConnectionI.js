@@ -764,7 +764,7 @@ export class ConnectionI {
         this.setState(StateClosed, ex);
 
         if (requestCount > 0) {
-            console.assert(this._upcallCount > requestCount);
+            console.assert(this._upcallCount >= requestCount);
             this._upcallCount -= requestCount;
             console.assert(this._upcallCount >= 0);
             if (this._upcallCount === 0) {
@@ -1314,7 +1314,7 @@ export class ConnectionI {
                         this._upcallCount += info.requestCount;
 
                         this.cancelInactivityTimer();
-                        ++this._dispatchCount;
+                        this._dispatchCount += info.requestCount;
                     }
                     break;
                 }
