@@ -18,7 +18,7 @@
 #    define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ""
 #endif
 
-#ifndef DEBUG
+#ifndef _DEBUG
 #    define VER_DEBUG 0
 #else
 #    define VER_DEBUG VS_FF_DEBUG
