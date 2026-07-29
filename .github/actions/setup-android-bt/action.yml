@@ -1,9 +1,11 @@
 name: Setup Android Bluetooth
 description: >
-  Prepares a pair of Android emulators for IceBT testing. GitHub-hosted runners cannot host a
-  Bluetooth stack, but the Android emulator ships a userspace virtual Bluetooth controller
-  (Netsim/Rootcanal) that does RFCOMM between emulators. This boots two emulators on it, bonds
-  them, and starts the server-side process controller, leaving the client for allTests.py.
+  Prepares a pair of Android emulators for IceBT testing. The emulator ships a userspace virtual
+  Bluetooth controller (Netsim/Rootcanal) that does RFCOMM between emulators, which is what lets
+  the Java side be tested without hardware. (The C++ side instead uses the runner's own kernel
+  stack -- see setup-vhci -- which needs modules only the arm64 image has.) This boots two
+  emulators, bonds them, and starts the server-side process controller, leaving the client for
+  allTests.py.
   Requires setup-android (SDK, KVM, PATH) and a build that produced Python Ice and the Java tests.
 
 inputs:

@@ -3,8 +3,9 @@ description: >
   Brings up a pair of bonded virtual Bluetooth controllers and starts the server-side process
   controller, so the C++ IceBT transport can be tested on a single runner. Linux arm64 only.
 
-  Exports BT_ADDR (the server controller's address) and DBUS_SYSTEM_BUS_ADDRESS, which points later
-  steps at the second bluetoothd. The steps below explain why each piece is shaped as it is.
+  Exports BT_ADDR, the server controller's address. Pointing the client at the second bluetoothd is
+  left to the caller, which scopes DBUS_SYSTEM_BUS_ADDRESS to the test steps that want it. The steps
+  below explain why each piece is shaped as it is.
 
 runs:
   using: "composite"
@@ -36,7 +37,9 @@ runs:
         sudo sh -c "nohup btvirt -B -l2 > '$GITHUB_WORKSPACE/btvirt.log' 2>&1 &"
         for _ in $(seq 1 30); do hciconfig hci1 >/dev/null 2>&1 && break; sleep 1; done
         hciconfig hci1 >/dev/null 2>&1 || {
-          echo "btvirt did not create two controllers"; cat "$GITHUB_WORKSPACE/btvirt.log"; exit 1; }
+          echo "btvirt did not create two controllers"
+          cat "$GITHUB_WORKSPACE/btvirt.log" || true
+          exit 1; }
         sudo hciconfig hci0 up
         sudo hciconfig hci1 up
         hciconfig -a | grep -E "^hci|BD Address"
@@ -86,8 +89,10 @@ runs:
         for _ in $(seq 1 30); do adapters && break; sleep 1; done
         adapters || {
           echo "the second bluetoothd did not claim both adapters"
-          bus2
-          tail -20 "$GITHUB_WORKSPACE/bluetoothd2.log"
+          # `|| true`: -e still applies inside this group, and bus2 fails in precisely the case
+          # being diagnosed -- no org.bluez on that bus -- which would abort before the log below.
+          bus2 || true
+          tail -20 "$GITHUB_WORKSPACE/bluetoothd2.log" || true
           exit 1; }
         # An agent per daemon. The system-bus one must outlive the pairing, which runs entirely on
         # that bus: BlueZ answers a pending confirmation negatively as soon as the registering
@@ -110,17 +115,18 @@ runs:
         # even when the bond itself went through. The link key asserted below is the real gate.
         printf 'select %s\npower on\ndiscoverable on\npairable on\nquit\n' "$BT_ADDR" | sudo bluetoothctl || true
         printf 'select %s\npower on\nquit\n' "$BT_CLIENT_ADDR" | sudo bluetoothctl || true
+        # Discovery ends when this foreground process exits, which is what leaves the controller
+        # free for the pairing below. An explicit `scan off` afterwards cannot do it: StopDiscovery
+        # is per-D-Bus-client, so a fresh bluetoothctl that never started a scan is refused with
+        # org.bluez.Error.Failed.
         sudo bluetoothctl --timeout 20 scan on < /dev/null || true
-        # Stop discovery before pairing: an active scan and a pairing attempt contend for the
-        # controller. This does not prevent the segfault above -- that has been observed with the
-        # scan already stopped.
-        sudo bluetoothctl scan off < /dev/null || true
 
         # Assert on the stored link key rather than `bluetoothctl info`: the bond is what the tests
         # need, and the device object can be pruned while the key on disk remains valid.
         key="/var/lib/bluetooth/$BT_CLIENT_ADDR/$BT_ADDR/info"
-        # Match the Key= field, not the [LinkKey] section header: pair can segfault part-way
-        # through writing this file, which would leave the header present and the key absent.
+        # Match the Key= field, not the [LinkKey] section header, which a file can carry without a
+        # key. Not something seen here -- bluetoothd writes this file, so a bluetoothctl crash
+        # should not be able to truncate it -- but the section name alone does not mean a bond.
         haskey() { sudo sed -n '/^\[LinkKey\]/,/^\[/p' "$key" 2>/dev/null | grep -q "^Key="; }
         # A second attempt has not been needed so far -- when pair segfaults the key is already
         # written, so the loop breaks on the next check -- but it costs nothing on the happy path
@@ -134,8 +140,8 @@ runs:
         done
         haskey || {
           echo "no link key at $key -- $BT_CLIENT_ADDR did not bond with $BT_ADDR"
-          sudo find /var/lib/bluetooth -name info 2>/dev/null
-          cat "$GITHUB_WORKSPACE/bt-agent.log" "$GITHUB_WORKSPACE/bt-agent2.log" 2>/dev/null
+          sudo find /var/lib/bluetooth -name info 2>/dev/null || true
+          cat "$GITHUB_WORKSPACE/bt-agent.log" "$GITHUB_WORKSPACE/bt-agent2.log" 2>/dev/null || true
           exit 1; }
         echo "bonded: $BT_CLIENT_ADDR <-> $BT_ADDR"
 
@@ -155,8 +161,8 @@ runs:
           busctl --system tree org.bluez 2>/dev/null | grep -q "$peer" || {
           echo "the second bluetoothd has no device object for $BT_ADDR"
           sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
-            busctl --system tree org.bluez 2>&1 | head -20
-          tail -20 "$GITHUB_WORKSPACE/bluetoothd2.log"
+            busctl --system tree org.bluez 2>&1 | head -20 || true
+          tail -20 "$GITHUB_WORKSPACE/bluetoothd2.log" || true
           exit 1; }
         echo "second bluetoothd knows $BT_ADDR"
 
@@ -176,12 +182,10 @@ runs:
         # test failing to reach it.
         sleep 10
         kill -0 $! 2>/dev/null || {
-          echo "server controller exited early"; cat "$GITHUB_WORKSPACE/controller.log"; exit 1; }
-
-    - name: Point later steps at the second bluetoothd
-      shell: bash
-      run: |
-        # Exported only now, after the controller has started: the controller and its servers must
-        # stay on the system bus, while everything after this -- the test client -- uses the second
-        # daemon. That split is what keeps the two sides from registering the same UUID twice.
-        echo "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock" >> "$GITHUB_ENV"
+          echo "server controller exited early"
+          cat "$GITHUB_WORKSPACE/controller.log" || true
+          exit 1; }
+        # The client is pointed at the second daemon by DBUS_SYSTEM_BUS_ADDRESS on the test steps in
+        # ci.yml, not from here. It must not reach $GITHUB_ENV: that would leave it set for every
+        # later step in the job, including the crash-dump one, where coredumpctl looks for systemd
+        # on a bus that has none and fails to extract the dump it just found.

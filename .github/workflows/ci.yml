@@ -168,10 +168,10 @@ jobs:
           # kernel ships the Bluetooth modules in linux-modules-extra for arm64 but not for amd64.
           #
           # Its own job rather than steps bolted onto `release on ubuntu-24.04-arm`, which already
-          # builds the same thing on the same OS and arch: setup-vhci exports
-          # DBUS_SYSTEM_BUS_ADDRESS, which is process-wide for every step after it, and that job
-          # runs ~350 tests that have no business talking to a second bluetoothd. Isolating BT
-          # breakage is worth the duplicated build.
+          # builds the same thing on the same OS and arch. That duplicated build is most of the
+          # runtime -- ~20 min of a ~23 min job, for ~50 s of Bluetooth testing -- so folding it in
+          # is worth revisiting; what keeps it separate now is only that a broken Bluetooth stack
+          # cannot take the arm64 release job down with it.
           - os: ubuntu-24.04-arm
             config: "cpp-bt"
             working_directory: "cpp"
@@ -192,7 +192,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     # Only the Bluetooth jobs set job_timeout; everything else keeps GitHub's default. These sit
-    # deliberately below the sum of their steps' own caps (cpp-bt 45 against 175, android-bt 60
+    # deliberately below the sum of their steps' own caps (cpp-bt 45 against 180, android-bt 60
     # against 190), so the job cap is what bounds a wedged run. Keep them well above the job's
     # normal runtime even so: a job killed here skips the always() diagnostics and upload steps.
     timeout-minutes: ${{ matrix.job_timeout || 360 }}
@@ -325,6 +325,12 @@ jobs:
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
         timeout-minutes: 45
+        # Scoped to this step rather than exported from setup-vhci into $GITHUB_ENV: there it would
+        # also apply to the crash-dump step, where coredumpctl needs the real system bus to find
+        # systemd. Only cpp-bt's client belongs on the second daemon; every other job gets an empty
+        # value, which nothing in their test steps reads.
+        env:
+          DBUS_SYSTEM_BUS_ADDRESS: ${{ matrix.config == 'cpp-bt' && 'unix:path=/tmp/bus2.sock' || '' }}
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.test_flags }}
@@ -339,6 +345,8 @@ jobs:
         if: matrix.bts_test_flags != ''
         uses: ./.github/actions/test
         timeout-minutes: 20
+        env:
+          DBUS_SYSTEM_BUS_ADDRESS: ${{ matrix.config == 'cpp-bt' && 'unix:path=/tmp/bus2.sock' || '' }}
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.bts_test_flags }}

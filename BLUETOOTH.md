@@ -138,13 +138,30 @@ holds the GATT socket and the second cannot register an adapter at all — it fa
 ```bash
 sudo btvirt -B -l2 &
 sudo hciconfig hci0 up && sudo hciconfig hci1 up
-hciconfig -a | grep -E "^hci|BD Address"     # hci1 is the server, hci0 the client
+BT_ADDR=$(hciconfig hci1 | sed -n 's/.*BD Address: \([0-9A-F:]*\).*/\1/p')          # server
+BT_CLIENT_ADDR=$(hciconfig hci0 | sed -n 's/.*BD Address: \([0-9A-F:]*\).*/\1/p')   # client
 ```
 
-**2. Start the second daemon** on its own bus, with a `<type>system</type>` config file listening on
-`unix:path=/tmp/bus2.sock`:
+**2. Start the second daemon** on its own bus:
 
 ```bash
+cat > /tmp/bus2.conf <<'EOF'
+<!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+<busconfig>
+  <type>system</type>
+  <listen>unix:path=/tmp/bus2.sock</listen>
+  <policy context="default">
+    <allow user="*"/>
+    <allow own="*"/>
+    <allow send_type="method_call"/>
+    <allow send_type="signal"/>
+    <allow send_type="method_return"/>
+    <allow send_type="error"/>
+    <allow receive_type="*"/>
+  </policy>
+</busconfig>
+EOF
 sudo dbus-daemon --config-file=/tmp/bus2.conf --fork
 sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock /usr/libexec/bluetooth/bluetoothd -n &
 ```
@@ -156,6 +173,9 @@ which surfaces as `org.bluez.Error.AuthenticationFailed`.
 ```bash
 sudo bt-agent --capability=NoInputNoOutput &
 sudo DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock bt-agent --capability=NoInputNoOutput &
+# The server has to be discoverable and pairable, or the pair below fails with "Device not available".
+printf 'select %s\npower on\ndiscoverable on\npairable on\nquit\n' "$BT_ADDR" | sudo bluetoothctl
+printf 'select %s\npower on\nquit\n' "$BT_CLIENT_ADDR" | sudo bluetoothctl
 sudo bluetoothctl --timeout 20 scan on < /dev/null
 sudo bluetoothctl pair "$BT_ADDR"
 ```
