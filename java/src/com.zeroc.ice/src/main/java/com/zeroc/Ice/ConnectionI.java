@@ -301,7 +301,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         public void run() {
                             try {
                                 callback.closed(ConnectionI.this);
-                            } catch (LocalException ex) {
+                            } catch (Throwable ex) {
                                 _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
                             }
                         }
@@ -898,7 +898,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         if (_closeCallback != null) {
             try {
                 _closeCallback.closed(this);
-            } catch (LocalException ex) {
+            } catch (Throwable ex) {
                 _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
             }
             _closeCallback = null;
