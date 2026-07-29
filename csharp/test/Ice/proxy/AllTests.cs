@@ -665,8 +665,23 @@ public class AllTests : global::Test.AllTests
         test(baseProxy.ice_invocationTimeout(TimeSpan.FromMilliseconds(-0.5)).ice_getInvocationTimeout() ==
             TimeSpan.FromMilliseconds(-1));
 
-        // TimeSpan.MaxValue cannot be rounded up; it must not overflow.
-        test(baseProxy.ice_locatorCacheTimeout(TimeSpan.MaxValue).ice_getLocatorCacheTimeout() > TimeSpan.Zero);
+        // A timeout greater than int.MaxValue of the property's unit is rejected.
+        try
+        {
+            baseProxy.ice_locatorCacheTimeout(TimeSpan.FromSeconds((double)int.MaxValue + 1));
+            test(false);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+        }
+        try
+        {
+            baseProxy.ice_locatorCacheTimeout(TimeSpan.MaxValue);
+            test(false);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+        }
 
         output.WriteLine("ok");
 

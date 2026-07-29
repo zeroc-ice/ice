@@ -227,6 +227,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="newTimeout">The new locator cache timeout. Any negative timeout means infinite and is
     /// normalized to -1 second; a timeout that is not a whole number of seconds is rounded up to the next whole
     /// number of seconds.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
+    /// <see cref="int.MaxValue"/> seconds.</exception>
     ObjectPrx ice_locatorCacheTimeout(TimeSpan newTimeout);
 
     /// <summary>
@@ -1024,10 +1026,25 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// normalized to -1 second; a timeout that is not a whole number of seconds is rounded up to the next whole
     /// number of seconds.</param>
     /// <returns>The new proxy with the specified locator cache timeout.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
+    /// <see cref="int.MaxValue"/> seconds.</exception>
     public ObjectPrx ice_locatorCacheTimeout(TimeSpan newTimeout)
     {
-        newTimeout = newTimeout < TimeSpan.Zero ?
-            TimeSpan.FromSeconds(-1) : roundUp(newTimeout, TimeSpan.TicksPerSecond);
+        if (newTimeout < TimeSpan.Zero)
+        {
+            newTimeout = TimeSpan.FromSeconds(-1);
+        }
+        else
+        {
+            newTimeout = roundUp(newTimeout, TimeSpan.TicksPerSecond);
+            if (newTimeout > TimeSpan.FromSeconds(int.MaxValue))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(newTimeout),
+                    $"The locator cache timeout cannot be greater than {int.MaxValue} seconds.");
+            }
+        }
+
         if (newTimeout == _reference.getLocatorCacheTimeout())
         {
             return this;
@@ -1064,15 +1081,21 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <see cref="int.MaxValue"/> milliseconds.</exception>
     public ObjectPrx ice_invocationTimeout(TimeSpan newTimeout)
     {
-        if (newTimeout > TimeSpan.FromMilliseconds(int.MaxValue))
+        if (newTimeout < TimeSpan.Zero)
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(newTimeout),
-                $"The invocation timeout cannot be greater than {int.MaxValue} milliseconds.");
+            newTimeout = TimeSpan.FromMilliseconds(-1);
+        }
+        else
+        {
+            newTimeout = roundUp(newTimeout, TimeSpan.TicksPerMillisecond);
+            if (newTimeout > TimeSpan.FromMilliseconds(int.MaxValue))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(newTimeout),
+                    $"The invocation timeout cannot be greater than {int.MaxValue} milliseconds.");
+            }
         }
 
-        newTimeout = newTimeout < TimeSpan.Zero ?
-            TimeSpan.FromMilliseconds(-1) : roundUp(newTimeout, TimeSpan.TicksPerMillisecond);
         if (newTimeout == _reference.getInvocationTimeout())
         {
             return this;
@@ -1730,7 +1753,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     protected abstract ObjectPrxHelperBase iceNewInstance(Reference reference);
 
     // Rounds a nonnegative timeout up to a whole number of the given unit; a timeout within one unit of
-    // TimeSpan.MaxValue is rounded down instead.
+    // TimeSpan.MaxValue is rounded down instead, so this method never overflows. The caller rejects such a large
+    // result with its range check.
     private static TimeSpan roundUp(TimeSpan timeout, long ticksPerUnit)
     {
         long remainder = timeout.Ticks % ticksPerUnit;

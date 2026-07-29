@@ -14,10 +14,13 @@
 #include "RequestHandlerF.h"
 
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <future>
 #include <iosfwd>
+#include <limits>
 #include <optional>
+#include <stdexcept>
 #include <string_view>
 #include <type_traits>
 
@@ -157,13 +160,21 @@ namespace Ice
         /// -1 millisecond; a duration that is not a whole number of milliseconds is rounded up to the next whole
         /// number of milliseconds.
         /// @return A proxy with the new timeout.
+        /// @throws std::invalid_argument Thrown when @p timeout is greater than
+        /// `std::numeric_limits<std::int32_t>::max()` milliseconds.
         template<class Rep, class Period>
         [[nodiscard]] Prx ice_invocationTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            return fromReference(asPrx()._invocationTimeout(
-                timeout < std::chrono::duration<Rep, Period>::zero()
-                    ? std::chrono::milliseconds(-1)
-                    : std::chrono::ceil<std::chrono::milliseconds>(timeout)));
+            if (timeout < std::chrono::duration<Rep, Period>::zero())
+            {
+                return fromReference(asPrx()._invocationTimeout(std::chrono::milliseconds(-1)));
+            }
+            auto roundedTimeout = std::chrono::ceil<std::chrono::milliseconds>(timeout);
+            if (roundedTimeout > std::chrono::milliseconds{std::numeric_limits<std::int32_t>::max()})
+            {
+                throw std::invalid_argument("the invocation timeout cannot be greater than 2147483647 milliseconds");
+            }
+            return fromReference(asPrx()._invocationTimeout(roundedTimeout));
         }
 
         /// Creates a proxy that is identical to this proxy, except for the locator.
@@ -188,13 +199,21 @@ namespace Ice
         /// -1 second; a duration that is not a whole number of seconds is rounded up to the next whole number of
         /// seconds.
         /// @return A proxy with the new timeout.
+        /// @throws std::invalid_argument Thrown when @p timeout is greater than
+        /// `std::numeric_limits<std::int32_t>::max()` seconds.
         template<class Rep, class Period>
         [[nodiscard]] Prx ice_locatorCacheTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            return fromReference(asPrx()._locatorCacheTimeout(
-                timeout < std::chrono::duration<Rep, Period>::zero()
-                    ? std::chrono::seconds(-1)
-                    : std::chrono::ceil<std::chrono::seconds>(timeout)));
+            if (timeout < std::chrono::duration<Rep, Period>::zero())
+            {
+                return fromReference(asPrx()._locatorCacheTimeout(std::chrono::seconds(-1)));
+            }
+            auto roundedTimeout = std::chrono::ceil<std::chrono::seconds>(timeout);
+            if (roundedTimeout > std::chrono::seconds{std::numeric_limits<std::int32_t>::max()})
+            {
+                throw std::invalid_argument("the locator cache timeout cannot be greater than 2147483647 seconds");
+            }
+            return fromReference(asPrx()._locatorCacheTimeout(roundedTimeout));
         }
 
         /// Creates a proxy that is identical to this proxy, but uses oneway invocations.

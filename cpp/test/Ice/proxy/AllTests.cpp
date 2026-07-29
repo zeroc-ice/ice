@@ -690,6 +690,27 @@ allTests(TestHelper* helper)
     test(base->ice_invocationTimeout(1500us)->ice_getInvocationTimeout() == 2ms);
     test(base->ice_invocationTimeout(-500us)->ice_getInvocationTimeout() == -1ms);
 
+    // A timeout greater than INT32_MAX of the property's unit is rejected.
+    test(
+        base->ice_invocationTimeout(std::chrono::milliseconds{numeric_limits<int32_t>::max()})
+            ->ice_getInvocationTimeout() == std::chrono::milliseconds{numeric_limits<int32_t>::max()});
+    try
+    {
+        auto _ = base->ice_invocationTimeout(std::chrono::milliseconds{int64_t{numeric_limits<int32_t>::max()} + 1});
+        test(false);
+    }
+    catch (const std::invalid_argument&)
+    {
+    }
+    try
+    {
+        auto _ = base->ice_locatorCacheTimeout(std::chrono::seconds{int64_t{numeric_limits<int32_t>::max()} + 1});
+        test(false);
+    }
+    catch (const std::invalid_argument&)
+    {
+    }
+
     cout << "ok" << endl;
 
     cout << "testing proxy comparison... " << flush;

@@ -715,11 +715,22 @@ public class AllTests {
                 .ice_getInvocationTimeout()
                 .equals(Duration.ofMillis(-1)));
 
-        // The maximum representable duration cannot be rounded up; it must not overflow.
-        test(
-            !base.ice_locatorCacheTimeout(ChronoUnit.FOREVER.getDuration())
-                .ice_getLocatorCacheTimeout()
-                .isNegative());
+        // A timeout greater than Integer.MAX_VALUE of the property's unit is rejected.
+        try {
+            base.ice_locatorCacheTimeout(Duration.ofSeconds(Integer.MAX_VALUE + 1L));
+            test(false);
+        } catch (IllegalArgumentException ex) {
+        }
+        try {
+            base.ice_locatorCacheTimeout(ChronoUnit.FOREVER.getDuration());
+            test(false);
+        } catch (IllegalArgumentException ex) {
+        }
+        try {
+            base.ice_invocationTimeout(Duration.ofMillis(Integer.MAX_VALUE + 1L));
+            test(false);
+        } catch (IllegalArgumentException ex) {
+        }
 
         // Ensure that the proxy methods can be called unambiguously with the correct return type.
         var diamondInterface = DiamondInterfacePrx.uncheckedCast(base);

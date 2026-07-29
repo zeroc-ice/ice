@@ -74,7 +74,8 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
 
     /// Creates a proxy that is identical to this proxy, except for the locator cache timeout.
     ///
-    /// - Parameter timeout: The new locator cache timeout (in seconds).
+    /// - Parameter timeout: The new locator cache timeout (in seconds). Any negative value means infinite and is
+    ///   normalized to -1.
     /// - Returns: A proxy with the new timeout.
     func ice_locatorCacheTimeout(_ timeout: Int32) -> Self
 
@@ -85,7 +86,8 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
 
     /// Creates a proxy that is identical to this proxy, except for the invocation timeout.
     ///
-    /// - Parameter timeout: The new invocation timeout (in milliseconds).
+    /// - Parameter timeout: The new invocation timeout (in milliseconds). Any negative value means infinite and is
+    ///   normalized to -1.
     /// - Returns: A proxy with the new timeout.
     func ice_invocationTimeout(_ timeout: Int32) -> Self
 
@@ -613,7 +615,6 @@ open class ObjectPrxI: ObjectPrx, @unchecked Sendable {
 
     public func ice_locatorCacheTimeout(_ timeout: Int32) -> Self {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with a locatorCacheTimeout")
-        precondition(timeout >= -1, "Invalid locator cache timeout value")
         do {
             return try autoreleasepool {
                 try fromICEObjectPrx(handle.ice_locatorCacheTimeout(timeout)) as Self
@@ -628,7 +629,6 @@ open class ObjectPrxI: ObjectPrx, @unchecked Sendable {
     }
 
     public func ice_invocationTimeout(_ timeout: Int32) -> Self {
-        precondition(timeout >= 1 || timeout == -1 || timeout == -2, "Invalid invocation timeout value")
         do {
             return try autoreleasepool {
                 try fromICEObjectPrx(handle.ice_invocationTimeout(timeout)) as Self

@@ -328,6 +328,8 @@ public interface ObjectPrx {
      *     normalized to -1 second, and a timeout that is not a whole number of seconds is rounded
      *     up to the next whole number of seconds
      * @return a proxy with the new timeout
+     * @throws IllegalArgumentException if {@code newTimeout} is greater than {@code
+     *     Integer.MAX_VALUE} seconds
      * @see Locator
      */
     ObjectPrx ice_locatorCacheTimeout(Duration newTimeout);
@@ -348,6 +350,8 @@ public interface ObjectPrx {
      *     normalized to -1 millisecond, and a timeout that is not a whole number of milliseconds
      *     is rounded up to the next whole number of milliseconds
      * @return a proxy with the new timeout
+     * @throws IllegalArgumentException if {@code newTimeout} is greater than {@code
+     *     Integer.MAX_VALUE} milliseconds
      */
     ObjectPrx ice_invocationTimeout(Duration newTimeout);
 
