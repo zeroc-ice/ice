@@ -1,6 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
 
+from __future__ import annotations
+
 import os
 
 from IceGridUtil import IceGridClient, IceGridTestCase

@@ -8,6 +8,8 @@
 # truncated). See also bug #6070.
 #
 
+from __future__ import annotations
+
 import sys
 
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber

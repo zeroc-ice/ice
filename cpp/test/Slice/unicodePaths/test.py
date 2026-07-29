@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import locale
 import os
 import shutil

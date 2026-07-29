@@ -4,6 +4,8 @@
 # Publisher/subscriber test cases, publisher publishes on TestIceStorm1 instance(s) and
 # the subscriber subscribes to the TestIceStorm2 instance(s)
 #
+from __future__ import annotations
+
 import re
 import time
 

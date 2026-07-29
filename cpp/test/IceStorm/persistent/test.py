@@ -1,6 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
-from typing import Any, override
+from __future__ import annotations
+
+from typing import Any
 
 from IceStormUtil import IceStorm, IceStormAdmin, IceStormProcess
 from Util import Client, ClientTestCase, Driver, Mapping, Props, TestCase, TestSuite
@@ -64,7 +66,6 @@ class PersistentClient(IceStormProcess, Client):
         Client.__init__(self, *args, **kargs)
         IceStormProcess.__init__(self, instanceName, instance)
 
-    @override
     def getParentProps(self, current: Driver.Current) -> Props:
         # IceStormProcess.getProps calls this to reach the Client props rather than its own entry
         # in the MRO.

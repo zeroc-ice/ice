@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 from typing import Any
 
 from Util import Client, ClientTestCase, Driver, TestSuite

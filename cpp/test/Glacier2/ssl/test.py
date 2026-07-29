@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 from Glacier2Util import Glacier2Router, Glacier2TestSuite
 from Util import Client, ClientServerTestCase, Driver, Process, Props, Server
 

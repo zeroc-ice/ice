@@ -1,6 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
 
+from __future__ import annotations
+
 from Util import ClientServerTestCase, Driver, Server, TestSuite
 
 

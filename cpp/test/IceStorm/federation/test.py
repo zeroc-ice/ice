@@ -1,6 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
 
+from __future__ import annotations
+
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
 from Util import ClientServerTestCase, Driver, TestSuite
 

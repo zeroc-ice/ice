@@ -23,6 +23,8 @@
 #                              (interior) (last) (interior)
 #
 
+from __future__ import annotations
+
 import os
 from collections.abc import Sequence
 from typing import Any

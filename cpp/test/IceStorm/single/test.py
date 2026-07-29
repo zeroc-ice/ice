@@ -7,6 +7,8 @@
 # send buffer size (causing the received messages to be truncated). See
 # bug #6070 and #7558.
 #
+from __future__ import annotations
+
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
 from Util import ClientServerTestCase, Driver, TestSuite
 

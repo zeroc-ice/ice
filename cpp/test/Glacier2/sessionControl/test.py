@@ -4,6 +4,8 @@
 # Note: we limit the send buffer size with Ice.TCP.SndSize, the
 # test relies on send() blocking
 #
+from __future__ import annotations
+
 from Glacier2Util import Glacier2Router, Glacier2TestSuite
 from Util import ClientServerTestCase, Driver, Process, Props, Server
 
