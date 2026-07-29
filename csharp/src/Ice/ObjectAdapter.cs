@@ -1148,14 +1148,7 @@ public sealed class ObjectAdapter
                 // Parse the endpoints, but don't store them in the adapter. The connection
                 // factory might change it, for example, to fill in the real port number.
                 List<EndpointI> endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
-                foreach (EndpointI endp in endpoints)
-                {
-                    foreach (EndpointI expanded in endp.expandHost())
-                    {
-                        var factory = new IncomingConnectionFactory(instance, expanded, this);
-                        _incomingConnectionFactories.Add(factory);
-                    }
-                }
+
                 if (endpoints.Count == 0)
                 {
                     TraceLevels tl = _instance.traceLevels();
@@ -1164,6 +1157,23 @@ public sealed class ObjectAdapter
                         _instance.initializationData().logger!.trace(
                             tl.networkCat,
                             $"created adapter '{_name}' without endpoints");
+                    }
+                }
+                else
+                {
+                    // An adapter with endpoints accepts incoming connections, and each connection needs the
+                    // adapter's dispatch thread pool. Create it before the first connection factory: its
+                    // on-demand creation reads the thread pool properties and can throw, and it must not fail
+                    // once connections exist.
+                    getThreadPool();
+
+                    foreach (EndpointI endp in endpoints)
+                    {
+                        foreach (EndpointI expanded in endp.expandHost())
+                        {
+                            var factory = new IncomingConnectionFactory(instance, expanded, this);
+                            _incomingConnectionFactories.Add(factory);
+                        }
                     }
                 }
             }
