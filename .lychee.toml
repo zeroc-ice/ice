@@ -50,4 +50,5 @@ exclude_path = [
 accept = [200, 204, 206, 301, 308]
 
 # Include fragments (anchors) in checks
-include_fragments = true
+# Values: "none", "anchor-only", "text-only", "full"
+include_fragments = "anchor-only"
