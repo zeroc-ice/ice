@@ -2759,12 +2759,21 @@ namespace
         // Write the runtime imports.
         for (const auto& [moduleName, moduleImports] : runtimeImports)
         {
-            // The ImportVisitor registers a runtime TYPE_CHECKING import whenever it registers a typing import, but
-            // the block it's for can still end up empty. Drop the then-unused import.
+            // addTypingImport registers a runtime TYPE_CHECKING import unconditionally, including when it registers
+            // no typing import at all because the definition lives in the source module. Drop the import when the
+            // block it's for ends up empty.
             set<pair<string, string>> definitions = moduleImports.definitions;
             if (!hasTypingImports && moduleName == "typing")
             {
-                definitions.erase({"TYPE_CHECKING", ""});
+                // The registration is aliased when the module defines its own TYPE_CHECKING.
+                auto it = find_if(
+                    definitions.begin(),
+                    definitions.end(),
+                    [](const auto& definition) { return definition.first == "TYPE_CHECKING"; });
+                if (it != definitions.end())
+                {
+                    definitions.erase(it);
+                }
             }
 
             if (!moduleImports.imported && definitions.empty())
