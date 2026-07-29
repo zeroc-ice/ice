@@ -145,8 +145,8 @@ void ::Writer::run(int argc, char* argv[])
         // published after the callback cannot overtake the batch.
         auto gate = make_shared<ReconnectGate>();
         writer.onConnectedReaders(
-            [](vector<string>) {},
-            [gate](CallbackReason reason, string)
+            [](const vector<string>&) {},
+            [gate](CallbackReason reason, const string&)
             {
                 lock_guard lock{gate->mutex};
                 if (reason == CallbackReason::Disconnect)
