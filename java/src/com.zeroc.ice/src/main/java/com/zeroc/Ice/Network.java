@@ -283,6 +283,7 @@ public final class Network {
             socket.setTcpNoDelay(true);
             socket.setKeepAlive(true);
         } catch (IOException ex) {
+            closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
 

@@ -456,17 +456,20 @@ public final class Properties {
             && (file.startsWith("HKCU\\") || file.startsWith("HKLM\\"))) {
             try {
                 java.lang.Process process = Runtime.getRuntime().exec(new String[]{"reg", "query", file});
-                process.waitFor();
-                if (process.exitValue() != 0) {
-                    throw new InitializationException("Could not read Windows registry key '" + file + "'");
-                }
 
+                // Drain stdout before waiting for the process: reg blocks when its output fills the pipe buffer.
                 java.io.InputStream is = process.getInputStream();
                 StringWriter sw = new StringWriter();
                 int c;
                 while ((c = is.read()) != -1) {
                     sw.write(c);
                 }
+
+                process.waitFor();
+                if (process.exitValue() != 0) {
+                    throw new InitializationException("Could not read Windows registry key '" + file + "'");
+                }
+
                 String[] result = sw.toString().split("\n");
 
                 for (String line : result) {
@@ -482,27 +485,25 @@ public final class Properties {
                     if (pos != -1) {
                         String name = line.substring(0, pos).trim();
                         line = line.substring(pos + 13, line.length()).trim();
-                        while (true) {
-                            int start = line.indexOf('%', 0);
-                            int end = line.indexOf('%', start + 1);
 
-                            // If there isn't more %var% break the loop
+                        // Expand each %var% in a single pass; an expanded value is not re-scanned, so a variable
+                        // whose value contains %var% references cannot loop the expansion.
+                        StringBuilder expanded = new StringBuilder();
+                        int index = 0;
+                        while (true) {
+                            int start = line.indexOf('%', index);
+                            int end = start == -1 ? -1 : line.indexOf('%', start + 1);
                             if (start == -1 || end == -1) {
+                                expanded.append(line, index, line.length());
                                 break;
                             }
 
-                            String envKey = line.substring(start + 1, end);
-                            String envValue = System.getenv(envKey);
-                            if (envValue == null) {
-                                envValue = "";
-                            }
-
-                            envKey = "%" + envKey + "%";
-                            do {
-                                line = line.replace(envKey, envValue);
-                            } while (line.indexOf(envKey) != -1);
+                            String envValue = System.getenv(line.substring(start + 1, end));
+                            expanded.append(line, index, start);
+                            expanded.append(envValue == null ? "" : envValue);
+                            index = end + 1;
                         }
-                        setProperty(name, line);
+                        setProperty(name, expanded.toString());
                         continue;
                     }
                 }

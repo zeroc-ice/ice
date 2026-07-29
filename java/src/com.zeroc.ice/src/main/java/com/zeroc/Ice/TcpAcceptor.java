@@ -79,7 +79,10 @@ class TcpAcceptor implements Acceptor {
 
             _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
         } catch (RuntimeException ex) {
-            _fd = null;
+            if (_fd != null) {
+                Network.closeSocketNoThrow(_fd);
+                _fd = null;
+            }
             throw ex;
         }
     }
