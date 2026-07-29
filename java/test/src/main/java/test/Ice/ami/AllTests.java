@@ -7,7 +7,6 @@ import com.zeroc.Ice.CommunicatorDestroyedException;
 import com.zeroc.Ice.CompressBatch;
 import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.ConnectionAbortedException;
-import com.zeroc.Ice.ConnectionClosedException;
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.InitializationData;
@@ -948,13 +947,8 @@ public class AllTests {
                 con.close();
                 test(p.ice_getConnection() != con);
 
-                // A fixed proxy cannot establish a new connection.
-                try {
-                    fixedPrx.ice_getConnection();
-                    test(false);
-                } catch (ConnectionClosedException ex) {
-                    // Expected
-                }
+                // A fixed proxy remains bound to its connection: ice_getConnection returns it as is.
+                test(fixedPrx.ice_getConnection() == con);
             }
             {
                 // A close callback that throws: the exception is logged and the connection still

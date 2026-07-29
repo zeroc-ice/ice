@@ -1146,16 +1146,8 @@ allTests(TestHelper* helper, bool collocated)
                 con->close().get();
                 test(p->ice_getConnection() != con);
 
-                // A fixed proxy cannot establish a new connection.
-                try
-                {
-                    fixedPrx->ice_getConnection();
-                    test(false);
-                }
-                catch (const ConnectionClosedException&)
-                {
-                    // Expected
-                }
+                // A fixed proxy remains bound to its connection: ice_getConnection returns it as is.
+                test(fixedPrx->ice_getConnection() == con);
             }
             {
                 //

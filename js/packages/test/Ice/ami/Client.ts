@@ -155,13 +155,8 @@ export class Client extends TestHelper {
             await con.close();
             test((await p.ice_getConnection()) !== con);
 
-            // A fixed proxy cannot establish a new connection.
-            try {
-                await fixedPrx.ice_getConnection();
-                test(false);
-            } catch (ex) {
-                test(ex instanceof Ice.ConnectionClosedException);
-            }
+            // A fixed proxy remains bound to its connection: ice_getConnection returns it as is.
+            test((await fixedPrx.ice_getConnection()) === con);
         }
         out.writeLine("ok");
 

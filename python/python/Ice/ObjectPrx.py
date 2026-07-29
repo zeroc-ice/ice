@@ -892,8 +892,10 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_getConnection(self) -> Connection | None:
         """
-        Gets the connection for this proxy. If the proxy does not yet have an established connection,
-        it first attempts to create a connection.
+        Gets the connection for this proxy. If the proxy does not yet have an established connection
+        or its connection is closed or being closed, it first attempts to create a new connection.
+        For a fixed proxy, this function returns the connection this proxy is bound to, even when
+        this connection is closed.
 
         Returns
         -------
@@ -915,7 +917,8 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         Connection | None
-            The cached connection for this proxy, or ``None`` if the proxy does not have an established connection.
+            The cached connection for this proxy, or ``None`` if the proxy does not have a cached connection.
+            The returned connection can be closed.
         """
         return super().ice_getCachedConnection()
 

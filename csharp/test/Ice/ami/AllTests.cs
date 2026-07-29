@@ -721,16 +721,8 @@ public class AllTests : global::Test.AllTests
                 await con.closeAsync();
                 test(p.ice_getConnection() != con);
 
-                // A fixed proxy cannot establish a new connection.
-                try
-                {
-                    fixedPrx.ice_getConnection();
-                    test(false);
-                }
-                catch (ConnectionClosedException)
-                {
-                    // Expected
-                }
+                // A fixed proxy remains bound to its connection: ice_getConnection returns it as is.
+                test(fixedPrx.ice_getConnection() == con);
             }
             {
                 //
