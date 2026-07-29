@@ -533,6 +533,33 @@ allTests(Test::TestHelper* helper)
 
         com->destroy();
     }
+    {
+        // With KeepLogs=1 and KeepTraces=1, a new message evicts the previous message of the same category,
+        // regardless of the messages of the other category in between.
+        PropertyDict props;
+        props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
+        props["Ice.Admin.InstanceName"] = "Test";
+        props["NullLogger"] = "1";
+        props["Ice.Admin.Logger.KeepLogs"] = "1";
+        props["Ice.Admin.Logger.KeepTraces"] = "1";
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
+
+        com->print("print1");
+        com->trace("testCat", "trace1");
+        com->print("print2");
+        com->trace("testCat", "trace2");
+
+        auto logger = com->getAdmin()->ice_facet<LoggerAdminPrx>("Logger");
+        string prefix;
+
+        LogMessageSeq logMessages = logger->getLog(LogMessageTypeSeq(), StringSeq(), -1, prefix);
+        test(logMessages.size() == 2);
+        auto p = logMessages.begin();
+        test(p++->message == "print2");
+        test(p->message == "trace2");
+
+        com->destroy();
+    }
     cout << "ok" << endl;
 
     cout << "testing custom facet... " << flush;
