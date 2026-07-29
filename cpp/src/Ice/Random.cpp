@@ -25,10 +25,9 @@
 
 using namespace std;
 
-// The random bytes must come from the operating system's CSPRNG, not from std::random_device. On x86-64,
-// libstdc++ implements std::random_device with the raw RDSEED CPU instruction, and on AMD Zen 5 CPUs without
-// fixed firmware, RDSEED frequently returns 0 while reporting success (CVE-2025-62626); this produced
-// duplicate all-zero UUIDs. The OS conditions hardware entropy sources instead of trusting their output.
+// Generate the random bytes with the operating system's CSPRNG, never with std::random_device: the C++
+// standard gives std::random_device no cryptographic guarantee, and some implementations draw from raw CPU
+// entropy instructions whose output defective hardware can make predictable.
 void
 IceInternal::generateRandom(char* buffer, size_t size)
 {
