@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import platform
 
 from Glacier2Util import Glacier2Router, Glacier2TestSuite
 from Util import Client, ClientServerTestCase, Driver, Server
