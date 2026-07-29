@@ -38,7 +38,6 @@ Glacier2::RouterI::RouterI(
     {
         Identity ident = {"dummy", ""};
 
-        // We use ASCII 33-126 (from ! to ~, w/o space); bytes >= 188 are rejected to avoid modulo bias.
         ident.category.reserve(20);
         while (ident.category.size() < 20)
         {
@@ -47,8 +46,10 @@ Glacier2::RouterI::RouterI(
             for (char c : buf)
             {
                 auto b = static_cast<unsigned char>(c);
+                // Reject bytes >= 188 (= 2 * 94) to avoid modulo bias.
                 if (b < 188)
                 {
+                    // Map the byte to ASCII 33-126 (from ! to ~, w/o space).
                     ident.category.push_back(static_cast<char>(33 + b % 94));
                     if (ident.category.size() == 20)
                     {

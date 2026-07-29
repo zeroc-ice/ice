@@ -10,7 +10,6 @@
 namespace IceInternal
 {
     // Fills the buffer with cryptographically strong random bytes from the operating system's CSPRNG.
-    // See Random.cpp for why this must not draw from std::random_device.
     ICE_API void generateRandom(char*, size_t);
 
     ICE_API unsigned int random(unsigned int = 0);

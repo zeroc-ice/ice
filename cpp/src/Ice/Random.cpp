@@ -16,10 +16,6 @@
 #if defined(__linux__)
 #    include <cerrno>
 #    include <sys/random.h>
-#elif !defined(_WIN32) && !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__)
-#    include <cerrno>
-#    include <fcntl.h>
-#    include <unistd.h>
 #endif
 
 using namespace std;
@@ -71,36 +67,7 @@ IceInternal::generateRandom(char* buffer, size_t size)
         index += static_cast<size_t>(n);
     }
 #else
-    int fd;
-    do
-    {
-        fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
-    } while (fd == -1 && errno == EINTR);
-    if (fd == -1)
-    {
-        throw system_error(errno, generic_category(), "cannot open /dev/urandom");
-    }
-    size_t index = 0;
-    while (index < size)
-    {
-        ssize_t n = read(fd, buffer + index, size - index);
-        if (n <= 0)
-        {
-            if (n < 0 && errno == EINTR)
-            {
-                continue;
-            }
-            int err = errno;
-            close(fd);
-            if (n == 0)
-            {
-                throw system_error(EIO, generic_category(), "unexpected EOF reading /dev/urandom");
-            }
-            throw system_error(err, generic_category(), "cannot read /dev/urandom");
-        }
-        index += static_cast<size_t>(n);
-    }
-    close(fd);
+#    error "unsupported platform: no OS CSPRNG binding"
 #endif
 }
 
