@@ -6,8 +6,6 @@
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
-using StringPairList = std::list<std::pair<std::string, std::string>>;
-
 namespace Slice::Swift
 {
     std::string getSwiftModule(const ModulePtr& module, std::string& swiftPrefix);

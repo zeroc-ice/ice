@@ -87,7 +87,6 @@ namespace Slice
 
     using StringList = std::list<std::string>;
     using MetadataList = std::list<MetadataPtr>;
-    using TypeList = std::list<TypePtr>;
     using ContainedList = std::list<ContainedPtr>;
     using ModuleList = std::list<ModulePtr>;
     using ClassList = std::list<ClassDefPtr>;

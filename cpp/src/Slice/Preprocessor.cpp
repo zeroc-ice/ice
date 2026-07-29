@@ -110,7 +110,6 @@ Slice::Preprocessor::create(const string& path, const string& fileName, const ve
 Slice::Preprocessor::Preprocessor(string path, const string& fileName, const vector<string>& args)
     : _path(std::move(path)),
       _fileName(fullPath(fileName)),
-      _shortFileName(fileName),
       _args(args)
 {
 }
@@ -118,16 +117,9 @@ Slice::Preprocessor::Preprocessor(string path, const string& fileName, const vec
 Slice::Preprocessor::~Preprocessor() { close(); }
 
 string
-Slice::Preprocessor::getFileName()
-{
-    return _fileName;
-}
-
-string
 Slice::Preprocessor::getBaseName()
 {
     string base(_fileName);
-    string suffix;
     string::size_type pos = base.rfind('.');
     if (pos != string::npos)
     {
