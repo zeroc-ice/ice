@@ -1,19 +1,9 @@
 {
-    // Neither "include" nor "exclude": everything under the repository is checked, so a new Python
-    // file is covered wherever it lands, and pyright's own excludes still keep out node_modules,
-    // __pycache__ and anything hidden, which is what holds the virtual environments back.
-    // scripts is on the search path for every tree, not just its own execution environment: the
-    // test.py files under cpp/test and friends import the framework by name, the way loadTestSuites
-    // runs them.
     "extraPaths": ["python/python", "scripts"],
-    // The test framework modules under scripts import each other by name; "root" is what puts scripts
-    // itself on the search path for the files it contains.
     "executionEnvironments": [
         {
             "root": "scripts",
-            // "." is for the scripts.tests.* package imports; loadTestSuites puts the repository root
-            // on sys.path at run time. "python/python" is repeated from the top-level extraPaths
-            // because an execution environment replaces those rather than adding to them.
+            // Repeats python/python because these replace the paths above rather than adding to them.
             "extraPaths": [".", "python/python"]
         }
     ],
