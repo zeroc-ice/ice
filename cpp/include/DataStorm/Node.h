@@ -101,10 +101,6 @@ namespace DataStorm
         Node& operator=(Node&& node) noexcept;
 
         /// Returns the Ice communicator associated with the node.
-        /// @remark For a communicator the node created, the node defaults `Ice.ThreadPool.Client.Serialize` to 1 —
-        /// the ordered dispatch it requires. An application that sets this property itself keeps its own value and
-        /// is then responsible for the ordering. The setting applies to every connection the communicator opens: a
-        /// connection does not read while it dispatches.
         [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const noexcept;
 
         /// Returns the Ice connection associated with a session given a session identifier. Session identifiers are
@@ -115,8 +111,7 @@ namespace DataStorm
         [[nodiscard]] Ice::ConnectionPtr getSessionConnection(std::string_view ident) const noexcept;
 
     private:
-        /// Returns the properties a node applies to the communicators it creates. This constructor passes them as
-        /// defaults, so a configuration file or a command-line argument overrides them.
+        /// Returns the properties a node applies to the communicators it creates.
         static Ice::PropertiesPtr defaultProperties();
 
         template<typename ArgvT> NodeOptions createNodeOptions(int& argc, ArgvT argv)
@@ -124,10 +119,10 @@ namespace DataStorm
             // The node defaults have to be in place before the communicator is created: the client thread pool
             // reads its configuration when the communicator creates it.
             Ice::InitializationData initData;
-            initData.properties = defaultProperties();
+            initData.properties = std::make_shared<Ice::Properties>(argc, argv, defaultProperties());
 
             NodeOptions options;
-            options.communicator = Ice::initialize(argc, argv, std::move(initData));
+            options.communicator = Ice::initialize(std::move(initData));
             options.nodeOwnsCommunicator = true;
             return options;
         }

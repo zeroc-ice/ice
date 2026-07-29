@@ -21,15 +21,10 @@ Node::defaultProperties()
 {
     auto properties = make_shared<Properties>();
 
-    // A node depends on the requests it receives on a connection being dispatched in the order they were sent: a
-    // partial update is applied to the value left by the preceding sample. The server adapter gets that from its
-    // own serialized thread pool (see Instance::init), but the sessions carried by a connection the node opened
-    // are dispatched on the client thread pool, which the node does not otherwise configure.
-    //
-    // Ordering is at stake only for a communicator configured to let the client pool grow; a single-threaded pool
-    // cannot reorder anything. The setting is not free at that default size on Windows though: the IOCP path
-    // defers the next asynchronous read to the end of the upcall whatever the pool size, so a connection stops
-    // reading while it dispatches. See #6279.
+    // A node requires the requests it receives on a connection to be dispatched in the order they were sent: a
+    // partial update is applied to the value left by the preceding sample. The server adapter gets this from its
+    // own serialized thread pool (see Instance::init); the sessions carried by connections the node opens are
+    // dispatched on the client thread pool.
     properties->setProperty("Ice.ThreadPool.Client.Serialize", "1");
     return properties;
 }
