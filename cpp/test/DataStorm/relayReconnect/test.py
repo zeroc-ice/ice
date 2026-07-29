@@ -102,7 +102,6 @@ class RelayReconnectTestCase(ClientServerTestCase):
             log = os.path.join(current.testsuite.getPath(), f"{node.desc}.log")
             if os.path.exists(log):
                 os.remove(log)
-            # props is only a callable when a process computes them; these relays pass a dict.
             nodeProps = node.props
             assert not callable(nodeProps)
             nodeProps["Ice.LogFile"] = log

@@ -22,7 +22,6 @@ class SliceHeadersTestCase(ClientTestCase):
         self.clean()
 
         slice2cpp = SliceTranslator("slice2cpp")
-        # init() has run by now, so the test case knows its suite and mapping.
         assert self.testsuite is not None and self.mapping is not None
 
         os.symlink("slices", "linktoslices")

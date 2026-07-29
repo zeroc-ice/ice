@@ -18,7 +18,6 @@ class IceGridAdminTestCase(IceGridTestCase):
 
     def runClientSide(self, current: Driver.Current) -> None:
         def expect(admin: Process, msg: str | list[str]) -> None:
-            # Spelled out rather than concatenated: a list[str] is not a list[ExpectPattern].
             patterns: list[ExpectPattern] = ["error:", msg] if isinstance(msg, str) else ["error:", *msg]
             if (
                 admin.expect(

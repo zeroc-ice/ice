@@ -25,7 +25,6 @@ icestorm = [IceStorm(replica=i, nreplicas=3, props=props) for i in range(0, 3)]
 
 
 def matchGroup(process: Process, current: Driver.Current) -> str:
-    # Only called right after expect() matched, so there is always a match to read.
     match = process.getMatch(current)
     assert match is not None
     return match.group(1)

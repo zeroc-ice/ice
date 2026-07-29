@@ -30,7 +30,6 @@ class IceGridSessionTestCase(IceGridTestCase):
         current.writeln("ok")
 
     def teardownServerSide(self, current: Driver.Current, success: bool) -> None:
-        # setupServerSide always runs first, so the verifier is started by the time we get here.
         assert self.verifier is not None
         self.verifier.stop(current, success)
         self.verifier = None

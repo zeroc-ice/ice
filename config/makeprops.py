@@ -101,7 +101,6 @@ class PropertyHandler(ContentHandler):
 
     def parseProperty(self, attrs: AttributesImpl) -> str:
         name = attrs.get("name")
-        # validateKnownAttributes only warns about a missing name, and every path below needs one.
         assert name is not None, "property element is missing its name attribute"
         usesRegex = "[any]" in name
         deprecated = attrs.get("deprecated", "false").lower() == "true"
@@ -186,12 +185,9 @@ class PropertyHandler(ContentHandler):
                 )
             case "section":
                 isOptIn = attrs.get("opt-in", "false").lower() == "true"
-                # Not "name": that is this method's parameter, and the class branch above already
-                # rebinds it to a str.
                 sectionName = attrs.get("name")
 
                 self.validateKnownAttributes(["name", "opt-in"], attrs)
-                # As in parseProperty: the warning above does not stop us, but the dict is keyed by name.
                 assert sectionName is not None, "section element is missing its name attribute"
                 self.parentNodeName = sectionName
                 self.propertyArrayDict[self.parentNodeName] = PropertyArray(
@@ -209,7 +205,6 @@ class PropertyHandler(ContentHandler):
 
                 property = self.parseProperty(attrs)
 
-                # A property element only appears inside a section or class, both of which set this.
                 assert self.parentNodeName is not None, "property element outside a section or class"
                 self.propertyArrayDict[self.parentNodeName].addProperty(property)
             case _:
@@ -285,7 +280,6 @@ using namespace IceInternal;
 
     @override
     def closeFiles(self) -> None:
-        # writeProperties calls openFiles before anything reaches here.
         assert self.hFile is not None and self.cppFile is not None
         self.hFile.write(f"""
         /// Property arrays defined using sections in PropertyNames.xml.
@@ -395,7 +389,6 @@ final class PropertyNames {{
 
     @override
     def closeFiles(self) -> None:
-        # writeProperties calls openFiles before anything reaches here.
         assert self.srcFile is not None
         self.srcFile.write(f"""\
     public static final PropertyArray validProps[] =
@@ -496,7 +489,6 @@ internal sealed class PropertyNames
 
     @override
     def closeFiles(self) -> None:
-        # writeProperties calls openFiles before anything reaches here.
         assert self.srcFile is not None
         self.srcFile.write(f"""\
     internal static PropertyArray[] validProps =
@@ -581,7 +573,6 @@ export const PropertyNames = {{}};
 
     @override
     def closeFiles(self) -> None:
-        # writeProperties calls openFiles before anything reaches here.
         assert self.srcFile is not None
         self.srcFile.write(f"""\
 PropertyNames.validProps = [
