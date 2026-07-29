@@ -1131,16 +1131,23 @@ public final class ObjectAdapter {
                 // The connection factory might change it, for example, to fill in the real port number.
                 List<EndpointI> endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
 
-                for (EndpointI endpoint : endpoints) {
-                    for (EndpointI expanded : endpoint.expandHost()) {
-                        _incomingConnectionFactories.add(new IncomingConnectionFactory(instance, expanded, this));
-                    }
-                }
                 if (endpoints.isEmpty()) {
                     TraceLevels tl = _instance.traceLevels();
                     if (tl.network >= 2) {
                         String msg = "created adapter '" + name + "' without endpoints";
                         _instance.initializationData().logger.trace(tl.networkCat, msg);
+                    }
+                } else {
+                    // An adapter with endpoints accepts incoming connections, and each connection needs the
+                    // adapter's dispatch thread pool. Create it before the first connection factory: its
+                    // on-demand creation reads the thread pool properties and can throw, and it must not fail
+                    // once connections exist.
+                    getThreadPool();
+
+                    for (EndpointI endpoint : endpoints) {
+                        for (EndpointI expanded : endpoint.expandHost()) {
+                            _incomingConnectionFactories.add(new IncomingConnectionFactory(instance, expanded, this));
+                        }
                     }
                 }
             }

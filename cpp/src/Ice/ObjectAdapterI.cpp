@@ -1024,15 +1024,6 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             // fill in the real port number.
             //
             vector<EndpointIPtr> endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"), true);
-            for (const auto& endpoint : endpoints)
-            {
-                for (const auto& expanded : endpoint->expandHost())
-                {
-                    auto factory = make_shared<IncomingConnectionFactory>(_instance, expanded, shared_from_this());
-                    factory->initialize();
-                    _incomingConnectionFactories.push_back(factory);
-                }
-            }
             if (endpoints.empty())
             {
                 TraceLevelsPtr tl = _instance->traceLevels();
@@ -1040,6 +1031,24 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
                 {
                     Trace out(_instance->initializationData().logger, tl->networkCat);
                     out << "created adapter '" << _name << "' without endpoints";
+                }
+            }
+            else
+            {
+                // An adapter with endpoints accepts incoming connections, and each connection needs the
+                // adapter's dispatch thread pool. Create it before the first connection factory: its
+                // on-demand creation reads the thread pool properties and can throw, and it must not fail
+                // once connections exist.
+                [[maybe_unused]] auto _ = getThreadPool();
+
+                for (const auto& endpoint : endpoints)
+                {
+                    for (const auto& expanded : endpoint->expandHost())
+                    {
+                        auto factory = make_shared<IncomingConnectionFactory>(_instance, expanded, shared_from_this());
+                        factory->initialize();
+                        _incomingConnectionFactories.push_back(factory);
+                    }
                 }
             }
         }

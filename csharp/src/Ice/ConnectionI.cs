@@ -1414,36 +1414,27 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
         _transceiver = transceiver;
 
-        try
+        if (connector is null)
         {
-            if (connector is null)
-            {
-                // adapter is always set for incoming connections
-                Debug.Assert(adapter is not null);
-                _threadPool = adapter.getThreadPool();
-            }
-            else
-            {
-                // we use the client thread pool for outgoing connections, even if there is an
-                // object adapter with its own thread pool.
-                _threadPool = instance.clientThreadPool();
-            }
-            // On Windows, async socket I/O initiated on a thread that subsequently terminates is cancelled by the OS
-            // with SocketError.OperationAborted. The Ice thread pool can reap workers idle past ThreadIdleTime when
-            // SizeMax > 1, so in that combination we hop the I/O onto the .NET ThreadPool (whose threads are managed
-            // by the runtime and not reaped while owning pending I/O). Other platforms and fixed-size Ice pools don't
-            // need the hop. See startAsync.
-            _threadHopRequired = AssemblyUtil.isWindows && _threadPool.canShrink;
-            _threadPool.initialize(this);
+            // adapter is always set for incoming connections
+            Debug.Assert(adapter is not null);
+            _threadPool = adapter.getThreadPool();
         }
-        catch (LocalException)
+        else
         {
-            throw;
+            // we use the client thread pool for outgoing connections, even if there is an
+            // object adapter with its own thread pool.
+            _threadPool = instance.clientThreadPool();
         }
-        catch (System.Exception ex)
-        {
-            throw new SyscallException(ex);
-        }
+        // On Windows, async socket I/O initiated on a thread that subsequently terminates is cancelled by the OS
+        // with SocketError.OperationAborted. The Ice thread pool can reap workers idle past ThreadIdleTime when
+        // SizeMax > 1, so in that combination we hop the I/O onto the .NET ThreadPool (whose threads are managed
+        // by the runtime and not reaped while owning pending I/O). Other platforms and fixed-size Ice pools don't
+        // need the hop. See startAsync.
+        _threadHopRequired = AssemblyUtil.isWindows && _threadPool.canShrink;
+
+        // initialize only resets the handler state; it doesn't throw.
+        _threadPool.initialize(this);
     }
 
     /// <summary>
