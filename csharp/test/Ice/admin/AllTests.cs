@@ -416,6 +416,34 @@ public class AllTests : global::Test.AllTests
 
             com.destroy();
         }
+        {
+            // With KeepLogs=1 and KeepTraces=1, a new message evicts the previous message of the same category,
+            // regardless of the messages of the other category in between.
+            var props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" },
+                { "NullLogger", "1" },
+                { "Ice.Admin.Logger.KeepLogs", "1" },
+                { "Ice.Admin.Logger.KeepTraces", "1" }
+            };
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
+
+            com.print("print1");
+            com.trace("testCat", "trace1");
+            com.print("print2");
+            com.trace("testCat", "trace2");
+
+            var logger = Ice.LoggerAdminPrxHelper.checkedCast(com.getAdmin(), "Logger");
+            test(logger != null);
+
+            Ice.LogMessage[] logMessages = logger.getLog(null, null, -1, out string prefix);
+            test(logMessages.Length == 2);
+            test(logMessages[0].message == "print2");
+            test(logMessages[1].message == "trace2");
+
+            com.destroy();
+        }
         output.WriteLine("ok");
 
         output.Write("testing custom facet... ");

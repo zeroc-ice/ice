@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -175,39 +176,18 @@ final class LoggerAdminI implements LoggerAdmin {
             if (logMessage.type != LogMessageType.TraceMessage) {
                 assert (_maxLogCount > 0);
                 if (_logCount == _maxLogCount) {
-                    // Need to remove the oldest log from the queue
-                    assert (_oldestLog != -1);
-                    _queue.remove(_oldestLog);
-                    int qs = _queue.size();
-
-                    while (_oldestLog < qs && _queue.get(_oldestLog).type == LogMessageType.TraceMessage) {
-                        _oldestLog++;
-                    }
-                    assert (_oldestLog < qs); // remember: we just added a log message at end
+                    removeOldestLog();
                 } else {
                     assert (_logCount < _maxLogCount);
                     _logCount++;
-                    if (_oldestLog == -1) {
-                        _oldestLog = _queue.size() - 1;
-                    }
                 }
             } else {
                 assert (_maxTraceCount > 0);
                 if (_traceCount == _maxTraceCount) {
-                    // Need to remove the oldest trace from the queue
-                    assert (_oldestTrace != -1);
-                    _queue.remove(_oldestTrace);
-                    int qs = _queue.size();
-                    while (_oldestTrace < qs && _queue.get(_oldestTrace).type != LogMessageType.TraceMessage) {
-                        _oldestTrace++;
-                    }
-                    assert (_oldestTrace < qs); // remember: we just added a trace message at end
+                    removeOldestTrace();
                 } else {
                     assert (_traceCount < _maxTraceCount);
                     _traceCount++;
-                    if (_oldestTrace == -1) {
-                        _oldestTrace = _queue.size() - 1;
-                    }
                 }
             }
 
@@ -332,15 +312,36 @@ final class LoggerAdminI implements LoggerAdmin {
         return new Communicator(initData);
     }
 
+    // Removes the oldest log (non-trace) message from _queue.
+    private void removeOldestLog() {
+        Iterator<LogMessage> p = _queue.iterator();
+        while (p.hasNext()) {
+            if (p.next().type != LogMessageType.TraceMessage) {
+                p.remove();
+                return;
+            }
+        }
+        assert false; // the queue contains at least the log message we just added
+    }
+
+    // Removes the oldest trace message from _queue.
+    private void removeOldestTrace() {
+        Iterator<LogMessage> p = _queue.iterator();
+        while (p.hasNext()) {
+            if (p.next().type == LogMessageType.TraceMessage) {
+                p.remove();
+                return;
+            }
+        }
+        assert false; // the queue contains at least the trace message we just added
+    }
+
     private final List<LogMessage> _queue = new LinkedList<>();
     private int _logCount; // non-trace messages
     private final int _maxLogCount;
     private int _traceCount;
     private final int _maxTraceCount;
     private final int _traceLevel;
-
-    private int _oldestTrace = -1;
-    private int _oldestLog = -1;
 
     private static class Filters {
         Filters(LogMessageType[] m, String[] c) {
