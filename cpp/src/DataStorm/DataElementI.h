@@ -41,8 +41,6 @@ namespace DataStormI
             {
             }
 
-            std::int64_t topicId;
-            std::int64_t elementId;
             std::set<std::shared_ptr<Key>> keys;
             // The remote key id each key in `keys` was attached with. A local element attached to the same remote
             // element under several keys shares a single Subscriber, so the ids are tracked per key: detaching one
