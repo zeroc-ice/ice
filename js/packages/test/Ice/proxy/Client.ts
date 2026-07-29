@@ -6,8 +6,6 @@ import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests() {
-        class TestError extends Error {}
-
         const communicator = this.communicator();
         const out = this.getWriter();
 
@@ -615,43 +613,36 @@ export class Client extends TestHelper {
         test(base.ice_encodingVersion(Ice.Encoding_1_1).ice_getEncodingVersion().equals(Ice.Encoding_1_1));
         test(!base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Encoding_1_1));
 
-        try {
-            base.ice_invocationTimeout(0);
-            test(false);
-        } catch (ex) {
-            test(!(ex instanceof TestError), ex as Error);
-        }
+        // A negative timeout means infinite and is normalized to -1, and a timeout that is not a whole number of
+        // the corresponding proxy property's unit is rounded up to the next whole number.
+        test(base.ice_invocationTimeout(0).ice_getInvocationTimeout() === 0);
+        test(base.ice_invocationTimeout(-1).ice_getInvocationTimeout() === -1);
+        test(base.ice_invocationTimeout(-2).ice_getInvocationTimeout() === -1);
+        test(base.ice_invocationTimeout(1.5).ice_getInvocationTimeout() === 2);
 
-        try {
-            base.ice_invocationTimeout(-1);
-        } catch (ex) {
-            test(false, ex as Error);
-        }
+        test(base.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() === 0);
+        test(base.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() === -1);
+        test(base.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() === -1);
+        test(base.ice_locatorCacheTimeout(1.5).ice_getLocatorCacheTimeout() === 2);
 
-        try {
-            base.ice_invocationTimeout(-2);
-            test(false);
-        } catch (ex) {
-            test(!(ex instanceof TestError), ex as Error);
-        }
+        // A timeout greater than 2147483647 of the property's unit is rejected, as is a value that is not a number.
+        test(base.ice_invocationTimeout(2147483647).ice_getInvocationTimeout() === 2147483647);
+        test(base.ice_locatorCacheTimeout(2147483647).ice_getLocatorCacheTimeout() === 2147483647);
 
-        try {
-            base.ice_locatorCacheTimeout(0);
-        } catch (ex) {
-            test(false, ex as Error);
-        }
+        for (const invalidTimeout of [2147483648, Number.POSITIVE_INFINITY, NaN, "10" as unknown as number]) {
+            try {
+                base.ice_invocationTimeout(invalidTimeout);
+                test(false);
+            } catch (ex) {
+                test(ex instanceof RangeError, ex as Error);
+            }
 
-        try {
-            base.ice_locatorCacheTimeout(-1);
-        } catch (ex) {
-            test(false, ex as Error);
-        }
-
-        try {
-            base.ice_locatorCacheTimeout(-2);
-            test(false);
-        } catch (ex) {
-            test(!(ex instanceof TestError), ex as Error);
+            try {
+                base.ice_locatorCacheTimeout(invalidTimeout);
+                test(false);
+            } catch (ex) {
+                test(ex instanceof RangeError, ex as Error);
+            }
         }
 
         out.writeLine("ok");
