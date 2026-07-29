@@ -11,6 +11,7 @@ import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.NoEndpointException;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectNotExistException;
@@ -949,6 +950,28 @@ public class AllTests {
 
                 // A fixed proxy remains bound to its connection: ice_getConnection returns it as is.
                 test(fixedPrx.ice_getConnection() == con);
+            }
+            {
+                // ice_getConnection also establishes a new connection when the cached connection is being closed.
+                // The held adapter can't act on the graceful close, so the connection remains in the closing state.
+                Connection con = p.ice_getConnection();
+                testController.holdAdapter();
+                // close() blocks until the closure completes, so call it from another thread and wait until the
+                // graceful close is underway.
+                CompletableFuture<Void> closed = CompletableFuture.runAsync(con::close);
+                while (true) {
+                    try {
+                        con.throwException();
+                        Thread.yield();
+                    } catch (LocalException ex) {
+                        break;
+                    }
+                }
+                // The new connection can't be validated while the adapter is held, so get it asynchronously.
+                CompletableFuture<Connection> newConnection = p.ice_getConnectionAsync();
+                testController.resumeAdapter();
+                test(newConnection.join() != con);
+                closed.join();
             }
             {
                 // A close callback that throws: the exception is logged and the connection still

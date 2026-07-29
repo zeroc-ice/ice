@@ -725,6 +725,18 @@ public class AllTests : global::Test.AllTests
                 test(fixedPrx.ice_getConnection() == con);
             }
             {
+                // ice_getConnection also establishes a new connection when the cached connection is being closed.
+                // The held adapter can't act on the graceful close, so the connection remains in the closing state.
+                Connection con = p.ice_getConnection();
+                testController.holdAdapter();
+                Task closed = con.closeAsync();
+                // The new connection can't be validated while the adapter is held, so get it asynchronously.
+                Task<Connection> newConnection = p.ice_getConnectionAsync();
+                testController.resumeAdapter();
+                test(await newConnection != con);
+                await closed;
+            }
+            {
                 //
                 // Remote case.
                 //
