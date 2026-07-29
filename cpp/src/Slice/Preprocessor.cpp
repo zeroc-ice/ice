@@ -120,7 +120,6 @@ string
 Slice::Preprocessor::getBaseName()
 {
     string base(_fileName);
-    string suffix;
     string::size_type pos = base.rfind('.');
     if (pos != string::npos)
     {
