@@ -492,7 +492,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     string isSecure;
     if (!collocated)
     {
-        Ice::EndpointInfoPtr endpointInfo = metrics->ice_getConnection()->getEndpoint()->getInfo();
+        Ice::EndpointInfoPtr endpointInfo = metrics->ice_getCachedConnection()->getEndpoint()->getInfo();
         {
             ostringstream os;
             os << endpointInfo->type();

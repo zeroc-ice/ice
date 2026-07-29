@@ -412,7 +412,7 @@ public class AllTests {
 
         out.print("testing whether server is gone... ");
         out.flush();
-        if (obj.ice_getConnection() == null) { // collocated
+        if (obj.ice_getCachedConnection() == null) { // collocated
             obj.ice_ping(); // works fine
             out.println("ok");
             out.flush();

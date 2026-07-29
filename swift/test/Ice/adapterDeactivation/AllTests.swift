@@ -200,7 +200,7 @@ func allTests(_ helper: TestHelper) async throws {
     output.writeLine("ok")
 
     output.write("testing whether server is gone... ")
-    if try await obj.ice_getConnection() == nil {  // collocated
+    if obj.ice_getCachedConnection() == nil {  // collocated
         try await obj.ice_ping()
         output.writeLine("ok")
     } else {

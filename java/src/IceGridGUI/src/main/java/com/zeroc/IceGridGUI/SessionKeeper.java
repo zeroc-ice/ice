@@ -211,7 +211,7 @@ public class SessionKeeper {
                 throw e;
             }
 
-            _session.ice_getConnection()
+            _session.ice_getCachedConnection()
                 .setCloseCallback(
                     con -> {
                         try {
@@ -301,7 +301,7 @@ public class SessionKeeper {
                 _adapter = null;
             }
 
-            _session.ice_getConnection().setCloseCallback(null);
+            _session.ice_getCachedConnection().setCloseCallback(null);
 
             if (destroySession) {
                 _coordinator.destroySession(_session, _routed);
@@ -320,7 +320,7 @@ public class SessionKeeper {
 
                 _adapter = _coordinator.getCommunicator().createObjectAdapter(adapterName);
                 _adapter.activate();
-                _session.ice_getConnection().setAdapter(_adapter);
+                _session.ice_getCachedConnection().setAdapter(_adapter);
             } else {
                 RouterPrx router = RouterPrx.uncheckedCast(_coordinator.getCommunicator().getDefaultRouter());
                 category = router.getCategoryForClient();

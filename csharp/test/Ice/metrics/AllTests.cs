@@ -579,7 +579,7 @@ public class AllTests : Test.AllTests
         string isSecure = "";
         if (!collocated)
         {
-            Ice.EndpointInfo endpointInfo = metrics.ice_getConnection().getEndpoint().getInfo();
+            Ice.EndpointInfo endpointInfo = metrics.ice_getCachedConnection().getEndpoint().getInfo();
             type = $"{endpointInfo.type()}";
             isSecure = endpointInfo.secure() ? "True" : "False";
         }

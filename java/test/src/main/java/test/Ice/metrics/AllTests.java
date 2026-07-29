@@ -439,7 +439,7 @@ public class AllTests {
         String isSecure = "";
         if (!collocated) {
             EndpointInfo endpointInfo =
-                metrics.ice_getConnection().getEndpoint().getInfo();
+                metrics.ice_getCachedConnection().getEndpoint().getInfo();
             type = Short.toString(endpointInfo.type());
             isSecure = endpointInfo.secure() ? "true" : "false";
         }

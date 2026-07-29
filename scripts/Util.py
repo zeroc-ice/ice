@@ -2575,8 +2575,9 @@ class RemoteProcessController(ProcessController):
                 self.remoteProcessController = remoteProcessController
 
             def setProcessController(self, proxy: Any, current: Any) -> None:
+                # The proxy is fixed to the incoming connection.
                 proxy = Test_Common.ProcessControllerPrx.uncheckedCast(current.con.createProxy(proxy.ice_getIdentity()))
-                self.remoteProcessController.setProcessController(proxy)
+                self.remoteProcessController.setProcessController(proxy, current.con)
 
         import Ice
 
@@ -2692,10 +2693,10 @@ class RemoteProcessController(ProcessController):
 
         raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
 
-    def setProcessController(self, proxy: Any) -> None:
+    def setProcessController(self, proxy: Any, connection: Any) -> None:
         with self.cond:
             self.processControllerProxies[proxy.ice_getIdentity()] = proxy
-            proxy.ice_getConnection().setCloseCallback(lambda conn: self.clearProcessController(proxy, conn))
+            connection.setCloseCallback(lambda conn: self.clearProcessController(proxy, conn))
             self.cond.notify_all()
 
     def bindProcessesToController(self) -> bool:
