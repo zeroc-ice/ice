@@ -7,8 +7,6 @@
 #include "Glacier2/Session.h"
 #include "RoutingTable.h"
 
-#include <random>
-
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;
@@ -40,11 +38,24 @@ Glacier2::RouterI::RouterI(
     {
         Identity ident = {"dummy", ""};
 
-        mt19937 gen = IceInternal::createMT19937();
-        uniform_int_distribution<> dist(33, 126); // We use ASCII 33-126 (from ! to ~, w/o space).
-        for (unsigned int i = 0; i < 20; ++i)
+        // We use ASCII 33-126 (from ! to ~, w/o space); bytes >= 188 are rejected to avoid modulo bias.
+        ident.category.reserve(20);
+        while (ident.category.size() < 20)
         {
-            ident.category.push_back(static_cast<char>(dist(gen)));
+            char buf[32];
+            IceInternal::generateRandom(buf, sizeof(buf));
+            for (char c : buf)
+            {
+                auto b = static_cast<unsigned char>(c);
+                if (b < 188)
+                {
+                    ident.category.push_back(static_cast<char>(33 + b % 94));
+                    if (ident.category.size() == 20)
+                    {
+                        break;
+                    }
+                }
+            }
         }
 
         const_cast<optional<ObjectPrx>&>(_serverProxy) = _instance->serverObjectAdapter()->createProxy(ident);

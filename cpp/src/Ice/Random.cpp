@@ -9,15 +9,15 @@
 #include <array>
 #include <cassert>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
+#include <stdexcept>
 #include <system_error>
 
-#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
-#    include <cstdlib>
-#elif defined(__linux__)
+#if defined(__linux__)
 #    include <cerrno>
 #    include <sys/random.h>
-#elif !defined(_WIN32)
+#elif !defined(_WIN32) && !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__)
 #    include <cerrno>
 #    include <fcntl.h>
 #    include <unistd.h>
@@ -51,22 +51,32 @@ IceInternal::generateRandom(char* buffer, size_t size)
 #elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
     arc4random_buf(buffer, size);
 #elif defined(__linux__)
+    // getrandom with flags == 0 deliberately blocks until the kernel's entropy pool is initialized; don't
+    // "fix" this with GRND_NONBLOCK.
     size_t index = 0;
     while (index < size)
     {
         ssize_t n = getrandom(buffer + index, size - index, 0);
-        if (n < 0)
+        if (n <= 0)
         {
-            if (errno == EINTR)
+            if (n < 0 && errno == EINTR)
             {
                 continue;
+            }
+            if (n == 0)
+            {
+                throw runtime_error("getrandom returned no data");
             }
             throw system_error(errno, generic_category(), "getrandom failed");
         }
         index += static_cast<size_t>(n);
     }
 #else
-    int fd = open("/dev/urandom", O_RDONLY);
+    int fd;
+    do
+    {
+        fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+    } while (fd == -1 && errno == EINTR);
     if (fd == -1)
     {
         throw system_error(errno, generic_category(), "cannot open /dev/urandom");
@@ -83,6 +93,10 @@ IceInternal::generateRandom(char* buffer, size_t size)
             }
             int err = errno;
             close(fd);
+            if (n == 0)
+            {
+                throw runtime_error("unexpected EOF reading /dev/urandom");
+            }
             throw system_error(err, generic_category(), "cannot read /dev/urandom");
         }
         index += static_cast<size_t>(n);
