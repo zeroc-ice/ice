@@ -3035,12 +3035,26 @@ class AndroidProcessController(RemoteProcessController):
         # Clear both logs first: the result line is matched out of logcat below, and one left over
         # from an earlier attempt would otherwise be read as this attempt's result.
         # Ours must be fatal: it is the buffer the verdict is read from below, and a stale
-        # "RESULT client OK" left in it would be read as this attempt's result. The peer's is only
-        # tidiness -- nothing reads it -- so a transient failure there must not kill the bond.
+        # "RESULT client OK" left in it would be read as this attempt's result. The peer's is
+        # cleared for the same reason -- the readiness marker below is matched out of it -- but a
+        # transient failure there must not kill the bond.
         run(f"{self.adb()} logcat -c")
         self._adbTolerantFor(peerAdb, "logcat -c")
         run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid}")
-        time.sleep(6)
+        # Wait for the server to be listening rather than sleeping a fixed interval. It has to start
+        # an activity and register an SDP record, and a client that connects before the record is
+        # there fails in BluetoothSocket.connect() with Android's misleading "read failed, socket
+        # might closed or timeout, read ret: -1" -- which reads like an I/O fault rather than a
+        # missing service. btbond logs this line as soon as listenUsingRfcommWithServiceRecord
+        # returns.
+        for _ in range(30):
+            if "listening" in self._adbTolerantFor(peerAdb, "logcat -d -s BTBOND"):
+                break
+            time.sleep(1)
+        else:
+            # Best effort: go ahead and let the client's own connect be the gate, so a logcat
+            # hiccup on the peer cannot fail a bond that would otherwise work.
+            print(f"warning: '{peerDevice}' never logged btbond's listening marker", file=sys.stderr)
         run(f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {uuid}")
         result = ""
         verdict = ""
@@ -3067,7 +3081,15 @@ class AndroidProcessController(RemoteProcessController):
         # Match the verdict, not just the presence of a result: "RESULT client FAIL" also contains
         # "RESULT client".
         if verdict != "OK":
-            raise RuntimeError(f"btbond did not report a successful bond on '{self.device}'\n{result[-500:]}")
+            # Include the peer's log. The client's own tail says what it failed at but not why: a
+            # connect failure looks the same whether the server never came up, or came up and
+            # refused. Without this side there is no way to tell them apart after the fact.
+            peerLog = self._adbTolerantFor(peerAdb, "logcat -d -s BTBOND")
+            raise RuntimeError(
+                f"btbond did not report a successful bond on '{self.device}'\n"
+                f"{result[-500:]}\n"
+                f"-- peer '{peerDevice}' --\n{peerLog[-500:] or '<no BTBOND output>'}"
+            )
         # dumpsys masks all but the last two octets of a bonded address, so match on those.
         bonded = self._adbTolerant("shell dumpsys bluetooth_manager")
         if peerAddress[-5:] not in bonded:
