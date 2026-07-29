@@ -81,8 +81,7 @@ export async function batchOneways(prx: Test.MyInterfacePrx, helper: TestHelper)
         await unreachable.opByteSOneway(bs1);
     }
     try {
-        // Both flushes are queued on the same request handler, which completes them in order, so once this one
-        // fails the auto-flush above has already settled.
+        // This flush fails the same way; by the time it does, the auto-flush above has settled too.
         await unreachable.ice_flushBatchRequests();
         test(false);
     } catch (ex) {
