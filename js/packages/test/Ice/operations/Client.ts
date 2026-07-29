@@ -25,7 +25,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing batch oneway operations... ");
-        await batchOneways(cl);
+        await batchOneways(cl, this);
         out.writeLine("ok");
 
         await cl.shutdown();
