@@ -560,9 +560,9 @@ export class ReferenceFactory {
                     this._instance
                         .initializationData()
                         .logger.warning(
-                            "invalid value for" +
+                            "invalid value for " +
                                 property +
-                                "`" +
+                                " `" +
                                 properties.getProperty(property) +
                                 "': defaulting to -1",
                         );
@@ -573,14 +573,14 @@ export class ReferenceFactory {
             value = properties.getProperty(property);
             if (value.length !== 0) {
                 invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
-                if (invocationTimeout < 1 && invocationTimeout !== -1) {
+                if (invocationTimeout < -1) {
                     invocationTimeout = -1;
                     this._instance
                         .initializationData()
                         .logger.warning(
-                            "invalid value for" +
+                            "invalid value for " +
                                 property +
-                                "`" +
+                                " `" +
                                 properties.getProperty(property) +
                                 "': defaulting to -1",
                         );

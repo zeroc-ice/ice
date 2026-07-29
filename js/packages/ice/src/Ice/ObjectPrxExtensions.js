@@ -465,7 +465,8 @@ const maxTimeout = 2147483647;
 // means infinite and is normalized to -1, and a positive timeout is rounded up to the next whole number.
 function normalizeTimeout(newTimeout, description, unit) {
     if (typeof newTimeout !== "number" || Number.isNaN(newTimeout)) {
-        throw new RangeError(`invalid value passed as the ${description}: ${newTimeout}`);
+        // String() rather than interpolation: interpolating a symbol throws a TypeError.
+        throw new RangeError(`invalid value passed as the ${description}: ${String(newTimeout)}`);
     }
     if (newTimeout < 0) {
         return -1;

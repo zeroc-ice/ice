@@ -592,6 +592,30 @@ export class Client extends TestHelper {
         test(proxyProps.get("Test.Locator.Router.LocatorCacheTimeout") === "200");
         test(proxyProps.get("Test.Locator.Router.InvocationTimeout") === "1500");
 
+        // The timeouts a proxy holds are always representable in the proxy property form, so proxyToProperty
+        // followed by propertyToProxy preserves them exactly.
+        for (const [locatorCacheTimeout, invocationTimeout] of [
+            [0, 0],
+            [2, 3],
+            [-1, -1],
+        ]) {
+            const b2 = base.ice_locatorCacheTimeout(locatorCacheTimeout).ice_invocationTimeout(invocationTimeout);
+            const roundTripProperties = Ice.createProperties();
+            communicator.proxyToProperty(b2, "RoundTrip").forEach((value, key) => {
+                roundTripProperties.setProperty(key, value);
+            });
+            const initData = new Ice.InitializationData();
+            initData.properties = roundTripProperties;
+            const roundTripCommunicator = Ice.initialize(initData);
+            try {
+                const b3 = roundTripCommunicator.propertyToProxy("RoundTrip")!;
+                test(b3.ice_getLocatorCacheTimeout() === locatorCacheTimeout);
+                test(b3.ice_getInvocationTimeout() === invocationTimeout);
+            } finally {
+                await roundTripCommunicator.destroy();
+            }
+        }
+
         out.writeLine("ok");
 
         out.write("testing ice_getCommunicator... ");
