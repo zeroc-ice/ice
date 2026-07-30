@@ -29,7 +29,7 @@ class TcpAcceptor implements Acceptor {
         try {
             _addr = Network.doBind(_fd, _addr, _backlog);
         } catch (LocalException ex) {
-            _fd = null;
+            close();
             throw ex;
         }
         _endpoint = _endpoint.endpoint(this);

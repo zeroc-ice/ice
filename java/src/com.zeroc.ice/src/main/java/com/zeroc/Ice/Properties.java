@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PushbackInputStream;
-import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -455,22 +455,28 @@ public final class Properties {
         if (System.getProperty("os.name").startsWith("Windows")
             && (file.startsWith("HKCU\\") || file.startsWith("HKLM\\"))) {
             try {
-                java.lang.Process process = Runtime.getRuntime().exec(new String[]{"reg", "query", file});
+                java.lang.Process process =
+                    new ProcessBuilder("reg", "query", file)
+                        .redirectError(ProcessBuilder.Redirect.DISCARD)
+                        .start();
 
-                // Drain stdout before waiting for the process: reg blocks when its output fills the pipe buffer.
-                java.io.InputStream is = process.getInputStream();
-                StringWriter sw = new StringWriter();
-                int c;
-                while ((c = is.read()) != -1) {
-                    sw.write(c);
+                String output;
+                try {
+                    // Drain stdout before waiting for the process: reg blocks when its output fills the pipe
+                    // buffer. reg writes in the platform's native encoding, not the JVM default charset.
+                    try (java.io.InputStream is = process.getInputStream()) {
+                        output = new String(is.readAllBytes(), Charset.forName(System.getProperty("native.encoding")));
+                    }
+                    process.waitFor();
+                } finally {
+                    process.destroy();
                 }
 
-                process.waitFor();
                 if (process.exitValue() != 0) {
                     throw new InitializationException("Could not read Windows registry key '" + file + "'");
                 }
 
-                String[] result = sw.toString().split("\n");
+                String[] result = output.split("\n");
 
                 for (String line : result) {
                     int pos = line.indexOf("REG_SZ");
