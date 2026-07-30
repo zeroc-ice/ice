@@ -130,9 +130,8 @@ void ::Reader::run(int argc, char* argv[])
         test(aapl->lastAsk == 14.0f); // AAPL's own ask, not GOOG's 102
     }
 
-    // A persistent multi-key reader attaches to writer 1 under both keys; writer 1's detach leaves a stale entry
-    // in the reader's per-key subscriber map, and writer 2's attach drives SessionI::getLastIds over it, which
-    // must not dereference null.
+    // A persistent multi-key reader attaches to writer 1 under both keys. After writer 1 is destroyed, the reader
+    // attaches to writer 2 under both keys again and reads its sample.
     Topic<string, int> detachTopic(node, "multiKeyDetach");
     detachTopic.setReaderDefaultConfig(config);
     Topic<string, int> detachBarrier(node, "multiKeyDetachBarrier");
@@ -141,14 +140,13 @@ void ::Reader::run(int argc, char* argv[])
         auto sample = reader.getNextUnread(); // from writer 1
         test(sample.getValue() == 1);
 
-        // Wait until writer 1's detach has been processed (this is what leaves the stale per-key entry), then
-        // tell the writer it can create writer 2.
+        // Wait until writer 1's detach has been processed, then tell the writer it can create writer 2.
         reader.waitForNoWriters();
         auto barrier = makeSingleKeyWriter(detachBarrier, "barrier");
         barrier.waitForReaders();
         barrier.update(0);
 
-        sample = reader.getNextUnread(); // from writer 2: attach runs getLastIds over the stale entry
+        sample = reader.getNextUnread(); // from writer 2
         test(sample.getValue() == 2);
     }
 
