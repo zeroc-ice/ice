@@ -259,16 +259,26 @@ ObjectPrx.prototype.ice_connectionId = function (id) {
 
 ObjectPrx.prototype.ice_getConnection = function () {
     const r = new ProxyGetConnection(this, "ice_getConnection");
-    try {
-        r.invoke();
-    } catch (ex) {
-        r.abort(ex);
+    if (this._reference.isFixed()) {
+        // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.
+        r.markFinished(true, result => result.resolve(this._reference.getConnection()));
+    } else {
+        try {
+            r.invoke();
+        } catch (ex) {
+            r.abort(ex);
+        }
     }
     return r;
 };
 
 ObjectPrx.prototype.ice_getCachedConnection = function () {
-    return this._requestHandlerCache.cachedConnection;
+    // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.
+    if (this._reference.isFixed()) {
+        return this._reference.getConnection();
+    } else {
+        return this._requestHandlerCache.cachedConnection;
+    }
 };
 
 ObjectPrx.prototype.ice_flushBatchRequests = function () {

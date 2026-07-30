@@ -1477,23 +1477,39 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
     public Connection? ice_getConnection()
     {
-        try
+        // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.
+        if (_reference is Ice.Internal.FixedReference)
         {
-            var completed = new GetConnectionTaskCompletionCallback();
-            iceI_ice_getConnection(completed, true);
-            return completed.Task.Result;
+            return _reference.getConnection();
         }
-        catch (AggregateException ex)
+        else
         {
-            throw ex.InnerException!;
+            try
+            {
+                var completed = new GetConnectionTaskCompletionCallback();
+                iceI_ice_getConnection(completed, true);
+                return completed.Task.Result;
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.InnerException!;
+            }
         }
     }
 
     public Task<Connection?> ice_getConnectionAsync(IProgress<bool>? progress, CancellationToken cancel)
     {
-        var completed = new GetConnectionTaskCompletionCallback(progress, cancel);
-        iceI_ice_getConnection(completed, false);
-        return completed.Task;
+        // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.
+        if (_reference is Ice.Internal.FixedReference)
+        {
+            return Task.FromResult<Connection?>(_reference.getConnection());
+        }
+        else
+        {
+            var completed = new GetConnectionTaskCompletionCallback(progress, cancel);
+            iceI_ice_getConnection(completed, false);
+            return completed.Task;
+        }
     }
 
     private const string _ice_getConnection_name = "ice_getConnection";
@@ -1510,7 +1526,18 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>The cached Connection for this proxy (null if the proxy does not have
     /// an established connection).</returns>
-    public Connection? ice_getCachedConnection() => _requestHandlerCache.cachedConnection;
+    public Connection? ice_getCachedConnection()
+    {
+        // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.
+        if (_reference is Ice.Internal.FixedReference)
+        {
+            return _reference.getConnection();
+        }
+        else
+        {
+            return _requestHandlerCache.cachedConnection;
+        }
+    }
 
     /// <summary>
     /// Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.

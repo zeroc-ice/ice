@@ -585,6 +585,7 @@ namespace Ice
         /// this function returns the connection this proxy is bound to, even when this connection is closed.
         /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
         /// If you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// For a fixed proxy, the Ice runtime calls this function from the calling thread, before returning.
         /// It accepts:
         /// - The connection for this proxy.
         /// @param ex The exception callback. The Ice runtime calls this function from an Ice thread pool thread. If

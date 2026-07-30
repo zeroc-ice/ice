@@ -207,7 +207,15 @@ Ice::ObjectPrx::ice_isFixed() const noexcept
 ConnectionPtr
 Ice::ObjectPrx::ice_getCachedConnection() const noexcept
 {
-    return _requestHandlerCache->getCachedConnection();
+    // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.
+    if (auto fixedReference = dynamic_pointer_cast<FixedReference>(_reference))
+    {
+        return fixedReference->fixedConnection();
+    }
+    else
+    {
+        return _requestHandlerCache->getCachedConnection();
+    }
 }
 
 CommunicatorPtr

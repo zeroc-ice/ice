@@ -562,16 +562,14 @@ export class ProxyFlushBatch extends ProxyOutgoingAsyncBase {
 
 export class ProxyGetConnection extends ProxyOutgoingAsyncBase {
     invokeRemote(connection) {
-        // A fixed proxy is bound to a single connection: return this connection as is, even when it's closed. Only
-        // a non-fixed proxy can establish a replacement connection.
-        if (!this._proxy.ice_isFixed()) {
-            try {
-                connection.throwException();
-            } catch (ex) {
-                // The connection is closed: throw RetryException so that the caller clears the cached request
-                // handler and calls invokeRemote again with a new connection.
-                throw new RetryException(ex);
-            }
+        // A fixed proxy never reaches the invocation machinery: invoke returns its bound connection directly.
+        console.assert(!this._proxy.ice_isFixed());
+        try {
+            connection.throwException();
+        } catch (ex) {
+            // The connection is closed: throw RetryException so that the caller clears the cached request
+            // handler and calls invokeRemote again with a new connection.
+            throw new RetryException(ex);
         }
         this.markFinished(true, r => r.resolve(connection));
         return AsyncStatus.Sent;
