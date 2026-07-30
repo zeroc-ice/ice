@@ -10,6 +10,7 @@
 #include "Ice/OutputStream.h"
 #include "Ice/Proxy.h"
 #include "ReferenceFactory.h"
+#include "RequestHandler.h"
 
 using namespace std;
 using namespace Ice;
@@ -282,6 +283,21 @@ ProxyGetConnection::ProxyGetConnection(ObjectPrx proxy) : ProxyOutgoingAsyncBase
 AsyncStatus
 ProxyGetConnection::invokeRemote(const ConnectionIPtr& connection, bool, bool)
 {
+    // A fixed proxy is bound to a single connection: return this connection as is, even when it's closed. Only a
+    // non-fixed proxy can establish a replacement connection.
+    if (!_proxy.ice_isFixed())
+    {
+        try
+        {
+            connection->throwException();
+        }
+        catch (const Ice::LocalException&)
+        {
+            // The connection is closed: throw RetryException so that the caller clears the cached request handler
+            // and calls invokeRemote again with a new connection.
+            throw RetryException(current_exception());
+        }
+    }
     _cachedConnection = connection;
     if (responseImpl(true, true))
     {

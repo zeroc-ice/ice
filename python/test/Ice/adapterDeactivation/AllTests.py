@@ -165,7 +165,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestInt
 
     sys.stdout.write("testing whether server is gone... ")
     sys.stdout.flush()
-    if obj.ice_getConnection() is None:  # collocated
+    if obj.ice_getCachedConnection() is None:  # collocated
         obj.ice_ping()
         print("ok")
     else:

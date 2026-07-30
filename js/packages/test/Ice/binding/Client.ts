@@ -66,9 +66,6 @@ export class Client extends TestHelper {
             await com.deactivateObjectAdapter(adapter);
 
             const test3 = Test.TestIntfPrx.uncheckedCast(test1);
-            test((await test3.ice_getConnection()) === (await test1.ice_getConnection()));
-            test((await test3.ice_getConnection()) === (await test2.ice_getConnection()));
-
             try {
                 await test3.ice_ping();
                 test(false);

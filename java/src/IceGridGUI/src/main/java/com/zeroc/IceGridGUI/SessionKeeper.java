@@ -11,6 +11,7 @@ import com.jgoodies.forms.util.LayoutStyle;
 
 import com.zeroc.Glacier2.RouterPrx;
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.Endpoint;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.LocalException;
@@ -211,7 +212,7 @@ public class SessionKeeper {
                 throw e;
             }
 
-            _session.ice_getConnection()
+            _session.ice_getCachedConnection()
                 .setCloseCallback(
                     con -> {
                         try {
@@ -301,7 +302,10 @@ public class SessionKeeper {
                 _adapter = null;
             }
 
-            _session.ice_getConnection().setCloseCallback(null);
+            Connection connection = _session.ice_getCachedConnection();
+            if (connection != null) {
+                connection.setCloseCallback(null);
+            }
 
             if (destroySession) {
                 _coordinator.destroySession(_session, _routed);
@@ -320,7 +324,7 @@ public class SessionKeeper {
 
                 _adapter = _coordinator.getCommunicator().createObjectAdapter(adapterName);
                 _adapter.activate();
-                _session.ice_getConnection().setAdapter(_adapter);
+                _session.ice_getCachedConnection().setAdapter(_adapter);
             } else {
                 RouterPrx router = RouterPrx.uncheckedCast(_coordinator.getCommunicator().getDefaultRouter());
                 category = router.getCategoryForClient();

@@ -376,7 +376,7 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing whether server is gone... ");
         output.Flush();
-        if (obj.ice_getConnection() is null) // collocated
+        if (obj.ice_getCachedConnection() is null) // collocated
         {
             obj.ice_ping();
             output.WriteLine("ok");

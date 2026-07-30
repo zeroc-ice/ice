@@ -446,16 +446,20 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     bool ice_isFixed();
 
     /// <summary>
-    /// Gets the connection to the server that hosts the target object. This method establishes the connection to the
-    /// server if it is not already established.
+    /// Gets the connection to the server that hosts the target object. This method establishes a new connection to
+    /// the server if the connection is not already established, or if the previously established connection is
+    /// closed or being closed. For a fixed proxy, this method returns the connection this proxy is bound to, even
+    /// when this connection is closed.
     /// </summary>
     /// <returns>The connection to the server that hosts the target object, or null when this proxy uses collocation
     /// optimization to communicate with the target object.</returns>
     Connection? ice_getConnection();
 
     /// <summary>
-    /// Gets the connection to the server that hosts the target object. This method establishes the connection to the
-    /// server if it is not already established.
+    /// Gets the connection to the server that hosts the target object. This method establishes a new connection to
+    /// the server if the connection is not already established, or if the previously established connection is
+    /// closed or being closed. For a fixed proxy, this method returns the connection this proxy is bound to, even
+    /// when this connection is closed.
     /// </summary>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
@@ -467,8 +471,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// Gets the cached Connection for this proxy. If the proxy does not yet have an established
     /// connection, it does not attempt to create a connection.
     /// </summary>
-    /// <returns>The cached Connection for this proxy (null if the proxy does not have
-    /// an established connection).</returns>
+    /// <returns>The cached Connection for this proxy (null if the proxy does not have a cached connection). The
+    /// returned connection can be closed.</returns>
     Connection? ice_getCachedConnection();
 
     /// <summary>
