@@ -553,7 +553,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
             }
             assert(TYPE(val) == T_FLOAT);
             double d = static_cast<double>(RFLOAT_VALUE(val));
-            if (isfinite(d) && (d > numeric_limits<float>::max() || d < -numeric_limits<float>::max()))
+            if (isfinite(d) && (d > numeric_limits<float>::max() || d < numeric_limits<float>::lowest()))
             {
                 throw RubyException(rb_eTypeError, "value is out of range for a float");
             }
@@ -1421,7 +1421,12 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                     throw RubyException(rb_eTypeError, "unable to convert array element %ld to a float", i);
                 }
                 assert(TYPE(v) == T_FLOAT);
-                seq[static_cast<size_t>(i)] = static_cast<float>(RFLOAT_VALUE(v));
+                double d = static_cast<double>(RFLOAT_VALUE(v));
+                if (isfinite(d) && (d > numeric_limits<float>::max() || d < numeric_limits<float>::lowest()))
+                {
+                    throw RubyException(rb_eTypeError, "array element %ld is out of range for a float", i);
+                }
+                seq[static_cast<size_t>(i)] = static_cast<float>(d);
             }
             os->write(seq);
             break;
