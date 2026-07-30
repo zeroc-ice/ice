@@ -510,21 +510,21 @@ namespace
                     }
                 }
             }
+        }
 
-            //
-            // Queue updated, now find which remote loggers want this message
-            //
-            for (const auto& q : _remoteLoggerMap)
+        //
+        // Queue updated, now find which remote loggers want this message
+        //
+        for (const auto& q : _remoteLoggerMap)
+        {
+            const Filters& filters = q.second;
+
+            if (filters.messageTypes.empty() || filters.messageTypes.count(logMessage.type) != 0)
             {
-                const Filters& filters = q.second;
-
-                if (filters.messageTypes.empty() || filters.messageTypes.count(logMessage.type) != 0)
+                if (logMessage.type != LogMessageType::TraceMessage || filters.traceCategories.empty() ||
+                    filters.traceCategories.count(logMessage.traceCategory) != 0)
                 {
-                    if (logMessage.type != LogMessageType::TraceMessage || filters.traceCategories.empty() ||
-                        filters.traceCategories.count(logMessage.traceCategory) != 0)
-                    {
-                        remoteLoggers.push_back(q.first);
-                    }
+                    remoteLoggers.push_back(q.first);
                 }
             }
         }

@@ -444,6 +444,47 @@ public class AllTests : global::Test.AllTests
 
             com.destroy();
         }
+        {
+            // With KeepLogs=0 and KeepTraces=0, no message is retained, but messages are still delivered to
+            // attached remote loggers.
+            var props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" },
+                { "NullLogger", "1" },
+                { "Ice.Admin.Logger.KeepLogs", "0" },
+                { "Ice.Admin.Logger.KeepTraces", "0" }
+            };
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
+
+            com.print("print1");
+            com.trace("testCat", "trace1");
+
+            var logger = Ice.LoggerAdminPrxHelper.checkedCast(com.getAdmin(), "Logger");
+            test(logger != null);
+
+            Ice.LogMessage[] logMessages = logger.getLog(null, null, -1, out string prefix);
+            test(logMessages.Length == 0);
+
+            Ice.ObjectAdapter adapter =
+                communicator.createObjectAdapterWithEndpoints("RemoteLoggerAdapter2", "tcp -h localhost");
+            var remoteLogger = new RemoteLoggerI();
+            Ice.RemoteLoggerPrx myProxy =
+                Ice.RemoteLoggerPrxHelper.uncheckedCast(adapter.addWithUUID(remoteLogger));
+            adapter.activate();
+
+            logger.attachRemoteLogger(myProxy, null, null, -1);
+            remoteLogger.wait(1);
+
+            com.print("print2");
+            com.trace("testCat", "trace2");
+            remoteLogger.wait(2);
+
+            remoteLogger.checkNextLog(Ice.LogMessageType.PrintMessage, "print2", "");
+            remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "trace2", "testCat");
+
+            com.destroy();
+        }
         output.WriteLine("ok");
 
         output.Write("testing custom facet... ");
