@@ -1,15 +1,18 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import filecmp
 import os
 import shutil
+from typing import Any
 
 from IceStormUtil import IceStorm, IceStormTestCase
-from Util import Mapping, ProcessFromBinDir, SimpleClient, TestSuite
+from Util import Driver, Mapping, ProcessFromBinDir, SimpleClient, TestSuite
 
 
 class IceStormDb(ProcessFromBinDir, SimpleClient):
-    def __init__(self, quiet=True, *args, **kargs):
+    def __init__(self, quiet: bool = True, *args: Any, **kargs: Any):
         SimpleClient.__init__(
             self,
             exe="icestormdb",
@@ -31,7 +34,7 @@ class IceStormDbExportImportTestCase(IceStormTestCase):
             icestorm=icestorm,
         )
 
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         testdir = current.testsuite.getPath()
 
         # Topic names of different lengths: the marshaled key byte-order (which sorts by the
@@ -79,8 +82,9 @@ class IceStormDbExportImportTestCase(IceStormTestCase):
             os.rename(importDir, dbPath)
             importDir = None  # Moved, no longer needs cleanup
 
-            # Bypass setup() to preserve the imported database files.
-            self.icestorm[0].setup = lambda c: None
+            # Keep setup() from wiping the imported database files. start() does not call setup()
+            # today, so this only matters if the restart is ever routed through the test case.
+            self.icestorm[0].createDb = False
             self.icestorm[0].start(current)
 
             output = self.runadmin(current, "topics", quiet=True)
@@ -114,7 +118,7 @@ class IceStormDbExportImportTestCase(IceStormTestCase):
             if importDir and os.path.exists(importDir):
                 shutil.rmtree(importDir)
 
-    def teardownClientSide(self, current, success):
+    def teardownClientSide(self, current: Driver.Current, success: bool) -> None:
         # IceStorm is already shut down in runClientSide.
         pass
 

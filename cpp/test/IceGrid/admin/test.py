@@ -1,11 +1,14 @@
 # Copyright (c) ZeroC, Inc.
 
 
+from __future__ import annotations
+
 import os
 
+from Expect import ExpectPattern
 from Glacier2Util import Glacier2Router
 from IceGridUtil import IceGridAdmin, IceGridTestCase
-from Util import TestSuite, Windows, platform
+from Util import Driver, Process, Props, TestSuite, Windows, platform
 
 
 class IceGridAdminTestCase(IceGridTestCase):
@@ -13,12 +16,13 @@ class IceGridAdminTestCase(IceGridTestCase):
         self.glacier2router = Glacier2Router(props=routerProps, waitForShutdown=False)
         IceGridTestCase.__init__(self, application=None, server=self.glacier2router)
 
-    def runClientSide(self, current):
-        def expect(admin, msg):
+    def runClientSide(self, current: Driver.Current) -> None:
+        def expect(admin: Process, msg: str | list[str]) -> None:
+            patterns: list[ExpectPattern] = ["error:", msg] if isinstance(msg, str) else ["error:", *msg]
             if (
                 admin.expect(
                     current,
-                    ["error:", msg] if isinstance(msg, str) else ["error:"] + msg,
+                    patterns,
                 )
                 == 0
             ):
@@ -157,7 +161,9 @@ class IceGridAdminTestCase(IceGridTestCase):
             raise RuntimeError("failed!\n" + str(e))
 
 
-def routerProps(process, current):
+def routerProps(process: Process, current: Driver.Current) -> Props:
+    testcase = current.getTestCase()
+    assert isinstance(testcase, IceGridTestCase)
     return {
         "Glacier2.SessionManager": "TestIceGrid/AdminSessionManager",
         "Glacier2.PermissionsVerifier": "Glacier2/NullPermissionsVerifier",
@@ -165,7 +171,7 @@ def routerProps(process, current):
         # we disable the inactivity timeout for outgoing connections when we use an IceGrid session manager
         "Ice.Connection.Client.InactivityTimeout": "0",
         "Glacier2.SSLPermissionsVerifier": "Glacier2/NullSSLPermissionsVerifier",
-        "Ice.Default.Locator": current.testcase.getLocator(current),
+        "Ice.Default.Locator": testcase.getLocator(current),
         "IceSSL.VerifyPeer": 1,
     }
 

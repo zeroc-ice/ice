@@ -1,13 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
 
+from __future__ import annotations
+
 import os
 
 from IceGridUtil import IceGridClient, IceGridNode, IceGridTestCase
-from Util import TestSuite, Windows, platform
+from Util import Driver, Process, Props, TestSuite, Windows, platform
 
 
-def clientProps(process, current):
+def clientProps(process: Process, current: Driver.Current) -> Props:
     return {"TestDir": current.getBuildDir("server")}
 
 

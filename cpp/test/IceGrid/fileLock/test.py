@@ -1,14 +1,16 @@
 # Copyright (c) ZeroC, Inc.
 
 
+from __future__ import annotations
+
 import sys
 
 from IceGridUtil import IceGridRegistryMaster, IceGridTestCase
-from Util import TestSuite
+from Util import Driver, TestSuite
 
 
 class IceGridAdminTestCase(IceGridTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         sys.stdout.write("testing IceGrid file lock... ")
         registry = IceGridRegistryMaster(portnum=25, ready="", quiet=True)
         registry.start(current)
