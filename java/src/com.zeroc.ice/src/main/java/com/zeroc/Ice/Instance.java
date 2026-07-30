@@ -902,6 +902,27 @@ public final class Instance {
 
     // Only for use by com.zeroc.Ice.Communicator
     void destroy(boolean interruptible) {
+        if (interruptible) {
+            destroyImpl();
+        } else {
+            // Complete the destruction even if the calling thread is interrupted, and restore the
+            // interrupt status once the destruction is complete.
+            boolean interrupted = Thread.interrupted();
+            while (true) {
+                try {
+                    destroyImpl();
+                    break;
+                } catch (OperationInterruptedException ex) {
+                    interrupted = true;
+                }
+            }
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private void destroyImpl() {
         synchronized (this) {
             // If destroy is in progress, wait for it to be done.
             // This is necessary in case destroy() is called concurrently by multiple threads.
@@ -909,9 +930,7 @@ public final class Instance {
                 try {
                     wait();
                 } catch (InterruptedException ex) {
-                    if (interruptible) {
-                        throw new OperationInterruptedException(ex);
-                    }
+                    throw new OperationInterruptedException(ex);
                 }
             }
 
@@ -987,9 +1006,7 @@ public final class Instance {
                     }
                 }
             } catch (InterruptedException ex) {
-                if (interruptible) {
-                    throw new OperationInterruptedException(ex);
-                }
+                throw new OperationInterruptedException(ex);
             }
 
             // NOTE: at this point destroy() can't be interrupted
@@ -1052,7 +1069,7 @@ public final class Instance {
         } finally {
             synchronized (this) {
                 if (_state == StateDestroyInProgress) {
-                    assert interruptible;
+                    // Destroy did not complete: restore a state that allows destroy to be called again.
                     _state = StateActive;
                     notifyAll();
                 }
