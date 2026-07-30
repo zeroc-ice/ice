@@ -34,4 +34,4 @@ py-modules = ["slice2py"]
 slice2py = "slice2py:main"
 
 [dependency-groups]
-dev = ["pyright", "cryptography", "numpy", "setuptools"]
+dev = ["pyright", "ruff", "cryptography", "numpy", "setuptools"]
