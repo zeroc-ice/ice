@@ -11,6 +11,7 @@ import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.NoEndpointException;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectNotExistException;
@@ -540,10 +541,9 @@ public class AllTests {
                             p.ice_getConnection().createProxy(p.ice_getIdentity()))
                             .ice_batchOneway();
                     b1.opBatch();
-                    b1.ice_getConnection().close();
-                    CompletableFuture<Void> r =
-                        b1.ice_getConnection()
-                            .flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
+                    Connection con = b1.ice_getConnection();
+                    con.close();
+                    CompletableFuture<Void> r = con.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r)
                         .whenSent(
                             (sentSynchronously, ex) -> {
@@ -941,10 +941,42 @@ public class AllTests {
                 cb.check();
             }
             {
+                // ice_getConnection establishes a new connection when the cached connection is closed.
+                Connection con = p.ice_getConnection();
+                ObjectPrx fixedPrx = p.ice_fixed(con);
+                test(fixedPrx.ice_getConnection() == con); // Caches the fixed proxy's request handler.
+                con.close();
+                test(p.ice_getConnection() != con);
+
+                // A fixed proxy remains bound to its connection: ice_getConnection returns it as is.
+                test(fixedPrx.ice_getConnection() == con);
+            }
+            {
+                // ice_getConnection also establishes a new connection when the cached connection is being closed.
+                // The held adapter can't act on the graceful close, so the connection remains in the closing state.
+                Connection con = p.ice_getConnection();
+                testController.holdAdapter();
+                // close() blocks until the closure completes, so call it from another thread and wait until the
+                // graceful close is underway.
+                CompletableFuture<Void> closed = CompletableFuture.runAsync(con::close);
+                while (true) {
+                    try {
+                        con.throwException();
+                        Thread.yield();
+                    } catch (LocalException ex) {
+                        break;
+                    }
+                }
+                // The new connection can't be validated while the adapter is held, so get it asynchronously.
+                CompletableFuture<Connection> newConnection = p.ice_getConnectionAsync();
+                testController.resumeAdapter();
+                test(newConnection.join() != con);
+                closed.join();
+            }
+            {
                 // A close callback that throws: the exception is logged and the connection still
                 // finishes (a stranded connection would hang Communicator.destroy at the end of the
                 // test).
-                p.ice_ping(); // Establishes a new working connection: the previous one is closed.
                 Connection con = p.ice_getConnection();
                 Callback cb = new Callback();
                 con.setCloseCallback(c -> {
@@ -957,7 +989,6 @@ public class AllTests {
             {
                 // Setting a close callback on an already-closed connection invokes the callback
                 // immediately; an Error thrown by the callback is logged, not propagated.
-                p.ice_ping(); // Establishes a new working connection: the previous one is closed.
                 Connection con = p.ice_getConnection();
                 con.close();
                 Callback cb = new Callback();

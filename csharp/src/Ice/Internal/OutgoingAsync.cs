@@ -1208,6 +1208,21 @@ internal class ProxyGetConnection : ProxyOutgoingAsyncBase
 
     public override int invokeRemote(Ice.ConnectionI connection, bool compress, bool response)
     {
+        // A fixed proxy is bound to a single connection: return this connection as is, even when it's closed. Only
+        // a non-fixed proxy can establish a replacement connection.
+        if (!proxy_.ice_isFixed())
+        {
+            try
+            {
+                connection.throwException();
+            }
+            catch (Ice.LocalException ex)
+            {
+                // The connection is closed: throw RetryException so that the caller clears the cached request
+                // handler and calls invokeRemote again with a new connection.
+                throw new RetryException(ex);
+            }
+        }
         cachedConnection_ = connection;
         if (responseImpl(false, true, true))
         {

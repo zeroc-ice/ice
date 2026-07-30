@@ -146,6 +146,32 @@ export class Client extends TestHelper {
         }
         out.writeLine("ok");
 
+        out.write("testing ice_getConnection with a closed connection... ");
+        {
+            // ice_getConnection establishes a new connection when the cached connection is closed.
+            const con = await p.ice_getConnection();
+            const fixedPrx = p.ice_fixed(con);
+            test((await fixedPrx.ice_getConnection()) === con); // Caches the fixed proxy's request handler.
+            await con.close();
+            test((await p.ice_getConnection()) !== con);
+
+            // A fixed proxy remains bound to its connection: ice_getConnection returns it as is.
+            test((await fixedPrx.ice_getConnection()) === con);
+        }
+        {
+            // ice_getConnection also establishes a new connection when the cached connection is being closed.
+            // The held adapter can't act on the graceful close, so the connection remains in the closing state.
+            const con = await p.ice_getConnection();
+            await testController.holdAdapter();
+            const closed = con.close();
+            // The new connection can't be validated while the adapter is held, so don't await it yet.
+            const newConnection = p.ice_getConnection();
+            await testController.resumeAdapter();
+            test((await newConnection) !== con);
+            await closed;
+        }
+        out.writeLine("ok");
+
         out.write("testing AsyncResult operations... ");
         {
             let r1: Ice.AsyncResult<void>;

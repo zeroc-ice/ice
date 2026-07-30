@@ -234,7 +234,8 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
     /// Gets the cached Connection for this proxy. If the proxy does not yet have an established connection, it does
     /// not attempt to create a connection.
     ///
-    /// - Returns: The cached connection for this proxy, or nil if the proxy does not have an established connection.
+    /// - Returns: The cached connection for this proxy, or nil if the proxy does not have a cached connection. The
+    ///   returned connection can be closed.
     func ice_getCachedConnection() -> Connection?
 
     /// Creates a stringified version of this proxy.
@@ -460,8 +461,9 @@ extension ObjectPrx {
         }
     }
 
-    /// Returns the connection for this proxy. If the proxy does not yet have an established connection,
-    /// it first attempts to create a connection.
+    /// Returns the connection for this proxy. If the proxy does not yet have an established connection or its
+    /// connection is closed or being closed, it first attempts to create a new connection. For a fixed proxy,
+    /// this method returns the connection this proxy is bound to, even when this connection is closed.
     ///
     /// - Returns: The connection for this proxy, or `nil` when the proxy uses collocation optimization and
     ///   communicates with a collocated object adapter.
