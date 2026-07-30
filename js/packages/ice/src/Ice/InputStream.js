@@ -382,10 +382,10 @@ class EncapsDecoder10 extends EncapsDecoder {
         // keep the biggest one.
         //
         this._classGraphDepth = 0;
-        const l = this._patchMap?.get(index);
-        if (l !== undefined) {
-            console.assert(l.length > 0);
-            for (const entry of l) {
+        const patchEntries = this._patchMap?.get(index);
+        if (patchEntries !== undefined) {
+            console.assert(patchEntries.length > 0);
+            for (const entry of patchEntries) {
                 if (entry.classGraphDepth > this._classGraphDepth) {
                     this._classGraphDepth = entry.classGraphDepth;
                 }
