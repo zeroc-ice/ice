@@ -732,10 +732,20 @@ internal class ReferenceFactory
             property = propertyPrefix + ".LocatorCacheTimeout";
             locatorCacheTimeout = TimeSpan.FromSeconds(
                 properties.getPropertyAsIntWithDefault(property, (int)locatorCacheTimeout.TotalSeconds));
+            if (locatorCacheTimeout < TimeSpan.Zero)
+            {
+                // Any negative timeout means infinite and is normalized to -1; 0 means no caching.
+                locatorCacheTimeout = TimeSpan.FromSeconds(-1);
+            }
 
             property = propertyPrefix + ".InvocationTimeout";
             invocationTimeout = TimeSpan.FromMilliseconds(
                 properties.getPropertyAsIntWithDefault(property, (int)invocationTimeout.TotalMilliseconds));
+            if (invocationTimeout <= TimeSpan.Zero)
+            {
+                // Zero or any negative timeout means infinite and is normalized to -1.
+                invocationTimeout = TimeSpan.FromMilliseconds(-1);
+            }
 
             property = propertyPrefix + ".Context.";
             Dictionary<string, string> contexts = properties.getPropertiesForPrefix(property);
