@@ -783,11 +783,13 @@ SessionI::disconnectedImpl(const ConnectionPtr& connection, exception_ptr ex)
     for (const auto& [topicId, _] : _topics)
     {
         // The analyzer falsely flags the lambda's captures as undefined: it loses track of the closure once it
-        // is stored in runWithTopics' std::function parameter.
-        // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
+        // is stored in runWithTopics' std::function parameter. The suppression spans the whole call because the
+        // analyzer reports the diagnostic inside the lambda body, not on the runWithTopics line.
+        // NOLINTBEGIN(clang-analyzer-core.NullDereference)
         runWithTopics(
             topicId,
             [topicId, self](const shared_ptr<TopicI>& topic, TopicSubscriber&) { topic->detach(topicId, self); });
+        // NOLINTEND(clang-analyzer-core.NullDereference)
     }
 
     // The peer's wire disconnected() op is not a connection close, so unregister the session that connected()
