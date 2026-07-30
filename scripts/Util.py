@@ -2955,7 +2955,23 @@ class AndroidProcessController(RemoteProcessController):
         raise RuntimeError(f"'{self.device}' did not {what} within {timeout}s")
 
     def bluetoothAddress(self) -> str:
-        return run(f"{self.adb()} shell settings get secure bluetooth_address").strip()
+        # Retried: the settings service is reached over binder and is occasionally unregistered for
+        # a moment on an otherwise healthy emulator, which surfaces as "cmd: Can't find service:
+        # settings". That took down an android-bt run on main at the last step, after the bond had
+        # already succeeded and the same query had answered twice earlier in the run.
+        for _ in range(10):
+            try:
+                address = run(f"{self.adb()} shell settings get secure bluetooth_address").strip()
+            except RuntimeError as ex:
+                address = ""
+                reason = str(ex)
+            else:
+                # `settings get` prints "null" and exits 0 for a key it does not have.
+                reason = f"returned {address!r}"
+                if address and address != "null":
+                    return address
+            time.sleep(2)
+        raise RuntimeError(f"could not read the Bluetooth address of '{self.device}': {reason}")
 
     def enableBluetooth(self) -> None:
         # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
@@ -3023,14 +3039,14 @@ class AndroidProcessController(RemoteProcessController):
         # Bond this (client) emulator to `peerDevice` (server) over secure RFCOMM using the btbond
         # helper installed on both by installSystemApp: start its server mode on the peer, then
         # connect + pair from this device. Bonding is what secure RFCOMM (and hence IceBT) requires.
-        # Build the peer's adb command through forDevice().adb() rather than by hand, so the peer
-        # serial goes through the same validation as our own (these all run with shell=True).
-        peerAdb = AndroidProcessController.forDevice(peerDevice).adb()
+        # Go through forDevice() rather than building the peer's adb command by hand, so the peer
+        # serial gets the same validation as our own (these all run with shell=True) and the address
+        # read gets the same retry.
+        peer = AndroidProcessController.forDevice(peerDevice)
+        peerAdb = peer.adb()
         if not re.fullmatch(r"[A-Fa-f0-9-]+", uuid):
             raise RuntimeError(f"invalid service UUID: {uuid!r}")
-        peerAddress = run(f"{peerAdb} shell settings get secure bluetooth_address").strip()
-        if not peerAddress or peerAddress == "null":
-            raise RuntimeError(f"could not read the Bluetooth address of peer '{peerDevice}'")
+        peerAddress = peer.bluetoothAddress()
         activity = f"{package}/.MainActivity"
         # Clear both logs first: the result line is matched out of logcat below, and one left over
         # from an earlier attempt would otherwise be read as this attempt's result.
