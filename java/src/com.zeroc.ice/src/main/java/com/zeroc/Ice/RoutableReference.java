@@ -263,16 +263,19 @@ class RoutableReference extends Reference {
             prefix + ".EndpointSelection",
             _endpointSelection == EndpointSelectionType.Random ? "Random" : "Ordered");
 
-        {
-            StringBuffer s = new StringBuffer();
-            s.append(getInvocationTimeout().toMillis());
-            properties.put(prefix + ".InvocationTimeout", s.toString());
-        }
-        {
-            StringBuffer s = new StringBuffer();
-            s.append(_locatorCacheTimeout.toSeconds());
-            properties.put(prefix + ".LocatorCacheTimeout", s.toString());
-        }
+        // Any negative timeout means infinite; we emit it as -1, the documented value for infinite. The
+        // timeouts are otherwise always whole numbers of the property's unit.
+        // TODO: remove the -1 normalization in 3.9 (see #6112), once the values read from the per-proxy timeout
+        // properties are normalized (or rejected) like the values set by the proxy methods.
+        Duration invocationTimeout = getInvocationTimeout();
+        properties.put(
+            prefix + ".InvocationTimeout",
+            invocationTimeout.isNegative() ? "-1" : Long.toString(invocationTimeout.toMillis()));
+        properties.put(
+            prefix + ".LocatorCacheTimeout",
+            _locatorCacheTimeout.isNegative()
+                ? "-1"
+                : Long.toString(_locatorCacheTimeout.toSeconds()));
 
         if (_routerInfo != null) {
             _ObjectPrxI h = (_ObjectPrxI) _routerInfo.getRouter();

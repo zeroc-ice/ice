@@ -604,6 +604,17 @@ public class AllTests : global::Test.AllTests
         test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200");
         test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500");
 
+        // A negative timeout is emitted as -1, and a positive timeout is rounded up to the next whole number of the
+        // property's unit.
+        b1 = b1.ice_locatorCacheTimeout(TimeSpan.FromMilliseconds(1500)).ice_invocationTimeout(-2);
+        proxyProps = communicator.proxyToProperty(b1, "Test");
+        test(proxyProps["Test.LocatorCacheTimeout"] == "2");
+        test(proxyProps["Test.InvocationTimeout"] == "-1");
+
+        b1 = b1.ice_locatorCacheTimeout(TimeSpan.FromMilliseconds(-500));
+        proxyProps = communicator.proxyToProperty(b1, "Test");
+        test(proxyProps["Test.LocatorCacheTimeout"] == "-1");
+
         output.WriteLine("ok");
 
         output.Write("testing ice_getCommunicator... ");
@@ -627,7 +638,7 @@ public class AllTests : global::Test.AllTests
 
         test(baseProxy.ice_invocationTimeout(0).ice_getInvocationTimeout() == TimeSpan.Zero);
         test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
-        test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-2));
+        test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
         test(baseProxy.ice_invocationTimeout(int.MaxValue).ice_getInvocationTimeout() ==
             TimeSpan.FromMilliseconds(int.MaxValue));
         try
@@ -641,7 +652,36 @@ public class AllTests : global::Test.AllTests
 
         test(baseProxy.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == TimeSpan.Zero);
         test(baseProxy.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
-        test(baseProxy.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-2));
+        test(baseProxy.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
+
+        // A timeout that is not a whole number of the timeout's unit is rounded up to the next whole number, and
+        // any negative timeout is normalized to -1.
+        test(baseProxy.ice_locatorCacheTimeout(TimeSpan.FromMilliseconds(1500)).ice_getLocatorCacheTimeout() ==
+            TimeSpan.FromSeconds(2));
+        test(baseProxy.ice_locatorCacheTimeout(TimeSpan.FromMilliseconds(-0.5)).ice_getLocatorCacheTimeout() ==
+            TimeSpan.FromSeconds(-1));
+        test(baseProxy.ice_invocationTimeout(TimeSpan.FromMilliseconds(1.5)).ice_getInvocationTimeout() ==
+            TimeSpan.FromMilliseconds(2));
+        test(baseProxy.ice_invocationTimeout(TimeSpan.FromMilliseconds(-0.5)).ice_getInvocationTimeout() ==
+            TimeSpan.FromMilliseconds(-1));
+
+        // A timeout greater than int.MaxValue of the property's unit is rejected.
+        try
+        {
+            baseProxy.ice_locatorCacheTimeout(TimeSpan.FromSeconds((double)int.MaxValue + 1));
+            test(false);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+        }
+        try
+        {
+            baseProxy.ice_locatorCacheTimeout(TimeSpan.MaxValue);
+            test(false);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+        }
 
         output.WriteLine("ok");
 
