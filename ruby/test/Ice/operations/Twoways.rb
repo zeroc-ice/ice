@@ -1227,6 +1227,14 @@ def twoways(helper, communicator, p)
     #
     # Test implicit context propagation
     #
+
+    # Under the default Ice.ImplicitContext=None, there is no implicit context.
+    initData = Ice::InitializationData.new
+    initData.properties = communicator.getProperties().clone()
+    ic = Ice::initialize(initData)
+    test(ic.getImplicitContext().nil?)
+    ic.destroy()
+
     impls = [ 'Shared', 'PerThread' ]
     for i in impls
         initData = Ice::InitializationData.new
