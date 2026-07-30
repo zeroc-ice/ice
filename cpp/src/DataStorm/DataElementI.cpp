@@ -296,11 +296,13 @@ DataElementI::detachKey(
         // Unsubscribe from the key being detached, not from whichever key created the subscriber: a multi-key
         // element attached to the same remote element shares a single subscriber across all its keys. attachKey
         // records an id for every key it connects, and this runs only for a key that was connected, so the entry
-        // is there. Key ids start at 1, so the 0 fallback would trip the assert in unsubscribeFromKey with a key
-        // id that was never subscribed to, pointing away from the break.
-        int64_t remoteKeyId = 0;
+        // is there.
         auto q = subscriber->keyIds.find(key);
         assert(q != subscriber->keyIds.end());
+
+        // Should the lookup ever miss, 0 is an id no key ever uses (key ids start at 1), so the unsubscribe below
+        // is a no-op rather than a decrement of another key's count.
+        int64_t remoteKeyId = 0;
         if (q != subscriber->keyIds.end())
         {
             remoteKeyId = q->second;
