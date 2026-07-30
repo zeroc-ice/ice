@@ -1,15 +1,18 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import filecmp
 import os
 import shutil
+from typing import Any
 
 from IceGridUtil import IceGridRegistryMaster, IceGridTestCase
-from Util import Mapping, ProcessFromBinDir, SimpleClient, TestSuite, Windows, platform
+from Util import Driver, Mapping, ProcessFromBinDir, SimpleClient, TestSuite, Windows, platform
 
 
 class IceGridDb(ProcessFromBinDir, SimpleClient):
-    def __init__(self, quiet=True, *args, **kargs):
+    def __init__(self, quiet: bool = True, *args: Any, **kargs: Any):
         SimpleClient.__init__(
             self,
             exe="icegriddb",
@@ -28,7 +31,7 @@ class IceGridDbExportImportTestCase(IceGridTestCase):
             icegridregistry=[IceGridRegistryMaster()],
         )
 
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         testdir = current.testsuite.getPath()
 
         # Shut down the node and registry to release the LMDB lock.
@@ -69,8 +72,9 @@ class IceGridDbExportImportTestCase(IceGridTestCase):
             os.rename(importDir, dbPath)
             importDir = None  # Moved, no longer needs cleanup
 
-            # Bypass setup() to preserve the imported database files.
-            self.icegridregistry[0].setup = lambda c: None
+            # Keep setup() from wiping the imported database files. start() does not call setup()
+            # today, so this only matters if the restart is ever routed through the test case.
+            self.icegridregistry[0].createDb = False
             self.icegridregistry[0].start(current)
 
             output = self.runadmin(current, "application list", quiet=True)
@@ -87,7 +91,7 @@ class IceGridDbExportImportTestCase(IceGridTestCase):
             if importDir and os.path.exists(importDir):
                 shutil.rmtree(importDir)
 
-    def teardownClientSide(self, current, success):
+    def teardownClientSide(self, current: Driver.Current, success: bool) -> None:
         # Registry and node are already shut down in runClientSide.
         pass
 

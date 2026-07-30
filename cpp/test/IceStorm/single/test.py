@@ -7,8 +7,10 @@
 # send buffer size (causing the received messages to be truncated). See
 # bug #6070 and #7558.
 #
+from __future__ import annotations
+
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
-from Util import ClientServerTestCase, TestSuite
+from Util import ClientServerTestCase, Driver, TestSuite
 
 props = {"Ice.UDP.SndSize": 512 * 1024, "Ice.Warn.Dispatch": 0}
 persistent = IceStorm(props=props)
@@ -24,10 +26,10 @@ pub = Publisher(args=["{testcase.parent.name}"])
 
 
 class IceStormSingleTestCase(IceStormTestCase):
-    def setupClientSide(self, current):
+    def setupClientSide(self, current: Driver.Current) -> None:
         self.runadmin(current, "create single")
 
-    def teardownClientSide(self, current, success):
+    def teardownClientSide(self, current: Driver.Current, success: bool) -> None:
         self.runadmin(current, "destroy single")
         self.shutdown(current)
 

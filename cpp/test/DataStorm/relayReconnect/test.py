@@ -23,10 +23,14 @@
 #                              (interior) (last) (interior)
 #
 
+from __future__ import annotations
+
 import os
+from collections.abc import Sequence
+from typing import Any
 
 from DataStormUtil import Node, Reader, Writer, waitForLogMessage
-from Util import ClientServerTestCase, TestSuite
+from Util import ClientServerTestCase, Driver, Process, Props, TestSuite
 
 # Constant, fast retry so the relays reconnect promptly once the middle relay starts. Session trace level 2+ makes the
 # relays log the "topic ... announced" markers; each relay's trace goes to its own Ice.LogFile (set in runClientSide)
@@ -39,7 +43,7 @@ nodeProps = {
 }
 
 
-def relay(endpoint, connectTo, name):
+def relay(endpoint: int, connectTo: int | None, name: str) -> Props:
     return dict(
         nodeProps,
         **{
@@ -50,7 +54,7 @@ def relay(endpoint, connectTo, name):
     )
 
 
-def app(connectTo, name):
+def app(connectTo: int, name: str) -> Props:
     return {
         "DataStorm.Node.Multicast.Enabled": 0,
         "DataStorm.Node.Server.Enabled": 0,
@@ -64,9 +68,18 @@ class RelayReconnectTestCase(ClientServerTestCase):
     # middleRelay: the relay that joins the two halves, started last.
     # writerRelay/readerRelay: the relays whose logs confirm the writer/reader announcement arrived before the middle
     # relay starts.
-    def __init__(self, nodes, middleRelay, writerRelay, readerRelay, reader, writer, **kwargs):
+    def __init__(
+        self,
+        nodes: Sequence[Node],
+        middleRelay: Process,
+        writerRelay: Process,
+        readerRelay: Process,
+        reader: Process,
+        writer: Process,
+        **kwargs: Any,
+    ):
         ClientServerTestCase.__init__(self, **kwargs)
-        self.nodes = nodes
+        self.nodes = list(nodes)
         self.middleRelay = middleRelay
         self.writerRelay = writerRelay
         self.readerRelay = readerRelay
@@ -81,7 +94,7 @@ class RelayReconnectTestCase(ClientServerTestCase):
     def getServerType(self):
         return None
 
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         # Send each relay's trace to its own log file (removing any stale copy) so the test can synchronize on the
         # announcement markers without polluting the test console.
         self.logs = {}
@@ -89,7 +102,9 @@ class RelayReconnectTestCase(ClientServerTestCase):
             log = os.path.join(current.testsuite.getPath(), f"{node.desc}.log")
             if os.path.exists(log):
                 os.remove(log)
-            node.props["Ice.LogFile"] = log
+            nodeProps = node.props
+            assert not callable(nodeProps)
+            nodeProps["Ice.LogFile"] = log
             self.logs[node] = log
 
         # Bring up every relay except the middle one, then both applications. Each application announces its topic to
@@ -116,7 +131,7 @@ class RelayReconnectTestCase(ClientServerTestCase):
         self.writer.stop(current, waitSuccess=True)
         self.reader.stop(current, waitSuccess=True)
 
-    def teardownClientSide(self, current, success):
+    def teardownClientSide(self, current: Driver.Current, success: bool) -> None:
         for process in [self.writer, self.reader] + list(reversed(self.nodes)):
             if process.isStarted(current):
                 process.stop(current)

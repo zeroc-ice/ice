@@ -1,11 +1,14 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import os
 import re
 import shutil
 
 from Util import (
     ClientTestCase,
+    Driver,
     SliceTranslator,
     TestSuite,
     Windows,
@@ -15,10 +18,11 @@ from Util import (
 
 
 class SliceHeadersTestCase(ClientTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         self.clean()
 
         slice2cpp = SliceTranslator("slice2cpp")
+        assert self.testsuite is not None and self.mapping is not None
 
         os.symlink("slices", "linktoslices")
         os.symlink("dir1", os.path.join("slices", "linktodir1"))
@@ -29,7 +33,7 @@ class SliceHeadersTestCase(ClientTestCase):
         slicedir = component.getSliceDir(self.mapping, current)
         os.symlink(slicedir, "iceslices")
 
-        def runTest(args):
+        def runTest(args: str) -> None:
             slice2cpp.run(current, args=args.split(" "))
             f = open("b.h")
             if not re.search(
@@ -58,7 +62,7 @@ class SliceHeadersTestCase(ClientTestCase):
             runTest("-IICESLICES -ISLICES SLICES/DIR2/B.ice")
             runTest("-IICESLICES -ILINKTOSLICES LINKTOSLICES/LINKTODIR2/B.ice")
 
-        slice2cpp = slice2cpp.getCommandLine(current)
+        slice2cppCommand = slice2cpp.getCommandLine(current)
 
         #
         # Slice files are symlinks, include dir is a regular directory
@@ -74,7 +78,7 @@ class SliceHeadersTestCase(ClientTestCase):
         f.write("#include <services/settings/slices/A.ice>")
         f.close()
 
-        os.system("cd project1 && %s -Isrc src/services/settings/slices/B.ice" % slice2cpp)
+        os.system("cd project1 && %s -Isrc src/services/settings/slices/B.ice" % slice2cppCommand)
         f = open("project1/B.h")
         if not re.search(re.escape("#include <services/settings/slices/A.h>"), f.read()):
             raise RuntimeError("failed!")
@@ -92,7 +96,7 @@ class SliceHeadersTestCase(ClientTestCase):
         f = open("project1/A.ice", "w")
         f.write("#include <Ice/Identity.ice>")
         f.close()
-        os.system("cd project1 && %s -Ishare/slice A.ice" % slice2cpp)
+        os.system("cd project1 && %s -Ishare/slice A.ice" % slice2cppCommand)
         f = open("project1/A.h")
         if not re.search(re.escape("#include <Ice/Identity.h>"), f.read()):
             raise RuntimeError("failed!")
@@ -111,7 +115,7 @@ class SliceHeadersTestCase(ClientTestCase):
         f = open("project1/A.ice", "w")
         f.write("#include <Ice/Identity.ice>")
         f.close()
-        os.system("cd project1 && %s -I%s/tmp/Ice-x.y/slice A.ice" % (slice2cpp, basedir))
+        os.system("cd project1 && %s -I%s/tmp/Ice-x.y/slice A.ice" % (slice2cppCommand, basedir))
         f = open("project1/A.h")
         if not re.search(re.escape("#include <Ice/Identity.h>"), f.read()):
             raise RuntimeError("failed!")
@@ -131,7 +135,7 @@ class SliceHeadersTestCase(ClientTestCase):
         f = open("project1/A.ice", "w")
         f.write("#include <Ice/Identity.ice>")
         f.close()
-        os.system("cd project1 && %s -I%s/tmp/Ice/slice A.ice" % (slice2cpp, basedir))
+        os.system("cd project1 && %s -I%s/tmp/Ice/slice A.ice" % (slice2cppCommand, basedir))
         f = open("project1/A.h")
         if not re.search(re.escape("#include <Ice/Identity.h>"), f.read()):
             raise RuntimeError("failed!")
@@ -139,10 +143,10 @@ class SliceHeadersTestCase(ClientTestCase):
 
         current.writeln("ok")
 
-    def teardownClientSide(self, current, success):
+    def teardownClientSide(self, current: Driver.Current, success: bool) -> None:
         self.clean()
 
-    def clean(self):
+    def clean(self) -> None:
         for f in [
             "iceslices",
             "linktoslices",

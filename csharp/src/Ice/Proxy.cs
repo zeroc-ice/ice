@@ -217,26 +217,33 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
     /// </summary>
-    /// <param name="newTimeout">The new locator cache timeout (in seconds).</param>
+    /// <param name="newTimeout">The new locator cache timeout (in seconds). Any negative value means infinite
+    /// and is normalized to -1.</param>
     ObjectPrx ice_locatorCacheTimeout(int newTimeout);
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
     /// </summary>
-    /// <param name="newTimeout">The new locator cache timeout.</param>
+    /// <param name="newTimeout">The new locator cache timeout. Any negative timeout means infinite and is
+    /// normalized to -1 second; a timeout that is not a whole number of seconds is rounded up to the next whole
+    /// number of seconds.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
+    /// <see cref="int.MaxValue"/> seconds.</exception>
     ObjectPrx ice_locatorCacheTimeout(TimeSpan newTimeout);
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout (in milliseconds).</param>
+    /// <param name="newTimeout">The new invocation timeout (in milliseconds). Any negative value means infinite
+    /// and is normalized to -1.</param>
     ObjectPrx ice_invocationTimeout(int newTimeout);
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout. A positive timeout is rounded down to the nearest
-    /// millisecond.</param>
+    /// <param name="newTimeout">The new invocation timeout. Any negative timeout means infinite and is normalized
+    /// to -1 millisecond; a timeout that is not a whole number of milliseconds is rounded up to the next whole
+    /// number of milliseconds.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
     /// <see cref="int.MaxValue"/> milliseconds.</exception>
     ObjectPrx ice_invocationTimeout(TimeSpan newTimeout);
@@ -1010,7 +1017,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
     /// </summary>
-    /// <param name="newTimeout">The new locator cache timeout (in seconds).</param>
+    /// <param name="newTimeout">The new locator cache timeout (in seconds). Any negative value means infinite
+    /// and is normalized to -1.</param>
     /// <returns>The new proxy with the specified locator cache timeout.</returns>
     public ObjectPrx ice_locatorCacheTimeout(int newTimeout) =>
         ice_locatorCacheTimeout(TimeSpan.FromSeconds(newTimeout));
@@ -1018,10 +1026,31 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
     /// </summary>
-    /// <param name="newTimeout">The new locator cache timeout.</param>
+    /// <param name="newTimeout">The new locator cache timeout. Any negative timeout means infinite and is
+    /// normalized to -1 second; a timeout that is not a whole number of seconds is rounded up to the next whole
+    /// number of seconds.</param>
     /// <returns>The new proxy with the specified locator cache timeout.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
+    /// <see cref="int.MaxValue"/> seconds.</exception>
     public ObjectPrx ice_locatorCacheTimeout(TimeSpan newTimeout)
     {
+        if (newTimeout < TimeSpan.Zero)
+        {
+            newTimeout = TimeSpan.FromSeconds(-1);
+        }
+        else
+        {
+            // The limit is a whole number of seconds, so a timeout that passes this check still fits after
+            // rounding up.
+            if (newTimeout > TimeSpan.FromSeconds(int.MaxValue))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(newTimeout),
+                    $"The locator cache timeout cannot be greater than {int.MaxValue} seconds.");
+            }
+            newTimeout = roundUp(newTimeout, TimeSpan.TicksPerSecond);
+        }
+
         if (newTimeout == _reference.getLocatorCacheTimeout())
         {
             return this;
@@ -1041,7 +1070,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout (in milliseconds).</param>
+    /// <param name="newTimeout">The new invocation timeout (in milliseconds). Any negative value means infinite
+    /// and is normalized to -1.</param>
     /// <returns>The new proxy with the specified invocation timeout.</returns>
     public ObjectPrx ice_invocationTimeout(int newTimeout) =>
         ice_invocationTimeout(TimeSpan.FromMilliseconds(newTimeout));
@@ -1049,18 +1079,29 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout. A positive timeout is rounded down to the nearest
-    /// millisecond.</param>
+    /// <param name="newTimeout">The new invocation timeout. Any negative timeout means infinite and is normalized
+    /// to -1 millisecond; a timeout that is not a whole number of milliseconds is rounded up to the next whole
+    /// number of milliseconds.</param>
     /// <returns>The new proxy with the specified invocation timeout.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
     /// <see cref="int.MaxValue"/> milliseconds.</exception>
     public ObjectPrx ice_invocationTimeout(TimeSpan newTimeout)
     {
-        if (newTimeout > TimeSpan.FromMilliseconds(int.MaxValue))
+        if (newTimeout < TimeSpan.Zero)
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(newTimeout),
-                $"The invocation timeout cannot be greater than {int.MaxValue} milliseconds.");
+            newTimeout = TimeSpan.FromMilliseconds(-1);
+        }
+        else
+        {
+            // The limit is a whole number of milliseconds, so a timeout that passes this check still fits after
+            // rounding up.
+            if (newTimeout > TimeSpan.FromMilliseconds(int.MaxValue))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(newTimeout),
+                    $"The invocation timeout cannot be greater than {int.MaxValue} milliseconds.");
+            }
+            newTimeout = roundUp(newTimeout, TimeSpan.TicksPerMillisecond);
         }
 
         if (newTimeout == _reference.getInvocationTimeout())
@@ -1718,6 +1759,17 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The new proxy instance.</returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
     protected abstract ObjectPrxHelperBase iceNewInstance(Reference reference);
+
+    // Rounds a nonnegative timeout of at most int.MaxValue units up to a whole number of the given unit.
+    private static TimeSpan roundUp(TimeSpan timeout, long ticksPerUnit)
+    {
+        long remainder = timeout.Ticks % ticksPerUnit;
+        if (remainder == 0)
+        {
+            return timeout;
+        }
+        return TimeSpan.FromTicks(timeout.Ticks - remainder + ticksPerUnit);
+    }
 
     private readonly Reference _reference;
     private readonly RequestHandlerCache _requestHandlerCache;

@@ -1,24 +1,27 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import os
 import sys
 
-from Util import ClientTestCase, TestSuite, run, toplevel
+from Util import ClientTestCase, Driver, TestSuite, run, toplevel
 
 
 class Glacier2HashPasswordTestCase(ClientTestCase):
-    def runClientSide(self, current):
-        import passlib.hash
+    def runClientSide(self, current: Driver.Current) -> None:
+        # As scripts/icehashpassword.py: passlib is installed by whoever runs the Glacier2 tests.
+        import passlib.hash  # pyright: ignore[reportMissingImports]
 
         hashpassword = os.path.join(toplevel, "scripts", "icehashpassword.py")
         usePBKDF2 = sys.platform == "win32" or sys.platform == "darwin"
         useCryptExt = sys.platform.startswith("linux")
 
-        def test(b):
+        def test(b: object) -> None:
             if not b:
                 raise RuntimeError("test assertion failed")
 
-        def hashPasswords(password, args=""):
+        def hashPasswords(password: str, args: str = "") -> str:
             return run(
                 '"%s" "%s" %s' % (sys.executable, hashpassword, args),
                 stdin=(password + "\r\n").encode("UTF-8"),

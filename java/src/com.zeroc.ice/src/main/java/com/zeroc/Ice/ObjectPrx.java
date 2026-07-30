@@ -314,7 +314,8 @@ public interface ObjectPrx {
     /**
      * Creates a proxy that is identical to this proxy, except for the locator cache timeout.
      *
-     * @param newTimeout the new locator cache timeout (in seconds)
+     * @param newTimeout the new locator cache timeout (in seconds); any negative value means
+     *     infinite and is normalized to -1
      * @return a proxy with the new timeout
      * @see Locator
      */
@@ -323,8 +324,12 @@ public interface ObjectPrx {
     /**
      * Creates a proxy that is identical to this proxy, except for the locator cache timeout.
      *
-     * @param newTimeout the new locator cache timeout
+     * @param newTimeout the new locator cache timeout; any negative timeout means infinite and is
+     *     normalized to -1 second, and a timeout that is not a whole number of seconds is rounded
+     *     up to the next whole number of seconds
      * @return a proxy with the new timeout
+     * @throws IllegalArgumentException if {@code newTimeout} is greater than {@code
+     *     Integer.MAX_VALUE} seconds
      * @see Locator
      */
     ObjectPrx ice_locatorCacheTimeout(Duration newTimeout);
@@ -332,7 +337,8 @@ public interface ObjectPrx {
     /**
      * Creates a proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout the new invocation timeout (in milliseconds)
+     * @param newTimeout the new invocation timeout (in milliseconds); any negative value means
+     *     infinite and is normalized to -1
      * @return a proxy with the new timeout
      */
     ObjectPrx ice_invocationTimeout(int newTimeout);
@@ -340,8 +346,12 @@ public interface ObjectPrx {
     /**
      * Creates a proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout the new invocation timeout
+     * @param newTimeout the new invocation timeout; any negative timeout means infinite and is
+     *     normalized to -1 millisecond, and a timeout that is not a whole number of milliseconds
+     *     is rounded up to the next whole number of milliseconds
      * @return a proxy with the new timeout
+     * @throws IllegalArgumentException if {@code newTimeout} is greater than {@code
+     *     Integer.MAX_VALUE} milliseconds
      */
     ObjectPrx ice_invocationTimeout(Duration newTimeout);
 

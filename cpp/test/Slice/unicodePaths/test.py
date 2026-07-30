@@ -1,14 +1,16 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import locale
 import os
 import shutil
 
-from Util import ClientTestCase, Linux, SliceTranslator, TestSuite, platform
+from Util import ClientTestCase, Driver, Linux, SliceTranslator, TestSuite, platform
 
 
 class SliceUnicodePathsTestCase(ClientTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         if isinstance(platform, Linux):
             encoding = locale.getdefaultlocale()[1]
             if encoding != "UTF-8":
