@@ -3072,7 +3072,11 @@ class AndroidProcessController(RemoteProcessController):
         # register an SDP record, and a client that connects before the record exists fails in
         # BluetoothSocket.connect() with Android's misleading "read failed, socket might closed or
         # timeout, read ret: -1" -- which reads like an I/O fault rather than a missing service.
-        for _ in range(30):
+        # 15s, not longer: this whole wait is spent inside the server's 120s accept() window
+        # (MainActivity.WATCHDOG_MS), and the client can then spend 60 of what is left in
+        # createBond. It only runs to the end when the server logs neither the marker nor a verdict
+        # -- a hung activity -- and 15s is already generous against the ~1s a healthy launch takes.
+        for _ in range(15):
             peerLog = self._adbTolerantFor(peerAdb, "logcat -d -s BTBOND")
             # A server that failed outright is terminal, and without this a fast failure ("adapter
             # not enabled") burns the whole wait and then starts a client with nothing to talk to.
