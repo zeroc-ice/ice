@@ -3,8 +3,21 @@
 #include "DataStorm/DataStorm.h"
 #include "TestHelper.h"
 
+#include <condition_variable>
+#include <mutex>
+
 using namespace DataStorm;
 using namespace std;
+
+// Records that the writer's reader disconnected and then reconnected. The disconnect edge is latched, so a reconnect
+// that completes before the writer starts waiting is not missed.
+struct ReconnectGate
+{
+    std::mutex mutex;
+    std::condition_variable condition;
+    bool disconnected{false};
+    bool reconnected{false};
+};
 
 class Writer : public Test::TestHelper
 {
@@ -122,12 +135,49 @@ void ::Writer::run(int argc, char* argv[])
         Topic<string, int> barrier(node, "partialUpdateReconnectBarrier");
         topic.setUpdater<string>("append", [](string& value, const string& suffix) { value += suffix; });
         auto writer = makeSingleKeyWriter(topic, "key", "", config);
+
+        // Latch the reader's disconnect and the reconnect that follows it. waitForReaders only inspects the current
+        // listener count, so on its own it can return on the pre-disconnect attachment while the reader's detach is
+        // still on its way; with a relay between the two nodes the reader's barrier signal can arrive first. A sample
+        // published then is not delivered live, and the reattach folds it into an initialization batch, where a
+        // leading partial update is resolved into a full one. The connect callback is queued by the attach that
+        // computes that batch while it holds the topic mutex, and publishing takes the same mutex, so a sample
+        // published after the callback cannot overtake the batch.
+        auto gate = make_shared<ReconnectGate>();
+        writer.onConnectedReaders(
+            [](const vector<string>&) {},
+            [gate](CallbackReason reason, const string&)
+            {
+                lock_guard lock{gate->mutex};
+                if (reason == CallbackReason::Disconnect)
+                {
+                    gate->disconnected = true;
+                }
+                else if (gate->disconnected)
+                {
+                    gate->reconnected = true;
+                    gate->condition.notify_all();
+                }
+            });
+
         writer.waitForReaders();
         writer.add("base");
 
         // Wait until the reader consumes the full value, closes the connection, and reconnects. The reconnect resumes
         // after the add, so this partial update must resolve against the reader's retained pre-disconnect base.
         [[maybe_unused]] auto ready = makeSingleKeyReader(barrier, "ready").getNextUnread();
+        {
+            // The bound only exists to fail with an assertion rather than block forever, so it has to sit outside the
+            // window in which DataStorm still recovers on its own: six retries backing off from 500ms, doubled again
+            // for a peer whose endpoints are unknown, is 64 seconds. That puts it above the 60 second no-output
+            // watchdog the test driver applies to local processes (scripts/Util.py), and this wait is silent, so a
+            // genuine failure is reported there as a hanging process before the assertion fires. In CI the driver
+            // waits 300 seconds and the assertion comes first.
+            unique_lock lock{gate->mutex};
+            test(gate->condition.wait_for(lock, chrono::seconds(90), [&gate] { return gate->reconnected; }));
+        }
+
+        // The latch records that a reader reconnected, not that one is attached now, so keep the level check too.
         writer.waitForReaders();
         writer.partialUpdate<string>("append")("-after-reconnect");
         writer.update("done");

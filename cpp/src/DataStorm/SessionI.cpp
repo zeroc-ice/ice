@@ -586,16 +586,33 @@ SessionI::initSamples(int64_t topicId, int64_t peerTopicId, DataSamplesSeq initi
                 const auto& sampleFactory = topic->getSampleFactory();
                 for (const auto& sample : initializationBatch.samples)
                 {
+                    // A key id of 0 means the key is marshaled inline in keyValue, per DataSample. Don't infer
+                    // that from an empty keyValue: a custom key encoder can legitimately encode a key to zero
+                    // bytes, and key ids start at 1.
                     shared_ptr<Key> key;
-                    if (sample.keyValue.empty())
+                    if (sample.keyId != 0)
                     {
-                        key = subscriber.keys[sample.keyId].first;
+                        key = subscriber.findKey(sample.keyId);
                     }
                     else
                     {
                         key = topic->getKeyFactory()->decode(_instance->getCommunicator(), sample.keyValue);
                     }
+
                     assert(key);
+                    if (!key)
+                    {
+                        // The batch is addressed to a reader that subscribed to this key, so the session always
+                        // knows it. Abandon the batch rather than build a key-less sample, and leave the reader
+                        // uninitialized so a later redelivery can still initialize it.
+                        if (_traceLevels->session > 0)
+                        {
+                            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                            out << _id << ": discarding initialization batch from 'e" << initializationBatch.id << '@'
+                                << topicId << "': unknown key '" << sample.keyId << "'";
+                        }
+                        return;
+                    }
 
                     samplesI.push_back(sampleFactory->create(
                         _id,
@@ -766,11 +783,13 @@ SessionI::disconnectedImpl(const ConnectionPtr& connection, exception_ptr ex)
     for (const auto& [topicId, _] : _topics)
     {
         // The analyzer falsely flags the lambda's captures as undefined: it loses track of the closure once it
-        // is stored in runWithTopics' std::function parameter.
-        // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
+        // is stored in runWithTopics' std::function parameter. The suppression spans the whole call because the
+        // analyzer reports the diagnostic inside the lambda body, not on the runWithTopics line.
+        // NOLINTBEGIN(clang-analyzer-core.NullDereference)
         runWithTopics(
             topicId,
             [topicId, self](const shared_ptr<TopicI>& topic, TopicSubscriber&) { topic->detach(topicId, self); });
+        // NOLINTEND(clang-analyzer-core.NullDereference)
     }
 
     // The peer's wire disconnected() op is not a connection close, so unregister the session that connected()
@@ -1205,13 +1224,25 @@ SessionI::unsubscribeFromKey(
         }
     }
 
-    auto& elementSubscribersMap = topicSubscriber.keys[keyId].second;
-    if (--elementSubscribersMap[elementId] == 0)
+    // An unsubscribe always follows the subscribe for the same key id, so the entry is there. The count can be
+    // higher than the number of pending unsubscribes: a disconnect detaches the elements without decrementing,
+    // and the reattach increments again. Look the entry up rather than indexing it: indexing would insert an
+    // entry with a null key for a key id the session never subscribed to, and the sample paths resolve a
+    // sample's key through it.
+    auto k = topicSubscriber.keys.find(keyId);
+    assert(k != topicSubscriber.keys.end());
+    if (k != topicSubscriber.keys.end())
     {
-        elementSubscribersMap.erase(elementId);
-        if (elementSubscribersMap.empty())
+        auto& elementSubscribersMap = k->second.second;
+        auto e = elementSubscribersMap.find(elementId);
+        assert(e != elementSubscribersMap.end() && e->second > 0);
+        if (e != elementSubscribersMap.end() && --e->second == 0)
         {
-            topicSubscriber.keys.erase(keyId);
+            elementSubscribersMap.erase(e);
+            if (elementSubscribersMap.empty())
+            {
+                topicSubscriber.keys.erase(k);
+            }
         }
     }
 }
@@ -1327,17 +1358,22 @@ SessionI::getLastIds(int64_t topicId, int64_t keyOrFilterId, const std::shared_p
         else
         {
             // Key subscription: report this element's lastId for each remote element it's subscribed to under this
-            // key. Key subscriptions are indexed by remote key id, so look the key up directly. An element id can
-            // remain in the key map after its ElementSubscribers was removed (e.g. a multi-key element detaches
-            // under one key but its other keys are still counted), so skip ids with no live subscriber, like the
-            // filter branch above.
-            for (const auto& [elementId, _] : subscriber.keys[keyOrFilterId].second)
+            // key. Key subscriptions are indexed by remote key id, so look the key up directly. This runs for a
+            // key the peer just announced, before anything subscribed to it, so the lookup must not insert: an
+            // entry with a null key would then shadow the unknown-key check the sample paths rely on. An element
+            // id can also outlive its ElementSubscribers, so skip ids with no live subscriber, like the filter
+            // branch above.
+            auto k = subscriber.keys.find(keyOrFilterId);
+            if (k != subscriber.keys.end())
             {
-                if (auto* elementSubscribers = subscriber.get(elementId))
+                for (const auto& [elementId, _] : k->second.second)
                 {
-                    if (auto* s = elementSubscribers->getSubscriber(element))
+                    if (auto* elementSubscribers = subscriber.get(elementId))
                     {
-                        lastIds.emplace(elementId, s->lastId);
+                        if (auto* s = elementSubscribers->getSubscriber(element))
+                        {
+                            lastIds.emplace(elementId, s->lastId);
+                        }
                     }
                 }
             }
@@ -1396,10 +1432,10 @@ SessionI::subscriberInitialized(
         auto keyFactory = element->getTopic()->getKeyFactory();
         for (const auto& sample : samples)
         {
-            // An any-key writer marshals the key inline (keyId 0, keyValue set), as the live data path in s()
-            // handles; accept an inline-key sample for a key subscription too, rather than requiring keyId to map
-            // to the subscription key.
-            assert(!sample.keyValue.empty() || key == subscriber.keys[sample.keyId].first);
+            // An any-key writer marshals the key inline (keyId 0), as the live data path in s() handles; accept an
+            // inline-key sample for a key subscription too, rather than requiring keyId to map to the subscription
+            // key.
+            assert(sample.keyId == 0 || key == subscriber.findKey(sample.keyId));
 
             samplesI.push_back(sampleFactory->create(
                 _id,
@@ -1607,11 +1643,14 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                     out << "]";
                 }
 
+                // A key id of 0 means the key is marshaled inline in keyValue, per DataSample. Don't infer that
+                // from an empty keyValue: a custom key encoder can legitimately encode a key to zero bytes, and
+                // key ids start at 1.
                 shared_ptr<Key> key;
-                if (dataSample.keyValue.empty())
+                if (dataSample.keyId != 0)
                 {
-                    auto q = topicSubscriber.keys.find(dataSample.keyId);
-                    if (q == topicSubscriber.keys.end())
+                    key = topicSubscriber.findKey(dataSample.keyId);
+                    if (!key)
                     {
                         // The session never subscribed to this key (a peer can forward a sample for a key none of
                         // this session's readers are subscribed to); no subscriber can match it.
@@ -1623,7 +1662,6 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                         }
                         return;
                     }
-                    key = q->second.first;
                 }
                 else
                 {
@@ -1661,13 +1699,15 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                     {
                         auto elementSample = sharedSample ? sharedSample : createSample();
                         elementSubscriber.lastId = dataSample.id;
+                        // An inline key (keyId 0) was not matched against this element's subscription, so the
+                        // element has to check it itself.
                         element->queue(
                             elementSample,
                             elementSubscribers->priority,
                             shared_from_this(),
                             current.facet,
                             now,
-                            !dataSample.keyValue.empty());
+                            dataSample.keyId == 0);
                     }
                 }
             }

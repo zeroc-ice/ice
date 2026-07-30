@@ -579,7 +579,7 @@ public class AllTests : Test.AllTests
         string isSecure = "";
         if (!collocated)
         {
-            Ice.EndpointInfo endpointInfo = metrics.ice_getConnection().getEndpoint().getInfo();
+            Ice.EndpointInfo endpointInfo = metrics.ice_getCachedConnection().getEndpoint().getInfo();
             type = $"{endpointInfo.type()}";
             isSecure = endpointInfo.secure() ? "True" : "False";
         }
@@ -683,7 +683,7 @@ public class AllTests : Test.AllTests
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
-            await metrics.ice_getConnection().closeAsync();
+            await metrics.ice_getCachedConnection().closeAsync();
 
             var m = (MetricsPrx)metrics.ice_connectionId("Con1");
             m.ice_ping();

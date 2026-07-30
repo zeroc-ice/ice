@@ -1041,7 +1041,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getConnection(obj)
             %ICE_GETCONNECTION Returns the Connection for this proxy. If the proxy does not yet have an
-            %   established connection, it first attempts to create a connection.
+            %   established connection or its connection is closed or being closed, it first attempts to create a
+            %   new connection. For a fixed proxy, this method returns the connection this proxy is bound to, even
+            %   when this connection is closed.
             %
             %   Output Arguments
             %     r - The Connection for this proxy.
@@ -1061,7 +1063,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getConnectionAsync(obj)
             %ICE_GETCONNECTIONASYNC Returns the Connection for this proxy.
-            %   If the proxy does not yet have an established connection, it first attempts to create a connection.
+            %   If the proxy does not yet have an established connection or its connection is closed or being
+            %   closed, it first attempts to create a new connection. For a fixed proxy, this method returns the
+            %   connection this proxy is bound to, even when this connection is closed.
             %
             %   Output Arguments
             %     r - A future that will be completed when the invocation completes.
@@ -1088,7 +1092,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             %   Output Arguments
             %     r - The cached Connection for this proxy, or an empty array if the proxy does not have a cached
-            %       connection.
+            %       connection. The returned connection can be closed.
             %       Ice.Connection scalar | empty array of Ice.Connection
 
             arguments

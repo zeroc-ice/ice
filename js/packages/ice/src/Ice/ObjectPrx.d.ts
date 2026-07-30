@@ -318,8 +318,10 @@ declare module "@zeroc/ice" {
             ice_isFixed(): boolean;
 
             /**
-             * Gets the connection for this proxy. If the proxy does not yet have an established connection, it first
-             * attempts to create a connection.
+             * Gets the connection for this proxy. If the proxy does not yet have an established connection or its
+             * connection is closed or being closed, it first attempts to create a new connection. For a fixed
+             * proxy, this function returns the connection this proxy is bound to, even when this connection is
+             * closed.
              *
              * @returns An asynchronous result that resolves to the connection used by this proxy.
              * @remarks You can call this function to establish a connection or associate the proxy with an existing
@@ -331,8 +333,8 @@ declare module "@zeroc/ice" {
              * Gets the cached Connection for this proxy. If the proxy does not yet have an established connection,
              * it does not attempt to create a connection.
              *
-             * @returns The cached connection for this proxy, or `null` if the proxy does not have an established
-             * connection.
+             * @returns The cached connection for this proxy, or `null` if the proxy does not have a cached
+             * connection. The returned connection can be closed.
              */
             ice_getCachedConnection(): Connection | null;
 

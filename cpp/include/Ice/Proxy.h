@@ -14,10 +14,13 @@
 #include "RequestHandlerF.h"
 
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <future>
 #include <iosfwd>
+#include <limits>
 #include <optional>
+#include <stdexcept>
 #include <string_view>
 #include <type_traits>
 
@@ -144,7 +147,8 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for the invocation timeout.
-        /// @param timeout The new invocation timeout (in milliseconds).
+        /// @param timeout The new invocation timeout (in milliseconds). Any negative value means infinite and is
+        /// normalized to -1.
         /// @return A proxy with the new timeout.
         [[nodiscard]] Prx ice_invocationTimeout(int timeout) const
         {
@@ -152,13 +156,27 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for the invocation timeout.
-        /// @param timeout The new invocation timeout.
+        /// @param timeout The new invocation timeout. Any negative duration means infinite and is normalized to
+        /// -1 millisecond; a duration that is not a whole number of milliseconds is rounded up to the next whole
+        /// number of milliseconds.
         /// @return A proxy with the new timeout.
+        /// @throws std::invalid_argument Thrown when @p timeout is greater than
+        /// `std::numeric_limits<std::int32_t>::max()` milliseconds.
         template<class Rep, class Period>
         [[nodiscard]] Prx ice_invocationTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            return fromReference(
-                asPrx()._invocationTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)));
+            if (timeout < std::chrono::duration<Rep, Period>::zero())
+            {
+                return fromReference(asPrx()._invocationTimeout(std::chrono::milliseconds(-1)));
+            }
+            // Compare in a double-based representation that cannot overflow. The limit is a whole number of
+            // milliseconds, so a timeout that passes this check still fits after rounding up.
+            // The extra parentheses prevent the expansion of the max macro from Windows headers.
+            if (timeout > std::chrono::duration<double, std::milli>{(std::numeric_limits<std::int32_t>::max)()})
+            {
+                throw std::invalid_argument("the invocation timeout cannot be greater than 2147483647 milliseconds");
+            }
+            return fromReference(asPrx()._invocationTimeout(std::chrono::ceil<std::chrono::milliseconds>(timeout)));
         }
 
         /// Creates a proxy that is identical to this proxy, except for the locator.
@@ -170,7 +188,8 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for the locator cache timeout.
-        /// @param timeout The new locator cache timeout (in seconds).
+        /// @param timeout The new locator cache timeout (in seconds). Any negative value means infinite and is
+        /// normalized to -1.
         /// @return A proxy with the new timeout.
         [[nodiscard]] Prx ice_locatorCacheTimeout(int timeout) const
         {
@@ -178,13 +197,27 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for the locator cache timeout.
-        /// @param timeout The new locator cache timeout.
+        /// @param timeout The new locator cache timeout. Any negative duration means infinite and is normalized to
+        /// -1 second; a duration that is not a whole number of seconds is rounded up to the next whole number of
+        /// seconds.
         /// @return A proxy with the new timeout.
+        /// @throws std::invalid_argument Thrown when @p timeout is greater than
+        /// `std::numeric_limits<std::int32_t>::max()` seconds.
         template<class Rep, class Period>
         [[nodiscard]] Prx ice_locatorCacheTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            return fromReference(
-                asPrx()._locatorCacheTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)));
+            if (timeout < std::chrono::duration<Rep, Period>::zero())
+            {
+                return fromReference(asPrx()._locatorCacheTimeout(std::chrono::seconds(-1)));
+            }
+            // Compare in a double-based representation that cannot overflow. The limit is a whole number of
+            // seconds, so a timeout that passes this check still fits after rounding up.
+            // The extra parentheses prevent the expansion of the max macro from Windows headers.
+            if (timeout > std::chrono::duration<double>{(std::numeric_limits<std::int32_t>::max)()})
+            {
+                throw std::invalid_argument("the locator cache timeout cannot be greater than 2147483647 seconds");
+            }
+            return fromReference(asPrx()._locatorCacheTimeout(std::chrono::ceil<std::chrono::seconds>(timeout)));
         }
 
         /// Creates a proxy that is identical to this proxy, but uses oneway invocations.
@@ -539,15 +572,17 @@ namespace Ice
             std::function<void(bool)> sent = nullptr,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Gets the connection for this proxy. If the proxy does not yet have an established connection,
-        /// it first attempts to create a connection.
+        /// Gets the connection for this proxy. If the proxy does not yet have an established connection or its
+        /// connection is closed or being closed, it first attempts to create a new connection. For a fixed proxy,
+        /// this function returns the connection this proxy is bound to, even when this connection is closed.
         /// @return The connection for this proxy.
         /// @remark You can call this function to establish a connection or associate the proxy with an existing
         /// connection and ignore the return value.
         Ice::ConnectionPtr ice_getConnection() const; // NOLINT(modernize-use-nodiscard)
 
-        /// Gets the connection for this proxy. If the proxy does not yet have an established connection,
-        /// it first attempts to create a connection.
+        /// Gets the connection for this proxy. If the proxy does not yet have an established connection or its
+        /// connection is closed or being closed, it first attempts to create a new connection. For a fixed proxy,
+        /// this function returns the connection this proxy is bound to, even when this connection is closed.
         /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
         /// If you set InitializationData::executor, the executor determines the thread that executes this function.
         /// It accepts:
@@ -563,8 +598,9 @@ namespace Ice
             std::function<void(std::exception_ptr)> ex = nullptr,
             std::function<void(bool)> sent = nullptr) const;
 
-        /// Gets the connection for this proxy. If the proxy does not yet have an established connection,
-        /// it first attempts to create a connection.
+        /// Gets the connection for this proxy. If the proxy does not yet have an established connection or its
+        /// connection is closed or being closed, it first attempts to create a new connection. For a fixed proxy,
+        /// this function returns the connection this proxy is bound to, even when this connection is closed.
         /// @return A future that becomes available when the invocation completes. This future holds:
         /// - The connection for this proxy.
         [[nodiscard]] std::future<Ice::ConnectionPtr> ice_getConnectionAsync() const;
@@ -574,8 +610,8 @@ namespace Ice
 
         /// Gets the cached Connection for this proxy. If the proxy does not yet have an established connection, it does
         /// not attempt to create a connection.
-        /// @return The cached connection for this proxy, or nullptr if the proxy does not have an established
-        /// connection.
+        /// @return The cached connection for this proxy, or nullptr if the proxy does not have a cached connection.
+        /// The returned connection can be closed.
         [[nodiscard]] Ice::ConnectionPtr ice_getCachedConnection() const noexcept;
 
         /// Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.

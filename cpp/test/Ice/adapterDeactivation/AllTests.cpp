@@ -367,7 +367,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing whether server is gone... " << flush;
-    if (obj->ice_getConnection()) // not collocated
+    if (obj->ice_getCachedConnection()) // not collocated
     {
         try
         {

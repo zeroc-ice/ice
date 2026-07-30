@@ -30,23 +30,23 @@ namespace DataStormI
         struct Subscriber
         {
             Subscriber(
-                std::int64_t id,
                 const std::shared_ptr<Filter>& filter,
                 const std::shared_ptr<Filter>& sampleFilter,
                 std::string name,
                 int priority)
-                : id(id),
-                  filter(filter),
+                : filter(filter),
                   sampleFilter(sampleFilter),
                   name(std::move(name)),
                   priority(priority)
             {
             }
 
-            std::int64_t topicId;
-            std::int64_t elementId;
-            std::int64_t id;
             std::set<std::shared_ptr<Key>> keys;
+            // The remote key id each key in `keys` was attached with. A local element attached to the same remote
+            // element under several keys shares a single Subscriber, so the ids are tracked per key: detaching one
+            // key with another key's id corrupts the session's per-key subscriber accounting. Empty for a filter
+            // subscription, which has no remote key id.
+            std::map<std::shared_ptr<Key>, std::int64_t> keyIds;
             std::shared_ptr<Filter> filter;
             std::shared_ptr<Filter> sampleFilter;
             std::string name;
@@ -106,7 +106,6 @@ namespace DataStormI
             [[nodiscard]] std::shared_ptr<Subscriber> addOrGet(
                 std::int64_t topicId,
                 std::int64_t elementId,
-                std::int64_t subscriberId,
                 const std::shared_ptr<Filter>& filter,
                 const std::shared_ptr<Filter>& sampleFilter,
                 const std::string& name,
@@ -118,10 +117,7 @@ namespace DataStormI
                 if (p == subscribers.end())
                 {
                     added = true;
-                    p = subscribers
-                            .emplace(
-                                k,
-                                std::make_shared<Subscriber>(subscriberId, filter, sampleFilter, name, priority))
+                    p = subscribers.emplace(k, std::make_shared<Subscriber>(filter, sampleFilter, name, priority))
                             .first;
                 }
                 return p->second;
@@ -238,7 +234,6 @@ namespace DataStormI
             const std::shared_ptr<SessionI>&,
             DataStormContract::SessionPrx,
             const std::string&,
-            std::int64_t,
             const std::shared_ptr<Filter>&,
             const std::string&,
             int);

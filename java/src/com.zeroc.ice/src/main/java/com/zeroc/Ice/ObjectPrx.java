@@ -314,7 +314,8 @@ public interface ObjectPrx {
     /**
      * Creates a proxy that is identical to this proxy, except for the locator cache timeout.
      *
-     * @param newTimeout the new locator cache timeout (in seconds)
+     * @param newTimeout the new locator cache timeout (in seconds); any negative value means
+     *     infinite and is normalized to -1
      * @return a proxy with the new timeout
      * @see Locator
      */
@@ -323,8 +324,12 @@ public interface ObjectPrx {
     /**
      * Creates a proxy that is identical to this proxy, except for the locator cache timeout.
      *
-     * @param newTimeout the new locator cache timeout
+     * @param newTimeout the new locator cache timeout; any negative timeout means infinite and is
+     *     normalized to -1 second, and a timeout that is not a whole number of seconds is rounded
+     *     up to the next whole number of seconds
      * @return a proxy with the new timeout
+     * @throws IllegalArgumentException if {@code newTimeout} is greater than {@code
+     *     Integer.MAX_VALUE} seconds
      * @see Locator
      */
     ObjectPrx ice_locatorCacheTimeout(Duration newTimeout);
@@ -332,7 +337,8 @@ public interface ObjectPrx {
     /**
      * Creates a proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout the new invocation timeout (in milliseconds)
+     * @param newTimeout the new invocation timeout (in milliseconds); any negative value means
+     *     infinite and is normalized to -1
      * @return a proxy with the new timeout
      */
     ObjectPrx ice_invocationTimeout(int newTimeout);
@@ -340,8 +346,12 @@ public interface ObjectPrx {
     /**
      * Creates a proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout the new invocation timeout
+     * @param newTimeout the new invocation timeout; any negative timeout means infinite and is
+     *     normalized to -1 millisecond, and a timeout that is not a whole number of milliseconds
+     *     is rounded up to the next whole number of milliseconds
      * @return a proxy with the new timeout
+     * @throws IllegalArgumentException if {@code newTimeout} is greater than {@code
+     *     Integer.MAX_VALUE} milliseconds
      */
     ObjectPrx ice_invocationTimeout(Duration newTimeout);
 
@@ -531,8 +541,10 @@ public interface ObjectPrx {
     ObjectPrx ice_connectionId(String connectionId);
 
     /**
-     * Gets the connection for this proxy. If the proxy does not yet have an established connection,
-     * it first attempts to create a connection.
+     * Gets the connection for this proxy. If the proxy does not yet have an established connection
+     * or its connection is closed or being closed, it first attempts to create a new connection. For
+     * a fixed proxy, this method returns the connection this proxy is bound to, even when this
+     * connection is closed.
      *
      * <p>You can call this method to establish a connection or associate the proxy with an existing
      * connection and ignore the return value.
@@ -551,8 +563,9 @@ public interface ObjectPrx {
     }
 
     /**
-     * Gets the connection for this proxy asynchronously. If the proxy does not yet have an established connection,
-     * it first attempts to create a connection.
+     * Gets the connection for this proxy asynchronously. If the proxy does not yet have an established connection
+     * or its connection is closed or being closed, it first attempts to create a new connection. For a fixed
+     * proxy, this method returns the connection this proxy is bound to, even when this connection is closed.
      *
      * @return a future that completes with the {@link Connection} for this proxy
      */
@@ -563,7 +576,7 @@ public interface ObjectPrx {
      * it does not attempt to create a connection.
      *
      * @return the cached {@link Connection} for this proxy, or {@code null} if the proxy does not
-     *     have an established connection
+     *     have a cached connection; the returned connection can be closed
      * @see Connection
      */
     Connection ice_getCachedConnection();

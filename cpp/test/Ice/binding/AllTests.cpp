@@ -60,9 +60,6 @@ allTests(Test::TestHelper* helper)
         com->deactivateObjectAdapter(adapter);
 
         const TestIntfPrx& test3(test1.value());
-        test(test3->ice_getConnection() == test1->ice_getConnection());
-        test(test3->ice_getConnection() == test2->ice_getConnection());
-
         try
         {
             test3->ice_ping();

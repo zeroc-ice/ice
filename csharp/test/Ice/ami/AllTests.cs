@@ -438,9 +438,10 @@ public class AllTests : global::Test.AllTests
                     Test.TestIntfPrx b1 = Test.TestIntfPrxHelper.uncheckedCast(
                         p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    await b1.ice_getConnection().closeAsync();
+                    Connection con = b1.ice_getConnection();
+                    await con.closeAsync();
                     var tcs = new TaskCompletionSource();
-                    Task t = b1.ice_getConnection().flushBatchRequestsAsync(
+                    Task t = con.flushBatchRequestsAsync(
                         CompressBatch.BasedOnProxy,
                         progress: new Progress<bool>(_ => tcs.SetResult()));
                     try
@@ -711,6 +712,29 @@ public class AllTests : global::Test.AllTests
                 await con.closeAsync();
                 await t; // Should complete successfully.
                 await tcs.Task;
+            }
+            {
+                // ice_getConnection establishes a new connection when the cached connection is closed.
+                Connection con = p.ice_getConnection();
+                ObjectPrx fixedPrx = p.ice_fixed(con);
+                test(fixedPrx.ice_getConnection() == con); // Caches the fixed proxy's request handler.
+                await con.closeAsync();
+                test(p.ice_getConnection() != con);
+
+                // A fixed proxy remains bound to its connection: ice_getConnection returns it as is.
+                test(fixedPrx.ice_getConnection() == con);
+            }
+            {
+                // ice_getConnection also establishes a new connection when the cached connection is being closed.
+                // The held adapter can't act on the graceful close, so the connection remains in the closing state.
+                Connection con = p.ice_getConnection();
+                testController.holdAdapter();
+                Task closed = con.closeAsync();
+                // The new connection can't be validated while the adapter is held, so get it asynchronously.
+                Task<Connection> newConnection = p.ice_getConnectionAsync();
+                testController.resumeAdapter();
+                test(await newConnection != con);
+                await closed;
             }
             {
                 //
