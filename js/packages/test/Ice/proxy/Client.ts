@@ -609,8 +609,8 @@ export class Client extends TestHelper {
             const roundTripCommunicator = Ice.initialize(initData);
             try {
                 const b3 = roundTripCommunicator.propertyToProxy("RoundTrip")!;
-                test(b3.ice_getLocatorCacheTimeout() === locatorCacheTimeout);
-                test(b3.ice_getInvocationTimeout() === invocationTimeout);
+                test(b3.ice_getLocatorCacheTimeout() === b2.ice_getLocatorCacheTimeout());
+                test(b3.ice_getInvocationTimeout() === b2.ice_getInvocationTimeout());
             } finally {
                 await roundTripCommunicator.destroy();
             }
@@ -639,7 +639,7 @@ export class Client extends TestHelper {
 
         // A negative timeout means infinite and is normalized to -1, and a timeout that is not a whole number of
         // the corresponding proxy property's unit is rounded up to the next whole number.
-        test(base.ice_invocationTimeout(0).ice_getInvocationTimeout() === 0);
+        test(base.ice_invocationTimeout(0).ice_getInvocationTimeout() === -1);
         test(base.ice_invocationTimeout(-1).ice_getInvocationTimeout() === -1);
         test(base.ice_invocationTimeout(-2).ice_getInvocationTimeout() === -1);
         test(base.ice_invocationTimeout(1.5).ice_getInvocationTimeout() === 2);

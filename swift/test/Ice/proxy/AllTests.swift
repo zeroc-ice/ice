@@ -531,7 +531,9 @@ public func allTests(_ helper: TestHelper) async throws -> MyInterfacePrx {
     try test(baseProxy.ice_collocationOptimized(true).ice_isCollocationOptimized())
     try test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized())
 
+    try test(baseProxy.ice_invocationTimeout(0).ice_getInvocationTimeout() == -1)
     try test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == -1)
+    try test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == -1)
     try test(baseProxy.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0)
     try test(baseProxy.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == -1)
 

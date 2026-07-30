@@ -356,6 +356,16 @@ function allTests($helper)
     test($base->ice_compress(true)->ice_getCompress() == true);
     test($base->ice_compress(false)->ice_getCompress() == false);
 
+    // Zero or any negative invocation timeout means infinite and is normalized to -1.
+    test($base->ice_invocationTimeout(0)->ice_getInvocationTimeout() == -1);
+    test($base->ice_invocationTimeout(-1)->ice_getInvocationTimeout() == -1);
+    test($base->ice_invocationTimeout(-2)->ice_getInvocationTimeout() == -1);
+
+    // Any negative locator cache timeout means infinite and is normalized to -1; 0 means no caching.
+    test($base->ice_locatorCacheTimeout(0)->ice_getLocatorCacheTimeout() == 0);
+    test($base->ice_locatorCacheTimeout(-1)->ice_getLocatorCacheTimeout() == -1);
+    test($base->ice_locatorCacheTimeout(-2)->ice_getLocatorCacheTimeout() == -1);
+
     try {
         $base->ice_invocationTimeout(pow(2, 32) + 5000);
         test(false);

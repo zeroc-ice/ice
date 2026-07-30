@@ -363,23 +363,10 @@ def allTests(helper, communicator)
     test(base.ice_encodingVersion(Ice::Encoding_1_1).ice_getEncodingVersion() == Ice::Encoding_1_1)
     test(base.ice_encodingVersion(Ice::Encoding_1_0).ice_getEncodingVersion() != Ice::Encoding_1_1)
 
-    begin
-        base.ice_invocationTimeout(0)
-        test(false)
-    rescue
-    end
-
-    begin
-        base.ice_invocationTimeout(-1)
-    rescue
-        test(false)
-    end
-
-    begin
-        base.ice_invocationTimeout(-2)
-        test(false)
-    rescue
-    end
+    # Zero or any negative invocation timeout means infinite and is normalized to -1.
+    test(base.ice_invocationTimeout(0).ice_getInvocationTimeout() == -1)
+    test(base.ice_invocationTimeout(-1).ice_getInvocationTimeout() == -1)
+    test(base.ice_invocationTimeout(-2).ice_getInvocationTimeout() == -1)
 
     begin
         base.ice_invocationTimeout(2**32 + 5000)
@@ -387,23 +374,10 @@ def allTests(helper, communicator)
     rescue RangeError
     end
 
-    begin
-        base.ice_locatorCacheTimeout(0)
-    rescue
-        test(false)
-    end
-
-    begin
-        base.ice_locatorCacheTimeout(-1)
-    rescue
-        test(false)
-    end
-
-    begin
-        base.ice_locatorCacheTimeout(-2)
-        test(false)
-    rescue
-    end
+    # Any negative locator cache timeout means infinite and is normalized to -1; 0 means no caching.
+    test(base.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0)
+    test(base.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == -1)
+    test(base.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == -1)
 
     begin
         base.ice_locatorCacheTimeout(2**32 - 1)

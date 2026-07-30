@@ -86,8 +86,8 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
 
     /// Creates a proxy that is identical to this proxy, except for the invocation timeout.
     ///
-    /// - Parameter timeout: The new invocation timeout (in milliseconds). Any negative value means infinite and is
-    ///   normalized to -1.
+    /// - Parameter timeout: The new invocation timeout (in milliseconds). Zero or any negative value means infinite
+    ///   and is normalized to -1.
     /// - Returns: A proxy with the new timeout.
     func ice_invocationTimeout(_ timeout: Int32) -> Self
 

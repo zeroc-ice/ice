@@ -463,38 +463,15 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyInter
     test(base.ice_encodingVersion(Ice.Encoding_1_1).ice_getEncodingVersion() == Ice.Encoding_1_1)
     test(base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion() != Ice.Encoding_1_1)
 
-    try:
-        base.ice_invocationTimeout(0)
-        test(False)
-    except RuntimeError:
-        pass
+    # Zero or any negative invocation timeout means infinite and is normalized to -1.
+    test(base.ice_invocationTimeout(0).ice_getInvocationTimeout() == -1)
+    test(base.ice_invocationTimeout(-1).ice_getInvocationTimeout() == -1)
+    test(base.ice_invocationTimeout(-2).ice_getInvocationTimeout() == -1)
 
-    try:
-        base.ice_invocationTimeout(-1)
-    except RuntimeError:
-        test(False)
-
-    try:
-        base.ice_invocationTimeout(-2)
-        test(False)
-    except RuntimeError:
-        pass
-
-    try:
-        base.ice_locatorCacheTimeout(0)
-    except RuntimeError:
-        test(False)
-
-    try:
-        base.ice_locatorCacheTimeout(-1)
-    except RuntimeError:
-        test(False)
-
-    try:
-        base.ice_locatorCacheTimeout(-2)
-        test(False)
-    except RuntimeError:
-        pass
+    # Any negative locator cache timeout means infinite and is normalized to -1; 0 means no caching.
+    test(base.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0)
+    test(base.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == -1)
+    test(base.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == -1)
 
     print("ok")
 

@@ -662,8 +662,8 @@ allTests(TestHelper* helper)
 
     test(base->ice_invocationTimeout(10)->ice_getInvocationTimeout() == 10ms);
 
-    test(base->ice_invocationTimeout(0)->ice_getInvocationTimeout() == 0ms);
-    test(base->ice_invocationTimeout(0ms)->ice_getInvocationTimeout() == 0ms);
+    test(base->ice_invocationTimeout(0)->ice_getInvocationTimeout() == -1ms);
+    test(base->ice_invocationTimeout(0ms)->ice_getInvocationTimeout() == -1ms);
 
     test(base->ice_invocationTimeout(-1)->ice_getInvocationTimeout() == -1ms);
     test(base->ice_invocationTimeout(-1ms)->ice_getInvocationTimeout() == -1ms);

@@ -388,41 +388,15 @@ classdef AllTests
             assert(base.ice_encodingVersion(Ice.EncodingVersion(1, 1)).ice_getEncodingVersion() == Ice.EncodingVersion(1, 1));
             assert(base.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_getEncodingVersion() ~= Ice.EncodingVersion(1, 1));
 
-            try
-                base.ice_invocationTimeout(0);
-                assert(false);
-            catch ex
-            end
+            % Zero or any negative invocation timeout means infinite and is normalized to -1.
+            assert(base.ice_invocationTimeout(0).ice_getInvocationTimeout() == -1);
+            assert(base.ice_invocationTimeout(-1).ice_getInvocationTimeout() == -1);
+            assert(base.ice_invocationTimeout(-2).ice_getInvocationTimeout() == -1);
 
-            try
-                base.ice_invocationTimeout(-1);
-            catch ex
-                assert(false);
-            end
-
-            try
-                base.ice_invocationTimeout(-2);
-                assert(false);
-            catch ex
-            end
-
-            try
-                base.ice_locatorCacheTimeout(0);
-            catch ex
-                assert(false);
-            end
-
-            try
-                base.ice_locatorCacheTimeout(-1);
-            catch ex
-                assert(false);
-            end
-
-            try
-                base.ice_locatorCacheTimeout(-2);
-                assert(false);
-            catch ex
-            end
+            % Any negative locator cache timeout means infinite and is normalized to -1; 0 means no caching.
+            assert(base.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0);
+            assert(base.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == -1);
+            assert(base.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == -1);
 
             fprintf('ok\n');
 

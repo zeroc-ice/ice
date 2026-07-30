@@ -672,7 +672,8 @@ public class AllTests {
             base.ice_invocationTimeout(10)
                 .ice_getInvocationTimeout()
                 .equals(Duration.ofMillis(10)));
-        test(base.ice_invocationTimeout(0).ice_getInvocationTimeout().equals(Duration.ZERO));
+        test(base.ice_invocationTimeout(0).ice_getInvocationTimeout().equals(Duration.ofMillis(-1)));
+        test(base.ice_invocationTimeout(Duration.ZERO).ice_getInvocationTimeout().equals(Duration.ofMillis(-1)));
         test(
             base.ice_invocationTimeout(-1)
                 .ice_getInvocationTimeout()

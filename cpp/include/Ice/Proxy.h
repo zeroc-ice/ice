@@ -147,8 +147,8 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for the invocation timeout.
-        /// @param timeout The new invocation timeout (in milliseconds). Any negative value means infinite and is
-        /// normalized to -1.
+        /// @param timeout The new invocation timeout (in milliseconds). Zero or any negative value means infinite
+        /// and is normalized to -1.
         /// @return A proxy with the new timeout.
         [[nodiscard]] Prx ice_invocationTimeout(int timeout) const
         {
@@ -156,16 +156,16 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for the invocation timeout.
-        /// @param timeout The new invocation timeout. Any negative duration means infinite and is normalized to
-        /// -1 millisecond; a duration that is not a whole number of milliseconds is rounded up to the next whole
-        /// number of milliseconds.
+        /// @param timeout The new invocation timeout. Zero or any negative duration means infinite and is
+        /// normalized to -1 millisecond; a duration that is not a whole number of milliseconds is rounded up to the
+        /// next whole number of milliseconds.
         /// @return A proxy with the new timeout.
         /// @throws std::invalid_argument Thrown when @p timeout is greater than
         /// `std::numeric_limits<std::int32_t>::max()` milliseconds.
         template<class Rep, class Period>
         [[nodiscard]] Prx ice_invocationTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
-            if (timeout < std::chrono::duration<Rep, Period>::zero())
+            if (timeout <= std::chrono::duration<Rep, Period>::zero())
             {
                 return fromReference(asPrx()._invocationTimeout(std::chrono::milliseconds(-1)));
             }
