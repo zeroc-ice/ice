@@ -516,6 +516,58 @@ export class Client extends TestHelper {
         }
 
         {
+            // With the 1.0 encoding, a reader slices off the derived part of an exception it doesn't know, and then
+            // still reads the class instances the sender queued after it. Here the sliced-off slice holds the only
+            // reference to such an instance, so the reader has nothing to patch it into: it must discard the
+            // instance and deliver the base exception it does know.
+            //
+            // This exception is deliberately never registered with the Slice loader, and it must carry a non-null
+            // value: with a null one the sender queues no instance and the reader never exercises this path.
+            class UnknownDerived extends Test.MyException {
+                value: Test.OptionalClass;
+
+                constructor(value: Test.OptionalClass) {
+                    super();
+                    this.value = value;
+                }
+
+                static get _parent() {
+                    return Test.MyException;
+                }
+
+                static get _ice_id() {
+                    return "::Test::UnknownDerived";
+                }
+
+                _mostDerivedType() {
+                    return UnknownDerived;
+                }
+
+                _writeMemberImpl(ostr: Ice.OutputStream) {
+                    ostr.writeValue(this.value);
+                }
+            }
+
+            const outS = new Ice.OutputStream(Ice.Encoding_1_0);
+            outS.writeException(new UnknownDerived(new Test.OptionalClass()));
+            const data = outS.finished();
+
+            const inS = new Ice.InputStream(communicator, Ice.Encoding_1_0, data);
+            try {
+                inS.throwException();
+                test(false);
+            } catch (ex1) {
+                if (ex1 instanceof Test.MyException) {
+                    // Not UnknownDerived: the most derived slice really was sliced off.
+                    test(ex1.ice_id() === "::Test::MyException");
+                    test(ex1.c === null);
+                } else {
+                    test(false, ex1 as Error);
+                }
+            }
+        }
+
+        {
             const dict = new Test.ByteBoolD();
             dict.set(4, true);
             dict.set(1, false);
