@@ -2959,6 +2959,7 @@ class AndroidProcessController(RemoteProcessController):
         # a moment on an otherwise healthy emulator, which surfaces as "cmd: Can't find service:
         # settings". That took down an android-bt run on main at the last step, after the bond had
         # already succeeded and the same query had answered twice earlier in the run.
+        reason = "not attempted"
         for _ in range(10):
             try:
                 address = run(f"{self.adb()} shell settings get secure bluetooth_address").strip()
@@ -3057,14 +3058,37 @@ class AndroidProcessController(RemoteProcessController):
         run(f"{self.adb()} logcat -c")
         self._adbTolerantFor(peerAdb, "logcat -c")
         run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid}")
-        # Wait for the server to be listening rather than sleeping a fixed interval. It has to start
-        # an activity and register an SDP record, and a client that connects before the record is
-        # there fails in BluetoothSocket.connect() with Android's misleading "read failed, socket
-        # might closed or timeout, read ret: -1" -- which reads like an I/O fault rather than a
-        # missing service. btbond logs this line as soon as listenUsingRfcommWithServiceRecord
-        # returns.
+
+        def tail(log: str) -> str:
+            # Drop stack frames before truncating. One trace is longer than the character budget
+            # that used to be here, so it pushed out the lines saying what the run was doing --
+            # "connecting...", the bond state -- which are the ones worth keeping. Logcat keeps
+            # Java's leading tab on each frame, and the message sits after the tag, so match the
+            # tab rather than the start of the line.
+            lines = [ln for ln in log.splitlines() if "\tat " not in ln]
+            return "\n".join(lines[-40:]) or "<no BTBOND output>"
+
+        # Wait for the server rather than sleeping a fixed interval: it has to start an activity and
+        # register an SDP record, and a client that connects before the record exists fails in
+        # BluetoothSocket.connect() with Android's misleading "read failed, socket might closed or
+        # timeout, read ret: -1" -- which reads like an I/O fault rather than a missing service.
         for _ in range(30):
-            if "listening" in self._adbTolerantFor(peerAdb, "logcat -d -s BTBOND"):
+            peerLog = self._adbTolerantFor(peerAdb, "logcat -d -s BTBOND")
+            # A server that failed outright is terminal, and without this a fast failure ("adapter
+            # not enabled") burns the whole wait and then starts a client with nothing to talk to.
+            # Take the last verdict, not any match: one log can hold the marker and a later failure.
+            verdicts = re.findall(r"RESULT server (\w+)", peerLog)
+            if verdicts and verdicts[-1] != "OK":
+                raise RuntimeError(f"btbond's server on '{peerDevice}' failed\n{tail(peerLog)}")
+            if "listening" in peerLog:
+                # The marker is not quite readiness: listenUsingRfcommWithServiceRecord returns once
+                # the stack hands back the channel number (send_app_scn on BTA_JV_GET_SCN_EVT), which
+                # happens before the SDP record is added (only on BTA_JV_CREATE_RECORD_EVT). Settle
+                # for that gap -- a couple of main-thread turns -- so the marker is not read as
+                # readiness it does not yet imply. This also makes a stale marker harmless: if the
+                # tolerant clear above failed and an old "listening" matches, we degrade to roughly
+                # the fixed sleep this replaced instead of racing.
+                time.sleep(2)
                 break
             time.sleep(1)
         else:
@@ -3101,16 +3125,6 @@ class AndroidProcessController(RemoteProcessController):
             # connect failure looks the same whether the server never came up, or came up and
             # refused. Without this side there is no way to tell them apart after the fact.
             peerLog = self._adbTolerantFor(peerAdb, "logcat -d -s BTBOND")
-
-            def tail(log: str) -> str:
-                # Drop stack frames before truncating. One trace is longer than the character budget
-                # that was here before, so it pushed out the lines saying what the run was doing --
-                # "connecting...", the bond state -- which are the ones worth keeping. Logcat keeps
-                # Java's leading tab on each frame, and the message sits after the tag, so match the
-                # tab rather than the start of the line.
-                lines = [ln for ln in log.splitlines() if "\tat " not in ln]
-                return "\n".join(lines[-40:]) or "<no BTBOND output>"
-
             raise RuntimeError(
                 f"btbond did not report a successful bond on '{self.device}'\n"
                 f"{tail(result)}\n"
