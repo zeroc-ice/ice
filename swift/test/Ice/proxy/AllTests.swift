@@ -393,15 +393,28 @@ public func allTests(_ helper: TestHelper) async throws -> MyInterfacePrx {
     prop.setProperty(key: property, value: "1")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getLocatorCacheTimeout() == 1)
+    prop.setProperty(key: property, value: "0")
+    b1 = try communicator.propertyToProxy(propertyPrefix)!
+    try test(b1.ice_getLocatorCacheTimeout() == 0)
+    prop.setProperty(key: property, value: "-2")
+    b1 = try communicator.propertyToProxy(propertyPrefix)!
+    try test(b1.ice_getLocatorCacheTimeout() == -1)
     prop.setProperty(key: property, value: "")
 
-    // This cannot be tested so easily because the property is cached
-    // on communicator initialization.
-    //
-    // prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
-    // b1 = communicator.propertyToProxy(propertyPrefix);
-    // test(b1.ice_getLocatorCacheTimeout() == 60);
-    // prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
+    // The default timeouts are cached on communicator initialization, so we test them with a separate
+    // communicator. They are normalized like the per-proxy timeout properties.
+    do {
+        let properties = Ice.createProperties()
+        properties.setProperty(key: "Ice.Default.InvocationTimeout", value: "0")
+        properties.setProperty(key: "Ice.Default.LocatorCacheTimeout", value: "-2")
+        var initData = Ice.InitializationData()
+        initData.properties = properties
+        let defaultsCommunicator = try helper.initialize(initData)
+        defer { defaultsCommunicator.destroy() }
+        let defaultsProxy = try defaultsCommunicator.stringToProxy("test")!
+        try test(defaultsProxy.ice_getInvocationTimeout() == -1)
+        try test(defaultsProxy.ice_getLocatorCacheTimeout() == -1)
+    }
 
     prop.setProperty(key: propertyPrefix, value: "test:\(helper.getTestEndpoint(num: 0))")
 
@@ -424,6 +437,12 @@ public func allTests(_ helper: TestHelper) async throws -> MyInterfacePrx {
     prop.setProperty(key: property, value: "1000")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getInvocationTimeout() == 1000)
+    prop.setProperty(key: property, value: "0")
+    b1 = try communicator.propertyToProxy(propertyPrefix)!
+    try test(b1.ice_getInvocationTimeout() == -1)
+    prop.setProperty(key: property, value: "-2")
+    b1 = try communicator.propertyToProxy(propertyPrefix)!
+    try test(b1.ice_getInvocationTimeout() == -1)
     prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).EndpointSelection"

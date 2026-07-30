@@ -484,15 +484,26 @@ public class AllTests : global::Test.AllTests
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(1));
+        prop.setProperty(property, "0");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getLocatorCacheTimeout() == TimeSpan.Zero);
+        prop.setProperty(property, "-2");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
         prop.setProperty(property, "");
 
-        // This cannot be tested so easily because the property is cached
-        // on communicator initialization.
-        //
-        // prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
-        // b1 = communicator.propertyToProxy(propertyPrefix);
-        // test(b1.ice_getLocatorCacheTimeout() == 60);
-        // prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
+        // The default timeouts are cached on communicator initialization, so we test them with a separate
+        // communicator. They are normalized like the per-proxy timeout properties.
+        {
+            var initData = new InitializationData();
+            initData.properties = new Properties();
+            initData.properties.setProperty("Ice.Default.InvocationTimeout", "0");
+            initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "-2");
+            using var defaultsCommunicator = Ice.Util.initialize(initData);
+            var defaultsProxy = defaultsCommunicator.stringToProxy("test");
+            test(defaultsProxy.ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
+            test(defaultsProxy.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
+        }
 
         prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
 
@@ -515,6 +526,12 @@ public class AllTests : global::Test.AllTests
         prop.setProperty(property, "1000");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getInvocationTimeout() == TimeSpan.FromSeconds(1));
+        prop.setProperty(property, "0");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
+        prop.setProperty(property, "-2");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".EndpointSelection";

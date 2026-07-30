@@ -505,15 +505,26 @@ allTests(TestHelper* helper)
     prop->setProperty(property, "1");
     b1 = communicator->propertyToProxy(propertyPrefix);
     test(b1->ice_getLocatorCacheTimeout() == 1s);
+    prop->setProperty(property, "0");
+    b1 = communicator->propertyToProxy(propertyPrefix);
+    test(b1->ice_getLocatorCacheTimeout() == 0s);
+    prop->setProperty(property, "-2");
+    b1 = communicator->propertyToProxy(propertyPrefix);
+    test(b1->ice_getLocatorCacheTimeout() == -1s);
     prop->setProperty(property, "");
 
-    // This cannot be tested so easily because the property is cached
-    // on communicator initialization.
-    //
-    // prop->setProperty("Ice.Default.LocatorCacheTimeout", "60");
-    // b1 = communicator->propertyToProxy(propertyPrefix);
-    // test(b1->ice_getLocatorCacheTimeout() == 60);
-    // prop->setProperty("Ice.Default.LocatorCacheTimeout", "");
+    // The default timeouts are cached on communicator initialization, so we test them with a separate
+    // communicator. They are normalized like the per-proxy timeout properties.
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        initData.properties->setProperty("Ice.Default.InvocationTimeout", "0");
+        initData.properties->setProperty("Ice.Default.LocatorCacheTimeout", "-2");
+        Ice::CommunicatorHolder ich(initData);
+        std::optional<Ice::ObjectPrx> defaultsProxy = ich->stringToProxy("test");
+        test(defaultsProxy->ice_getInvocationTimeout() == -1ms);
+        test(defaultsProxy->ice_getLocatorCacheTimeout() == -1s);
+    }
 
     prop->setProperty(propertyPrefix, "test:" + endp);
 
@@ -536,6 +547,12 @@ allTests(TestHelper* helper)
     prop->setProperty(property, "1000");
     b1 = communicator->propertyToProxy(propertyPrefix);
     test(b1->ice_getInvocationTimeout() == 1s);
+    prop->setProperty(property, "0");
+    b1 = communicator->propertyToProxy(propertyPrefix);
+    test(b1->ice_getInvocationTimeout() == -1ms);
+    prop->setProperty(property, "-2");
+    b1 = communicator->propertyToProxy(propertyPrefix);
+    test(b1->ice_getInvocationTimeout() == -1ms);
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".EndpointSelection";

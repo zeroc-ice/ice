@@ -219,15 +219,25 @@ def allTests(helper, communicator)
     prop.setProperty(property, "1")
     b1 = communicator.propertyToProxy(propertyPrefix)
     test(b1.ice_getLocatorCacheTimeout() == 1)
+    prop.setProperty(property, "0")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getLocatorCacheTimeout() == 0)
+    prop.setProperty(property, "-2")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getLocatorCacheTimeout() == -1)
     prop.setProperty(property, "")
 
-    # This cannot be tested so easily because the property is cached
-    # on communicator initialization.
-    #
-    #prop.setProperty("Ice::Default.LocatorCacheTimeout", "60")
-    #b1 = communicator.propertyToProxy(propertyPrefix)
-    #test(b1.ice_getLocatorCacheTimeout() == 60)
-    #prop.setProperty("Ice::Default.LocatorCacheTimeout", "")
+    # The default timeouts are cached on communicator initialization, so we test them with a separate
+    # communicator. They are normalized like the per-proxy timeout properties.
+    initData = Ice::InitializationData.new
+    initData.properties = Ice.createProperties()
+    initData.properties.setProperty("Ice.Default.InvocationTimeout", "0")
+    initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "-2")
+    defaultsCommunicator = Ice::initialize(initData)
+    defaultsProxy = defaultsCommunicator.stringToProxy("test")
+    test(defaultsProxy.ice_getInvocationTimeout() == -1)
+    test(defaultsProxy.ice_getLocatorCacheTimeout() == -1)
+    defaultsCommunicator.destroy()
 
     prop.setProperty(propertyPrefix, "test:#{helper.getTestEndpoint()}")
 
@@ -245,12 +255,18 @@ def allTests(helper, communicator)
     test(!b1.ice_isConnectionCached())
     prop.setProperty(property, "")
 
-    property = propertyPrefix + ".InvocationTimeout";
-    test(b1.ice_getInvocationTimeout() == -1);
-    prop.setProperty(property, "1000");
-    b1 = communicator.propertyToProxy(propertyPrefix);
-    test(b1.ice_getInvocationTimeout() == 1000);
-    prop.setProperty(property, "");
+    property = propertyPrefix + ".InvocationTimeout"
+    test(b1.ice_getInvocationTimeout() == -1)
+    prop.setProperty(property, "1000")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getInvocationTimeout() == 1000)
+    prop.setProperty(property, "0")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getInvocationTimeout() == -1)
+    prop.setProperty(property, "-2")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getInvocationTimeout() == -1)
+    prop.setProperty(property, "")
 
     property = propertyPrefix + ".EndpointSelection"
     test(b1.ice_getEndpointSelection() == Ice::EndpointSelectionType::Random)
