@@ -169,7 +169,10 @@ void ::Writer::run(int argc, char* argv[])
         {
             // The bound only exists to fail with an assertion rather than block forever, so it has to sit outside the
             // window in which DataStorm still recovers on its own: six retries backing off from 500ms, doubled again
-            // for a peer whose endpoints are unknown, is 64 seconds.
+            // for a peer whose endpoints are unknown, is 64 seconds. That puts it above the 60 second no-output
+            // watchdog the test driver applies to local processes (scripts/Util.py), and this wait is silent, so a
+            // genuine failure is reported there as a hanging process before the assertion fires. In CI the driver
+            // waits 300 seconds and the assertion comes first.
             unique_lock lock{gate->mutex};
             test(gate->condition.wait_for(lock, chrono::seconds(90), [&gate] { return gate->reconnected; }));
         }
