@@ -29,6 +29,17 @@ namespace
         red,
     };
 
+    // A key type with a custom encoding whose default value (0) encodes to zero bytes. The default Ice encoding
+    // never produces an empty byte sequence, so only a custom Encoder can, and an any-key writer marshals such a
+    // key inline like any other key.
+    struct Marker
+    {
+        int value = 0;
+
+        bool operator<(const Marker& other) const { return value < other.value; }
+        bool operator==(const Marker& other) const { return value == other.value; }
+    };
+
     template<typename T> bool compare(const T& v1, const T& v2) { return v1 == v2; }
 
     template<typename T> bool compare(const shared_ptr<T>& v1, const shared_ptr<T>& v2)
@@ -79,6 +90,27 @@ namespace DataStorm
         }
     };
 
+    template<> struct Decoder<Marker>
+    {
+        static Marker decode(const Ice::CommunicatorPtr&, const vector<std::byte>& data)
+        {
+            return Marker{data.empty() ? 0 : static_cast<int>(data[0])};
+        }
+    };
+
+    template<> struct Encoder<Marker>
+    {
+        static vector<std::byte> encode(const Ice::CommunicatorPtr&, const Marker& value)
+        {
+            // The default value encodes to zero bytes; any other value encodes to a single byte.
+            if (value.value == 0)
+            {
+                return {};
+            }
+            return {static_cast<std::byte>(value.value)};
+        }
+    };
+
 }
 
 void ::Reader::run(int argc, char* argv[])
@@ -116,6 +148,23 @@ void ::Reader::run(int argc, char* argv[])
         Topic<color, string>(node, "enumstring"),
         map<color, string>{{color::blue, "v1"}, {color::red, "v2"}},
         map<color, string>{{color::blue, "u1"}, {color::red, "u2"}});
+
+    {
+        Topic<Marker, string> topic(node, "emptyencodedkey");
+        topic.setReaderDefaultConfig(ReaderConfig(-1, nullopt, ClearHistoryPolicy::Never));
+
+        // The writer marshals the key inline, so the reader decodes it from the sample and matches it against its
+        // own subscription.
+        auto reader = makeSingleKeyReader(topic, Marker{0});
+        auto s = reader.getNextUnread();
+        test(s.getEvent() == SampleEvent::Add && s.getKey() == Marker{0} && s.getValue() == "v1");
+
+        // A reader that joins after the sample was written gets the same key in the writer's initialization
+        // samples.
+        auto lateReader = makeSingleKeyReader(topic, Marker{0});
+        auto ls = lateReader.getNextUnread();
+        test(ls.getEvent() == SampleEvent::Add && ls.getKey() == Marker{0} && ls.getValue() == "v1");
+    }
 }
 
 DEFINE_TEST(::Reader)

@@ -129,7 +129,7 @@ DataElementI::attach(
     if ((id > 0 &&
          attachKey(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, name, priority)) ||
         (id < 0 &&
-         attachFilter(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, filter, name, priority)))
+         attachFilter(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, filter, name, priority)))
     {
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
@@ -186,7 +186,7 @@ DataElementI::attach(
     if ((id > 0 &&
          attachKey(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, name, priority)) ||
         (id < 0 &&
-         attachFilter(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, filter, name, priority)))
+         attachFilter(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, filter, name, priority)))
     {
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
@@ -231,7 +231,7 @@ DataElementI::attachKey(
     }
 
     bool added = false;
-    auto subscriber = p->second.addOrGet(topicId, elementId, keyId, nullptr, sampleFilter, name, priority, added);
+    auto subscriber = p->second.addOrGet(topicId, elementId, nullptr, sampleFilter, name, priority, added);
 
     if (_onConnectedElements && added)
     {
@@ -241,6 +241,7 @@ DataElementI::attachKey(
 
     if (addConnectedKey(key, subscriber))
     {
+        subscriber->keyIds.emplace(key, keyId);
         if (key)
         {
             subscriber->keys.insert(key);
@@ -292,6 +293,21 @@ DataElementI::detachKey(
 
     if (removeConnectedKey(key, subscriber))
     {
+        // Unsubscribe from the key being detached, not from whichever key created the subscriber: a multi-key
+        // element attached to the same remote element shares a single subscriber across all its keys. attachKey
+        // records an id for every key it connects, and this runs only for a key that was connected, so the entry
+        // is there.
+        auto q = subscriber->keyIds.find(key);
+        assert(q != subscriber->keyIds.end());
+
+        // Should the lookup ever miss, 0 is an id no key ever uses (key ids start at 1), so the unsubscribe below
+        // is a no-op rather than a decrement of another key's count.
+        int64_t remoteKeyId = 0;
+        if (q != subscriber->keyIds.end())
+        {
+            remoteKeyId = q->second;
+            subscriber->keyIds.erase(q);
+        }
         if (key)
         {
             subscriber->keys.erase(key);
@@ -323,7 +339,7 @@ DataElementI::detachKey(
         _parent->decListenerCount();
         if (unsubscribe)
         {
-            session->unsubscribeFromKey(topicId, elementId, shared_from_this(), subscriber->id);
+            session->unsubscribeFromKey(topicId, elementId, shared_from_this(), remoteKeyId);
         }
         notifyListenerWaiters();
     }
@@ -338,7 +354,6 @@ DataElementI::attachFilter(
     const shared_ptr<SessionI>& session,
     SessionPrx prx,
     const string& facet,
-    int64_t subscriberId,
     const shared_ptr<Filter>& filter,
     const string& name,
     int priority)
@@ -357,7 +372,7 @@ DataElementI::attachFilter(
     const int64_t filterId = -elementId;
 
     bool added = false;
-    auto subscriber = p->second.addOrGet(topicId, filterId, subscriberId, filter, sampleFilter, name, priority, added);
+    auto subscriber = p->second.addOrGet(topicId, filterId, filter, sampleFilter, name, priority, added);
     if (_onConnectedElements && added)
     {
         _executor->queue([callback = _onConnectedElements, name]
@@ -671,7 +686,12 @@ DataElementI::disconnect()
             }
             else
             {
-                listener.first.session->disconnectFromKey(k.first, k.second, shared_from_this(), ks.second->id);
+                // One subscription per key: a multi-key element attached to the same remote element shares a
+                // single subscriber, and the session counts its subscriptions per remote key.
+                for (const auto& [_, remoteKeyId] : ks.second->keyIds)
+                {
+                    listener.first.session->disconnectFromKey(k.first, k.second, shared_from_this(), remoteKeyId);
+                }
             }
         }
     }

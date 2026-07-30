@@ -24,6 +24,16 @@ namespace
         red,
     };
 
+    // A key type with a custom encoding whose default value (0) encodes to zero bytes. The default Ice encoding
+    // never produces an empty byte sequence, so only a custom Encoder can, and an any-key writer marshals such a
+    // key inline like any other key.
+    struct Marker
+    {
+        int value = 0;
+
+        bool operator<(const Marker& other) const { return value < other.value; }
+    };
+
     // NOLINTNEXTLINE(performance-unnecessary-value-param)
     template<typename T, typename A, typename U> void testWriter(T topic, A add, U update)
     {
@@ -67,6 +77,27 @@ namespace DataStorm
         static vector<std::byte> encode(const Ice::CommunicatorPtr&, const color& value)
         {
             return {static_cast<std::byte>(value)};
+        }
+    };
+
+    template<> struct Decoder<Marker>
+    {
+        static Marker decode(const Ice::CommunicatorPtr&, const vector<std::byte>& data)
+        {
+            return Marker{data.empty() ? 0 : static_cast<int>(data[0])};
+        }
+    };
+
+    template<> struct Encoder<Marker>
+    {
+        static vector<std::byte> encode(const Ice::CommunicatorPtr&, const Marker& value)
+        {
+            // The default value encodes to zero bytes; any other value encodes to a single byte.
+            if (value.value == 0)
+            {
+                return {};
+            }
+            return {static_cast<std::byte>(value.value)};
         }
     };
 
@@ -125,6 +156,19 @@ void ::Writer::run(int argc, char* argv[])
         Topic<color, string>(node, "enumstring"),
         map<color, string>{{color::blue, "v1"}, {color::red, "v2"}},
         map<color, string>{{color::blue, "u1"}, {color::red, "u2"}});
+    cout << "ok" << endl;
+
+    cout << "testing key that encodes to zero bytes... " << flush;
+    {
+        Topic<Marker, string> topic(node, "emptyencodedkey");
+        topic.setWriterDefaultConfig(WriterConfig(-1, nullopt, ClearHistoryPolicy::Never));
+
+        // An any-key writer marshals the key inline with each sample, rather than sending the key id.
+        auto writer = makeAnyKeyWriter(topic);
+        writer.waitForReaders();
+        writer.add(Marker{0}, "v1");
+        writer.waitForNoReaders();
+    }
     cout << "ok" << endl;
 }
 
