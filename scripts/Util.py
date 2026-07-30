@@ -3085,10 +3085,20 @@ class AndroidProcessController(RemoteProcessController):
             # connect failure looks the same whether the server never came up, or came up and
             # refused. Without this side there is no way to tell them apart after the fact.
             peerLog = self._adbTolerantFor(peerAdb, "logcat -d -s BTBOND")
+
+            def tail(log: str) -> str:
+                # Drop stack frames before truncating. One trace is longer than the character budget
+                # that was here before, so it pushed out the lines saying what the run was doing --
+                # "connecting...", the bond state -- which are the ones worth keeping. Logcat keeps
+                # Java's leading tab on each frame, and the message sits after the tag, so match the
+                # tab rather than the start of the line.
+                lines = [ln for ln in log.splitlines() if "\tat " not in ln]
+                return "\n".join(lines[-40:]) or "<no BTBOND output>"
+
             raise RuntimeError(
                 f"btbond did not report a successful bond on '{self.device}'\n"
-                f"{result[-500:]}\n"
-                f"-- peer '{peerDevice}' --\n{peerLog[-500:] or '<no BTBOND output>'}"
+                f"{tail(result)}\n"
+                f"-- peer '{peerDevice}' --\n{tail(peerLog)}"
             )
         # dumpsys masks all but the last two octets of a bonded address, so match on those.
         bonded = self._adbTolerant("shell dumpsys bluetooth_manager")
