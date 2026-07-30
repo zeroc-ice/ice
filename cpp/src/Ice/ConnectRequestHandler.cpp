@@ -62,20 +62,10 @@ Ice::ConnectionIPtr
 ConnectRequestHandler::getConnection()
 {
     lock_guard lock(_mutex);
-    //
-    // First check for the connection, it's important otherwise the user could first get a connection
-    // and then the exception if he tries to obtain the proxy cached connection multiple times (the
-    // exception can be set after the connection is set if the flush of pending requests fails).
-    //
-    if (_connection)
-    {
-        return _connection;
-    }
-    else if (_exception)
-    {
-        rethrow_exception(_exception);
-    }
-    return nullptr;
+    // Return the connection in whatever state it is; when the connection establishment failed, return null. Like all
+    // getConnection implementations, this function never throws: a null return is how the absence of a connection is
+    // reported.
+    return _connection;
 }
 
 void

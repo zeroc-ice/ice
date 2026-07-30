@@ -42,6 +42,8 @@ namespace IceInternal
 
         virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) = 0;
 
+        // Returns this request handler's connection, or null if no connection is available. This function never
+        // throws.
         virtual Ice::ConnectionIPtr getConnection() = 0;
 
     protected:
