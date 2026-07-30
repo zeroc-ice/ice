@@ -379,6 +379,19 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
 
     @Override
     public ObjectPrx ice_locatorCacheTimeout(Duration newTimeout) {
+        if (newTimeout.isNegative()) {
+            newTimeout = Duration.ofSeconds(-1);
+        } else {
+            // The limit is a whole number of seconds, so a timeout that passes this check still fits after
+            // rounding up.
+            if (newTimeout.compareTo(Duration.ofSeconds(Integer.MAX_VALUE)) > 0) {
+                throw new IllegalArgumentException(
+                    "The locator cache timeout cannot be greater than "
+                        + Integer.MAX_VALUE
+                        + " seconds.");
+            }
+            newTimeout = roundUp(newTimeout, 1_000_000_000);
+        }
         if (newTimeout.equals(_reference.getLocatorCacheTimeout())) {
             return this;
         } else {
@@ -393,11 +406,34 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
 
     @Override
     public ObjectPrx ice_invocationTimeout(Duration newTimeout) {
+        if (newTimeout.isNegative()) {
+            newTimeout = Duration.ofMillis(-1);
+        } else {
+            // The limit is a whole number of milliseconds, so a timeout that passes this check still fits after
+            // rounding up.
+            if (newTimeout.compareTo(Duration.ofMillis(Integer.MAX_VALUE)) > 0) {
+                throw new IllegalArgumentException(
+                    "The invocation timeout cannot be greater than "
+                        + Integer.MAX_VALUE
+                        + " milliseconds.");
+            }
+            newTimeout = roundUp(newTimeout, 1_000_000);
+        }
         if (newTimeout.equals(_reference.getInvocationTimeout())) {
             return this;
         } else {
             return _newInstance(_reference.changeInvocationTimeout(newTimeout));
         }
+    }
+
+    // Rounds a nonnegative timeout of at most Integer.MAX_VALUE units up to a whole number of the given unit
+    // (a divisor of one second, in nanoseconds).
+    private static Duration roundUp(Duration timeout, int unitNanos) {
+        int remainder = timeout.getNano() % unitNanos;
+        if (remainder == 0) {
+            return timeout;
+        }
+        return Duration.ofSeconds(timeout.getSeconds(), timeout.getNano() - remainder + unitNanos);
     }
 
     @Override
