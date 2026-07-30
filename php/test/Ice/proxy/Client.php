@@ -268,6 +268,8 @@ function allTests($helper)
     $communicator->getProperties()->setProperty($property, "-2");
     $b1 = $communicator->propertyToProxy($propertyPrefix);
     test($b1->ice_getInvocationTimeout() == -1);
+    // The normalized value is what proxyToProperty emits.
+    test($communicator->proxyToProperty($b1, "RoundTrip")["RoundTrip.InvocationTimeout"] == "-1");
     $communicator->getProperties()->setProperty($property, "");
 
     $property = $propertyPrefix . ".EndpointSelection";

@@ -1020,8 +1020,8 @@ IceInternal::RoutableReference::toProperty(string prefix) const
     // compiled against older headers can still set non-normalized values.
     properties[prefix + ".LocatorCacheTimeout"] =
         _locatorCacheTimeout < 0ms ? "-1" : to_string(chrono::ceil<chrono::seconds>(_locatorCacheTimeout).count());
-    properties[prefix + ".InvocationTimeout"] =
-        getInvocationTimeout() <= 0ms ? "-1" : to_string(getInvocationTimeout().count());
+    chrono::milliseconds invocationTimeout = getInvocationTimeout();
+    properties[prefix + ".InvocationTimeout"] = invocationTimeout <= 0ms ? "-1" : to_string(invocationTimeout.count());
 
     if (_routerInfo)
     {

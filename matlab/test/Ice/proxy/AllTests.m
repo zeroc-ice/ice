@@ -293,6 +293,9 @@ classdef AllTests
             prop.setProperty(property, '-2');
             b1 = communicator.propertyToProxy(propertyPrefix);
             assert(b1.ice_getInvocationTimeout() == -1);
+            % The normalized value is what proxyToProperty emits.
+            roundTripProps = communicator.proxyToProperty(b1, 'RoundTrip');
+            assert(strcmp(roundTripProps('RoundTrip.InvocationTimeout'), '-1'));
             prop.setProperty(property, '');
 
             property = [propertyPrefix, '.EndpointSelection'];

@@ -443,6 +443,8 @@ public func allTests(_ helper: TestHelper) async throws -> MyInterfacePrx {
     prop.setProperty(key: property, value: "-2")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getInvocationTimeout() == -1)
+    // The normalized value is what proxyToProperty emits.
+    try test(communicator.proxyToProperty(proxy: b1, property: "RoundTrip")["RoundTrip.InvocationTimeout"] == "-1")
     prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).EndpointSelection"

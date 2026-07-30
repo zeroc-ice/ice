@@ -556,6 +556,8 @@ public class AllTests {
         prop.setProperty(property, "-2");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getInvocationTimeout().equals(Duration.ofMillis(-1)));
+        // The normalized value is what proxyToProperty emits.
+        test("-1".equals(communicator.proxyToProperty(b1, "RoundTrip").get("RoundTrip.InvocationTimeout")));
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".EndpointSelection";
