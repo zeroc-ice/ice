@@ -101,9 +101,7 @@ ObjectPrx.prototype.ice_getLocatorCacheTimeout = function () {
 };
 
 ObjectPrx.prototype.ice_locatorCacheTimeout = function (newTimeout) {
-    if (newTimeout < -1) {
-        throw new RangeError("invalid value passed to ice_locatorCacheTimeout: " + newTimeout);
-    }
+    newTimeout = normalizeTimeout(newTimeout, "locator cache timeout", "seconds");
     if (newTimeout === this._reference.getLocatorCacheTimeout()) {
         return this;
     } else {
@@ -116,9 +114,7 @@ ObjectPrx.prototype.ice_getInvocationTimeout = function () {
 };
 
 ObjectPrx.prototype.ice_invocationTimeout = function (newTimeout) {
-    if (newTimeout < 1 && newTimeout !== -1) {
-        throw new RangeError("invalid value passed to ice_invocationTimeout: " + newTimeout);
-    }
+    newTimeout = normalizeTimeout(newTimeout, "invocation timeout", "milliseconds");
     if (newTimeout === this._reference.getInvocationTimeout()) {
         return this;
     } else {
@@ -461,3 +457,23 @@ ObjectPrx.ice_staticId = function () {
 
 Object.defineProperty(ObjectPrx, "_implements", { get: () => [] });
 TypeRegistry.declareProxyType("Ice.ObjectPrx", ObjectPrx);
+
+// The largest timeout the corresponding proxy property can represent, in the property's unit.
+const maxTimeout = 2147483647;
+
+// Normalizes a proxy timeout to a whole number of the corresponding proxy property's unit: any negative timeout
+// means infinite and is normalized to -1, and a positive timeout is rounded up to the next whole number.
+function normalizeTimeout(newTimeout, description, unit) {
+    if (typeof newTimeout !== "number" || Number.isNaN(newTimeout)) {
+        // String() rather than interpolation: interpolating a symbol throws a TypeError.
+        throw new RangeError(`invalid value passed as the ${description}: ${String(newTimeout)}`);
+    }
+    if (newTimeout < 0) {
+        return -1;
+    }
+    const roundedTimeout = Math.ceil(newTimeout);
+    if (roundedTimeout > maxTimeout) {
+        throw new RangeError(`the ${description} cannot be greater than ${maxTimeout} ${unit}`);
+    }
+    return roundedTimeout;
+}
