@@ -7,10 +7,12 @@
 # send buffer size (causing the received messages to be
 # truncated). See also bug #6070.
 #
+from __future__ import annotations
+
 import time
 
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
-from Util import Client, TestSuite
+from Util import Client, Driver, Process, TestSuite
 
 props = {
     "IceStorm.Election.MasterTimeout": 2,
@@ -22,13 +24,19 @@ props = {
 icestorm = [IceStorm(replica=i, nreplicas=3, props=props) for i in range(0, 3)]
 
 
+def matchGroup(process: Process, current: Driver.Current) -> str:
+    match = process.getMatch(current)
+    assert match is not None
+    return match.group(1)
+
+
 class IceStormRepStressTestCase(IceStormTestCase):
-    def runClientSide(self, current):
-        def stopReplica(num):
+    def runClientSide(self, current: Driver.Current) -> None:
+        def stopReplica(num: int) -> None:
             self.icestorm[num].shutdown(current)
             self.icestorm[num].stop(current, True)
 
-        def startReplica(num):
+        def startReplica(num: int) -> None:
             self.icestorm[num].start(current)
 
         current.write("creating topic... ")
@@ -39,19 +47,19 @@ class IceStormRepStressTestCase(IceStormTestCase):
         subscriber = Subscriber(quiet=True)
         subscriber.start(current)
         subscriber.expect(current, "([^\n]+)\n")
-        subControl = subscriber.getMatch(current).group(1)
+        subControl = matchGroup(subscriber, current)
         current.writeln("ok")
 
         current.write("running publisher... ")
         publisher = Publisher(quiet=True)
         publisher.start(current)
         publisher.expect(current, "([^\n]+)\n")
-        pubControl = publisher.getMatch(current).group(1)
+        pubControl = matchGroup(publisher, current)
         current.writeln("ok")
 
         time.sleep(2)
 
-        for i in range(0, 3):
+        for _ in range(0, 3):
             # 0, 1
             current.write("stopping replica 2 (0, 1 running)... ")
             stopReplica(2)
@@ -86,7 +94,7 @@ class IceStormRepStressTestCase(IceStormTestCase):
         current.write("stopping publisher... ")
         Client(exe="control", args=[pubControl]).run(current)
         publisher.expect(current, "([^\n]+)\n")
-        publisherCount = publisher.getMatch(current).group(1)
+        publisherCount = matchGroup(publisher, current)
         publisher.stop(current, True)
         current.writeln("ok")
 
@@ -97,7 +105,7 @@ class IceStormRepStressTestCase(IceStormTestCase):
         current.write("stopping subscriber... ")
         Client(exe="control", args=[subControl]).run(current)
         subscriber.expect(current, "([^\n]+)\n")
-        subscriberCount = subscriber.getMatch(current).group(1)
+        subscriberCount = matchGroup(subscriber, current)
         subscriber.stop(current, True)
         current.writeln("ok")
 

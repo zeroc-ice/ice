@@ -4,12 +4,14 @@
 # Publisher/subscriber test cases, publisher publishes on TestIceStorm1 instance(s) and
 # the subscriber subscribes to the TestIceStorm2 instance(s)
 #
+from __future__ import annotations
+
 import re
 import time
 
 import Expect
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
-from Util import ClientServerTestCase, TestSuite
+from Util import ClientServerTestCase, Driver, TestSuite
 
 pub1Sub2Oneway = ClientServerTestCase(client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2"))
 pub1Sub2Batch = ClientServerTestCase(client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2", args=["-b"]))
@@ -18,7 +20,7 @@ pub1Sub1Oneway = ClientServerTestCase(client=Publisher("TestIceStorm1"), server=
 
 
 class IceStormFederation2TestCase(IceStormTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         current.write("setting up the topics... ")
         self.runadmin(
             current,

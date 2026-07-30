@@ -4,16 +4,14 @@
 # Publisher/subscriber test cases, publisher publishes on TestIceStorm1 instance(s) and
 # the subscriber subscribes to the TestIceStorm2 instance(s)
 #
+from __future__ import annotations
+
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
-from Util import ClientServerTestCase, TestSuite
-
-
-def pubSub(si, pi, s={}, p={}):
-    ClientServerTestCase(client=Publisher(args=s), server=Subscriber(args=p))
+from Util import ClientServerTestCase, Driver, TestSuite
 
 
 class IceStormStressTestCase(IceStormTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         icestorm1 = [icestorm for icestorm in self.icestorm if icestorm.getInstanceName() == "TestIceStorm1"]
         # TODO: This variable is unused. Are we missing a test case?
         # icestorm2 = [
@@ -22,7 +20,7 @@ class IceStormStressTestCase(IceStormTestCase):
         #     if icestorm.getInstanceName() == "TestIceStorm2"
         # ]
 
-        def doTest(subOpts, pubOpts):
+        def doTest(subOpts: tuple[str, str] | list[tuple[str, str]], pubOpts: str) -> None:
             # Create the subscribers
             subscribers = []
             for instanceName, opts in subOpts if isinstance(subOpts, list) else [subOpts]:

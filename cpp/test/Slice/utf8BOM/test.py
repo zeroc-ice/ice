@@ -1,13 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import os
 import shutil
 
-from Util import ClientTestCase, Linux, SliceTranslator, TestSuite, platform
+from Util import ClientTestCase, Driver, Linux, SliceTranslator, TestSuite, platform
 
 
 class SliceUtf8BomTestCase(ClientTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         test_file_name = "Test.ice"
         slice2cpp = SliceTranslator("slice2cpp", quiet=True)
 

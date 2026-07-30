@@ -32,7 +32,7 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
     def __init__(
         self,
         portnum: int = 50,
-        passwords: dict[str, str] = {"userid": "abc123"},
+        passwords: dict[str, str] | None = {"userid": "abc123"},
         *args: Any,
         **kargs: Any,
     ):
