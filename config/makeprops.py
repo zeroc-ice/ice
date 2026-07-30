@@ -9,9 +9,10 @@ import shutil
 import signal
 import sys
 from enum import StrEnum, auto
-from typing import override
+from typing import TextIO, override
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler, feature_namespaces
+from xml.sax.xmlreader import AttributesImpl
 
 
 class Language(StrEnum):
@@ -37,49 +38,49 @@ class PropertyArray:
         self.prefixOnly = prefixOnly
         self.isOptIn = isOptIn
         self.isClass = isClass
-        self.properties = []
+        self.properties: list[str] = []
 
-    def addProperty(self, property):
+    def addProperty(self, property: str) -> None:
         self.properties.append(property)
 
 
 class PropertyHandler(ContentHandler):
-    def __init__(self, language):
+    def __init__(self, language: Language):
         # The language we are generating properties for
         self.language = language
         # The section we are currently parsing
-        self.parentNodeName = None
+        self.parentNodeName: str | None = None
         # Dictionary of section names to attr dicts
         self.propertyArrayDict: dict[str, PropertyArray] = dict()
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         # Needs to be overridden in derived class
         pass
 
-    def openFiles(self):
+    def openFiles(self) -> None:
         # Needs to be overridden in derived class
         pass
 
-    def closeFiles(self):
+    def closeFiles(self) -> None:
         # Needs to be overridden in derived class
         pass
 
     def createProperty(
         self,
-        propertyName,
-        usesRegex,
-        defaultValue,
-        deprecated,
-        propertyArrayName,
-    ):
+        propertyName: str,
+        usesRegex: bool,
+        defaultValue: str,
+        deprecated: bool,
+        propertyArrayName: str | None,
+    ) -> str:
+        # Needs to be overridden in derived class
+        raise NotImplementedError()
+
+    def writePropertyArray(self, propertyArray: PropertyArray) -> None:
         # Needs to be overridden in derived class
         pass
 
-    def writePropertyArray(self, propertyArray: PropertyArray):
-        # Needs to be overridden in derived class
-        pass
-
-    def writeProperties(self):
+    def writeProperties(self) -> None:
         self.openFiles()
 
         for propertyArray in self.propertyArrayDict.values():
@@ -87,19 +88,20 @@ class PropertyHandler(ContentHandler):
 
         self.closeFiles()
 
-    def moveFiles(self, location):
+    def moveFiles(self, location: str) -> None:
         # Needs to be overridden in derived class
         pass
 
     # The list of property arrays to get generated
-    def generatedPropertyArrays(self):
+    def generatedPropertyArrays(self) -> list[str]:
         return [name for name, propertyArray in self.propertyArrayDict.items() if not propertyArray.isClass]
 
-    def reservedPropertyPrefixes(self):
+    def reservedPropertyPrefixes(self) -> list[str]:
         return [name for name, array in self.propertyArrayDict.items() if not array.isClass]
 
-    def parseProperty(self, attrs):
+    def parseProperty(self, attrs: AttributesImpl) -> str:
         name = attrs.get("name")
+        assert name is not None, "property element is missing its name attribute"
         usesRegex = "[any]" in name
         deprecated = attrs.get("deprecated", "false").lower() == "true"
         defaultValue = attrs.get("default", None)
@@ -107,14 +109,14 @@ class PropertyHandler(ContentHandler):
 
         if propertyArrayName and defaultValue:
             print(
-                sys.stderr,
                 f"Property '{name}' cannot have both a class and a default value",
+                file=sys.stderr,
             )
 
         if propertyArrayName and usesRegex:
             print(
-                sys.stderr,
                 f"Property '{name}' cannot have both a class and use a regex",
+                file=sys.stderr,
             )
 
         return self.createProperty(
@@ -125,21 +127,21 @@ class PropertyHandler(ContentHandler):
             propertyArrayName,
         )
 
-    def validateKnownAttributes(self, validAttrs, attrs):
+    def validateKnownAttributes(self, validAttrs: list[str], attrs: AttributesImpl) -> None:
         if "name" not in attrs:
-            print(sys.stderr, "missing name attribute")
+            print("missing name attribute", file=sys.stderr)
 
         for a in attrs.keys():
             if a not in validAttrs:
-                print(sys.stderr, "invalid attribute '%s'" % a)
+                print("invalid attribute '%s'" % a, file=sys.stderr)
 
-    def validateLanguages(self, attrs):
+    def validateLanguages(self, attrs: AttributesImpl) -> bool:
         languageAttr = attrs.get("languages", None)
         # If no language attribute is specified issue a warning and skip code generation for this element
         if languageAttr is None:
             print(
-                sys.stderr,
                 "missing languages attribute in property element %s" % attrs.get("name"),
+                file=sys.stderr,
             )
             return False
 
@@ -148,24 +150,24 @@ class PropertyHandler(ContentHandler):
         for lang in languages:
             if lang not in [lang.value for lang in Language]:
                 print(
-                    sys.stderr,
                     "invalid language '%s' in property element %s" % (lang, attrs.get("name")),
+                    file=sys.stderr,
                 )
                 return False
 
         # All should be by itself. Issue a warning but continue generation for this element.
         if Language.ALL in languages and len(languages) > 1:
             print(
-                sys.stderr,
                 "Invalid languages attribute in property element: %s. 'all' must be specified alone."
                 % attrs.get("name"),
+                file=sys.stderr,
             )
 
         # True if the current language is in the list of languages or if the list contains 'all'
         return Language.ALL in languages or self.language in languages
 
     @override
-    def startElement(self, name, attrs):
+    def startElement(self, name: str, attrs: AttributesImpl) -> None:
         match name:
             case "properties":
                 pass
@@ -183,12 +185,13 @@ class PropertyHandler(ContentHandler):
                 )
             case "section":
                 isOptIn = attrs.get("opt-in", "false").lower() == "true"
-                name = attrs.get("name")
+                sectionName = attrs.get("name")
 
                 self.validateKnownAttributes(["name", "opt-in"], attrs)
-                self.parentNodeName = name
+                assert sectionName is not None, "section element is missing its name attribute"
+                self.parentNodeName = sectionName
                 self.propertyArrayDict[self.parentNodeName] = PropertyArray(
-                    name=name,
+                    name=sectionName,
                     prefixOnly=False,
                     isClass=False,
                     isOptIn=isOptIn,
@@ -202,12 +205,13 @@ class PropertyHandler(ContentHandler):
 
                 property = self.parseProperty(attrs)
 
+                assert self.parentNodeName is not None, "property element outside a section or class"
                 self.propertyArrayDict[self.parentNodeName].addProperty(property)
             case _:
                 raise ValueError(f"Unknown element: {name}")
 
     @override
-    def endElement(self, name):
+    def endElement(self, name: str) -> None:
         if name == "section" or name == "class":
             self.parentNodeName = None
 
@@ -215,11 +219,11 @@ class PropertyHandler(ContentHandler):
 class CppPropertyHandler(PropertyHandler):
     def __init__(self):
         super().__init__(Language.CPP)
-        self.hFile = None
-        self.cppFile = None
+        self.hFile: TextIO | None = None
+        self.cppFile: TextIO | None = None
 
     @override
-    def cleanup(self):
+    def cleanup(self) -> None:
         if self.hFile is not None:
             self.hFile.close()
             if os.path.exists("PropertyNames.h"):
@@ -230,7 +234,7 @@ class CppPropertyHandler(PropertyHandler):
                 os.remove("PropertyNames.cpp")
 
     @override
-    def openFiles(self):
+    def openFiles(self) -> None:
         self.hFile = open("PropertyNames.h", "w")
         self.cppFile = open("PropertyNames.cpp", "w")
         self.hFile.write(f"""\
@@ -275,7 +279,8 @@ using namespace IceInternal;
 """)
 
     @override
-    def closeFiles(self):
+    def closeFiles(self) -> None:
+        assert self.hFile is not None and self.cppFile is not None
         self.hFile.write(f"""
         /// Property arrays defined using sections in PropertyNames.xml.
         static const std::array<PropertyArray, {len(self.generatedPropertyArrays())}> validProps;
@@ -295,11 +300,12 @@ const std::array<PropertyArray, {len(self.generatedPropertyArrays())}> PropertyN
         self.hFile.close()
         self.cppFile.close()
 
-    def fix(self, propertyName):
+    def fix(self, propertyName: str) -> str:
         return propertyName.replace("[any]", "*")
 
     @override
-    def writePropertyArray(self, propertyArray):
+    def writePropertyArray(self, propertyArray: PropertyArray) -> None:
+        assert self.hFile is not None and self.cppFile is not None
         name = propertyArray.name
         arrayName = f"{name}PropsData"
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
@@ -330,19 +336,26 @@ const PropertyArray PropertyNames::{name}Props
 """)
 
     @override
-    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated, propertyArray):
+    def createProperty(
+        self,
+        propertyName: str,
+        usesRegex: bool,
+        defaultValue: str,
+        deprecated: bool,
+        propertyArrayName: str | None,
+    ) -> str:
         propertyLine = 'Property{{"{pattern}", {defaultValue}, {usesRegex}, {deprecated}, {propertyArray}}}'.format(
             pattern=self.fix(propertyName) if usesRegex else propertyName,
             defaultValue=f'"{defaultValue}"',
             usesRegex="true" if usesRegex else "false",
             deprecated="true" if deprecated else "false",
-            propertyArray=f"&PropertyNames::{propertyArray}Props" if propertyArray else "nullptr",
+            propertyArray=f"&PropertyNames::{propertyArrayName}Props" if propertyArrayName else "nullptr",
         )
 
         return propertyLine
 
     @override
-    def moveFiles(self, location):
+    def moveFiles(self, location: str) -> None:
         dest = os.path.join(location, "cpp", "src", "Ice")
         if os.path.exists(os.path.join(dest, "PropertyNames.h")):
             os.remove(os.path.join(dest, "PropertyNames.h"))
@@ -355,17 +368,17 @@ const PropertyArray PropertyNames::{name}Props
 class JavaPropertyHandler(PropertyHandler):
     def __init__(self):
         super().__init__(Language.JAVA)
-        self.srcFile = None
+        self.srcFile: TextIO | None = None
 
     @override
-    def cleanup(self):
+    def cleanup(self) -> None:
         if self.srcFile is not None:
             self.srcFile.close()
             if os.path.exists("PropertyNames.java"):
                 os.remove("PropertyNames.java")
 
     @override
-    def openFiles(self):
+    def openFiles(self) -> None:
         self.srcFile = open("PropertyNames.java", "w")
         self.srcFile.write(f"""\
 {commonPreamble}
@@ -375,7 +388,8 @@ final class PropertyNames {{
 """)
 
     @override
-    def closeFiles(self):
+    def closeFiles(self) -> None:
+        assert self.srcFile is not None
         self.srcFile.write(f"""\
     public static final PropertyArray validProps[] =
     {{
@@ -385,14 +399,15 @@ final class PropertyNames {{
 """)
         self.srcFile.close()
 
-    def fix(self, propertyName):
+    def fix(self, propertyName: str) -> str:
         #
         # The Java property strings are actually regexp's that will be passed to Java's regexp facility.
         #
         return propertyName.replace(".", r"\\.").replace("[any]", r"[^\\s]+")
 
     @override
-    def writePropertyArray(self, propertyArray):
+    def writePropertyArray(self, propertyArray: PropertyArray) -> None:
+        assert self.srcFile is not None
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
         isOptIn = "true" if propertyArray.isOptIn else "false"
@@ -414,24 +429,24 @@ final class PropertyNames {{
     @override
     def createProperty(
         self,
-        propertyName,
-        usesRegex,
-        defaultValue,
-        deprecated,
-        propertyArray,
-    ):
+        propertyName: str,
+        usesRegex: bool,
+        defaultValue: str,
+        deprecated: bool,
+        propertyArrayName: str | None,
+    ) -> str:
         line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated}, {propertyArray})'.format(
             pattern=self.fix(propertyName) if usesRegex else propertyName,
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
-            propertyArray=f"PropertyNames.{propertyArray}Props" if propertyArray else "null",
+            propertyArray=f"PropertyNames.{propertyArrayName}Props" if propertyArrayName else "null",
         )
 
         return line
 
     @override
-    def moveFiles(self, location):
+    def moveFiles(self, location: str) -> None:
         dest = os.path.join(
             location,
             "java",
@@ -452,17 +467,17 @@ final class PropertyNames {{
 class CSPropertyHandler(PropertyHandler):
     def __init__(self):
         super().__init__(Language.CSHARP)
-        self.srcFile = None
+        self.srcFile: TextIO | None = None
 
     @override
-    def cleanup(self):
+    def cleanup(self) -> None:
         if self.srcFile is not None:
             self.srcFile.close()
             if os.path.exists("PropertyNames.cs"):
                 os.remove("PropertyNames.cs")
 
     @override
-    def openFiles(self):
+    def openFiles(self) -> None:
         self.srcFile = open("PropertyNames.cs", "w")
         self.srcFile.write(f"""\
 {commonPreamble}
@@ -473,7 +488,8 @@ internal sealed class PropertyNames
 """)
 
     @override
-    def closeFiles(self):
+    def closeFiles(self) -> None:
+        assert self.srcFile is not None
         self.srcFile.write(f"""\
     internal static PropertyArray[] validProps =
     [
@@ -483,11 +499,12 @@ internal sealed class PropertyNames
 """)
         self.srcFile.close()
 
-    def fix(self, propertyName):
+    def fix(self, propertyName: str) -> str:
         return propertyName.replace(".", r"\.").replace("[any]", r"[^\s]+")
 
     @override
-    def writePropertyArray(self, propertyArray):
+    def writePropertyArray(self, propertyArray: PropertyArray) -> None:
+        assert self.srcFile is not None
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
         isOptIn = "true" if propertyArray.isOptIn else "false"
@@ -509,23 +526,23 @@ internal sealed class PropertyNames
     @override
     def createProperty(
         self,
-        propertyName,
-        usesRegex,
-        defaultValue,
-        deprecated,
-        propertyArray,
-    ):
+        propertyName: str,
+        usesRegex: bool,
+        defaultValue: str,
+        deprecated: bool,
+        propertyArrayName: str | None,
+    ) -> str:
         line = 'new(pattern: @"{pattern}", usesRegex: {usesRegex}, defaultValue: {defaultValue}, deprecated: {deprecated}, propertyArray: {propertyArray})'.format(
             pattern=f"^{self.fix(propertyName)}$" if usesRegex else propertyName,
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
-            propertyArray=f"{propertyArray}Props" if propertyArray else "null",
+            propertyArray=f"{propertyArrayName}Props" if propertyArrayName else "null",
         )
         return line
 
     @override
-    def moveFiles(self, location):
+    def moveFiles(self, location: str) -> None:
         dest = os.path.join(location, "csharp", "src", "Ice", "Internal")
         if os.path.exists(os.path.join(dest, "PropertyNames.cs")):
             os.remove(os.path.join(dest, "PropertyNames.cs"))
@@ -535,17 +552,17 @@ internal sealed class PropertyNames
 class JSPropertyHandler(PropertyHandler):
     def __init__(self):
         super().__init__(Language.JS)
-        self.srcFile = None
+        self.srcFile: TextIO | None = None
 
     @override
-    def cleanup(self):
+    def cleanup(self) -> None:
         if self.srcFile is not None:
             self.srcFile.close()
             if os.path.exists("PropertyNames.js"):
                 os.remove("PropertyNames.js")
 
     @override
-    def openFiles(self):
+    def openFiles(self) -> None:
         self.srcFile = open("PropertyNames.js", "w")
         self.srcFile.write(f"""
 {commonPreamble}
@@ -555,7 +572,8 @@ export const PropertyNames = {{}};
 """)
 
     @override
-    def closeFiles(self):
+    def closeFiles(self) -> None:
+        assert self.srcFile is not None
         self.srcFile.write(f"""\
 PropertyNames.validProps = [
 {",\n".join([f"    PropertyNames.{name}Props" for name in self.generatedPropertyArrays()])},
@@ -563,11 +581,12 @@ PropertyNames.validProps = [
 """)
         self.srcFile.close()
 
-    def fix(self, propertyName):
+    def fix(self, propertyName: str) -> str:
         return propertyName.replace(".", "\\.").replace("[any]", ".")
 
     @override
-    def writePropertyArray(self, propertyArray):
+    def writePropertyArray(self, propertyArray: PropertyArray) -> None:
+        assert self.srcFile is not None
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
         isOptIn = "true" if propertyArray.isOptIn else "false"
@@ -584,23 +603,23 @@ PropertyNames.{name}Props.properties = [{properties}
     @override
     def createProperty(
         self,
-        propertyName,
-        usesRegex,
-        defaultValue,
-        deprecated,
-        propertyArray,
-    ):
+        propertyName: str,
+        usesRegex: bool,
+        defaultValue: str,
+        deprecated: bool,
+        propertyArrayName: str | None,
+    ) -> str:
         line = "new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated}, {propertyArray})".format(
             pattern=f"/^{self.fix(propertyName)}/" if usesRegex else f'"{propertyName}"',
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
-            propertyArray=f"PropertyNames.{propertyArray}Props" if propertyArray else "null",
+            propertyArray=f"PropertyNames.{propertyArrayName}Props" if propertyArrayName else "null",
         )
         return line
 
     @override
-    def moveFiles(self, location):
+    def moveFiles(self, location: str) -> None:
         dest = os.path.join(location, "js", "src", "Ice")
         if os.path.exists(os.path.join(dest, "PropertyNames.js")):
             os.remove(os.path.join(dest, "PropertyNames.js"))
@@ -608,31 +627,31 @@ PropertyNames.{name}Props.properties = [{properties}
 
 
 class MultiHandler(ContentHandler):
-    def __init__(self, handlers):
+    def __init__(self, handlers: list[PropertyHandler]):
         self.handlers = handlers
         super().__init__()
 
     @override
-    def startElement(self, name, attrs):
+    def startElement(self, name: str, attrs: AttributesImpl) -> None:
         for f in self.handlers:
             f.startElement(name, attrs)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         for f in self.handlers:
             f.cleanup()
 
-    def moveFiles(self, location):
+    def moveFiles(self, location: str) -> None:
         for f in self.handlers:
             f.moveFiles(location)
 
-    def writeProperties(self):
+    def writeProperties(self) -> None:
         for f in self.handlers:
             f.writeProperties()
 
 
-def main():
+def main() -> None:
     if len(sys.argv) != 1 and len(sys.argv) != 3:
-        print(sys.stderr, "makeprops.py does not take any arguments")
+        print("makeprops.py does not take any arguments", file=sys.stderr)
         sys.exit(1)
 
     # Find the top-level directory of the Ice repository
@@ -641,8 +660,8 @@ def main():
 
     if not os.path.exists(propsFile):
         print(
-            sys.stderr,
             "Cannot find top-level directory. Please run this script from the Ice repository.",
+            file=sys.stderr,
         )
         sys.exit(1)
 
@@ -668,7 +687,7 @@ def main():
         contentHandler.writeProperties()
         contentHandler.moveFiles(topLevel)
     except Exception as ex:
-        print(sys.stderr, str(ex))
+        print(str(ex), file=sys.stderr)
         contentHandler.cleanup()
         sys.exit(1)
 

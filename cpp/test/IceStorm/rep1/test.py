@@ -8,10 +8,12 @@
 # truncated). See also bug #6070.
 #
 
+from __future__ import annotations
+
 import sys
 
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
-from Util import ClientServerTestCase, TestSuite
+from Util import ClientServerTestCase, Driver, TestSuite
 
 props = {
     "IceStorm.Election.MasterTimeout": 2,
@@ -23,21 +25,20 @@ icestorm = [IceStorm(replica=i, nreplicas=3, props=props) for i in range(0, 3)]
 
 
 class IceStormRep1TestCase(IceStormTestCase):
-    def runClientSide(self, current):
-        def checkExpect(output, expect):
+    def runClientSide(self, current: Driver.Current) -> None:
+        def checkExpect(output: str, expect: str | list[str] | None) -> None:
             if not expect:
                 return
 
-            if isinstance(expect, str):
-                expect = [expect]
+            expected = [expect] if isinstance(expect, str) else expect
 
-            for e in expect:
+            for e in expected:
                 if output.find(e) >= 0:
                     break
             else:
                 raise RuntimeError("unexpected output `{0}' (expected `{1}')".format(output, expect))
 
-        def adminForReplica(replica, cmd, expect):
+        def adminForReplica(replica: int, cmd: str, expect: str | list[str] | None) -> None:
             checkExpect(
                 self.runadmin(
                     current,
@@ -49,20 +50,20 @@ class IceStormRep1TestCase(IceStormTestCase):
                 expect,
             )
 
-        def stopReplica(num):
+        def stopReplica(num: int) -> None:
             self.icestorm[num].shutdown(current)
             self.icestorm[num].stop(current, True)
 
-        def startReplica(num):
+        def startReplica(num: int) -> None:
             self.icestorm[num].start(current)
 
-        def runtest(s="", p=""):
+        def runtest(s: str = "", p: str = "") -> None:
             ClientServerTestCase(
                 client=Publisher(args=p.split(" ")),
                 server=Subscriber(args=s.split(" ")),
             ).run(current)
 
-        def runsub2(replica=None, expect=None):
+        def runsub2(replica: int | None = None, expect: str | list[str] | None = None) -> None:
             subscriber = Subscriber(
                 exe="sub",
                 instance=None if replica is None else self.icestorm[replica],
@@ -73,7 +74,7 @@ class IceStormRep1TestCase(IceStormTestCase):
             subscriber.run(current, exitstatus=1 if expect else 0)
             checkExpect(subscriber.getOutput(current), expect)
 
-        def rununsub2(replica=None, expect=None):
+        def rununsub2(replica: int | None = None, expect: str | list[str] | None = None) -> None:
             sub = Subscriber(
                 exe="sub",
                 instance=None if replica is None else self.icestorm[replica],

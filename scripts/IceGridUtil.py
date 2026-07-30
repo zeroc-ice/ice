@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import shutil
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
 from Glacier2Util import Glacier2Router
@@ -183,7 +184,15 @@ class IceGridNode(ProcessFromBinDir, Server):
 
 
 class IceGridRegistry(ProcessFromBinDir, Server):
-    def __init__(self, name: str, portnum: int = 20, ready: str = "AdminSessionManager", *args: Any, **kargs: Any):
+    def __init__(
+        self,
+        name: str,
+        portnum: int = 20,
+        ready: str = "AdminSessionManager",
+        createDb: bool = True,
+        *args: Any,
+        **kargs: Any,
+    ):
         Server.__init__(
             self,
             "icegridregistry",
@@ -196,6 +205,9 @@ class IceGridRegistry(ProcessFromBinDir, Server):
         self.portnum = portnum
         self.readyCount = -1
         self.name = name
+        # As IceStorm's flag of the same name: clear it to keep setup from wiping a database the
+        # test put in place itself.
+        self.createDb = createDb
 
     def getExe(self, current: Driver.Current) -> str:
         assert self.exe is not None
@@ -204,9 +216,10 @@ class IceGridRegistry(ProcessFromBinDir, Server):
     def setup(self, current: Driver.Current) -> None:
         # Create the database directory
         self.dbdir = os.path.join(current.testsuite.getPath(), "registry-{0}".format(self.name))
-        if os.path.exists(self.dbdir):
-            shutil.rmtree(self.dbdir)
-        os.mkdir(self.dbdir)
+        if self.createDb:
+            if os.path.exists(self.dbdir):
+                shutil.rmtree(self.dbdir)
+            os.mkdir(self.dbdir)
 
     def teardown(self, current: Driver.Current, success: bool) -> None:
         Server.teardown(self, current, success)
@@ -285,8 +298,8 @@ class IceGridTestCase(TestCase):
     def __init__(
         self,
         name: str = "IceGrid",
-        icegridregistry: IceGridRegistry | list[IceGridRegistry] | None = None,
-        icegridnode: IceGridNode | list[IceGridNode] | None = None,
+        icegridregistry: IceGridRegistry | Sequence[IceGridRegistry] | None = None,
+        icegridnode: IceGridNode | Sequence[IceGridNode] | None = None,
         application: str | None = "application.xml",
         variables: dict[str, Any] = {},
         targets: list[str] = [],
@@ -296,12 +309,14 @@ class IceGridTestCase(TestCase):
     ):
         TestCase.__init__(self, name, *args, **kargs)
         if icegridnode:
-            self.icegridnode = icegridnode if isinstance(icegridnode, list) else [icegridnode]
+            self.icegridnode = [icegridnode] if isinstance(icegridnode, IceGridNode) else list(icegridnode)
         else:
             self.icegridnode = [IceGridNode()]
 
         if icegridregistry:
-            self.icegridregistry = icegridregistry if isinstance(icegridregistry, list) else [icegridregistry]
+            self.icegridregistry = (
+                [icegridregistry] if isinstance(icegridregistry, IceGridRegistry) else list(icegridregistry)
+            )
         else:
             self.icegridregistry = [IceGridRegistryMaster(), IceGridRegistrySlave(1)]
 

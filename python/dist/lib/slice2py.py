@@ -7,7 +7,7 @@ import Ice
 import IcePy
 
 
-def main():
+def main() -> int:
     sliceDir = Ice.getSliceDir()
     # Automatically add the slice dir.
     if sliceDir is not None:

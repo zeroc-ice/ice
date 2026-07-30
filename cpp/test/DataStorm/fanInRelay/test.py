@@ -13,8 +13,12 @@
 #   subB --app--> /
 #
 
+from __future__ import annotations
+
+from typing import Any
+
 from DataStormUtil import Node, Reader, Writer
-from Util import ClientServerTestCase, TestSuite
+from Util import ClientServerTestCase, Driver, Process, Props, TestSuite
 
 # Properties shared by every node in the test.
 commonProps = {
@@ -22,7 +26,7 @@ commonProps = {
 }
 
 
-def relay(name):
+def relay(name: str) -> Props:
     return dict(
         commonProps,
         **{
@@ -35,7 +39,7 @@ def relay(name):
     )
 
 
-def app(name):
+def app(name: str) -> Props:
     return dict(
         commonProps,
         **{
@@ -47,7 +51,7 @@ def app(name):
 
 
 class FanInTestCase(ClientServerTestCase):
-    def __init__(self, relayNode, publisher, subA, subB, **kwargs):
+    def __init__(self, relayNode: Process, publisher: Process, subA: Process, subB: Process, **kwargs: Any):
         ClientServerTestCase.__init__(self, **kwargs)
         self.relayNode = relayNode
         self.publisher = publisher
@@ -61,7 +65,7 @@ class FanInTestCase(ClientServerTestCase):
     def getServerType(self):
         return None
 
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         self.relayNode.start(current)
         self.publisher.start(current)
         self.subA.start(current)
@@ -82,7 +86,7 @@ class FanInTestCase(ClientServerTestCase):
         self.subA.stop(current, waitSuccess=True)
         self.subB.stop(current, waitSuccess=True)
 
-    def teardownClientSide(self, current, success):
+    def teardownClientSide(self, current: Driver.Current, success: bool) -> None:
         for process in [self.subA, self.subB, self.publisher, self.relayNode]:
             if process.isStarted(current):
                 process.stop(current)

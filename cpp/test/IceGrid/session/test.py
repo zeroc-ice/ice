@@ -1,6 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
 
+from __future__ import annotations
+
 import os
 
 from IceGridUtil import (
@@ -9,15 +11,15 @@ from IceGridUtil import (
     IceGridRegistryMaster,
     IceGridTestCase,
 )
-from Util import Server, TestSuite, Windows, platform
+from Util import Driver, Process, Props, Server, TestSuite, Windows, platform
 
 
 class IceGridSessionTestCase(IceGridTestCase):
-    def setupClientSide(self, current):
+    def setupClientSide(self, current: Driver.Current) -> None:
         IceGridTestCase.setupClientSide(self, current)
         current.mkdirs("db/node-1")
 
-    def setupServerSide(self, current):
+    def setupServerSide(self, current: Driver.Current) -> None:
         self.verifier = Server(
             exe="verifier",
             waitForShutdown=False,
@@ -27,7 +29,8 @@ class IceGridSessionTestCase(IceGridTestCase):
         self.verifier.start(current)
         current.writeln("ok")
 
-    def teardownServerSide(self, current, success):
+    def teardownServerSide(self, current: Driver.Current, success: bool) -> None:
+        assert self.verifier is not None
         self.verifier.stop(current, success)
         self.verifier = None
 
@@ -44,7 +47,7 @@ registryProps = {
 }
 
 
-def clientProps(process, current):
+def clientProps(process: Process, current: Driver.Current) -> Props:
     return {
         "IceGridNodeExe": IceGridNode().getCommandLine(current),
         "ServerDir": current.getBuildDir("server"),
@@ -52,7 +55,7 @@ def clientProps(process, current):
     }
 
 
-def clientProps10(process, current):
+def clientProps10(process: Process, current: Driver.Current) -> Props:
     return {
         "IceGridNodeExe": IceGridNode().getCommandLine(current),
         "ServerDir": current.getBuildDir("server"),

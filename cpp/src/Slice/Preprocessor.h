@@ -24,7 +24,6 @@ namespace Slice
         FILE* preprocess(const std::string& languageArg = "");
         void close();
 
-        std::string getFileName();
         std::string getBaseName();
 
         static std::string normalizeIncludePath(const std::string& path);
@@ -34,7 +33,6 @@ namespace Slice
 
         const std::string _path;
         const std::string _fileName;
-        const std::string _shortFileName;
         const std::vector<std::string> _args;
         FILE* _cppHandle{nullptr};
     };

@@ -59,9 +59,7 @@ namespace Slice
         EscapeMode escapeMode,
         unsigned char cutOff);
 
-    void writeDependencies(const std::string& dependencies, const std::string& dependFile);
-
-    std::vector<std::string> splitScopedName(const std::string& scoped, bool allowEmpty = true);
+    std::vector<std::string> splitScopedName(const std::string& scoped);
 
     /// Returns "an" if @p s starts with a vowel and "a" otherwise.
     std::string getArticleFor(const std::string& s);

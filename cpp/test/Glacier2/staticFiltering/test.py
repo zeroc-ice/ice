@@ -1,14 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import os
-import platform
 
 from Glacier2Util import Glacier2Router, Glacier2TestSuite
-from Util import Client, ClientServerTestCase, Server
+from Util import Client, ClientServerTestCase, Driver, Server
 
 
 class Glacier2StaticFilteringTestCase(ClientServerTestCase):
-    def __init__(self, testcase, hostname):
+    def __init__(self, testcase: tuple[str, tuple[str, ...], list[tuple[bool, str]], list[str]], hostname: str):
         self.hostname = hostname
         description, self.tcArgs, self.attacks, self.xtraConfig = testcase
 
@@ -32,10 +33,10 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
             client=Client(props=clientProps),
         )
 
-    def setupClientSide(self, current):
+    def setupClientSide(self, current: Driver.Current) -> None:
         current.write("testing {0}... ".format(self))
 
-    def setupServerSide(self, current):
+    def setupServerSide(self, current: Driver.Current) -> None:
         (
             acceptFilter,
             rejectFilter,
@@ -92,13 +93,13 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
             if not len(adapterFilter) == 0:
                 routerConfig.write("Glacier2.Filter.AdapterId.Accept=%s\n" % adapterFilter)
 
-    def teardownServerSide(self, current, success):
+    def teardownServerSide(self, current: Driver.Current, success: bool) -> None:
         for c in ["client.cfg", "router.cfg", "server.cfg"]:
             os.remove(os.path.join(self.getTestSuite().getPath(), c))
 
 
 class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
-    def setup(self, current):
+    def setup(self, current: Driver.Current) -> None:
         Glacier2TestSuite.setup(self, current)
 
         import socket
@@ -653,7 +654,7 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
             current.writeln("WARNING: The network configuration for this host does not permit all ")
             current.writeln("         tests to run correctly, some tests have been disabled.")
 
-        self.testcases = {}
+        self.testcases.clear()
         for testcase in testcases:
             self.addTestCase(Glacier2StaticFilteringTestCase(testcase, hostname))
 

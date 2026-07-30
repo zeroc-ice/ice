@@ -1,15 +1,17 @@
 # Copyright (c) ZeroC, Inc.
 
 
+from __future__ import annotations
+
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
-from Util import ClientServerTestCase, TestSuite
+from Util import ClientServerTestCase, Driver, TestSuite
 
 
 class IceStormFederationTestCase(IceStormTestCase):
-    def setupClientSide(self, current):
+    def setupClientSide(self, current: Driver.Current) -> None:
         self.runadmin(current, "create fed1 fed2 fed3; link fed1 fed2 10; link fed2 fed3 5")
 
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         current.write("testing oneway subscribers...")
         ClientServerTestCase(client=Publisher(), server=Subscriber()).run(current)
         current.writeln("ok")
@@ -18,7 +20,7 @@ class IceStormFederationTestCase(IceStormTestCase):
         ClientServerTestCase(client=Publisher(), server=Subscriber(args=["-b"])).run(current)
         current.writeln("ok")
 
-    def teardownClientSide(self, current, success):
+    def teardownClientSide(self, current: Driver.Current, success: bool) -> None:
         self.runadmin(current, "destroy fed1 fed2 fed3")
         self.shutdown(current)
 
