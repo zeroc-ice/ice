@@ -406,12 +406,12 @@ LocatorI::LocatorI(
       _locator(lookup->ice_getCommunicator()->getDefaultLocator()),
       _voidLocator(std::move(voidLocator))
 {
-    if (_timeout < chrono::milliseconds::zero())
+    if (_timeout <= chrono::milliseconds::zero())
     {
         throw Ice::PropertyException{
             __FILE__,
             __LINE__,
-            "property 'IceLocatorDiscovery.Timeout' must be greater than or equal to 0"};
+            "property 'IceLocatorDiscovery.Timeout' must be greater than 0"};
     }
     if (_retryCount < 0)
     {

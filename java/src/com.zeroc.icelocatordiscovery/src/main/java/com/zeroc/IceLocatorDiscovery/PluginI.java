@@ -137,9 +137,9 @@ class PluginI implements Plugin {
         LocatorI(LookupPrx lookup, Properties properties, String instanceName, LocatorPrx voidLocator) {
             _lookup = lookup;
             _timeout = properties.getIcePropertyAsInt("IceLocatorDiscovery.Timeout");
-            if (_timeout < 0) {
+            if (_timeout <= 0) {
                 throw new PropertyException(
-                    "property 'IceLocatorDiscovery.Timeout' must be greater than or equal to 0");
+                    "property 'IceLocatorDiscovery.Timeout' must be greater than 0");
             }
             _retryCount = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryCount");
             if (_retryCount < 0) {
