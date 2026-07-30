@@ -16,17 +16,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup Python
-        uses: ./.github/actions/setup-python
-
-      - name: Install Ruff
-        run: pip install ruff
-
+      # Ruff is a self-contained binary, so this job needs no Python setup. version-file pins the
+      # version to the one locked in python/uv.lock, which Dependabot's uv ecosystem keeps current.
       - name: Ruff check
-        run: ruff check . --ignore E402
+        uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89 # v4.1.0
+        with:
+          version-file: python/uv.lock
+          args: check --ignore E402
 
       - name: Ruff format
-        run: ruff format . --check --diff
+        uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89 # v4.1.0
+        with:
+          version-file: python/uv.lock
+          args: format --check --diff
 
   pyright:
     name: Pyright
