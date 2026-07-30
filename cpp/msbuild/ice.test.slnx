@@ -798,6 +798,11 @@
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
   </Folder>
+  <Folder Name="/IceUtil/inputUtil/">
+    <Project Path="../test/IceUtil/inputUtil/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
   <Folder Name="/IceUtil/sha1/">
     <Project Path="../test/IceUtil/sha1/msbuild/client.vcxproj">
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
