@@ -57,15 +57,21 @@ namespace DataStormI
             const Ice::ConnectionPtr&,
             std::shared_ptr<SubscriberSessionI>);
 
+        /// Handles the failure of a session creation attempt. The last parameter is the value
+        /// SessionI::connectAttempt returned when the attempt was started; a reply from a superseded attempt is
+        /// discarded rather than charged against the current attempt's retry budget.
         void retrySubscriberSessionCreation(
             const DataStormContract::NodePrx&,
             const std::shared_ptr<SubscriberSessionI>&,
-            std::exception_ptr);
+            std::exception_ptr,
+            std::int64_t);
 
+        /// @copydoc retrySubscriberSessionCreation
         void retryPublisherSessionCreation(
             const DataStormContract::NodePrx&,
             const std::shared_ptr<PublisherSessionI>&,
-            std::exception_ptr);
+            std::exception_ptr,
+            std::int64_t);
 
         void removeSubscriberSession(
             const DataStormContract::NodePrx&,
