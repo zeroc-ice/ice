@@ -620,7 +620,7 @@ SessionI::initSamples(int64_t topicId, int64_t peerTopicId, DataSamplesSeq initi
                         sample.id,
                         sample.event,
                         key,
-                        subscriber.tags[sample.tag],
+                        subscriber.findTag(sample.tag),
                         sample.value,
                         sample.timestamp));
                 }
@@ -1489,7 +1489,7 @@ SessionI::subscriberInitialized(
                 sample.id,
                 sample.event,
                 key ? key : keyFactory->decode(_instance->getCommunicator(), sample.keyValue),
-                subscriber.tags[sample.tag],
+                subscriber.findTag(sample.tag),
                 sample.value,
                 sample.timestamp));
             assert(samplesI.back()->key);
@@ -1723,7 +1723,7 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                         dataSample.id,
                         dataSample.event,
                         key,
-                        topicSubscriber.tags[dataSample.tag],
+                        topicSubscriber.findTag(dataSample.tag),
                         dataSample.value,
                         dataSample.timestamp);
                 };
