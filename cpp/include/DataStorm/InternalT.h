@@ -320,7 +320,8 @@ namespace DataStormI
             Ice::ByteSeq value,
             std::int64_t timestamp)
             : Sample(std::move(session), std::move(origin), id, event, key, tag, std::move(value), timestamp),
-              _hasValue(false)
+              _hasValue(false),
+              _hasEncodedValue(true)
         {
         }
 
@@ -330,7 +331,8 @@ namespace DataStormI
 
         SampleT(Ice::ByteSeq value, const std::shared_ptr<Tag>& tag)
             : Sample(DataStorm::SampleEvent::PartialUpdate, tag),
-              _hasValue(false)
+              _hasValue(false),
+              _hasEncodedValue(true)
         {
             _encodedValue = std::move(value);
         }
@@ -378,9 +380,10 @@ namespace DataStormI
 
         [[nodiscard]] const Ice::ByteSeq& encode(const Ice::CommunicatorPtr& communicator) final
         {
-            if (_encodedValue.empty())
+            if (!_hasEncodedValue)
             {
                 _encodedValue = encodeValue(communicator);
+                _hasEncodedValue = true;
             }
             return _encodedValue;
         }
@@ -409,10 +412,16 @@ namespace DataStormI
             _value = DecoderT<Value>::decode(communicator, _encodedValue);
             _hasValue = true;
             _encodedValue.clear();
+            _hasEncodedValue = false;
         }
 
     private:
         bool _hasValue;
+        // True when _encodedValue holds the sample's encoded payload. The payload can be empty: a custom Encoder may
+        // legitimately encode a value or a partial update to zero bytes, so the emptiness of _encodedValue can't
+        // serve as the "not yet encoded" marker. Without this flag, encode() would replace a zero-byte partial update
+        // payload with the encoding of the full resolved value while the sample event remains PartialUpdate.
+        bool _hasEncodedValue = false;
         // Value-initialized because getValue() returns this member for a value-less sample, where it is documented to
         // return a default value; a scalar type would otherwise be indeterminate.
         Value _value{};

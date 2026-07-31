@@ -474,6 +474,30 @@ void ::Reader::run(int argc, char* argv[])
         test(sample.getValue().value == 5); // resolved against the empty-encoded base
     }
 
+    // A partial update whose custom encoding is empty is delivered as-is and resolved against the key's value: the
+    // writer must not replace the zero-byte payload with the encoding of the full resolved value.
+    Topic<string, Counter> emptyEncodedUpdateTopic(node, "emptyEncodedUpdateTopic");
+    emptyEncodedUpdateTopic.setReaderDefaultConfig(config);
+    emptyEncodedUpdateTopic.setUpdater<Counter>(
+        "add",
+        [](Counter& counter, Counter delta) { counter.value += delta.value; });
+    {
+        auto reader = makeSingleKeyReader(emptyEncodedUpdateTopic, "key");
+
+        auto sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Add);
+        test(sample.getValue().value == 5);
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::PartialUpdate);
+        test(sample.getUpdateTag() == "add");
+        test(sample.getValue().value == 5); // 5 + 0; the zero-byte payload was delivered, not the full value's bytes
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::PartialUpdate);
+        test(sample.getValue().value == 8); // 5 + 3
+    }
+
     // Two readers of the same key on one node hold different values for it, because only one of them applies the
     // priority discard policy. A partial update accepted by both is resolved against each reader's own value.
     Topic<string, StockPtr> perReaderTopic(node, "perReaderTopic");

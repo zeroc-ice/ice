@@ -413,6 +413,26 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // A partial update whose custom encoding is empty must be forwarded as-is: the emptiness of the encoded payload
+    // is not a "not yet encoded" marker. The writer used to replace a zero-byte payload with the encoding of the full
+    // resolved value while the sample event remained PartialUpdate, so the reader decoded full-value bytes as a
+    // partial update value.
+    Topic<string, Counter> emptyEncodedUpdateTopic(node, "emptyEncodedUpdateTopic");
+    emptyEncodedUpdateTopic.setWriterDefaultConfig(config);
+    emptyEncodedUpdateTopic.setUpdater<Counter>(
+        "add",
+        [](Counter& counter, Counter delta) { counter.value += delta.value; });
+    cout << "testing partial update with an empty encoding... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(emptyEncodedUpdateTopic, "key");
+        writer.waitForReaders();
+        writer.add(Counter{5});
+        writer.partialUpdate<Counter>("add")(Counter{0}); // the update value 0 encodes to zero bytes
+        writer.partialUpdate<Counter>("add")(Counter{3});
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
     // Two readers of the same key on one node hold different values for it: the reader without a discard policy
     // accepts the low-priority writer's full value, the reader using the priority discard policy discards it and keeps
     // the high-priority writer's value. The partial update published next must be resolved against each reader's own
