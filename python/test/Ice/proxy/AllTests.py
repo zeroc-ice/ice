@@ -317,8 +317,21 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyInter
     initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "-2")
     defaultsCommunicator = Ice.initialize(initData=initData)
     defaultsProxy = defaultsCommunicator.stringToProxy("test")
+    assert defaultsProxy is not None
     test(defaultsProxy.ice_getInvocationTimeout() == -1)
     test(defaultsProxy.ice_getLocatorCacheTimeout() == -1)
+    defaultsCommunicator.destroy()
+
+    # Positive values are used as-is, verifying the properties actually reach the proxy.
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties()
+    initData.properties.setProperty("Ice.Default.InvocationTimeout", "500")
+    initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "60")
+    defaultsCommunicator = Ice.initialize(initData=initData)
+    defaultsProxy = defaultsCommunicator.stringToProxy("test")
+    assert defaultsProxy is not None
+    test(defaultsProxy.ice_getInvocationTimeout() == 500)
+    test(defaultsProxy.ice_getLocatorCacheTimeout() == 60)
     defaultsCommunicator.destroy()
 
     prop.setProperty(propertyPrefix, "test:{0}".format(helper.getTestEndpoint()))

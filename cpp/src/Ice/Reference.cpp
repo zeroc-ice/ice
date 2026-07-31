@@ -1014,10 +1014,10 @@ IceInternal::RoutableReference::toProperty(string prefix) const
     properties[prefix + ".EndpointSelection"] =
         _endpointSelection == EndpointSelectionType::Random ? "Random" : "Ordered";
     // An invocation timeout of zero or any negative timeout means infinite; a negative locator cache timeout also
-    // means infinite. We emit these as -1, the documented value for infinite. A positive timeout that is not a
-    // whole number of the property's unit is rounded up, to the next whole number.
-    // TODO: remove this normalization in 3.9, once the timeouts are always normalized: in 3.8, code
-    // compiled against older headers can still set non-normalized values.
+    // means infinite. We emit these as -1, the documented value for infinite. A positive timeout that is not a whole
+    // number of the property's unit is rounded up, to the next whole number.
+    // TODO: remove this normalization in 3.9, once the timeouts are always normalized: in 3.8, code compiled
+    // against older headers can still set non-normalized values.
     properties[prefix + ".LocatorCacheTimeout"] =
         _locatorCacheTimeout < 0ms ? "-1" : to_string(chrono::ceil<chrono::seconds>(_locatorCacheTimeout).count());
     chrono::milliseconds invocationTimeout = getInvocationTimeout();

@@ -266,6 +266,13 @@ classdef AllTests
             assert(defaultsProxy.ice_getLocatorCacheTimeout() == -1);
             defaultsCommunicator.destroy();
 
+            % Positive values are used as-is, verifying the properties actually reach the proxy.
+            defaultsCommunicator = Ice.initialize(["--Ice.Default.InvocationTimeout=500", "--Ice.Default.LocatorCacheTimeout=60"]);
+            defaultsProxy = defaultsCommunicator.stringToProxy('test');
+            assert(defaultsProxy.ice_getInvocationTimeout() == 500);
+            assert(defaultsProxy.ice_getLocatorCacheTimeout() == 60);
+            defaultsCommunicator.destroy();
+
             prop.setProperty(propertyPrefix, 'test:default -p 12010');
 
             property = [propertyPrefix, '.Router'];

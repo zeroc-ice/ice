@@ -499,10 +499,22 @@ public class AllTests : global::Test.AllTests
             initData.properties = new Properties();
             initData.properties.setProperty("Ice.Default.InvocationTimeout", "0");
             initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "-2");
-            using var defaultsCommunicator = Ice.Util.initialize(initData);
-            var defaultsProxy = defaultsCommunicator.stringToProxy("test");
+            using Communicator defaultsCommunicator = Ice.Util.initialize(initData);
+            ObjectPrx defaultsProxy = defaultsCommunicator.stringToProxy("test");
             test(defaultsProxy.ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
             test(defaultsProxy.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
+        }
+
+        {
+            // Positive values are used as-is, verifying the properties actually reach the proxy.
+            var initData = new InitializationData();
+            initData.properties = new Properties();
+            initData.properties.setProperty("Ice.Default.InvocationTimeout", "500");
+            initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "60");
+            using Communicator defaultsCommunicator = Ice.Util.initialize(initData);
+            ObjectPrx defaultsProxy = defaultsCommunicator.stringToProxy("test");
+            test(defaultsProxy.ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(500));
+            test(defaultsProxy.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(60));
         }
 
         prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));

@@ -239,6 +239,17 @@ def allTests(helper, communicator)
     test(defaultsProxy.ice_getLocatorCacheTimeout() == -1)
     defaultsCommunicator.destroy()
 
+    # Positive values are used as-is, verifying the properties actually reach the proxy.
+    initData = Ice::InitializationData.new
+    initData.properties = Ice.createProperties()
+    initData.properties.setProperty("Ice.Default.InvocationTimeout", "500")
+    initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "60")
+    defaultsCommunicator = Ice::initialize(initData)
+    defaultsProxy = defaultsCommunicator.stringToProxy("test")
+    test(defaultsProxy.ice_getInvocationTimeout() == 500)
+    test(defaultsProxy.ice_getLocatorCacheTimeout() == 60)
+    defaultsCommunicator.destroy()
+
     prop.setProperty(propertyPrefix, "test:#{helper.getTestEndpoint()}")
 
     property = propertyPrefix + ".Router"

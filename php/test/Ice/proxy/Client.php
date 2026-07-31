@@ -241,6 +241,17 @@ function allTests($helper)
     test($defaultsProxy->ice_getLocatorCacheTimeout() == -1);
     $defaultsCommunicator->destroy();
 
+    // Positive values are used as-is, verifying the properties actually reach the proxy.
+    $initData = new Ice\InitializationData();
+    $initData->properties = Ice\createProperties();
+    $initData->properties->setProperty("Ice.Default.InvocationTimeout", "500");
+    $initData->properties->setProperty("Ice.Default.LocatorCacheTimeout", "60");
+    $defaultsCommunicator = Ice\initialize($initData);
+    $defaultsProxy = $defaultsCommunicator->stringToProxy("test");
+    test($defaultsProxy->ice_getInvocationTimeout() == 500);
+    test($defaultsProxy->ice_getLocatorCacheTimeout() == 60);
+    $defaultsCommunicator->destroy();
+
     $communicator->getProperties()->setProperty($propertyPrefix, sprintf("test:%s", $helper->getTestEndpoint()));
 
     $property = $propertyPrefix . ".Router";

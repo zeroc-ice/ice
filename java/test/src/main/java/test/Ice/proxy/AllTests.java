@@ -527,6 +527,19 @@ public class AllTests {
             }
         }
 
+        // Positive values are used as-is, verifying the properties actually reach the proxy.
+        {
+            InitializationData initData = new InitializationData();
+            initData.properties = new Properties();
+            initData.properties.setProperty("Ice.Default.InvocationTimeout", "500");
+            initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "60");
+            try (Communicator defaultsCommunicator = new Communicator(initData)) {
+                ObjectPrx defaultsProxy = defaultsCommunicator.stringToProxy("test");
+                test(defaultsProxy.ice_getInvocationTimeout().equals(Duration.ofMillis(500)));
+                test(defaultsProxy.ice_getLocatorCacheTimeout().equals(Duration.ofSeconds(60)));
+            }
+        }
+
         prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
 
         property = propertyPrefix + ".Router";

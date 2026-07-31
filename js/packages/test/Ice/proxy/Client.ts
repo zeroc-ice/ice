@@ -521,6 +521,22 @@ export class Client extends TestHelper {
             }
         }
 
+        {
+            // Positive values are used as-is, verifying the properties actually reach the proxy.
+            const initData = new Ice.InitializationData();
+            initData.properties = Ice.createProperties();
+            initData.properties.setProperty("Ice.Default.InvocationTimeout", "500");
+            initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "60");
+            const defaultsCommunicator = Ice.initialize(initData);
+            try {
+                const defaultsProxy = defaultsCommunicator.stringToProxy("test")!;
+                test(defaultsProxy.ice_getInvocationTimeout() === 500);
+                test(defaultsProxy.ice_getLocatorCacheTimeout() === 60);
+            } finally {
+                await defaultsCommunicator.destroy();
+            }
+        }
+
         prop.setProperty(propertyPrefix, `test:${this.getTestEndpoint()}`);
 
         property = propertyPrefix + ".Router";

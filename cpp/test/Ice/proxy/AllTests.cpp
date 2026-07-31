@@ -526,6 +526,18 @@ allTests(TestHelper* helper)
         test(defaultsProxy->ice_getLocatorCacheTimeout() == -1s);
     }
 
+    // Positive values are used as-is, verifying the properties actually reach the proxy.
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        initData.properties->setProperty("Ice.Default.InvocationTimeout", "500");
+        initData.properties->setProperty("Ice.Default.LocatorCacheTimeout", "60");
+        Ice::CommunicatorHolder ich(initData);
+        std::optional<Ice::ObjectPrx> defaultsProxy = ich->stringToProxy("test");
+        test(defaultsProxy->ice_getInvocationTimeout() == 500ms);
+        test(defaultsProxy->ice_getLocatorCacheTimeout() == 60s);
+    }
+
     prop->setProperty(propertyPrefix, "test:" + endp);
 
     property = propertyPrefix + ".Router";
