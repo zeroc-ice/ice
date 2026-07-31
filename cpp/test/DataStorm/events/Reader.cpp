@@ -318,6 +318,36 @@ void ::Reader::run(int argc, char* argv[])
     }
 
     {
+        // Two readers of one any-key writer, each with a key filter that throws on the key the other one expects.
+        // Every sample reaches the reader whose filter accepts it, whichever order the writer element serves them in.
+        Topic<string, string> topic(node, "keyFilterThrow");
+        topic.setKeyFilter<string>(
+            "throwOnKey",
+            [](const string& boom)
+            {
+                return [boom](const string& key)
+                {
+                    if (key == boom)
+                    {
+                        throw runtime_error("the key filter failed");
+                    }
+                    return true;
+                };
+            });
+
+        auto reader1 = makeFilteredKeyReader(topic, Filter<string>("throwOnKey", "k1"), "", config);
+        auto reader2 = makeFilteredKeyReader(topic, Filter<string>("throwOnKey", "k2"), "", config);
+        reader1.waitForWriters(1);
+        reader2.waitForWriters(1);
+
+        test(reader1.getNextUnread().getKey() == "k2");
+        test(reader1.getNextUnread().getKey() == "sentinel");
+
+        test(reader2.getNextUnread().getKey() == "k1");
+        test(reader2.getNextUnread().getKey() == "sentinel");
+    }
+
+    {
         Topic<string, string> topic(node, "filtered reader key/value filter");
 
         {
