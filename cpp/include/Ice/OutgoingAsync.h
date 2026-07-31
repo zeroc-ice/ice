@@ -155,7 +155,11 @@ namespace IceInternal
         bool exception(std::exception_ptr) override;
 
         void retryException();
+
+        // Retries the invocation; when the retry attempt fails, completes the invocation with the exception. This
+        // function never throws.
         void retry();
+
         void abort(std::exception_ptr);
 
         std::shared_ptr<ProxyOutgoingAsyncBase> shared_from_this()

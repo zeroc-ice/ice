@@ -14,13 +14,19 @@ class RetryTask implements Runnable, CancellationHandler {
     @Override
     public void run() {
         if (cancel()) {
-            _outAsync.retry();
-
-            // NOTE: this must be called last, destroy() blocks until all task
-            // are removed to prevent the client thread pool to be destroyed
-            // (we still need the client thread pool at this point to call
-            // exception callbacks with CommunicatorDestroyedException).
-            _queue.remove(this);
+            try {
+                _outAsync.retry();
+            } catch (Throwable ex) {
+                // The scheduled executor silently swallows exceptions thrown by its tasks.
+                String msg = "unexpected exception from retry task:\n" + Ex.toString(ex);
+                _instance.initializationData().logger.error(msg);
+            } finally {
+                // NOTE: this must be called last, destroy() blocks until all task
+                // are removed to prevent the client thread pool to be destroyed
+                // (we still need the client thread pool at this point to call
+                // exception callbacks with CommunicatorDestroyedException).
+                _queue.remove(this);
+            }
         }
     }
 
