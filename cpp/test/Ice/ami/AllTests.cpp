@@ -787,6 +787,27 @@ allTests(TestHelper* helper, bool collocated)
                     test(false);
                 }
             }
+
+            {
+                promise<void> promise;
+                p->ice_getConnectionAsync(
+                    [&, i](const Ice::ConnectionPtr&)
+                    {
+                        promise.set_value();
+                        thrower(throwEx[i]);
+                    },
+                    [&](exception_ptr) { test(false); });
+
+                try
+                {
+                    promise.get_future().get();
+                }
+                catch (const exception& ex)
+                {
+                    cerr << ex.what() << endl;
+                    test(false);
+                }
+            }
         }
     }
     cout << "ok" << endl;
