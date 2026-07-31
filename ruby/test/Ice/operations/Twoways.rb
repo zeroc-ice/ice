@@ -238,6 +238,18 @@ def twoways(helper, communicator, p)
     rescue TypeError
     end
 
+    begin
+        p.opFloatDoubleS([3.402823466E38*2], [])
+        test(false)
+    rescue TypeError
+    end
+
+    begin
+        p.opFloatDoubleS([-3.402823466E38*2], [])
+        test(false)
+    rescue TypeError
+    end
+
     #
     # opString
     #
