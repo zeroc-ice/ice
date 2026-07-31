@@ -28,7 +28,12 @@ namespace
 extern "C" void
 IceRuby_Communicator_free(void* p)
 {
-    delete static_cast<Ice::CommunicatorPtr*>(p);
+    // The wrapper is collected only once no other object (such as a proxy) marks it. Erase the map
+    // entries so that the native communicator and slice loader can be released.
+    auto communicator = static_cast<Ice::CommunicatorPtr*>(p);
+    _communicatorMap.erase(*communicator);
+    _sliceLoaderMap.erase(*communicator);
+    delete communicator;
 }
 
 static const rb_data_type_t IceRuby_CommunicatorType = {
@@ -158,11 +163,6 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             &IceRuby_CommunicatorType,
             new Ice::CommunicatorPtr(communicator));
 
-        CommunicatorMap::iterator p = _communicatorMap.find(communicator);
-        if (p != _communicatorMap.end())
-        {
-            _communicatorMap.erase(p);
-        }
         _communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<const VALUE&>(result)));
 
         _sliceLoaderMap[communicator] = sliceLoader;

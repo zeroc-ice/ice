@@ -188,17 +188,27 @@ IceRuby_Connection_equals(VALUE self, VALUE other)
 {
     ICE_RUBY_TRY
     {
-        if (NIL_P(other))
+        // eql? returns false for a non-Connection argument: Ruby calls it with arbitrary keys on a Hash collision.
+        if (NIL_P(other) || callRuby(rb_obj_is_kind_of, other, _connectionClass) != Qtrue)
         {
             return Qfalse;
-        }
-        if (callRuby(rb_obj_is_kind_of, other, _connectionClass) != Qtrue)
-        {
-            throw RubyException(rb_eTypeError, "argument must be a connection");
         }
         Ice::ConnectionPtr* p1 = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
         Ice::ConnectionPtr* p2 = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(other));
         return *p1 == *p2 ? Qtrue : Qfalse;
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C" VALUE
+IceRuby_Connection_hash(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+        // Hash the native pointer, which is exactly what eql? compares.
+        return INT2FIX(std::hash<Ice::ConnectionPtr>{}(*p));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -300,6 +310,7 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
     rb_ivar_set(info, rb_intern("@underlying"), createConnectionInfo(p->underlying));
     rb_ivar_set(info, rb_intern("@incoming"), p->incoming ? Qtrue : Qfalse);
     rb_ivar_set(info, rb_intern("@adapterName"), createString(p->adapterName));
+    rb_ivar_set(info, rb_intern("@connectionId"), createString(p->connectionId));
     return info;
 }
 
@@ -333,6 +344,7 @@ IceRuby::initConnection(VALUE iceModule)
     rb_define_method(_connectionClass, "inspect", CAST_METHOD(IceRuby_Connection_toString), 0);
     rb_define_method(_connectionClass, "==", CAST_METHOD(IceRuby_Connection_equals), 1);
     rb_define_method(_connectionClass, "eql?", CAST_METHOD(IceRuby_Connection_equals), 1);
+    rb_define_method(_connectionClass, "hash", CAST_METHOD(IceRuby_Connection_hash), 0);
 
     //
     // ConnectionInfo.
