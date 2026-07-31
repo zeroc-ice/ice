@@ -34,7 +34,7 @@ namespace IceInternal
 
         void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
-        Ice::ConnectionIPtr getConnection() final;
+        Ice::ConnectionIPtr getConnection() noexcept final;
 
         AsyncStatus invokeAsyncRequest(OutgoingAsyncBase*, int, bool);
 

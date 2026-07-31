@@ -45,7 +45,7 @@ RequestHandlerCache::getRequestHandler()
 }
 
 ConnectionPtr
-RequestHandlerCache::getCachedConnection()
+RequestHandlerCache::getCachedConnection() noexcept
 {
     if (_cacheConnection)
     {
