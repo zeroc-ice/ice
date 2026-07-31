@@ -44,7 +44,7 @@ namespace IceInternal
 
         // Returns this request handler's connection, or null if no connection is available. This function never
         // throws.
-        virtual Ice::ConnectionIPtr getConnection() = 0;
+        virtual Ice::ConnectionIPtr getConnection() noexcept = 0;
 
     protected:
         const ReferencePtr _reference;

@@ -211,7 +211,7 @@ CollocatedRequestHandler::dispatchException(int32_t requestId, exception_ptr ex)
 }
 
 ConnectionIPtr
-CollocatedRequestHandler::getConnection()
+CollocatedRequestHandler::getConnection() noexcept
 {
     return nullptr;
 }

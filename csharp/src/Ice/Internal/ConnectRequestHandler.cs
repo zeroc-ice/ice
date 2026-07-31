@@ -65,7 +65,7 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
     {
         lock (_mutex)
         {
-            // Return the connection in whatever state it is; when the connection establishment failed, return null.
+            // Return the connection in whatever state it is; if the connection establishment failed, return null.
             // Like all getConnection implementations, this method never throws: a null return is how the absence of a
             // connection is reported.
             return _connection;

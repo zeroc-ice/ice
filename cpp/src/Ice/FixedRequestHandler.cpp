@@ -28,7 +28,7 @@ FixedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, 
 }
 
 Ice::ConnectionIPtr
-FixedRequestHandler::getConnection()
+FixedRequestHandler::getConnection() noexcept
 {
     return _connection;
 }

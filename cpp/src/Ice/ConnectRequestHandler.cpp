@@ -59,10 +59,10 @@ ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync
 }
 
 Ice::ConnectionIPtr
-ConnectRequestHandler::getConnection()
+ConnectRequestHandler::getConnection() noexcept
 {
     lock_guard lock(_mutex);
-    // Return the connection in whatever state it is; when the connection establishment failed, return null. Like all
+    // Return the connection in whatever state it is; if the connection establishment failed, return null. Like all
     // getConnection implementations, this function never throws: a null return is how the absence of a connection is
     // reported.
     return _connection;
