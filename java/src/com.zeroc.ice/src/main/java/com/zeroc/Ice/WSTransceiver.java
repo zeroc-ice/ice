@@ -9,8 +9,8 @@ import java.nio.channels.SelectableChannel;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 final class WSTransceiver implements Transceiver {
@@ -425,7 +425,6 @@ final class WSTransceiver implements Transceiver {
         _writeMask = new byte[4];
         _key = "";
         _pingPayload = new byte[0];
-        _rand = new Random();
     }
 
     private void handleRequest(Buffer responseBuffer) {
@@ -1242,7 +1241,7 @@ final class WSTransceiver implements Transceiver {
 
     private byte[] _pingPayload;
 
-    private Random _rand;
+    private final SecureRandom _rand = new SecureRandom();
 
     //
     // WebSocket opcodes

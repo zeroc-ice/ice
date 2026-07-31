@@ -61,7 +61,7 @@ internal sealed class WSTransceiver : Transceiver
                     // encoded with Base64.
                     //
                     byte[] key = new byte[16];
-                    _rand.NextBytes(key);
+                    RandomNumberGenerator.Fill(key);
                     _key = System.Convert.ToBase64String(key);
                     @out.Append(_key + "\r\n\r\n"); // EOM
 
@@ -715,7 +715,6 @@ internal sealed class WSTransceiver : Transceiver
         _writeMask = new byte[4];
         _key = "";
         _pingPayload = [];
-        _rand = new Random();
     }
 
     private void handleRequest(Buffer responseBuffer)
@@ -1675,7 +1674,7 @@ internal sealed class WSTransceiver : Transceiver
             // and apply the mask.
             //
             _writeBuffer.b.put(1, (byte)(_writeBuffer.b.get(1) | FLAG_MASKED));
-            _rand.NextBytes(_writeMask);
+            RandomNumberGenerator.Fill(_writeMask);
             _writeBuffer.b.put(_writeMask);
         }
     }
@@ -1741,8 +1740,6 @@ internal sealed class WSTransceiver : Transceiver
     private bool _writePending;
 
     private byte[] _pingPayload;
-
-    private Random _rand;
 
     //
     // WebSocket opcodes
