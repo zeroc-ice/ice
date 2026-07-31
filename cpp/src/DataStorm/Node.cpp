@@ -16,6 +16,19 @@ NodeShutdownException::what() const noexcept
     return "::DataStorm::NodeShutdownException";
 }
 
+PropertiesPtr
+Node::defaultProperties()
+{
+    auto properties = make_shared<Properties>();
+
+    // A node requires the requests it receives on a connection to be dispatched in the order they were sent: a
+    // partial update is applied to the value left by the preceding sample. The server adapter gets this from its
+    // own serialized thread pool (see Instance::init); the sessions carried by connections the node opens are
+    // dispatched on the client thread pool.
+    properties->setProperty("Ice.ThreadPool.Client.Serialize", "1");
+    return properties;
+}
+
 Node::Node(NodeOptions options)
 {
     auto communicator = options.communicator;
@@ -26,7 +39,9 @@ Node::Node(NodeOptions options)
     else
     {
         _ownsCommunicator = true;
-        communicator = Ice::initialize(); // the only call that can throw up to here
+        InitializationData initData;
+        initData.properties = defaultProperties();
+        communicator = Ice::initialize(std::move(initData)); // the only call that can throw up to here
     }
 
     try
