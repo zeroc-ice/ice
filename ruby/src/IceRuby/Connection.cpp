@@ -188,13 +188,10 @@ IceRuby_Connection_equals(VALUE self, VALUE other)
 {
     ICE_RUBY_TRY
     {
-        if (NIL_P(other))
+        // eql? returns false for a non-Connection argument: Ruby calls it with arbitrary keys on a Hash collision.
+        if (NIL_P(other) || callRuby(rb_obj_is_kind_of, other, _connectionClass) != Qtrue)
         {
             return Qfalse;
-        }
-        if (callRuby(rb_obj_is_kind_of, other, _connectionClass) != Qtrue)
-        {
-            throw RubyException(rb_eTypeError, "argument must be a connection");
         }
         Ice::ConnectionPtr* p1 = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
         Ice::ConnectionPtr* p2 = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(other));

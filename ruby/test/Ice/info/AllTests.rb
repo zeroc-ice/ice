@@ -108,12 +108,6 @@ def allTests(helper, communicator)
     test(info.connectionId == "")
     test(testIntf.ice_connectionId("ID").ice_getConnection().getInfo().connectionId == "ID")
 
-    # Two wrappers for the same connection are eql? and hash to the same value, so they can be
-    # used interchangeably as Hash keys.
-    otherConnection = testIntf.ice_getConnection()
-    test(connection.eql?(otherConnection))
-    test(connection.hash == otherConnection.hash)
-    test({ connection => 1 }.key?(otherConnection))
     test(tcpinfo.remotePort == port)
     if defaultHost == "127.0.0.1"
         test(tcpinfo.remoteAddress == defaultHost)
@@ -121,6 +115,14 @@ def allTests(helper, communicator)
     end
     test(tcpinfo.rcvSize >= 1024)
     test(tcpinfo.sndSize >= 2048)
+
+    # Two wrappers for the same connection are eql? and hash to the same value, so they can be
+    # used interchangeably as Hash keys.
+    otherConnection = testIntf.ice_getConnection()
+    test(connection.eql?(otherConnection))
+    test(connection.hash == otherConnection.hash)
+    test({ connection => 1 }.key?(otherConnection))
+    test(!connection.eql?("not a connection"))
 
     ctx = testIntf.getConnectionInfoAsContext()
     test(ctx["incoming"] == "true")

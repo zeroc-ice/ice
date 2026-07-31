@@ -15,5 +15,14 @@ class Client < ::TestHelper
             initial = allTests(self, communicator)
             initial.shutdown()
         end
+
+        # The block form of Ice::initialize destroys the communicator through the C++ API when the block returns,
+        # without going through the Ruby-level destroy. The process must still exit cleanly when a custom slice
+        # loader is set.
+        initData = Ice::InitializationData.new
+        initData.properties = self.createTestProperties(args:args)
+        initData.sliceLoader = CustomSliceLoader.new
+        Ice::initialize(initData) do |communicator|
+        end
     end
 end
