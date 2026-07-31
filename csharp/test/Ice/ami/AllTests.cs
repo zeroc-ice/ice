@@ -729,6 +729,9 @@ public class AllTests : global::Test.AllTests
                 ObjectPrx freshFixedPrx = p.ice_fixed(con);
                 test(freshFixedPrx.ice_getConnection() == con);
                 test(freshFixedPrx.ice_getCachedConnection() == con);
+
+                // Same for the async variant.
+                test(await fixedPrx.ice_getConnectionAsync() == con);
             }
             {
                 // ice_getConnection also establishes a new connection when the cached connection is being closed.

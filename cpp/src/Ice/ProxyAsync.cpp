@@ -6,12 +6,15 @@
 #include "CollocatedRequestHandler.h"
 #include "ConnectionI.h"
 #include "Ice/InputStream.h"
+#include "Ice/LoggerUtil.h"
 #include "Ice/OutgoingAsync.h"
 #include "Ice/OutputStream.h"
 #include "Ice/Proxy.h"
+#include "Instance.h"
 #include "Reference.h"
 #include "ReferenceFactory.h"
 #include "RequestHandler.h"
+#include "ThreadPool.h"
 
 using namespace std;
 using namespace Ice;
@@ -633,12 +636,48 @@ Ice::ObjectPrx::ice_getConnectionAsync(
     std::function<void(std::exception_ptr)> ex,
     std::function<void(bool)> sent) const
 {
-    // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.
+    // A fixed proxy is bound to a single connection: return this connection as is, whatever its state. The response
+    // callback is executed from the thread pool that services this connection (or by the executor, if set). Like for
+    // the response callback of a lambda invocation, an exception thrown by the callback is logged as an
+    // Ice.Warn.AMICallback warning.
     if (auto fixedReference = dynamic_pointer_cast<FixedReference>(_reference))
     {
         if (response)
         {
-            response(fixedReference->fixedConnection());
+            InstancePtr instance = fixedReference->getInstance();
+            ConnectionIPtr connection = fixedReference->fixedConnection();
+            connection->getThreadPool()->execute(
+                [response = std::move(response), connection, instance = std::move(instance)]()
+                {
+                    try
+                    {
+                        response(connection);
+                    }
+                    catch (...)
+                    {
+                        if (instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.AMICallback") > 0)
+                        {
+                            Warning out(instance->initializationData().logger);
+                            try
+                            {
+                                throw;
+                            }
+                            catch (const Ice::Exception& e)
+                            {
+                                out << "Ice::Exception thrown by response callback:\n" << e;
+                            }
+                            catch (const std::exception& e)
+                            {
+                                out << "std::exception thrown by response callback:\n" << e.what();
+                            }
+                            catch (...)
+                            {
+                                out << "unknown exception thrown by response callback";
+                            }
+                        }
+                    }
+                },
+                connection);
         }
         return [] {};
     }

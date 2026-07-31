@@ -956,6 +956,9 @@ public class AllTests {
                 ObjectPrx freshFixedPrx = p.ice_fixed(con);
                 test(freshFixedPrx.ice_getConnection() == con);
                 test(freshFixedPrx.ice_getCachedConnection() == con);
+
+                // Same for the async variant.
+                test(fixedPrx.ice_getConnectionAsync().join() == con);
             }
             {
                 // ice_getConnection also establishes a new connection when the cached connection is being closed.

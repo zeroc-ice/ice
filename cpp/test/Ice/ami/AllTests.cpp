@@ -1154,6 +1154,12 @@ allTests(TestHelper* helper, bool collocated)
                 auto freshFixedPrx = p->ice_fixed(con);
                 test(freshFixedPrx->ice_getConnection() == con);
                 test(freshFixedPrx->ice_getCachedConnection() == con);
+
+                // Same for the async variants.
+                test(fixedPrx->ice_getConnectionAsync().get() == con);
+                auto r = make_shared<promise<ConnectionPtr>>();
+                fixedPrx->ice_getConnectionAsync([r](const ConnectionPtr& c) { r->set_value(c); });
+                test(r->get_future().get() == con);
             }
             {
                 // ice_getConnection also establishes a new connection when the cached connection is being closed.
