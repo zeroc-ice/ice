@@ -1768,7 +1768,18 @@ SubscriberSessionI::reconnect(NodePrx node)
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _id << ": trying to reconnect session with '" << node->ice_toString() << "'";
     }
-    _parent->createPublisherSession(node, nullptr, static_pointer_cast<SubscriberSessionI>(shared_from_this()));
+
+    try
+    {
+        _parent->createPublisherSession(node, nullptr, static_pointer_cast<SubscriberSessionI>(shared_from_this()));
+    }
+    catch (const SessionCreationException&)
+    {
+        // createPublisherSession throws for the benefit of its servant caller, which maps the exception to the
+        // initiateCreateSession reply. Here the caller is the session retry task, which has nothing to reply to: the
+        // failure was either already accounted for by retrySubscriberSessionCreation, or it reports that the node is
+        // shutting down, in which case there is nothing to retry.
+    }
 }
 
 void
