@@ -337,12 +337,14 @@ declare module "@zeroc/ice" {
             ice_getConnection(): AsyncResult<Connection>;
 
             /**
-             * Gets the cached Connection for this proxy. If the proxy does not yet have an established connection,
-             * it does not attempt to create a connection. For a fixed proxy, this function returns the connection
-             * this proxy is bound to, even when this connection is closed.
+             * Gets the cached Connection for this proxy. This function never attempts to establish a connection.
+             * For a fixed proxy, this function returns the connection this proxy is bound to. This function never
+             * throws.
              *
-             * @returns The cached connection for this proxy, or `null` if the proxy does not have a cached
-             * connection. The returned connection can be closed.
+             * @returns The cached connection, or `null` if this proxy doesn't have a cached connection. The
+             * returned connection can be closed.
+             * @remarks A proxy with connection caching disabled (see {@link ice_connectionCached}) never caches a
+             * connection: for such a proxy, this function always returns `null`.
              */
             ice_getCachedConnection(): Connection | null;
 

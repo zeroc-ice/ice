@@ -431,9 +431,10 @@ public interface ObjectPrx {
     ObjectPrx ice_locator(LocatorPrx locator);
 
     /**
-     * Determines whether this proxy uses collocation optimization.
+     * Determines whether this proxy has collocation optimization enabled.
      *
-     * @return {@code true} if the proxy uses collocation optimization, {@code false} otherwise
+     * @return {@code true} if this proxy has collocation optimization enabled, {@code false} otherwise
+     * @see #ice_collocationOptimized(boolean)
      */
     boolean ice_isCollocationOptimized();
 
@@ -549,6 +550,10 @@ public interface ObjectPrx {
      * <p>You can call this method to establish a connection or associate the proxy with an existing
      * connection and ignore the return value.
      *
+     * <p>When this proxy reaches its target object through collocation optimization (see
+     * {@link #ice_collocationOptimized(boolean)}), this method returns a null connection: collocated
+     * invocations don't use a connection.
+     *
      * @return The {@link Connection} for this proxy.
      */
     Connection ice_getConnection();
@@ -567,18 +572,25 @@ public interface ObjectPrx {
      * or its connection is closed or being closed, it first attempts to create a new connection. For a fixed
      * proxy, this method returns the connection this proxy is bound to, even when this connection is closed.
      *
+     * <p>When this proxy reaches its target object through collocation optimization (see
+     * {@link #ice_collocationOptimized(boolean)}), the future completes with a null connection: collocated
+     * invocations don't use a connection.
+     *
      * @return a future that completes with the {@link Connection} for this proxy
      */
     CompletableFuture<Connection> ice_getConnectionAsync();
 
     /**
-     * Gets the cached connection for this proxy. If the proxy does not yet have an established connection,
-     * it does not attempt to create a connection. For a fixed proxy, this method returns the connection this
-     * proxy is bound to, even when this connection is closed.
+     * Gets the {@link Connection} cached by this proxy. This method never attempts to establish a connection.
+     * For a fixed proxy, this method returns the connection this proxy is bound to. This method never throws.
      *
-     * @return the cached {@link Connection} for this proxy, or {@code null} if the proxy does not
-     *     have a cached connection; the returned connection can be closed
-     * @see Connection
+     * <p>A proxy with connection caching disabled (see {@link #ice_connectionCached(boolean)}) never caches a
+     * connection: for such a proxy, this method always returns null. This method also returns null when this
+     * proxy reaches its target object through collocation optimization (see
+     * {@link #ice_collocationOptimized(boolean)}): collocated invocations don't use a connection.
+     *
+     * @return the cached connection, or {@code null} if this proxy doesn't have a cached connection; the
+     *     returned connection can be closed
      */
     Connection ice_getCachedConnection();
 

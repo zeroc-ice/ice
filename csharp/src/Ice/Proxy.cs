@@ -323,10 +323,11 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_locator(LocatorPrx? locator);
 
     /// <summary>
-    /// Returns whether this proxy uses collocation optimization.
+    /// Returns whether this proxy has collocation optimization enabled.
     /// </summary>
-    /// <returns><see langword="true"/> if the proxy uses collocation optimization; otherwise,
+    /// <returns><see langword="true"/> if this proxy has collocation optimization enabled; otherwise,
     /// <see langword="false"/>.</returns>
+    /// <seealso cref="ice_collocationOptimized(bool)"/>
     bool ice_isCollocationOptimized();
 
     /// <summary>
@@ -468,12 +469,16 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     Task<Connection?> ice_getConnectionAsync(IProgress<bool>? progress = null, CancellationToken cancel = default);
 
     /// <summary>
-    /// Gets the cached Connection for this proxy. If the proxy does not yet have an established
-    /// connection, it does not attempt to create a connection. For a fixed proxy, this method returns
-    /// the connection this proxy is bound to, even when this connection is closed.
+    /// Gets the cached <see cref="Connection"/> for this proxy. This method never attempts to establish a
+    /// connection. For a fixed proxy, this method returns the connection this proxy is bound to. This method never
+    /// throws.
     /// </summary>
-    /// <returns>The cached Connection for this proxy (null if the proxy does not have a cached connection). The
-    /// returned connection can be closed.</returns>
+    /// <returns>The cached connection, or null if this proxy doesn't have a cached connection. The returned
+    /// connection can be closed.</returns>
+    /// <remarks>A proxy with connection caching disabled (see <see cref="ice_connectionCached(bool)"/>) never caches
+    /// a connection: for such a proxy, this method always returns null. This method also returns null when this
+    /// proxy reaches its target object through collocation optimization (see
+    /// <see cref="ice_collocationOptimized(bool)"/>): collocated invocations don't use a connection.</remarks>
     Connection? ice_getCachedConnection();
 
     /// <summary>
@@ -1242,10 +1247,11 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns whether this proxy uses collocation optimization.
+    /// Returns whether this proxy has collocation optimization enabled.
     /// </summary>
-    /// <returns><see langword="true"/> if the proxy uses collocation optimization; otherwise,
+    /// <returns><see langword="true"/> if this proxy has collocation optimization enabled; otherwise,
     /// <see langword="false"/>.</returns>
+    /// <seealso cref="ice_collocationOptimized(bool)"/>
     public bool ice_isCollocationOptimized() => _reference.getCollocationOptimized();
 
     /// <summary>
@@ -1522,12 +1528,16 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Gets the cached Connection for this proxy. If the proxy does not yet have an established
-    /// connection, it does not attempt to create a connection. For a fixed proxy, this method returns
-    /// the connection this proxy is bound to, even when this connection is closed.
+    /// Gets the cached <see cref="Connection"/> for this proxy. This method never attempts to establish a
+    /// connection. For a fixed proxy, this method returns the connection this proxy is bound to. This method never
+    /// throws.
     /// </summary>
-    /// <returns>The cached Connection for this proxy (null if the proxy does not have
-    /// an established connection).</returns>
+    /// <returns>The cached connection, or null if this proxy doesn't have a cached connection. The returned
+    /// connection can be closed.</returns>
+    /// <remarks>A proxy with connection caching disabled (see <see cref="ice_connectionCached(bool)"/>) never caches
+    /// a connection: for such a proxy, this method always returns null. This method also returns null when this
+    /// proxy reaches its target object through collocation optimization (see
+    /// <see cref="ice_collocationOptimized(bool)"/>): collocated invocations don't use a connection.</remarks>
     public Connection? ice_getCachedConnection()
     {
         // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.

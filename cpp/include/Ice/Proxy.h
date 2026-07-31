@@ -578,6 +578,9 @@ namespace Ice
         /// @return The connection for this proxy.
         /// @remark You can call this function to establish a connection or associate the proxy with an existing
         /// connection and ignore the return value.
+        /// @remark When this proxy reaches its target object through collocation optimization (see
+        /// #ice_collocationOptimized), this function returns a null connection: collocated invocations don't use a
+        /// connection.
         Ice::ConnectionPtr ice_getConnection() const; // NOLINT(modernize-use-nodiscard)
 
         /// Gets the connection for this proxy. If the proxy does not yet have an established connection or its
@@ -592,6 +595,9 @@ namespace Ice
         /// @param sent The sent callback. The Ice runtime never calls this function: no request is sent to get a
         /// connection.
         /// @return A function that can be called to cancel the invocation locally.
+        /// @remark When this proxy reaches its target object through collocation optimization (see
+        /// #ice_collocationOptimized), the response callback receives a null connection: collocated invocations don't
+        /// use a connection.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_getConnectionAsync(
             std::function<void(Ice::ConnectionPtr)> response,
@@ -603,16 +609,22 @@ namespace Ice
         /// this function returns the connection this proxy is bound to, even when this connection is closed.
         /// @return A future that becomes available when the invocation completes. This future holds:
         /// - The connection for this proxy.
+        /// @remark When this proxy reaches its target object through collocation optimization (see
+        /// #ice_collocationOptimized), the future holds a null connection: collocated invocations don't use a
+        /// connection.
         [[nodiscard]] std::future<Ice::ConnectionPtr> ice_getConnectionAsync() const;
 
         /// @private
         void _iceI_getConnection(const std::shared_ptr<IceInternal::ProxyGetConnection>&) const;
 
-        /// Gets the cached Connection for this proxy. If the proxy does not yet have an established connection, it does
-        /// not attempt to create a connection. For a fixed proxy, this function returns the connection this proxy is
-        /// bound to, even when this connection is closed.
-        /// @return The cached connection for this proxy, or nullptr if the proxy does not have a cached connection.
-        /// The returned connection can be closed.
+        /// Gets the Connection cached by this proxy. This function never attempts to establish a connection. For a
+        /// fixed proxy, this function returns the connection this proxy is bound to.
+        /// @return The cached connection, or nullptr if this proxy doesn't have a cached connection. The returned
+        /// connection can be closed.
+        /// @remark A proxy with connection caching disabled (see #ice_connectionCached) never caches a connection: for
+        /// such a proxy, this function always returns nullptr. This function also returns nullptr when this proxy
+        /// reaches its target object through collocation optimization (see #ice_collocationOptimized): collocated
+        /// invocations don't use a connection.
         [[nodiscard]] Ice::ConnectionPtr ice_getCachedConnection() const noexcept;
 
         /// Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.
@@ -700,8 +712,9 @@ namespace Ice
         /// @return The locator for this proxy. If no locator is configured, the return value is nullopt.
         [[nodiscard]] std::optional<LocatorPrx> ice_getLocator() const noexcept;
 
-        /// Determines whether this proxy uses collocation optimization.
-        /// @return `true` if the proxy uses collocation optimization, `false` otherwise.
+        /// Determines whether this proxy has collocation optimization enabled.
+        /// @return `true` if this proxy has collocation optimization enabled, `false` otherwise.
+        /// @see #ice_collocationOptimized
         [[nodiscard]] bool ice_isCollocationOptimized() const noexcept;
 
         /// Gets the invocation timeout of this proxy.
