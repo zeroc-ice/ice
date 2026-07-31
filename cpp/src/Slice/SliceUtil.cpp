@@ -62,6 +62,17 @@ namespace
                 case '"':
                     os << "&quot;";
                     break;
+                // An XML parser replaces a literal tab, line feed or carriage return in an attribute value by a
+                // space. Character references survive this normalization.
+                case '\t':
+                    os << "&#x9;";
+                    break;
+                case '\n':
+                    os << "&#xA;";
+                    break;
+                case '\r':
+                    os << "&#xD;";
+                    break;
                 default:
                     os << c;
                     break;
