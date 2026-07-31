@@ -570,22 +570,6 @@ internal sealed class Network
         }
     }
 
-    internal static void setTcpBufSize(Socket socket, ProtocolInstance instance)
-    {
-        //
-        // By default, on Windows we use a 128KB buffer size. On Unix
-        // platforms, we use the system defaults.
-        //
-        int dfltBufSize = 0;
-        if (AssemblyUtil.isWindows)
-        {
-            dfltBufSize = 128 * 1024;
-        }
-        int rcvSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
-        int sndSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
-        setTcpBufSize(socket, rcvSize, sndSize, instance);
-    }
-
     internal static void setTcpBufSize(Socket socket, int rcvSize, int sndSize, ProtocolInstance instance)
     {
         if (rcvSize > 0)

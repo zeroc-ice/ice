@@ -5,6 +5,7 @@
 #if TARGET_OS_IPHONE != 0
 
 #    include "../Network.h"
+#    include "../TcpBufSize.h"
 #    include "../TraceLevels.h"
 #    include "Ice/Buffer.h"
 #    include "Ice/Connection.h"
@@ -280,7 +281,8 @@ IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBu
         _desc = s.str();
 
         setBlock(_fd, false);
-        setTcpBufSize(_fd, _instance);
+        TcpBufSize bufSize{_instance->properties()};
+        setTcpBufSize(_fd, bufSize.rcvSize(), bufSize.sndSize(), _instance);
     }
     assert(_state == StateConnected);
     return SocketOperationNone;

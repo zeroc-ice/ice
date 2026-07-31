@@ -22,7 +22,9 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::TcpConnector::connect()
 {
-    return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, _proxy, _addr, _sourceAddr));
+    return make_shared<TcpTransceiver>(
+        _instance,
+        make_shared<StreamSocket>(_instance, _proxy, _addr, _sourceAddr, _bufSize));
 }
 
 int16_t
@@ -120,7 +122,8 @@ IceInternal::TcpConnector::TcpConnector(
       _proxy(std::move(proxy)),
       _sourceAddr(sourceAddr),
       _timeout(timeout),
-      _connectionId(std::move(connectionId))
+      _connectionId(std::move(connectionId)),
+      _bufSize(_instance->properties())
 {
 }
 
