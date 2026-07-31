@@ -30,8 +30,50 @@ struct Counter
     int value = 0;
 };
 
+// An update tag type whose Decoder rejects one of the tag values. A writer sends its whole set of update tags to a
+// reader when they attach, so an undecodable tag arrives together with the tags the reader can decode.
+struct Op
+{
+    std::string name;
+
+    bool operator<(const Op& other) const { return name < other.name; }
+    bool operator==(const Op& other) const { return name == other.name; }
+};
+
 namespace DataStorm
 {
+    template<> struct Encoder<Op>
+    {
+        static Ice::ByteSeq encode(const Ice::CommunicatorPtr&, const Op& tag)
+        {
+            Ice::ByteSeq bytes;
+            bytes.reserve(tag.name.size());
+            for (char c : tag.name)
+            {
+                bytes.push_back(static_cast<std::byte>(c));
+            }
+            return bytes;
+        }
+    };
+
+    template<> struct Decoder<Op>
+    {
+        static Op decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq& data)
+        {
+            std::string name;
+            name.reserve(data.size());
+            for (std::byte b : data)
+            {
+                name += static_cast<char>(b);
+            }
+            if (name == "undecodable")
+            {
+                throw std::runtime_error("undecodable update tag");
+            }
+            return Op{name};
+        }
+    };
+
     template<> struct Encoder<Counter>
     {
         static Ice::ByteSeq encode(const Ice::CommunicatorPtr&, const Counter& value)
@@ -455,6 +497,22 @@ void ::Writer::run(int argc, char* argv[])
         writer.add(Counter{1});
         writer.update(Counter{0xFF}); // the reader's Decoder throws on this value
         writer.update(Counter{2});
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // The writer sends both of its update tags when the reader attaches, and the reader's Decoder rejects one of
+    // them. The partial update published with the tag the reader can decode is still applied.
+    Topic<string, Counter, Op> tagDecodeErrorTopic(node, "tagDecodeErrorTopic");
+    tagDecodeErrorTopic.setWriterDefaultConfig(config);
+    tagDecodeErrorTopic.setUpdater<int>(Op{"undecodable"}, [](Counter& counter, int delta) { counter.value += delta; });
+    tagDecodeErrorTopic.setUpdater<int>(Op{"increment"}, [](Counter& counter, int delta) { counter.value += delta; });
+    cout << "testing update tag that fails to decode... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(tagDecodeErrorTopic, "key");
+        writer.waitForReaders();
+        writer.add(Counter{1});
+        writer.partialUpdate<int>(Op{"increment"})(5);
         writer.waitForNoReaders();
     }
     cout << "ok" << endl;

@@ -314,15 +314,26 @@ SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, cons
                 out << _id << ": attaching tags '[" << tags << "]@" << topicId << "' on topic '" << topic << "'";
             }
 
-            if (initialize)
-            {
-                subscriber.tags.clear();
-            }
-
+            auto decoded = initialize ? map<int64_t, shared_ptr<Tag>>{} : subscriber.tags;
             for (const auto& tag : tags)
             {
-                subscriber.tags[tag.id] = topic->getTagFactory()->decode(_instance->getCommunicator(), tag.value);
+                try
+                {
+                    decoded[tag.id] = topic->getTagFactory()->decode(_instance->getCommunicator(), tag.value);
+                }
+                catch (const std::exception& ex)
+                {
+                    // The tag factory runs the application's decoder. Skip a tag it can't decode: letting the
+                    // exception escape would drop the tags that did decode, and abort runWithTopics before the
+                    // remaining subscribers of this topic get any. The peer resends its tags on reconnect; until
+                    // then a partial update carrying the skipped tag resolves to the key's current value.
+                    Warning out(_traceLevels->logger);
+                    out << "skipped update tag " << tag.id << " on topic '" << topic << "': the tag could not be "
+                        << "decoded:\n"
+                        << ex.what();
+                }
             }
+            subscriber.tags = std::move(decoded);
         });
 }
 
