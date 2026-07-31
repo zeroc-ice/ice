@@ -1446,9 +1446,8 @@ SessionI::subscriberInitialized(
     if (_traceLevels->session > 1)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-        out << _id << ": initialized '" << element << "' from 'e" << elementId << '@' << topicId << "'";
+        out << _id << ": initializing '" << element << "' from 'e" << elementId << '@' << topicId << "'";
     }
-    elementSubscriber->initialized = true;
 
     // If the samples collection is empty, the element subscriber's lastId remains unchanged:
     // - If no samples have been received, lastId is 0.
@@ -1460,18 +1459,11 @@ SessionI::subscriberInitialized(
     // - These samples have not yet been processed by the element subscriber, according to the subscriber's lastId.
     if (samples.empty())
     {
+        elementSubscriber->initialized = true;
         return {};
     }
     else
     {
-        // A multi-key subscriber shares a single ElementSubscriber across its keys, and the peer acks one batch per
-        // key, so this runs once per key with sample ids interleaved across keys — a later batch need not strictly
-        // follow the previous one. Advance lastId monotonically to the newest id seen (samples are ordered by id).
-        if (samples.back().id > elementSubscriber->lastId)
-        {
-            elementSubscriber->lastId = samples.back().id;
-        }
-
         vector<shared_ptr<Sample>> samplesI;
         samplesI.reserve(samples.size());
         auto sampleFactory = element->getTopic()->getSampleFactory();
@@ -1494,6 +1486,20 @@ SessionI::subscriberInitialized(
                 sample.timestamp));
             assert(samplesI.back()->key);
         }
+
+        // Mark the subscriber initialized and advance its lastId only after its samples are decoded and built, like
+        // initSamples does: if a key decoder throws above, the subscriber keeps its previous state, so the peer still
+        // offers these samples on the next initialization instead of filtering them out as already received.
+        elementSubscriber->initialized = true;
+
+        // A multi-key subscriber shares a single ElementSubscriber across its keys, and the peer acks one batch per
+        // key, so this runs once per key with sample ids interleaved across keys — a later batch need not strictly
+        // follow the previous one. Advance lastId monotonically to the newest id seen (samples are ordered by id).
+        if (samples.back().id > elementSubscriber->lastId)
+        {
+            elementSubscriber->lastId = samples.back().id;
+        }
+
         return samplesI;
     }
 }
