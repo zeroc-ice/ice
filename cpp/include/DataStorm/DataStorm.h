@@ -402,6 +402,11 @@ namespace DataStorm
         /// if the sample matches the filter criteria, `false` otherwise.
         /// Register all sample filters before creating any reader or writer for this topic: the set of filters is not
         /// synchronized, so modifying it once the topic is in use races with the Ice threads that use the topic.
+        /// A sample filter interacts with partial updates: a writer sends a reader that uses one only the samples the
+        /// reader matches, so the reader can receive a partial update for a key it never received a full value for. It
+        /// has nothing to resolve that update against and discards it, until it receives a full value for the key. A
+        /// partial update that matches after non-matching samples likewise resolves against the reader's own last
+        /// matching value rather than against the writer's current value.
         /// @param name The name of the sample filter.
         /// @param factory The filter factory function.
         template<typename Criteria>
@@ -782,6 +787,9 @@ namespace DataStorm
         /// returned function is called: a full value was written for the key and the key was not since removed.
         /// Calling the returned function for a key with no current value is an application error that throws
         /// std::logic_error and publishes nothing.
+        /// A reader that uses a sample filter receives only the samples it matches, so it can have no current value
+        /// for the key even though the writer does; it discards the partial update in that case. See
+        /// Topic::setSampleFilter.
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag);
@@ -848,6 +856,9 @@ namespace DataStorm
         /// returned function is called: a full value was written for the key and the key was not since removed.
         /// Calling the returned function for a key with no current value is an application error that throws
         /// std::logic_error and publishes nothing.
+        /// A reader that uses a sample filter receives only the samples it matches, so it can have no current value
+        /// for the key even though the writer does; it discards the partial update in that case. See
+        /// Topic::setSampleFilter.
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag);
