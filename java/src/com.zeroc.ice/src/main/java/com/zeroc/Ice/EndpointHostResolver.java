@@ -128,6 +128,7 @@ class EndpointHostResolver {
         } finally {
             if (_observer != null) {
                 _observer.detach();
+                _observer = null;
             }
         }
     }

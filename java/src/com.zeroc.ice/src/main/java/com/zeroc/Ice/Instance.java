@@ -922,6 +922,10 @@ public final class Instance {
         }
     }
 
+    // Destroys this instance. This method does not throw any exception, with one exception: it throws
+    // OperationInterruptedException when the calling thread is interrupted during an interruptible wait. The
+    // destruction is then incomplete, and a new destroyImpl call can complete it. Note that the logger and the
+    // communicator observer, which this method calls during the destruction, are expected to not throw any exception.
     private void destroyImpl() {
         synchronized (this) {
             // If destroy is in progress, wait for it to be done.
