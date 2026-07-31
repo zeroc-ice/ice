@@ -18,7 +18,8 @@ class RetryTask implements Runnable, CancellationHandler {
                 _outAsync.retry();
             } catch (Throwable ex) {
                 // The scheduled executor silently swallows exceptions thrown by its tasks.
-                _instance.initializationData().logger.error("unexpected exception from retry task:\n" + Ex.toString(ex));
+                String msg = "unexpected exception from retry task:\n" + Ex.toString(ex);
+                _instance.initializationData().logger.error(msg);
             } finally {
                 // NOTE: this must be called last, destroy() blocks until all task
                 // are removed to prevent the client thread pool to be destroyed
