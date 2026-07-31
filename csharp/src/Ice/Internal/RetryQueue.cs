@@ -15,15 +15,20 @@ public class RetryTask : TimerTask, CancellationHandler
 
     public void runTimerTask()
     {
-        _outAsync.retry();
-
-        //
-        // NOTE: this must be called last, destroy() blocks until all task
-        // are removed to prevent the client thread pool to be destroyed
-        // (we still need the client thread pool at this point to call
-        // exception callbacks with CommunicatorDestroyedException).
-        //
-        _retryQueue.remove(this);
+        try
+        {
+            _outAsync.retry();
+        }
+        finally
+        {
+            //
+            // NOTE: this must be called last, destroy() blocks until all task
+            // are removed to prevent the client thread pool to be destroyed
+            // (we still need the client thread pool at this point to call
+            // exception callbacks with CommunicatorDestroyedException).
+            //
+            _retryQueue.remove(this);
+        }
     }
 
     public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
