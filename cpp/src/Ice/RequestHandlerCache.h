@@ -18,7 +18,7 @@ namespace IceInternal
 
         RequestHandlerPtr getRequestHandler();
 
-        Ice::ConnectionPtr getCachedConnection();
+        Ice::ConnectionPtr getCachedConnection() noexcept;
 
         void clearCachedRequestHandler(const RequestHandlerPtr& handler);
 

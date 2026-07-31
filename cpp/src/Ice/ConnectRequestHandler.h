@@ -25,7 +25,7 @@ namespace IceInternal
 
         void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
-        Ice::ConnectionIPtr getConnection() final;
+        Ice::ConnectionIPtr getConnection() noexcept final;
 
         // setConnection and setException are the response and exception for RoutableReference::getConnectionAsync.
         void setConnection(Ice::ConnectionIPtr, bool);
