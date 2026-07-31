@@ -45,9 +45,13 @@ class PropertyArray:
 
 
 class PropertyHandler(ContentHandler):
-    def __init__(self, language: Language):
+    def __init__(self, language: Language, destination: list[str], generatedFiles: list[str]):
         # The language we are generating properties for
         self.language = language
+        # The path components of the directory holding the generated files, relative to the top-level directory
+        self.destination = destination
+        # The names of the generated files, written to the current directory
+        self.generatedFiles = generatedFiles
         # The section we are currently parsing
         self.parentNodeName: str | None = None
         # Dictionary of section names to attr dicts
@@ -88,9 +92,16 @@ class PropertyHandler(ContentHandler):
 
         self.closeFiles()
 
+    def destinationDirectory(self, location: str) -> str:
+        return os.path.join(location, *self.destination)
+
     def moveFiles(self, location: str) -> None:
-        # Needs to be overridden in derived class
-        pass
+        dest = self.destinationDirectory(location)
+        for name in self.generatedFiles:
+            target = os.path.join(dest, name)
+            if os.path.exists(target):
+                os.remove(target)
+            shutil.move(name, dest)
 
     # The list of property arrays to get generated
     def generatedPropertyArrays(self) -> list[str]:
@@ -218,7 +229,7 @@ class PropertyHandler(ContentHandler):
 
 class CppPropertyHandler(PropertyHandler):
     def __init__(self):
-        super().__init__(Language.CPP)
+        super().__init__(Language.CPP, ["cpp", "src", "Ice"], ["PropertyNames.h", "PropertyNames.cpp"])
         self.hFile: TextIO | None = None
         self.cppFile: TextIO | None = None
 
@@ -354,20 +365,14 @@ const PropertyArray PropertyNames::{name}Props
 
         return propertyLine
 
-    @override
-    def moveFiles(self, location: str) -> None:
-        dest = os.path.join(location, "cpp", "src", "Ice")
-        if os.path.exists(os.path.join(dest, "PropertyNames.h")):
-            os.remove(os.path.join(dest, "PropertyNames.h"))
-        if os.path.exists(os.path.join(dest, "PropertyNames.cpp")):
-            os.remove(os.path.join(dest, "PropertyNames.cpp"))
-        shutil.move("PropertyNames.h", dest)
-        shutil.move("PropertyNames.cpp", dest)
-
 
 class JavaPropertyHandler(PropertyHandler):
     def __init__(self):
-        super().__init__(Language.JAVA)
+        super().__init__(
+            Language.JAVA,
+            ["java", "src", "com.zeroc.ice", "src", "main", "java", "com", "zeroc", "Ice"],
+            ["PropertyNames.java"],
+        )
         self.srcFile: TextIO | None = None
 
     @override
@@ -445,28 +450,10 @@ final class PropertyNames {{
 
         return line
 
-    @override
-    def moveFiles(self, location: str) -> None:
-        dest = os.path.join(
-            location,
-            "java",
-            "src",
-            "com.zeroc.ice",
-            "src",
-            "main",
-            "java",
-            "com",
-            "zeroc",
-            "Ice",
-        )
-        if os.path.exists(os.path.join(dest, "PropertyNames.java")):
-            os.remove(os.path.join(dest, "PropertyNames.java"))
-        shutil.move("PropertyNames.java", dest)
-
 
 class CSPropertyHandler(PropertyHandler):
     def __init__(self):
-        super().__init__(Language.CSHARP)
+        super().__init__(Language.CSHARP, ["csharp", "src", "Ice", "Internal"], ["PropertyNames.cs"])
         self.srcFile: TextIO | None = None
 
     @override
@@ -541,17 +528,10 @@ internal sealed class PropertyNames
         )
         return line
 
-    @override
-    def moveFiles(self, location: str) -> None:
-        dest = os.path.join(location, "csharp", "src", "Ice", "Internal")
-        if os.path.exists(os.path.join(dest, "PropertyNames.cs")):
-            os.remove(os.path.join(dest, "PropertyNames.cs"))
-        shutil.move("PropertyNames.cs", dest)
-
 
 class JSPropertyHandler(PropertyHandler):
     def __init__(self):
-        super().__init__(Language.JS)
+        super().__init__(Language.JS, ["js", "packages", "ice", "src", "Ice"], ["PropertyNames.js"])
         self.srcFile: TextIO | None = None
 
     @override
@@ -618,13 +598,6 @@ PropertyNames.{name}Props.properties = [{properties}
         )
         return line
 
-    @override
-    def moveFiles(self, location: str) -> None:
-        dest = os.path.join(location, "js", "src", "Ice")
-        if os.path.exists(os.path.join(dest, "PropertyNames.js")):
-            os.remove(os.path.join(dest, "PropertyNames.js"))
-        shutil.move("PropertyNames.js", dest)
-
 
 class MultiHandler(ContentHandler):
     def __init__(self, handlers: list[PropertyHandler]):
@@ -641,6 +614,13 @@ class MultiHandler(ContentHandler):
             f.cleanup()
 
     def moveFiles(self, location: str) -> None:
+        # Check every destination before moving anything, so that a handler with a stale destination fails
+        # before the other handlers have updated the source tree.
+        for f in self.handlers:
+            destination = f.destinationDirectory(location)
+            if not os.path.isdir(destination):
+                raise RuntimeError(f"The destination directory '{destination}' does not exist")
+
         for f in self.handlers:
             f.moveFiles(location)
 
