@@ -190,20 +190,20 @@ final class LoggerAdminI implements LoggerAdmin {
                     _traceCount++;
                 }
             }
+        }
 
-            // Queue updated, now find which remote loggers want this message
-            for (RemoteLoggerData p : _remoteLoggerMap.values()) {
-                Filters filters = p.filters;
+        // Queue updated, now find which remote loggers want this message
+        for (RemoteLoggerData p : _remoteLoggerMap.values()) {
+            Filters filters = p.filters;
 
-                if (filters.messageTypes.isEmpty() || filters.messageTypes.contains(logMessage.type)) {
-                    if (logMessage.type != LogMessageType.TraceMessage
-                        || filters.traceCategories.isEmpty()
-                        || filters.traceCategories.contains(logMessage.traceCategory)) {
-                        if (remoteLoggers == null) {
-                            remoteLoggers = new ArrayList<>();
-                        }
-                        remoteLoggers.add(p.remoteLogger);
+            if (filters.messageTypes.isEmpty() || filters.messageTypes.contains(logMessage.type)) {
+                if (logMessage.type != LogMessageType.TraceMessage
+                    || filters.traceCategories.isEmpty()
+                    || filters.traceCategories.contains(logMessage.traceCategory)) {
+                    if (remoteLoggers == null) {
+                        remoteLoggers = new ArrayList<>();
                     }
+                    remoteLoggers.add(p.remoteLogger);
                 }
             }
         }

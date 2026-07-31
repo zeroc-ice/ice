@@ -560,6 +560,44 @@ allTests(Test::TestHelper* helper)
 
         com->destroy();
     }
+    {
+        // With KeepLogs=0 and KeepTraces=0, no message is retained, but messages are still delivered to
+        // attached remote loggers.
+        PropertyDict props;
+        props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
+        props["Ice.Admin.InstanceName"] = "Test";
+        props["NullLogger"] = "1";
+        props["Ice.Admin.Logger.KeepLogs"] = "0";
+        props["Ice.Admin.Logger.KeepTraces"] = "0";
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
+
+        com->print("print1");
+        com->trace("testCat", "trace1");
+
+        auto logger = com->getAdmin()->ice_facet<LoggerAdminPrx>("Logger");
+        string prefix;
+
+        LogMessageSeq logMessages = logger->getLog(LogMessageTypeSeq(), StringSeq(), -1, prefix);
+        test(logMessages.empty());
+
+        ObjectAdapterPtr adapter =
+            communicator->createObjectAdapterWithEndpoints("RemoteLoggerAdapter2", "tcp -h localhost");
+        RemoteLoggerIPtr remoteLogger = std::make_shared<RemoteLoggerI>();
+        auto myProxy = adapter->addWithUUID<RemoteLoggerPrx>(remoteLogger);
+        adapter->activate();
+
+        logger->attachRemoteLogger(myProxy, LogMessageTypeSeq(), StringSeq(), -1);
+        test(remoteLogger->wait(1));
+
+        com->print("print2");
+        com->trace("testCat", "trace2");
+        test(remoteLogger->wait(2));
+
+        remoteLogger->checkNextLog(LogMessageType::PrintMessage, "print2");
+        remoteLogger->checkNextLog(LogMessageType::TraceMessage, "trace2", "testCat");
+
+        com->destroy();
+    }
     cout << "ok" << endl;
 
     cout << "testing custom facet... " << flush;
