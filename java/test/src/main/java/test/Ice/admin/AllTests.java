@@ -375,7 +375,7 @@ public class AllTests {
             } catch (RemoteLoggerAlreadyAttachedException ex) {
                 test(false);
             }
-            remoteLogger.wait(1);
+            test(remoteLogger.wait(1));
 
             for (int i = 0; i < r.returnValue.length; i++) {
                 LogMessage m = r.returnValue[i];
@@ -387,7 +387,7 @@ public class AllTests {
             rcom.error("rerror");
             rcom.print("rprint");
 
-            remoteLogger.wait(4);
+            test(remoteLogger.wait(4));
 
             remoteLogger.checkNextLog(LogMessageType.TraceMessage, "rtrace", "testCat");
             remoteLogger.checkNextLog(LogMessageType.WarningMessage, "rwarning", "");
@@ -408,7 +408,7 @@ public class AllTests {
             } catch (RemoteLoggerAlreadyAttachedException ex) {
                 test(false);
             }
-            remoteLogger.wait(1);
+            test(remoteLogger.wait(1));
 
             for (int i = 0; i < r.returnValue.length; i++) {
                 LogMessage m = r.returnValue[i];
@@ -421,7 +421,7 @@ public class AllTests {
             rcom.error("rerror2");
             rcom.print("rprint2");
 
-            remoteLogger.wait(2);
+            test(remoteLogger.wait(2));
 
             remoteLogger.checkNextLog(LogMessageType.TraceMessage, "rtrace2", "testCat");
             remoteLogger.checkNextLog(LogMessageType.ErrorMessage, "rerror2", "");
@@ -497,11 +497,11 @@ public class AllTests {
             } catch (RemoteLoggerAlreadyAttachedException ex) {
                 test(false);
             }
-            remoteLogger.wait(1);
+            test(remoteLogger.wait(1));
 
             rcom.print("print2");
             rcom.trace("testCat", "trace2");
-            remoteLogger.wait(2);
+            test(remoteLogger.wait(2));
 
             remoteLogger.checkNextLog(LogMessageType.PrintMessage, "print2", "");
             remoteLogger.checkNextLog(LogMessageType.TraceMessage, "trace2", "testCat");

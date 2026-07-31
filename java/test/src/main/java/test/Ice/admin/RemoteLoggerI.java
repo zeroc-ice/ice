@@ -49,16 +49,23 @@ class RemoteLoggerI implements RemoteLogger {
         test(logMessage.traceCategory.equals(category));
     }
 
-    synchronized void wait(int calls) {
+    synchronized boolean wait(int calls) {
         _receivedCalls -= calls;
 
+        final long start = System.currentTimeMillis();
         while (_receivedCalls < 0) {
+            long timeout = start + 20000 - System.currentTimeMillis();
+            if (timeout <= 0) {
+                System.err.println("expected '" + calls + "' received: '" + (calls + _receivedCalls) + "'");
+                return false; // Waited for more than 20s, something's wrong.
+            }
             try {
-                wait();
+                wait(timeout);
             } catch (InterruptedException ex) {
-                break;
+                return false;
             }
         }
+        return true;
     }
 
     private static void test(boolean b) {
