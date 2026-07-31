@@ -1089,6 +1089,8 @@ classdef ObjectPrx < IceInternal.WrapperObject
         function r = ice_getCachedConnection(obj)
             %ICE_GETCACHEDCONNECTION Returns the cached Connection for this proxy.
             %   If the proxy does not yet have an established connection, it does not attempt to create a connection.
+            %   For a fixed proxy, this method returns the connection this proxy is bound to, even when this
+            %   connection is closed.
             %
             %   Output Arguments
             %     r - The cached Connection for this proxy, or an empty array if the proxy does not have a cached

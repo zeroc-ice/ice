@@ -387,6 +387,11 @@ export class FixedReference extends Reference {
         return "";
     }
 
+    // The connection this fixed reference is bound to, whatever its state.
+    getConnection() {
+        return this._fixedConnection;
+    }
+
     changeAdapterId() {
         throw new FixedProxyException();
     }

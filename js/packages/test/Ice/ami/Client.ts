@@ -151,12 +151,18 @@ export class Client extends TestHelper {
             // ice_getConnection establishes a new connection when the cached connection is closed.
             const con = await p.ice_getConnection();
             const fixedPrx = p.ice_fixed(con);
-            test((await fixedPrx.ice_getConnection()) === con); // Caches the fixed proxy's request handler.
+            test((await fixedPrx.ice_getConnection()) === con);
+            test(fixedPrx.ice_getCachedConnection() === con);
             await con.close();
             test((await p.ice_getConnection()) !== con);
 
-            // A fixed proxy remains bound to its connection: ice_getConnection returns it as is.
+            // A fixed proxy remains bound to its connection: both connection accessors return it as is, even
+            // when it's closed and even when the proxy never made an invocation.
             test((await fixedPrx.ice_getConnection()) === con);
+            test(fixedPrx.ice_getCachedConnection() === con);
+            const freshFixedPrx = p.ice_fixed(con);
+            test((await freshFixedPrx.ice_getConnection()) === con);
+            test(freshFixedPrx.ice_getCachedConnection() === con);
         }
         {
             // ice_getConnection also establishes a new connection when the cached connection is being closed.

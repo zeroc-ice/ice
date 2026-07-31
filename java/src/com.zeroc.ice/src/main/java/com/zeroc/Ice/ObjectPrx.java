@@ -573,7 +573,8 @@ public interface ObjectPrx {
 
     /**
      * Gets the cached connection for this proxy. If the proxy does not yet have an established connection,
-     * it does not attempt to create a connection.
+     * it does not attempt to create a connection. For a fixed proxy, this method returns the connection this
+     * proxy is bound to, even when this connection is closed.
      *
      * @return the cached {@link Connection} for this proxy, or {@code null} if the proxy does not
      *     have a cached connection; the returned connection can be closed

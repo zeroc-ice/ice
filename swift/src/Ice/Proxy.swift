@@ -232,7 +232,8 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
     func ice_isFixed() -> Bool
 
     /// Gets the cached Connection for this proxy. If the proxy does not yet have an established connection, it does
-    /// not attempt to create a connection.
+    /// not attempt to create a connection. For a fixed proxy, this function returns the connection this proxy is
+    /// bound to, even when this connection is closed.
     ///
     /// - Returns: The cached connection for this proxy, or nil if the proxy does not have a cached connection. The
     ///   returned connection can be closed.
