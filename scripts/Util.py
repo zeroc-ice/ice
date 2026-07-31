@@ -2955,7 +2955,24 @@ class AndroidProcessController(RemoteProcessController):
         raise RuntimeError(f"'{self.device}' did not {what} within {timeout}s")
 
     def bluetoothAddress(self) -> str:
-        return run(f"{self.adb()} shell settings get secure bluetooth_address").strip()
+        # Retried: the settings service is reached over binder and is occasionally unregistered for
+        # a moment on an otherwise healthy emulator, which surfaces as "cmd: Can't find service:
+        # settings". That took down an android-bt run on main at the last step, after the bond had
+        # already succeeded and the same query had answered twice earlier in the run.
+        reason = "not attempted"
+        for _ in range(10):
+            try:
+                address = run(f"{self.adb()} shell settings get secure bluetooth_address").strip()
+            except RuntimeError as ex:
+                address = ""
+                reason = str(ex)
+            else:
+                # `settings get` prints "null" and exits 0 for a key it does not have.
+                reason = f"returned {address!r}"
+                if address and address != "null":
+                    return address
+            time.sleep(2)
+        raise RuntimeError(f"could not read the Bluetooth address of '{self.device}': {reason}")
 
     def enableBluetooth(self) -> None:
         # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
@@ -3023,24 +3040,65 @@ class AndroidProcessController(RemoteProcessController):
         # Bond this (client) emulator to `peerDevice` (server) over secure RFCOMM using the btbond
         # helper installed on both by installSystemApp: start its server mode on the peer, then
         # connect + pair from this device. Bonding is what secure RFCOMM (and hence IceBT) requires.
-        # Build the peer's adb command through forDevice().adb() rather than by hand, so the peer
-        # serial goes through the same validation as our own (these all run with shell=True).
-        peerAdb = AndroidProcessController.forDevice(peerDevice).adb()
+        # Go through forDevice() rather than building the peer's adb command by hand, so the peer
+        # serial gets the same validation as our own (these all run with shell=True) and the address
+        # read gets the same retry.
+        peer = AndroidProcessController.forDevice(peerDevice)
+        peerAdb = peer.adb()
         if not re.fullmatch(r"[A-Fa-f0-9-]+", uuid):
             raise RuntimeError(f"invalid service UUID: {uuid!r}")
-        peerAddress = run(f"{peerAdb} shell settings get secure bluetooth_address").strip()
-        if not peerAddress or peerAddress == "null":
-            raise RuntimeError(f"could not read the Bluetooth address of peer '{peerDevice}'")
+        peerAddress = peer.bluetoothAddress()
         activity = f"{package}/.MainActivity"
         # Clear both logs first: the result line is matched out of logcat below, and one left over
         # from an earlier attempt would otherwise be read as this attempt's result.
         # Ours must be fatal: it is the buffer the verdict is read from below, and a stale
-        # "RESULT client OK" left in it would be read as this attempt's result. The peer's is only
-        # tidiness -- nothing reads it -- so a transient failure there must not kill the bond.
+        # "RESULT client OK" left in it would be read as this attempt's result. The peer's is
+        # cleared for the same reason -- the readiness marker below is matched out of it -- but a
+        # transient failure there must not kill the bond.
         run(f"{self.adb()} logcat -c")
         self._adbTolerantFor(peerAdb, "logcat -c")
         run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid}")
-        time.sleep(6)
+
+        def tail(log: str) -> str:
+            # Drop stack frames before truncating. One trace is longer than the character budget
+            # that used to be here, so it pushed out the lines saying what the run was doing --
+            # "connecting...", the bond state -- which are the ones worth keeping. Logcat keeps
+            # Java's leading tab on each frame, and the message sits after the tag, so match the
+            # tab rather than the start of the line.
+            lines = [ln for ln in log.splitlines() if "\tat " not in ln]
+            return "\n".join(lines[-40:]) or "<no BTBOND output>"
+
+        # Wait for the server rather than sleeping a fixed interval: it has to start an activity and
+        # register an SDP record, and a client that connects before the record exists fails in
+        # BluetoothSocket.connect() with Android's misleading "read failed, socket might closed or
+        # timeout, read ret: -1" -- which reads like an I/O fault rather than a missing service.
+        # 15s, not longer: this whole wait is spent inside the server's 120s accept() window
+        # (MainActivity.WATCHDOG_MS), and the client can then spend 60 of what is left in
+        # createBond. It only runs to the end when the server logs neither the marker nor a verdict
+        # -- a hung activity -- and 15s is already generous against the ~1s a healthy launch takes.
+        for _ in range(15):
+            peerLog = self._adbTolerantFor(peerAdb, "logcat -d -s BTBOND")
+            # A server that failed outright is terminal, and without this a fast failure ("adapter
+            # not enabled") burns the whole wait and then starts a client with nothing to talk to.
+            # Take the last verdict, not any match: one log can hold the marker and a later failure.
+            verdicts = re.findall(r"RESULT server (\w+)", peerLog)
+            if verdicts and verdicts[-1] != "OK":
+                raise RuntimeError(f"btbond's server on '{peerDevice}' failed\n{tail(peerLog)}")
+            if "listening" in peerLog:
+                # The marker is not quite readiness: listenUsingRfcommWithServiceRecord returns once
+                # the stack hands back the channel number (send_app_scn on BTA_JV_GET_SCN_EVT), which
+                # happens before the SDP record is added (only on BTA_JV_CREATE_RECORD_EVT). Settle
+                # for that gap -- a couple of main-thread turns -- so the marker is not read as
+                # readiness it does not yet imply. This also makes a stale marker harmless: if the
+                # tolerant clear above failed and an old "listening" matches, we degrade to roughly
+                # the fixed sleep this replaced instead of racing.
+                time.sleep(2)
+                break
+            time.sleep(1)
+        else:
+            # Best effort: go ahead and let the client's own connect be the gate, so a logcat
+            # hiccup on the peer cannot fail a bond that would otherwise work.
+            print(f"warning: '{peerDevice}' never logged btbond's listening marker", file=sys.stderr)
         run(f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {uuid}")
         result = ""
         verdict = ""
@@ -3067,7 +3125,15 @@ class AndroidProcessController(RemoteProcessController):
         # Match the verdict, not just the presence of a result: "RESULT client FAIL" also contains
         # "RESULT client".
         if verdict != "OK":
-            raise RuntimeError(f"btbond did not report a successful bond on '{self.device}'\n{result[-500:]}")
+            # Include the peer's log. The client's own tail says what it failed at but not why: a
+            # connect failure looks the same whether the server never came up, or came up and
+            # refused. Without this side there is no way to tell them apart after the fact.
+            peerLog = self._adbTolerantFor(peerAdb, "logcat -d -s BTBOND")
+            raise RuntimeError(
+                f"btbond did not report a successful bond on '{self.device}'\n"
+                f"{tail(result)}\n"
+                f"-- peer '{peerDevice}' --\n{tail(peerLog)}"
+            )
         # dumpsys masks all but the last two octets of a bonded address, so match on those.
         bonded = self._adbTolerant("shell dumpsys bluetooth_manager")
         if peerAddress[-5:] not in bonded:
