@@ -195,9 +195,6 @@ NodeI::createSessionAsync(
 
     shared_ptr<PublisherSessionI> session;
 
-    // Identifies the attempt started here, so a reply that arrives after it has been superseded is discarded rather
-    // than charged against a later attempt's retry budget. It is read once, where the attempt starts, and never
-    // re-read for a failure that has already happened.
     int64_t connectAttempt = 0;
 
     try
@@ -226,9 +223,6 @@ NodeI::createSessionAsync(
 
         unique_lock<mutex> lock(_mutex);
         session = createPublisherSessionServant(*subscriber);
-
-        // Identifies the attempt started here, so a reply that arrives after it has been superseded is discarded
-        // rather than charged against a later attempt's retry budget.
         connectAttempt = session->connectAttempt();
 
         s->ice_getConnectionAsync(
@@ -402,8 +396,6 @@ NodeI::createSubscriberSession(
     // The publisher session is null when we are creating a new session, in response to a topic reader announcement. It
     // is not null when we are attempting to reconnect an existing session.
 
-    // Identifies the attempt started here, so a reply that arrives after it has been superseded is discarded
-    // rather than charged against a later attempt's retry budget.
     const int64_t connectAttempt = session ? session->connectAttempt() : 0;
 
     try
@@ -452,8 +444,6 @@ NodeI::createPublisherSession(
 
     auto traceLevels = instance->getTraceLevels();
 
-    // Identifies the attempt started here, so a reply that arrives after it has been superseded is discarded
-    // rather than charged against a later attempt's retry budget.
     int64_t connectAttempt = session ? session->connectAttempt() : 0;
 
     try
@@ -512,9 +502,6 @@ NodeI::retrySubscriberSessionCreation(
     exception_ptr ex,
     std::int64_t connectAttempt)
 {
-    // SessionI::sessionCreationFailed classifies the failure and decides what to do with it in one step under the
-    // session mutex. Evaluating the session state here instead would not be race-free: checking it can itself
-    // disconnect the session, which changes the very state the decision depends on.
     if (!session->sessionCreationFailed(node, ex, connectAttempt))
     {
         removeSubscriberSession(node, session, ex);
@@ -545,9 +532,6 @@ NodeI::retryPublisherSessionCreation(
     exception_ptr ex,
     std::int64_t connectAttempt)
 {
-    // SessionI::sessionCreationFailed classifies the failure and decides what to do with it in one step under the
-    // session mutex. Evaluating the session state here instead would not be race-free: checking it can itself
-    // disconnect the session, which changes the very state the decision depends on.
     if (!session->sessionCreationFailed(node, ex, connectAttempt))
     {
         removePublisherSession(node, session, ex);

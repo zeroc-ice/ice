@@ -293,7 +293,6 @@ namespace DataStormI
 
         void
         connected(DataStormContract::SessionPrx, const Ice::ConnectionPtr&, const DataStormContract::TopicInfoSeq&);
-        [[nodiscard]] bool disconnected(const Ice::ConnectionPtr&, std::exception_ptr);
 
         /// Handles a disconnect notification (the peer's disconnected() request or the connection closure) and,
         /// when the session was connected, schedules the reconnection retry. Handling both under a single lock
@@ -307,7 +306,7 @@ namespace DataStormI
 
         // The implementations of checkSession, disconnected and retry; called with the session mutex locked.
         [[nodiscard]] bool checkSessionImpl();
-        [[nodiscard]] bool disconnectedImpl(const Ice::ConnectionPtr&, std::exception_ptr);
+        bool disconnectedImpl(const Ice::ConnectionPtr&, std::exception_ptr);
         [[nodiscard]] bool retryImpl(DataStormContract::NodePrx, std::exception_ptr);
 
         // Cancels and clears any pending retry task, breaking the _retryTask -> task -> lambda -> self reference

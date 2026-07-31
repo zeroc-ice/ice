@@ -697,13 +697,6 @@ SessionI::connected(SessionPrx session, const ConnectionPtr& newConnection, cons
 }
 
 bool
-SessionI::disconnected(const ConnectionPtr& connection, exception_ptr ex)
-{
-    lock_guard<mutex> lock(_mutex);
-    return disconnectedImpl(connection, ex);
-}
-
-bool
 SessionI::handleDisconnected(const ConnectionPtr& connection, exception_ptr ex)
 {
     lock_guard<mutex> lock(_mutex);
@@ -1095,9 +1088,9 @@ SessionI::checkSessionImpl()
         }
         catch (const LocalException&)
         {
-            // Ignore the result: either this call disconnected the session, or another thread already did. Both leave
-            // the session disconnected, which is what the caller needs to know.
-            [[maybe_unused]] bool disconnected = disconnectedImpl(_connection, current_exception());
+            // Either this call disconnected the session, or another thread already did. Both leave the session
+            // disconnected, which is what the caller needs to know.
+            disconnectedImpl(_connection, current_exception());
             return false;
         }
     }
