@@ -2,8 +2,7 @@
 
 #include "Ice/UUID.h"
 
-// We use a high quality random number generator
-// (std::random_device) to generate "version 4" UUIDs, as described in
+// We use the operating system's CSPRNG (see Random.h) to generate "version 4" UUIDs, as described in
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
 #include "Random.h"
 

@@ -1,12 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "RouterI.h"
+#include "../Ice/Random.h"
 #include "FilterManager.h"
 #include "ForwardObserver.h"
 #include "Glacier2/Session.h"
 #include "RoutingTable.h"
-
-#include <random>
 
 using namespace std;
 using namespace Ice;
@@ -39,12 +38,25 @@ Glacier2::RouterI::RouterI(
     {
         Identity ident = {"dummy", ""};
 
-        random_device rd;
-        mt19937 gen(rd());
-        uniform_int_distribution<> dist(33, 126); // We use ASCII 33-126 (from ! to ~, w/o space).
-        for (unsigned int i = 0; i < 20; ++i)
+        ident.category.reserve(20);
+        while (ident.category.size() < 20)
         {
-            ident.category.push_back(static_cast<char>(dist(gen)));
+            char buf[32];
+            IceInternal::generateRandom(buf, sizeof(buf));
+            for (char c : buf)
+            {
+                auto b = static_cast<unsigned char>(c);
+                // Reject bytes >= 188 (= 2 * 94) to avoid modulo bias.
+                if (b < 188)
+                {
+                    // Map the byte to ASCII 33-126 (from ! to ~, w/o space).
+                    ident.category.push_back(static_cast<char>(33 + b % 94));
+                    if (ident.category.size() == 20)
+                    {
+                        break;
+                    }
+                }
+            }
         }
 
         const_cast<optional<ObjectPrx>&>(_serverProxy) = _instance->serverObjectAdapter()->createProxy(ident);
