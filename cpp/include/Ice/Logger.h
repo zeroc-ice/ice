@@ -17,6 +17,9 @@ namespace Ice
 
     /// Represents Ice's abstraction for logging and tracing. Applications can provide their own logger by
     /// implementing this abstraction and setting a logger on the communicator.
+    /// @remark The Ice runtime calls #print, #trace, #warning and #error from contexts where exceptions cannot be
+    /// handled, such as destructors and `noexcept` functions. Implementations of these functions must not throw
+    /// exceptions: a thrown exception can terminate the process.
     /// @see InitializationData
     /// @headerfile Ice/Ice.h
     class ICE_API Logger
