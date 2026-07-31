@@ -20,6 +20,32 @@ void ::Writer::run(int argc, char* argv[])
 {
     Node node(argc, argv);
 
+    cout << "testing client thread pool configuration... " << flush;
+    {
+        // A node serializes the client thread pool of the communicator it creates: the sessions carried by a
+        // connection the node opened are dispatched there, and they must be dispatched in order.
+        test(node.getCommunicator()->getProperties()->getIceProperty("Ice.ThreadPool.Client.Serialize") == "1");
+
+        // A node created from NodeOptions creates its communicator through a separate path, which configures it
+        // the same way.
+        Node optionsNode{NodeOptions{}};
+        test(optionsNode.getCommunicator()->getProperties()->getIceProperty("Ice.ThreadPool.Client.Serialize") == "1");
+
+        // The node sets it as a default, so an application that configures the property itself keeps its value.
+        string args[]{
+            argv[0],
+            "--Ice.ThreadPool.Client.Serialize=0",
+            "--DataStorm.Node.Server.Enabled=0",
+            "--DataStorm.Node.Multicast.Enabled=0"};
+        char* argv2[]{args[0].data(), args[1].data(), args[2].data(), args[3].data()};
+        int argc2{4};
+        Node configuredNode{argc2, argv2};
+        test(
+            configuredNode.getCommunicator()->getProperties()->getIceProperty("Ice.ThreadPool.Client.Serialize") ==
+            "0");
+    }
+    cout << "ok" << endl;
+
     Topic<string, string> topic(node, "stringtopic");
     Topic<string, bool> controller(node, "controller");
 

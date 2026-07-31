@@ -27,6 +27,11 @@ namespace DataStorm
     struct NodeOptions
     {
         /// The Ice communicator used by the node. If nullptr, the node creates its own communicator.
+        /// @remark A DataStorm node requires the requests it receives on a connection to be dispatched in the order
+        /// they were sent; a partial update is applied to the value left by the preceding sample. A node configures
+        /// the communicators it creates accordingly, but it does not change the configuration of a communicator
+        /// supplied here. Such a communicator must set `Ice.ThreadPool.Client.Serialize` to 1 before it is created.
+        /// An executor set through Ice::InitializationData must likewise preserve the dispatch order.
         Ice::CommunicatorPtr communicator{nullptr};
 
         /// Specifies whether or not the node owns the communicator.
@@ -60,7 +65,8 @@ namespace DataStorm
         /// Constructs a DataStorm node with the specified communicator.
         /// A node is the main DataStorm object. It is required to construct topics.
         /// @param communicator The communicator used by the node. If nullptr, the node creates its own communicator.
-        /// @remark This constructor sets the nodeOwnsCommunicator option to false.
+        /// @remark This constructor sets the nodeOwnsCommunicator option to false. The communicator must be
+        /// configured for ordered dispatch, as described in NodeOptions::communicator.
         explicit Node(Ice::CommunicatorPtr communicator);
 
         /// Constructs a DataStorm node with an Ice communicator initialized from command-line arguments.
@@ -105,10 +111,18 @@ namespace DataStorm
         [[nodiscard]] Ice::ConnectionPtr getSessionConnection(std::string_view ident) const noexcept;
 
     private:
+        /// Returns the properties a node applies to the communicators it creates.
+        static Ice::PropertiesPtr defaultProperties();
+
         template<typename ArgvT> NodeOptions createNodeOptions(int& argc, ArgvT argv)
         {
+            // The node defaults have to be in place before the communicator is created: the client thread pool
+            // reads its configuration when the communicator creates it.
+            Ice::InitializationData initData;
+            initData.properties = std::make_shared<Ice::Properties>(argc, argv, defaultProperties());
+
             NodeOptions options;
-            options.communicator = Ice::initialize(argc, argv);
+            options.communicator = Ice::initialize(std::move(initData));
             options.nodeOwnsCommunicator = true;
             return options;
         }
