@@ -6,12 +6,16 @@ import xml.etree.ElementTree as ElementTree
 
 from Util import ClientTestCase, SliceTranslator, TestSuite
 
-# The expected dependencies of the compiled sources, keyed by file name.
-expectedDependencies = {"c.ice": ["a.ice", "b.ice"], "d.ice": ["a.ice"], "e.ice": ["a.ice"]}
-
-# e.ice is compiled from a directory whose name holds an XML-significant character, so its dependency entry is
-# only parsable when the compiler escapes the file names it writes.
+# e.ice and f.ice sit in a directory whose name holds an XML-significant character, so both the source and the
+# dependency entries of e.ice are only parsable when the compiler escapes the file names it writes.
 escapedDirectory = "a&b"
+
+# The expected dependencies of the compiled sources, keyed by the directory and file name of the source.
+expectedDependencies = {
+    os.path.join("slices", "c.ice"): [os.path.join("slices", "a.ice"), os.path.join("slices", "b.ice")],
+    os.path.join("slices", "d.ice"): [os.path.join("slices", "a.ice")],
+    os.path.join(escapedDirectory, "e.ice"): [os.path.join("slices", "a.ice"), os.path.join(escapedDirectory, "f.ice")],
+}
 
 
 class SliceDependenciesTestCase(ClientTestCase):
@@ -20,14 +24,19 @@ class SliceDependenciesTestCase(ClientTestCase):
 
         current.mkdirs(escapedDirectory)
         current.createFile(
+            os.path.join(escapedDirectory, "f.ice"),
+            ["#pragma once", "module Test", "{", "    class F", "    {", "    }", "}"],
+        )
+        current.createFile(
             os.path.join(escapedDirectory, "e.ice"),
             [
                 '#include "../slices/a.ice"',
+                '#include "f.ice"',
                 "module Test",
                 "{",
                 "    interface E",
                 "    {",
-                "        void op(A a);",
+                "        void op(A a, F f);",
                 "    }",
                 "}",
             ],
@@ -54,13 +63,18 @@ class SliceDependenciesTestCase(ClientTestCase):
         current.writeln("ok")
 
     def checkDependencies(self, dependencies):
-        # The sources and their dependencies are reported as absolute paths; only compare the file names.
+        # The sources and their dependencies are reported as absolute paths; compare the directory and file name,
+        # so that a directory holding an escaped character must come back spelled exactly as it is on disk.
         actual = {
-            os.path.basename(source): sorted(os.path.basename(dependency) for dependency in dependsOn)
+            self.tail(source): sorted(self.tail(dependency) for dependency in dependsOn)
             for source, dependsOn in dependencies.items()
         }
-        if actual != expectedDependencies:
-            raise RuntimeError("failed! expected {0} but got {1}".format(expectedDependencies, actual))
+        expected = {source: sorted(dependsOn) for source, dependsOn in expectedDependencies.items()}
+        if actual != expected:
+            raise RuntimeError("failed! expected {0} but got {1}".format(expected, actual))
+
+    def tail(self, path):
+        return os.path.join(os.path.basename(os.path.dirname(path)), os.path.basename(path))
 
 
 TestSuite(__name__, [SliceDependenciesTestCase()], chdir=True)
