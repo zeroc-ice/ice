@@ -390,7 +390,7 @@ IceRuby_Communicator_getImplicitContext(VALUE self)
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         Ice::ImplicitContextPtr implicitContext = p->getImplicitContext();
-        return createImplicitContext(implicitContext);
+        return implicitContext ? createImplicitContext(implicitContext) : Qnil;
     }
     ICE_RUBY_CATCH
     return Qnil;
