@@ -259,11 +259,21 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
     }
 
     public Connection ice_getConnection() {
-        return _iceI_ice_getConnectionAsync().waitForResponse();
+        // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.
+        if (_reference instanceof FixedReference fixedReference) {
+            return fixedReference.getConnection();
+        } else {
+            return _iceI_ice_getConnectionAsync().waitForResponse();
+        }
     }
 
     public CompletableFuture<Connection> ice_getConnectionAsync() {
-        return _iceI_ice_getConnectionAsync();
+        // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.
+        if (_reference instanceof FixedReference fixedReference) {
+            return CompletableFuture.completedFuture(fixedReference.getConnection());
+        } else {
+            return _iceI_ice_getConnectionAsync();
+        }
     }
 
     private ProxyGetConnection _iceI_ice_getConnectionAsync() {
@@ -273,7 +283,12 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
     }
 
     public Connection ice_getCachedConnection() {
-        return _requestHandlerCache.getCachedConnection();
+        // A fixed proxy is bound to a single connection: return this connection as is, whatever its state.
+        if (_reference instanceof FixedReference fixedReference) {
+            return fixedReference.getConnection();
+        } else {
+            return _requestHandlerCache.getCachedConnection();
+        }
     }
 
     public void ice_flushBatchRequests() {

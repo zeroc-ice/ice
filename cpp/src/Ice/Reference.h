@@ -209,6 +209,9 @@ namespace IceInternal
         [[nodiscard]] RequestHandlerPtr getRequestHandler() const final;
         [[nodiscard]] const BatchRequestQueuePtr& getBatchRequestQueue() const noexcept final;
 
+        // The connection this fixed reference is bound to, whatever its state.
+        [[nodiscard]] const Ice::ConnectionIPtr& fixedConnection() const noexcept { return _fixedConnection; }
+
         bool operator==(const Reference&) const noexcept final;
         bool operator<(const Reference&) const noexcept final;
 

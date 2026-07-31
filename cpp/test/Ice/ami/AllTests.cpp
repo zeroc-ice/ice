@@ -1142,12 +1142,28 @@ allTests(TestHelper* helper, bool collocated)
                 // ice_getConnection establishes a new connection when the cached connection is closed.
                 auto con = p->ice_getConnection();
                 auto fixedPrx = p->ice_fixed(con);
-                test(fixedPrx->ice_getConnection() == con); // Caches the fixed proxy's request handler.
+                test(fixedPrx->ice_getConnection() == con);
+                test(fixedPrx->ice_getCachedConnection() == con);
                 con->close().get();
                 test(p->ice_getConnection() != con);
 
-                // A fixed proxy remains bound to its connection: ice_getConnection returns it as is.
+                // A fixed proxy remains bound to its connection: both connection accessors return it as is, even
+                // when it's closed and even when the proxy never made an invocation.
                 test(fixedPrx->ice_getConnection() == con);
+                test(fixedPrx->ice_getCachedConnection() == con);
+                auto freshFixedPrx = p->ice_fixed(con);
+                test(freshFixedPrx->ice_getConnection() == con);
+                test(freshFixedPrx->ice_getCachedConnection() == con);
+
+                // Same for the async variants. The response callback executes from a thread pool thread, not from
+                // the calling thread.
+                test(fixedPrx->ice_getConnectionAsync().get() == con);
+                auto r = make_shared<promise<pair<ConnectionPtr, thread::id>>>();
+                fixedPrx->ice_getConnectionAsync([r](const ConnectionPtr& c)
+                                                 { r->set_value({c, this_thread::get_id()}); });
+                auto [callbackCon, callbackThreadId] = r->get_future().get();
+                test(callbackCon == con);
+                test(callbackThreadId != this_thread::get_id());
             }
             {
                 // ice_getConnection also establishes a new connection when the cached connection is being closed.

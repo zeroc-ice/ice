@@ -222,6 +222,10 @@ namespace Ice
         void executeCallback(const CloseCallback& callback) noexcept;
         void executeCallback(const std::function<void()>& callback) noexcept;
 
+        /// Gets the thread pool that services this connection: the client thread pool for an outgoing connection,
+        /// and the object adapter's thread pool for an incoming connection.
+        [[nodiscard]] const IceInternal::ThreadPoolPtr& getThreadPool() const noexcept { return _threadPool; }
+
         /// Aborts the connection with a ConnectionAbortedException if the connection is active and did not receive
         /// a byte for some time. See the IdleTimeoutTransceiverDecorator.
         void idleCheck(const std::chrono::seconds& idleTimeout) noexcept;
