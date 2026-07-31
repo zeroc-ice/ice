@@ -686,6 +686,9 @@ SessionI::connected(SessionPrx session, const ConnectionPtr& newConnection, cons
 
     ++_sessionInstanceId;
 
+    // The session is connected: any attempt still in flight is superseded.
+    ++_connectAttempt;
+
     if (_traceLevels->session > 0)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
@@ -708,13 +711,6 @@ SessionI::connected(SessionPrx session, const ConnectionPtr& newConnection, cons
             // Ignore
         }
     }
-}
-
-bool
-SessionI::disconnected(const ConnectionPtr& connection, exception_ptr ex)
-{
-    lock_guard<mutex> lock(_mutex);
-    return disconnectedImpl(connection, ex);
 }
 
 bool
@@ -806,10 +802,57 @@ SessionI::disconnectedImpl(const ConnectionPtr& connection, exception_ptr ex)
 }
 
 bool
-SessionI::retry(NodePrx node, exception_ptr exception)
+SessionI::sessionCreationFailed(NodePrx node, exception_ptr exception, int64_t connectAttempt)
 {
     lock_guard<mutex> lock(_mutex);
+
+    if (connectAttempt != _connectAttempt)
+    {
+        // A reply from a superseded attempt: the session has connected since, or an earlier failure was already
+        // accounted for and a fresh attempt scheduled. Acting on it would consume the current attempt's retry budget
+        // for an outcome that no longer applies, and a burst of such replies exhausts the budget in milliseconds and
+        // destroys a session that is reconnecting normally.
+        if (_traceLevels->session > 1)
+        {
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+            out << _id << ": ignoring a session creation failure from attempt " << connectAttempt
+                << ", the current attempt is " << _connectAttempt;
+        }
+        return true;
+    }
+
+    // AlreadyConnected reports that the peer already has a session with this node, so it is a failure only when this
+    // session is not connected. checkSessionImpl can disconnect the session when it finds the connection already
+    // closed, which is why the check runs here rather than in the caller: it must not be separated from the decision
+    // it feeds, and a disconnect discovered by it must still reach retryImpl below.
+    if (exception)
+    {
+        try
+        {
+            rethrow_exception(exception);
+        }
+        catch (const SessionCreationException& ex)
+        {
+            if (ex.error == SessionCreationError::AlreadyConnected && checkSessionImpl())
+            {
+                // A concurrent session creation from the peer succeeded, no need to retry.
+                return true;
+            }
+        }
+        catch (const std::exception&)
+        {
+            // Any other failure is handled by retryImpl below.
+        }
+    }
+
     return retryImpl(std::move(node), std::move(exception));
+}
+
+int64_t
+SessionI::connectAttempt() const
+{
+    lock_guard<mutex> lock(_mutex);
+    return _connectAttempt;
 }
 
 bool
@@ -823,6 +866,10 @@ SessionI::retryImpl(NodePrx node, exception_ptr exception)
     {
         return false;
     }
+
+    // This failure is about to be accounted for, either by scheduling a fresh attempt or by giving up. Either way
+    // the attempt it belongs to is finished, so later replies from it must not be counted again.
+    ++_connectAttempt;
 
     if (exception)
     {
@@ -1035,39 +1082,38 @@ SessionI::getConnection() const
 bool
 SessionI::checkSession()
 {
-    while (true)
+    lock_guard<mutex> lock(_mutex);
+    return checkSessionImpl();
+}
+
+bool
+SessionI::checkSessionImpl()
+{
+    // Called with the session mutex locked.
+    if (!_session)
     {
-        unique_lock<mutex> lock(_mutex);
-        if (_session)
+        return false;
+    }
+
+    if (_connection)
+    {
+        // Make sure the connection is still established. It's possible that the connection got closed and we were not
+        // notified yet by the connection manager. checkSession explicitly checks for the connection to make sure that
+        // if we get a session creation request from a peer (which might detect the connection closure before), it
+        // doesn't get ignored.
+        try
         {
-            if (_connection)
-            {
-                // Make sure the connection is still established. It's possible that the connection got closed and we
-                // were not notified yet by the connection manager. checkSession explicitly checks for the connection
-                // to make sure that if we get a session creation request from a peer (which might detect the connection
-                // closure before), it doesn't get ignored.
-                try
-                {
-                    _connection->throwException();
-                }
-                catch (const LocalException&)
-                {
-                    auto connection = _connection;
-                    lock.unlock();
-                    if (!disconnected(connection, current_exception()))
-                    {
-                        continue;
-                    }
-                    return false;
-                }
-            }
-            return true;
+            _connection->throwException();
         }
-        else
+        catch (const LocalException&)
         {
+            // Either this call disconnected the session, or another thread already did. Both leave the session
+            // disconnected, which is what the caller needs to know.
+            disconnectedImpl(_connection, current_exception());
             return false;
         }
     }
+    return true;
 }
 
 optional<SessionPrx>

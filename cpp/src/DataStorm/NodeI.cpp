@@ -194,6 +194,9 @@ NodeI::createSessionAsync(
     assert(instance);
 
     shared_ptr<PublisherSessionI> session;
+
+    int64_t connectAttempt = 0;
+
     try
     {
         NodePrx s = *subscriber;
@@ -220,6 +223,8 @@ NodeI::createSessionAsync(
 
         unique_lock<mutex> lock(_mutex);
         session = createPublisherSessionServant(*subscriber);
+        connectAttempt = session->connectAttempt();
+
         s->ice_getConnectionAsync(
             [=, self = shared_from_this()](const auto& connection) mutable
             {
@@ -271,8 +276,8 @@ NodeI::createSessionAsync(
                                 connection,
                                 instance->getTopicFactory()->getTopicWriters());
                         },
-                        [self, subscriber, session](auto ex)
-                        { self->retryPublisherSessionCreation(*subscriber, session, ex); });
+                        [self, subscriber, session, connectAttempt](auto ex)
+                        { self->retryPublisherSessionCreation(*subscriber, session, ex, connectAttempt); });
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
@@ -284,12 +289,12 @@ NodeI::createSessionAsync(
                 }
                 catch (const LocalException&)
                 {
-                    self->retryPublisherSessionCreation(*subscriber, session, current_exception());
+                    self->retryPublisherSessionCreation(*subscriber, session, current_exception(), connectAttempt);
                 }
             },
-            [self = shared_from_this(), session, subscriber, exception](exception_ptr ex)
+            [self = shared_from_this(), session, subscriber, exception, connectAttempt](exception_ptr ex)
             {
-                self->retryPublisherSessionCreation(*subscriber, session, ex);
+                self->retryPublisherSessionCreation(*subscriber, session, ex, connectAttempt);
                 exception(make_exception_ptr(SessionCreationException{SessionCreationError::Internal}));
             });
     }
@@ -307,7 +312,7 @@ NodeI::createSessionAsync(
     {
         assert(session);
         exception(make_exception_ptr(SessionCreationException{SessionCreationError::Internal}));
-        retryPublisherSessionCreation(*subscriber, session, current_exception());
+        retryPublisherSessionCreation(*subscriber, session, current_exception(), connectAttempt);
     }
 }
 
@@ -391,6 +396,8 @@ NodeI::createSubscriberSession(
     // The publisher session is null when we are creating a new session, in response to a topic reader announcement. It
     // is not null when we are attempting to reconnect an existing session.
 
+    const int64_t connectAttempt = session ? session->connectAttempt() : 0;
+
     try
     {
         subscriber = getNodeWithExistingConnection(instance, subscriber, subscriberConnection);
@@ -398,11 +405,11 @@ NodeI::createSubscriberSession(
         subscriber->initiateCreateSessionAsync(
             _proxy,
             nullptr,
-            [self = shared_from_this(), session, subscriber](exception_ptr ex)
+            [self = shared_from_this(), session, subscriber, connectAttempt](exception_ptr ex)
             {
                 if (session)
                 {
-                    self->retryPublisherSessionCreation(subscriber, session, ex);
+                    self->retryPublisherSessionCreation(subscriber, session, ex, connectAttempt);
                 }
                 // Else node is shutting down, or the session was established by a concurrent call.
             });
@@ -419,7 +426,7 @@ NodeI::createSubscriberSession(
     {
         if (session)
         {
-            retryPublisherSessionCreation(subscriber, session, current_exception());
+            retryPublisherSessionCreation(subscriber, session, current_exception(), connectAttempt);
         }
         // Else node is shutting down, or the session was established by a concurrent call.
     }
@@ -437,6 +444,8 @@ NodeI::createPublisherSession(
 
     auto traceLevels = instance->getTraceLevels();
 
+    int64_t connectAttempt = session ? session->connectAttempt() : 0;
+
     try
     {
         auto p = getNodeWithExistingConnection(instance, publisher, publisherConnection);
@@ -445,6 +454,7 @@ NodeI::createPublisherSession(
         if (!session)
         {
             session = createSubscriberSessionServant(publisher);
+            connectAttempt = session->connectAttempt();
             if (session->checkSession())
             {
                 // The session is already connected.
@@ -465,8 +475,8 @@ NodeI::createPublisherSession(
             uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
             false,
             nullptr,
-            [self = shared_from_this(), publisher, session](exception_ptr ex)
-            { self->retrySubscriberSessionCreation(publisher, session, ex); });
+            [self = shared_from_this(), publisher, session, connectAttempt](exception_ptr ex)
+            { self->retrySubscriberSessionCreation(publisher, session, ex, connectAttempt); });
     }
     catch (const CommunicatorDestroyedException&)
     {
@@ -480,7 +490,7 @@ NodeI::createPublisherSession(
     }
     catch (const LocalException&)
     {
-        retrySubscriberSessionCreation(publisher, session, current_exception());
+        retrySubscriberSessionCreation(publisher, session, current_exception(), connectAttempt);
         throw SessionCreationException{SessionCreationError::Internal};
     }
 }
@@ -489,27 +499,10 @@ void
 NodeI::retrySubscriberSessionCreation(
     const NodePrx& node,
     const shared_ptr<SubscriberSessionI>& session,
-    exception_ptr ex)
+    exception_ptr ex,
+    std::int64_t connectAttempt)
 {
-    try
-    {
-        rethrow_exception(ex);
-    }
-    catch (const SessionCreationException& sessionCreationException)
-    {
-        if (sessionCreationException.error == SessionCreationError::AlreadyConnected && session->checkSession())
-        {
-            // A concurrent session attempt from the peer succeeded, no need to retry.
-            return;
-        }
-        // else let Session::retry handle the exception
-    }
-    catch (...)
-    {
-        // Let Session::retry handle the exception.
-    }
-
-    if (!session->retry(node, ex))
+    if (!session->sessionCreationFailed(node, ex, connectAttempt))
     {
         removeSubscriberSession(node, session, ex);
     }
@@ -536,27 +529,10 @@ void
 NodeI::retryPublisherSessionCreation(
     const NodePrx& node,
     const shared_ptr<PublisherSessionI>& session,
-    exception_ptr ex)
+    exception_ptr ex,
+    std::int64_t connectAttempt)
 {
-    try
-    {
-        rethrow_exception(ex);
-    }
-    catch (const SessionCreationException& sessionCreationException)
-    {
-        if (sessionCreationException.error == SessionCreationError::AlreadyConnected && session->checkSession())
-        {
-            // A concurrent session attempt from the peer succeeded, no need to retry.
-            return;
-        }
-        // else let Session::retry handle the exception
-    }
-    catch (...)
-    {
-        // Let Session::retry handle the exception.
-    }
-
-    if (!session->retry(node, ex))
+    if (!session->sessionCreationFailed(node, ex, connectAttempt))
     {
         removePublisherSession(node, session, ex);
     }
