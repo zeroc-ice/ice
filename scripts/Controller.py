@@ -355,9 +355,12 @@ class ControllerDriver(Driver):
         if failed:
             raise RuntimeError(f"Bluetooth setup failed for: {', '.join(failed)}")
 
-        AndroidProcessController.forDevice(self.btClient).bond(self.btServer, self.uuid)
+        # bond() has already read the server's address and returns it, so use that rather than
+        # asking the device a third time -- this print is the harness's only stdout, and re-querying
+        # here has failed a run that had otherwise finished its work.
+        btAddress = AndroidProcessController.forDevice(self.btClient).bond(self.btServer, self.uuid)
         print(f"bonded {self.btClient} to {self.btServer}", file=sys.stderr)
-        print(AndroidProcessController.forDevice(self.btServer).bluetoothAddress())
+        print(btAddress)
         return 0
 
     def runBluetoothDevice(self) -> int:
