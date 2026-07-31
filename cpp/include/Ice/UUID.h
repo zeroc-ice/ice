@@ -10,6 +10,7 @@ namespace Ice
 {
     /// Generates a universally unique identifier (UUID).
     /// @return The UUID.
+    /// @throws std::system_error If the operating system's random number generator fails.
     ICE_API std::string generateUUID();
 }
 
