@@ -303,7 +303,6 @@ namespace DataStormI
 
         void
         connected(DataStormContract::SessionPrx, const Ice::ConnectionPtr&, const DataStormContract::TopicInfoSeq&);
-        [[nodiscard]] bool disconnected(const Ice::ConnectionPtr&, std::exception_ptr);
 
         /// Handles a disconnect notification (the peer's disconnected() request or the connection closure) and,
         /// when the session was connected, schedules the reconnection retry. Handling both under a single lock
@@ -313,11 +312,11 @@ namespace DataStormI
         /// session.
         [[nodiscard]] bool handleDisconnected(const Ice::ConnectionPtr&, std::exception_ptr);
 
-        [[nodiscard]] bool retry(DataStormContract::NodePrx, std::exception_ptr);
         void destroyImpl(const std::exception_ptr&);
 
-        // The implementations of disconnected and retry; called with the session mutex locked.
-        [[nodiscard]] bool disconnectedImpl(const Ice::ConnectionPtr&, std::exception_ptr);
+        // The implementations of checkSession, disconnected and retry; called with the session mutex locked.
+        [[nodiscard]] bool checkSessionImpl();
+        bool disconnectedImpl(const Ice::ConnectionPtr&, std::exception_ptr);
         [[nodiscard]] bool retryImpl(DataStormContract::NodePrx, std::exception_ptr);
 
         // Cancels and clears any pending retry task, breaking the _retryTask -> task -> lambda -> self reference
@@ -330,6 +329,25 @@ namespace DataStormI
         [[nodiscard]] Ice::ConnectionPtr getConnection() const;
         [[nodiscard]] std::optional<DataStormContract::SessionPrx> getSession() const;
         [[nodiscard]] bool checkSession();
+
+        /// Returns the identifier of the session creation attempt in progress. Callers starting an attempt pass
+        /// the value they read here to #sessionCreationFailed.
+        [[nodiscard]] std::int64_t connectAttempt() const;
+
+        /// Handles the failure of a session creation attempt: classifies it and decides whether to ignore it, retry,
+        /// or give up, as a single step under the session mutex. It cannot be split into separate queries because
+        /// inspecting the session state can itself disconnect the session.
+        /// @param node The peer node to reconnect to.
+        /// @param exception The failure reported by the attempt.
+        /// @param connectAttempt The value #connectAttempt returned when the attempt was started. A reply from an
+        /// attempt that has since been superseded is ignored, so it cannot consume the current attempt's retry
+        /// budget; without this a burst of late replies destroys a session that is reconnecting normally.
+        /// @return `false` when the retry limit was reached or no retry is possible: the caller must remove the
+        /// session.
+        [[nodiscard]] bool sessionCreationFailed(
+            DataStormContract::NodePrx node,
+            std::exception_ptr exception,
+            std::int64_t connectAttempt);
 
         [[nodiscard]] DataStormContract::SessionPrx getProxy() const { return _proxy; }
 
@@ -473,6 +491,13 @@ namespace DataStormI
 
         // The number of attempts made to reconnect the session.
         int _retryCount{0};
+
+        // Identifies the current session creation attempt. It is incremented when the session connects and when a
+        // failure is accounted for, which are the two points that make an attempt still in flight irrelevant. It is
+        // deliberately NOT incremented on a bare disconnect: disconnecting does not by itself schedule a retry, so
+        // invalidating the in-flight attempt there would discard the failure that would have scheduled one, leaving
+        // the session with no attempt, no retry task, and no removal.
+        std::int64_t _connectAttempt{0};
 
         // A retry task, scheduled if an attempt to reconnect the session is underway; nullptr if no retry is scheduled.
         IceInternal::TimerTaskPtr _retryTask;
