@@ -664,15 +664,15 @@ Ice::ObjectPrx::ice_getConnectionAsync(
                             }
                             catch (const Ice::Exception& e)
                             {
-                                out << "Ice::Exception thrown by response callback:\n" << e;
+                                out << "Ice::Exception raised by response callback:\n" << e;
                             }
                             catch (const std::exception& e)
                             {
-                                out << "std::exception thrown by response callback:\n" << e.what();
+                                out << "std::exception raised by response callback:\n" << e.what();
                             }
                             catch (...)
                             {
-                                out << "unknown exception thrown by response callback";
+                                out << "unknown exception raised by response callback";
                             }
                         }
                     }

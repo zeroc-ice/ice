@@ -1155,11 +1155,15 @@ allTests(TestHelper* helper, bool collocated)
                 test(freshFixedPrx->ice_getConnection() == con);
                 test(freshFixedPrx->ice_getCachedConnection() == con);
 
-                // Same for the async variants.
+                // Same for the async variants. The response callback executes from a thread pool thread, not from
+                // the calling thread.
                 test(fixedPrx->ice_getConnectionAsync().get() == con);
-                auto r = make_shared<promise<ConnectionPtr>>();
-                fixedPrx->ice_getConnectionAsync([r](const ConnectionPtr& c) { r->set_value(c); });
-                test(r->get_future().get() == con);
+                auto r = make_shared<promise<pair<ConnectionPtr, thread::id>>>();
+                fixedPrx->ice_getConnectionAsync([r](const ConnectionPtr& c)
+                                                 { r->set_value({c, this_thread::get_id()}); });
+                auto [callbackCon, callbackThreadId] = r->get_future().get();
+                test(callbackCon == con);
+                test(callbackThreadId != this_thread::get_id());
             }
             {
                 // ice_getConnection also establishes a new connection when the cached connection is being closed.

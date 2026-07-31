@@ -469,7 +469,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
 
     /// <summary>
     /// Gets the cached Connection for this proxy. If the proxy does not yet have an established
-    /// connection, it does not attempt to create a connection.
+    /// connection, it does not attempt to create a connection. For a fixed proxy, this method returns
+    /// the connection this proxy is bound to, even when this connection is closed.
     /// </summary>
     /// <returns>The cached Connection for this proxy (null if the proxy does not have a cached connection). The
     /// returned connection can be closed.</returns>
