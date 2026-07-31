@@ -375,7 +375,7 @@ public class AllTests {
             } catch (RemoteLoggerAlreadyAttachedException ex) {
                 test(false);
             }
-            remoteLogger.wait(1);
+            test(remoteLogger.wait(1));
 
             for (int i = 0; i < r.returnValue.length; i++) {
                 LogMessage m = r.returnValue[i];
@@ -387,7 +387,7 @@ public class AllTests {
             rcom.error("rerror");
             rcom.print("rprint");
 
-            remoteLogger.wait(4);
+            test(remoteLogger.wait(4));
 
             remoteLogger.checkNextLog(LogMessageType.TraceMessage, "rtrace", "testCat");
             remoteLogger.checkNextLog(LogMessageType.WarningMessage, "rwarning", "");
@@ -408,7 +408,7 @@ public class AllTests {
             } catch (RemoteLoggerAlreadyAttachedException ex) {
                 test(false);
             }
-            remoteLogger.wait(1);
+            test(remoteLogger.wait(1));
 
             for (int i = 0; i < r.returnValue.length; i++) {
                 LogMessage m = r.returnValue[i];
@@ -421,7 +421,7 @@ public class AllTests {
             rcom.error("rerror2");
             rcom.print("rprint2");
 
-            remoteLogger.wait(2);
+            test(remoteLogger.wait(2));
 
             remoteLogger.checkNextLog(LogMessageType.TraceMessage, "rtrace2", "testCat");
             remoteLogger.checkNextLog(LogMessageType.ErrorMessage, "rerror2", "");
@@ -460,6 +460,51 @@ public class AllTests {
             test(r.returnValue.length == 2);
             test("print2".equals(r.returnValue[0].message));
             test("trace2".equals(r.returnValue[1].message));
+
+            rcom.destroy();
+        }
+        {
+            // With KeepLogs=0 and KeepTraces=0, no message is retained, but messages are still
+            // delivered to attached remote loggers.
+            Map<String, String> props = new HashMap<>();
+            props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
+            props.put("Ice.Admin.InstanceName", "Test");
+            props.put("NullLogger", "1");
+            props.put("Ice.Admin.Logger.KeepLogs", "0");
+            props.put("Ice.Admin.Logger.KeepTraces", "0");
+            RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
+
+            rcom.print("print1");
+            rcom.trace("testCat", "trace1");
+
+            LoggerAdminPrx logger = LoggerAdminPrx.checkedCast(rcom.getAdmin(), "Logger");
+            test(logger != null);
+
+            LoggerAdmin.GetLogResult r = logger.getLog(null, null, -1);
+            test(r.returnValue.length == 0);
+
+            ObjectAdapter adapter =
+                helper.communicator()
+                    .createObjectAdapterWithEndpoints(
+                        "RemoteLoggerAdapter2", "tcp -h localhost");
+            RemoteLoggerI remoteLogger = new RemoteLoggerI();
+            RemoteLoggerPrx myProxy =
+                RemoteLoggerPrx.uncheckedCast(adapter.addWithUUID(remoteLogger));
+            adapter.activate();
+
+            try {
+                logger.attachRemoteLogger(myProxy, null, null, -1);
+            } catch (RemoteLoggerAlreadyAttachedException ex) {
+                test(false);
+            }
+            test(remoteLogger.wait(1));
+
+            rcom.print("print2");
+            rcom.trace("testCat", "trace2");
+            test(remoteLogger.wait(2));
+
+            remoteLogger.checkNextLog(LogMessageType.PrintMessage, "print2", "");
+            remoteLogger.checkNextLog(LogMessageType.TraceMessage, "trace2", "testCat");
 
             rcom.destroy();
         }
