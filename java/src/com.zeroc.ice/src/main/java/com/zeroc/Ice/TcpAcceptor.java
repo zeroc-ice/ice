@@ -29,7 +29,7 @@ class TcpAcceptor implements Acceptor {
         try {
             _addr = Network.doBind(_fd, _addr, _backlog);
         } catch (LocalException ex) {
-            _fd = null;
+            close();
             throw ex;
         }
         _endpoint = _endpoint.endpoint(this);
@@ -79,7 +79,10 @@ class TcpAcceptor implements Acceptor {
 
             _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
         } catch (RuntimeException ex) {
-            _fd = null;
+            if (_fd != null) {
+                Network.closeSocketNoThrow(_fd);
+                _fd = null;
+            }
             throw ex;
         }
     }
