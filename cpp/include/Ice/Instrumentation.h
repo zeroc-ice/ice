@@ -103,6 +103,9 @@ namespace Ice::Instrumentation
     };
 
     /// The base class for Ice observers.
+    /// @remark The Ice runtime calls observers from contexts where exceptions cannot be handled, such as destructors
+    /// and `noexcept` functions. Implementations of this interface and its derived interfaces must not throw
+    /// exceptions: a thrown exception can terminate the process.
     /// @headerfile Ice/Ice.h
     class Observer
     {
@@ -240,6 +243,9 @@ namespace Ice::Instrumentation
     /// objects. This interface should be implemented by add-ins that wish to observe Ice objects in order to collect
     /// statistics. An instance of this interface can be provided to the Ice runtime through the Ice communicator
     /// initialization data.
+    /// @remark The Ice runtime calls this interface from contexts where exceptions cannot be handled, such as
+    /// `noexcept` functions. An implementation of this interface must not throw exceptions: a thrown exception can
+    /// terminate the process.
     /// @headerfile Ice/Ice.h
     class CommunicatorObserver
     {
