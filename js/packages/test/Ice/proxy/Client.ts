@@ -730,6 +730,19 @@ export class Client extends TestHelper {
         test(!compObj.ice_context(null!).equals(compObj.ice_context(ctx2)));
         test(!compObj.ice_context(ctx1).equals(compObj.ice_context(ctx2)));
 
+        // Two proxies with the same context entries are equal and hash the same, whatever the order in which the
+        // entries were added to the context.
+        const ctx3 = new Map([
+            ["ctx1", "v1"],
+            ["ctx2", "v2"],
+        ]);
+        const ctx4 = new Map([
+            ["ctx2", "v2"],
+            ["ctx1", "v1"],
+        ]);
+        test(compObj.ice_context(ctx3).equals(compObj.ice_context(ctx4)));
+        test(compObj.ice_context(ctx3).hashCode() === compObj.ice_context(ctx4).hashCode());
+
         let compObj1 = new Ice.ObjectPrx(communicator, "foo:" + defaultProtocol + " -h 127.0.0.1 -p 10000");
         let compObj2 = new Ice.ObjectPrx(communicator, "foo:" + defaultProtocol + " -h 127.0.0.1 -p 10001");
         test(!compObj1.equals(compObj2));
