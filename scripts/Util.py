@@ -3152,9 +3152,23 @@ class AndroidProcessController(RemoteProcessController):
         print("-- adb forwards --")
         print(self._adbTolerant("forward --list"))
         print("-- controller app logcat --")
-        keep = re.compile("testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc")
+        # BTBOND, not just com.zeroc: btbond's own narrative -- "start mode=", "listening",
+        # "connecting...", "watchdog: run exceeded" -- carries no package name, so only its stack
+        # frames were surviving this filter. That left a bond failure showing where it threw but
+        # nothing about what either side had been doing.
+        keep = re.compile(
+            "testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc|BTBOND"
+        )
         lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
-        print("\n".join(lines[-50:]))
+        print("\n".join(lines[-80:]))
+        # The events buffer, because activity relaunch is invisible in the main one: the "Relaunching"
+        # logs sit behind DEBUG_SWITCH/DEBUG_CONFIGURATION, both off in a release build, and a
+        # relaunch emits no new "START u0". wm_relaunch_activity/wm_create_activity are the durable
+        # record, and a second onCreate is what makes two workers race one RFCOMM channel.
+        print("-- activity lifecycle (events) --")
+        events = re.compile("wm_(relaunch|create|destroy|finish)_activity|am_proc_(start|died)")
+        lines = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if events.search(ln)]
+        print("\n".join(lines[-40:]) or "<none>")
 
     # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
     # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared

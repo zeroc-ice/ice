@@ -57,6 +57,11 @@ public class MainActivity extends Activity {
     private volatile BluetoothServerSocket serverSocket;
     private volatile BluetoothSocket socket;
 
+    // The worker of whichever instance is currently running one, or null. Process-wide, because the
+    // instances that race are in one process -- see onCreate. Only ever touched from the main
+    // thread; volatile so the worker's own writes are not needed for visibility.
+    private static volatile Thread activeWorker;
+
     // Best-effort auto-accept of incoming pairing requests. The app runs as a privileged system app
     // (BLUETOOTH_PRIVILEGED), so setPairingConfirmation should succeed; setPin is a fallback that logs
     // any SecurityException.
@@ -93,6 +98,20 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        // The system recreates this activity during a normal run (see onDestroy), and a relaunch
+        // reuses the original intent -- so onCreate can run again in this process with the same
+        // extras and start a second identical worker. That is survivable only while the two do not
+        // overlap in connect(): two RFCOMM connects from one adapter to the same peer and UUID
+        // resolve the same DLCI, the second is refused with PORT_ALREADY_OPENED, and the stack then
+        // tears down the *first* worker's port as well -- so both fail, and the server's
+        // already-accepted connection dies with them. One worker at a time. onCreate always runs on
+        // the main thread, so testing and assigning below needs no further synchronisation.
+        Thread running = activeWorker;
+        if (running != null && running.isAlive()) {
+            Log.i(TAG, "a worker is already running in this process; not starting another");
+            finish();
+            return;
+        }
         // ACTION_PAIRING_REQUEST is a system broadcast; register exported (and unregister in onDestroy).
         registerReceiver(
             pairingReceiver,
@@ -115,6 +134,7 @@ public class MainActivity extends Activity {
             }
         });
         worker.start();
+        activeWorker = worker;
         new Handler(Looper.getMainLooper()).postDelayed(
             () -> {
                 if (worker != null && worker.isAlive()) {
