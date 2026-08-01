@@ -89,10 +89,11 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Destroys this communicator. This method behaves like {@link #close}, except it can be interrupted: if the
-     * calling thread is interrupted while this method waits during the destruction, this method throws
-     * {@link OperationInterruptedException} and the destruction of the communicator is incomplete; call this
-     * method again to complete it.
+     * Destroys this communicator. This method behaves like {@link #close}, except it can be interrupted.
+     *
+     * @throws OperationInterruptedException if the calling thread is interrupted while this method waits during
+     *     the destruction. The destruction of the communicator is then incomplete; call this method again to
+     *     complete it.
      */
     public void destroy() {
         _instance.destroy(true);
