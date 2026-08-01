@@ -257,6 +257,12 @@ IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBu
             UniqueRef<CFDataRef> d(static_cast<CFDataRef>(
                 CFReadStreamCopyProperty(_readStream.get(), kCFStreamPropertySocketNativeHandle)));
             CFDataGetBytes(d.get(), CFRangeMake(0, sizeof(SOCKET)), reinterpret_cast<UInt8*>(&_fd));
+
+            // Configure the socket of this outgoing connection. For an incoming connection, the acceptor
+            // configures the socket before creating the transceiver.
+            setBlock(_fd, false);
+            TcpBufSize bufSize{_instance->properties()};
+            setTcpBufSize(_fd, bufSize.rcvSize(), bufSize.sndSize(), _instance);
         }
 
         ostringstream s;
@@ -279,10 +285,6 @@ IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBu
             s << "\nremote address = " << _host << ":" << _port;
         }
         _desc = s.str();
-
-        setBlock(_fd, false);
-        TcpBufSize bufSize{_instance->properties()};
-        setTcpBufSize(_fd, bufSize.rcvSize(), bufSize.sndSize(), _instance);
     }
     assert(_state == StateConnected);
     return SocketOperationNone;
