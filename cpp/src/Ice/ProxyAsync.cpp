@@ -84,13 +84,16 @@ namespace IceInternal
         {
             _response = [this, response = std::move(response)](bool)
             {
-                try
+                if (response)
                 {
-                    response(getConnection());
-                }
-                catch (...)
-                {
-                    warning("response", std::current_exception());
+                    try
+                    {
+                        response(getConnection());
+                    }
+                    catch (...)
+                    {
+                        warning("response", std::current_exception());
+                    }
                 }
             };
         }
