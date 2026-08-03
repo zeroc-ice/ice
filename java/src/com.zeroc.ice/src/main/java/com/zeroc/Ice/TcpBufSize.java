@@ -16,8 +16,9 @@ final class TcpBufSize {
     private final int _sndSize;
 
     /**
-     * Reads the Ice.TCP.RcvSize and Ice.TCP.SndSize properties. Throws PropertyException if a value
-     * is not a valid integer.
+     * Reads the Ice.TCP.RcvSize and Ice.TCP.SndSize properties.
+     *
+     * @throws PropertyException if a property value is not a valid integer
      */
     TcpBufSize(Properties properties) {
         _rcvSize = properties.getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);

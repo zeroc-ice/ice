@@ -13,8 +13,9 @@ internal sealed class TcpBufSize
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TcpBufSize" /> class by reading the Ice.TCP.RcvSize and
-    /// Ice.TCP.SndSize properties. Throws PropertyException if a value is not a valid integer.
+    /// Ice.TCP.SndSize properties.
     /// </summary>
+    /// <exception cref="PropertyException">Thrown when a property value is not a valid integer.</exception>
     internal TcpBufSize(Properties properties)
     {
         // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
