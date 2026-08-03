@@ -1146,7 +1146,9 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const share
         {
             router->destroy(defaultSessionDestroyExceptionHandler());
 
-            throw CannotCreateSessionException("duplicate server proxy category");
+            // Not a CannotCreateSessionException: this is an internal error, and the default LoggerMiddleware
+            // logs UnknownException replies.
+            throw UnknownException{__FILE__, __LINE__, "duplicate client category"};
         }
         _routersByCategoryHint = pos;
     }
