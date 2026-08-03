@@ -742,8 +742,6 @@ allTests(TestHelper* helper, bool collocated)
 
     cout << "testing unexpected exceptions from callback... " << flush;
     {
-        TestIntfPrx q = p->ice_adapterId("dummy");
-
         for (int i = 0; i < 4; ++i) // NOLINT(modernize-loop-convert): clang-tidy confusion
         {
             {
