@@ -234,16 +234,16 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout (in milliseconds). Any negative value means infinite
-    /// and is normalized to -1.</param>
+    /// <param name="newTimeout">The new invocation timeout (in milliseconds). Zero or any negative value means
+    /// infinite and is normalized to -1.</param>
     ObjectPrx ice_invocationTimeout(int newTimeout);
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout. Any negative timeout means infinite and is normalized
-    /// to -1 millisecond; a timeout that is not a whole number of milliseconds is rounded up to the next whole
-    /// number of milliseconds.</param>
+    /// <param name="newTimeout">The new invocation timeout. Zero or any negative timeout means infinite and is
+    /// normalized to -1 millisecond; a timeout that is not a whole number of milliseconds is rounded up to the next
+    /// whole number of milliseconds.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
     /// <see cref="int.MaxValue"/> milliseconds.</exception>
     ObjectPrx ice_invocationTimeout(TimeSpan newTimeout);
@@ -1071,8 +1071,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout (in milliseconds). Any negative value means infinite
-    /// and is normalized to -1.</param>
+    /// <param name="newTimeout">The new invocation timeout (in milliseconds). Zero or any negative value means
+    /// infinite and is normalized to -1.</param>
     /// <returns>The new proxy with the specified invocation timeout.</returns>
     public ObjectPrx ice_invocationTimeout(int newTimeout) =>
         ice_invocationTimeout(TimeSpan.FromMilliseconds(newTimeout));
@@ -1080,15 +1080,15 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout. Any negative timeout means infinite and is normalized
-    /// to -1 millisecond; a timeout that is not a whole number of milliseconds is rounded up to the next whole
-    /// number of milliseconds.</param>
+    /// <param name="newTimeout">The new invocation timeout. Zero or any negative timeout means infinite and is
+    /// normalized to -1 millisecond; a timeout that is not a whole number of milliseconds is rounded up to the next
+    /// whole number of milliseconds.</param>
     /// <returns>The new proxy with the specified invocation timeout.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
     /// <see cref="int.MaxValue"/> milliseconds.</exception>
     public ObjectPrx ice_invocationTimeout(TimeSpan newTimeout)
     {
-        if (newTimeout < TimeSpan.Zero)
+        if (newTimeout <= TimeSpan.Zero)
         {
             newTimeout = TimeSpan.FromMilliseconds(-1);
         }

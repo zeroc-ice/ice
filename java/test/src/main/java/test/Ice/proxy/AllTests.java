@@ -10,6 +10,7 @@ import com.zeroc.Ice.EndpointSelectionType;
 import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.FeatureNotSupportedException;
 import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.LocatorPrx;
 import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.NoEndpointException;
@@ -504,15 +505,40 @@ public class AllTests {
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getLocatorCacheTimeout().equals(Duration.ofSeconds(1)));
+        prop.setProperty(property, "0");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getLocatorCacheTimeout().equals(Duration.ZERO));
+        prop.setProperty(property, "-2");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getLocatorCacheTimeout().equals(Duration.ofSeconds(-1)));
         prop.setProperty(property, "");
 
-        // This cannot be tested so easily because the property is cached
-        // on communicator initialization.
-        //
-        // prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
-        // b1 = communicator.propertyToProxy(propertyPrefix);
-        // test(b1.ice_getLocatorCacheTimeout() == 60);
-        // prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
+        // The default timeouts are cached on communicator initialization, so we test them with a separate
+        // communicator. They are normalized like the per-proxy timeout properties.
+        {
+            InitializationData initData = new InitializationData();
+            initData.properties = new Properties();
+            initData.properties.setProperty("Ice.Default.InvocationTimeout", "0");
+            initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "-2");
+            try (Communicator defaultsCommunicator = new Communicator(initData)) {
+                ObjectPrx defaultsProxy = defaultsCommunicator.stringToProxy("test");
+                test(defaultsProxy.ice_getInvocationTimeout().equals(Duration.ofMillis(-1)));
+                test(defaultsProxy.ice_getLocatorCacheTimeout().equals(Duration.ofSeconds(-1)));
+            }
+        }
+
+        // Positive values are used as-is, verifying the properties actually reach the proxy.
+        {
+            InitializationData initData = new InitializationData();
+            initData.properties = new Properties();
+            initData.properties.setProperty("Ice.Default.InvocationTimeout", "500");
+            initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "60");
+            try (Communicator defaultsCommunicator = new Communicator(initData)) {
+                ObjectPrx defaultsProxy = defaultsCommunicator.stringToProxy("test");
+                test(defaultsProxy.ice_getInvocationTimeout().equals(Duration.ofMillis(500)));
+                test(defaultsProxy.ice_getLocatorCacheTimeout().equals(Duration.ofSeconds(60)));
+            }
+        }
 
         prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
 
@@ -537,6 +563,14 @@ public class AllTests {
         prop.setProperty(property, "1000");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getInvocationTimeout().equals(Duration.ofSeconds(1)));
+        prop.setProperty(property, "0");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getInvocationTimeout().equals(Duration.ofMillis(-1)));
+        prop.setProperty(property, "-2");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getInvocationTimeout().equals(Duration.ofMillis(-1)));
+        // The normalized value is what proxyToProperty emits.
+        test("-1".equals(communicator.proxyToProperty(b1, "RoundTrip").get("RoundTrip.InvocationTimeout")));
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".EndpointSelection";
@@ -672,7 +706,8 @@ public class AllTests {
             base.ice_invocationTimeout(10)
                 .ice_getInvocationTimeout()
                 .equals(Duration.ofMillis(10)));
-        test(base.ice_invocationTimeout(0).ice_getInvocationTimeout().equals(Duration.ZERO));
+        test(base.ice_invocationTimeout(0).ice_getInvocationTimeout().equals(Duration.ofMillis(-1)));
+        test(base.ice_invocationTimeout(Duration.ZERO).ice_getInvocationTimeout().equals(Duration.ofMillis(-1)));
         test(
             base.ice_invocationTimeout(-1)
                 .ice_getInvocationTimeout()

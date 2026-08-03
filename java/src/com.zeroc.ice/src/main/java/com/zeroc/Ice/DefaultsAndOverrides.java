@@ -56,14 +56,16 @@ final class DefaultsAndOverrides {
         }
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
-        if (intValue < -1) {
-            throw new InitializationException("invalid value for Ice.Default.LocatorCacheTimeout: " + intValue);
+        if (intValue < 0) {
+            // Any negative timeout means infinite and is normalized to -1; 0 means no caching.
+            intValue = -1;
         }
         defaultLocatorCacheTimeout = Duration.ofSeconds(intValue);
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-        if (intValue < 1 && intValue != -1) {
-            throw new InitializationException("invalid value for Ice.Default.InvocationTimeout: " + intValue);
+        if (intValue <= 0) {
+            // Zero or any negative timeout means infinite and is normalized to -1.
+            intValue = -1;
         }
         defaultInvocationTimeout = Duration.ofMillis(intValue);
 

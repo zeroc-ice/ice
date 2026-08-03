@@ -496,7 +496,46 @@ export class Client extends TestHelper {
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1 !== null && b1.ice_getLocatorCacheTimeout() === 1);
+        prop.setProperty(property, "0");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1 !== null && b1.ice_getLocatorCacheTimeout() === 0);
+        prop.setProperty(property, "-2");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1 !== null && b1.ice_getLocatorCacheTimeout() === -1);
         prop.setProperty(property, "");
+
+        // The default timeouts are cached on communicator initialization, so we test them with a separate
+        // communicator. They are normalized like the per-proxy timeout properties.
+        {
+            const initData = new Ice.InitializationData();
+            initData.properties = Ice.createProperties();
+            initData.properties.setProperty("Ice.Default.InvocationTimeout", "0");
+            initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "-2");
+            const defaultsCommunicator = Ice.initialize(initData);
+            try {
+                const defaultsProxy = defaultsCommunicator.stringToProxy("test")!;
+                test(defaultsProxy.ice_getInvocationTimeout() === -1);
+                test(defaultsProxy.ice_getLocatorCacheTimeout() === -1);
+            } finally {
+                await defaultsCommunicator.destroy();
+            }
+        }
+
+        {
+            // Positive values are used as-is, verifying the properties actually reach the proxy.
+            const initData = new Ice.InitializationData();
+            initData.properties = Ice.createProperties();
+            initData.properties.setProperty("Ice.Default.InvocationTimeout", "500");
+            initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "60");
+            const defaultsCommunicator = Ice.initialize(initData);
+            try {
+                const defaultsProxy = defaultsCommunicator.stringToProxy("test")!;
+                test(defaultsProxy.ice_getInvocationTimeout() === 500);
+                test(defaultsProxy.ice_getLocatorCacheTimeout() === 60);
+            } finally {
+                await defaultsCommunicator.destroy();
+            }
+        }
 
         prop.setProperty(propertyPrefix, `test:${this.getTestEndpoint()}`);
 
@@ -519,6 +558,14 @@ export class Client extends TestHelper {
         prop.setProperty(property, "1000");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1 !== null && b1.ice_getInvocationTimeout() == 1000);
+        prop.setProperty(property, "0");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1 !== null && b1.ice_getInvocationTimeout() == -1);
+        prop.setProperty(property, "-2");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1 !== null && b1.ice_getInvocationTimeout() == -1);
+        // The normalized value is what proxyToProperty emits.
+        test(communicator.proxyToProperty(b1!, "RoundTrip").get("RoundTrip.InvocationTimeout") === "-1");
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".EndpointSelection";
@@ -609,8 +656,8 @@ export class Client extends TestHelper {
             const roundTripCommunicator = Ice.initialize(initData);
             try {
                 const b3 = roundTripCommunicator.propertyToProxy("RoundTrip")!;
-                test(b3.ice_getLocatorCacheTimeout() === locatorCacheTimeout);
-                test(b3.ice_getInvocationTimeout() === invocationTimeout);
+                test(b3.ice_getLocatorCacheTimeout() === b2.ice_getLocatorCacheTimeout());
+                test(b3.ice_getInvocationTimeout() === b2.ice_getInvocationTimeout());
             } finally {
                 await roundTripCommunicator.destroy();
             }
@@ -639,7 +686,7 @@ export class Client extends TestHelper {
 
         // A negative timeout means infinite and is normalized to -1, and a timeout that is not a whole number of
         // the corresponding proxy property's unit is rounded up to the next whole number.
-        test(base.ice_invocationTimeout(0).ice_getInvocationTimeout() === 0);
+        test(base.ice_invocationTimeout(0).ice_getInvocationTimeout() === -1);
         test(base.ice_invocationTimeout(-1).ice_getInvocationTimeout() === -1);
         test(base.ice_invocationTimeout(-2).ice_getInvocationTimeout() === -1);
         test(base.ice_invocationTimeout(1.5).ice_getInvocationTimeout() === 2);
