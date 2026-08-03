@@ -52,25 +52,21 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         throw ParseException(__FILE__, __LINE__, "illegal value '" + value + "'; expected 'Random' or 'Ordered'");
     }
 
-    const_cast<chrono::milliseconds&>(defaultInvocationTimeout) =
-        chrono::milliseconds(properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
-    if (defaultInvocationTimeout.count() < 1 && defaultInvocationTimeout.count() != -1)
+    auto invocationTimeout = chrono::milliseconds(properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout"));
+    if (invocationTimeout <= chrono::milliseconds::zero())
     {
-        throw InitializationException{
-            __FILE__,
-            __LINE__,
-            "invalid value for Ice.Default.InvocationTimeout: " + to_string(defaultInvocationTimeout.count())};
+        // Zero or any negative timeout means infinite and is normalized to -1.
+        invocationTimeout = chrono::milliseconds(-1);
     }
+    const_cast<chrono::milliseconds&>(defaultInvocationTimeout) = invocationTimeout;
 
-    const_cast<chrono::seconds&>(defaultLocatorCacheTimeout) =
-        chrono::seconds(properties->getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
-    if (defaultLocatorCacheTimeout.count() < -1)
+    auto locatorCacheTimeout = chrono::seconds(properties->getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout"));
+    if (locatorCacheTimeout < chrono::seconds::zero())
     {
-        throw InitializationException{
-            __FILE__,
-            __LINE__,
-            "invalid value for Ice.Default.LocatorCacheTimeout: " + to_string(defaultLocatorCacheTimeout.count())};
+        // Any negative timeout means infinite and is normalized to -1; 0 means no caching.
+        locatorCacheTimeout = chrono::seconds(-1);
     }
+    const_cast<chrono::seconds&>(defaultLocatorCacheTimeout) = locatorCacheTimeout;
 
     value = properties->getIceProperty("Ice.Default.EncodingVersion");
     defaultEncoding = stringToEncodingVersion(value);

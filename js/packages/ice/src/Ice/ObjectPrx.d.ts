@@ -278,9 +278,9 @@ declare module "@zeroc/ice" {
             /**
              * Creates a proxy that is identical to this proxy, except for the invocation timeout.
              *
-             * @param timeout - The new invocation timeout (in milliseconds). Any negative timeout means infinite
-             * and is normalized to -1; a timeout that is not a whole number of milliseconds is rounded up to the
-             * next whole number of milliseconds.
+             * @param timeout - The new invocation timeout (in milliseconds). Zero or any negative timeout means
+             * infinite and is normalized to -1; a timeout that is not a whole number of milliseconds is rounded up
+             * to the next whole number of milliseconds.
              * @returns A proxy with the new timeout.
              * @throws RangeError - Thrown when `timeout` is not a number, or is greater than 2147483647
              * milliseconds.

@@ -484,15 +484,38 @@ public class AllTests : global::Test.AllTests
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(1));
+        prop.setProperty(property, "0");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getLocatorCacheTimeout() == TimeSpan.Zero);
+        prop.setProperty(property, "-2");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
         prop.setProperty(property, "");
 
-        // This cannot be tested so easily because the property is cached
-        // on communicator initialization.
-        //
-        // prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
-        // b1 = communicator.propertyToProxy(propertyPrefix);
-        // test(b1.ice_getLocatorCacheTimeout() == 60);
-        // prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
+        // The default timeouts are cached on communicator initialization, so we test them with a separate
+        // communicator. They are normalized like the per-proxy timeout properties.
+        {
+            var initData = new InitializationData();
+            initData.properties = new Properties();
+            initData.properties.setProperty("Ice.Default.InvocationTimeout", "0");
+            initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "-2");
+            using Communicator defaultsCommunicator = Ice.Util.initialize(initData);
+            ObjectPrx defaultsProxy = defaultsCommunicator.stringToProxy("test");
+            test(defaultsProxy.ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
+            test(defaultsProxy.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
+        }
+
+        {
+            // Positive values are used as-is, verifying the properties actually reach the proxy.
+            var initData = new InitializationData();
+            initData.properties = new Properties();
+            initData.properties.setProperty("Ice.Default.InvocationTimeout", "500");
+            initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "60");
+            using Communicator defaultsCommunicator = Ice.Util.initialize(initData);
+            ObjectPrx defaultsProxy = defaultsCommunicator.stringToProxy("test");
+            test(defaultsProxy.ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(500));
+            test(defaultsProxy.ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(60));
+        }
 
         prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
 
@@ -515,6 +538,14 @@ public class AllTests : global::Test.AllTests
         prop.setProperty(property, "1000");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getInvocationTimeout() == TimeSpan.FromSeconds(1));
+        prop.setProperty(property, "0");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
+        prop.setProperty(property, "-2");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
+        // The normalized value is what proxyToProperty emits.
+        test(communicator.proxyToProperty(b1, "RoundTrip")["RoundTrip.InvocationTimeout"] == "-1");
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".EndpointSelection";
@@ -636,7 +667,9 @@ public class AllTests : global::Test.AllTests
         test(baseProxy.ice_collocationOptimized(true).ice_isCollocationOptimized());
         test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized());
 
-        test(baseProxy.ice_invocationTimeout(0).ice_getInvocationTimeout() == TimeSpan.Zero);
+        test(baseProxy.ice_invocationTimeout(0).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
+        test(baseProxy.ice_invocationTimeout(TimeSpan.Zero).ice_getInvocationTimeout() ==
+            TimeSpan.FromMilliseconds(-1));
         test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
         test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
         test(baseProxy.ice_invocationTimeout(int.MaxValue).ice_getInvocationTimeout() ==

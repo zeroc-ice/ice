@@ -3,7 +3,7 @@
 import { FormatType } from "./FormatType.js";
 import { EndpointSelectionType } from "./EndpointSelectionType.js";
 import { Protocol, stringToEncodingVersion } from "./Protocol.js";
-import { ParseException, InitializationException } from "./LocalExceptions.js";
+import { ParseException } from "./LocalExceptions.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
 
 // Even though this class is called DefaultsAndOverrides, like in other languages, it only holds Default values.
@@ -32,17 +32,15 @@ export class DefaultsAndOverrides {
         }
 
         this.defaultLocatorCacheTimeout = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
-        if (this.defaultLocatorCacheTimeout < -1) {
-            throw new InitializationException(
-                `invalid value for Ice.Default.LocatorCacheTimeout: ${this.defaultLocatorCacheTimeout}`,
-            );
+        if (this.defaultLocatorCacheTimeout < 0) {
+            // Any negative timeout means infinite and is normalized to -1; 0 means no caching.
+            this.defaultLocatorCacheTimeout = -1;
         }
 
         this.defaultInvocationTimeout = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-        if (this.defaultInvocationTimeout < 1 && this.defaultInvocationTimeout !== -1) {
-            throw new InitializationException(
-                `invalid value for Ice.Default.InvocationTimeout: ${this.defaultInvocationTimeout}`,
-            );
+        if (this.defaultInvocationTimeout <= 0) {
+            // Zero or any negative timeout means infinite and is normalized to -1.
+            this.defaultInvocationTimeout = -1;
         }
 
         value = properties.getIceProperty("Ice.Default.EncodingVersion");

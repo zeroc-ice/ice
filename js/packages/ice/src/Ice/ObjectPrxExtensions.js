@@ -115,6 +115,10 @@ ObjectPrx.prototype.ice_getInvocationTimeout = function () {
 
 ObjectPrx.prototype.ice_invocationTimeout = function (newTimeout) {
     newTimeout = normalizeTimeout(newTimeout, "invocation timeout", "milliseconds");
+    if (newTimeout === 0) {
+        // Zero also means infinite for the invocation timeout.
+        newTimeout = -1;
+    }
     if (newTimeout === this._reference.getInvocationTimeout()) {
         return this;
     } else {

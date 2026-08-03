@@ -393,15 +393,42 @@ public func allTests(_ helper: TestHelper) async throws -> MyInterfacePrx {
     prop.setProperty(key: property, value: "1")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getLocatorCacheTimeout() == 1)
+    prop.setProperty(key: property, value: "0")
+    b1 = try communicator.propertyToProxy(propertyPrefix)!
+    try test(b1.ice_getLocatorCacheTimeout() == 0)
+    prop.setProperty(key: property, value: "-2")
+    b1 = try communicator.propertyToProxy(propertyPrefix)!
+    try test(b1.ice_getLocatorCacheTimeout() == -1)
     prop.setProperty(key: property, value: "")
 
-    // This cannot be tested so easily because the property is cached
-    // on communicator initialization.
-    //
-    // prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
-    // b1 = communicator.propertyToProxy(propertyPrefix);
-    // test(b1.ice_getLocatorCacheTimeout() == 60);
-    // prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
+    // The default timeouts are cached on communicator initialization, so we test them with a separate
+    // communicator. They are normalized like the per-proxy timeout properties.
+    do {
+        let properties = Ice.createProperties()
+        properties.setProperty(key: "Ice.Default.InvocationTimeout", value: "0")
+        properties.setProperty(key: "Ice.Default.LocatorCacheTimeout", value: "-2")
+        var initData = Ice.InitializationData()
+        initData.properties = properties
+        let defaultsCommunicator = try helper.initialize(initData)
+        defer { defaultsCommunicator.destroy() }
+        let defaultsProxy = try defaultsCommunicator.stringToProxy("test")!
+        try test(defaultsProxy.ice_getInvocationTimeout() == -1)
+        try test(defaultsProxy.ice_getLocatorCacheTimeout() == -1)
+    }
+
+    // Positive values are used as-is, verifying the properties actually reach the proxy.
+    do {
+        let properties = Ice.createProperties()
+        properties.setProperty(key: "Ice.Default.InvocationTimeout", value: "500")
+        properties.setProperty(key: "Ice.Default.LocatorCacheTimeout", value: "60")
+        var initData = Ice.InitializationData()
+        initData.properties = properties
+        let defaultsCommunicator = try helper.initialize(initData)
+        defer { defaultsCommunicator.destroy() }
+        let defaultsProxy = try defaultsCommunicator.stringToProxy("test")!
+        try test(defaultsProxy.ice_getInvocationTimeout() == 500)
+        try test(defaultsProxy.ice_getLocatorCacheTimeout() == 60)
+    }
 
     prop.setProperty(key: propertyPrefix, value: "test:\(helper.getTestEndpoint(num: 0))")
 
@@ -424,6 +451,14 @@ public func allTests(_ helper: TestHelper) async throws -> MyInterfacePrx {
     prop.setProperty(key: property, value: "1000")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getInvocationTimeout() == 1000)
+    prop.setProperty(key: property, value: "0")
+    b1 = try communicator.propertyToProxy(propertyPrefix)!
+    try test(b1.ice_getInvocationTimeout() == -1)
+    prop.setProperty(key: property, value: "-2")
+    b1 = try communicator.propertyToProxy(propertyPrefix)!
+    try test(b1.ice_getInvocationTimeout() == -1)
+    // The normalized value is what proxyToProperty emits.
+    try test(communicator.proxyToProperty(proxy: b1, property: "RoundTrip")["RoundTrip.InvocationTimeout"] == "-1")
     prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).EndpointSelection"
@@ -531,9 +566,12 @@ public func allTests(_ helper: TestHelper) async throws -> MyInterfacePrx {
     try test(baseProxy.ice_collocationOptimized(true).ice_isCollocationOptimized())
     try test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized())
 
+    try test(baseProxy.ice_invocationTimeout(0).ice_getInvocationTimeout() == -1)
     try test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == -1)
+    try test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == -1)
     try test(baseProxy.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0)
     try test(baseProxy.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == -1)
+    try test(baseProxy.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == -1)
 
     writer.writeLine("ok")
 

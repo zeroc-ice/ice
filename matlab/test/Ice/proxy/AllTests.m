@@ -250,15 +250,30 @@ classdef AllTests
             prop.setProperty(property, '1');
             b1 = communicator.propertyToProxy(propertyPrefix);
             assert(b1.ice_getLocatorCacheTimeout() == 1);
+            prop.setProperty(property, '0');
+            b1 = communicator.propertyToProxy(propertyPrefix);
+            assert(b1.ice_getLocatorCacheTimeout() == 0);
+            prop.setProperty(property, '-2');
+            b1 = communicator.propertyToProxy(propertyPrefix);
+            assert(b1.ice_getLocatorCacheTimeout() == -1);
             prop.setProperty(property, '');
 
-            % This cannot be tested so easily because the property is cached
-            % on communicator initialization.
-            %
-            %prop.setProperty('Ice.Default.LocatorCacheTimeout', '60');
-            %b1 = communicator.propertyToProxy(propertyPrefix);
-            %assert(b1.ice_getLocatorCacheTimeout() == 60);
-            %prop.setProperty('Ice.Default.LocatorCacheTimeout', '');
+            % The default timeouts are cached on communicator initialization, so we test them with a
+            % separate communicator. They are normalized like the per-proxy timeout properties.
+            defaultsCommunicator = Ice.initialize(...
+                ["--Ice.Default.InvocationTimeout=0", "--Ice.Default.LocatorCacheTimeout=-2"]);
+            defaultsProxy = defaultsCommunicator.stringToProxy('test');
+            assert(defaultsProxy.ice_getInvocationTimeout() == -1);
+            assert(defaultsProxy.ice_getLocatorCacheTimeout() == -1);
+            defaultsCommunicator.destroy();
+
+            % Positive values are used as-is, verifying the properties actually reach the proxy.
+            defaultsCommunicator = Ice.initialize(...
+                ["--Ice.Default.InvocationTimeout=500", "--Ice.Default.LocatorCacheTimeout=60"]);
+            defaultsProxy = defaultsCommunicator.stringToProxy('test');
+            assert(defaultsProxy.ice_getInvocationTimeout() == 500);
+            assert(defaultsProxy.ice_getLocatorCacheTimeout() == 60);
+            defaultsCommunicator.destroy();
 
             prop.setProperty(propertyPrefix, 'test:default -p 12010');
 
@@ -281,6 +296,15 @@ classdef AllTests
             prop.setProperty(property, '1000');
             b1 = communicator.propertyToProxy(propertyPrefix);
             assert(b1.ice_getInvocationTimeout() == 1000);
+            prop.setProperty(property, '0');
+            b1 = communicator.propertyToProxy(propertyPrefix);
+            assert(b1.ice_getInvocationTimeout() == -1);
+            prop.setProperty(property, '-2');
+            b1 = communicator.propertyToProxy(propertyPrefix);
+            assert(b1.ice_getInvocationTimeout() == -1);
+            % The normalized value is what proxyToProperty emits.
+            roundTripProps = communicator.proxyToProperty(b1, 'RoundTrip');
+            assert(strcmp(roundTripProps('RoundTrip.InvocationTimeout'), '-1'));
             prop.setProperty(property, '');
 
             property = [propertyPrefix, '.EndpointSelection'];
@@ -388,41 +412,15 @@ classdef AllTests
             assert(base.ice_encodingVersion(Ice.EncodingVersion(1, 1)).ice_getEncodingVersion() == Ice.EncodingVersion(1, 1));
             assert(base.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_getEncodingVersion() ~= Ice.EncodingVersion(1, 1));
 
-            try
-                base.ice_invocationTimeout(0);
-                assert(false);
-            catch ex
-            end
+            % Zero or any negative invocation timeout means infinite and is normalized to -1.
+            assert(base.ice_invocationTimeout(0).ice_getInvocationTimeout() == -1);
+            assert(base.ice_invocationTimeout(-1).ice_getInvocationTimeout() == -1);
+            assert(base.ice_invocationTimeout(-2).ice_getInvocationTimeout() == -1);
 
-            try
-                base.ice_invocationTimeout(-1);
-            catch ex
-                assert(false);
-            end
-
-            try
-                base.ice_invocationTimeout(-2);
-                assert(false);
-            catch ex
-            end
-
-            try
-                base.ice_locatorCacheTimeout(0);
-            catch ex
-                assert(false);
-            end
-
-            try
-                base.ice_locatorCacheTimeout(-1);
-            catch ex
-                assert(false);
-            end
-
-            try
-                base.ice_locatorCacheTimeout(-2);
-                assert(false);
-            catch ex
-            end
+            % Any negative locator cache timeout means infinite and is normalized to -1; 0 means no caching.
+            assert(base.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0);
+            assert(base.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == -1);
+            assert(base.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == -1);
 
             fprintf('ok\n');
 
