@@ -813,7 +813,7 @@ allTests(TestHelper* helper, bool collocated)
                     "op",
                     OperationMode::Normal,
                     vector<byte>{},
-                    [&, i](bool, vector<byte>)
+                    [&, i](bool, const vector<byte>&)
                     {
                         promise.set_value();
                         thrower(throwEx[i]);
@@ -830,7 +830,6 @@ allTests(TestHelper* helper, bool collocated)
                     test(false);
                 }
             }
-
         }
     }
     cout << "ok" << endl;
