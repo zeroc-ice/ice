@@ -92,7 +92,7 @@ final class AcceptorI implements Acceptor {
         // Update our status with the thread pool.
         _readyCallback.ready(SocketOperation.Read, !_pending.isEmpty());
 
-        return new TransceiverI(_instance, socket, _uuid, _adapterName);
+        return new TransceiverI(_instance, socket, _uuid, _adapterName, _bufSize);
     }
 
     @Override
@@ -128,6 +128,7 @@ final class AcceptorI implements Acceptor {
         _adapterName = adapterName;
         _name = name;
         _uuid = uuid;
+        _bufSize = new BTBufSize(instance.properties());
 
         _pending = new Stack<BluetoothSocket>();
         _closed = false;
@@ -180,6 +181,7 @@ final class AcceptorI implements Acceptor {
     private final String _adapterName;
     private final String _name;
     private final String _uuid;
+    private final BTBufSize _bufSize;
     private ReadyCallback _readyCallback;
     private BluetoothServerSocket _socket;
     private final Stack<BluetoothSocket> _pending;
