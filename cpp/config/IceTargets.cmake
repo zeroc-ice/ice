@@ -1,20 +1,33 @@
 # Copyright (c) ZeroC, Inc.
 
-cmake_policy(PUSH)
+cmake_policy(VERSION 3.21)
 
 if(WIN32 AND NOT DEFINED Ice_WIN32_PLATFORM)
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(Ice_WIN32_PLATFORM "x64" CACHE PATH "Use x64 Ice library")
+    set(Ice_WIN32_PLATFORM "x64" CACHE STRING "Use x64 Ice library")
   else()
-    set(Ice_WIN32_PLATFORM "Win32" CACHE PATH "Use Win32 Ice library")
+    set(Ice_WIN32_PLATFORM "Win32" CACHE STRING "Use Win32 Ice library")
   endif()
 endif()
 
+# No REQUIRED on the find_* calls below: a missing piece must leave Ice not found rather than abort
+# the configure step, or find_package(Ice QUIET) and optional use of Ice break.
 find_path(Ice_INCLUDE_DIR NAMES Ice/Ice.h
-  HINTS ${Ice_PREFIX} ${Ice_PREFIX}/build/native
+  HINTS ${Ice_INCLUDE_ROOT} ${Ice_PREFIX} ${Ice_PREFIX}/build/native
   PATH_SUFFIXES include DOC "Directory containing Ice header files"
-  NO_DEFAULT_PATH
-  REQUIRED)
+  NO_DEFAULT_PATH)
+
+if(NOT Ice_INCLUDE_DIR)
+  set(Ice_NOT_FOUND_MESSAGE "Could not find the Ice header files under ${Ice_PREFIX}.")
+  return()
+endif()
+
+# Checked separately from Ice.h above, because file(STRINGS) below is a fatal error on a missing
+# file - even under find_package(Ice QUIET).
+if(NOT EXISTS "${Ice_INCLUDE_DIR}/Ice/Config.h")
+  set(Ice_NOT_FOUND_MESSAGE "Could not find Ice/Config.h under ${Ice_INCLUDE_DIR}.")
+  return()
+endif()
 
 # Read Ice version variables from Ice/Config.h
 if(NOT DEFINED Ice_VERSION)
@@ -35,29 +48,37 @@ find_program(Ice_SLICE2CPP_EXECUTABLE slice2cpp
   PATH_SUFFIXES bin tools
   DOC "Path to the slice2cpp compiler"
   NO_DEFAULT_PATH
-  REQUIRED
 )
 
-# Add an imported target for slice2cpp
-add_executable(Ice::slice2cpp IMPORTED)
-set_target_properties(Ice::slice2cpp PROPERTIES
-  IMPORTED_LOCATION "${Ice_SLICE2CPP_EXECUTABLE}"
-)
+if(NOT Ice_SLICE2CPP_EXECUTABLE)
+  set(Ice_NOT_FOUND_MESSAGE "Could not find the slice2cpp compiler under ${Ice_PREFIX}.")
+  return()
+endif()
+
+# The guard lets two subprojects in one directory scope each call find_package(Ice) without the
+# second failing on a duplicate target.
+if(NOT TARGET Ice::slice2cpp)
+  add_executable(Ice::slice2cpp IMPORTED)
+  set_target_properties(Ice::slice2cpp PROPERTIES
+    IMPORTED_LOCATION "${Ice_SLICE2CPP_EXECUTABLE}"
+  )
+endif()
 
 find_path(Ice_SLICE_DIR
   NAMES Ice/Identity.ice
   HINTS ${Ice_PREFIX}
   PATH_SUFFIXES slice share/ice/slice
   DOC "Path to the Ice Slice files directory"
-  NO_DEFAULT_PATH
-  REQUIRED)
+  NO_DEFAULT_PATH)
 
-# Find all executables in the native/bin directory and create imported targets
+if(NOT Ice_SLICE_DIR)
+  set(Ice_NOT_FOUND_MESSAGE "Could not find the Ice Slice files under ${Ice_PREFIX}.")
+  return()
+endif()
+
+# Imported targets for the executables in the NuGet package's native/bin directory.
 if(WIN32)
-  # Create a helper function to add executable targets
   function(add_ice_executable name)
-    add_executable(Ice::${name}_EXE IMPORTED)
-
     find_program(Ice_${name}_EXE_RELEASE ${name}${CMAKE_EXECUTABLE_SUFFIX}
       HINTS "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Release"
       NO_DEFAULT_PATH
@@ -67,6 +88,17 @@ if(WIN32)
       HINTS "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug"
       NO_DEFAULT_PATH
     )
+
+    # Better undefined than a target with no IMPORTED_LOCATION, which fails far less obviously.
+    if(NOT Ice_${name}_EXE_RELEASE AND NOT Ice_${name}_EXE_DEBUG)
+      return()
+    endif()
+
+    if(TARGET Ice::${name}_EXE)
+      return()
+    endif()
+
+    add_executable(Ice::${name}_EXE IMPORTED)
 
     if(Ice_${name}_EXE_RELEASE)
       set_property(TARGET Ice::${name}_EXE PROPERTY
@@ -88,9 +120,22 @@ if(WIN32)
   add_ice_executable(icebox)
 endif()
 
-# Adds an Ice:<component> target with the specified link libraries
-function(add_ice_target component link_libraries)
-  add_library(Ice::${component} SHARED IMPORTED)
+# Adds an Ice::<component> target with the specified link libraries
+function(add_ice_target component)
+  set(link_libraries ${ARGN})
+
+  if(TARGET Ice::${component})
+    return()
+  endif()
+
+  # Ice ships static archives alongside the shared libraries, so match the type actually found. A
+  # static Ice still needs its own system dependencies (bzip2, OpenSSL, ...), which we do not list.
+  set(library_type SHARED)
+  if(NOT WIN32 AND Ice_${component}_LIBRARY_RELEASE MATCHES "\\${CMAKE_STATIC_LIBRARY_SUFFIX}$")
+    set(library_type STATIC)
+  endif()
+
+  add_library(Ice::${component} ${library_type} IMPORTED)
   set_target_properties(Ice::${component} PROPERTIES
     INTERFACE_COMPILE_FEATURES "cxx_std_17"
     INTERFACE_INCLUDE_DIRECTORIES "${Ice_INCLUDE_DIR}"
@@ -113,22 +158,19 @@ function(add_ice_target component link_libraries)
         IMPORTED_LOCATION_DEBUG "${Ice_${component}_LIBRARY_DEBUG}"
       )
     endif()
-
   else()
-    if(Ice_${component}_LIBRARY)
-      set_target_properties(Ice::${component} PROPERTIES
-        IMPORTED_LOCATION "${Ice_${component}_LIBRARY}"
-      )
-    endif()
+    set_target_properties(Ice::${component} PROPERTIES
+      IMPORTED_LOCATION "${Ice_${component}_LIBRARY_RELEASE}"
+    )
   endif()
-
 endfunction()
 
-function(add_ice_library component link_libraries)
+# Finds an Ice component and, when present, defines an Ice::<component> imported target linking the
+# given libraries. Every argument after <component> is treated as a link library.
+function(add_ice_library component)
 
-  # Find the library. If CMAKE_LIBRARY_ARCHITECTURE is set we check /lib/<arch> and /lib<arch> directories
-  # separately to avoid a single find_library with both HINTS and PATH_PREFIXES set, which could lean
-  # to false positives with multi-arch installs.
+  # If CMAKE_LIBRARY_ARCHITECTURE is set we check /lib/<arch> and /lib<arch> separately, to avoid a
+  # single find_library with both HINTS and PATH_SUFFIXES giving false positives on multi-arch.
   if(WIN32)
     # Find Release and Debug libraries on Windows inside the NuGet package
     find_library(Ice_${component}_IMPLIB_RELEASE
@@ -180,23 +222,45 @@ function(add_ice_library component link_libraries)
     )
   endif()
 
-  # Select the appropriate library configuration based on platform and build type
+  # Merges the per-config results into Ice_<component>_LIBRARY for the check below. The variable is
+  # function-local; consumers see only the Ice_<component>_LIBRARY_<CONFIG> cache entries.
   include(SelectLibraryConfigurations)
   select_library_configurations(Ice_${component})
 
-  if(Ice_${component}_LIBRARY)
-    # Set the Ice_<component>_FOUND variable to TRUE so that find_package_handle_standard_args
-    # will consider the component found
-    set(Ice_${component}_FOUND TRUE PARENT_SCOPE)
-    add_ice_target(${component} "${link_libraries}")
+  if(NOT Ice_${component}_LIBRARY)
+    return()
   endif()
+
+  # A component whose own library is present is still unusable if something it links is not. Naming a
+  # target that does not exist is a generate-time error, which would defeat the QUIET handling above,
+  # so treat the component as not found instead. Components are declared in dependency order below.
+  foreach(dependency IN LISTS ARGN)
+    if(dependency MATCHES "::" AND NOT TARGET ${dependency})
+      return()
+    endif()
+  endforeach()
+
+  # find_package_handle_standard_args reads this to decide the component was found.
+  set(Ice_${component}_FOUND TRUE PARENT_SCOPE)
+  add_ice_target(${component} ${ARGN})
 
 endfunction()
 
 include(CMakeFindDependencyMacro)
-find_package(Threads REQUIRED QUIET)
+
+# find_dependency forwards our QUIET/REQUIRED and reports Ice as not found rather than aborting.
+find_dependency(Threads)
 
 add_ice_library(Ice Threads::Threads)
+
+# The Ice runtime is the one component nothing works without. Every other component is optional, but
+# find_package_handle_standard_args only checks the components a consumer asked for, so without this
+# guard an installation with no libraries at all would still report Ice_FOUND.
+if(NOT TARGET Ice::Ice)
+  set(Ice_NOT_FOUND_MESSAGE "Could not find the Ice library under ${Ice_PREFIX}.")
+  return()
+endif()
+
 if(WIN32)
   # Bzip2 is included in the Ice NuGet package and is a runtime dependency of Ice.
   # This property can be used to copy the correct DLLs to the target directory at build time.
@@ -215,7 +279,4 @@ add_ice_library(IceStorm Ice::Ice)
 add_ice_library(IceBT Ice::Ice)
 
 include(FindPackageHandleStandardArgs)
-set(${CMAKE_FIND_PACKAGE_NAME}_CONFIG "${CMAKE_CURRENT_LIST_FILE}")
 find_package_handle_standard_args(Ice HANDLE_COMPONENTS CONFIG_MODE)
-
-cmake_policy(POP)
