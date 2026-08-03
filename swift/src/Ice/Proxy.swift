@@ -231,12 +231,19 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
     /// - Returns: `true` if this proxy is a fixed proxy, `false` otherwise.
     func ice_isFixed() -> Bool
 
-    /// Gets the cached Connection for this proxy. If the proxy does not yet have an established connection, it does
-    /// not attempt to create a connection. For a fixed proxy, this function returns the connection this proxy is
-    /// bound to, even when this connection is closed.
+    /// Gets the cached ``Connection`` for this proxy. Once this proxy has been associated with a connection
+    /// (typically during its first invocation), it caches this connection and continues using it for subsequent
+    /// invocations, until an invocation on this proxy fails. This method never attempts to establish a connection.
+    /// For a fixed proxy, this method returns the connection this proxy is bound to, even when this connection is
+    /// closed.
     ///
-    /// - Returns: The cached connection for this proxy, or nil if the proxy does not have a cached connection. The
-    ///   returned connection can be closed.
+    /// A proxy with connection caching disabled (see ``ice_connectionCached(_:)``) never caches a connection: for
+    /// such a proxy, this method always returns nil. This method also returns nil when this proxy reaches its
+    /// target object through collocation optimization (see ``ice_collocationOptimized(_:)``): collocated invocations
+    /// don't use a connection.
+    ///
+    /// - Returns: The cached connection, or nil if this proxy doesn't have a cached connection. The returned
+    ///   connection can be closed.
     func ice_getCachedConnection() -> Connection?
 
     /// Creates a stringified version of this proxy.
@@ -244,9 +251,9 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
     /// - Returns: A stringified proxy.
     func ice_toString() -> String
 
-    /// Determines whether this proxy uses collocation optimization.
+    /// Determines whether this proxy has collocation optimization enabled (see ``ice_collocationOptimized(_:)``).
     ///
-    /// - Returns: `true` if the proxy uses collocation optimization, `false` otherwise.
+    /// - Returns: `true` if this proxy has collocation optimization enabled, `false` otherwise.
     func ice_isCollocationOptimized() -> Bool
 
     /// Creates a proxy that is identical to this proxy, except for collocation optimization.

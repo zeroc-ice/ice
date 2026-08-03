@@ -672,12 +672,16 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_isCollocationOptimized(self) -> bool:
         """
-        Determines whether this proxy uses collocation optimization.
+        Determines whether this proxy has collocation optimization enabled.
 
         Returns
         -------
         bool
-            ``True`` if the proxy uses collocation optimization, ``False`` otherwise.
+            ``True`` if this proxy has collocation optimization enabled, ``False`` otherwise.
+
+        See Also
+        --------
+        ice_collocationOptimized
         """
         return super().ice_isCollocationOptimized()
 
@@ -900,26 +904,39 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         Connection | None
-            The Connection for this proxy, or ``None`` when the target object is collocated.
+            The Connection for this proxy.
 
         Notes
         -----
         You can call this function to establish a connection or associate the proxy with an existing
         connection and ignore the return value.
+
+        When this proxy reaches its target object through collocation optimization (see
+        ``ice_collocationOptimized``), this function returns ``None``: collocated invocations don't use
+        a connection.
         """
         return super().ice_getConnection()
 
     def ice_getCachedConnection(self) -> Connection | None:
         """
-        Gets the cached Connection for this proxy. If the proxy does not yet have an established connection,
-        it does not attempt to create a connection. For a fixed proxy, this method returns the connection
-        this proxy is bound to, even when this connection is closed.
+        Gets the Connection cached by this proxy. Once this proxy has been associated with a connection
+        (typically during its first invocation), it caches this connection and continues using it for
+        subsequent invocations, until an invocation on this proxy fails. This function never attempts to
+        establish a connection. For a fixed proxy, this function returns the connection this proxy is bound
+        to, even when this connection is closed. This function never raises an exception.
 
         Returns
         -------
         Connection | None
-            The cached connection for this proxy, or ``None`` if the proxy does not have a cached connection.
-            The returned connection can be closed.
+            The cached connection, or ``None`` if this proxy doesn't have a cached connection. The returned
+            connection can be closed.
+
+        Notes
+        -----
+        A proxy with connection caching disabled (see ``ice_connectionCached``) never caches a connection:
+        for such a proxy, this function always returns ``None``. This function also returns ``None`` when
+        this proxy reaches its target object through collocation optimization (see
+        ``ice_collocationOptimized``): collocated invocations don't use a connection.
         """
         return super().ice_getCachedConnection()
 
