@@ -668,7 +668,8 @@ public class AllTests : global::Test.AllTests
         test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized());
 
         test(baseProxy.ice_invocationTimeout(0).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
-        test(baseProxy.ice_invocationTimeout(TimeSpan.Zero).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
+        test(baseProxy.ice_invocationTimeout(TimeSpan.Zero).ice_getInvocationTimeout() ==
+            TimeSpan.FromMilliseconds(-1));
         test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
         test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
         test(baseProxy.ice_invocationTimeout(int.MaxValue).ice_getInvocationTimeout() ==
