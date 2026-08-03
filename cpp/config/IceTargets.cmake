@@ -67,21 +67,33 @@ if(WIN32)
 
     add_executable(Ice::${name}_EXE IMPORTED)
 
+    set(imported_configurations "")
+
     if(Ice_${name}_EXE_RELEASE)
+      list(APPEND imported_configurations RELEASE)
       set_property(TARGET Ice::${name}_EXE PROPERTY
         IMPORTED_LOCATION_RELEASE "${Ice_${name}_EXE_RELEASE}")
     endif()
 
     if(Ice_${name}_EXE_DEBUG)
+      list(APPEND imported_configurations DEBUG)
       set_property(TARGET Ice::${name}_EXE PROPERTY
         IMPORTED_LOCATION_DEBUG "${Ice_${name}_EXE_DEBUG}")
     endif()
 
-    # Set the appropriate location based on build type
-    if(Ice_${name}_EXE_RELEASE OR Ice_${name}_EXE_DEBUG)
-      set_property(TARGET Ice::${name}_EXE PROPERTY
-        IMPORTED_LOCATION "$<IF:$<CONFIG:Debug>,${Ice_${name}_EXE_DEBUG},${Ice_${name}_EXE_RELEASE}>")
+    set_property(TARGET Ice::${name}_EXE PROPERTY
+      IMPORTED_CONFIGURATIONS "${imported_configurations}")
+
+    # A plain path, not a generator expression: IMPORTED_LOCATION is read as a literal, so a genex
+    # here ends up verbatim in the build system for any configuration the per-config properties do
+    # not cover. Debug and Release resolve through those; everything else falls back to this.
+    if(Ice_${name}_EXE_RELEASE)
+      set(location "${Ice_${name}_EXE_RELEASE}")
+    else()
+      set(location "${Ice_${name}_EXE_DEBUG}")
     endif()
+
+    set_property(TARGET Ice::${name}_EXE PROPERTY IMPORTED_LOCATION "${location}")
   endfunction()
 
   add_ice_executable(icebox)
@@ -110,19 +122,34 @@ function(add_ice_target component)
   )
 
   if(WIN32)
-    if(Ice_${component}_LIBRARY_RELEASE)
+    set(imported_configurations "")
+
+    if(Ice_${component}_LIBRARY_RELEASE AND Ice_${component}_IMPLIB_RELEASE)
+      list(APPEND imported_configurations RELEASE)
       set_target_properties(Ice::${component} PROPERTIES
-        IMPORTED_CONFIGURATIONS RELEASE
         IMPORTED_IMPLIB_RELEASE "${Ice_${component}_IMPLIB_RELEASE}"
         IMPORTED_LOCATION_RELEASE "${Ice_${component}_LIBRARY_RELEASE}"
       )
     endif()
 
-    if(Ice_${component}_LIBRARY_DEBUG)
+    if(Ice_${component}_LIBRARY_DEBUG AND Ice_${component}_IMPLIB_DEBUG)
+      list(APPEND imported_configurations DEBUG)
       set_target_properties(Ice::${component} PROPERTIES
-        IMPORTED_CONFIGURATIONS DEBUG
         IMPORTED_IMPLIB_DEBUG "${Ice_${component}_IMPLIB_DEBUG}"
         IMPORTED_LOCATION_DEBUG "${Ice_${component}_LIBRARY_DEBUG}"
+      )
+    endif()
+
+    # One property, accumulated: setting IMPORTED_CONFIGURATIONS per configuration overwrites.
+    set_target_properties(Ice::${component} PROPERTIES
+      IMPORTED_CONFIGURATIONS "${imported_configurations}")
+
+    # CMake falls back to the first entry for an unmapped configuration, hence RELEASE first. Map the
+    # release-like ones explicitly too, so they cannot link the debug import library and mix CRTs.
+    if(RELEASE IN_LIST imported_configurations)
+      set_target_properties(Ice::${component} PROPERTIES
+        MAP_IMPORTED_CONFIG_RELWITHDEBINFO "Release"
+        MAP_IMPORTED_CONFIG_MINSIZEREL "Release"
       )
     endif()
   else()
@@ -215,10 +242,24 @@ add_ice_library(Ice Threads::Threads)
 if(WIN32)
   # Bzip2 is included in the Ice NuGet package and is a runtime dependency of Ice.
   # This property can be used to copy the correct DLLs to the target directory at build time.
-  set_property(TARGET Ice::Ice PROPERTY ICE_RUNTIME_DLLS
-    "$<$<CONFIG:Debug>:${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug/bzip2d.dll>"
-    "$<$<CONFIG:Release>:${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Release/bzip2.dll>"
-  )
+  set(bzip2_debug "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug/bzip2d.dll")
+  set(bzip2_release "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Release/bzip2.dll")
+
+  # Only choose between the two when both exist, as for Ice::icebox_EXE above: the component check
+  # accepts a package carrying just one configuration, and naming the other one here would hand the
+  # consumer a path to copy that is not there. Everything other than Debug takes the release DLL,
+  # matching the configuration mapping above.
+  if(EXISTS "${bzip2_debug}" AND EXISTS "${bzip2_release}")
+    set_property(TARGET Ice::Ice PROPERTY ICE_RUNTIME_DLLS
+      "$<IF:$<CONFIG:Debug>,${bzip2_debug},${bzip2_release}>")
+  elseif(EXISTS "${bzip2_release}")
+    set_property(TARGET Ice::Ice PROPERTY ICE_RUNTIME_DLLS "${bzip2_release}")
+  elseif(EXISTS "${bzip2_debug}")
+    set_property(TARGET Ice::Ice PROPERTY ICE_RUNTIME_DLLS "${bzip2_debug}")
+  endif()
+
+  unset(bzip2_debug)
+  unset(bzip2_release)
 endif()
 add_ice_library(DataStorm Ice::Ice)
 add_ice_library(Glacier2 Ice::Ice)
