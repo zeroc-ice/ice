@@ -1146,8 +1146,8 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const share
         {
             router->destroy(defaultSessionDestroyExceptionHandler());
 
-            // Not a CannotCreateSessionException: this is an internal error, and the default LoggerMiddleware
-            // logs UnknownException replies.
+            // Internal error: the only way to get here is a collision of the randomly generated categories.
+            // UnknownException replies are logged by the default LoggerMiddleware.
             throw UnknownException{__FILE__, __LINE__, "duplicate client category"};
         }
         _routersByCategoryHint = pos;
