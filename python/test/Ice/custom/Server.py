@@ -67,6 +67,8 @@ class CustomI(Test.Custom):
         test(isinstance(val.s1, list))
         test(isinstance(val.s2, tuple))
         test(isinstance(val.s3, tuple))
+        test(isinstance(val.a1, array.array))
+        test(val.a1.typecode == "b")
 
     @override
     def sendC(self, val: Test.C | None, current: Ice.Current):
@@ -77,6 +79,8 @@ class CustomI(Test.Custom):
         test(isinstance(val.s1, list))
         test(isinstance(val.s2, tuple))
         test(isinstance(val.s3, tuple))
+        test(isinstance(val.a1, array.array))
+        test(val.a1.typecode == "b")
 
     @override
     def opBoolSeq(self, v1: array.array[int], current: Ice.Current):

@@ -40,6 +40,8 @@ module Test
         StringList s1;
         ["python:tuple"] StringList s2;
         StringTuple s3;
+
+        ["python:array.array"] ByteString a1;
     }
 
     class C
@@ -50,6 +52,8 @@ module Test
         StringList s1;
         ["python:tuple"] StringList s2;
         StringTuple s3;
+
+        ["python:array.array"] ByteString a1;
     }
 
     class D
