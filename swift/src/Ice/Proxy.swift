@@ -405,7 +405,8 @@ extension ObjectPrx {
     /// - Parameters:
     ///   - operation: The name of the operation to invoke.
     ///   - mode: The operation mode (normal or idempotent).
-    ///   - inEncaps: The encoded in-parameters for the operation.
+    ///   - inEncaps: The encoded in-parameters for the operation. You can pass empty data when the operation takes
+    ///     no in-parameters; the Ice runtime then marshals an empty encapsulation.
     ///   - context: The context dictionary for the invocation.
     /// - Returns: `ok` is `true` if the operation completed successfully, `false` if it completed with a user
     ///   exception; `outEncaps` contains the encoded results (or the encoded user exception when `ok` is false).

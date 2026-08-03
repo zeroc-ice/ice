@@ -449,10 +449,14 @@ namespace Ice
         /// Invokes an operation.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
-        /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
+        /// @param inParams An encapsulation containing the encoded in-parameters for the operation. You can pass an
+        /// empty byte sequence when the operation takes no in-parameters; the Ice runtime then marshals an empty
+        /// encapsulation.
         /// @param outParams An encapsulation containing the encoded result.
         /// @param context The request context.
         /// @return `true` if the operation completed successfully, `false` if it completed with a user exception.
+        /// @remark When this proxy is a oneway, datagram, or batch proxy, this function returns `true` and an empty
+        /// @p outParams as soon as the request is accepted by the transport or added to the batch.
         bool ice_invoke(
             std::string_view operation,
             Ice::OperationMode mode,
@@ -463,12 +467,16 @@ namespace Ice
         /// Invokes an operation asynchronously.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
-        /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
+        /// @param inParams An encapsulation containing the encoded in-parameters for the operation. You can pass an
+        /// empty byte sequence when the operation takes no in-parameters; the Ice runtime then marshals an empty
+        /// encapsulation.
         /// @param context The request context.
         /// @return A future that becomes available when the invocation completes. This future holds:
         /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
         ///    exception.
         /// - `outParams` An encapsulation containing the encoded result.
+        /// @remark When this proxy is a oneway, datagram, or batch proxy, the future completes with `returnValue`
+        /// `true` and an empty `outParams` as soon as the request is accepted by the transport or added to the batch.
         [[nodiscard]] std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
@@ -478,7 +486,9 @@ namespace Ice
         /// Invokes an operation asynchronously.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
-        /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
+        /// @param inParams An encapsulation containing the encoded in-parameters for the operation. You can pass an
+        /// empty byte sequence when the operation takes no in-parameters; the Ice runtime then marshals an empty
+        /// encapsulation.
         /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
         /// If you set InitializationData::executor, the executor determines the thread that executes this function.
         /// It accepts:
@@ -512,10 +522,14 @@ namespace Ice
         /// Invokes an operation.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
-        /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
+        /// @param inParams An encapsulation containing the encoded in-parameters for the operation. You can pass an
+        /// empty byte sequence when the operation takes no in-parameters; the Ice runtime then marshals an empty
+        /// encapsulation.
         /// @param outParams An encapsulation containing the encoded result.
         /// @param context The request context.
         /// @return `true` if the operation completed successfully, `false` if it completed with a user exception.
+        /// @remark When this proxy is a oneway, datagram, or batch proxy, this function returns `true` and an empty
+        /// @p outParams as soon as the request is accepted by the transport or added to the batch.
         bool ice_invoke(
             std::string_view operation,
             Ice::OperationMode mode,
@@ -526,12 +540,16 @@ namespace Ice
         /// Invokes an operation asynchronously.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
-        /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
+        /// @param inParams An encapsulation containing the encoded in-parameters for the operation. You can pass an
+        /// empty byte sequence when the operation takes no in-parameters; the Ice runtime then marshals an empty
+        /// encapsulation.
         /// @param context The request context.
         /// @return A future that becomes available when the invocation completes. This future holds:
         /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
         ///    exception.
         /// - `outParams` An encapsulation containing the encoded result.
+        /// @remark When this proxy is a oneway, datagram, or batch proxy, the future completes with `returnValue`
+        /// `true` and an empty `outParams` as soon as the request is accepted by the transport or added to the batch.
         [[nodiscard]] std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
@@ -541,7 +559,9 @@ namespace Ice
         /// Invokes an operation asynchronously.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
-        /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
+        /// @param inParams An encapsulation containing the encoded in-parameters for the operation. You can pass an
+        /// empty byte sequence when the operation takes no in-parameters; the Ice runtime then marshals an empty
+        /// encapsulation.
         /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
         /// If you set InitializationData::executor, the executor determines the thread that executes this function.
         /// It accepts:
