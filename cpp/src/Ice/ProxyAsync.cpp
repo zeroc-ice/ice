@@ -190,13 +190,14 @@ namespace IceInternal
             {
                 _response = [this, response = std::move(response)](bool ok)
                 {
-                    if (this->_is.b.empty())
+                    R v = this->_is.b.empty() ? R{ok, {}} : this->_read(ok, &this->_is);
+                    try
                     {
-                        response(R{ok, {}});
+                        response(std::move(v));
                     }
-                    else
+                    catch (...)
                     {
-                        response(this->_read(ok, &this->_is));
+                        this->warning("response", std::current_exception());
                     }
                 };
             }
