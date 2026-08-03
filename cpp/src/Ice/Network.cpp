@@ -3,7 +3,6 @@
 #include "Network.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize
-#include "Ice/Properties.h" // For setTcpBufSize
 #include "Ice/StringUtil.h"
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h" // For setTcpBufSize
@@ -1084,26 +1083,6 @@ IceInternal::isMulticast(const Address& addr)
         return IN6_IS_ADDR_MULTICAST(&addr.saIn6.sin6_addr);
     }
     return false;
-}
-
-void
-IceInternal::setTcpBufSize(SOCKET fd, const ProtocolInstancePtr& instance)
-{
-    assert(fd != INVALID_SOCKET);
-
-    //
-    // By default, on Windows we use a 128KB buffer size. On Unix
-    // platforms, we use the system defaults.
-    //
-#ifdef _WIN32
-    const int dfltBufSize = 128 * 1024;
-#else
-    const int dfltBufSize = 0;
-#endif
-    int32_t rcvSize = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
-    int32_t sndSize = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
-
-    setTcpBufSize(fd, rcvSize, sndSize, instance);
 }
 
 void

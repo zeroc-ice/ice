@@ -8,7 +8,7 @@ import java.util.Objects;
 final class TcpConnector implements Connector {
     @Override
     public Transceiver connect() {
-        return new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
+        return new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr, _bufSize));
     }
 
     @Override
@@ -50,6 +50,7 @@ final class TcpConnector implements Connector {
         _sourceAddr = sourceAddr;
         _timeout = timeout;
         _connectionId = connectionId;
+        _bufSize = new TcpBufSize(instance.properties());
     }
 
     @Override
@@ -84,4 +85,5 @@ final class TcpConnector implements Connector {
     private final InetSocketAddress _sourceAddr;
     private final int _timeout;
     private String _connectionId = "";
+    private final TcpBufSize _bufSize;
 }

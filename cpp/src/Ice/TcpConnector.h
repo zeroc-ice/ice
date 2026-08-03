@@ -6,6 +6,7 @@
 #include "Connector.h"
 #include "Network.h"
 #include "ProtocolInstanceF.h"
+#include "TcpBufSize.h"
 #include "TransceiverF.h"
 
 namespace IceInternal
@@ -30,6 +31,7 @@ namespace IceInternal
         const Address _sourceAddr;
         const std::int32_t _timeout;
         const std::string _connectionId;
+        const TcpBufSize _bufSize;
     };
 }
 

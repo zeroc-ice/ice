@@ -132,14 +132,14 @@ IceInternal::TcpAcceptor::accept()
 
     SOCKET fd = _acceptFd;
     _acceptFd = INVALID_SOCKET;
-    return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, fd));
+    return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, fd, _bufSize));
 }
 #    else
 
 TransceiverPtr
 IceInternal::TcpAcceptor::accept()
 {
-    return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, doAccept(_fd)));
+    return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, doAccept(_fd), _bufSize));
 }
 
 #    endif
@@ -177,7 +177,8 @@ IceInternal::TcpAcceptor::TcpAcceptor(
     int port)
     : _endpoint(std::move(endpoint)),
       _instance(instance),
-      _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6(), true))
+      _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6(), true)),
+      _bufSize(instance->properties())
 #    ifdef ICE_USE_IOCP
       ,
       _acceptFd(INVALID_SOCKET),
@@ -192,7 +193,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(
 #    endif
 
     setBlock(_fd, false);
-    setTcpBufSize(_fd, _instance);
+    setTcpBufSize(_fd, _bufSize.rcvSize(), _bufSize.sndSize(), _instance);
 
 #    ifndef _WIN32
     // Set SO_REUSEADDR socket option on Unix platforms to allow re-using the address even if the socket remains in

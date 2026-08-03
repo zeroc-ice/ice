@@ -15,13 +15,15 @@ class StreamSocket {
      * @param proxy The network proxy, or null if not using a proxy.
      * @param addr The remote address to connect to.
      * @param sourceAddr The local address to bind to, or null for default.
+     * @param bufSize The TCP buffer sizes to apply to the socket.
      * @throws LocalException if the socket cannot be created or connected.
      */
     public StreamSocket(
             ProtocolInstance instance,
             NetworkProxy proxy,
             InetSocketAddress addr,
-            InetSocketAddress sourceAddr) {
+            InetSocketAddress sourceAddr,
+            TcpBufSize bufSize) {
         _instance = instance;
         _proxy = proxy;
         _addr = addr;
@@ -29,7 +31,7 @@ class StreamSocket {
         _state = StateNeedConnect;
 
         try {
-            init();
+            init(bufSize);
             if (Network.doConnect(_fd, _proxy != null ? _proxy.getAddress() : _addr, sourceAddr)) {
                 _state = _proxy != null ? StateProxyWrite : StateConnected;
             }
@@ -46,9 +48,10 @@ class StreamSocket {
      *
      * @param instance The protocol instance.
      * @param fd The connected SocketChannel.
+     * @param bufSize The TCP buffer sizes to apply to the socket.
      * @throws LocalException if initialization fails.
      */
-    public StreamSocket(ProtocolInstance instance, SocketChannel fd) {
+    public StreamSocket(ProtocolInstance instance, SocketChannel fd, TcpBufSize bufSize) {
         _instance = instance;
         _proxy = null;
         _addr = null;
@@ -56,7 +59,7 @@ class StreamSocket {
         _state = StateConnected;
 
         try {
-            init();
+            init(bufSize);
         } catch (LocalException ex) {
             assert (!_fd.isOpen());
             throw ex;
@@ -256,9 +259,9 @@ class StreamSocket {
         return _desc;
     }
 
-    private void init() {
+    private void init(TcpBufSize bufSize) {
         Network.setBlock(_fd, false);
-        Network.setTcpBufSize(_fd, _instance);
+        Network.setTcpBufSize(_fd, bufSize.rcvSize(), bufSize.sndSize(), _instance);
     }
 
     private int toState(int operation) {

@@ -7,7 +7,7 @@ namespace Ice.Internal;
 internal sealed class TcpConnector : Connector
 {
     public Transceiver connect() =>
-        new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
+        new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr, _bufSize));
 
     public short type() => _instance.type();
 
@@ -28,6 +28,7 @@ internal sealed class TcpConnector : Connector
         _sourceAddr = sourceAddr;
         _timeout = timeout;
         _connectionId = connectionId;
+        _bufSize = new TcpBufSize(instance.properties());
     }
 
     public override bool Equals(object obj)
@@ -82,4 +83,5 @@ internal sealed class TcpConnector : Connector
     private readonly EndPoint _sourceAddr;
     private readonly int _timeout;
     private readonly string _connectionId;
+    private readonly TcpBufSize _bufSize;
 }

@@ -59,7 +59,7 @@ IceObjC::StreamAcceptor::accept()
 {
     SOCKET fd = doAccept(_fd);
     setBlock(fd, false);
-    setTcpBufSize(fd, _instance);
+    setTcpBufSize(fd, _bufSize.rcvSize(), _bufSize.sndSize(), _instance);
 
     //
     // Create the read/write streams
@@ -115,6 +115,7 @@ IceObjC::StreamAcceptor::StreamAcceptor(
     int port)
     : _endpoint(endpoint),
       _instance(instance),
+      _bufSize(instance->properties()),
       _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true))
 {
     _backlog = instance->properties()->getIcePropertyAsInt("Ice.TCP.Backlog");
@@ -123,7 +124,7 @@ IceObjC::StreamAcceptor::StreamAcceptor(
     {
         _fd = createSocket(false, _addr);
         setBlock(_fd, false);
-        setTcpBufSize(_fd, _instance);
+        setTcpBufSize(_fd, _bufSize.rcvSize(), _bufSize.sndSize(), _instance);
         setReuseAddress(_fd, true);
     }
     catch (...)
