@@ -337,9 +337,11 @@ declare module "@zeroc/ice" {
             ice_getConnection(): AsyncResult<Connection>;
 
             /**
-             * Gets the cached Connection for this proxy. This function never attempts to establish a connection.
-             * For a fixed proxy, this function returns the connection this proxy is bound to. This function never
-             * throws.
+             * Gets the cached Connection for this proxy. Once this proxy has been associated with a connection
+             * (typically during its first invocation), it caches this connection and continues using it for
+             * subsequent invocations, until an invocation on this proxy fails. This function never attempts to
+             * establish a connection. For a fixed proxy, this function returns the connection this proxy is bound
+             * to, even when this connection is closed. This function never throws.
              *
              * @returns The cached connection, or `null` if this proxy doesn't have a cached connection. The
              * returned connection can be closed.

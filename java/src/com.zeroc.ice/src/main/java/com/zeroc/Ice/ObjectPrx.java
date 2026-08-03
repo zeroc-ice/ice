@@ -581,8 +581,11 @@ public interface ObjectPrx {
     CompletableFuture<Connection> ice_getConnectionAsync();
 
     /**
-     * Gets the {@link Connection} cached by this proxy. This method never attempts to establish a connection.
-     * For a fixed proxy, this method returns the connection this proxy is bound to. This method never throws.
+     * Gets the {@link Connection} cached by this proxy. Once this proxy has been associated with a connection
+     * (typically during its first invocation), it caches this connection and continues using it for subsequent
+     * invocations, until an invocation on this proxy fails. This method never attempts to establish a connection.
+     * For a fixed proxy, this method returns the connection this proxy is bound to, even when this connection is
+     * closed. This method never throws.
      *
      * <p>A proxy with connection caching disabled (see {@link #ice_connectionCached(boolean)}) never caches a
      * connection: for such a proxy, this method always returns null. This method also returns null when this

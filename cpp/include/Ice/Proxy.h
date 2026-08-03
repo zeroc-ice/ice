@@ -617,8 +617,11 @@ namespace Ice
         /// @private
         void _iceI_getConnection(const std::shared_ptr<IceInternal::ProxyGetConnection>&) const;
 
-        /// Gets the Connection cached by this proxy. This function never attempts to establish a connection. For a
-        /// fixed proxy, this function returns the connection this proxy is bound to.
+        /// Gets the Connection cached by this proxy. Once this proxy has been associated with a connection
+        /// (typically during its first invocation), it caches this connection and continues using it for subsequent
+        /// invocations, until an invocation on this proxy fails. This function never attempts to establish a
+        /// connection. For a fixed proxy, this function returns the connection this proxy is bound to, even when
+        /// this connection is closed.
         /// @return The cached connection, or nullptr if this proxy doesn't have a cached connection. The returned
         /// connection can be closed.
         /// @remark A proxy with connection caching disabled (see #ice_connectionCached) never caches a connection: for

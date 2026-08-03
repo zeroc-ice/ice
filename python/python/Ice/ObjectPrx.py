@@ -919,9 +919,11 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_getCachedConnection(self) -> Connection | None:
         """
-        Gets the Connection cached by this proxy. This function never attempts to establish a connection.
-        For a fixed proxy, this function returns the connection this proxy is bound to. This function never
-        raises an exception.
+        Gets the Connection cached by this proxy. Once this proxy has been associated with a connection
+        (typically during its first invocation), it caches this connection and continues using it for
+        subsequent invocations, until an invocation on this proxy fails. This function never attempts to
+        establish a connection. For a fixed proxy, this function returns the connection this proxy is bound
+        to, even when this connection is closed. This function never raises an exception.
 
         Returns
         -------

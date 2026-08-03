@@ -469,9 +469,11 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     Task<Connection?> ice_getConnectionAsync(IProgress<bool>? progress = null, CancellationToken cancel = default);
 
     /// <summary>
-    /// Gets the cached <see cref="Connection"/> for this proxy. This method never attempts to establish a
-    /// connection. For a fixed proxy, this method returns the connection this proxy is bound to. This method never
-    /// throws.
+    /// Gets the cached <see cref="Connection"/> for this proxy. Once this proxy has been associated with a
+    /// connection (typically during its first invocation), it caches this connection and continues using it for
+    /// subsequent invocations, until an invocation on this proxy fails. This method never attempts to establish a
+    /// connection. For a fixed proxy, this method returns the connection this proxy is bound to, even when this
+    /// connection is closed. This method never throws.
     /// </summary>
     /// <returns>The cached connection, or null if this proxy doesn't have a cached connection. The returned
     /// connection can be closed.</returns>
@@ -1528,9 +1530,11 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Gets the cached <see cref="Connection"/> for this proxy. This method never attempts to establish a
-    /// connection. For a fixed proxy, this method returns the connection this proxy is bound to. This method never
-    /// throws.
+    /// Gets the cached <see cref="Connection"/> for this proxy. Once this proxy has been associated with a
+    /// connection (typically during its first invocation), it caches this connection and continues using it for
+    /// subsequent invocations, until an invocation on this proxy fails. This method never attempts to establish a
+    /// connection. For a fixed proxy, this method returns the connection this proxy is bound to, even when this
+    /// connection is closed. This method never throws.
     /// </summary>
     /// <returns>The cached connection, or null if this proxy doesn't have a cached connection. The returned
     /// connection can be closed.</returns>
