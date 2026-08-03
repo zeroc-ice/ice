@@ -144,9 +144,11 @@ export class Reference {
         h = HashUtil.addNumber(h, this._mode);
         h = HashUtil.addHashable(h, this._identity);
         if (this._context !== null && this._context !== undefined) {
-            for (const [key, value] of this._context) {
+            // Fold the entries in key order. equals compares contexts without regard to order, so the hash code must
+            // not depend on the order in which the entries were inserted into the Map.
+            for (const key of [...this._context.keys()].sort()) {
                 h = HashUtil.addString(h, key);
-                h = HashUtil.addString(h, value);
+                h = HashUtil.addString(h, this._context.get(key));
             }
         }
         h = HashUtil.addString(h, this._facet);
