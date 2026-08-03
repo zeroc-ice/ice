@@ -120,11 +120,7 @@ class EndpointHostResolver {
     void joinWithThread() throws InterruptedException {
         // Wait for the executor to terminate.
         try {
-            while (!_executor.isTerminated()) {
-                // A very long time.
-                _executor.awaitTermination(100000, TimeUnit.SECONDS);
-            }
-
+            _executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } finally {
             if (_observer != null) {
                 _observer.detach();
