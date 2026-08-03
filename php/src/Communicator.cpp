@@ -65,13 +65,15 @@ namespace IcePHP
         CommunicatorInfoI(const ActiveCommunicatorPtr&, zval*);
 
         void getZval(zval*) final;
-        void addRef(void) final;
-        void decRef(void) final;
 
         Ice::CommunicatorPtr getCommunicator() const final;
         Ice::SliceLoaderPtr getSliceLoader() const final;
 
         const ActiveCommunicatorPtr ac;
+
+        // The PHP object that wraps this communicator. This is a borrowed reference: the PHP object owns this
+        // CommunicatorInfoI, so an owning reference would create an uncollectable cycle. handleFreeStorage clears
+        // this zval when the PHP object is destroyed, and getZval creates a new PHP object as needed.
         zval zv;
 
     private:
@@ -741,6 +743,13 @@ handleFreeStorage(zend_object* object)
 {
     Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::fetch(object);
     assert(obj);
+
+    if (obj->ptr)
+    {
+        // This CommunicatorInfoI can outlive the PHP object (the communicator map and the proxies created by this
+        // communicator hold a reference to it), so clear its borrowed reference to the PHP object being destroyed.
+        ZVAL_UNDEF(&(*obj->ptr)->zv);
+    }
 
     delete obj->ptr;
     zend_object_std_dtor(object);
@@ -1576,20 +1585,27 @@ IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zva
 void
 IcePHP::CommunicatorInfoI::getZval(zval* z)
 {
-    ZVAL_COPY_VALUE(z, &zv);
-    addRef();
-}
+    if (Z_ISUNDEF(zv))
+    {
+        // The PHP object that wrapped this communicator was destroyed; create a new one for this same
+        // CommunicatorInfoI.
+        if (object_init_ex(z, communicatorClassEntry) != SUCCESS)
+        {
+            runtimeError("unable to initialize communicator object");
+            ZVAL_NULL(z);
+            return;
+        }
 
-void
-IcePHP::CommunicatorInfoI::addRef(void)
-{
-    Z_ADDREF_P(&zv);
-}
+        Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(z);
+        assert(!obj->ptr);
+        obj->ptr = new shared_ptr<CommunicatorInfoI>(shared_from_this());
 
-void
-IcePHP::CommunicatorInfoI::decRef(void)
-{
-    Z_DELREF_P(&zv);
+        ZVAL_COPY_VALUE(&zv, z);
+    }
+    else
+    {
+        ZVAL_COPY(z, &zv);
+    }
 }
 
 Ice::CommunicatorPtr

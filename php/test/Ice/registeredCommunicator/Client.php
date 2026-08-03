@@ -72,5 +72,19 @@ class Client extends TestHelper
         $reapCommunicator->stringToProxy("test");
         $reapCommunicator->destroy();
         test(Ice\find("Reap") == null);
+
+        // A proxy keeps its communicator alive at the C++ level, but not the PHP object that wraps it. Once that PHP
+        // object is freed, ice_getCommunicator must return a working communicator by re-wrapping the same underlying
+        // communicator.
+        $proxy = (function () {
+            $c = Ice\initialize();
+            return $c->stringToProxy("test:tcp -h 127.0.0.1 -p 10000");
+        })();
+        $comm = $proxy->ice_getCommunicator();
+        test($comm != null);
+        test($comm->stringToProxy("test") != null);
+        // A second call returns the same re-wrapped communicator.
+        test($proxy->ice_getCommunicator() == $comm);
+        $comm->destroy();
     }
 }

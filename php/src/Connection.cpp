@@ -34,9 +34,11 @@ extern "C"
     static zend_object* handleConnectionAlloc(zend_class_entry*);
     static void handleConnectionFreeStorage(zend_object*);
     static int handleConnectionCompare(zval*, zval*);
+    static zend_object* handleConnectionClone(zend_object*);
 
     static zend_object* handleConnectionInfoAlloc(zend_class_entry*);
     static void handleConnectionInfoFreeStorage(zend_object*);
+    static zend_object* handleConnectionInfoClone(zend_object*);
 }
 
 ZEND_METHOD(Ice_Connection, __construct) { runtimeError("Connection cannot be instantiated"); }
@@ -286,6 +288,13 @@ handleConnectionFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
+static zend_object*
+handleConnectionClone(zend_object*)
+{
+    php_error_docref(0, E_ERROR, "connections cannot be cloned");
+    return nullptr;
+}
+
 static int
 handleConnectionCompare(zval* zobj1, zval* zobj2)
 {
@@ -364,6 +373,13 @@ handleConnectionInfoFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
+static zend_object*
+handleConnectionInfoClone(zend_object*)
+{
+    php_error_docref(0, E_ERROR, "connection info objects cannot be cloned");
+    return nullptr;
+}
+
 bool
 IcePHP::connectionInit(void)
 {
@@ -377,6 +393,7 @@ IcePHP::connectionInit(void)
     ce.create_object = handleConnectionAlloc;
     connectionClassEntry = zend_register_internal_class(&ce);
     memcpy(&_connectionHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    _connectionHandlers.clone_obj = handleConnectionClone;
     _connectionHandlers.compare = handleConnectionCompare;
     _connectionHandlers.free_obj = handleConnectionFreeStorage;
     _connectionHandlers.offset = XtOffsetOf(Wrapper<Ice::ConnectionPtr>, zobj);
@@ -387,6 +404,7 @@ IcePHP::connectionInit(void)
     ce.create_object = handleConnectionInfoAlloc;
     connectionInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_connectionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    _connectionInfoHandlers.clone_obj = handleConnectionInfoClone;
     _connectionInfoHandlers.free_obj = handleConnectionInfoFreeStorage;
     _connectionInfoHandlers.offset = XtOffsetOf(Wrapper<Ice::ConnectionInfoPtr>, zobj);
 

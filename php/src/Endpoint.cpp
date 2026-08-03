@@ -28,9 +28,11 @@ extern "C"
 {
     static zend_object* handleEndpointAlloc(zend_class_entry*);
     static void handleEndpointFreeStorage(zend_object*);
+    static zend_object* handleEndpointClone(zend_object*);
 
     static zend_object* handleEndpointInfoAlloc(zend_class_entry*);
     static void handleEndpointInfoFreeStorage(zend_object*);
+    static zend_object* handleEndpointInfoClone(zend_object*);
 }
 
 ZEND_METHOD(Ice_Endpoint, __construct) { runtimeError("Endpoint cannot be instantiated"); }
@@ -92,6 +94,13 @@ handleEndpointFreeStorage(zend_object* object)
     Wrapper<Ice::EndpointPtr>* obj = Wrapper<Ice::EndpointPtr>::fetch(object);
     delete obj->ptr;
     zend_object_std_dtor(object);
+}
+
+static zend_object*
+handleEndpointClone(zend_object*)
+{
+    php_error_docref(0, E_ERROR, "endpoints cannot be cloned");
+    return nullptr;
 }
 
 ZEND_METHOD(Ice_EndpointInfo, __construct) { runtimeError("EndpointInfo cannot be instantiated"); }
@@ -177,6 +186,13 @@ handleEndpointInfoFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
+static zend_object*
+handleEndpointInfoClone(zend_object*)
+{
+    php_error_docref(0, E_ERROR, "endpoint info objects cannot be cloned");
+    return nullptr;
+}
+
 static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
 // Predefined methods for Endpoint.
@@ -222,6 +238,7 @@ IcePHP::endpointInit(void)
     ce.create_object = handleEndpointAlloc;
     endpointClassEntry = zend_register_internal_class(&ce);
     memcpy(&_endpointHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    _endpointHandlers.clone_obj = handleEndpointClone;
     _endpointHandlers.free_obj = handleEndpointFreeStorage;
     _endpointHandlers.offset = XtOffsetOf(Wrapper<Ice::EndpointPtr>, zobj);
     zend_class_implements(endpointClassEntry, 1, endpointInterface);
@@ -231,6 +248,7 @@ IcePHP::endpointInit(void)
     ce.create_object = handleEndpointInfoAlloc;
     endpointInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    _endpointInfoHandlers.clone_obj = handleEndpointInfoClone;
     _endpointInfoHandlers.free_obj = handleEndpointInfoFreeStorage;
     _endpointInfoHandlers.offset = XtOffsetOf(Wrapper<Ice::EndpointInfoPtr>, zobj);
     zend_declare_property_bool(endpointInfoClassEntry, "compress", sizeof("compress") - 1, 0, ZEND_ACC_PUBLIC);
