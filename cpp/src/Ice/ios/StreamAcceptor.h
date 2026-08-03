@@ -4,6 +4,7 @@
 #define ICE_STREAM_ACCEPTOR_H
 
 #include "../Acceptor.h"
+#include "../TcpBufSize.h"
 #include "../TransceiverF.h"
 #include "StreamEndpointI.h"
 
@@ -35,6 +36,7 @@ namespace IceObjC
 
         StreamEndpointIPtr _endpoint;
         const InstancePtr _instance;
+        const IceInternal::TcpBufSize _bufSize;
         int _backlog;
         IceInternal::Address _addr;
     };

@@ -631,19 +631,6 @@ public final class Network {
         }
     }
 
-    public static void setTcpBufSize(SocketChannel socket, ProtocolInstance instance) {
-        // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
-        int dfltBufSize = 0;
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            dfltBufSize = 128 * 1024;
-        }
-
-        int rcvSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
-        int sndSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
-
-        setTcpBufSize(socket, rcvSize, sndSize, instance);
-    }
-
     public static void setTcpBufSize(SocketChannel socket, int rcvSize, int sndSize, ProtocolInstance instance) {
         if (rcvSize > 0) {
             // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
@@ -679,15 +666,7 @@ public final class Network {
         }
     }
 
-    public static void setTcpBufSize(ServerSocketChannel socket, ProtocolInstance instance) {
-        // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
-        int dfltBufSize = 0;
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            dfltBufSize = 128 * 1024;
-        }
-
-        // Get property for buffer size.
-        int sizeRequested = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+    public static void setTcpBufSize(ServerSocketChannel socket, int sizeRequested, ProtocolInstance instance) {
         if (sizeRequested > 0) {
             // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
             // value. Then read the size back to get the size that was actually set.

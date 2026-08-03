@@ -5,9 +5,7 @@
 
 #include "Ice/Config.h"
 #include "Ice/EndpointTypes.h"
-#include "Ice/Logger.h"      // For setTcpBufSize
-#include "Ice/PropertiesF.h" // For setTcpBufSize
-#include "Ice/StringUtil.h"  // For ErrorCode
+#include "Ice/StringUtil.h" // For ErrorCode
 #include "NetworkF.h"
 #include "NetworkProxyF.h"
 #include "Protocol.h"
@@ -212,7 +210,6 @@ namespace IceInternal
     ICE_API void setPort(Address&, int);
 
     ICE_API bool isMulticast(const Address&);
-    ICE_API void setTcpBufSize(SOCKET, const ProtocolInstancePtr&);
     ICE_API void setTcpBufSize(SOCKET, int, int, const ProtocolInstancePtr&);
 
     ICE_API void setBlock(SOCKET, bool);

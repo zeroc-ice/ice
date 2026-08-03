@@ -6,6 +6,7 @@
 #include "Acceptor.h"
 #include "Network.h"
 #include "ProtocolInstanceF.h"
+#include "TcpBufSize.h"
 #include "TransceiverF.h"
 
 namespace IceInternal
@@ -42,6 +43,7 @@ namespace IceInternal
         TcpEndpointIPtr _endpoint;
         const ProtocolInstancePtr _instance;
         const Address _addr;
+        const TcpBufSize _bufSize;
 
         int _backlog;
 #if defined(ICE_USE_IOCP)

@@ -10,7 +10,12 @@ namespace Ice.Internal;
 internal sealed class StreamSocket
 #pragma warning restore CA1001
 {
-    public StreamSocket(ProtocolInstance instance, NetworkProxy proxy, EndPoint addr, EndPoint sourceAddr)
+    public StreamSocket(
+        ProtocolInstance instance,
+        NetworkProxy proxy,
+        EndPoint addr,
+        EndPoint sourceAddr,
+        TcpBufSize bufSize)
     {
         _instance = instance;
         _proxy = proxy;
@@ -19,10 +24,10 @@ internal sealed class StreamSocket
         _fd = Network.createSocket(false, (_proxy != null ? _proxy.getAddress() : _addr).AddressFamily);
         _state = StateNeedConnect;
 
-        init();
+        init(bufSize);
     }
 
-    public StreamSocket(ProtocolInstance instance, Socket fd)
+    public StreamSocket(ProtocolInstance instance, Socket fd, TcpBufSize bufSize)
     {
         _instance = instance;
         _fd = fd;
@@ -36,7 +41,7 @@ internal sealed class StreamSocket
             Network.closeSocketNoThrow(_fd);
             throw;
         }
-        init();
+        init(bufSize);
     }
 
     public int connect(Buffer readBuffer, Buffer writeBuffer, ref bool moreData)
@@ -405,10 +410,10 @@ internal sealed class StreamSocket
         }
     }
 
-    private void init()
+    private void init(TcpBufSize bufSize)
     {
         Network.setBlock(_fd, false);
-        Network.setTcpBufSize(_fd, _instance);
+        Network.setTcpBufSize(_fd, bufSize.rcvSize, bufSize.sndSize, _instance);
 
         _readEventArgs = new SocketAsyncEventArgs();
         _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);

@@ -6,6 +6,7 @@
 #include "Ice/Buffer.h"
 #include "Network.h"
 #include "ProtocolInstanceF.h"
+#include "TcpBufSize.h"
 
 #include <memory>
 
@@ -14,8 +15,8 @@ namespace IceInternal
     class StreamSocket : public NativeInfo
     {
     public:
-        StreamSocket(ProtocolInstancePtr, const NetworkProxyPtr&, const Address&, const Address&);
-        StreamSocket(ProtocolInstancePtr, SOCKET);
+        StreamSocket(ProtocolInstancePtr, const NetworkProxyPtr&, const Address&, const Address&, const TcpBufSize&);
+        StreamSocket(ProtocolInstancePtr, SOCKET, const TcpBufSize&);
         ~StreamSocket() override;
 
         SocketOperation connect(Buffer&, Buffer&);
@@ -40,7 +41,7 @@ namespace IceInternal
         [[nodiscard]] const std::string& toString() const;
 
     private:
-        void init();
+        void init(const TcpBufSize&);
 
         enum State
         {
