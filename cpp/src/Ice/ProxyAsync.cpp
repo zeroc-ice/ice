@@ -82,7 +82,20 @@ namespace IceInternal
             : ProxyGetConnection(std::move(proxy)),
               LambdaInvoke(std::move(ex), std::move(sent))
         {
-            _response = [&, response = std::move(response)](bool) { response(getConnection()); };
+            _response = [this, response = std::move(response)](bool)
+            {
+                if (response)
+                {
+                    try
+                    {
+                        response(getConnection());
+                    }
+                    catch (...)
+                    {
+                        warning("response", std::current_exception());
+                    }
+                }
+            };
         }
     };
 

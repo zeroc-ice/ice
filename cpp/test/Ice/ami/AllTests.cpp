@@ -742,8 +742,6 @@ allTests(TestHelper* helper, bool collocated)
 
     cout << "testing unexpected exceptions from callback... " << flush;
     {
-        TestIntfPrx q = p->ice_adapterId("dummy");
-
         for (int i = 0; i < 4; ++i) // NOLINT(modernize-loop-convert): clang-tidy confusion
         {
             {
@@ -784,6 +782,27 @@ allTests(TestHelper* helper, bool collocated)
                 }
                 catch (const exception&)
                 {
+                    test(false);
+                }
+            }
+
+            {
+                promise<void> promise;
+                p->ice_getConnectionAsync(
+                    [&, i](const Ice::ConnectionPtr&)
+                    {
+                        promise.set_value();
+                        thrower(throwEx[i]);
+                    },
+                    [&](exception_ptr) { test(false); });
+
+                try
+                {
+                    promise.get_future().get();
+                }
+                catch (const exception& ex)
+                {
+                    cerr << ex.what() << endl;
                     test(false);
                 }
             }
