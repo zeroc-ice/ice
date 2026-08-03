@@ -344,6 +344,19 @@ def allTests(helper, communicator)
     print "testing ice_getCommunicator... "
     STDOUT.flush
     test(base.ice_getCommunicator() == communicator)
+
+    # The communicator returned by ice_getCommunicator must remain valid after GC heap compaction moves the
+    # communicator object. The new communicator is referenced from an array element because an object referenced
+    # from a local variable is pinned by conservative stack marking and cannot move.
+    others = [Ice.initialize]
+    begin
+        GC.verify_compaction_references(expand_heap: true, toward: :empty)
+    rescue NotImplementedError, ArgumentError
+        # Compaction is not supported on this platform, or Ruby < 3.2 doesn't accept these keyword arguments.
+    end
+    otherProxy = Ice::ObjectPrx.new(others[0], "test:default -p 12010")
+    test(otherProxy.ice_getCommunicator() == others[0])
+    others[0].destroy
     puts "ok"
 
     print "testing proxy methods... "

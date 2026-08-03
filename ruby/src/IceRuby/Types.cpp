@@ -737,6 +737,13 @@ IceRuby::EnumInfo::EnumInfo(VALUE ident, VALUE t, VALUE e) : rubyClass(t), maxVa
 
     const_cast<int32_t&>(maxValue) = iter.maxValue;
     const_cast<EnumeratorMap&>(enumerators) = iter.enumerators;
+
+    // Pin these objects: the GC cannot see the VALUEs stored in this object, so they must never move.
+    rb_gc_register_mark_object(rubyClass);
+    for (const auto& p : enumerators)
+    {
+        rb_gc_register_mark_object(p.second);
+    }
 }
 
 string
@@ -883,6 +890,9 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
 //
 IceRuby::StructInfo::StructInfo(VALUE ident, VALUE t, VALUE m) : rubyClass(t)
 {
+    // Pin the class: the GC cannot see the VALUE stored in this object, so it must never move.
+    rb_gc_register_mark_object(rubyClass);
+
     const_cast<string&>(id) = getString(ident);
 
     DataMemberList opt;
@@ -1904,6 +1914,8 @@ IceRuby::ClassInfo::create(VALUE ident)
 {
     shared_ptr<ClassInfo> classInfo{new ClassInfo{ident}};
     const_cast<VALUE&>(classInfo->typeObj) = createType(classInfo);
+    // Pin the type object: the GC cannot see the VALUE stored in this object, so it must never move.
+    rb_gc_register_mark_object(classInfo->typeObj);
     return classInfo;
 }
 
@@ -1932,6 +1944,8 @@ IceRuby::ClassInfo::define(VALUE t, VALUE compact, VALUE intf, VALUE b, VALUE m)
     const_cast<bool&>(interface) = RTEST(intf);
     convertDataMembers(m, const_cast<DataMemberList&>(members), const_cast<DataMemberList&>(optionalMembers), true);
     const_cast<VALUE&>(rubyClass) = t;
+    // Pin the class: the GC cannot see the VALUE stored in this object, so it must never move.
+    rb_gc_register_mark_object(rubyClass);
     const_cast<bool&>(defined) = true;
 }
 
@@ -2180,6 +2194,8 @@ IceRuby::ProxyInfo::create(VALUE ident)
 {
     shared_ptr<ProxyInfo> proxyInfo{new ProxyInfo{ident}};
     const_cast<VALUE&>(proxyInfo->typeObj) = createType(proxyInfo);
+    // Pin the type object: the GC cannot see the VALUE stored in this object, so it must never move.
+    rb_gc_register_mark_object(proxyInfo->typeObj);
     return proxyInfo;
 }
 
@@ -2208,6 +2224,8 @@ IceRuby::ProxyInfo::define(VALUE t, VALUE b, VALUE i)
     }
 
     const_cast<VALUE&>(rubyClass) = t;
+    // Pin the class: the GC cannot see the VALUE stored in this object, so it must never move.
+    rb_gc_register_mark_object(rubyClass);
 }
 
 string
@@ -2911,6 +2929,8 @@ IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE 
         }
 
         info->rubyClass = type;
+        // Pin the class: the GC cannot see the VALUE stored in this object, so it must never move.
+        rb_gc_register_mark_object(type);
 
         addExceptionInfo(info->id, info);
 
