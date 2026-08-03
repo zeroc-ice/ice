@@ -49,7 +49,16 @@ class Test::D
 end
 
 class CustomSliceLoader
+    @@compactDuringUnmarshal = false
+
+    def self.compactDuringUnmarshal=(value)
+        @@compactDuringUnmarshal = value
+    end
+
     def newInstance(typeId)
+        # Compact the GC heap in the middle of unmarshaling the enclosing request results.
+        GC.verify_compaction_references(expand_heap: true, toward: :empty) if @@compactDuringUnmarshal
+
         case typeId
         when '::Test::B'
             return BI.new

@@ -161,6 +161,11 @@ IceRuby::StreamUtil::StreamUtil() = default;
 
 IceRuby::StreamUtil::~StreamUtil()
 {
+    for (VALUE& value : _pinned)
+    {
+        rb_gc_unregister_address(&value);
+    }
+
     //
     // Make sure we break any cycles among the ValueReaders in preserved slices.
     //
@@ -195,6 +200,13 @@ IceRuby::StreamUtil::add(const shared_ptr<ValueReader>& reader)
 }
 
 void
+IceRuby::StreamUtil::pin(VALUE value)
+{
+    _pinned.push_back(value);
+    rb_gc_register_address(&_pinned.back());
+}
+
+void
 IceRuby::StreamUtil::updateSlicedData()
 {
     for (set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
@@ -216,11 +228,13 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
     {
         _slicedDataType = callRuby(rb_path2class, "Ice::SlicedData");
         assert(!NIL_P(_slicedDataType));
+        rb_gc_register_mark_object(_slicedDataType);
     }
     if (_sliceInfoType == Qnil)
     {
         _sliceInfoType = callRuby(rb_path2class, "Ice::SliceInfo");
         assert(!NIL_P(_sliceInfoType));
+        rb_gc_register_mark_object(_sliceInfoType);
     }
 
     volatile VALUE sd = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), _slicedDataType);
@@ -1803,6 +1817,15 @@ IceRuby::DictionaryInfo::unmarshal(
                 keyCB->key = rb_str_new_frozen(keyCB->key);
             }
             callRuby(rb_hash_aset, hash, keyCB->key, Qnil);
+
+            //
+            // The closure below holds a raw VALUE copy of the key until the value is
+            // unmarshaled; pin the key so that GC compaction cannot move it in the
+            // meantime.
+            //
+            StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
+            assert(util);
+            util->pin(keyCB->key);
         }
         //
         // The callback will set the dictionary entry with the unmarshaled value,
@@ -2622,7 +2645,13 @@ IceRuby::ReadValueCallback::ReadValueCallback(
       _target(target),
       _closure(closure)
 {
+    //
+    // Mark the target as in use for the lifetime of this wrapper.
+    //
+    rb_gc_register_address(&_target);
 }
+
+IceRuby::ReadValueCallback::~ReadValueCallback() { rb_gc_unregister_address(&_target); }
 
 void
 IceRuby::ReadValueCallback::invoke(const shared_ptr<Ice::Value>& p)

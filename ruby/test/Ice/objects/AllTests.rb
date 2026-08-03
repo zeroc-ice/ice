@@ -291,5 +291,45 @@ def allTests(helper, communicator)
     end
     puts "ok"
 
+    print "testing GC compaction during unmarshaling... "
+    STDOUT.flush
+    begin
+        GC.verify_compaction_references(expand_heap: true, toward: :empty)
+        compactionSupported = true
+    rescue NotImplementedError, ArgumentError
+        # Compaction is not supported on this platform, or Ruby < 3.2 doesn't accept these keyword arguments.
+        compactionSupported = false
+    end
+    if compactionSupported
+        # The custom slice loader now compacts the GC heap each time a class instance is unmarshaled. The raw
+        # VALUEs the extension holds while unmarshaling the enclosing graph (dictionary keys, patch targets)
+        # must remain valid when the heap moves.
+        CustomSliceLoader.compactDuringUnmarshal = true
+        begin
+            b1 = initial.getB1()
+            test(b1.theB == b1)
+            test(b1.theA.theC.theB == b1.theA)
+
+            v1 = {}
+            v1["l"] = Test::L.new("l")
+            v2, v3 = initial.opValueMap(v1)
+            test(v2["l"].data == "l")
+            test(v3["l"].data == "l")
+
+            m = Test::M.new
+            m.v = {}
+            k1 = Test::StructKey.new(1, "1")
+            m.v[k1] = Test::L.new("one")
+            k2 = Test::StructKey.new(2, "2")
+            m.v[k2] = Test::L.new("two")
+            m1, m2 = initial.opM(m)
+            test(m1.v[k1].data == "one" && m1.v[k2].data == "two")
+            test(m2.v[k1].data == "one" && m2.v[k2].data == "two")
+        ensure
+            CustomSliceLoader.compactDuringUnmarshal = false
+        end
+    end
+    puts "ok"
+
     return initial
 end

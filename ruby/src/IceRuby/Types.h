@@ -10,6 +10,8 @@
 #include "Ice/OutputUtil.h"
 #include "Ice/SlicedData.h"
 
+#include <deque>
+
 namespace IceRuby
 {
     class ExceptionInfo;
@@ -72,6 +74,7 @@ namespace IceRuby
     {
     public:
         ReadValueCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+        ~ReadValueCallback();
 
         void invoke(const std::shared_ptr<Ice::Value>&);
 
@@ -104,6 +107,12 @@ namespace IceRuby
         void add(const std::shared_ptr<ValueReader>&);
 
         //
+        // Root and pin a Ruby object for the lifetime of the stream, so that a raw VALUE
+        // copy of it held in native code remains valid until unmarshaling completes.
+        //
+        void pin(VALUE);
+
+        //
         // Updated the sliced data information for all stored object instances.
         //
         void updateSlicedData();
@@ -114,6 +123,7 @@ namespace IceRuby
     private:
         std::vector<ReadValueCallbackPtr> _callbacks;
         std::set<std::shared_ptr<ValueReader>> _readers;
+        std::deque<VALUE> _pinned; // deque: pin() must not invalidate registered addresses
         static VALUE _slicedDataType;
         static VALUE _sliceInfoType;
     };
