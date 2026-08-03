@@ -609,6 +609,11 @@ class MultiHandler(ContentHandler):
         for f in self.handlers:
             f.startElement(name, attrs)
 
+    @override
+    def endElement(self, name: str) -> None:
+        for f in self.handlers:
+            f.endElement(name)
+
     def cleanup(self) -> None:
         for f in self.handlers:
             f.cleanup()

@@ -37,7 +37,7 @@ case "$arg" in
         echo ""
         echo "Generates a code coverage report for the specified binary or library. The report is generated in the coverage/html directory."
         echo "The script builds the current working directory with code coverage instrumentation, runs the tests, and generates the report."
-        echo "The llvm package must be installed."
+        echo "The Xcode Command Line Tools must be installed."
         echo ""
         echo "example: generate code coverage report for libIce"
         echo "  cd cpp && ../scripts/generate-cpp-code-coverage.sh lib/libIce.dylib"
@@ -48,8 +48,8 @@ esac
 
 CLI_TOOLS=/Library/Developer/CommandLineTools/usr/bin
 
-if [ -z "$CLI_TOOLS" ]; then
-    echo "Xcode Command Line Tools not found. Run 'xcode-select --install' to install the tools."
+if [ ! -x "${CLI_TOOLS}/llvm-profdata" ] || [ ! -x "${CLI_TOOLS}/llvm-cov" ]; then
+    echo "llvm-profdata or llvm-cov not found in ${CLI_TOOLS}. Run 'xcode-select --install' to install the Xcode Command Line Tools."
     exit 1
 fi
 
