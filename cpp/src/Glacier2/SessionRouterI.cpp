@@ -1129,21 +1129,31 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const share
 
     if (_destroy)
     {
-        router->destroy([self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); });
+        router->destroy(defaultSessionDestroyExceptionHandler());
 
         throw CannotCreateSessionException("router is shutting down");
     }
 
-    _routersByConnectionHint = _routersByConnection.insert(_routersByConnectionHint, {connection, router});
-
     if (_instance->serverObjectAdapter())
     {
+        // The category is randomly generated, so a collision with an existing session's category should never
+        // occur. Check anyway, and register the category before the connection so that a failure leaves nothing
+        // to undo.
         string category = router->serverProxy()->ice_getIdentity().category;
         assert(!category.empty());
-        auto rc = _routersByCategory.insert({category, router});
-        assert(rc.second);
-        _routersByCategoryHint = rc.first;
+        auto [pos, inserted] = _routersByCategory.insert({category, router});
+        if (!inserted)
+        {
+            router->destroy(defaultSessionDestroyExceptionHandler());
+
+            // Internal error: the only way to get here is a collision of the randomly generated categories.
+            // UnknownException replies are logged by the default LoggerMiddleware.
+            throw UnknownException{__FILE__, __LINE__, "duplicate client category"};
+        }
+        _routersByCategoryHint = pos;
     }
+
+    _routersByConnectionHint = _routersByConnection.insert(_routersByConnectionHint, {connection, router});
 
     connection->setCloseCallback(
         [self = shared_from_this()](const ConnectionPtr& c)
