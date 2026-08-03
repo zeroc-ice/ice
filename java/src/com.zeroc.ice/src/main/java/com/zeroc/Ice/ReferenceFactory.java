@@ -570,10 +570,18 @@ final class ReferenceFactory {
             property = propertyPrefix + ".LocatorCacheTimeout";
             locatorCacheTimeout = Duration.ofSeconds(
                 properties.getPropertyAsIntWithDefault(property, (int) locatorCacheTimeout.toSeconds()));
+            if (locatorCacheTimeout.isNegative()) {
+                // Any negative timeout means infinite and is normalized to -1; 0 means no caching.
+                locatorCacheTimeout = Duration.ofSeconds(-1);
+            }
 
             property = propertyPrefix + ".InvocationTimeout";
             invocationTimeout = Duration.ofMillis(
                 properties.getPropertyAsIntWithDefault(property, (int) invocationTimeout.toMillis()));
+            if (invocationTimeout.isNegative() || invocationTimeout.isZero()) {
+                // Zero or any negative timeout means infinite and is normalized to -1.
+                invocationTimeout = Duration.ofMillis(-1);
+            }
 
             property = propertyPrefix + ".Context.";
             Map<String, String> contexts = properties.getPropertiesForPrefix(property);

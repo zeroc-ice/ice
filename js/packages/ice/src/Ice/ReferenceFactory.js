@@ -552,39 +552,17 @@ export class ReferenceFactory {
             }
 
             property = propertyPrefix + ".LocatorCacheTimeout";
-            let value = properties.getProperty(property);
-            if (value.length !== 0) {
-                locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
-                if (locatorCacheTimeout < -1) {
-                    locatorCacheTimeout = -1;
-                    this._instance
-                        .initializationData()
-                        .logger.warning(
-                            "invalid value for " +
-                                property +
-                                " `" +
-                                properties.getProperty(property) +
-                                "': defaulting to -1",
-                        );
-                }
+            locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+            if (locatorCacheTimeout < 0) {
+                // Any negative timeout means infinite and is normalized to -1; 0 means no caching.
+                locatorCacheTimeout = -1;
             }
 
             property = propertyPrefix + ".InvocationTimeout";
-            value = properties.getProperty(property);
-            if (value.length !== 0) {
-                invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
-                if (invocationTimeout < -1) {
-                    invocationTimeout = -1;
-                    this._instance
-                        .initializationData()
-                        .logger.warning(
-                            "invalid value for " +
-                                property +
-                                " `" +
-                                properties.getProperty(property) +
-                                "': defaulting to -1",
-                        );
-                }
+            invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
+            if (invocationTimeout <= 0) {
+                // Zero or any negative timeout means infinite and is normalized to -1.
+                invocationTimeout = -1;
             }
 
             property = propertyPrefix + ".Context.";

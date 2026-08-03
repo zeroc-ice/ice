@@ -795,10 +795,20 @@ IceInternal::ReferenceFactory::create(
         property = propertyPrefix + ".LocatorCacheTimeout";
         locatorCacheTimeout = chrono::seconds(
             properties->getPropertyAsIntWithDefault(property, static_cast<int32_t>(locatorCacheTimeout.count())));
+        if (locatorCacheTimeout < chrono::seconds::zero())
+        {
+            // Any negative timeout means infinite and is normalized to -1; 0 means no caching.
+            locatorCacheTimeout = chrono::seconds(-1);
+        }
 
         property = propertyPrefix + ".InvocationTimeout";
         invocationTimeout = chrono::milliseconds(
             properties->getPropertyAsIntWithDefault(property, static_cast<int32_t>(invocationTimeout.count())));
+        if (invocationTimeout <= chrono::milliseconds::zero())
+        {
+            // Zero or any negative timeout means infinite and is normalized to -1.
+            invocationTimeout = chrono::milliseconds(-1);
+        }
 
         property = propertyPrefix + ".Context.";
         PropertyDict contexts = properties->getPropertiesForPrefix(property);

@@ -301,15 +301,38 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyInter
     prop.setProperty(property, "1")
     b1 = communicator.propertyToProxy(propertyPrefix)
     test(b1.ice_getLocatorCacheTimeout() == 1)
+    prop.setProperty(property, "0")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getLocatorCacheTimeout() == 0)
+    prop.setProperty(property, "-2")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getLocatorCacheTimeout() == -1)
     prop.setProperty(property, "")
 
-    # This cannot be tested so easily because the property is cached
-    # on communicator initialization.
-    #
-    # prop.setProperty("Ice.Default.LocatorCacheTimeout", "60")
-    # b1 = communicator.propertyToProxy(propertyPrefix)
-    # test(b1.ice_getLocatorCacheTimeout() == 60)
-    # prop.setProperty("Ice.Default.LocatorCacheTimeout", "")
+    # The default timeouts are cached on communicator initialization, so we test them with a separate
+    # communicator. They are normalized like the per-proxy timeout properties.
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties()
+    initData.properties.setProperty("Ice.Default.InvocationTimeout", "0")
+    initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "-2")
+    defaultsCommunicator = Ice.initialize(initData=initData)
+    defaultsProxy = defaultsCommunicator.stringToProxy("test")
+    assert defaultsProxy is not None
+    test(defaultsProxy.ice_getInvocationTimeout() == -1)
+    test(defaultsProxy.ice_getLocatorCacheTimeout() == -1)
+    defaultsCommunicator.destroy()
+
+    # Positive values are used as-is, verifying the properties actually reach the proxy.
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties()
+    initData.properties.setProperty("Ice.Default.InvocationTimeout", "500")
+    initData.properties.setProperty("Ice.Default.LocatorCacheTimeout", "60")
+    defaultsCommunicator = Ice.initialize(initData=initData)
+    defaultsProxy = defaultsCommunicator.stringToProxy("test")
+    assert defaultsProxy is not None
+    test(defaultsProxy.ice_getInvocationTimeout() == 500)
+    test(defaultsProxy.ice_getLocatorCacheTimeout() == 60)
+    defaultsCommunicator.destroy()
 
     prop.setProperty(propertyPrefix, "test:{0}".format(helper.getTestEndpoint()))
 
@@ -332,6 +355,14 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyInter
     prop.setProperty(property, "1000")
     b1 = communicator.propertyToProxy(propertyPrefix)
     test(b1.ice_getInvocationTimeout() == 1000)
+    prop.setProperty(property, "0")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getInvocationTimeout() == -1)
+    prop.setProperty(property, "-2")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getInvocationTimeout() == -1)
+    # The normalized value is what proxyToProperty emits.
+    test(communicator.proxyToProperty(b1, "RoundTrip")["RoundTrip.InvocationTimeout"] == "-1")
     prop.setProperty(property, "")
 
     property = propertyPrefix + ".EndpointSelection"
@@ -463,38 +494,15 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyInter
     test(base.ice_encodingVersion(Ice.Encoding_1_1).ice_getEncodingVersion() == Ice.Encoding_1_1)
     test(base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion() != Ice.Encoding_1_1)
 
-    try:
-        base.ice_invocationTimeout(0)
-        test(False)
-    except RuntimeError:
-        pass
+    # Zero or any negative invocation timeout means infinite and is normalized to -1.
+    test(base.ice_invocationTimeout(0).ice_getInvocationTimeout() == -1)
+    test(base.ice_invocationTimeout(-1).ice_getInvocationTimeout() == -1)
+    test(base.ice_invocationTimeout(-2).ice_getInvocationTimeout() == -1)
 
-    try:
-        base.ice_invocationTimeout(-1)
-    except RuntimeError:
-        test(False)
-
-    try:
-        base.ice_invocationTimeout(-2)
-        test(False)
-    except RuntimeError:
-        pass
-
-    try:
-        base.ice_locatorCacheTimeout(0)
-    except RuntimeError:
-        test(False)
-
-    try:
-        base.ice_locatorCacheTimeout(-1)
-    except RuntimeError:
-        test(False)
-
-    try:
-        base.ice_locatorCacheTimeout(-2)
-        test(False)
-    except RuntimeError:
-        pass
+    # Any negative locator cache timeout means infinite and is normalized to -1; 0 means no caching.
+    test(base.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0)
+    test(base.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == -1)
+    test(base.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == -1)
 
     print("ok")
 

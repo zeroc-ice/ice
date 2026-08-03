@@ -221,15 +221,36 @@ function allTests($helper)
     $communicator->getProperties()->setProperty($property, "1");
     $b1 = $communicator->propertyToProxy($propertyPrefix);
     test($b1->ice_getLocatorCacheTimeout() == 1);
+    $communicator->getProperties()->setProperty($property, "0");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
+    test($b1->ice_getLocatorCacheTimeout() == 0);
+    $communicator->getProperties()->setProperty($property, "-2");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
+    test($b1->ice_getLocatorCacheTimeout() == -1);
     $communicator->getProperties()->setProperty($property, "");
 
-    // This cannot be tested so easily because the $property is cached
-    // on communicator initialization.
-    //
-    //$communicator->getProperties()->setProperty("Ice.Default.LocatorCacheTimeout", "60");
-    //$b1 = $communicator->propertyToProxy($propertyPrefix);
-    //test($b1->ice_getLocatorCacheTimeout() == 60);
-    //$communicator->getProperties()->setProperty("Ice.Default.LocatorCacheTimeout", "");
+    // The default timeouts are cached on communicator initialization, so we test them with a separate
+    // communicator. They are normalized like the per-proxy timeout properties.
+    $initData = new Ice\InitializationData();
+    $initData->properties = Ice\createProperties();
+    $initData->properties->setProperty("Ice.Default.InvocationTimeout", "0");
+    $initData->properties->setProperty("Ice.Default.LocatorCacheTimeout", "-2");
+    $defaultsCommunicator = Ice\initialize($initData);
+    $defaultsProxy = $defaultsCommunicator->stringToProxy("test");
+    test($defaultsProxy->ice_getInvocationTimeout() == -1);
+    test($defaultsProxy->ice_getLocatorCacheTimeout() == -1);
+    $defaultsCommunicator->destroy();
+
+    // Positive values are used as-is, verifying the properties actually reach the proxy.
+    $initData = new Ice\InitializationData();
+    $initData->properties = Ice\createProperties();
+    $initData->properties->setProperty("Ice.Default.InvocationTimeout", "500");
+    $initData->properties->setProperty("Ice.Default.LocatorCacheTimeout", "60");
+    $defaultsCommunicator = Ice\initialize($initData);
+    $defaultsProxy = $defaultsCommunicator->stringToProxy("test");
+    test($defaultsProxy->ice_getInvocationTimeout() == 500);
+    test($defaultsProxy->ice_getLocatorCacheTimeout() == 60);
+    $defaultsCommunicator->destroy();
 
     $communicator->getProperties()->setProperty($propertyPrefix, sprintf("test:%s", $helper->getTestEndpoint()));
 
@@ -245,6 +266,21 @@ function allTests($helper)
     $communicator->getProperties()->setProperty($property, "0");
     $b1 = $communicator->propertyToProxy($propertyPrefix);
     test(!$b1->ice_isConnectionCached());
+    $communicator->getProperties()->setProperty($property, "");
+
+    $property = $propertyPrefix . ".InvocationTimeout";
+    test($b1->ice_getInvocationTimeout() == -1);
+    $communicator->getProperties()->setProperty($property, "1000");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
+    test($b1->ice_getInvocationTimeout() == 1000);
+    $communicator->getProperties()->setProperty($property, "0");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
+    test($b1->ice_getInvocationTimeout() == -1);
+    $communicator->getProperties()->setProperty($property, "-2");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
+    test($b1->ice_getInvocationTimeout() == -1);
+    // The normalized value is what proxyToProperty emits.
+    test($communicator->proxyToProperty($b1, "RoundTrip")["RoundTrip.InvocationTimeout"] == "-1");
     $communicator->getProperties()->setProperty($property, "");
 
     $property = $propertyPrefix . ".EndpointSelection";
@@ -355,6 +391,16 @@ function allTests($helper)
     test($base->ice_getCompress() == Ice\None);
     test($base->ice_compress(true)->ice_getCompress() == true);
     test($base->ice_compress(false)->ice_getCompress() == false);
+
+    // Zero or any negative invocation timeout means infinite and is normalized to -1.
+    test($base->ice_invocationTimeout(0)->ice_getInvocationTimeout() == -1);
+    test($base->ice_invocationTimeout(-1)->ice_getInvocationTimeout() == -1);
+    test($base->ice_invocationTimeout(-2)->ice_getInvocationTimeout() == -1);
+
+    // Any negative locator cache timeout means infinite and is normalized to -1; 0 means no caching.
+    test($base->ice_locatorCacheTimeout(0)->ice_getLocatorCacheTimeout() == 0);
+    test($base->ice_locatorCacheTimeout(-1)->ice_getLocatorCacheTimeout() == -1);
+    test($base->ice_locatorCacheTimeout(-2)->ice_getLocatorCacheTimeout() == -1);
 
     try {
         $base->ice_invocationTimeout(pow(2, 32) + 5000);

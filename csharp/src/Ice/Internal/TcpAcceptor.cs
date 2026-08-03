@@ -84,7 +84,7 @@ internal class TcpAcceptor : Acceptor
         Socket acceptFd = _acceptFd;
         _acceptFd = null;
         _acceptError = null;
-        return new TcpTransceiver(_instance, new StreamSocket(_instance, acceptFd));
+        return new TcpTransceiver(_instance, new StreamSocket(_instance, acceptFd, _bufSize));
     }
 
     public string protocol() => _instance.protocol();
@@ -100,6 +100,7 @@ internal class TcpAcceptor : Acceptor
         _endpoint = endpoint;
         _instance = instance;
         _backlog = instance.properties().getIcePropertyAsInt("Ice.TCP.Backlog");
+        _bufSize = new TcpBufSize(instance.properties());
 
         try
         {
@@ -107,7 +108,7 @@ internal class TcpAcceptor : Acceptor
             _addr = (IPEndPoint)Network.getAddressForServer(host, port, protocol, _instance.preferIPv6());
             _fd = Network.createServerSocket(false, _addr.AddressFamily, protocol);
             Network.setBlock(_fd, false);
-            Network.setTcpBufSize(_fd, _instance);
+            Network.setTcpBufSize(_fd, _bufSize.rcvSize, _bufSize.sndSize, _instance);
         }
         catch (System.Exception)
         {
@@ -122,6 +123,7 @@ internal class TcpAcceptor : Acceptor
     private Socket _acceptFd;
     private Ice.SocketException _acceptError;
     private readonly int _backlog;
+    private readonly TcpBufSize _bufSize;
     private IPEndPoint _addr;
     private IAsyncResult _result;
 }

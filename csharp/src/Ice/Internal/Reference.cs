@@ -792,13 +792,11 @@ public class RoutableReference : Reference
             [prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0",
             [prefix + ".EndpointSelection"] =
                    _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered",
-            // Any negative timeout means infinite; we emit it as -1, the documented value for infinite. The
-            // timeouts are otherwise always whole numbers of the property's unit.
-            // TODO: remove the -1 normalization in 3.9 (see #6112), once the values read from the per-proxy timeout
-            // properties are normalized (or rejected) like the values set by the proxy methods.
-            [prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout < TimeSpan.Zero ? "-1" :
+            // The timeouts are always normalized: infinite is -1 and a positive timeout is a whole number of the
+            // property's unit.
+            [prefix + ".LocatorCacheTimeout"] =
                 ((long)_locatorCacheTimeout.TotalSeconds).ToString(CultureInfo.InvariantCulture),
-            [prefix + ".InvocationTimeout"] = getInvocationTimeout() < TimeSpan.Zero ? "-1" :
+            [prefix + ".InvocationTimeout"] =
                 ((long)getInvocationTimeout().TotalMilliseconds).ToString(CultureInfo.InvariantCulture)
         };
 

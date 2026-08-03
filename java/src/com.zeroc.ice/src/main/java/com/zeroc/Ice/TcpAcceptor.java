@@ -38,7 +38,7 @@ class TcpAcceptor implements Acceptor {
 
     @Override
     public Transceiver accept() {
-        return new TcpTransceiver(_instance, new StreamSocket(_instance, Network.doAccept(_fd)));
+        return new TcpTransceiver(_instance, new StreamSocket(_instance, Network.doAccept(_fd), _bufSize));
     }
 
     @Override
@@ -66,11 +66,12 @@ class TcpAcceptor implements Acceptor {
         _endpoint = endpoint;
         _instance = instance;
         _backlog = instance.properties().getIcePropertyAsInt("Ice.TCP.Backlog");
+        _bufSize = new TcpBufSize(instance.properties());
 
         try {
             _fd = Network.createTcpServerSocket();
             Network.setBlock(_fd, false);
-            Network.setTcpBufSize(_fd, instance);
+            Network.setTcpBufSize(_fd, _bufSize.rcvSize(), instance);
             if (!System.getProperty("os.name").startsWith("Windows")) {
                 // Set SO_REUSEADDR socket option on Unix platforms to allow re-using the address even if the socket
                 // remains in the TIME_WAIT state. On Windows this isn't necessary.
@@ -91,5 +92,6 @@ class TcpAcceptor implements Acceptor {
     private final ProtocolInstance _instance;
     private ServerSocketChannel _fd;
     private final int _backlog;
+    private final TcpBufSize _bufSize;
     private InetSocketAddress _addr;
 }

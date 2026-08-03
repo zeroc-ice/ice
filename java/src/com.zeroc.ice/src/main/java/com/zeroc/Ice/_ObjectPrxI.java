@@ -421,7 +421,7 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
 
     @Override
     public ObjectPrx ice_invocationTimeout(Duration newTimeout) {
-        if (newTimeout.isNegative()) {
+        if (newTimeout.isNegative() || newTimeout.isZero()) {
             newTimeout = Duration.ofMillis(-1);
         } else {
             // The limit is a whole number of milliseconds, so a timeout that passes this check still fits after

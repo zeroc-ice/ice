@@ -69,18 +69,20 @@ public sealed class DefaultsAndOverrides
 
         {
             int value = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
-            if (value < -1)
+            if (value < 0)
             {
-                throw new InitializationException($"invalid value for Ice.Default.LocatorCacheTimeout: {value}");
+                // Any negative timeout means infinite and is normalized to -1; 0 means no caching.
+                value = -1;
             }
             defaultLocatorCacheTimeout = TimeSpan.FromSeconds(value);
         }
 
         {
             int value = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-            if (value < 1 && value != -1)
+            if (value <= 0)
             {
-                throw new InitializationException($"invalid value for Ice.Default.InvocationTimeout: {value}");
+                // Zero or any negative timeout means infinite and is normalized to -1.
+                value = -1;
             }
             defaultInvocationTimeout = TimeSpan.FromMilliseconds(value);
         }
