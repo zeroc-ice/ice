@@ -1836,7 +1836,7 @@ IceRuby::DictionaryInfo::unmarshal(
             {
                 // For string keys create a frozen string to ensure that the key used
                 // in the map matches the one keep in the closure
-                keyCB->key = rb_str_new_frozen(keyCB->key);
+                keyCB->key = callRuby(rb_str_new_frozen, keyCB->key);
             }
             callRuby(rb_hash_aset, hash, keyCB->key, Qnil);
 
