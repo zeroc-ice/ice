@@ -81,7 +81,7 @@ module Test
     // Test using memoryview factory function in a Python datastruct
     struct M
     {
-        ["python:memoryview:CustomFactory.myBoolSeq:array.array"] BoolSeq2 boolSeq;
+        ["python:memoryview:CustomFactory.myBoolSeq:array.array"] BoolSeq1 boolSeq;
     }
 
     interface Custom

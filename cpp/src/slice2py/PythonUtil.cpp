@@ -2348,7 +2348,7 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
         for (const auto& field : fields)
         {
             out << nl << field->mappedName() << " : "
-                << typeToTypeHintString(field->type(), field->isOptional(), p, false);
+                << typeToTypeHintString(field->type(), field->isOptional(), p, false, field->getMetadata());
             auto q = fieldDocs.find(field->name());
             if (q != fieldDocs.end())
             {
