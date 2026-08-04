@@ -209,7 +209,9 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(tcpinfo.rcvSize >= 1024)
     test(tcpinfo.sndSize >= 2048)
 
-    test(testIntf.ice_connectionId("ID").ice_getConnection().getInfo().connectionId == "ID")
+    connection_with_id = testIntf.ice_connectionId("ID").ice_getConnection()
+    assert connection_with_id is not None
+    test(connection_with_id.getInfo().connectionId == "ID")
 
     ctx = testIntf.getConnectionInfoAsContext()
     test(ctx["incoming"] == "true")
