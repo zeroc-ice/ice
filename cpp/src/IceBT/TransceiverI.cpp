@@ -201,8 +201,8 @@ IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
             catch (...)
             {
                 //
-                // The stream owns the fd, so close() will release it once initialize() rethrows this
-                // exception and the connection establishment fails.
+                // setFd already released the fd. initialize() rethrows this exception and the connection
+                // establishment fails with the actual error.
                 //
                 _exception = current_exception();
             }

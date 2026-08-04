@@ -235,10 +235,28 @@ void
 IceBT::StreamSocket::setFd(SOCKET fd)
 {
     assert(fd != INVALID_SOCKET);
-    // Take ownership of the fd first: if a later step throws, close() releases the fd.
-    setNewFd(fd);
+    assert(_fd == INVALID_SOCKET);
+
+    int rcvSize;
+    int sndSize;
+    try
+    {
+        BTBufSize bufSize{_instance->properties()};
+        rcvSize = bufSize.rcvSize();
+        sndSize = bufSize.sndSize();
+    }
+    catch (...)
+    {
+        // The property read doesn't close the fd, and it's not recorded anywhere yet.
+        IceInternal::closeSocketNoThrow(fd);
+        throw;
+    }
+
+    // Each of these calls closes the fd before throwing, so record the fd only once they all succeed.
     IceInternal::setBlock(fd, false);
-    BTBufSize bufSize{_instance->properties()};
-    setBufferSize(fd, bufSize.rcvSize(), bufSize.sndSize());
-    _desc = fdToString(fd);
+    setBufferSize(fd, rcvSize, sndSize);
+    string desc = fdToString(fd);
+
+    setNewFd(fd);
+    _desc = std::move(desc);
 }
