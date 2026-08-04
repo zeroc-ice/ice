@@ -43,15 +43,7 @@ namespace IcePHP
             return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char*>(object) - XtOffsetOf(Wrapper<T>, zobj));
         }
 
-        static T value(zval* zv)
-        {
-            Wrapper<T>* w = extract(zv);
-            if (w)
-            {
-                return *w->ptr;
-            }
-            return 0;
-        }
+        static T value(zval* zv) { return *extract(zv)->ptr; }
 
         // This must be last element in the struct
         zend_object zobj;

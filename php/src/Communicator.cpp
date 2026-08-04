@@ -800,6 +800,8 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
     catch (...)
     {
         throwException(current_exception());
+        zval_ptr_dtor(zv);
+        ZVAL_NULL(zv);
         return 0;
     }
 }
@@ -1608,6 +1610,7 @@ IcePHP::CommunicatorInfoI::getZval(zval* z)
         catch (...)
         {
             throwException(current_exception());
+            zval_ptr_dtor(z);
             ZVAL_NULL(z);
             return;
         }
