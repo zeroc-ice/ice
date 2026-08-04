@@ -76,22 +76,24 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
     test(r == stringList)
     test(b2 == stringList)
 
-    s = Test.S()
+    s = Test.S()  # Must use the default constructor, which relies on imports to construct its fields.
     s.b1 = bytes(byteList)
     s.b2 = byteList
     s.b4 = byteList
     s.s1 = stringList
     s.s2 = tuple(stringList)
     s.s3 = tuple(stringList)
+    s.a1 = array.array("b", byteList)
     custom.sendS(s)
 
-    c = Test.C()
+    c = Test.C()  # Must use the default constructor, which relies on imports to construct its fields.
     c.b1 = bytes(byteList)
     c.b2 = byteList
     c.b4 = byteList
     c.s1 = stringList
     c.s2 = tuple(stringList)
     c.s3 = tuple(stringList)
+    c.a1 = array.array("b", byteList)
     custom.sendC(c)
 
     print("ok")

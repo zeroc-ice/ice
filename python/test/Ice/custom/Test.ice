@@ -40,6 +40,8 @@ module Test
         StringList s1;
         ["python:tuple"] StringList s2;
         StringTuple s3;
+
+        ["python:array.array"] ByteString a1;
     }
 
     class C
@@ -50,6 +52,8 @@ module Test
         StringList s1;
         ["python:tuple"] StringList s2;
         StringTuple s3;
+
+        ["python:array.array"] ByteString a1;
     }
 
     class D
@@ -77,7 +81,7 @@ module Test
     // Test using memoryview factory function in a Python datastruct
     struct M
     {
-        ["python:memoryview:CustomFactory.myBoolSeq:array.array"] BoolSeq2 boolSeq;
+        ["python:memoryview:CustomFactory.myBoolSeq:array.array"] BoolSeq1 boolSeq;
     }
 
     interface Custom
