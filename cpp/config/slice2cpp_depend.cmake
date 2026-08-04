@@ -51,4 +51,35 @@ endif()
 
 string(REGEX REPLACE "^([^:]+)(: \\\\)" "${HEADER_DIR}/\\1\\2" depend_output "${depend_output}")
 
+# slice2cpp writes the paths verbatim; escape spaces the way compiler depfiles do, or a path with a
+# space reads as several dependencies that never exist and the file recompiles on every build.
+# Rebuild the file from its lines: drop the continuations before splitting, since a trailing
+# backslash would escape the ';' the split inserts, and protect a real ';' in a path from the split.
+string(REPLACE "\r" "" depend_output "${depend_output}")
+string(REGEX REPLACE " \\\\\n" "\n" depend_output "${depend_output}")
+string(REPLACE ";" "@SLICE2CPP_SEMI@" depend_output "${depend_output}")
+string(REPLACE "\n" ";" depend_lines "${depend_output}")
+
+set(escaped_output "")
+set(seen_target FALSE)
+foreach(line IN LISTS depend_lines)
+    if(line STREQUAL "")
+        continue()
+    endif()
+    if(NOT seen_target)
+        # "<target>:" - strip only the trailing separator.
+        string(REGEX REPLACE ":$" "" line "${line}")
+        string(REPLACE " " "\\ " line "${line}")
+        set(escaped_output "${line}:")
+        set(seen_target TRUE)
+    else()
+        # " <dependency>" - strip only the single leading space slice2cpp writes.
+        string(REGEX REPLACE "^ " "" line "${line}")
+        string(REPLACE " " "\\ " line "${line}")
+        string(APPEND escaped_output " \\\n ${line}")
+    endif()
+endforeach()
+string(APPEND escaped_output "\n")
+string(REPLACE "@SLICE2CPP_SEMI@" ";" depend_output "${escaped_output}")
+
 file(WRITE "${DEPFILE}" "${depend_output}")
