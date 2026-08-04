@@ -84,7 +84,7 @@ class Client extends TestHelper
         test($comm != null);
         test($comm->stringToProxy("test") != null);
         // A second call returns the same re-wrapped communicator.
-        test($proxy->ice_getCommunicator() == $comm);
+        test($proxy->ice_getCommunicator() === $comm);
         $comm->destroy();
     }
 }

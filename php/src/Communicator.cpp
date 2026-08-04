@@ -168,7 +168,6 @@ extern "C"
 {
     static zend_object* handleAlloc(zend_class_entry*);
     static void handleFreeStorage(zend_object*);
-    static zend_object* handleClone(zend_object*);
 }
 
 ZEND_METHOD(Ice_Communicator, __construct) { runtimeError("communicators cannot be instantiated directly"); }
@@ -755,11 +754,20 @@ handleFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-static zend_object*
-handleClone(zend_object* zobj)
+// Creates the PHP object that wraps a communicator, in zv. Returns the embedded wrapper, whose ptr is still null,
+// or nullptr after reporting an error.
+static Wrapper<CommunicatorInfoIPtr>*
+newCommunicatorObject(zval* zv)
 {
-    php_error_docref(0, E_ERROR, "communicators cannot be cloned");
-    return nullptr;
+    if (object_init_ex(zv, communicatorClassEntry) != SUCCESS)
+    {
+        runtimeError("unable to initialize communicator object");
+        return nullptr;
+    }
+
+    Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(zv);
+    assert(!obj->ptr);
+    return obj;
 }
 
 static CommunicatorInfoIPtr
@@ -767,14 +775,11 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
 {
     try
     {
-        if (object_init_ex(zv, communicatorClassEntry) != SUCCESS)
+        Wrapper<CommunicatorInfoIPtr>* obj = newCommunicatorObject(zv);
+        if (!obj)
         {
-            runtimeError("unable to initialize communicator object");
             return nullptr;
         }
-
-        Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(zv);
-        assert(!obj->ptr);
         obj->ptr = new shared_ptr<CommunicatorInfoI>(make_shared<CommunicatorInfoI>(ac, zv));
         shared_ptr<CommunicatorInfoI> info = *obj->ptr;
 
@@ -1471,7 +1476,8 @@ IcePHP::communicatorInit(void)
     ce.create_object = handleAlloc;
     communicatorClassEntry = zend_register_internal_class(&ce);
     memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    _handlers.clone_obj = handleClone;
+    // A null clone_obj makes the object uncloneable: clone throws an Error.
+    _handlers.clone_obj = nullptr;
     _handlers.free_obj = handleFreeStorage;
     _handlers.offset = XtOffsetOf(Wrapper<CommunicatorInfoIPtr>, zobj);
     zend_class_implements(communicatorClassEntry, 1, interface);
@@ -1589,16 +1595,22 @@ IcePHP::CommunicatorInfoI::getZval(zval* z)
     {
         // The PHP object that wrapped this communicator was destroyed; create a new one for this same
         // CommunicatorInfoI.
-        if (object_init_ex(z, communicatorClassEntry) != SUCCESS)
+        try
         {
-            runtimeError("unable to initialize communicator object");
+            Wrapper<CommunicatorInfoIPtr>* obj = newCommunicatorObject(z);
+            if (!obj)
+            {
+                ZVAL_NULL(z);
+                return;
+            }
+            obj->ptr = new shared_ptr<CommunicatorInfoI>(shared_from_this());
+        }
+        catch (...)
+        {
+            throwException(current_exception());
             ZVAL_NULL(z);
             return;
         }
-
-        Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(z);
-        assert(!obj->ptr);
-        obj->ptr = new shared_ptr<CommunicatorInfoI>(shared_from_this());
 
         ZVAL_COPY_VALUE(&zv, z);
     }

@@ -27,18 +27,12 @@ static zend_class_entry* sslConnectionInfoClassEntry = 0;
 
 // Ice::Connection support.
 static zend_object_handlers _connectionHandlers;
-static zend_object_handlers _connectionInfoHandlers;
 
 extern "C"
 {
     static zend_object* handleConnectionAlloc(zend_class_entry*);
     static void handleConnectionFreeStorage(zend_object*);
     static int handleConnectionCompare(zval*, zval*);
-    static zend_object* handleConnectionClone(zend_object*);
-
-    static zend_object* handleConnectionInfoAlloc(zend_class_entry*);
-    static void handleConnectionInfoFreeStorage(zend_object*);
-    static zend_object* handleConnectionInfoClone(zend_object*);
 }
 
 ZEND_METHOD(Ice_Connection, __construct) { runtimeError("Connection cannot be instantiated"); }
@@ -288,13 +282,6 @@ handleConnectionFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-static zend_object*
-handleConnectionClone(zend_object*)
-{
-    php_error_docref(0, E_ERROR, "connections cannot be cloned");
-    return nullptr;
-}
-
 static int
 handleConnectionCompare(zval* zobj1, zval* zobj2)
 {
@@ -354,32 +341,6 @@ ZEND_METHOD(Ice_ConnectionInfo, __construct) { runtimeError("ConnectionInfo cann
 static zend_function_entry _connectionInfoClassMethods[] = {
     ZEND_ME(Ice_ConnectionInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR){0, 0, 0}};
 
-static zend_object*
-handleConnectionInfoAlloc(zend_class_entry* ce)
-{
-    Wrapper<Ice::ConnectionInfoPtr>* obj = Wrapper<Ice::ConnectionInfoPtr>::create(ce);
-    assert(obj);
-
-    obj->zobj.handlers = &_connectionInfoHandlers;
-
-    return &obj->zobj;
-}
-
-static void
-handleConnectionInfoFreeStorage(zend_object* object)
-{
-    Wrapper<Ice::ConnectionInfoPtr>* obj = Wrapper<Ice::ConnectionInfoPtr>::fetch(object);
-    delete obj->ptr;
-    zend_object_std_dtor(object);
-}
-
-static zend_object*
-handleConnectionInfoClone(zend_object*)
-{
-    php_error_docref(0, E_ERROR, "connection info objects cannot be cloned");
-    return nullptr;
-}
-
 bool
 IcePHP::connectionInit(void)
 {
@@ -393,20 +354,16 @@ IcePHP::connectionInit(void)
     ce.create_object = handleConnectionAlloc;
     connectionClassEntry = zend_register_internal_class(&ce);
     memcpy(&_connectionHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    _connectionHandlers.clone_obj = handleConnectionClone;
+    // A null clone_obj makes the object uncloneable: clone throws an Error.
+    _connectionHandlers.clone_obj = nullptr;
     _connectionHandlers.compare = handleConnectionCompare;
     _connectionHandlers.free_obj = handleConnectionFreeStorage;
     _connectionHandlers.offset = XtOffsetOf(Wrapper<Ice::ConnectionPtr>, zobj);
     zend_class_implements(connectionClassEntry, 1, interface);
 
-    // Register the ConnectionInfo class.
+    // Register the ConnectionInfo class. It's a plain PHP class: its instances carry no native state.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "ConnectionInfo", _connectionInfoClassMethods);
-    ce.create_object = handleConnectionInfoAlloc;
     connectionInfoClassEntry = zend_register_internal_class(&ce);
-    memcpy(&_connectionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    _connectionInfoHandlers.clone_obj = handleConnectionInfoClone;
-    _connectionInfoHandlers.free_obj = handleConnectionInfoFreeStorage;
-    _connectionInfoHandlers.offset = XtOffsetOf(Wrapper<Ice::ConnectionInfoPtr>, zobj);
 
     zend_declare_property_bool(connectionInfoClassEntry, "incoming", sizeof("incoming") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_string(
@@ -419,7 +376,6 @@ IcePHP::connectionInit(void)
 
     // Register the IPConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "IPConnectionInfo", nullptr);
-    ce.create_object = handleConnectionInfoAlloc;
     ipConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(
         ipConnectionInfoClassEntry,
@@ -438,14 +394,12 @@ IcePHP::connectionInit(void)
 
     // Register the TCPConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPConnectionInfo", nullptr);
-    ce.create_object = handleConnectionInfoAlloc;
     tcpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
     zend_declare_property_long(tcpConnectionInfoClassEntry, "rcvSize", sizeof("rcvSize") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_long(tcpConnectionInfoClassEntry, "sndSize", sizeof("sndSize") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the UDPConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPConnectionInfo", nullptr);
-    ce.create_object = handleConnectionInfoAlloc;
     udpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
     zend_declare_property_string(
         udpConnectionInfoClassEntry,
@@ -459,13 +413,11 @@ IcePHP::connectionInit(void)
 
     // Register the WSConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "WSConnectionInfo", nullptr);
-    ce.create_object = handleConnectionInfoAlloc;
     wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(wsConnectionInfoClassEntry, "headers", sizeof("headers") - 1, "", ZEND_ACC_PUBLIC);
 
     // Register the SSLConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", nullptr);
-    ce.create_object = handleConnectionInfoAlloc;
     sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(
         sslConnectionInfoClassEntry,
@@ -615,11 +567,6 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
     zval_ptr_dtor(&underlying); // add_property_zval increased the refcount of underlying
     add_property_bool(zv, "incoming", p->incoming ? 1 : 0);
     add_property_string(zv, "adapterName", const_cast<char*>(p->adapterName.c_str()));
-
-    Wrapper<Ice::ConnectionInfoPtr>* obj = Wrapper<Ice::ConnectionInfoPtr>::extract(zv);
-    assert(obj);
-    assert(!obj->ptr);
-    obj->ptr = new Ice::ConnectionInfoPtr(p);
 
     return true;
 }

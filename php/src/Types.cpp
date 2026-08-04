@@ -33,11 +33,9 @@ extern "C"
 {
     static zend_object* handleTypeInfoAlloc(zend_class_entry*);
     static void handleTypeInfoFreeStorage(zend_object*);
-    static zend_object* handleTypeInfoClone(zend_object*);
 
     static zend_object* handleExceptionInfoAlloc(zend_class_entry*);
     static void handleExceptionInfoFreeStorage(zend_object*);
-    static zend_object* handleExceptionInfoClone(zend_object*);
 }
 
 typedef map<string, ProxyInfoPtr, std::less<>> ProxyInfoMap;
@@ -3289,13 +3287,6 @@ handleTypeInfoFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-static zend_object*
-handleTypeInfoClone(zend_object*)
-{
-    php_error_docref(0, E_ERROR, "type info objects cannot be cloned");
-    return nullptr;
-}
-
 static bool
 createTypeInfo(zval* zv, shared_ptr<TypeInfo> p)
 {
@@ -3522,13 +3513,6 @@ handleExceptionInfoFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-static zend_object*
-handleExceptionInfoClone(zend_object*)
-{
-    php_error_docref(0, E_ERROR, "exception info objects cannot be cloned");
-    return nullptr;
-}
-
 static bool
 createExceptionInfo(zval* zv, const ExceptionInfoPtr& p)
 {
@@ -3698,7 +3682,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleTypeInfoAlloc;
     typeInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_typeInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    _typeInfoHandlers.clone_obj = handleTypeInfoClone;
+    // A null clone_obj makes the object uncloneable: clone throws an Error.
+    _typeInfoHandlers.clone_obj = nullptr;
     _typeInfoHandlers.free_obj = handleTypeInfoFreeStorage;
     _typeInfoHandlers.offset = XtOffsetOf(Wrapper<TypeInfoPtr>, zobj);
 
@@ -3707,7 +3692,7 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleExceptionInfoAlloc;
     exceptionInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_exceptionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    _exceptionInfoHandlers.clone_obj = handleExceptionInfoClone;
+    _exceptionInfoHandlers.clone_obj = nullptr;
     _exceptionInfoHandlers.free_obj = handleExceptionInfoFreeStorage;
     _exceptionInfoHandlers.offset = XtOffsetOf(Wrapper<ExceptionInfoPtr>, zobj);
 
