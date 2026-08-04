@@ -24,7 +24,9 @@ class Blobject(Object, ABC):
 
         The operation's arguments are encoded in the `bytes` parameter. The return value must be a tuple of two
         values: the first is a boolean indicating whether the operation succeeded (True) or raised a user exception
-        (False), and the second is the encoded form of the operation's results or the user exception.
+        (False), and the second is the encoded form of the operation's results or the user exception. You can return
+        an empty byte sequence as the second value when the operation returns no results; the Ice runtime then
+        marshals an empty encapsulation.
 
         Parameters
         ----------

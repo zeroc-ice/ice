@@ -106,14 +106,16 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// </summary>
     /// <param name="operation">The name of the operation to invoke.</param>
     /// <param name="mode">The operation mode (normal or idempotent).</param>
-    /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
+    /// <param name="inEncaps">The encoded in-parameters for the operation. You can pass an empty byte array when the
+    /// operation takes no in-parameters; the Ice runtime then marshals an empty encapsulation.</param>
     /// <param name="outEncaps">The encoded out-parameters and return value
     /// for the operation. The return value follows any out-parameters.</param>
     /// <param name="context">The request context.</param>
     /// <returns>If the operation completed successfully, the return value is <see langword="true"/>.
     /// If the operation raises a user exception, the return value is <see langword="false"/>; in this case,
     /// <paramref name="outEncaps"/> contains the encoded user exception. If the operation raises a runtime exception,
-    /// it throws it directly.</returns>
+    /// it throws it directly. When this proxy is a oneway, datagram, or batch proxy, the return value is always
+    /// <see langword="true"/> and <paramref name="outEncaps"/> is empty.</returns>
     bool ice_invoke(
         string operation,
         OperationMode mode,
@@ -126,11 +128,14 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// </summary>
     /// <param name="operation">The name of the operation to invoke.</param>
     /// <param name="mode">The operation mode (normal or idempotent).</param>
-    /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
+    /// <param name="inEncaps">The encoded in-parameters for the operation. You can pass an empty byte array when the
+    /// operation takes no in-parameters; the Ice runtime then marshals an empty encapsulation.</param>
     /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-    /// <returns>The task object representing the asynchronous operation.</returns>
+    /// <returns>The task object representing the asynchronous operation. When this proxy is a oneway, datagram, or
+    /// batch proxy, the task completes with <c>returnValue</c> set to <see langword="true"/> and an empty
+    /// <c>outEncaps</c>.</returns>
     Task<Object_Ice_invokeResult>
     ice_invokeAsync(
         string operation,
@@ -814,14 +819,17 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <param name="operation">The name of the operation to invoke.</param>
     /// <param name="mode">The operation mode (normal or idempotent).</param>
-    /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
+    /// <param name="inEncaps">The encoded in-parameters for the operation. You can pass an empty byte array when the
+    /// operation takes no in-parameters; the Ice runtime then marshals an empty encapsulation.</param>
     /// <param name="outEncaps">The encoded out-parameters and return value
     /// for the operation. The return value follows any out-parameters.</param>
     /// <param name="context">The request context.</param>
     /// <returns>If the operation completed successfully, the return value is <see langword="true"/>.
     /// If the operation raises a user exception, the return value is <see langword="false"/>; in this case,
     /// <paramref name="outEncaps"/> contains the encoded user exception.
-    /// If the operation raises a runtime exception, it throws it directly.</returns>
+    /// If the operation raises a runtime exception, it throws it directly. When this proxy is a oneway, datagram, or
+    /// batch proxy, the return value is always <see langword="true"/> and <paramref name="outEncaps"/> is
+    /// empty.</returns>
     public bool ice_invoke(
         string operation,
         OperationMode mode,
@@ -853,11 +861,14 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <param name="operation">The name of the operation to invoke.</param>
     /// <param name="mode">The operation mode (normal or idempotent).</param>
-    /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
+    /// <param name="inEncaps">The encoded in-parameters for the operation. You can pass an empty byte array when the
+    /// operation takes no in-parameters; the Ice runtime then marshals an empty encapsulation.</param>
     /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-    /// <returns>The task object representing the asynchronous operation.</returns>
+    /// <returns>The task object representing the asynchronous operation. When this proxy is a oneway, datagram, or
+    /// batch proxy, the task completes with <c>returnValue</c> set to <see langword="true"/> and an empty
+    /// <c>outEncaps</c>.</returns>
     public Task<Object_Ice_invokeResult>
     ice_invokeAsync(
         string operation,
