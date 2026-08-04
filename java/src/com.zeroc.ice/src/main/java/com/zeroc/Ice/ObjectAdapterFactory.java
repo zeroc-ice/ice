@@ -14,11 +14,6 @@ final class ObjectAdapterFactory {
     public void shutdown() {
         List<ObjectAdapter> adapters;
         synchronized (this) {
-            // Ignore shutdown requests if the object adapter factory has already been shut down.
-            if (_instance == null) {
-                return;
-            }
-
             _instance = null;
             _communicator = null;
             notifyAll();

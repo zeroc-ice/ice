@@ -159,9 +159,11 @@ final class LoggerAdminI implements LoggerAdmin {
             }
         }
 
-        // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to remote loggers
+        // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to remote loggers.
+        // Use close, not destroy: this method is not re-runnable (_destroyed is already latched), so the destruction
+        // must not be interruptible.
         if (sendLogCommunicator != null) {
-            sendLogCommunicator.destroy();
+            sendLogCommunicator.close();
         }
     }
 
