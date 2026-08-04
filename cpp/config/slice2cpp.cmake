@@ -5,7 +5,7 @@
 #
 #   slice2cpp_generate(<target>
 #     [INCLUDE_DIRS <dir>...]     # extra -I directories
-#     [OPTIONS <option>...]       # extra slice2cpp options, e.g. -DFOO
+#     [OPTIONS <option>...]       # extra slice2cpp options, e.g. -DFOO or --header-ext hpp
 #     [HEADER_OUTPUT_DIR <dir>]   # put the headers here instead of with the sources
 #     [INCLUDE_DIR <dir>]         # slice2cpp --include-dir
 #     [INCLUDE_SCOPE <scope>]     # PRIVATE (default) or PUBLIC
@@ -33,6 +33,10 @@
 # Generated files mirror the layout of the .ice files under the include directory that reaches them,
 # so the #include directives slice2cpp emits resolve. Headers land in HEADER_OUTPUT_DIR/INCLUDE_DIR
 # when either is given, and that root goes on the target's include path.
+#
+# The generated file names are declared to CMake at configure time: --header-ext and --source-ext
+# in OPTIONS are honored, options that relocate the outputs or suppress generation are rejected, and
+# cpp:header-ext metadata that contradicts the declared name is reported when the file compiles.
 
 # The function records the policies in force when it is defined; pin them so a consumer with an older
 # policy baseline gets the same behavior. include() scopes this to the current file.
@@ -55,6 +59,48 @@ function(slice2cpp_generate target)
     # Not INTERFACE: the target compiles the generated sources, so it needs the directory itself.
     message(FATAL_ERROR "slice2cpp_generate: INCLUDE_SCOPE must be PRIVATE or PUBLIC.")
   endif()
+
+  # The outputs are declared to CMake below, so an option that changes what slice2cpp writes has to
+  # be reflected there or the declared files are never written - which Ninja then retries on every
+  # build without saying why. --header-ext and --source-ext are read and honored, the way the MSBuild
+  # task treats them; options that relocate the outputs or replace generation are rejected.
+  set(header_ext "h")
+  set(source_ext "cpp")
+  list(LENGTH arg_OPTIONS options_count)
+  set(option_index 0)
+  while(option_index LESS options_count)
+    list(GET arg_OPTIONS ${option_index} option)
+    set(option_value "")
+
+    if(option MATCHES "^--(header|source)-ext=(.+)$")
+      set(option_kind "${CMAKE_MATCH_1}")
+      set(option_value "${CMAKE_MATCH_2}")
+    elseif(option MATCHES "^--(header|source)-ext$")
+      set(option_kind "${CMAKE_MATCH_1}")
+      math(EXPR option_index "${option_index} + 1")
+      if(NOT option_index LESS options_count)
+        message(FATAL_ERROR "slice2cpp_generate: '${option}' is missing its argument.")
+      endif()
+      list(GET arg_OPTIONS ${option_index} option_value)
+    endif()
+
+    if(option_value)
+      if(NOT option_value MATCHES "^[A-Za-z0-9]+$")
+        message(FATAL_ERROR "slice2cpp_generate: '${option_value}' is not a valid ${option_kind} extension.")
+      endif()
+      set(${option_kind}_ext "${option_value}")
+    elseif(option MATCHES "^(-I|--output-dir|--include-dir|--depend)")
+      message(FATAL_ERROR
+        "slice2cpp_generate: '${option}' is managed by slice2cpp_generate and cannot be passed in "
+        "OPTIONS; use INCLUDE_DIRS, HEADER_OUTPUT_DIR or INCLUDE_DIR instead.")
+    elseif(option MATCHES "^(-h|--help|-v|--version|--validate)$" OR option MATCHES "\\.ice$")
+      message(FATAL_ERROR
+        "slice2cpp_generate: OPTIONS takes slice2cpp options that affect code generation; "
+        "'${option}' suppresses generation or names an input file.")
+    endif()
+
+    math(EXPR option_index "${option_index} + 1")
+  endwhile()
 
   get_target_property(sources ${target} SOURCES)
   if(NOT sources)
@@ -145,8 +191,8 @@ function(slice2cpp_generate target)
       file(RELATIVE_PATH output_dir_relative ${CMAKE_CURRENT_LIST_DIR} ${file_output_dir})
       file(RELATIVE_PATH header_dir_relative ${CMAKE_CURRENT_LIST_DIR} ${file_header_dir})
 
-      set(header_file ${file_header_dir}/${slice_file_name}.h)
-      set(source_file ${file_output_dir}/${slice_file_name}.cpp)
+      set(header_file ${file_header_dir}/${slice_file_name}.${header_ext})
+      set(source_file ${file_output_dir}/${slice_file_name}.${source_ext})
 
       # Prefix for the #include each generated source uses to reach its own header. It has to follow
       # the mirrored layout, since only the roots above are on the include path. A separate header
@@ -175,8 +221,8 @@ function(slice2cpp_generate target)
       set(move_header_commands "")
       if(NOT file_header_dir STREQUAL file_output_dir)
         set(move_header_commands
-          COMMAND ${CMAKE_COMMAND} -E copy ${file_output_dir}/${slice_file_name}.h ${header_file}
-          COMMAND ${CMAKE_COMMAND} -E rm -f ${file_output_dir}/${slice_file_name}.h)
+          COMMAND ${CMAKE_COMMAND} -E copy ${file_output_dir}/${slice_file_name}.${header_ext} ${header_file}
+          COMMAND ${CMAKE_COMMAND} -E rm -f ${file_output_dir}/${slice_file_name}.${header_ext})
       endif()
 
       add_custom_command(
@@ -187,6 +233,7 @@ function(slice2cpp_generate target)
           -DSLICE_INCLUDE_DIRS=${include_dirs_arg}
           -DSLICE_OPTIONS=${options_arg}
           -DHEADER_DIR=${file_header_dir}
+          -DEXPECTED_HEADER=${slice_file_name}.${header_ext}
           -DDEPFILE=${depfile}
           -P ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/slice2cpp_depend.cmake
         COMMAND $<TARGET_FILE:Ice::slice2cpp> ${include_options} ${include_dir_options} ${arg_OPTIONS}
@@ -195,7 +242,7 @@ function(slice2cpp_generate target)
         DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp>
         DEPFILE ${depfile}
         VERBATIM
-        COMMENT "Compiling Slice ${file} -> ${output_dir_relative}/${slice_file_name}.cpp ${header_dir_relative}/${slice_file_name}.h"
+        COMMENT "Compiling Slice ${file} -> ${output_dir_relative}/${slice_file_name}.${source_ext} ${header_dir_relative}/${slice_file_name}.${header_ext}"
       )
 
       target_sources(${target} PRIVATE ${output_files})
