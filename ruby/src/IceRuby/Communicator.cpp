@@ -36,11 +36,24 @@ IceRuby_Communicator_free(void* p)
     delete communicator;
 }
 
+extern "C" void
+IceRuby_Communicator_compact(void* p)
+{
+    // Keep the map entry pointing at the wrapper's current location when GC compaction moves it.
+    auto communicator = static_cast<Ice::CommunicatorPtr*>(p);
+    CommunicatorMap::iterator q = _communicatorMap.find(*communicator);
+    if (q != _communicatorMap.end())
+    {
+        q->second = rb_gc_location(q->second);
+    }
+}
+
 static const rb_data_type_t IceRuby_CommunicatorType = {
     .wrap_struct_name = "Ice::Communicator",
     .function =
         {
             .dfree = IceRuby_Communicator_free,
+            .dcompact = IceRuby_Communicator_compact,
         },
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
