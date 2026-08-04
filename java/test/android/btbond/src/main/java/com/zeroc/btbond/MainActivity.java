@@ -57,9 +57,11 @@ public class MainActivity extends Activity {
     private volatile BluetoothServerSocket serverSocket;
     private volatile BluetoothSocket socket;
 
-    // Process-wide, because the instances that race are in one process -- see onCreate. Only ever
-    // touched from the main thread.
-    private static Thread activeWorker;
+    // Process-wide, because the instances that race are in one process -- see onCreate. Set on the
+    // main thread, cleared by the worker's finally, so volatile. isAlive() is what keeps the guard
+    // correct either way; the clear just stops a finished thread staying reachable for the rest of
+    // the process.
+    private static volatile Thread activeWorker;
 
     // Best-effort auto-accept of incoming pairing requests. The app runs as a privileged system app
     // (BLUETOOTH_PRIVILEGED), so setPairingConfirmation should succeed; setPin is a fallback that logs
@@ -97,6 +99,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        // Registered before the guard below returns: a relaunch destroys the old instance first, so
+        // returning ahead of this would leave the process with no ACTION_PAIRING_REQUEST receiver
+        // for the rest of the surviving worker's run -- the one thing this app is installed to do.
+        registerReceiver(
+            pairingReceiver,
+            new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST),
+            Context.RECEIVER_EXPORTED);
         Intent it = getIntent();
         final String mode = it.getStringExtra("mode");
         final String peer = it.getStringExtra("peer");
@@ -105,24 +114,32 @@ public class MainActivity extends Activity {
         // reuses the original intent, so onCreate can run again with the same extras. Two RFCOMM
         // connects from one adapter to the same peer and UUID resolve the same DLCI: the second is
         // refused with PORT_ALREADY_OPENED and the stack tears down the first worker's port too, so
-        // both fail. One worker at a time. Report it, so a start refused here fails the caller with
-        // this reason rather than as an unexplained connect failure.
+        // both fail. One worker at a time.
         Thread running = activeWorker;
         if (running != null && running.isAlive()) {
-            result(mode, false, "a worker is already running in this process");
-            finish();
+            if (b == null) {
+                // A fresh start while a worker is still going -- a server left in accept() by an
+                // earlier attempt, say. Nothing else will speak for this one, so give the caller a
+                // verdict and a reason.
+                result(mode, false, "a worker is already running in this process");
+                finish();
+            } else {
+                // A relaunch: savedInstanceState is non-null because handleRelaunchActivityInner
+                // stops with saveState=true. The original worker owns this run, so emit no verdict
+                // -- bond() reads the last RESULT line, and a FAIL here would land while that
+                // worker is still in createBond/connect and condemn a healthy run. Stay resident
+                // until it finishes, so the process keeps an activity and this receiver.
+                Log.i(TAG, "relaunch while a worker is running; it owns this run's verdict");
+                finishWhenWorkerEnds();
+            }
             return;
         }
-        // ACTION_PAIRING_REQUEST is a system broadcast; register exported (and unregister in onDestroy).
-        registerReceiver(
-            pairingReceiver,
-            new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST),
-            Context.RECEIVER_EXPORTED);
         Log.i(TAG, "start mode=" + mode + " peer=" + peer);
         worker = new Thread(() -> {
             try {
                 run(mode, peer, uuid);
             } finally {
+                activeWorker = null;
                 // Finish so a subsequent `am start` re-runs onCreate with the new extras. A
                 // standard-launch-mode activity left resident is simply brought to front, and the
                 // caller would then match the previous run's result line out of logcat.
@@ -130,8 +147,8 @@ public class MainActivity extends Activity {
                 runOnUiThread(MainActivity.this::finish);
             }
         });
-        worker.start();
         activeWorker = worker;
+        worker.start();
         new Handler(Looper.getMainLooper()).postDelayed(
             () -> {
                 if (worker != null && worker.isAlive()) {
@@ -141,6 +158,26 @@ public class MainActivity extends Activity {
                 }
             },
             WATCHDOG_MS);
+    }
+
+    // Keeps a refused relaunch resident until the worker it deferred to is done. Finishing straight
+    // away would leave that worker in a process with no activity and no service, which Android is
+    // free to kill -- taking the server's listening socket with it.
+    private void finishWhenWorkerEnds() {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(
+            new Runnable() {
+                @Override
+                public void run() {
+                    Thread running = activeWorker;
+                    if (running == null || !running.isAlive()) {
+                        finish();
+                    } else {
+                        handler.postDelayed(this, 1000);
+                    }
+                }
+            },
+            1000);
     }
 
     // Closing the sockets is what actually unblocks accept/connect/read; interrupt() does not.
