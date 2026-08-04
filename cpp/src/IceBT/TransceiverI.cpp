@@ -177,7 +177,7 @@ IceBT::TransceiverI::TransceiverI(InstancePtr instance, StreamSocketPtr stream, 
 
 IceBT::TransceiverI::TransceiverI(InstancePtr instance, string addr, string uuid)
     : _instance(std::move(instance)),
-      _stream(new StreamSocket(_instance, INVALID_SOCKET)),
+      _stream(new StreamSocket(_instance)),
       _addr(std::move(addr)),
       _uuid(std::move(uuid)),
       _needConnect(true)
@@ -194,9 +194,20 @@ IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
         if (!_closed)
         {
             _connection = conn;
-            _stream->setFd(fd);
+            try
+            {
+                _stream->setFd(fd);
+            }
+            catch (...)
+            {
+                //
+                // setFd already released the fd. initialize() rethrows this exception and the connection
+                // establishment fails with the actual error.
+                //
+                _exception = current_exception();
+            }
             //
-            // Triggers a call to write() from a different thread.
+            // Wake up the thread pool, which resumes the connection establishment by calling initialize().
             //
             _stream->ready(IceInternal::SocketOperationConnect, true);
             return;
@@ -216,11 +227,11 @@ IceBT::TransceiverI::connectFailed(std::exception_ptr ex)
 {
     lock_guard lock(_mutex);
     //
-    // Save the exception - it will be raised in initialize().
+    // Save the exception - it will be rethrown in initialize().
     //
     _exception = ex;
     //
-    // Triggers a call to write() from a different thread.
+    // Wake up the thread pool, which resumes the connection establishment by calling initialize().
     //
     _stream->ready(IceInternal::SocketOperationConnect, true);
 }

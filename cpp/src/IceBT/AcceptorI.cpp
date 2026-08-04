@@ -155,7 +155,8 @@ IceBT::AcceptorI::newConnection(int fd)
 {
     lock_guard lock(_mutex);
 
-    _transceivers.push(make_shared<TransceiverI>(_instance, make_shared<StreamSocket>(_instance, fd), nullptr, _uuid));
+    _transceivers.push(
+        make_shared<TransceiverI>(_instance, make_shared<StreamSocket>(_instance, fd, _bufSize), nullptr, _uuid));
 
     //
     // Notify the thread pool that we are ready to "read". The thread pool will invoke accept()
@@ -178,7 +179,8 @@ IceBT::AcceptorI::AcceptorI(
       _addr(std::move(addr)),
       _uuid(std::move(uuid)),
       _name(std::move(name)),
-      _channel(channel)
+      _channel(channel),
+      _bufSize(_instance->properties())
 {
     string s = IceInternal::trim(_addr);
     if (s.empty())
