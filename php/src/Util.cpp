@@ -367,27 +367,24 @@ namespace
     zend_class_entry* createPHPException(zval* ex, const char* typeId, bool fallbackToLocalException = false)
     {
         // Convert the exception's typeId to its mapped PHP type by replacing "::Ice::" with "\Ice\".
-        // This function should only ever be called on Ice local exceptions which don't use 'php:identifier'.
         string result = typeId;
         assert(result.find("::Ice::") == 0);
         result.replace(0, 7, "\\Ice\\");
         assert(result.find(':') == string::npos); // Assert that there weren't any intermediate scopes.
 
         zend_class_entry* cls = nameToClass(result);
+        if (!cls && fallbackToLocalException)
+        {
+            cls = nameToClass("\\Ice\\LocalException");
+        }
         if (!cls)
         {
-            if (fallbackToLocalException)
-            {
-                cls = nameToClass("\\Ice\\LocalException");
-                assert(cls);
-            }
-            else
-            {
-                ostringstream os;
-                os << "unable to create PHP exception class for type ID " << typeId;
-                runtimeError(os.str());
-                return nullptr;
-            }
+            // The classes are defined in PHP code: they don't resolve when the application didn't load the Ice
+            // library files.
+            ostringstream os;
+            os << "unable to create PHP exception class for type ID " << typeId;
+            runtimeError(os.str());
+            return nullptr;
         }
 
         if (object_init_ex(ex, cls) != SUCCESS)
@@ -518,6 +515,7 @@ void
 IcePHP::throwException(std::exception_ptr ex)
 {
     zval zex;
+    ZVAL_UNDEF(&zex);
     convertException(&zex, ex);
     if (!Z_ISUNDEF(zex))
     {

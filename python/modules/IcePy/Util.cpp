@@ -550,30 +550,27 @@ namespace
     createPythonException(const char* typeId, std::array<PyObject*, N> args, bool fallbackToLocalException = false)
     {
         // Convert the exception's typeId to its mapped Python type by replacing "::Ice::" with "Ice.".
-        // This function should only ever be called on Ice local exceptions which don't use 'python:identifier'.
         string result = typeId;
         assert(result.find("::Ice::") == 0);
         result.replace(0, 7, "Ice.");
         assert(result.find(':') == string::npos); // Assert that there weren't any intermediate scopes.
 
         PyObject* type{IcePy::lookupType(result)};
+        if (!type && fallbackToLocalException)
+        {
+            type = IcePy::lookupType("Ice.LocalException");
+        }
         if (!type)
         {
-            if (fallbackToLocalException)
+            // The classes are defined in Python code: they don't resolve when the Ice module is not importable.
+            for (PyObject* pArg : args)
             {
-                type = IcePy::lookupType("Ice.LocalException");
+                Py_DECREF(pArg);
             }
-            else
-            {
-                for (PyObject* pArg : args)
-                {
-                    Py_DECREF(pArg);
-                }
 
-                ostringstream os;
-                os << "unable to create Python exception class for type ID " << typeId;
-                return PyObject_CallFunction(PyExc_Exception, "s", os.str().c_str());
-            }
+            ostringstream os;
+            os << "unable to create Python exception class for type ID " << typeId;
+            return PyObject_CallFunction(PyExc_Exception, "s", os.str().c_str());
         }
         IcePy::PyObjectHandle pArgs{PyTuple_New(N)};
         for (size_t i = 0; i < N; ++i)
