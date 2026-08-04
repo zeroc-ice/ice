@@ -5,8 +5,7 @@
 #   SLICE2CPP          - path to the slice2cpp executable
 #   SLICE_FILE         - the .ice source file (absolute path)
 #   SLICE_INCLUDE_DIRS - list of Slice include directories (one -I flag each)
-#   SLICE_OPTIONS      - extra slice2cpp options; -D/-U change which includes the preprocessor sees,
-#                        so --depend needs them to compute the same dependencies as the compile
+#   SLICE_OPTIONS      - extra slice2cpp options; -D/-U change which includes --depend sees
 #   HEADER_DIR         - directory the generated header ends up in
 #   EXPECTED_HEADER    - header name declared to CMake, checked against what slice2cpp will write
 #   DEPFILE            - output path for the generated .d file
@@ -39,9 +38,8 @@ if(NOT depend_output MATCHES "^([^:]+)(: \\\\)")
     message(FATAL_ERROR "slice2cpp --depend produced unexpected output for ${SLICE_FILE}:\n${depend_output}")
 endif()
 
-# --depend names the header slice2cpp will actually write, which honors cpp:header-ext metadata over
-# the --header-ext option. CMake committed to a name at configure time; report a mismatch here rather
-# than rerun a command forever whose declared output is never created.
+# --depend names the header slice2cpp will actually write, cpp:header-ext metadata included. Report
+# a mismatch here rather than rerun forever a command whose declared output never appears.
 if(NOT CMAKE_MATCH_1 STREQUAL EXPECTED_HEADER)
     message(FATAL_ERROR
         "slice2cpp generates '${CMAKE_MATCH_1}' for ${SLICE_FILE}, but slice2cpp_generate declared "
@@ -51,10 +49,9 @@ endif()
 
 string(REGEX REPLACE "^([^:]+)(: \\\\)" "${HEADER_DIR}/\\1\\2" depend_output "${depend_output}")
 
-# slice2cpp writes the paths verbatim; escape spaces the way compiler depfiles do, or a path with a
-# space reads as several dependencies that never exist and the file recompiles on every build.
-# Rebuild the file from its lines: drop the continuations before splitting, since a trailing
-# backslash would escape the ';' the split inserts, and protect a real ';' in a path from the split.
+# Escape spaces the way compiler depfiles do, or a path with a space reads as several dependencies
+# that never exist and the file recompiles on every build. Drop the continuations before splitting
+# into lines, and protect a real ';' in a path from that split.
 string(REPLACE "\r" "" depend_output "${depend_output}")
 string(REGEX REPLACE " \\\\\n" "\n" depend_output "${depend_output}")
 string(REPLACE ";" "@SLICE2CPP_SEMI@" depend_output "${depend_output}")

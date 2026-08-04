@@ -32,25 +32,19 @@
 #
 # Generated files mirror the layout of the .ice files under the INCLUDE_DIRS directory that reaches
 # them, so the #include directives slice2cpp emits resolve; a file under no such directory generates
-# flat, and two flat files sharing a name is reported at configure time. Headers land under
-# HEADER_OUTPUT_DIR/INCLUDE_DIR when given, and both that directory and HEADER_OUTPUT_DIR go on the
-# target's include path.
+# flat. Headers land under HEADER_OUTPUT_DIR/INCLUDE_DIR, and both go on the target's include path.
 #
-# A PUBLIC INCLUDE_SCOPE covers the build tree only; installing or exporting the target additionally
-# needs the caller to install the generated headers and add an INSTALL_INTERFACE directory.
+# A PUBLIC INCLUDE_SCOPE covers the build tree only; installing the headers is the caller's.
 #
-# The generated file names are declared to CMake at configure time: --header-ext and --source-ext
-# in OPTIONS are honored, options that relocate the outputs or suppress generation are rejected, and
-# cpp:header-ext metadata that contradicts the declared name is reported when the file compiles.
+# --header-ext and --source-ext in OPTIONS are honored; options that relocate the outputs or
+# suppress generation are rejected, and contradicting cpp:header-ext metadata is a build-time error.
 
-# Checked up front with a readable message: this file is loaded by every consumer of the Ice
-# package, not only the ones that generate Slice.
+# This file is loaded by every consumer of the Ice package, not only the ones that generate Slice.
 if(CMAKE_VERSION VERSION_LESS 3.21)
   message(FATAL_ERROR "The Ice CMake package requires CMake 3.21 or later.")
 endif()
 
-# The function records the policies in force when it is defined; pin them so a consumer with an older
-# policy baseline gets the same behavior. include() scopes this to the current file.
+# The function records the policies in force at definition; include() scopes this to the file.
 cmake_policy(VERSION 3.21)
 
 function(slice2cpp_generate target)
@@ -65,8 +59,7 @@ function(slice2cpp_generate target)
     message(FATAL_ERROR "slice2cpp_generate: '${target}' is an alias of '${aliased}'; pass that target.")
   endif()
 
-  # target_sources(PRIVATE) below needs a target that compiles; anything else fails later, from
-  # inside this function, with a far less direct message.
+  # target_sources(PRIVATE) below needs a target that compiles.
   get_target_property(target_type ${target} TYPE)
   if(NOT target_type MATCHES "^(EXECUTABLE|STATIC_LIBRARY|SHARED_LIBRARY|MODULE_LIBRARY|OBJECT_LIBRARY)$")
     message(FATAL_ERROR "slice2cpp_generate: '${target}' is a ${target_type}, which cannot compile Slice.")
@@ -87,17 +80,14 @@ function(slice2cpp_generate target)
     message(FATAL_ERROR "slice2cpp_generate: INCLUDE_SCOPE must be PRIVATE or PUBLIC.")
   endif()
 
-  # INCLUDE_DIR names a directory created under the header root and the prefix the generated sources
-  # include it by, so it has to stay a relative path that does not climb out of that root.
+  # Also the prefix the generated sources include headers by, so it cannot leave the header root.
   if(arg_INCLUDE_DIR AND (IS_ABSOLUTE "${arg_INCLUDE_DIR}" OR arg_INCLUDE_DIR MATCHES "(^|[\\/])\.\.([\\/]|$)"))
     message(FATAL_ERROR
       "slice2cpp_generate: INCLUDE_DIR must be a relative path without '..', got '${arg_INCLUDE_DIR}'.")
   endif()
 
-  # The outputs are declared to CMake below, so an option that changes what slice2cpp writes has to
-  # be reflected there or the declared files are never written - which Ninja then retries on every
-  # build without saying why. --header-ext and --source-ext are read and honored, the way the MSBuild
-  # task treats them; options that relocate the outputs or replace generation are rejected.
+  # The declared outputs must match what slice2cpp writes, or Ninja retries the command on every
+  # build without saying why. --header-ext/--source-ext are honored, as in the MSBuild task.
   set(header_ext "h")
   set(source_ext "cpp")
   list(LENGTH arg_OPTIONS options_count)
@@ -144,9 +134,8 @@ function(slice2cpp_generate target)
   set(output_dir ${CMAKE_CURRENT_BINARY_DIR}/generated/${target})
   file(MAKE_DIRECTORY ${output_dir})
 
-  # Root the headers are written under. INCLUDE_DIR names a directory created beneath it, rather than
-  # a suffix the caller has to repeat in HEADER_OUTPUT_DIR, so the prefix each generated source uses
-  # always resolves against a directory that is on the include path.
+  # INCLUDE_DIR names a directory created under the header root, so the prefix each generated source
+  # uses always resolves against a directory on the include path.
   if(arg_HEADER_OUTPUT_DIR)
     get_filename_component(header_root "${arg_HEADER_OUTPUT_DIR}" ABSOLUTE)
   else()
@@ -159,10 +148,9 @@ function(slice2cpp_generate target)
   endif()
   file(MAKE_DIRECTORY ${header_output_dir})
 
-  # header_root resolves the INCLUDE_DIR-prefixed include each generated source uses for its own
-  # header; header_output_dir resolves the includes slice2cpp emits for other generated headers,
-  # which carry no such prefix. BUILD_INTERFACE keeps these build paths out of a PUBLIC consumer's
-  # exported usage requirements.
+  # header_root resolves the INCLUDE_DIR-prefixed self-includes; header_output_dir resolves the
+  # unprefixed includes slice2cpp emits for other generated headers. BUILD_INTERFACE keeps these
+  # build paths out of exported usage requirements.
   set(generated_include_dirs ${output_dir})
   foreach(dir IN ITEMS ${header_root} ${header_output_dir})
     if(NOT dir IN_LIST generated_include_dirs)
@@ -173,9 +161,8 @@ function(slice2cpp_generate target)
     target_include_directories(${target} ${arg_INCLUDE_SCOPE} $<BUILD_INTERFACE:${dir}>)
   endforeach()
 
-  # Absolute once, here: this list is both the -I set slice2cpp receives and the roots the generated
-  # layout mirrors. A relative entry would otherwise reach slice2cpp unchanged and resolve against
-  # the build directory, while the mirror resolved it against the source directory.
+  # Absolute once: this list is both slice2cpp's -I set and the mirror roots, and a relative entry
+  # would resolve against the build directory for one and the source directory for the other.
   # Ice first, so #include <Ice/...> keeps working.
   set(include_dirs "")
   foreach(dir IN LISTS Ice_SLICE_DIR arg_INCLUDE_DIRS)
@@ -197,15 +184,12 @@ function(slice2cpp_generate target)
       get_filename_component(slice_file_path ${file} ABSOLUTE)
       get_filename_component(slice_file_dir ${slice_file_path} DIRECTORY)
 
-      # NAME_WLE, not NAME_WE: slice2cpp strips only the final extension, so Foo.v1.ice generates
-      # Foo.v1.h, and NAME_WE would declare an output named Foo.h that is never written.
+      # NAME_WLE: slice2cpp strips only the final extension, so Foo.v1.ice generates Foo.v1.h.
       get_filename_component(slice_file_name ${slice_file_path} NAME_WLE)
 
-      # Subdirectory this file mirrors into; "." is the root. Only an INCLUDE_DIRS directory can
-      # drive the layout, because the #include slice2cpp emits for an included Slice file is derived
-      # from the -I list alone. Match its rule: the root giving the shortest relative path wins, and
-      # an exact root scores zero so it beats a broader root giving an equally short name. A file
-      # under no -I directory generates flat, as it always has.
+      # Mirror subdirectory; "." is the root. Only -I directories drive the layout, matching how
+      # slice2cpp derives the #includes it emits: shortest relative path wins, an exact root scores
+      # zero, and a file under no -I directory generates flat.
       set(slice_file_subdir ".")
       set(best_length -1)
       foreach(root IN LISTS include_dirs)
@@ -242,18 +226,15 @@ function(slice2cpp_generate target)
       set(header_file ${file_header_dir}/${slice_file_name}.${header_ext})
       set(source_file ${file_output_dir}/${slice_file_name}.${source_ext})
 
-      # Two commands writing one header races under Makefile generators and is a hard error under
-      # Ninja, and neither message names the targets or Slice files involved. Claim each header
-      # globally and report what actually clashed; two same-named flat .ice files land here too.
-      # Hash the path rather than MAKE_C_IDENTIFIER, which folds /a/b and /a_b together; store one
-      # preformatted string so a ';' in a path cannot split it into a list.
+      # Claim each header globally: two commands writing one file is a silent race under Makefile
+      # generators. Hash the path (MAKE_C_IDENTIFIER folds /a/b and /a_b together) and store one
+      # preformatted string, so a ';' in a path cannot split it.
       string(SHA256 header_key "${header_file}")
       set(owner_property "_slice2cpp_generate_owner_${header_key}")
       get_property(owner GLOBAL PROPERTY ${owner_property})
       if(owner)
         if(owner STREQUAL "${target}|${slice_file_path}")
-          # The same .ice listed twice for this target; declaring the command again would give the
-          # outputs two rules.
+          # The same .ice listed twice for this target.
           continue()
         endif()
         message(FATAL_ERROR
@@ -264,10 +245,8 @@ function(slice2cpp_generate target)
       endif()
       set_property(GLOBAL PROPERTY ${owner_property} "${target}|${slice_file_path}")
 
-      # Prefix for the #include each generated source uses to reach its own header. It has to follow
-      # the mirrored layout, since only the roots above are on the include path. A separate header
-      # directory means the source can no longer find the header beside itself, so a mirrored file
-      # needs the prefix even without INCLUDE_DIR.
+      # Prefix for the generated source's include of its own header; follows the mirrored layout. A
+      # header moved away from its source needs the prefix even without INCLUDE_DIR.
       set(include_prefix "${arg_INCLUDE_DIR}")
       if(NOT slice_file_subdir STREQUAL ".")
         if(include_prefix)
@@ -286,8 +265,7 @@ function(slice2cpp_generate target)
       set(output_files ${header_file} ${source_file})
       set(depfile ${file_output_dir}/${slice_file_name}.d)
 
-      # slice2cpp has no separate header option, so move it afterwards as the MSBuild task does.
-      # Copy then remove, since rename is limited to a single volume.
+      # slice2cpp has no separate header option, so move it afterwards, as the MSBuild task does.
       set(move_header_commands "")
       if(NOT file_header_dir STREQUAL file_output_dir)
         set(move_header_commands
