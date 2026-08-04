@@ -1083,6 +1083,15 @@ ZEND_FUNCTION(Ice_unregister)
 
     _registeredCommunicators.erase(p);
 
+    if (ac->ids.empty() && ac->reapTask)
+    {
+        // This was the communicator's last registration: cancel the reap task to break the
+        // ActiveCommunicator <-> ReapCommunicatorTimerTask ownership cycle, which would otherwise keep the
+        // communicator alive until the task fires.
+        _timer->cancel(ac->reapTask);
+        ac->reapTask = nullptr;
+    }
+
     RETURN_TRUE;
 }
 
