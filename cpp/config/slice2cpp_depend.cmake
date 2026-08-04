@@ -49,7 +49,7 @@ if(NOT actual_header STREQUAL EXPECTED_HEADER)
 endif()
 
 # The prefix is a path slice2cpp never sees, so escape it here the way compiler depfiles escape
-# paths. The paths slice2cpp itself writes are its own to escape (zeroc-ice/ice#6374).
+# paths. The paths slice2cpp itself writes are its own to escape (zeroc-ice/ice#6329).
 set(header_dir_escaped "${HEADER_DIR}")
 string(REPLACE "$" "$$" header_dir_escaped "${header_dir_escaped}")
 string(REPLACE "#" "\\#" header_dir_escaped "${header_dir_escaped}")
