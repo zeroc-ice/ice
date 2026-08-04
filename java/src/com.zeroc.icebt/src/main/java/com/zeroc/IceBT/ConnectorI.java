@@ -9,7 +9,7 @@ import com.zeroc.Ice.Transceiver;
 final class ConnectorI implements Connector {
     @Override
     public Transceiver connect() {
-        return new TransceiverI(_instance, _addr, _uuid, _connectionId);
+        return new TransceiverI(_instance, _addr, _uuid, _connectionId, _bufSize);
     }
 
     @Override
@@ -49,6 +49,7 @@ final class ConnectorI implements Connector {
         _uuid = uuid;
         _timeout = timeout;
         _connectionId = connectionId;
+        _bufSize = new BTBufSize(instance.properties());
     }
 
     @Override
@@ -82,4 +83,5 @@ final class ConnectorI implements Connector {
     private final String _uuid;
     private final int _timeout;
     private final String _connectionId;
+    private final BTBufSize _bufSize;
 }

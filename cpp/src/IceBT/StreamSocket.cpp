@@ -2,7 +2,6 @@
 
 #include "StreamSocket.h"
 #include "Ice/LoggerUtil.h"
-#include "Ice/Properties.h"
 #include "IceBT/EndpointInfo.h"
 #include "Instance.h"
 #include "Util.h"
@@ -11,15 +10,21 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceBT::StreamSocket::StreamSocket(InstancePtr instance, SOCKET fd)
+IceBT::StreamSocket::StreamSocket(InstancePtr instance, SOCKET fd, const BTBufSize& bufSize)
     : IceInternal::NativeInfo(fd),
       _instance(std::move(instance))
 {
-    if (fd != INVALID_SOCKET)
-    {
-        init(fd);
-    }
+    assert(fd != INVALID_SOCKET);
+    IceInternal::setBlock(fd, false);
+    setBufferSize(fd, bufSize.rcvSize(), bufSize.sndSize());
     _desc = fdToString(fd);
+}
+
+IceBT::StreamSocket::StreamSocket(InstancePtr instance)
+    : IceInternal::NativeInfo(INVALID_SOCKET),
+      _instance(std::move(instance)),
+      _desc(fdToString(INVALID_SOCKET))
+{
 }
 
 IceBT::StreamSocket::~StreamSocket() { assert(_fd == INVALID_SOCKET); }
@@ -230,18 +235,28 @@ void
 IceBT::StreamSocket::setFd(SOCKET fd)
 {
     assert(fd != INVALID_SOCKET);
-    init(fd);
-    setNewFd(fd);
-    _desc = fdToString(fd);
-}
+    assert(_fd == INVALID_SOCKET);
 
-void
-IceBT::StreamSocket::init(SOCKET fd)
-{
+    int rcvSize;
+    int sndSize;
+    try
+    {
+        BTBufSize bufSize{_instance->properties()};
+        rcvSize = bufSize.rcvSize();
+        sndSize = bufSize.sndSize();
+    }
+    catch (...)
+    {
+        // The property read doesn't close the fd, and it's not recorded anywhere yet.
+        IceInternal::closeSocketNoThrow(fd);
+        throw;
+    }
+
+    // Each of these calls closes the fd before throwing, so record the fd only once they all succeed.
     IceInternal::setBlock(fd, false);
-
-    int32_t rcvSize = _instance->properties()->getIcePropertyAsInt("IceBT.RcvSize");
-    int32_t sndSize = _instance->properties()->getIcePropertyAsInt("IceBT.SndSize");
-
     setBufferSize(fd, rcvSize, sndSize);
+    string desc = fdToString(fd);
+
+    setNewFd(fd);
+    _desc = std::move(desc);
 }
