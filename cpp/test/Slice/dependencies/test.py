@@ -1,10 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import json
 import os
 import xml.etree.ElementTree as ElementTree
 
-from Util import ClientTestCase, SliceTranslator, TestSuite
+from Util import ClientTestCase, Driver, SliceTranslator, TestSuite
 
 # e.ice and f.ice sit in a directory whose name holds an XML-significant character, so both the source and the
 # dependency entries of e.ice are only parsable when the compiler escapes the file names it writes.
@@ -22,7 +24,7 @@ expectedDependencies = {
 
 
 class SliceDependenciesTestCase(ClientTestCase):
-    def runClientSide(self, current):
+    def runClientSide(self, current: Driver.Current) -> None:
         slice2js = SliceTranslator("slice2js")
 
         sources = [
@@ -41,11 +43,13 @@ class SliceDependenciesTestCase(ClientTestCase):
         current.write("testing dependencies in XML format... ")
         slice2js.run(current, args=["--depend-xml", "--depend-file", "depend.xml"] + sources)
         root = ElementTree.parse("depend.xml").getroot()
-        self.checkDependencies({source.get("name"): [dependsOn.get("name") for dependsOn in source] for source in root})
+        self.checkDependencies(
+            {source.attrib["name"]: [dependsOn.attrib["name"] for dependsOn in source] for source in root}
+        )
         os.remove("depend.xml")
         current.writeln("ok")
 
-    def checkDependencies(self, dependencies):
+    def checkDependencies(self, dependencies: dict[str, list[str]]) -> None:
         # The sources and their dependencies are reported as absolute paths; compare the directory and file name,
         # so that a directory holding an XML-significant character must come back spelled exactly as it is on disk.
         actual = {
@@ -56,7 +60,7 @@ class SliceDependenciesTestCase(ClientTestCase):
         if actual != expected:
             raise RuntimeError("failed! expected {0} but got {1}".format(expected, actual))
 
-    def tail(self, path):
+    def tail(self, path: str) -> str:
         return os.path.join(os.path.basename(os.path.dirname(path)), os.path.basename(path))
 
 
