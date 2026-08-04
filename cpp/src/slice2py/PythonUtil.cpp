@@ -979,9 +979,7 @@ Slice::Python::ImportVisitor::addTypingImport(
 }
 
 void
-Slice::Python::ImportVisitor::addTypingImport(
-    const SyntaxTreeBasePtr& definition,
-    const ContainedPtr& source)
+Slice::Python::ImportVisitor::addTypingImport(const SyntaxTreeBasePtr& definition, const ContainedPtr& source)
 {
     if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
     {

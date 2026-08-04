@@ -327,8 +327,7 @@ namespace Slice::Python
         ///
         /// @param definition The definition to import the containing package.
         /// @param source The Slice definition that requires this import.
-        void
-        addTypingImport(const SyntaxTreeBasePtr& definition, const ContainedPtr& source);
+        void addTypingImport(const SyntaxTreeBasePtr& definition, const ContainedPtr& source);
 
         /// Import the meta type for the given Slice definition if it comes from a different module.
         /// @param definition is the Slice definition to import.
