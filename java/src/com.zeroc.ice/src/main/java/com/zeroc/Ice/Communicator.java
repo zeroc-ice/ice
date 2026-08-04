@@ -79,18 +79,24 @@ public final class Communicator implements AutoCloseable {
      * all object adapters, and closes all outgoing connections. This method waits for all outstanding dispatches
      * to complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
      *
+     * <p>This method is not interruptible: if the calling thread is interrupted, the communicator is
+     * nevertheless fully destroyed, and the thread's interrupt status is restored before this method returns.
+     *
      * @see ObjectAdapter#destroy
      */
     public void close() {
-        // Don't allow destroy to be interrupted if called from try with statement.
         _instance.destroy(false);
     }
 
     /**
-     * Destroys this communicator. It's an alias for {@link #close}.
+     * Destroys this communicator. This method behaves like {@link #close}, except it can be interrupted.
+     *
+     * @throws OperationInterruptedException if the calling thread is interrupted while this method waits during
+     *     the destruction. The destruction of the communicator is then incomplete; call this method again to
+     *     complete it.
      */
     public void destroy() {
-        _instance.destroy(true); // Destroy is interruptible when call explicitly.
+        _instance.destroy(true);
     }
 
     /**

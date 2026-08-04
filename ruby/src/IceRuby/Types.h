@@ -507,9 +507,17 @@ namespace IceRuby
     class ExceptionReader final : public Ice::UserException
     {
     public:
+        // Each constructor registers a GC root tied to the address of the new instance's _ex member, and the
+        // destructor unregisters it. The copy constructor must remain available: the exception machinery copies the
+        // reader into the exception storage. The other special members are deleted so that none can transfer or
+        // assign _ex without the matching registration.
         ExceptionReader(const ExceptionInfoPtr&);
         ExceptionReader(const ExceptionReader&);
         ~ExceptionReader();
+
+        ExceptionReader(ExceptionReader&&) = delete;
+        ExceptionReader& operator=(const ExceptionReader&) = delete;
+        ExceptionReader& operator=(ExceptionReader&&) = delete;
 
         const char* ice_id() const noexcept final;
         void ice_throw() const final;

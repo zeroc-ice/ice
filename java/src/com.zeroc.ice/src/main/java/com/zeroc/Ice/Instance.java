@@ -902,6 +902,31 @@ public final class Instance {
 
     // Only for use by com.zeroc.Ice.Communicator
     void destroy(boolean interruptible) {
+        if (interruptible) {
+            destroyImpl();
+        } else {
+            // Complete the destruction even if the calling thread is interrupted, and restore the
+            // interrupt status once the destruction is complete.
+            boolean interrupted = Thread.interrupted();
+            while (true) {
+                try {
+                    destroyImpl();
+                    break;
+                } catch (OperationInterruptedException ex) {
+                    interrupted = true;
+                }
+            }
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    // Destroys this instance. This method does not throw any exception, with one exception: it throws
+    // OperationInterruptedException when the calling thread is interrupted during an interruptible wait. The
+    // destruction is then incomplete, and a new destroyImpl call can complete it. Note that the logger and the
+    // communicator observer, which this method calls during the destruction, are expected to not throw any exception.
+    private void destroyImpl() {
         synchronized (this) {
             // If destroy is in progress, wait for it to be done.
             // This is necessary in case destroy() is called concurrently by multiple threads.
@@ -909,9 +934,7 @@ public final class Instance {
                 try {
                     wait();
                 } catch (InterruptedException ex) {
-                    if (interruptible) {
-                        throw new OperationInterruptedException(ex);
-                    }
+                    throw new OperationInterruptedException(ex);
                 }
             }
 
@@ -984,9 +1007,7 @@ public final class Instance {
                     _timer.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
                 }
             } catch (InterruptedException ex) {
-                if (interruptible) {
-                    throw new OperationInterruptedException(ex);
-                }
+                throw new OperationInterruptedException(ex);
             }
 
             // NOTE: at this point destroy() can't be interrupted
@@ -1049,7 +1070,7 @@ public final class Instance {
         } finally {
             synchronized (this) {
                 if (_state == StateDestroyInProgress) {
-                    assert interruptible;
+                    // Destroy did not complete: restore a state that allows destroy to be called again.
                     _state = StateActive;
                     notifyAll();
                 }
