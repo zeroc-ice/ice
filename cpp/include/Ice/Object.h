@@ -93,7 +93,8 @@ namespace Ice
     public:
         /// Dispatches an incoming request.
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
-        /// @param outEncaps An encapsulation containing the encoded result for the operation.
+        /// @param outEncaps An encapsulation containing the encoded result for the operation. You can leave it empty
+        /// when the operation returns no results; the Ice runtime then marshals an empty encapsulation.
         /// @param current The Current object of the incoming request.
         /// @return `true` if the dispatch completes successfully, `false` if the dispatch completes with a user
         /// exception encoded in @p outEncaps.
@@ -133,7 +134,8 @@ namespace Ice
         /// @param response The response callback. It accepts:
         /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
         ///   exception encoded in @p outEncaps.
-        /// - `outEncaps` An encapsulation containing the encoded result.
+        /// - `outEncaps` An encapsulation containing the encoded result. You can pass an empty byte sequence when
+        ///   the operation returns no results; the Ice runtime then marshals an empty encapsulation.
         /// @param exception The exception callback.
         /// @param current The Current object of the incoming request.
         virtual void ice_invokeAsync(
