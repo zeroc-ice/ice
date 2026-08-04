@@ -57,10 +57,8 @@ public class MainActivity extends Activity {
     private volatile BluetoothServerSocket serverSocket;
     private volatile BluetoothSocket socket;
 
-    // Process-wide, because the instances that race are in one process -- see onCreate. Set on the
-    // main thread, cleared by the worker's finally, so volatile. isAlive() is what keeps the guard
-    // correct either way; the clear just stops a finished thread staying reachable for the rest of
-    // the process.
+    // Process-wide -- the instances that race share one process (see onCreate). Set on the main
+    // thread, cleared by the worker's finally, so volatile.
     private static volatile Thread activeWorker;
 
     // Best-effort auto-accept of incoming pairing requests. The app runs as a privileged system app
@@ -99,9 +97,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-        // Registered before the guard below returns: a relaunch destroys the old instance first, so
-        // returning ahead of this would leave the process with no ACTION_PAIRING_REQUEST receiver
-        // for the rest of the surviving worker's run -- the one thing this app is installed to do.
+        // Before the guard below: a relaunch destroys the old instance (and its receiver) first,
+        // so returning earlier would leave the surviving worker with no pairing receiver.
         registerReceiver(
             pairingReceiver,
             new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST),
@@ -110,25 +107,20 @@ public class MainActivity extends Activity {
         final String mode = it.getStringExtra("mode");
         final String peer = it.getStringExtra("peer");
         final String uuid = it.getStringExtra("uuid");
-        // The system recreates this activity during a normal run (see onDestroy) and a relaunch
-        // reuses the original intent, so onCreate can run again with the same extras. Two RFCOMM
-        // connects from one adapter to the same peer and UUID resolve the same DLCI: the second is
-        // refused with PORT_ALREADY_OPENED and the stack tears down the first worker's port too, so
-        // both fail. One worker at a time.
+        // A relaunch (see onDestroy) re-runs onCreate with the same extras. Two RFCOMM connects to
+        // the same peer and UUID resolve the same DLCI and the stack tears both down, taking the
+        // server's accepted connection with them -- so one worker at a time.
         Thread running = activeWorker;
         if (running != null && running.isAlive()) {
             if (b == null) {
-                // A fresh start while a worker is still going -- a server left in accept() by an
-                // earlier attempt, say. Nothing else will speak for this one, so give the caller a
-                // verdict and a reason.
+                // A fresh start while a worker is still going. Nothing else will speak for this
+                // attempt, so give the caller a verdict and a reason.
                 result(mode, false, "a worker is already running in this process");
                 finish();
             } else {
-                // A relaunch: savedInstanceState is non-null because handleRelaunchActivityInner
-                // stops with saveState=true. The original worker owns this run, so emit no verdict
-                // -- bond() reads the last RESULT line, and a FAIL here would land while that
-                // worker is still in createBond/connect and condemn a healthy run. Stay resident
-                // until it finishes, so the process keeps an activity and this receiver.
+                // A relaunch -- savedInstanceState is non-null only then. The original worker owns
+                // this run's verdict; a FAIL here would become the last RESULT line and condemn a
+                // healthy run. Stay resident so the process keeps an activity and this receiver.
                 Log.i(TAG, "relaunch while a worker is running; it owns this run's verdict");
                 finishWhenWorkerEnds();
             }
@@ -160,9 +152,8 @@ public class MainActivity extends Activity {
             WATCHDOG_MS);
     }
 
-    // Keeps a refused relaunch resident until the worker it deferred to is done. Finishing straight
-    // away would leave that worker in a process with no activity and no service, which Android is
-    // free to kill -- taking the server's listening socket with it.
+    // Keeps a refused relaunch resident until the worker is done: a process with no activity is
+    // fair game for the OS, worker and sockets included.
     private void finishWhenWorkerEnds() {
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(

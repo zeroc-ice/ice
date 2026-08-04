@@ -3159,12 +3159,9 @@ class AndroidProcessController(RemoteProcessController):
         )
         lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
         print("\n".join(lines[-80:]))
-        # A relaunch emits no new "START u0" and its "Relaunching" logs are off in a release build,
-        # so the events buffer is the only durable record that a second onCreate ran. wm_relaunch
-        # covers both the resumed (30019) and paused (30020) variants; wm_on_create_called and
-        # wm_on_destroy_called are logged from the app's own process, so they are direct evidence
-        # rather than a relaunch merely being requested. Every record carries the component or
-        # process name, so requiring btbond keeps unrelated churn from displacing these lines.
+        # A relaunch emits no new "START u0" and its main-buffer logs are compiled out, so the events
+        # buffer is the only durable record that a second onCreate ran. Scoped to btbond so
+        # unrelated churn cannot displace these lines.
         print("-- btbond lifecycle (events) --")
         events = re.compile(
             "(wm_relaunch|wm_on_(create|destroy)_called|wm_(create|destroy|finish)_activity"
