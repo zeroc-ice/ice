@@ -1004,10 +1004,7 @@ public final class Instance {
                     _endpointHostResolver.joinWithThread();
                 }
                 if (_timer != null) {
-                    while (!_timer.isTerminated()) {
-                        // A very long time.
-                        _timer.awaitTermination(100000, TimeUnit.SECONDS);
-                    }
+                    _timer.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
                 }
             } catch (InterruptedException ex) {
                 throw new OperationInterruptedException(ex);
