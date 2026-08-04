@@ -157,6 +157,14 @@ addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
 }
 
 //
+// PrintObjectHistory implementation
+//
+IceRuby::PrintObjectHistory::PrintObjectHistory() : objects(callRuby(rb_hash_new))
+{
+    callRuby(rb_funcall, objects, rb_intern("compare_by_identity"), 0);
+}
+
+//
 // StreamUtil implementation
 //
 VALUE IceRuby::StreamUtil::_slicedDataType = Qnil;
@@ -2134,10 +2142,10 @@ IceRuby::ClassInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHist
     }
     else
     {
-        map<VALUE, int>::iterator q = history->objects.find(value);
-        if (q != history->objects.end())
+        volatile VALUE printedIndex = callRuby(rb_hash_lookup2, history->objects, value, Qnil);
+        if (!NIL_P(printedIndex))
         {
-            out << "<object #" << q->second << ">";
+            out << "<object #" << FIX2INT(printedIndex) << ">";
         }
         else
         {
@@ -2148,7 +2156,7 @@ IceRuby::ClassInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHist
             info = dynamic_pointer_cast<ClassInfo>(getType(type));
             assert(info);
             out << "object #" << history->index << " (" << info->id << ')';
-            history->objects.insert(map<VALUE, int>::value_type(value, history->index));
+            callRuby(rb_hash_aset, history->objects, value, INT2FIX(history->index));
             ++history->index;
             out.sb();
             info->printMembers(value, out, history);
@@ -2764,7 +2772,6 @@ IceRuby::ExceptionInfo::print(VALUE value, IceInternal::Output& out)
     }
 
     PrintObjectHistory history;
-    history.index = 0;
 
     out << "exception " << id;
     out.sb();
@@ -3045,7 +3052,6 @@ IceRuby_stringify(VALUE /*self*/, VALUE obj, VALUE type)
         ostringstream ostr;
         IceInternal::Output out(ostr);
         PrintObjectHistory history;
-        history.index = 0;
         info->print(obj, out, &history);
 
         string str = ostr.str();
