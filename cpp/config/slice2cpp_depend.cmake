@@ -34,49 +34,27 @@ endif()
 # Rewrite the target to the full header path, which Ninja requires it to match the first OUTPUT.
 # Match ": \" rather than ":" so Windows drive letters like C:/... are not mistaken for the
 # separator (there the colon is followed by / or \, never by " \").
-if(NOT depend_output MATCHES "^([^:]+)(: \\\\)")
+if(NOT depend_output MATCHES "^([^:]+): \\\\")
     message(FATAL_ERROR "slice2cpp --depend produced unexpected output for ${SLICE_FILE}:\n${depend_output}")
 endif()
+set(actual_header "${CMAKE_MATCH_1}")
 
 # --depend names the header slice2cpp will actually write, cpp:header-ext metadata included. Report
 # a mismatch here rather than rerun forever a command whose declared output never appears.
-if(NOT CMAKE_MATCH_1 STREQUAL EXPECTED_HEADER)
+if(NOT actual_header STREQUAL EXPECTED_HEADER)
     message(FATAL_ERROR
-        "slice2cpp generates '${CMAKE_MATCH_1}' for ${SLICE_FILE}, but slice2cpp_generate declared "
+        "slice2cpp generates '${actual_header}' for ${SLICE_FILE}, but slice2cpp_generate declared "
         "'${EXPECTED_HEADER}'. Set the extension with OPTIONS --header-ext; cpp:header-ext metadata "
         "that contradicts it is not supported.")
 endif()
 
-string(REGEX REPLACE "^([^:]+)(: \\\\)" "${HEADER_DIR}/\\1\\2" depend_output "${depend_output}")
+# The prefix is a path slice2cpp never sees, so escape it here the way compiler depfiles escape
+# paths. The paths slice2cpp itself writes are its own to escape (zeroc-ice/ice#6374).
+set(header_dir_escaped "${HEADER_DIR}")
+string(REPLACE "$" "$$" header_dir_escaped "${header_dir_escaped}")
+string(REPLACE "#" "\\#" header_dir_escaped "${header_dir_escaped}")
+string(REPLACE " " "\\ " header_dir_escaped "${header_dir_escaped}")
 
-# Escape spaces the way compiler depfiles do, or a path with a space reads as several dependencies
-# that never exist and the file recompiles on every build. Drop the continuations before splitting
-# into lines, and protect a real ';' in a path from that split.
-string(REPLACE "\r" "" depend_output "${depend_output}")
-string(REGEX REPLACE " \\\\\n" "\n" depend_output "${depend_output}")
-string(REPLACE ";" "@SLICE2CPP_SEMI@" depend_output "${depend_output}")
-string(REPLACE "\n" ";" depend_lines "${depend_output}")
-
-set(escaped_output "")
-set(seen_target FALSE)
-foreach(line IN LISTS depend_lines)
-    if(line STREQUAL "")
-        continue()
-    endif()
-    if(NOT seen_target)
-        # "<target>:" - strip only the trailing separator.
-        string(REGEX REPLACE ":$" "" line "${line}")
-        string(REPLACE " " "\\ " line "${line}")
-        set(escaped_output "${line}:")
-        set(seen_target TRUE)
-    else()
-        # " <dependency>" - strip only the single leading space slice2cpp writes.
-        string(REGEX REPLACE "^ " "" line "${line}")
-        string(REPLACE " " "\\ " line "${line}")
-        string(APPEND escaped_output " \\\n ${line}")
-    endif()
-endforeach()
-string(APPEND escaped_output "\n")
-string(REPLACE "@SLICE2CPP_SEMI@" ";" depend_output "${escaped_output}")
-
-file(WRITE "${DEPFILE}" "${depend_output}")
+string(LENGTH "${actual_header}" target_length)
+string(SUBSTRING "${depend_output}" ${target_length} -1 depend_tail)
+file(WRITE "${DEPFILE}" "${header_dir_escaped}/${actual_header}${depend_tail}")
