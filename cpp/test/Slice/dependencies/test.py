@@ -8,13 +8,16 @@ from Util import ClientTestCase, SliceTranslator, TestSuite
 
 # e.ice and f.ice sit in a directory whose name holds an XML-significant character, so both the source and the
 # dependency entries of e.ice are only parsable when the compiler escapes the file names it writes.
-escapedDirectory = "a&b"
+ampersandDirectory = "a&b"
 
 # The expected dependencies of the compiled sources, keyed by the directory and file name of the source.
 expectedDependencies = {
     os.path.join("slices", "c.ice"): [os.path.join("slices", "a.ice"), os.path.join("slices", "b.ice")],
     os.path.join("slices", "d.ice"): [os.path.join("slices", "a.ice")],
-    os.path.join(escapedDirectory, "e.ice"): [os.path.join("slices", "a.ice"), os.path.join(escapedDirectory, "f.ice")],
+    os.path.join(ampersandDirectory, "e.ice"): [
+        os.path.join("slices", "a.ice"),
+        os.path.join(ampersandDirectory, "f.ice"),
+    ],
 }
 
 
@@ -22,30 +25,10 @@ class SliceDependenciesTestCase(ClientTestCase):
     def runClientSide(self, current):
         slice2js = SliceTranslator("slice2js")
 
-        current.mkdirs(escapedDirectory)
-        current.createFile(
-            os.path.join(escapedDirectory, "f.ice"),
-            ["#pragma once", "module Test", "{", "    class F", "    {", "    }", "}"],
-        )
-        current.createFile(
-            os.path.join(escapedDirectory, "e.ice"),
-            [
-                '#include "../slices/a.ice"',
-                '#include "f.ice"',
-                "module Test",
-                "{",
-                "    interface E",
-                "    {",
-                "        void op(A a, F f);",
-                "    }",
-                "}",
-            ],
-        )
-
         sources = [
             os.path.join("slices", "c.ice"),
             os.path.join("slices", "d.ice"),
-            os.path.join(escapedDirectory, "e.ice"),
+            os.path.join(ampersandDirectory, "e.ice"),
         ]
 
         current.write("testing dependencies in JSON format... ")
@@ -64,7 +47,7 @@ class SliceDependenciesTestCase(ClientTestCase):
 
     def checkDependencies(self, dependencies):
         # The sources and their dependencies are reported as absolute paths; compare the directory and file name,
-        # so that a directory holding an escaped character must come back spelled exactly as it is on disk.
+        # so that a directory holding an XML-significant character must come back spelled exactly as it is on disk.
         actual = {
             self.tail(source): sorted(self.tail(dependency) for dependency in dependsOn)
             for source, dependsOn in dependencies.items()
