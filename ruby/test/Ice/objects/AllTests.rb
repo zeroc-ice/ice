@@ -296,8 +296,8 @@ def allTests(helper, communicator)
     begin
         GC.verify_compaction_references(expand_heap: true, toward: :empty)
         compactionSupported = true
-    rescue NotImplementedError, ArgumentError
-        # Compaction is not supported on this platform, or Ruby < 3.2 doesn't accept these keyword arguments.
+    rescue NotImplementedError
+        # Compaction is not supported on this platform.
         compactionSupported = false
     end
     if compactionSupported

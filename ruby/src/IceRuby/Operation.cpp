@@ -25,7 +25,7 @@ namespace IceRuby
     class ParamInfo final : public UnmarshalCallback
     {
     public:
-        void unmarshaled(VALUE, VALUE, void*) final;
+        void unmarshaled(VALUE, VALUE, void*, StreamUtil*) final;
 
         TypeInfoPtr type;
         bool optional;
@@ -146,7 +146,7 @@ IceRuby::Operation::~Operation() = default;
 // ParamInfo implementation.
 //
 void
-IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
+IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure, StreamUtil*)
 {
     assert(TYPE(target) == T_ARRAY);
     static_assert(sizeof(long) == sizeof(void*), "long and void* must have the same size");

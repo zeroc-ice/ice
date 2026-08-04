@@ -351,8 +351,8 @@ def allTests(helper, communicator)
     others = [Ice.initialize]
     begin
         GC.verify_compaction_references(expand_heap: true, toward: :empty)
-    rescue NotImplementedError, ArgumentError
-        # Compaction is not supported on this platform, or Ruby < 3.2 doesn't accept these keyword arguments.
+    rescue NotImplementedError
+        # Compaction is not supported on this platform.
     end
     otherProxy = Ice::ObjectPrx.new(others[0], "test:default -p 12010")
     test(otherProxy.ice_getCommunicator() == others[0])

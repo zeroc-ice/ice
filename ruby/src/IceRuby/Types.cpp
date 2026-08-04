@@ -40,6 +40,11 @@ static ProxyInfoMap _proxyInfoMap;
 typedef map<string, ExceptionInfoPtr, std::less<>> ExceptionInfoMap;
 static ExceptionInfoMap _exceptionInfoMap;
 
+namespace
+{
+    StreamUtil* streamUtil(Ice::InputStream* is) { return reinterpret_cast<StreamUtil*>(is->getClosure()); }
+}
+
 namespace IceRuby
 {
     class InfoMapDestroyer
@@ -157,14 +162,11 @@ addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
 VALUE IceRuby::StreamUtil::_slicedDataType = Qnil;
 VALUE IceRuby::StreamUtil::_sliceInfoType = Qnil;
 
-IceRuby::StreamUtil::StreamUtil() = default;
+IceRuby::StreamUtil::StreamUtil() : _held(Qnil) { rb_gc_register_address(&_held); }
 
 IceRuby::StreamUtil::~StreamUtil()
 {
-    for (VALUE& value : _pinned)
-    {
-        rb_gc_unregister_address(&value);
-    }
+    rb_gc_unregister_address(&_held);
 
     //
     // Make sure we break any cycles among the ValueReaders in preserved slices.
@@ -199,11 +201,22 @@ IceRuby::StreamUtil::add(const shared_ptr<ValueReader>& reader)
     _readers.insert(reader);
 }
 
-void
-IceRuby::StreamUtil::pin(VALUE value)
+long
+IceRuby::StreamUtil::hold(VALUE value)
 {
-    _pinned.push_back(value);
-    rb_gc_register_address(&_pinned.back());
+    if (NIL_P(_held))
+    {
+        _held = callRuby(rb_ary_new);
+    }
+    callRuby(rb_ary_push, _held, value);
+    return RARRAY_LEN(_held) - 1;
+}
+
+VALUE
+IceRuby::StreamUtil::getHeldValue(long index) const
+{
+    assert(!NIL_P(_held) && index >= 0 && index < RARRAY_LEN(_held));
+    return RARRAY_AREF(_held, index);
 }
 
 void
@@ -406,7 +419,7 @@ IceRuby::TypeInfo::usesClasses() const
 }
 
 void
-IceRuby::TypeInfo::unmarshaled(VALUE, VALUE, void*)
+IceRuby::TypeInfo::unmarshaled(VALUE, VALUE, void*, StreamUtil*)
 {
     assert(false);
 }
@@ -662,7 +675,7 @@ IceRuby::PrimitiveInfo::unmarshal(
             break;
         }
     }
-    cb->unmarshaled(val, target, closure);
+    cb->unmarshaled(val, target, closure, streamUtil(is));
 }
 
 void
@@ -821,7 +834,7 @@ IceRuby::EnumInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& c
         throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
     }
 
-    cb->unmarshaled(p->second, target, closure);
+    cb->unmarshaled(p->second, target, closure, streamUtil(is));
 }
 
 void
@@ -840,7 +853,7 @@ IceRuby::EnumInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHisto
 // DataMember implementation.
 //
 void
-IceRuby::DataMember::unmarshaled(VALUE val, VALUE target, void*)
+IceRuby::DataMember::unmarshaled(VALUE val, VALUE target, void*, StreamUtil*)
 {
     callRuby(rb_ivar_set, target, rubyID, val);
 }
@@ -1036,7 +1049,7 @@ IceRuby::StructInfo::unmarshal(
         member->type->unmarshal(is, member, obj, 0, false);
     }
 
-    cb->unmarshaled(obj, target, closure);
+    cb->unmarshaled(obj, target, closure, streamUtil(is));
 }
 
 void
@@ -1253,11 +1266,11 @@ IceRuby::SequenceInfo::unmarshal(
         elementType->unmarshal(is, shared_from_this(), arr, cl, false);
     }
 
-    cb->unmarshaled(arr, target, closure);
+    cb->unmarshaled(arr, target, closure, streamUtil(is));
 }
 
 void
-IceRuby::SequenceInfo::unmarshaled(VALUE val, VALUE target, void* closure)
+IceRuby::SequenceInfo::unmarshaled(VALUE val, VALUE target, void* closure, StreamUtil*)
 {
     static_assert(sizeof(long) == sizeof(void*), "long and void* must have the same size");
     long i = reinterpret_cast<long>(closure);
@@ -1623,7 +1636,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(
             break;
         }
     }
-    cb->unmarshaled(result, target, closure);
+    cb->unmarshaled(result, target, closure, streamUtil(is));
 }
 
 //
@@ -1806,6 +1819,15 @@ IceRuby::DictionaryInfo::unmarshal(
         //
         keyType->unmarshal(is, keyCB, Qnil, 0, false);
         assert(!NIL_P(keyCB->key));
+
+        //
+        // The callback will set the dictionary entry with the unmarshaled value, so we
+        // pass it the key through the closure. When the value type uses classes, the
+        // callback can run after this frame is gone and a raw VALUE copy of the key
+        // would go stale if GC compaction moves the key, so we pass the key's index in
+        // the stream's holding array instead.
+        //
+        void* cl;
         if (valueType->usesClasses())
         {
             // Temporarily set the entry with a Qnil value to ensure the key is not GC
@@ -1818,30 +1840,34 @@ IceRuby::DictionaryInfo::unmarshal(
             }
             callRuby(rb_hash_aset, hash, keyCB->key, Qnil);
 
-            //
-            // The closure below holds a raw VALUE copy of the key until the value is
-            // unmarshaled; pin the key so that GC compaction cannot move it in the
-            // meantime.
-            //
-            StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
+            StreamUtil* util = streamUtil(is);
             assert(util);
-            util->pin(keyCB->key);
+            cl = reinterpret_cast<void*>(util->hold(keyCB->key));
         }
-        //
-        // The callback will set the dictionary entry with the unmarshaled value,
-        // so we pass it the key.
-        //
-        void* cl = reinterpret_cast<void*>(keyCB->key);
+        else
+        {
+            cl = reinterpret_cast<void*>(keyCB->key);
+        }
         valueType->unmarshal(is, shared_from_this(), hash, cl, false);
     }
 
-    cb->unmarshaled(hash, target, closure);
+    cb->unmarshaled(hash, target, closure, streamUtil(is));
 }
 
 void
-IceRuby::DictionaryInfo::unmarshaled(VALUE val, VALUE target, void* closure)
+IceRuby::DictionaryInfo::unmarshaled(VALUE val, VALUE target, void* closure, StreamUtil* util)
 {
-    volatile VALUE key = reinterpret_cast<VALUE>(closure);
+    volatile VALUE key;
+    if (valueType->usesClasses())
+    {
+        assert(util);
+        static_assert(sizeof(long) == sizeof(void*), "long and void* must have the same size");
+        key = util->getHeldValue(reinterpret_cast<long>(closure));
+    }
+    else
+    {
+        key = reinterpret_cast<VALUE>(closure);
+    }
     callRuby(rb_hash_aset, target, key, val);
 }
 
@@ -1908,7 +1934,7 @@ IceRuby::DictionaryInfo::printElement(VALUE key, VALUE value, IceInternal::Outpu
 }
 
 void
-IceRuby::DictionaryInfo::KeyCallback::unmarshaled(VALUE val, VALUE, void*)
+IceRuby::DictionaryInfo::KeyCallback::unmarshaled(VALUE val, VALUE, void*, StreamUtil*)
 {
     key = val;
 }
@@ -2086,9 +2112,9 @@ IceRuby::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
     // attached to the stream keeps a reference to the callback object to ensure it lives
     // long enough.
     //
-    ReadValueCallbackPtr rocb = make_shared<ReadValueCallback>(shared_from_this(), cb, target, closure);
-    StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
+    StreamUtil* util = streamUtil(is);
     assert(util);
+    ReadValueCallbackPtr rocb = make_shared<ReadValueCallback>(shared_from_this(), cb, target, closure, util);
     util->add(rocb);
     is->read(patchObject, rocb.get());
 }
@@ -2323,7 +2349,7 @@ IceRuby::ProxyInfo::unmarshal(
 
     if (!proxy)
     {
-        cb->unmarshaled(Qnil, target, closure);
+        cb->unmarshaled(Qnil, target, closure, streamUtil(is));
         return;
     }
 
@@ -2333,7 +2359,7 @@ IceRuby::ProxyInfo::unmarshal(
     }
 
     volatile VALUE p = createProxy(proxy.value(), rubyClass);
-    cb->unmarshaled(p, target, closure);
+    cb->unmarshaled(p, target, closure, streamUtil(is));
 }
 
 void
@@ -2639,19 +2665,17 @@ IceRuby::ReadValueCallback::ReadValueCallback(
     const ClassInfoPtr& info,
     const UnmarshalCallbackPtr& cb,
     VALUE target,
-    void* closure)
+    void* closure,
+    StreamUtil* util)
     : _info(info),
       _cb(cb),
-      _target(target),
+      _util(util),
+      // invoke() can run after the unmarshal frame that created target has returned, and GC compaction
+      // can move target in the meantime; hold it in the stream's holding array and recover it by index.
+      _targetIndex(util->hold(target)),
       _closure(closure)
 {
-    //
-    // Mark the target as in use for the lifetime of this wrapper.
-    //
-    rb_gc_register_address(&_target);
 }
-
-IceRuby::ReadValueCallback::~ReadValueCallback() { rb_gc_unregister_address(&_target); }
 
 void
 IceRuby::ReadValueCallback::invoke(const shared_ptr<Ice::Value>& p)
@@ -2677,11 +2701,11 @@ IceRuby::ReadValueCallback::invoke(const shared_ptr<Ice::Value>& p)
         // With debug builds we force a GC to ensure that all data members are correctly keep alive.
         rb_gc();
 #endif
-        _cb->unmarshaled(obj, _target, _closure);
+        _cb->unmarshaled(obj, _util->getHeldValue(_targetIndex), _closure, _util);
     }
     else
     {
-        _cb->unmarshaled(Qnil, _target, _closure);
+        _cb->unmarshaled(Qnil, _util->getHeldValue(_targetIndex), _closure, _util);
     }
 }
 
