@@ -2819,7 +2819,10 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceInternal::Output& out, Prin
 //
 // ExceptionReader implementation.
 //
-IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) : _info(info) {}
+IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) : _info(info), _ex(Qnil)
+{
+    rb_gc_register_address(&_ex);
+}
 
 IceRuby::ExceptionReader::ExceptionReader(const ExceptionReader& reader) : _info(reader._info), _ex(reader._ex)
 {
@@ -2850,9 +2853,7 @@ void
 IceRuby::ExceptionReader::_read(Ice::InputStream* is)
 {
     is->startException();
-
-    const_cast<VALUE&>(_ex) = _info->unmarshal(is);
-    rb_gc_register_address(&_ex);
+    _ex = _info->unmarshal(is);
 }
 
 bool

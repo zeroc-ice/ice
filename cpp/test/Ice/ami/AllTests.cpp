@@ -806,6 +806,30 @@ allTests(TestHelper* helper, bool collocated)
                     test(false);
                 }
             }
+
+            {
+                promise<void> promise;
+                p->ice_invokeAsync(
+                    "op",
+                    OperationMode::Normal,
+                    vector<byte>{},
+                    [&, i](bool, const vector<byte>&)
+                    {
+                        promise.set_value();
+                        thrower(throwEx[i]);
+                    },
+                    [&](exception_ptr) { test(false); });
+
+                try
+                {
+                    promise.get_future().get();
+                }
+                catch (const exception& ex)
+                {
+                    cerr << ex.what() << endl;
+                    test(false);
+                }
+            }
         }
     }
     cout << "ok" << endl;
