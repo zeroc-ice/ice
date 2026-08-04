@@ -186,9 +186,7 @@ namespace DataStormI
             }
 
             /// Returns the local update tag matching a remote tag id, or `nullptr` when this session holds no tag for
-            /// that id. Like findKey, it never inserts: every sample resolves its tag through this method, and a
-            /// sample without an update tag carries the id 0, so an inserting lookup would leave a null entry behind
-            /// for every id it is asked about.
+            /// that id. Misses are routine, since a sample without an update tag carries the tag id 0.
             [[nodiscard]] std::shared_ptr<Tag> findTag(std::int64_t tagId) const
             {
                 auto p = tags.find(tagId);
