@@ -314,7 +314,11 @@ SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, cons
                 out << _id << ": attaching tags '[" << tags << "]@" << topicId << "' on topic '" << topic << "'";
             }
 
-            auto decoded = initialize ? map<int64_t, shared_ptr<Tag>>{} : subscriber.tags;
+            // An initializing call replaces the subscriber's tags, so it decodes into a temporary and installs it once
+            // every tag is decoded; the subscriber keeps its current tags until then. Any other call adds to the tags
+            // the subscriber already holds, and decodes into them directly.
+            map<int64_t, shared_ptr<Tag>> replacement;
+            auto& decoded = initialize ? replacement : subscriber.tags;
             for (const auto& tag : tags)
             {
                 try
@@ -323,17 +327,20 @@ SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, cons
                 }
                 catch (const std::exception& ex)
                 {
-                    // The tag factory runs the application's decoder. Skip a tag it can't decode: letting the
-                    // exception escape would drop the tags that did decode, and abort runWithTopics before the
-                    // remaining subscribers of this topic get any. The peer resends its tags on reconnect; until
-                    // then a partial update carrying the skipped tag resolves to the key's current value.
+                    // The tag factory runs the application's decoder. Skip a tag it can't decode: the peer resends
+                    // its tags on reconnect; until then a partial update carrying the skipped tag resolves to the
+                    // key's current value.
                     Warning out(_traceLevels->logger);
                     out << "skipped update tag " << tag.id << " on topic '" << topic << "': the tag could not be "
                         << "decoded:\n"
                         << ex.what();
                 }
             }
-            subscriber.tags = std::move(decoded);
+
+            if (initialize)
+            {
+                subscriber.tags = std::move(replacement);
+            }
         });
 }
 
