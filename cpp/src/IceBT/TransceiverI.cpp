@@ -135,25 +135,18 @@ IceBT::TransceiverI::getInfo(bool incoming, string adapterName, string connectio
     }
     else
     {
+        string localAddress;
+        int localChannel;
+        string remoteAddress;
+        int remoteChannel;
+        fdToAddressAndChannel(_stream->fd(), localAddress, localChannel, remoteAddress, remoteChannel);
+
+        int rcvSize;
+        int sndSize;
         try
         {
-            string localAddress;
-            int localChannel;
-            string remoteAddress;
-            int remoteChannel;
-            fdToAddressAndChannel(_stream->fd(), localAddress, localChannel, remoteAddress, remoteChannel);
-
-            return make_shared<ConnectionInfo>(
-                incoming,
-                std::move(adapterName),
-                std::move(connectionId),
-                std::move(localAddress),
-                localChannel,
-                std::move(remoteAddress),
-                remoteChannel,
-                _uuid,
-                IceInternal::getRecvBufferSize(_stream->fd()),
-                IceInternal::getSendBufferSize(_stream->fd()));
+            rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
+            sndSize = IceInternal::getSendBufferSize(_stream->fd());
         }
         catch (const Ice::SocketException&)
         {
@@ -161,6 +154,18 @@ IceBT::TransceiverI::getInfo(bool incoming, string adapterName, string connectio
             _stream->clearFd();
             throw;
         }
+
+        return make_shared<ConnectionInfo>(
+            incoming,
+            std::move(adapterName),
+            std::move(connectionId),
+            std::move(localAddress),
+            localChannel,
+            std::move(remoteAddress),
+            remoteChannel,
+            _uuid,
+            rcvSize,
+            sndSize);
     }
 }
 

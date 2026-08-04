@@ -435,16 +435,19 @@ StreamSocket::finishRead(Buffer& buf)
 void
 StreamSocket::close()
 {
-    assert(_fd != INVALID_SOCKET);
-    try
+    // _fd can be INVALID_SOCKET when a failed socket operation already closed the fd.
+    if (_fd != INVALID_SOCKET)
     {
-        closeSocket(_fd);
-        _fd = INVALID_SOCKET;
-    }
-    catch (const Ice::SocketException&)
-    {
-        _fd = INVALID_SOCKET;
-        throw;
+        try
+        {
+            closeSocket(_fd);
+            _fd = INVALID_SOCKET;
+        }
+        catch (const Ice::SocketException&)
+        {
+            _fd = INVALID_SOCKET;
+            throw;
+        }
     }
 }
 

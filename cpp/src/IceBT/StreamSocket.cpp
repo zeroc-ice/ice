@@ -252,11 +252,9 @@ IceBT::StreamSocket::setFd(SOCKET fd)
         throw;
     }
 
-    // Each of these calls closes the fd before throwing, so record the fd only once they all succeed.
+    // setBlock and setBufferSize close the fd before throwing, so record the fd only once all these calls succeed.
     IceInternal::setBlock(fd, false);
     setBufferSize(fd, rcvSize, sndSize);
-    string desc = fdToString(fd);
-
+    _desc = fdToString(fd);
     setNewFd(fd);
-    _desc = std::move(desc);
 }

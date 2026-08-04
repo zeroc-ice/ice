@@ -455,24 +455,18 @@ IceObjC::StreamTransceiver::getInfo(bool incoming, string adapterName, string co
     }
     else
     {
+        string localAddress;
+        int localPort;
+        string remoteAddress;
+        int remotePort;
+        fdToAddressAndPort(_fd, localAddress, localPort, remoteAddress, remotePort);
+
+        int rcvSize;
+        int sndSize;
         try
         {
-            string localAddress;
-            int localPort;
-            string remoteAddress;
-            int remotePort;
-            fdToAddressAndPort(_fd, localAddress, localPort, remoteAddress, remotePort);
-
-            return make_shared<TCPConnectionInfo>(
-                incoming,
-                std::move(adapterName),
-                std::move(connectionId),
-                std::move(localAddress),
-                localPort,
-                std::move(remoteAddress),
-                remotePort,
-                getRecvBufferSize(_fd),
-                getSendBufferSize(_fd));
+            rcvSize = getRecvBufferSize(_fd);
+            sndSize = getSendBufferSize(_fd);
         }
         catch (const SocketException&)
         {
@@ -480,6 +474,17 @@ IceObjC::StreamTransceiver::getInfo(bool incoming, string adapterName, string co
             const_cast<StreamTransceiver*>(this)->clearFd();
             throw;
         }
+
+        return make_shared<TCPConnectionInfo>(
+            incoming,
+            std::move(adapterName),
+            std::move(connectionId),
+            std::move(localAddress),
+            localPort,
+            std::move(remoteAddress),
+            remotePort,
+            rcvSize,
+            sndSize);
     }
 }
 
