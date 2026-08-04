@@ -410,7 +410,7 @@ extension ObjectPrx {
     ///   - context: The context dictionary for the invocation.
     /// - Returns: `ok` is `true` if the operation completed successfully, `false` if it completed with a user
     ///   exception; `outEncaps` contains the encoded results (or the encoded user exception when `ok` is false).
-    ///   For oneway and batch proxies, `ok` is always `true` and `outEncaps` is empty.
+    ///   For oneway, datagram, and batch proxies, `ok` is always `true` and `outEncaps` is empty.
     public func ice_invoke(
         operation: String,
         mode: OperationMode,
