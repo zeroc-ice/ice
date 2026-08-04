@@ -117,7 +117,16 @@ StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
 void
 StreamSocket::setBufferSize(int rcvSize, int sndSize)
 {
-    setTcpBufSize(_fd, rcvSize, sndSize, _instance);
+    try
+    {
+        setTcpBufSize(_fd, rcvSize, sndSize, _instance);
+    }
+    catch (const Ice::SocketException&)
+    {
+        // The failing call closed the fd.
+        clearFd();
+        throw;
+    }
 }
 
 SocketOperation

@@ -135,23 +135,32 @@ IceBT::TransceiverI::getInfo(bool incoming, string adapterName, string connectio
     }
     else
     {
-        string localAddress;
-        int localChannel;
-        string remoteAddress;
-        int remoteChannel;
-        fdToAddressAndChannel(_stream->fd(), localAddress, localChannel, remoteAddress, remoteChannel);
+        try
+        {
+            string localAddress;
+            int localChannel;
+            string remoteAddress;
+            int remoteChannel;
+            fdToAddressAndChannel(_stream->fd(), localAddress, localChannel, remoteAddress, remoteChannel);
 
-        return make_shared<ConnectionInfo>(
-            incoming,
-            std::move(adapterName),
-            std::move(connectionId),
-            std::move(localAddress),
-            localChannel,
-            std::move(remoteAddress),
-            remoteChannel,
-            _uuid,
-            IceInternal::getRecvBufferSize(_stream->fd()),
-            IceInternal::getSendBufferSize(_stream->fd()));
+            return make_shared<ConnectionInfo>(
+                incoming,
+                std::move(adapterName),
+                std::move(connectionId),
+                std::move(localAddress),
+                localChannel,
+                std::move(remoteAddress),
+                remoteChannel,
+                _uuid,
+                IceInternal::getRecvBufferSize(_stream->fd()),
+                IceInternal::getSendBufferSize(_stream->fd()));
+        }
+        catch (const Ice::SocketException&)
+        {
+            // The failing call closed the fd.
+            _stream->clearFd();
+            throw;
+        }
     }
 }
 
@@ -163,7 +172,16 @@ IceBT::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 void
 IceBT::TransceiverI::setBufferSize(int rcvSize, int sndSize)
 {
-    _stream->setBufferSize(_stream->fd(), rcvSize, sndSize);
+    try
+    {
+        _stream->setBufferSize(_stream->fd(), rcvSize, sndSize);
+    }
+    catch (const Ice::SocketException&)
+    {
+        // The failing call closed the fd.
+        _stream->clearFd();
+        throw;
+    }
 }
 
 IceBT::TransceiverI::TransceiverI(InstancePtr instance, StreamSocketPtr stream, ConnectionPtr conn, string uuid)

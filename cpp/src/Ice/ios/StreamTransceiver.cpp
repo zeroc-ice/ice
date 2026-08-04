@@ -242,6 +242,10 @@ IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBu
 
         if (_fd == INVALID_SOCKET)
         {
+            // Read the properties while the streams still own the native socket: if the read fails, closing the
+            // streams releases the socket.
+            TcpBufSize bufSize{_instance->properties()};
+
             if (!CFReadStreamSetProperty(
                     _readStream.get(),
                     kCFStreamPropertyShouldCloseNativeSocket,
@@ -256,13 +260,15 @@ IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBu
 
             UniqueRef<CFDataRef> d(static_cast<CFDataRef>(
                 CFReadStreamCopyProperty(_readStream.get(), kCFStreamPropertySocketNativeHandle)));
-            CFDataGetBytes(d.get(), CFRangeMake(0, sizeof(SOCKET)), reinterpret_cast<UInt8*>(&_fd));
+            SOCKET fd;
+            CFDataGetBytes(d.get(), CFRangeMake(0, sizeof(SOCKET)), reinterpret_cast<UInt8*>(&fd));
 
             // Configure the socket of this outgoing connection. For an incoming connection, the acceptor
-            // configures the socket before creating the transceiver.
-            setBlock(_fd, false);
-            TcpBufSize bufSize{_instance->properties()};
-            setTcpBufSize(_fd, bufSize.rcvSize(), bufSize.sndSize(), _instance);
+            // configures the socket before creating the transceiver. Each of these calls closes the fd before
+            // throwing, so record the fd only once they all succeed.
+            setBlock(fd, false);
+            setTcpBufSize(fd, bufSize.rcvSize(), bufSize.sndSize(), _instance);
+            _fd = fd;
         }
 
         ostringstream s;
@@ -449,22 +455,31 @@ IceObjC::StreamTransceiver::getInfo(bool incoming, string adapterName, string co
     }
     else
     {
-        string localAddress;
-        int localPort;
-        string remoteAddress;
-        int remotePort;
-        fdToAddressAndPort(_fd, localAddress, localPort, remoteAddress, remotePort);
+        try
+        {
+            string localAddress;
+            int localPort;
+            string remoteAddress;
+            int remotePort;
+            fdToAddressAndPort(_fd, localAddress, localPort, remoteAddress, remotePort);
 
-        return make_shared<TCPConnectionInfo>(
-            incoming,
-            std::move(adapterName),
-            std::move(connectionId),
-            std::move(localAddress),
-            localPort,
-            std::move(remoteAddress),
-            remotePort,
-            getRecvBufferSize(_fd),
-            getSendBufferSize(_fd));
+            return make_shared<TCPConnectionInfo>(
+                incoming,
+                std::move(adapterName),
+                std::move(connectionId),
+                std::move(localAddress),
+                localPort,
+                std::move(remoteAddress),
+                remotePort,
+                getRecvBufferSize(_fd),
+                getSendBufferSize(_fd));
+        }
+        catch (const SocketException&)
+        {
+            // The failing call closed the fd.
+            const_cast<StreamTransceiver*>(this)->clearFd();
+            throw;
+        }
     }
 }
 
@@ -476,7 +491,16 @@ IceObjC::StreamTransceiver::checkSendSize(const Buffer& /*buf*/)
 void
 IceObjC::StreamTransceiver::setBufferSize(int rcvSize, int sndSize)
 {
-    setTcpBufSize(_fd, rcvSize, sndSize, _instance);
+    try
+    {
+        setTcpBufSize(_fd, rcvSize, sndSize, _instance);
+    }
+    catch (const SocketException&)
+    {
+        // The failing call closed the fd.
+        clearFd();
+        throw;
+    }
 }
 
 IceObjC::StreamTransceiver::StreamTransceiver(

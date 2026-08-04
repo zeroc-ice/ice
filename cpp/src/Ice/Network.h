@@ -145,6 +145,10 @@ namespace IceInternal
 
         [[nodiscard]] SOCKET fd() const { return _fd; }
 
+        // Forgets the fd. Called when a failed socket operation has already closed the fd, so that close() does not
+        // close an unrelated descriptor later assigned the same number.
+        void clearFd() noexcept { _fd = INVALID_SOCKET; }
+
         void setReadyCallback(const ReadyCallbackPtr& callback);
 
         void ready(SocketOperation operation, bool value)
