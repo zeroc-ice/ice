@@ -54,6 +54,14 @@ namespace
                     exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
                 }
             }
+            else
+            {
+                // The node session is destroyed: the target node is no longer reachable through this forwarder.
+                // Complete the dispatch with the same failure the caller gets once the forwarder is removed from the
+                // object adapter, so the caller accounts for the failure and can retry, instead of waiting forever
+                // for a response.
+                exception(make_exception_ptr(ObjectNotExistException{__FILE__, __LINE__}));
+            }
         }
 
         void createSessionAsync(
@@ -92,6 +100,11 @@ namespace
                     exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
                 }
             }
+            else
+            {
+                // See initiateCreateSessionAsync.
+                exception(make_exception_ptr(ObjectNotExistException{__FILE__, __LINE__}));
+            }
         }
 
         void confirmCreateSessionAsync(
@@ -126,6 +139,11 @@ namespace
                 {
                     exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
                 }
+            }
+            else
+            {
+                // See initiateCreateSessionAsync.
+                exception(make_exception_ptr(ObjectNotExistException{__FILE__, __LINE__}));
             }
         }
 
