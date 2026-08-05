@@ -141,6 +141,20 @@ IceBT::TransceiverI::getInfo(bool incoming, string adapterName, string connectio
         int remoteChannel;
         fdToAddressAndChannel(_stream->fd(), localAddress, localChannel, remoteAddress, remoteChannel);
 
+        int rcvSize;
+        int sndSize;
+        try
+        {
+            rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
+            sndSize = IceInternal::getSendBufferSize(_stream->fd());
+        }
+        catch (const Ice::SocketException&)
+        {
+            // The failing call closed the fd.
+            _stream->clearFd();
+            throw;
+        }
+
         return make_shared<ConnectionInfo>(
             incoming,
             std::move(adapterName),
@@ -150,8 +164,8 @@ IceBT::TransceiverI::getInfo(bool incoming, string adapterName, string connectio
             std::move(remoteAddress),
             remoteChannel,
             _uuid,
-            IceInternal::getRecvBufferSize(_stream->fd()),
-            IceInternal::getSendBufferSize(_stream->fd()));
+            rcvSize,
+            sndSize);
     }
 }
 
@@ -163,7 +177,16 @@ IceBT::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 void
 IceBT::TransceiverI::setBufferSize(int rcvSize, int sndSize)
 {
-    _stream->setBufferSize(_stream->fd(), rcvSize, sndSize);
+    try
+    {
+        _stream->setBufferSize(_stream->fd(), rcvSize, sndSize);
+    }
+    catch (const Ice::SocketException&)
+    {
+        // The failing call closed the fd.
+        _stream->clearFd();
+        throw;
+    }
 }
 
 IceBT::TransceiverI::TransceiverI(InstancePtr instance, StreamSocketPtr stream, ConnectionPtr conn, string uuid)
@@ -201,8 +224,8 @@ IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
             catch (...)
             {
                 //
-                // setFd already released the fd. initialize() rethrows this exception and the connection
-                // establishment fails with the actual error.
+                // A throwing setFd does not record the fd, so there is nothing to clean up here. initialize()
+                // rethrows this exception and the connection establishment fails with the actual error.
                 //
                 _exception = current_exception();
             }

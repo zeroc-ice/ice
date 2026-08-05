@@ -117,7 +117,16 @@ StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
 void
 StreamSocket::setBufferSize(int rcvSize, int sndSize)
 {
-    setTcpBufSize(_fd, rcvSize, sndSize, _instance);
+    try
+    {
+        setTcpBufSize(_fd, rcvSize, sndSize, _instance);
+    }
+    catch (const Ice::SocketException&)
+    {
+        // The failing call closed the fd.
+        clearFd();
+        throw;
+    }
 }
 
 SocketOperation
@@ -426,16 +435,19 @@ StreamSocket::finishRead(Buffer& buf)
 void
 StreamSocket::close()
 {
-    assert(_fd != INVALID_SOCKET);
-    try
+    // _fd can be INVALID_SOCKET when a failed socket operation already closed the fd.
+    if (_fd != INVALID_SOCKET)
     {
-        closeSocket(_fd);
-        _fd = INVALID_SOCKET;
-    }
-    catch (const Ice::SocketException&)
-    {
-        _fd = INVALID_SOCKET;
-        throw;
+        try
+        {
+            closeSocket(_fd);
+            _fd = INVALID_SOCKET;
+        }
+        catch (const Ice::SocketException&)
+        {
+            _fd = INVALID_SOCKET;
+            throw;
+        }
     }
 }
 

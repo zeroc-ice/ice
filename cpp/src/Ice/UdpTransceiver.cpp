@@ -594,54 +594,64 @@ IceInternal::UdpTransceiver::setBufferSize(int rcvSize, int sndSize)
 {
     assert(_fd != INVALID_SOCKET);
 
-    // The default size is the size currently configured on the socket. We don't set the buffer size when the requested
-    // size matches the default: re-setting it would needlessly grow the buffer on systems (e.g. Linux) where the kernel
-    // doubles the value on each set.
+    try
+    {
+        // The default size is the size currently configured on the socket. We don't set the buffer size when the
+        // requested size matches the default: re-setting it would needlessly grow the buffer on systems (e.g. Linux)
+        // where the kernel doubles the value on each set.
 
-    int rcvDefault = getRecvBufferSize(_fd);
-    rcvSize = adjustBufferSize(rcvSize, rcvDefault, "Ice.UDP.RcvSize");
-    if (rcvSize == rcvDefault)
-    {
-        _rcvSize = rcvDefault;
-    }
-    else
-    {
-        // The kernel silently adjusts the size to an acceptable value, so read it back to get the size actually set.
-        setRecvBufferSize(_fd, rcvSize);
-        _rcvSize = getRecvBufferSize(_fd);
-        if (_rcvSize < rcvSize)
+        int rcvDefault = getRecvBufferSize(_fd);
+        rcvSize = adjustBufferSize(rcvSize, rcvDefault, "Ice.UDP.RcvSize");
+        if (rcvSize == rcvDefault)
         {
-            // The kernel reduced the requested size; warn unless we already warned for this size.
-            BufSizeWarnInfo winfo = _instance->getBufSizeWarn(UDPEndpointType);
-            if (!winfo.rcvWarn || winfo.rcvSize != rcvSize)
+            _rcvSize = rcvDefault;
+        }
+        else
+        {
+            // The kernel silently adjusts the size to an acceptable value, so read it back to get the size actually
+            // set.
+            setRecvBufferSize(_fd, rcvSize);
+            _rcvSize = getRecvBufferSize(_fd);
+            if (_rcvSize < rcvSize)
             {
-                Warning out(_instance->logger());
-                out << "UDP receive buffer size: requested size of " << rcvSize << " adjusted to " << _rcvSize;
-                _instance->setRcvBufSizeWarn(UDPEndpointType, rcvSize);
+                // The kernel reduced the requested size; warn unless we already warned for this size.
+                BufSizeWarnInfo winfo = _instance->getBufSizeWarn(UDPEndpointType);
+                if (!winfo.rcvWarn || winfo.rcvSize != rcvSize)
+                {
+                    Warning out(_instance->logger());
+                    out << "UDP receive buffer size: requested size of " << rcvSize << " adjusted to " << _rcvSize;
+                    _instance->setRcvBufSizeWarn(UDPEndpointType, rcvSize);
+                }
+            }
+        }
+
+        int sndDefault = getSendBufferSize(_fd);
+        sndSize = adjustBufferSize(sndSize, sndDefault, "Ice.UDP.SndSize");
+        if (sndSize == sndDefault)
+        {
+            _sndSize = sndDefault;
+        }
+        else
+        {
+            setSendBufferSize(_fd, sndSize);
+            _sndSize = getSendBufferSize(_fd);
+            if (_sndSize < sndSize)
+            {
+                BufSizeWarnInfo winfo = _instance->getBufSizeWarn(UDPEndpointType);
+                if (!winfo.sndWarn || winfo.sndSize != sndSize)
+                {
+                    Warning out(_instance->logger());
+                    out << "UDP send buffer size: requested size of " << sndSize << " adjusted to " << _sndSize;
+                    _instance->setSndBufSizeWarn(UDPEndpointType, sndSize);
+                }
             }
         }
     }
-
-    int sndDefault = getSendBufferSize(_fd);
-    sndSize = adjustBufferSize(sndSize, sndDefault, "Ice.UDP.SndSize");
-    if (sndSize == sndDefault)
+    catch (const SocketException&)
     {
-        _sndSize = sndDefault;
-    }
-    else
-    {
-        setSendBufferSize(_fd, sndSize);
-        _sndSize = getSendBufferSize(_fd);
-        if (_sndSize < sndSize)
-        {
-            BufSizeWarnInfo winfo = _instance->getBufSizeWarn(UDPEndpointType);
-            if (!winfo.sndWarn || winfo.sndSize != sndSize)
-            {
-                Warning out(_instance->logger());
-                out << "UDP send buffer size: requested size of " << sndSize << " adjusted to " << _sndSize;
-                _instance->setSndBufSizeWarn(UDPEndpointType, sndSize);
-            }
-        }
+        // The failing call closed the fd.
+        clearFd();
+        throw;
     }
 }
 

@@ -113,6 +113,21 @@ IceInternal::TcpTransceiver::getInfo(bool incoming, string adapterName, string c
         string remoteAddress;
         int remotePort;
         fdToAddressAndPort(_stream->fd(), localAddress, localPort, remoteAddress, remotePort);
+
+        int rcvSize;
+        int sndSize;
+        try
+        {
+            rcvSize = getRecvBufferSize(_stream->fd());
+            sndSize = getSendBufferSize(_stream->fd());
+        }
+        catch (const SocketException&)
+        {
+            // The failing call closed the fd.
+            _stream->clearFd();
+            throw;
+        }
+
         return make_shared<TCPConnectionInfo>(
             incoming,
             std::move(adapterName),
@@ -121,8 +136,8 @@ IceInternal::TcpTransceiver::getInfo(bool incoming, string adapterName, string c
             localPort,
             std::move(remoteAddress),
             remotePort,
-            getRecvBufferSize(_stream->fd()),
-            getSendBufferSize(_stream->fd()));
+            rcvSize,
+            sndSize);
     }
 }
 
