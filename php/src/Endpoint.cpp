@@ -233,6 +233,7 @@ IcePHP::endpointInit(void)
     ce.create_object = handleEndpointInfoAlloc;
     endpointInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // A null clone_obj makes the object uncloneable: clone throws an Error.
     _endpointInfoHandlers.clone_obj = nullptr;
     _endpointInfoHandlers.free_obj = handleEndpointInfoFreeStorage;
     _endpointInfoHandlers.offset = XtOffsetOf(Wrapper<Ice::EndpointInfoPtr>, zobj);

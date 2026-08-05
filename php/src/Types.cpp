@@ -3692,6 +3692,7 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleExceptionInfoAlloc;
     exceptionInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_exceptionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // A null clone_obj makes the object uncloneable: clone throws an Error.
     _exceptionInfoHandlers.clone_obj = nullptr;
     _exceptionInfoHandlers.free_obj = handleExceptionInfoFreeStorage;
     _exceptionInfoHandlers.offset = XtOffsetOf(Wrapper<ExceptionInfoPtr>, zobj);
