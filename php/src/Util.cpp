@@ -454,6 +454,7 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         setLongMember(zex, "replyStatus", static_cast<zend_long>(e.replyStatus()));
 
         zval id;
+        ZVAL_UNDEF(&id);
         if (!createIdentity(&id, e.id()))
         {
             zval_ptr_dtor(&id);
