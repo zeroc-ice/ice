@@ -35,8 +35,6 @@ namespace IcePHP
     {
     public:
         virtual void getZval(zval*) = 0;
-        virtual void addRef(void) = 0;
-        virtual void decRef(void) = 0;
 
         virtual Ice::CommunicatorPtr getCommunicator() const = 0;
         virtual Ice::SliceLoaderPtr getSliceLoader() const = 0;
