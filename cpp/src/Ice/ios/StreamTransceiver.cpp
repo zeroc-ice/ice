@@ -264,10 +264,24 @@ IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBu
             CFDataGetBytes(d.get(), CFRangeMake(0, sizeof(SOCKET)), reinterpret_cast<UInt8*>(&fd));
 
             // Configure the socket of this outgoing connection. For an incoming connection, the acceptor
-            // configures the socket before creating the transceiver. Each of these calls closes the fd before
-            // throwing, so record the fd only once they all succeed.
-            setBlock(fd, false);
-            setTcpBufSize(fd, bufSize.rcvSize(), bufSize.sndSize(), _instance);
+            // configures the socket before creating the transceiver. Record the fd only once the configuration
+            // succeeds.
+            try
+            {
+                setBlock(fd, false);
+                setTcpBufSize(fd, bufSize.rcvSize(), bufSize.sndSize(), _instance);
+            }
+            catch (const SocketException&)
+            {
+                throw; // The failing call closed the fd.
+            }
+            catch (...)
+            {
+                // For example a CommunicatorDestroyedException from the buffer-size warning check, which closes
+                // nothing.
+                closeSocketNoThrow(fd);
+                throw;
+            }
             _fd = fd;
         }
 

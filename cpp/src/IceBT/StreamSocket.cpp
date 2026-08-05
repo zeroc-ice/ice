@@ -237,24 +237,23 @@ IceBT::StreamSocket::setFd(SOCKET fd)
     assert(fd != INVALID_SOCKET);
     assert(_fd == INVALID_SOCKET);
 
-    int rcvSize;
-    int sndSize;
+    // Record the fd only once the configuration succeeds.
     try
     {
         BTBufSize bufSize{_instance->properties()};
-        rcvSize = bufSize.rcvSize();
-        sndSize = bufSize.sndSize();
+        IceInternal::setBlock(fd, false);
+        setBufferSize(fd, bufSize.rcvSize(), bufSize.sndSize());
+    }
+    catch (const Ice::SocketException&)
+    {
+        throw; // The failing call closed the fd.
     }
     catch (...)
     {
-        // The property read doesn't close the fd, and it's not recorded anywhere yet.
+        // Nothing closed the fd: neither the property read nor the buffer-size warning check closes it.
         IceInternal::closeSocketNoThrow(fd);
         throw;
     }
-
-    // setBlock and setBufferSize close the fd before throwing, so record the fd only once all these calls succeed.
-    IceInternal::setBlock(fd, false);
-    setBufferSize(fd, rcvSize, sndSize);
     _desc = fdToString(fd);
     setNewFd(fd);
 }

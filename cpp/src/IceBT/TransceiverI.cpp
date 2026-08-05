@@ -224,8 +224,8 @@ IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
             catch (...)
             {
                 //
-                // setFd already released the fd. initialize() rethrows this exception and the connection
-                // establishment fails with the actual error.
+                // A throwing setFd does not record the fd, so there is nothing to clean up here. initialize()
+                // rethrows this exception and the connection establishment fails with the actual error.
                 //
                 _exception = current_exception();
             }
