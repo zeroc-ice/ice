@@ -619,7 +619,7 @@ Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
     // import for type hints.
     if (auto sequence = dynamic_pointer_cast<Sequence>(type))
     {
-        addRuntimeImportForSequence(sequence, parent);
+        addRuntimeImportForSequence(sequence, parent, p->getMetadata());
     }
     else if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
     {
@@ -627,7 +627,7 @@ Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
     }
     else
     {
-        addTypingImport(type, parent, true);
+        addTypingImport(type, parent);
     }
     addRuntimeImportForMetaType(type, parent);
 
@@ -693,8 +693,6 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     for (const auto& op : operations)
     {
-        // We need to call `addTypingImport` twice per parameter. This is required because for list the marshaling
-        // and unmarshaling code might require different type hints.
         auto ret = op->returnType();
         if (ret)
         {
@@ -706,8 +704,7 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 addTypingImport("collections.abc", "Mapping", p);
             }
-            addTypingImport(ret, p, false);
-            addTypingImport(ret, p, true);
+            addTypingImport(ret, p);
 
             addRuntimeImportForMetaType(ret, p);
         }
@@ -722,8 +719,7 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 addTypingImport("collections.abc", "Mapping", p);
             }
-            addTypingImport(param->type(), p, false);
-            addTypingImport(param->type(), p, true);
+            addTypingImport(param->type(), p);
 
             addRuntimeImportForMetaType(param->type(), p);
         }
@@ -845,7 +841,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
     else
     {
         // This is required to import the sequence element type in case it is not a built-in type.
-        addTypingImport(sequence, source, true);
+        addTypingImport(sequence, source);
     }
 }
 
@@ -983,10 +979,7 @@ Slice::Python::ImportVisitor::addTypingImport(
 }
 
 void
-Slice::Python::ImportVisitor::addTypingImport(
-    const SyntaxTreeBasePtr& definition,
-    const ContainedPtr& source,
-    bool forMarshaling)
+Slice::Python::ImportVisitor::addTypingImport(const SyntaxTreeBasePtr& definition, const ContainedPtr& source)
 {
     if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
     {
@@ -1001,12 +994,12 @@ Slice::Python::ImportVisitor::addTypingImport(
     }
     else if (auto sequence = dynamic_pointer_cast<Sequence>(definition))
     {
-        addTypingImport(sequence->type(), source, forMarshaling);
+        addTypingImport(sequence->type(), source);
     }
     else if (auto dictionary = dynamic_pointer_cast<Dictionary>(definition))
     {
-        addTypingImport(dictionary->keyType(), source, forMarshaling);
-        addTypingImport(dictionary->valueType(), source, forMarshaling);
+        addTypingImport(dictionary->keyType(), source);
+        addTypingImport(dictionary->valueType(), source);
     }
     else if (auto interfaceDecl = dynamic_pointer_cast<InterfaceDecl>(definition))
     {
@@ -2355,7 +2348,7 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
         for (const auto& field : fields)
         {
             out << nl << field->mappedName() << " : "
-                << typeToTypeHintString(field->type(), field->isOptional(), p, false);
+                << typeToTypeHintString(field->type(), field->isOptional(), p, false, field->getMetadata());
             auto q = fieldDocs.find(field->name());
             if (q != fieldDocs.end())
             {

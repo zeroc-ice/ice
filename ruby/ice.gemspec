@@ -30,7 +30,7 @@ eos
                      Dir['scripts/*']
   spec.homepage    = 'https://zeroc.com'
   spec.license     = 'GPL-2.0-only'
-  spec.required_ruby_version = '>= 3.0.0'
+  spec.required_ruby_version = '>= 3.4.0'
   spec.require_paths = ['lib', 'dist/lib']
   spec.extensions = ['extconf.rb']
   spec.rdoc_options = ['--exclude=ext/IceRuby/.*\.o$' '--exclude=IceRuby\.(bundle|so)$' '--exclude=scripts/slice2rb$']

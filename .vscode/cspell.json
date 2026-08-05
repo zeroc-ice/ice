@@ -54,6 +54,9 @@
     "flagWords": [
         "wether"
     ],
+    "ignoreWords": [
+        "typecode"
+    ],
     "dictionaries": [
         "csharp",
         "softwareTerms",

@@ -119,10 +119,7 @@ class EndpointHostResolver {
 
     void joinWithThread() throws InterruptedException {
         // Wait for the executor to terminate.
-        while (!_executor.isTerminated()) {
-            // A very long time.
-            _executor.awaitTermination(100000, TimeUnit.SECONDS);
-        }
+        _executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 
         // Don't detach the observer earlier (e.g. when the wait above is interrupted): an in-flight resolver task can
         // use this observer until the executor has terminated.

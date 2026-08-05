@@ -148,8 +148,10 @@ public interface ObjectPrx {
      *
      * @param operation the name of the operation to invoke
      * @param mode the operation mode (normal or idempotent)
-     * @param inParams an encapsulation containing the encoded in-parameters for the operation
-     * @return the result of the invocation
+     * @param inParams an encapsulation containing the encoded in-parameters for the operation. You can pass an empty
+     *     array when the operation takes no in-parameters; the Ice runtime then marshals an empty encapsulation.
+     * @return the result of the invocation. When this proxy is a oneway, datagram, or batch proxy, {@code returnValue}
+     *     is always {@code true} and {@code outParams} is empty.
      * @see Blobject
      */
     Object.Ice_invokeResult ice_invoke(String operation, OperationMode mode, byte[] inParams);
@@ -159,9 +161,11 @@ public interface ObjectPrx {
      *
      * @param operation the name of the operation to invoke
      * @param mode the operation mode (normal or idempotent)
-     * @param inParams an encapsulation containing the encoded in-parameters for the operation
+     * @param inParams an encapsulation containing the encoded in-parameters for the operation. You can pass an empty
+     *     array when the operation takes no in-parameters; the Ice runtime then marshals an empty encapsulation.
      * @param context the request context
-     * @return the result of the invocation
+     * @return the result of the invocation. When this proxy is a oneway, datagram, or batch proxy, {@code returnValue}
+     *     is always {@code true} and {@code outParams} is empty.
      * @see Blobject
      */
     Object.Ice_invokeResult ice_invoke(
@@ -175,8 +179,11 @@ public interface ObjectPrx {
      *
      * @param operation the name of the operation to invoke
      * @param mode the operation mode (normal or idempotent)
-     * @param inParams an encapsulation containing the encoded in-parameters for the operation
-     * @return a future that completes with the result of the invocation
+     * @param inParams an encapsulation containing the encoded in-parameters for the operation. You can pass an empty
+     *     array when the operation takes no in-parameters; the Ice runtime then marshals an empty encapsulation.
+     * @return a future that completes with the result of the invocation. When this proxy is a oneway, datagram, or
+     *     batch proxy, the future completes with {@code returnValue} set to {@code true} and an empty
+     *     {@code outParams}.
      * @see Blobject
      */
     CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(String operation, OperationMode mode, byte[] inParams);
@@ -186,9 +193,12 @@ public interface ObjectPrx {
      *
      * @param operation the name of the operation to invoke
      * @param mode the operation mode (normal or idempotent)
-     * @param inParams an encapsulation containing the encoded in-parameters for the operation
+     * @param inParams an encapsulation containing the encoded in-parameters for the operation. You can pass an empty
+     *     array when the operation takes no in-parameters; the Ice runtime then marshals an empty encapsulation.
      * @param context the request context
-     * @return a future that completes with the result of the invocation
+     * @return a future that completes with the result of the invocation. When this proxy is a oneway, datagram, or
+     *     batch proxy, the future completes with {@code returnValue} set to {@code true} and an empty
+     *     {@code outParams}.
      * @see Blobject
      */
     CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(

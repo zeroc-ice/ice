@@ -199,9 +199,7 @@ public class AllTests {
             // The executor is all done.
             //
             executor.shutdown();
-            while (!executor.isTerminated()) {
-                executor.awaitTermination(1000, TimeUnit.SECONDS);
-            }
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         }
         out.println("ok");
 
@@ -457,9 +455,7 @@ public class AllTests {
             cb.check();
 
             executor.shutdown();
-            while (!executor.isTerminated()) {
-                executor.awaitTermination(1000, TimeUnit.SECONDS);
-            }
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         }
         out.println("ok");
 
@@ -619,9 +615,7 @@ public class AllTests {
             ic.destroy();
 
             executor.shutdown();
-            while (!executor.isTerminated()) {
-                executor.awaitTermination(1000, TimeUnit.SECONDS);
-            }
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         }
         out.println("ok");
 
