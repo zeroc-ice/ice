@@ -54,6 +54,19 @@ function allTests($helper)
             ($tcpEndpoint->type() == Ice\WSEndpointType && ($endpoint instanceof Ice\WSEndpointInfo)) ||
             ($tcpEndpoint->type() == Ice\WSSEndpointType && ($endpoint instanceof Ice\WSEndpointInfo)));
 
+        // Endpoint and endpoint info objects wrap native state that a PHP clone cannot duplicate, so they are not
+        // cloneable.
+        try {
+            clone $endps[0];
+            test(false);
+        } catch (Error $ex) {
+        }
+        try {
+            clone $tcpEndpoint;
+            test(false);
+        } catch (Error $ex) {
+        }
+
         $udpEndpoint = $endps[1]->getInfo();
         test($udpEndpoint instanceof Ice\UDPEndpointInfo);
         test($udpEndpoint->host == "udphost");
@@ -118,11 +131,22 @@ function allTests($helper)
         } catch (InvalidArgumentException $ex) {
         }
 
+        // Connection objects wrap native state that a PHP clone cannot duplicate, so they are not cloneable.
+        try {
+            clone $connection;
+            test(false);
+        } catch (Error $ex) {
+        }
+
         $info = $connection->getInfo();
         $tcpinfo = getTCPConnectionInfo($info);
         test($tcpinfo instanceof Ice\TCPConnectionInfo);
         test(!$info->incoming);
         test(strlen($info->adapterName) == 0);
+
+        // Connection info objects are plain data objects, so they can be cloned.
+        $infoClone = clone $tcpinfo;
+        test($infoClone->incoming === $tcpinfo->incoming && $infoClone->remotePort === $tcpinfo->remotePort);
         test($tcpinfo->remotePort == $port);
         if ($defaultHost == "127.0.0.1") {
             test($tcpinfo->remoteAddress == $defaultHost);
