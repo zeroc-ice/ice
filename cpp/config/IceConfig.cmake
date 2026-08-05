@@ -13,21 +13,8 @@ if(CMAKE_VERSION VERSION_LESS 3.21)
   return()
 endif()
 
-# OPTIONAL with a guard: a sibling file missing from a mangled installation must report Ice as not
-# found, not abort the configure step - include() of a missing file is a hard error even under QUIET.
-include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake" OPTIONAL RESULT_VARIABLE _ice_prefix_included)
-include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake" OPTIONAL RESULT_VARIABLE _ice_version_included)
-
-if(NOT _ice_prefix_included OR NOT _ice_version_included)
-  set(Ice_FOUND FALSE)
-  set(Ice_NOT_FOUND_MESSAGE
-    "The Ice installation at ${CMAKE_CURRENT_LIST_DIR} is missing IcePrefix.cmake or IceVersion.cmake.")
-  unset(_ice_prefix_included)
-  unset(_ice_version_included)
-  return()
-endif()
-unset(_ice_prefix_included)
-unset(_ice_version_included)
+include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
 
 set(Ice_SO_VERSION "${_ice_package_so_version}")
 
