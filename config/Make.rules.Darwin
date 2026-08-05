@@ -162,8 +162,9 @@ get-iostest-program-targets = $2/$1.bundle/$1.dylib $2/$1.bundle/Info.plist
 #
 # make-projects dispatches twice per project: once to create-<type>-project-targets and once to
 # make-<type>-project. Xcode projects deliberately define only the second: xcodebuild compiles the
-# sources itself, so there are no per-source targets to create and create-xcode-project-targets is
-# intentionally absent (make-projects falls back to expanding nothing for it).
+# sources itself, so there are no per-source targets to create. create-xcode-project-targets was an
+# empty macro until 9a02628927 removed it; $(or ...) still selects that name, and $(call) on an
+# undefined macro expands to nothing. It does not fall back to create-project-targets.
 #
 
 #
