@@ -681,8 +681,6 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getRouter)
                 RETURN_NULL();
             }
 
-            assert(info);
-
             if (!createProxy(return_value, std::move(router.value()), std::move(info), _this->communicator))
             {
                 RETURN_NULL();
@@ -1475,7 +1473,13 @@ IcePHP::Proxy::create(zval* zv, Ice::ObjectPrx p, ProxyInfoPtr info, Communicato
     if (!prxInfo)
     {
         prxInfo = getProxyInfo("::Ice::Object");
-        assert(prxInfo);
+        if (!prxInfo)
+        {
+            // The proxy type registry is populated by PHP code; it's empty when the application didn't load the
+            // Ice library files. Failing here ensures a Proxy object always has type information.
+            runtimeError("no definition for Ice::Object");
+            return false;
+        }
     }
 
     if (object_init_ex(zv, proxyClassEntry) != SUCCESS)
