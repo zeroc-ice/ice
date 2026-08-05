@@ -10,24 +10,15 @@ if(WIN32 AND NOT DEFINED Ice_WIN32_PLATFORM)
   endif()
 endif()
 
-# No REQUIRED on the find_* calls below: a missing piece must leave Ice not found rather than abort
-# the configure step, or find_package(Ice QUIET) and optional use of Ice break.
+# REQUIRED throughout: this file only runs once find_package accepted the config file, and the
+# package installs as a unit, so we know exactly what ships next to it and assume it is available.
+# A missing piece is a broken installation and fails loudly right here. QUIET is no reason to
+# tolerate that - it only disables messages when the package cannot be found, and a package whose
+# config file was found but whose contents are gone is broken, not absent.
 find_path(Ice_INCLUDE_DIR NAMES Ice/Ice.h
   HINTS ${Ice_INCLUDE_ROOT} ${Ice_PREFIX} ${Ice_PREFIX}/build/native
   PATH_SUFFIXES include DOC "Directory containing Ice header files"
-  NO_DEFAULT_PATH)
-
-if(NOT Ice_INCLUDE_DIR)
-  set(Ice_NOT_FOUND_MESSAGE "Could not find the Ice header files under ${Ice_PREFIX}.")
-  return()
-endif()
-
-# Checked separately from Ice.h above, because file(STRINGS) below is a fatal error on a missing
-# file - even under find_package(Ice QUIET).
-if(NOT EXISTS "${Ice_INCLUDE_DIR}/Ice/Config.h")
-  set(Ice_NOT_FOUND_MESSAGE "Could not find Ice/Config.h under ${Ice_INCLUDE_DIR}.")
-  return()
-endif()
+  NO_DEFAULT_PATH REQUIRED)
 
 # Read Ice version variables from Ice/Config.h
 if(NOT DEFINED Ice_VERSION)
@@ -47,13 +38,8 @@ find_program(Ice_SLICE2CPP_EXECUTABLE slice2cpp
   HINTS ${Ice_PREFIX}
   PATH_SUFFIXES bin tools
   DOC "Path to the slice2cpp compiler"
-  NO_DEFAULT_PATH
+  NO_DEFAULT_PATH REQUIRED
 )
-
-if(NOT Ice_SLICE2CPP_EXECUTABLE)
-  set(Ice_NOT_FOUND_MESSAGE "Could not find the slice2cpp compiler under ${Ice_PREFIX}.")
-  return()
-endif()
 
 # The guard lets two subprojects in one directory scope each call find_package(Ice) without the
 # second failing on a duplicate target.
@@ -69,12 +55,7 @@ find_path(Ice_SLICE_DIR
   HINTS ${Ice_PREFIX}
   PATH_SUFFIXES slice share/ice/slice
   DOC "Path to the Ice Slice files directory"
-  NO_DEFAULT_PATH)
-
-if(NOT Ice_SLICE_DIR)
-  set(Ice_NOT_FOUND_MESSAGE "Could not find the Ice Slice files under ${Ice_PREFIX}.")
-  return()
-endif()
+  NO_DEFAULT_PATH REQUIRED)
 
 # Imported targets for the executables in the NuGet package's native/bin directory.
 if(WIN32)
@@ -227,18 +208,11 @@ function(add_ice_library component)
   include(SelectLibraryConfigurations)
   select_library_configurations(Ice_${component})
 
+  # Components vary by platform (IceBT ships on Linux only), so an absent component library is
+  # normal; everything a present component links is guaranteed by the package.
   if(NOT Ice_${component}_LIBRARY)
     return()
   endif()
-
-  # A component whose own library is present is still unusable if something it links is not. Naming a
-  # target that does not exist is a generate-time error, which would defeat the QUIET handling above,
-  # so treat the component as not found instead. Components are declared in dependency order below.
-  foreach(dependency IN LISTS ARGN)
-    if(dependency MATCHES "::" AND NOT TARGET ${dependency})
-      return()
-    endif()
-  endforeach()
 
   # find_package_handle_standard_args reads this to decide the component was found.
   set(Ice_${component}_FOUND TRUE PARENT_SCOPE)
@@ -252,15 +226,6 @@ include(CMakeFindDependencyMacro)
 find_dependency(Threads)
 
 add_ice_library(Ice Threads::Threads)
-
-# The Ice runtime is the one component nothing works without. Every other component is optional, but
-# find_package_handle_standard_args only checks the components a consumer asked for, so without this
-# guard an installation with no libraries at all would still report Ice_FOUND.
-if(NOT TARGET Ice::Ice)
-  set(Ice_NOT_FOUND_MESSAGE "Could not find the Ice library under ${Ice_PREFIX}.")
-  return()
-endif()
-
 if(WIN32)
   # Bzip2 is included in the Ice NuGet package and is a runtime dependency of Ice.
   # This property can be used to copy the correct DLLs to the target directory at build time.

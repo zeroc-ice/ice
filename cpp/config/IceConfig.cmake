@@ -32,10 +32,4 @@ include("${CMAKE_CURRENT_LIST_DIR}/IceTargets.cmake")
 # Internal to IcePrefix/IceTargets; Ice_PREFIX is the documented result variable.
 unset(Ice_INCLUDE_ROOT)
 
-# IceTargets.cmake returns early when part of the installation is missing.
-if(DEFINED Ice_NOT_FOUND_MESSAGE)
-  set(Ice_FOUND FALSE)
-  return()
-endif()
-
 include("${CMAKE_CURRENT_LIST_DIR}/slice2cpp.cmake")
