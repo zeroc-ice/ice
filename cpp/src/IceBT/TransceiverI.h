@@ -7,6 +7,7 @@
 #include "Engine.h"
 #include "InstanceF.h"
 #include "StreamSocket.h"
+#include <mutex>
 
 namespace IceBT
 {

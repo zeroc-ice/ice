@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "DBus.h"
+#include <map>
 
 #include <dbus/dbus.h>
 
