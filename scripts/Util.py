@@ -3883,6 +3883,7 @@ class Driver:
         self.rlanguages: list[str] = []
         self.failures: list[Any] = []
         self.keepLogs = False
+        self.interface = ""
         self.configs: dict[Mapping, Mapping.Config]
 
         logDir = os.path.join(toplevel, "logs")
@@ -3916,7 +3917,6 @@ class Driver:
         )
 
         self.communicator: Ice.Communicator | None = None
-        self.interface = ""
         self.processControllers: dict[type[ProcessController], ProcessController] = {}
 
     def setConfigs(self, configs: dict[Mapping, Mapping.Config]) -> None:

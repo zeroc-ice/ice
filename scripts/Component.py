@@ -121,7 +121,7 @@ class Ice(Util.Component):
             "iphoneos",
         ]:
             return (
-                ["Ice/.*", "IceSSL/configuration", "Slice/*"],
+                ["Ice/.*", "IceSSL/configuration", "Slice/.*"],
                 ["Ice/properties", "Ice/udp"],
             )
         return ([], [])
