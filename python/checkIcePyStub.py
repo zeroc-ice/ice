@@ -81,6 +81,12 @@ def split(doc: str | None, name: str) -> tuple[str | None, str]:
     return None, doc.strip()
 
 
+def isDunder(name: str) -> bool:
+    """Python writes its own docstring for a dunder it generates, so those carry no signature."""
+    leaf = name.rsplit(".", maxsplit=1)[-1]
+    return leaf.startswith("__") and leaf.endswith("__")
+
+
 def normalize(signature: str) -> str:
     """Ignore spacing around default values: the stub is formatted by ast, the docstring by hand."""
     return signature.replace(" = ", "=")
@@ -91,7 +97,10 @@ def main() -> int:
     for name, (stubDoc, stubSignature) in sorted(stubEntries().items()):
         defined, shippedDoc = shipped(name)
         if not defined:
-            # Private helpers the stub declares for pyright are not always attributes of the module.
+            # A private helper the stub declares for pyright need not be an attribute of the module,
+            # but a public one going missing is the drift this is looking for.
+            if not name.rsplit(".", maxsplit=1)[-1].startswith("_"):
+                problems.append(f"{name}: declared in the stub, but IcePy does not define it")
             continue
 
         signature, prose = split(shippedDoc, name)
@@ -103,7 +112,12 @@ def main() -> int:
                 f"{name}: descriptions differ\n    stub:  {stubDoc.strip()[:100]}\n    IcePy: {prose[:100]}"
             )
 
-        if stubSignature and signature and normalize(stubSignature) != normalize(signature):
+        if stubSignature and not signature and not isDunder(name):
+            problems.append(
+                f"{name}: the stub gives a signature, but IcePy's docstring opens with no matching one."
+                "\n    Sphinx reads the signature from that line, so it has to be there."
+            )
+        elif stubSignature and signature and normalize(stubSignature) != normalize(signature):
             problems.append(f"{name}: signatures differ\n    stub:  {stubSignature}\n    IcePy: {signature}")
 
     if problems:

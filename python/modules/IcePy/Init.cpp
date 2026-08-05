@@ -63,7 +63,7 @@ defaults : Properties | None, optional
 
 Returns
 -------
-Ice.Properties
+Properties
     A new property set.)";
 
     constexpr const char* IcePy_stringToIdentity_doc = R"(stringToIdentity(str: str) -> Ice.Identity
@@ -111,7 +111,7 @@ Gets the per-process logger.
 
 Returns
 -------
-Ice.Logger
+Ice.Logger | Logger
     The current per-process logger instance.)";
 
     constexpr const char* IcePy_setProcessLogger_doc = R"(setProcessLogger(logger: Ice.Logger) -> None
