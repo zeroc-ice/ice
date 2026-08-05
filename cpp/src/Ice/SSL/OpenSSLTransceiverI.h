@@ -62,7 +62,6 @@ namespace Ice::SSL::OpenSSL
         const bool _incoming;
         const IceInternal::TransceiverPtr _delegate;
         bool _connected;
-        std::string _cipher;
         X509* _peerCertificate;
         ::SSL* _ssl;
         SSL_CTX* _sslCtx;

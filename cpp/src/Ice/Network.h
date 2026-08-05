@@ -43,7 +43,7 @@ typedef int ssize_t;
 #    error "Unsupported platform"
 #endif
 
-#if defined(_WIN32) || defined(__osf__)
+#if defined(_WIN32)
 typedef int socklen_t;
 #endif
 

@@ -1510,7 +1510,6 @@ IceInternal::IncomingConnectionFactory::startAcceptor()
         return;
     }
 
-    _acceptorStopped = false;
     createAcceptor();
 }
 
@@ -1523,7 +1522,6 @@ IceInternal::IncomingConnectionFactory::stopAcceptor()
         return;
     }
 
-    _acceptorStopped = true;
     _acceptorStarted = false;
     if (_adapter->getThreadPool()->finish(shared_from_this(), true))
     {

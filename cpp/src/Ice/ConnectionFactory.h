@@ -241,9 +241,6 @@ namespace IceInternal
         EndpointIPtr _endpoint;
 
         bool _acceptorStarted{false};
-#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-        bool _acceptorStopped{false};
-#endif
 
         std::shared_ptr<Ice::ObjectAdapterI> _adapter;
         const bool _warn;
