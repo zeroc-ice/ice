@@ -8,7 +8,7 @@ public class BlobjectI : Ice.BlobjectAsync
 {
     public void startBatch()
     {
-        Debug.Assert(_batchProxy != null);
+        Debug.Assert(_batchProxy == null);
         _startBatch = true;
     }
 

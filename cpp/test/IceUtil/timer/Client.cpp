@@ -171,19 +171,20 @@ Client::run(int, char*[])
             task->waitForRun();
             task->clear();
             //
-            // Verify that the same task cannot be scheduled more than once.
+            // Verify that the same task cannot be scheduled more than once. The long delay ensures the task is
+            // still scheduled when we schedule it again.
             //
-            timer->schedule(task, chrono::milliseconds(100));
+            timer->schedule(task, chrono::hours(1));
             try
             {
                 timer->schedule(task, chrono::seconds::zero());
+                test(false);
             }
             catch (const invalid_argument&)
             {
                 // Expected.
             }
-            task->waitForRun();
-            task->clear();
+            timer->cancel(task);
         }
 
         {
@@ -253,14 +254,11 @@ Client::run(int, char*[])
             DestroyTaskPtr destroyTask = make_shared<DestroyTask>(timer);
             timer->schedule(destroyTask, chrono::seconds::zero());
             destroyTask->waitForRun();
-            try
-            {
-                timer->schedule(destroyTask, chrono::seconds::zero());
-            }
-            catch (const invalid_argument&)
-            {
-                // Expected;
-            }
+
+            // The destroy call from the timer task failed, and the timer remains usable.
+            TestTaskPtr task = make_shared<TestTask>();
+            timer->schedule(task, chrono::seconds::zero());
+            task->waitForRun();
             timer->destroy();
         }
         {
@@ -271,6 +269,7 @@ Client::run(int, char*[])
             try
             {
                 timer->schedule(testTask, chrono::seconds::zero());
+                test(false);
             }
             catch (const invalid_argument&)
             {

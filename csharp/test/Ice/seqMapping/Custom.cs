@@ -17,7 +17,7 @@ public class Custom<T> : IEnumerable<T>
         set => _list[index] = value;
     }
 
-    public void Add(T elmt) => _list.Add(elmt);
+    public void Add(T element) => _list.Add(element);
 
     public override bool Equals(object obj)
     {
@@ -25,13 +25,13 @@ public class Custom<T> : IEnumerable<T>
         {
             var tmp = (Custom<T>)obj;
             IEnumerator<T> e = tmp.GetEnumerator();
-            foreach (T elmt in _list)
+            foreach (T element in _list)
             {
                 if (!e.MoveNext())
                 {
                     return false;
                 }
-                if (elmt == null)
+                if (element == null)
                 {
                     if (e.Current != null)
                     {
@@ -40,13 +40,13 @@ public class Custom<T> : IEnumerable<T>
                 }
                 else
                 {
-                    if (!elmt.Equals(e.Current))
+                    if (!element.Equals(e.Current))
                     {
                         return false;
                     }
                 }
             }
-            return true;
+            return !e.MoveNext();
         }
         catch (Exception)
         {
@@ -54,7 +54,15 @@ public class Custom<T> : IEnumerable<T>
         }
     }
 
-    public override int GetHashCode() => base.GetHashCode();
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        foreach (T element in _list)
+        {
+            hash.Add(element);
+        }
+        return hash.ToHashCode();
+    }
 
     private readonly List<T> _list = new List<T>();
 }
