@@ -852,9 +852,11 @@ ZEND_FUNCTION(Ice_initialize)
         RETURN_NULL();
     }
 
-    // initClass is null when the application didn't load the Ice library files; a null initClass matches no
-    // argument below.
-    zend_class_entry* initClass = nameToClass("\\Ice\\InitializationData");
+    zend_class_entry* initClass = lookupClass("\\Ice\\InitializationData");
+    if (!initClass)
+    {
+        RETURN_NULL();
+    }
 
     //
     // Retrieve the arguments.
