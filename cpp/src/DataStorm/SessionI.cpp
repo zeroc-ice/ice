@@ -314,14 +314,32 @@ SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, cons
                 out << _id << ": attaching tags '[" << tags << "]@" << topicId << "' on topic '" << topic << "'";
             }
 
-            if (initialize)
-            {
-                subscriber.tags.clear();
-            }
-
+            // An initializing call replaces the subscriber's tags, so it decodes into a temporary and installs it once
+            // every tag is decoded; the subscriber keeps its current tags until then. Any other call adds to the tags
+            // the subscriber already holds, and decodes into them directly.
+            map<int64_t, shared_ptr<Tag>> replacement;
+            auto& decoded = initialize ? replacement : subscriber.tags;
             for (const auto& tag : tags)
             {
-                subscriber.tags[tag.id] = topic->getTagFactory()->decode(_instance->getCommunicator(), tag.value);
+                try
+                {
+                    decoded[tag.id] = topic->getTagFactory()->decode(_instance->getCommunicator(), tag.value);
+                }
+                catch (const std::exception& ex)
+                {
+                    // The tag factory runs the application's decoder. Skip a tag it can't decode: the peer resends
+                    // its tags on reconnect; until then a partial update carrying the skipped tag resolves to the
+                    // key's current value.
+                    Warning out(_traceLevels->logger);
+                    out << "skipped update tag " << tag.id << " on topic '" << topic << "': the tag could not be "
+                        << "decoded:\n"
+                        << ex.what();
+                }
+            }
+
+            if (initialize)
+            {
+                subscriber.tags = std::move(replacement);
             }
         });
 }
@@ -620,7 +638,7 @@ SessionI::initSamples(int64_t topicId, int64_t peerTopicId, DataSamplesSeq initi
                         sample.id,
                         sample.event,
                         key,
-                        subscriber.tags[sample.tag],
+                        subscriber.findTag(sample.tag),
                         sample.value,
                         sample.timestamp));
                 }
@@ -1446,9 +1464,8 @@ SessionI::subscriberInitialized(
     if (_traceLevels->session > 1)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-        out << _id << ": initialized '" << element << "' from 'e" << elementId << '@' << topicId << "'";
+        out << _id << ": initializing '" << element << "' from 'e" << elementId << '@' << topicId << "'";
     }
-    elementSubscriber->initialized = true;
 
     // If the samples collection is empty, the element subscriber's lastId remains unchanged:
     // - If no samples have been received, lastId is 0.
@@ -1460,18 +1477,11 @@ SessionI::subscriberInitialized(
     // - These samples have not yet been processed by the element subscriber, according to the subscriber's lastId.
     if (samples.empty())
     {
+        elementSubscriber->initialized = true;
         return {};
     }
     else
     {
-        // A multi-key subscriber shares a single ElementSubscriber across its keys, and the peer acks one batch per
-        // key, so this runs once per key with sample ids interleaved across keys — a later batch need not strictly
-        // follow the previous one. Advance lastId monotonically to the newest id seen (samples are ordered by id).
-        if (samples.back().id > elementSubscriber->lastId)
-        {
-            elementSubscriber->lastId = samples.back().id;
-        }
-
         vector<shared_ptr<Sample>> samplesI;
         samplesI.reserve(samples.size());
         auto sampleFactory = element->getTopic()->getSampleFactory();
@@ -1489,11 +1499,25 @@ SessionI::subscriberInitialized(
                 sample.id,
                 sample.event,
                 key ? key : keyFactory->decode(_instance->getCommunicator(), sample.keyValue),
-                subscriber.tags[sample.tag],
+                subscriber.findTag(sample.tag),
                 sample.value,
                 sample.timestamp));
             assert(samplesI.back()->key);
         }
+
+        // Mark the subscriber initialized and advance its lastId only after its samples are decoded and built, like
+        // initSamples does: if a key decoder throws above, the subscriber keeps its previous state, so the peer still
+        // offers these samples on the next initialization instead of filtering them out as already received.
+        elementSubscriber->initialized = true;
+
+        // A multi-key subscriber shares a single ElementSubscriber across its keys, and the peer acks one batch per
+        // key, so this runs once per key with sample ids interleaved across keys — a later batch need not strictly
+        // follow the previous one. Advance lastId monotonically to the newest id seen (samples are ordered by id).
+        if (samples.back().id > elementSubscriber->lastId)
+        {
+            elementSubscriber->lastId = samples.back().id;
+        }
+
         return samplesI;
     }
 }
@@ -1723,7 +1747,7 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                         dataSample.id,
                         dataSample.event,
                         key,
-                        topicSubscriber.tags[dataSample.tag],
+                        topicSubscriber.findTag(dataSample.tag),
                         dataSample.value,
                         dataSample.timestamp);
                 };
@@ -1768,7 +1792,18 @@ SubscriberSessionI::reconnect(NodePrx node)
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _id << ": trying to reconnect session with '" << node->ice_toString() << "'";
     }
-    _parent->createPublisherSession(node, nullptr, static_pointer_cast<SubscriberSessionI>(shared_from_this()));
+
+    try
+    {
+        _parent->createPublisherSession(node, nullptr, static_pointer_cast<SubscriberSessionI>(shared_from_this()));
+    }
+    catch (const SessionCreationException&)
+    {
+        // createPublisherSession throws for the benefit of its servant caller, which maps the exception to the
+        // initiateCreateSession reply. Here the caller is the session retry task, which has nothing to reply to: the
+        // failure was either already accounted for by retrySubscriberSessionCreation, or it reports that the node is
+        // shutting down, in which case there is nothing to retry.
+    }
 }
 
 void

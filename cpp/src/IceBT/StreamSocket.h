@@ -4,6 +4,7 @@
 #define ICE_BT_STREAM_SOCKET_H
 
 #include "../Ice/Network.h"
+#include "BTBufSize.h"
 #include "Config.h"
 #include "Ice/Buffer.h"
 #include "InstanceF.h"
@@ -13,7 +14,12 @@ namespace IceBT
     class StreamSocket : public IceInternal::NativeInfo
     {
     public:
-        StreamSocket(InstancePtr, SOCKET);
+        // For an incoming connection: wraps the accepted socket and configures it with the given buffer sizes.
+        StreamSocket(InstancePtr, SOCKET, const BTBufSize&);
+
+        // For an outgoing connection: the socket is set with setFd once the connection is established.
+        explicit StreamSocket(InstancePtr);
+
         ~StreamSocket() override;
 
         void setBufferSize(SOCKET, int rcvSize, int sndSize);
@@ -27,11 +33,10 @@ namespace IceBT
         void close();
         [[nodiscard]] const std::string& toString() const;
 
+        // Sets and configures the socket of an outgoing connection once the connection is established.
         void setFd(SOCKET);
 
     private:
-        void init(SOCKET);
-
         const InstancePtr _instance;
         std::string _desc;
     };

@@ -185,6 +185,14 @@ namespace DataStormI
                 return p == keys.end() ? nullptr : p->second.first;
             }
 
+            /// Returns the local update tag matching a remote tag id, or `nullptr` when this session holds no tag for
+            /// that id. Misses are routine, since a sample without an update tag carries the tag id 0.
+            [[nodiscard]] std::shared_ptr<Tag> findTag(std::int64_t tagId) const
+            {
+                auto p = tags.find(tagId);
+                return p == tags.end() ? nullptr : p->second;
+            }
+
             // A map of remote keys to local keys and the number of local elements subscribing to a remote element.
             // - Key: The remote key ID.
             // - Value: A pair containing the local key and a map of remote element IDs to the number of local elements

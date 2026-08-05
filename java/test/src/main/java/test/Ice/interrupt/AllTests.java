@@ -3,6 +3,7 @@
 package test.Ice.interrupt;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CommunicatorDestroyedException;
 import com.zeroc.Ice.CompressBatch;
 import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.InitializationData;
@@ -198,9 +199,7 @@ public class AllTests {
             // The executor is all done.
             //
             executor.shutdown();
-            while (!executor.isTerminated()) {
-                executor.awaitTermination(1000, TimeUnit.SECONDS);
-            }
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         }
         out.println("ok");
 
@@ -456,8 +455,31 @@ public class AllTests {
             cb.check();
 
             executor.shutdown();
-            while (!executor.isTerminated()) {
-                executor.awaitTermination(1000, TimeUnit.SECONDS);
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        }
+        out.println("ok");
+
+        out.print("testing Communicator.close interrupt... ");
+        out.flush();
+        if (p.ice_getConnection() != null) {
+            InitializationData initData = new InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            Communicator ic = helper.initialize(initData);
+            String proxyString = "test:" + helper.getTestEndpoint(0);
+            TestIntfPrx p2 = TestIntfPrx.createProxy(ic, proxyString);
+            p2.ice_ping();
+
+            // close() is not interruptible: it destroys the communicator even when the calling thread
+            // is interrupted, and restores the interrupt status.
+            Thread.currentThread().interrupt();
+            ic.close();
+            test(Thread.interrupted());
+
+            try {
+                TestIntfPrx.createProxy(ic, proxyString);
+                test(false);
+            } catch (CommunicatorDestroyedException ex) {
+                // Expected
             }
         }
         out.println("ok");
@@ -593,9 +615,7 @@ public class AllTests {
             ic.destroy();
 
             executor.shutdown();
-            while (!executor.isTerminated()) {
-                executor.awaitTermination(1000, TimeUnit.SECONDS);
-            }
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         }
         out.println("ok");
 

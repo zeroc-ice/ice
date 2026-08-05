@@ -114,9 +114,10 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     {
         _lookup = lookup;
         _timeout = TimeSpan.FromMilliseconds(properties.getIcePropertyAsInt("IceLocatorDiscovery.Timeout"));
-        if (_timeout < TimeSpan.Zero)
+        if (_timeout <= TimeSpan.Zero)
         {
-            _timeout = TimeSpan.FromMilliseconds(300);
+            throw new Ice.PropertyException(
+                "property 'IceLocatorDiscovery.Timeout' must be greater than 0");
         }
         _retryCount = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryCount");
         if (_retryCount < 0)
@@ -126,7 +127,8 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
         _retryDelay = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryDelay");
         if (_retryDelay < 0)
         {
-            _retryDelay = 0;
+            throw new Ice.PropertyException(
+                "property 'IceLocatorDiscovery.RetryDelay' must be greater than or equal to 0");
         }
         _timer = Ice.Internal.Util.getInstance(lookup.ice_getCommunicator()).timer();
         _traceLevel = properties.getIcePropertyAsInt("IceLocatorDiscovery.Trace.Lookup");

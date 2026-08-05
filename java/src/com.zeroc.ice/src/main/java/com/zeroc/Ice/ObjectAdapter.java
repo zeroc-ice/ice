@@ -240,6 +240,10 @@ public final class ObjectAdapter {
         if (hasPublishedEndpoints) {
             try {
                 updateLocatorRegistry(_locatorInfo, null);
+            } catch (OperationInterruptedException ex) {
+                // We can't throw exceptions in deactivate: re-set the interrupt flag so that the
+                // calling thread observes the interruption.
+                Thread.currentThread().interrupt();
             } catch (LocalException ex) {
                 // We can't throw exceptions in deactivate so we ignore
                 // failures to update the locator registry.

@@ -36,7 +36,7 @@ This build compiles Ice for Ruby directly from the source tree and requires a pr
 
 ### Prerequisites
 
-1. **Ruby 3.0 or higher**
+1. **Ruby 3.4 or higher**
 
 2. **Ice for C++ source build**
 

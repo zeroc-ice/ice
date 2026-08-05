@@ -35,6 +35,7 @@ namespace IceRuby
     using ValueMap = std::map<VALUE, std::shared_ptr<Ice::Value>>;
 
     class ValueReader;
+    class StreamUtil;
 
     struct PrintObjectHistory
     {
@@ -43,12 +44,13 @@ namespace IceRuby
     };
 
     //
-    // The delayed nature of class unmarshaling in the Ice protocol requires us to
-    // handle unmarshaling using a callback strategy. An instance of UnmarshalCallback
-    // is supplied to each type's unmarshal() member function. For all types except
-    // classes, the callback is invoked with the unmarshaled value before unmarshal()
-    // returns. For class instances, however, the callback may not be invoked until
-    // the stream's finished() function is called.
+    // Slice unmarshaling uses a callback strategy: an instance of UnmarshalCallback is
+    // supplied to each type's unmarshal() member function. For all types except classes,
+    // the callback is invoked with the unmarshaled value before unmarshal() returns. For
+    // class instances, the callback may not be invoked until later, because the Slice 1.0
+    // encoding writes instances after the data that references them. The 1.1 encoding is
+    // much more linear, but this extension unmarshals both encodings with the same
+    // callback logic.
     //
     class UnmarshalCallback
     {
@@ -57,28 +59,32 @@ namespace IceRuby
 
         //
         // The unmarshaled() member function receives the unmarshaled value. The
-        // last two arguments are the values passed to unmarshal() for use by
-        // UnmarshalCallback implementations.
+        // next two arguments are the values passed to unmarshal() for use by
+        // UnmarshalCallback implementations, and the last argument is the
+        // StreamUtil attached to the stream.
         //
-        virtual void unmarshaled(VALUE, VALUE, void*) = 0;
+        virtual void unmarshaled(VALUE, VALUE, void*, StreamUtil*) = 0;
     };
     using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback>;
 
     //
     // ReadValueCallback retains all of the information necessary to store an unmarshaled
-    // Slice value as a Ruby object.
+    // Slice value as a Ruby object. Its only owner is the StreamUtil attached to the
+    // stream (the stream's patch entries hold non-owning pointers), so it never outlives
+    // the StreamUtil and _util remains valid for its whole lifetime.
     //
     class ReadValueCallback final
     {
     public:
-        ReadValueCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+        ReadValueCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*, StreamUtil*);
 
         void invoke(const std::shared_ptr<Ice::Value>&);
 
     private:
         ClassInfoPtr _info;
         UnmarshalCallbackPtr _cb;
-        VALUE _target;
+        StreamUtil* _util;
+        long _targetIndex;
         void* _closure;
     };
     using ReadValueCallbackPtr = std::shared_ptr<ReadValueCallback>;
@@ -93,6 +99,12 @@ namespace IceRuby
         StreamUtil();
         ~StreamUtil();
 
+        // Registers a GC root tied to the address of _held, so it's neither copyable nor movable.
+        StreamUtil(const StreamUtil&) = delete;
+        StreamUtil(StreamUtil&&) = delete;
+        StreamUtil& operator=(const StreamUtil&) = delete;
+        StreamUtil& operator=(StreamUtil&&) = delete;
+
         //
         // Keep a reference to a ReadValueCallback for patching purposes.
         //
@@ -102,6 +114,15 @@ namespace IceRuby
         // Keep track of object instances that have preserved slices.
         //
         void add(const std::shared_ptr<ValueReader>&);
+
+        //
+        // Keep a Ruby object reachable for the lifetime of the stream and return an index
+        // that recovers it via getHeldValue. The objects are held in a Ruby array whose
+        // elements the GC updates when compaction moves them, so getHeldValue remains
+        // valid where a raw VALUE copy in native code would go stale.
+        //
+        long hold(VALUE);
+        VALUE getHeldValue(long index) const;
 
         //
         // Updated the sliced data information for all stored object instances.
@@ -114,6 +135,7 @@ namespace IceRuby
     private:
         std::vector<ReadValueCallbackPtr> _callbacks;
         std::set<std::shared_ptr<ValueReader>> _readers;
+        VALUE _held; // Ruby array created on first use by hold()
         static VALUE _slicedDataType;
         static VALUE _sliceInfoType;
     };
@@ -134,7 +156,7 @@ namespace IceRuby
 
         virtual bool usesClasses() const; // Default implementation returns false.
 
-        void unmarshaled(VALUE, VALUE, void*) override; // Default implementation is assert(false).
+        void unmarshaled(VALUE, VALUE, void*, StreamUtil*) override; // Default implementation is assert(false).
 
         virtual void destroy();
 
@@ -220,7 +242,7 @@ namespace IceRuby
     class DataMember final : public UnmarshalCallback
     {
     public:
-        void unmarshaled(VALUE, VALUE, void*) final;
+        void unmarshaled(VALUE, VALUE, void*, StreamUtil*) final;
 
         std::string name;
         TypeInfoPtr type;
@@ -282,7 +304,7 @@ namespace IceRuby
 
         void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool) final;
         void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) final;
-        void unmarshaled(VALUE, VALUE, void*) final;
+        void unmarshaled(VALUE, VALUE, void*, StreamUtil*) final;
 
         void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
 
@@ -321,7 +343,7 @@ namespace IceRuby
         void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool) final;
         void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) final;
         void marshalElement(VALUE, VALUE, Ice::OutputStream*, ValueMap*);
-        void unmarshaled(VALUE, VALUE, void*) final;
+        void unmarshaled(VALUE, VALUE, void*, StreamUtil*) final;
 
         void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
         void printElement(VALUE, VALUE, IceInternal::Output&, PrintObjectHistory*);
@@ -331,7 +353,7 @@ namespace IceRuby
         class KeyCallback final : public UnmarshalCallback
         {
         public:
-            void unmarshaled(VALUE, VALUE, void*) final;
+            void unmarshaled(VALUE, VALUE, void*, StreamUtil*) final;
 
             VALUE key;
         };
@@ -507,9 +529,17 @@ namespace IceRuby
     class ExceptionReader final : public Ice::UserException
     {
     public:
+        // Each constructor registers a GC root tied to the address of the new instance's _ex member, and the
+        // destructor unregisters it. The copy constructor must remain available: the exception machinery copies the
+        // reader into the exception storage. The other special members are deleted so that none can transfer or
+        // assign _ex without the matching registration.
         ExceptionReader(const ExceptionInfoPtr&);
         ExceptionReader(const ExceptionReader&);
         ~ExceptionReader();
+
+        ExceptionReader(ExceptionReader&&) = delete;
+        ExceptionReader& operator=(const ExceptionReader&) = delete;
+        ExceptionReader& operator=(ExceptionReader&&) = delete;
 
         const char* ice_id() const noexcept final;
         void ice_throw() const final;

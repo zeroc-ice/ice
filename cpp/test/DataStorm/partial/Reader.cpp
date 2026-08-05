@@ -26,8 +26,50 @@ struct Counter
     int value = 0;
 };
 
+// An update tag type whose Decoder rejects one of the tag values. A writer sends its whole set of update tags to a
+// reader when they attach, so an undecodable tag arrives together with the tags the reader can decode.
+struct Op
+{
+    std::string name;
+
+    bool operator<(const Op& other) const { return name < other.name; }
+    bool operator==(const Op& other) const { return name == other.name; }
+};
+
 namespace DataStorm
 {
+    template<> struct Encoder<Op>
+    {
+        static Ice::ByteSeq encode(const Ice::CommunicatorPtr&, const Op& tag)
+        {
+            Ice::ByteSeq bytes;
+            bytes.reserve(tag.name.size());
+            for (char c : tag.name)
+            {
+                bytes.push_back(static_cast<std::byte>(c));
+            }
+            return bytes;
+        }
+    };
+
+    template<> struct Decoder<Op>
+    {
+        static Op decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq& data)
+        {
+            std::string name;
+            name.reserve(data.size());
+            for (std::byte b : data)
+            {
+                name += static_cast<char>(b);
+            }
+            if (name == "undecodable")
+            {
+                throw std::runtime_error("undecodable update tag");
+            }
+            return Op{name};
+        }
+    };
+
     template<> struct Encoder<Counter>
     {
         static Ice::ByteSeq encode(const Ice::CommunicatorPtr&, const Counter& value)
@@ -526,6 +568,23 @@ void ::Reader::run(int argc, char* argv[])
         test(sample.getValue().value == 1);
         sample = reader2.getNextUnread();
         test(sample.getValue().value == 2);
+    }
+
+    // The writer's tag set contains a tag this reader's Decoder rejects. The reader skips that tag and keeps the one
+    // it can decode, so the partial update published with it is still applied.
+    Topic<string, Counter, Op> tagDecodeErrorTopic(node, "tagDecodeErrorTopic");
+    tagDecodeErrorTopic.setReaderDefaultConfig(config);
+    tagDecodeErrorTopic.setUpdater<int>(Op{"increment"}, [](Counter& counter, int delta) { counter.value += delta; });
+    {
+        auto reader = makeSingleKeyReader(tagDecodeErrorTopic, "key");
+
+        auto sample = reader.getNextUnread();
+        test(sample.getValue().value == 1);
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::PartialUpdate);
+        test(sample.getUpdateTag() == Op{"increment"});
+        test(sample.getValue().value == 6); // the undecodable tag did not cost the reader this one
     }
 }
 

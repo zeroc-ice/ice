@@ -238,6 +238,10 @@ class LookupI implements Lookup {
         _registry = registry;
         _lookup = lookup;
         _timeout = properties.getIcePropertyAsInt("IceDiscovery.Timeout");
+        if (_timeout <= 0) {
+            throw new PropertyException(
+                "property 'IceDiscovery.Timeout' must be greater than 0");
+        }
         _retryCount = properties.getIcePropertyAsInt("IceDiscovery.RetryCount");
         _latencyMultiplier = properties.getIcePropertyAsInt("IceDiscovery.LatencyMultiplier");
         if (_latencyMultiplier < 1) {

@@ -219,14 +219,14 @@ final class TransceiverI implements Transceiver {
     public void checkSendSize(Buffer buf) {}
 
     // Used by ConnectorI.
-    TransceiverI(Instance instance, String remoteAddr, String uuid, String connectionId) {
+    TransceiverI(Instance instance, String remoteAddr, String uuid, String connectionId, BTBufSize bufSize) {
         _instance = instance;
         _remoteAddr = remoteAddr;
         _uuid = uuid;
         _connectionId = connectionId;
         _state = StateConnecting;
 
-        init();
+        init(bufSize);
 
         Thread connectThread =
             new Thread() {
@@ -248,7 +248,7 @@ final class TransceiverI implements Transceiver {
     }
 
     // Used by AcceptorI.
-    TransceiverI(Instance instance, BluetoothSocket socket, String uuid, String adapterName) {
+    TransceiverI(Instance instance, BluetoothSocket socket, String uuid, String adapterName, BTBufSize bufSize) {
         _instance = instance;
         _remoteAddr = socket.getRemoteDevice().getAddress();
         _uuid = uuid;
@@ -257,12 +257,12 @@ final class TransceiverI implements Transceiver {
         _socket = socket;
         _state = StateConnected;
 
-        init();
+        init(bufSize);
 
         startReadWriteThreads();
     }
 
-    private void init() {
+    private void init(BTBufSize bufSize) {
         _desc = "local address = " + _instance.bluetoothAdapter().getAddress();
         if (_remoteAddr != null && !_remoteAddr.isEmpty()) {
             _desc += "\nremote address = " + _remoteAddr;
@@ -271,9 +271,8 @@ final class TransceiverI implements Transceiver {
             _desc += "\nservice uuid = " + _uuid;
         }
 
-        final int defaultBufSize = 128 * 1024;
-        _rcvSize = _instance.properties().getPropertyAsIntWithDefault("IceBT.RcvSize", defaultBufSize);
-        _sndSize = _instance.properties().getPropertyAsIntWithDefault("IceBT.SndSize", defaultBufSize);
+        _rcvSize = bufSize.rcvSize();
+        _sndSize = bufSize.sndSize();
 
         _readBuffer = new Buffer(false);
         _writeBuffer = new Buffer(false);
