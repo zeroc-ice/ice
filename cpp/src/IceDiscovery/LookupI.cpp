@@ -197,6 +197,13 @@ LookupI::LookupI(LocatorRegistryIPtr registry, const LookupPrx& lookup, const Ic
     {
         throw PropertyException{__FILE__, __LINE__, "property 'IceDiscovery.Timeout' must be greater than 0"};
     }
+    if (_retryCount < 0)
+    {
+        throw PropertyException{
+            __FILE__,
+            __LINE__,
+            "property 'IceDiscovery.RetryCount' must be greater than or equal to 0"};
+    }
     if (_latencyMultiplier < 1)
     {
         throw PropertyException{
