@@ -84,9 +84,9 @@ namespace
 
         LookupPrx _lookup;
         vector<pair<LookupPrx, LookupReplyPrx>> _lookups;
-        chrono::milliseconds _timeout;
-        int _retryCount;
-        chrono::milliseconds _retryDelay;
+        const chrono::milliseconds _timeout;
+        const int _retryCount;
+        const chrono::milliseconds _retryDelay;
         const IceInternal::TimerPtr _timer;
         const int _traceLevel;
 
@@ -415,7 +415,10 @@ LocatorI::LocatorI(
     }
     if (_retryCount < 0)
     {
-        _retryCount = 0;
+        throw Ice::PropertyException{
+            __FILE__,
+            __LINE__,
+            "property 'IceLocatorDiscovery.RetryCount' must be greater than or equal to 0"};
     }
     if (_retryDelay < chrono::milliseconds::zero())
     {
