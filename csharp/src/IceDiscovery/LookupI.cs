@@ -226,7 +226,12 @@ internal class LookupI : LookupDisp_
     {
         _registry = registry;
         _lookup = lookup;
-        _timeout = TimeSpan.FromMilliseconds(properties.getIcePropertyAsInt("IceDiscovery.Timeout"));
+        int timeout = properties.getIcePropertyAsInt("IceDiscovery.Timeout");
+        if (timeout <= 0)
+        {
+            throw new Ice.PropertyException("property 'IceDiscovery.Timeout' must be greater than 0");
+        }
+        _timeout = TimeSpan.FromMilliseconds(timeout);
         _retryCount = properties.getIcePropertyAsInt("IceDiscovery.RetryCount");
         _latencyMultiplier = properties.getIcePropertyAsInt("IceDiscovery.LatencyMultiplier");
         if (_latencyMultiplier < 1)

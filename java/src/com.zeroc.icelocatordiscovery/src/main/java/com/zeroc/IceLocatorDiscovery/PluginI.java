@@ -25,6 +25,7 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OperationInterruptedException;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.PropertyException;
 import com.zeroc.Ice.RequestFailedException;
 import com.zeroc.Ice.Time;
 import com.zeroc.Ice.UDPEndpointInfo;
@@ -136,8 +137,9 @@ class PluginI implements Plugin {
         LocatorI(LookupPrx lookup, Properties properties, String instanceName, LocatorPrx voidLocator) {
             _lookup = lookup;
             _timeout = properties.getIcePropertyAsInt("IceLocatorDiscovery.Timeout");
-            if (_timeout < 0) {
-                _timeout = 300;
+            if (_timeout <= 0) {
+                throw new PropertyException(
+                    "property 'IceLocatorDiscovery.Timeout' must be greater than 0");
             }
             _retryCount = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryCount");
             if (_retryCount < 0) {
@@ -145,7 +147,8 @@ class PluginI implements Plugin {
             }
             _retryDelay = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryDelay");
             if (_retryDelay < 0) {
-                _retryDelay = 0;
+                throw new PropertyException(
+                    "property 'IceLocatorDiscovery.RetryDelay' must be greater than or equal to 0");
             }
             _timer = lookup.ice_getCommunicator().getInstance().timer();
             _traceLevel = properties.getIcePropertyAsInt("IceLocatorDiscovery.Trace.Lookup");
