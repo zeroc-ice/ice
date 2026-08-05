@@ -8,7 +8,9 @@
 # the COMPATIBILITY SameMinorVersion policy; version ranges are honored on both endpoints, where
 # SameMinorVersion would reject an upper endpoint in a later x.y.
 
-include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
+# OPTIONAL: an installation missing IceVersion.cmake must reject version requests rather than
+# abort the configure step - include() of a missing file is a hard error even under QUIET.
+include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake" OPTIONAL)
 
 # Report the full version, pre-release suffix included, so Ice_VERSION matches what Ice reports
 # everywhere else. CMake's version comparison ignores the suffix and still derives
@@ -54,10 +56,10 @@ if(PACKAGE_VERSION)
       set(PACKAGE_VERSION_COMPATIBLE TRUE)
     endif()
 
-    # VERSION_EQUAL rather than STREQUAL, so a request for 3.9.0 matches a 3.9.0-alpha.0 build. A
-    # find_package version argument cannot carry a pre-release suffix: CMake rejects it as invalid.
-    # EXACT never combines with a range; find_package refuses that itself.
-    if(PACKAGE_FIND_VERSION VERSION_EQUAL PACKAGE_VERSION)
+    # STREQUAL, as in CMake's own generated version files: a pre-release must not satisfy EXACT
+    # for the release it precedes, so 3.9.0-alpha.0 does not answer 3.9.0 EXACT. Plain requests
+    # still accept it. EXACT never combines with a range; find_package refuses that itself.
+    if(PACKAGE_FIND_VERSION STREQUAL PACKAGE_VERSION)
       set(PACKAGE_VERSION_EXACT TRUE)
     endif()
   endif()
