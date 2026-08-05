@@ -98,7 +98,6 @@ namespace
         auto len = static_cast<socklen_t>(sizeof(SocketAddress));
         if (::getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
         {
-            IceInternal::closeSocketNoThrow(fd);
             throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
         }
     }
@@ -114,7 +113,6 @@ namespace
             }
             else
             {
-                IceInternal::closeSocketNoThrow(fd);
                 throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
         }
