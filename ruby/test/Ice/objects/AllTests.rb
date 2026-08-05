@@ -331,5 +331,28 @@ def allTests(helper, communicator)
     end
     puts "ok"
 
+    print "testing GC compaction during stringification... "
+    STDOUT.flush
+    if compactionSupported
+        # A shared instance must be printed as a back reference on its second occurrence, even when GC compaction
+        # runs in the middle of the stringification. The compactor's to_str compacts the heap while a2 is printed:
+        # after the shared instance was printed as a1, and before it is looked up again as a3.
+        compactor = Object.new
+        def compactor.to_str
+            GC.verify_compaction_references(expand_heap: true, toward: :empty)
+            "compacted"
+        end
+        # The shared instance is referenced only from holder's members: a reference from a local variable would pin
+        # it through conservative stack marking, and it could then never move.
+        holder = Test::D1.new(Test::A1.new("shared"), Test::A1.new(compactor))
+        holder.a3 = holder.a1
+        # holder is object #0 and the shared instance is object #1; a3 must print as a back reference to object #1.
+        # The first assertion checks that the compactor's to_str ran, i.e. that the compaction actually happened.
+        s = holder.inspect
+        test(s.include?("'compacted'"))
+        test(s.include?("a3 = <object #1>"))
+    end
+    puts "ok"
+
     return initial
 end
