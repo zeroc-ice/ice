@@ -10,6 +10,7 @@
 #include <cctype>
 #include <climits>
 #include <cstring>
+#include <iomanip>
 
 #ifndef _MSC_VER
 #    include <unistd.h> // For readlink()
@@ -39,6 +40,94 @@ namespace
             of << dependencies;
             of.close();
         }
+    }
+
+    // Escapes a file name for use in a double-quoted XML attribute value.
+    string escapeXMLAttribute(string_view name)
+    {
+        ostringstream os;
+        for (char c : name)
+        {
+            switch (c)
+            {
+                case '&':
+                    os << "&amp;";
+                    break;
+                case '<':
+                    os << "&lt;";
+                    break;
+                case '>':
+                    os << "&gt;";
+                    break;
+                case '"':
+                    os << "&quot;";
+                    break;
+                // An XML parser replaces a literal tab, line feed or carriage return in an attribute value by a
+                // space. Character references survive this normalization.
+                case '\t':
+                    os << "&#x9;";
+                    break;
+                case '\n':
+                    os << "&#xA;";
+                    break;
+                case '\r':
+                    os << "&#xD;";
+                    break;
+                default:
+                    os << c;
+                    break;
+            }
+        }
+        return os.str();
+    }
+
+    // Escapes a file name and wraps it in double quotes, to produce a JSON string.
+    string toJSONString(string_view name)
+    {
+        ostringstream os;
+        os << '"';
+        for (char c : name)
+        {
+            switch (c)
+            {
+                case '"':
+                    os << "\\\"";
+                    break;
+                case '\\':
+                    os << "\\\\";
+                    break;
+                case '\b':
+                    os << "\\b";
+                    break;
+                case '\f':
+                    os << "\\f";
+                    break;
+                case '\n':
+                    os << "\\n";
+                    break;
+                case '\r':
+                    os << "\\r";
+                    break;
+                case '\t':
+                    os << "\\t";
+                    break;
+                default:
+                    if (static_cast<unsigned char>(c) < 0x20)
+                    {
+                        // The remaining control characters have no short escape sequence.
+                        os << "\\u" << setfill('0') << setw(4) << hex << static_cast<int>(static_cast<unsigned char>(c))
+                           << dec;
+                    }
+                    else
+                    {
+                        // Any other character is written as is, including the bytes of a multi-byte UTF-8 sequence.
+                        os << c;
+                    }
+                    break;
+            }
+        }
+        os << '"';
+        return os.str();
     }
 }
 
@@ -673,11 +762,10 @@ Slice::DependencyGenerator::writeXMLDependencies(const string& dependFile)
     {
         string source = dependencies.front();
         dependencies.pop_front();
-        string dirName = Slice::dirName(source);
-        os << endl << "  <source name=\"" << source << "\">";
+        os << endl << "  <source name=\"" << escapeXMLAttribute(source) << "\">";
         for (const auto& dependency : dependencies)
         {
-            os << endl << "    <dependsOn name=\"" << dependency << "\" />";
+            os << endl << "    <dependsOn name=\"" << escapeXMLAttribute(dependency) << "\" />";
         }
         os << endl << "  </source>";
     }
@@ -690,14 +778,19 @@ Slice::DependencyGenerator::writeJSONDependencies(const string& dependFile)
 {
     ostringstream os;
     os << "{";
+    bool firstSource = true;
     for (auto [_, dependencies] : _dependencyMap)
     {
         string source = dependencies.front();
         dependencies.pop_front();
-        os << endl << "  \"" << source << "\" : [";
+        os << (firstSource ? "" : ",") << endl << "  " << toJSONString(source) << " : [";
+        firstSource = false;
+
+        bool firstDependency = true;
         for (const auto& dependency : dependencies)
         {
-            os << endl << "    \"" << dependency << "\"";
+            os << (firstDependency ? "" : ",") << endl << "    " << toJSONString(dependency);
+            firstDependency = false;
         }
         os << endl << "  ]";
     }
