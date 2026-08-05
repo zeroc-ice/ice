@@ -11,6 +11,8 @@ module Test
     sequence<string> StringList; /* By default, a sequence is received as a list. */
     ["python:tuple"] sequence<string> StringTuple;
 
+    sequence<int> IntList; /* By default, sequence<int> is received as a list. */
+
     ["python:array.array"] sequence<bool> BoolSeq1;
     ["python:memoryview:CustomFactory.myBoolSeq:array.array"] sequence<bool> BoolSeq2;
 
@@ -125,5 +127,51 @@ module Test
         M opM(M m);
 
         void shutdown();
+    }
+
+    sequence<IntList> IntListSeq;
+    sequence<ShortSeq1> ShortSeq1Seq;
+    sequence<IntListDict> IntListDictSeq;
+    dictionary<string, IntList> IntListDict;
+    dictionary<string, ShortSeq1> ShortSeq1Dict;
+    dictionary<string, ByteSeq2> ByteSeq2Dict;
+
+    struct NestedS
+    {
+        ShortSeq1Dict d;
+        ShortSeq1Seq s;
+        ByteSeq2Dict m;
+        IntListDict p;
+    }
+
+    class NestedC
+    {
+        ShortSeq1Dict d;
+        ShortSeq1Seq s;
+    }
+
+    // These operations use numeric and re-mapped sequences, but only nested inside dictionaries.
+    // This tests that the import visitor correctly recurses through the dictionaries' value types when running.
+    // Numeric and re-mapped sequences cannot be used as parameter types: this would cause the import to be generated
+    // without recursing.
+    interface NestedDictCustom
+    {
+        IntListDict opIntListDict(IntListDict v1, out IntListDict v2);
+        ShortSeq1Dict opShortSeq1Dict(ShortSeq1Dict v1, out ShortSeq1Dict v2);
+        ByteSeq2Dict opByteSeq2Dict(ByteSeq2Dict v1);
+
+        NestedS opNestedS(NestedS v);
+        NestedC opNestedC(NestedC v);
+    }
+
+    // These operations use numeric and re-mapped sequences, but only nested inside other sequences.
+    // This tests that the import visitor correctly recurses through the sequences' element types when running.
+    // Numeric and re-mapped sequences cannot be used as parameter types: this would cause the import to be generated
+    // without recursing.
+    interface NestedSeqCustom
+    {
+        IntListSeq opIntListSeq(IntListSeq v1, out IntListSeq v2);
+        ShortSeq1Seq opShortSeq1Seq(ShortSeq1Seq v1);
+        IntListDictSeq opIntListDictSeq(IntListDictSeq v1);
     }
 }
