@@ -134,8 +134,11 @@ ZEND_METHOD(Ice_ObjectPrx, ice_identity)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    zend_class_entry* cls = nameToClass("\\Ice\\Identity");
-    assert(cls);
+    zend_class_entry* cls = lookupClass("\\Ice\\Identity");
+    if (!cls)
+    {
+        RETURN_NULL();
+    }
 
     zval* zid;
 
@@ -627,8 +630,11 @@ ZEND_METHOD(Ice_ObjectPrx, ice_encodingVersion)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    zend_class_entry* cls = nameToClass("\\Ice\\EncodingVersion");
-    assert(cls);
+    zend_class_entry* cls = lookupClass("\\Ice\\EncodingVersion");
+    if (!cls)
+    {
+        RETURN_NULL();
+    }
 
     zval* zv;
     if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O"), &zv, cls) == FAILURE)

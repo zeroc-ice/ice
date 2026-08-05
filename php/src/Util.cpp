@@ -75,8 +75,11 @@ namespace
             return false;
         }
 
-        zend_class_entry* cls = nameToClass(type);
-        assert(cls);
+        zend_class_entry* cls = lookupClass(type);
+        if (!cls)
+        {
+            return false;
+        }
 
         zend_class_entry* ce = Z_OBJCE_P(zv);
         if (ce != cls)
@@ -131,8 +134,11 @@ namespace
 
     template<typename T> bool createVersion(zval* zv, const T& version, const char* type)
     {
-        zend_class_entry* cls = nameToClass(type);
-        assert(cls);
+        zend_class_entry* cls = lookupClass(type);
+        if (!cls)
+        {
+            return false;
+        }
 
         if (object_init_ex(zv, cls) != SUCCESS)
         {
@@ -183,11 +189,25 @@ IcePHP::nameToClass(const string& name)
     return result;
 }
 
+zend_class_entry*
+IcePHP::lookupClass(const string& name)
+{
+    zend_class_entry* cls = nameToClass(name);
+    if (!cls)
+    {
+        runtimeError("unable to find PHP class '" + name + "'");
+    }
+    return cls;
+}
+
 bool
 IcePHP::createIdentity(zval* zv, const Ice::Identity& id)
 {
-    zend_class_entry* cls = nameToClass("\\Ice\\Identity");
-    assert(cls);
+    zend_class_entry* cls = lookupClass("\\Ice\\Identity");
+    if (!cls)
+    {
+        return false;
+    }
 
     if (object_init_ex(zv, cls) != SUCCESS)
     {
@@ -210,8 +230,11 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id)
         return false;
     }
 
-    zend_class_entry* cls = nameToClass("\\Ice\\Identity");
-    assert(cls);
+    zend_class_entry* cls = lookupClass("\\Ice\\Identity");
+    if (!cls)
+    {
+        return false;
+    }
 
     zend_class_entry* ce = Z_OBJCE_P(zv);
     if (ce != cls)

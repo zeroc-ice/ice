@@ -51,6 +51,10 @@ namespace IcePHP
 
     zend_class_entry* nameToClass(const std::string&);
 
+    // Like nameToClass, but raises a RuntimeException and returns nullptr when the class is not defined - typically
+    // because the application didn't load the Ice library files.
+    zend_class_entry* lookupClass(const std::string&);
+
     bool createIdentity(zval*, const Ice::Identity&);
     bool extractIdentity(zval*, Ice::Identity&);
 
