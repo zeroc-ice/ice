@@ -38,8 +38,8 @@ namespace IceRuby
     class StreamUtil;
 
     // Tracks the class instances already printed during a stringification, to detect shared instances and cycles.
-    // The instances are keyed in a Ruby identity hash (instance => index): the GC updates this hash when compaction
-    // moves an instance.
+    // The instances are keyed in a Ruby identity hash (instance => index), whose keys remain valid when GC
+    // compaction runs during the stringification.
     struct PrintObjectHistory
     {
         PrintObjectHistory();
