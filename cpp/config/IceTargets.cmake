@@ -10,50 +10,22 @@ if(WIN32 AND NOT DEFINED Ice_WIN32_PLATFORM)
   endif()
 endif()
 
-# No REQUIRED on the find_* calls below: a missing piece must leave Ice not found rather than abort
-# the configure step, or find_package(Ice QUIET) and optional use of Ice break.
+# REQUIRED throughout: this file only runs once find_package accepted the config file, and the
+# package installs as a unit, so we know exactly what ships next to it and assume it is available.
+# A missing piece is a broken installation and fails loudly right here. QUIET is no reason to
+# tolerate that - it only disables messages when the package cannot be found, and a package whose
+# config file was found but whose contents are gone is broken, not absent.
 find_path(Ice_INCLUDE_DIR NAMES Ice/Ice.h
   HINTS ${Ice_INCLUDE_ROOT} ${Ice_PREFIX} ${Ice_PREFIX}/build/native
   PATH_SUFFIXES include DOC "Directory containing Ice header files"
-  NO_DEFAULT_PATH)
-
-if(NOT Ice_INCLUDE_DIR)
-  set(Ice_NOT_FOUND_MESSAGE "Could not find the Ice header files under ${Ice_PREFIX}.")
-  return()
-endif()
-
-# Checked separately from Ice.h above, because file(STRINGS) below is a fatal error on a missing
-# file - even under find_package(Ice QUIET).
-if(NOT EXISTS "${Ice_INCLUDE_DIR}/Ice/Config.h")
-  set(Ice_NOT_FOUND_MESSAGE "Could not find Ice/Config.h under ${Ice_INCLUDE_DIR}.")
-  return()
-endif()
-
-# Read Ice version variables from Ice/Config.h
-if(NOT DEFINED Ice_VERSION)
-  file(STRINGS "${Ice_INCLUDE_DIR}/Ice/Config.h" _ice_config_h_content REGEX "#define ICE_([A-Z]+)_VERSION ")
-
-  if("${_ice_config_h_content}" MATCHES "#define ICE_STRING_VERSION \"([^\"]+)\"")
-    set(Ice_VERSION "${CMAKE_MATCH_1}" CACHE STRING "Ice version")
-  endif()
-
-  if("${_ice_config_h_content}" MATCHES "#define ICE_SO_VERSION \"([^\"]+)\"")
-    set(Ice_SO_VERSION "${CMAKE_MATCH_1}" CACHE STRING "Ice SO version")
-  endif()
-  unset(_ice_config_h_content)
-endif()
+  NO_DEFAULT_PATH REQUIRED)
 
 find_program(Ice_SLICE2CPP_EXECUTABLE slice2cpp
   HINTS ${Ice_PREFIX}
   PATH_SUFFIXES bin tools
   DOC "Path to the slice2cpp compiler"
-  NO_DEFAULT_PATH
+  NO_DEFAULT_PATH REQUIRED
 )
-
-if(NOT Ice_SLICE2CPP_EXECUTABLE)
-  set(Ice_NOT_FOUND_MESSAGE "Could not find the slice2cpp compiler under ${Ice_PREFIX}.")
-  return()
-endif()
 
 # The guard lets two subprojects in one directory scope each call find_package(Ice) without the
 # second failing on a duplicate target.
@@ -69,30 +41,21 @@ find_path(Ice_SLICE_DIR
   HINTS ${Ice_PREFIX}
   PATH_SUFFIXES slice share/ice/slice
   DOC "Path to the Ice Slice files directory"
-  NO_DEFAULT_PATH)
-
-if(NOT Ice_SLICE_DIR)
-  set(Ice_NOT_FOUND_MESSAGE "Could not find the Ice Slice files under ${Ice_PREFIX}.")
-  return()
-endif()
+  NO_DEFAULT_PATH REQUIRED)
 
 # Imported targets for the executables in the NuGet package's native/bin directory.
 if(WIN32)
   function(add_ice_executable name)
+    # The NuGet package always ships both configurations; a miss is a broken installation.
     find_program(Ice_${name}_EXE_RELEASE ${name}${CMAKE_EXECUTABLE_SUFFIX}
       HINTS "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Release"
-      NO_DEFAULT_PATH
+      NO_DEFAULT_PATH REQUIRED
     )
 
     find_program(Ice_${name}_EXE_DEBUG ${name}${CMAKE_EXECUTABLE_SUFFIX}
       HINTS "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug"
-      NO_DEFAULT_PATH
+      NO_DEFAULT_PATH REQUIRED
     )
-
-    # Better undefined than a target with no IMPORTED_LOCATION, which fails far less obviously.
-    if(NOT Ice_${name}_EXE_RELEASE AND NOT Ice_${name}_EXE_DEBUG)
-      return()
-    endif()
 
     if(TARGET Ice::${name}_EXE)
       return()
@@ -100,21 +63,16 @@ if(WIN32)
 
     add_executable(Ice::${name}_EXE IMPORTED)
 
-    if(Ice_${name}_EXE_RELEASE)
-      set_property(TARGET Ice::${name}_EXE PROPERTY
-        IMPORTED_LOCATION_RELEASE "${Ice_${name}_EXE_RELEASE}")
-    endif()
-
-    if(Ice_${name}_EXE_DEBUG)
-      set_property(TARGET Ice::${name}_EXE PROPERTY
-        IMPORTED_LOCATION_DEBUG "${Ice_${name}_EXE_DEBUG}")
-    endif()
-
-    # Set the appropriate location based on build type
-    if(Ice_${name}_EXE_RELEASE OR Ice_${name}_EXE_DEBUG)
-      set_property(TARGET Ice::${name}_EXE PROPERTY
-        IMPORTED_LOCATION "$<IF:$<CONFIG:Debug>,${Ice_${name}_EXE_DEBUG},${Ice_${name}_EXE_RELEASE}>")
-    endif()
+    # The base IMPORTED_LOCATION is a plain path, not a generator expression: the property is read
+    # as a literal, so a genex would end up verbatim in the build system for any configuration the
+    # per-config properties do not cover. Debug and Release resolve through those; everything else
+    # falls back to the release executable.
+    set_target_properties(Ice::${name}_EXE PROPERTIES
+      IMPORTED_CONFIGURATIONS "RELEASE;DEBUG"
+      IMPORTED_LOCATION_RELEASE "${Ice_${name}_EXE_RELEASE}"
+      IMPORTED_LOCATION_DEBUG "${Ice_${name}_EXE_DEBUG}"
+      IMPORTED_LOCATION "${Ice_${name}_EXE_RELEASE}"
+    )
   endfunction()
 
   add_ice_executable(icebox)
@@ -143,21 +101,19 @@ function(add_ice_target component)
   )
 
   if(WIN32)
-    if(Ice_${component}_LIBRARY_RELEASE)
-      set_target_properties(Ice::${component} PROPERTIES
-        IMPORTED_CONFIGURATIONS RELEASE
-        IMPORTED_IMPLIB_RELEASE "${Ice_${component}_IMPLIB_RELEASE}"
-        IMPORTED_LOCATION_RELEASE "${Ice_${component}_LIBRARY_RELEASE}"
-      )
-    endif()
-
-    if(Ice_${component}_LIBRARY_DEBUG)
-      set_target_properties(Ice::${component} PROPERTIES
-        IMPORTED_CONFIGURATIONS DEBUG
-        IMPORTED_IMPLIB_DEBUG "${Ice_${component}_IMPLIB_DEBUG}"
-        IMPORTED_LOCATION_DEBUG "${Ice_${component}_LIBRARY_DEBUG}"
-      )
-    endif()
+    # A found component ships both configurations. Set IMPORTED_CONFIGURATIONS once - a per-config
+    # set() would overwrite, leaving DEBUG as the only entry - with RELEASE first, since CMake falls
+    # back to the first entry for an unmapped configuration. Map the release-like configurations
+    # explicitly too, so they cannot link the debug import library and mix CRTs.
+    set_target_properties(Ice::${component} PROPERTIES
+      IMPORTED_CONFIGURATIONS "RELEASE;DEBUG"
+      IMPORTED_IMPLIB_RELEASE "${Ice_${component}_IMPLIB_RELEASE}"
+      IMPORTED_LOCATION_RELEASE "${Ice_${component}_LIBRARY_RELEASE}"
+      IMPORTED_IMPLIB_DEBUG "${Ice_${component}_IMPLIB_DEBUG}"
+      IMPORTED_LOCATION_DEBUG "${Ice_${component}_LIBRARY_DEBUG}"
+      MAP_IMPORTED_CONFIG_RELWITHDEBINFO "Release"
+      MAP_IMPORTED_CONFIG_MINSIZEREL "Release"
+    )
   else()
     set_target_properties(Ice::${component} PROPERTIES
       IMPORTED_LOCATION "${Ice_${component}_LIBRARY_RELEASE}"
@@ -227,18 +183,11 @@ function(add_ice_library component)
   include(SelectLibraryConfigurations)
   select_library_configurations(Ice_${component})
 
+  # Components vary by platform (IceBT ships on Linux only), so an absent component library is
+  # normal; everything a present component links is guaranteed by the package.
   if(NOT Ice_${component}_LIBRARY)
     return()
   endif()
-
-  # A component whose own library is present is still unusable if something it links is not. Naming a
-  # target that does not exist is a generate-time error, which would defeat the QUIET handling above,
-  # so treat the component as not found instead. Components are declared in dependency order below.
-  foreach(dependency IN LISTS ARGN)
-    if(dependency MATCHES "::" AND NOT TARGET ${dependency})
-      return()
-    endif()
-  endforeach()
 
   # find_package_handle_standard_args reads this to decide the component was found.
   set(Ice_${component}_FOUND TRUE PARENT_SCOPE)
@@ -252,21 +201,12 @@ include(CMakeFindDependencyMacro)
 find_dependency(Threads)
 
 add_ice_library(Ice Threads::Threads)
-
-# The Ice runtime is the one component nothing works without. Every other component is optional, but
-# find_package_handle_standard_args only checks the components a consumer asked for, so without this
-# guard an installation with no libraries at all would still report Ice_FOUND.
-if(NOT TARGET Ice::Ice)
-  set(Ice_NOT_FOUND_MESSAGE "Could not find the Ice library under ${Ice_PREFIX}.")
-  return()
-endif()
-
 if(WIN32)
   # Bzip2 is included in the Ice NuGet package and is a runtime dependency of Ice.
   # This property can be used to copy the correct DLLs to the target directory at build time.
+  # Everything other than Debug takes the release DLL, matching the configuration mapping above.
   set_property(TARGET Ice::Ice PROPERTY ICE_RUNTIME_DLLS
-    "$<$<CONFIG:Debug>:${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug/bzip2d.dll>"
-    "$<$<CONFIG:Release>:${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Release/bzip2.dll>"
+    "$<IF:$<CONFIG:Debug>,${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug/bzip2d.dll,${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Release/bzip2.dll>"
   )
 endif()
 add_ice_library(DataStorm Ice::Ice)
@@ -279,4 +219,4 @@ add_ice_library(IceStorm Ice::Ice)
 add_ice_library(IceBT Ice::Ice)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Ice HANDLE_COMPONENTS CONFIG_MODE)
+find_package_handle_standard_args(Ice HANDLE_COMPONENTS HANDLE_VERSION_RANGE CONFIG_MODE)

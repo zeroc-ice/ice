@@ -361,13 +361,8 @@ namespace Slice::Python
     class CodeVisitor final : public ParserVisitor
     {
     public:
-        CodeVisitor(
-            ImportsMap runtimeImports,
-            ImportsMap typingImports,
-            std::map<std::string, std::map<std::string, std::string>> allImports)
-            : _runtimeImports(std::move(runtimeImports)),
-              _typingImports(std::move(typingImports)),
-              _allImports(std::move(allImports))
+        CodeVisitor(std::map<std::string, std::map<std::string, std::string>> allImports)
+            : _allImports(std::move(allImports))
         {
         }
 
@@ -456,9 +451,6 @@ namespace Slice::Python
         // The list of generated Python code fragments in the current translation unit.
         // Each fragment corresponds to a Python module generated from a Slice definition with the same name.
         std::vector<CodeFragment> _codeFragments;
-
-        ImportsMap _runtimeImports;
-        ImportsMap _typingImports;
 
         /// A map of all import names for each source module.
         /// - Key: the Python generated module name.

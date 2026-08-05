@@ -2836,10 +2836,7 @@ Slice::Python::compile(
 
                 if (compilationKind == CompilationKind::All || compilationKind == CompilationKind::Module)
                 {
-                    CodeVisitor codeVisitor{
-                        importVisitor.getRuntimeImports(),
-                        importVisitor.getTypingImports(),
-                        importVisitor.getAllImportNames()};
+                    CodeVisitor codeVisitor{importVisitor.getAllImportNames()};
                     unit->visit(&codeVisitor);
 
                     const vector<CodeFragment>& newFragments = codeVisitor.codeFragments();
