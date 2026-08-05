@@ -38,6 +38,7 @@
 #
 # --header-ext and --source-ext in OPTIONS are honored; options that relocate the outputs or
 # suppress generation are rejected, and contradicting cpp:header-ext metadata is a build-time error.
+# cpp:source-ext metadata is not supported.
 
 # This file is loaded by every consumer of the Ice package, not only the ones that generate Slice.
 if(CMAKE_VERSION VERSION_LESS 3.21)
@@ -109,7 +110,7 @@ function(slice2cpp_generate target)
     endif()
 
     if(option_value)
-      if(NOT option_value MATCHES "^[A-Za-z0-9]+$")
+      if(NOT option_value MATCHES "^[A-Za-z0-9+]+$")
         message(FATAL_ERROR "slice2cpp_generate: '${option_value}' is not a valid ${option_kind} extension.")
       endif()
       set(${option_kind}_ext "${option_value}")
@@ -126,6 +127,20 @@ function(slice2cpp_generate target)
     math(EXPR option_index "${option_index} + 1")
   endwhile()
 
+  if(header_ext STREQUAL source_ext)
+    message(FATAL_ERROR
+      "slice2cpp_generate: --header-ext and --source-ext are both '${header_ext}'; slice2cpp would "
+      "write one file over the other.")
+  endif()
+
+  # A source extension CMake does not recognize would build green with the generated code never
+  # compiled, failing only when something needs a symbol from it.
+  if(DEFINED CMAKE_CXX_SOURCE_FILE_EXTENSIONS AND NOT source_ext IN_LIST CMAKE_CXX_SOURCE_FILE_EXTENSIONS)
+    message(FATAL_ERROR
+      "slice2cpp_generate: CMake does not compile '.${source_ext}' as C++ "
+      "(known: ${CMAKE_CXX_SOURCE_FILE_EXTENSIONS}).")
+  endif()
+
   get_target_property(sources ${target} SOURCES)
   if(NOT sources)
     return()
@@ -137,7 +152,9 @@ function(slice2cpp_generate target)
   # INCLUDE_DIR names a directory created under the header root, so the prefix each generated source
   # uses always resolves against a directory on the include path.
   if(arg_HEADER_OUTPUT_DIR)
-    get_filename_component(header_root "${arg_HEADER_OUTPUT_DIR}" ABSOLUTE)
+    # An output, so a relative value resolves against the build directory like output_dir does;
+    # get_filename_component(ABSOLUTE) alone would resolve it against the source directory.
+    get_filename_component(header_root "${arg_HEADER_OUTPUT_DIR}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   else()
     set(header_root ${output_dir})
   endif()
@@ -149,10 +166,11 @@ function(slice2cpp_generate target)
   file(MAKE_DIRECTORY ${header_output_dir})
 
   # header_root resolves the INCLUDE_DIR-prefixed self-includes; header_output_dir resolves the
-  # unprefixed includes slice2cpp emits for other generated headers. BUILD_INTERFACE keeps these
-  # build paths out of exported usage requirements.
+  # unprefixed includes slice2cpp emits for other generated headers, and comes first so a target's
+  # own headers outrank another target's under a shared root. BUILD_INTERFACE keeps these build
+  # paths out of exported usage requirements.
   set(generated_include_dirs ${output_dir})
-  foreach(dir IN ITEMS ${header_root} ${header_output_dir})
+  foreach(dir IN ITEMS ${header_output_dir} ${header_root})
     if(NOT dir IN_LIST generated_include_dirs)
       list(APPEND generated_include_dirs ${dir})
     endif()
@@ -245,13 +263,14 @@ function(slice2cpp_generate target)
       endif()
       set_property(GLOBAL PROPERTY ${owner_property} "${target}|${slice_file_path}")
 
-      # Prefix for the generated source's include of its own header; follows the mirrored layout. A
-      # header moved away from its source needs the prefix even without INCLUDE_DIR.
+      # Prefix for the generated source's include of its own header; follows the mirrored layout.
+      # Mirrored files get it unconditionally, because it also namespaces the include guard - two
+      # same-named headers in different subdirectories must not share one.
       set(include_prefix "${arg_INCLUDE_DIR}")
       if(NOT slice_file_subdir STREQUAL ".")
         if(include_prefix)
           set(include_prefix "${include_prefix}/${slice_file_subdir}")
-        elseif(NOT header_root STREQUAL output_dir)
+        else()
           set(include_prefix "${slice_file_subdir}")
         endif()
       endif()
