@@ -14,6 +14,16 @@ if(CMAKE_VERSION VERSION_LESS 3.21)
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
+
+set(Ice_SO_VERSION "${_ice_package_so_version}")
+
+# Unconditionally: under find_package this matches what IceConfigVersion.cmake reported, and a
+# leftover cache entry from an older installation must not win over the installed version.
+set(Ice_VERSION "${_ice_package_version}")
+
+unset(_ice_package_version)
+unset(_ice_package_so_version)
 
 if(NOT DEFINED Ice_PREFIX)
   set(Ice_FOUND FALSE)
