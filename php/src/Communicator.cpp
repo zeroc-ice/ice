@@ -65,13 +65,15 @@ namespace IcePHP
         CommunicatorInfoI(const ActiveCommunicatorPtr&, zval*);
 
         void getZval(zval*) final;
-        void addRef(void) final;
-        void decRef(void) final;
 
         Ice::CommunicatorPtr getCommunicator() const final;
         Ice::SliceLoaderPtr getSliceLoader() const final;
 
         const ActiveCommunicatorPtr ac;
+
+        // The PHP object that wraps this communicator. This is a borrowed reference: the PHP object owns this
+        // CommunicatorInfoI, so an owning reference would create an uncollectable cycle. handleFreeStorage clears
+        // this zval when the PHP object is destroyed, and getZval creates a new PHP object as needed.
         zval zv;
 
     private:
@@ -166,7 +168,6 @@ extern "C"
 {
     static zend_object* handleAlloc(zend_class_entry*);
     static void handleFreeStorage(zend_object*);
-    static zend_object* handleClone(zend_object*);
 }
 
 ZEND_METHOD(Ice_Communicator, __construct) { runtimeError("communicators cannot be instantiated directly"); }
@@ -742,15 +743,31 @@ handleFreeStorage(zend_object* object)
     Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::fetch(object);
     assert(obj);
 
+    if (obj->ptr)
+    {
+        // This CommunicatorInfoI can outlive the PHP object (the communicator map and the proxies created by this
+        // communicator hold a reference to it), so clear its borrowed reference to the PHP object being destroyed.
+        ZVAL_UNDEF(&(*obj->ptr)->zv);
+    }
+
     delete obj->ptr;
     zend_object_std_dtor(object);
 }
 
-static zend_object*
-handleClone(zend_object* zobj)
+// Creates the PHP object that wraps a communicator, in zv. Returns the embedded wrapper, whose ptr is still null,
+// or nullptr after reporting an error.
+static Wrapper<CommunicatorInfoIPtr>*
+newCommunicatorObject(zval* zv)
 {
-    php_error_docref(0, E_ERROR, "communicators cannot be cloned");
-    return nullptr;
+    if (object_init_ex(zv, communicatorClassEntry) != SUCCESS)
+    {
+        runtimeError("unable to initialize communicator object");
+        return nullptr;
+    }
+
+    Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(zv);
+    assert(!obj->ptr);
+    return obj;
 }
 
 static CommunicatorInfoIPtr
@@ -758,14 +775,11 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
 {
     try
     {
-        if (object_init_ex(zv, communicatorClassEntry) != SUCCESS)
+        Wrapper<CommunicatorInfoIPtr>* obj = newCommunicatorObject(zv);
+        if (!obj)
         {
-            runtimeError("unable to initialize communicator object");
             return nullptr;
         }
-
-        Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(zv);
-        assert(!obj->ptr);
         obj->ptr = new shared_ptr<CommunicatorInfoI>(make_shared<CommunicatorInfoI>(ac, zv));
         shared_ptr<CommunicatorInfoI> info = *obj->ptr;
 
@@ -786,6 +800,8 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
     catch (...)
     {
         throwException(current_exception());
+        zval_ptr_dtor(zv);
+        ZVAL_NULL(zv);
         return 0;
     }
 }
@@ -1462,7 +1478,8 @@ IcePHP::communicatorInit(void)
     ce.create_object = handleAlloc;
     communicatorClassEntry = zend_register_internal_class(&ce);
     memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    _handlers.clone_obj = handleClone;
+    // A null clone_obj makes the object uncloneable: clone throws an Error.
+    _handlers.clone_obj = nullptr;
     _handlers.free_obj = handleFreeStorage;
     _handlers.offset = XtOffsetOf(Wrapper<CommunicatorInfoIPtr>, zobj);
     zend_class_implements(communicatorClassEntry, 1, interface);
@@ -1576,20 +1593,34 @@ IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zva
 void
 IcePHP::CommunicatorInfoI::getZval(zval* z)
 {
-    ZVAL_COPY_VALUE(z, &zv);
-    addRef();
-}
+    if (Z_ISUNDEF(zv))
+    {
+        // The PHP object that wrapped this communicator was destroyed; create a new one for this same
+        // CommunicatorInfoI.
+        try
+        {
+            Wrapper<CommunicatorInfoIPtr>* obj = newCommunicatorObject(z);
+            if (!obj)
+            {
+                ZVAL_NULL(z);
+                return;
+            }
+            obj->ptr = new shared_ptr<CommunicatorInfoI>(shared_from_this());
+        }
+        catch (...)
+        {
+            throwException(current_exception());
+            zval_ptr_dtor(z);
+            ZVAL_NULL(z);
+            return;
+        }
 
-void
-IcePHP::CommunicatorInfoI::addRef(void)
-{
-    Z_ADDREF_P(&zv);
-}
-
-void
-IcePHP::CommunicatorInfoI::decRef(void)
-{
-    Z_DELREF_P(&zv);
+        ZVAL_COPY_VALUE(&zv, z);
+    }
+    else
+    {
+        ZVAL_COPY(z, &zv);
+    }
 }
 
 Ice::CommunicatorPtr

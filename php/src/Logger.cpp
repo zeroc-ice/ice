@@ -21,7 +21,6 @@ extern "C"
 {
     static zend_object* handleAlloc(zend_class_entry*);
     static void handleFreeStorage(zend_object*);
-    static zend_object* handleClone(zend_object*);
 }
 
 ZEND_METHOD(Ice_Logger, __construct) { runtimeError("logger objects cannot be instantiated"); }
@@ -209,13 +208,6 @@ handleFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-static zend_object*
-handleClone(zend_object*)
-{
-    php_error_docref(0, E_ERROR, "loggers cannot be cloned");
-    return 0;
-}
-
 // Predefined methods for Logger.
 static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 static zend_function_entry _classMethods[] = {
@@ -251,7 +243,8 @@ IcePHP::loggerInit(void)
     ce.create_object = handleAlloc;
     loggerClassEntry = zend_register_internal_class(&ce);
     memcpy(&_loggerHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    _loggerHandlers.clone_obj = handleClone;
+    // A null clone_obj makes the object uncloneable: clone throws an Error.
+    _loggerHandlers.clone_obj = nullptr;
     _loggerHandlers.free_obj = handleFreeStorage;
     _loggerHandlers.offset = XtOffsetOf(Wrapper<Ice::LoggerPtr>, zobj);
     zend_class_implements(loggerClassEntry, 1, interface);
