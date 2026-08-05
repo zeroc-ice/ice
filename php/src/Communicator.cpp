@@ -1078,6 +1078,10 @@ ZEND_FUNCTION(Ice_unregister)
 
     string id(s, sLen);
 
+    // Declared before the lock: releasing the last reference destroys the communicator, which we must not do
+    // while holding _registeredCommunicatorsMutex.
+    ActiveCommunicatorPtr ac;
+
     lock_guard lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
@@ -1092,12 +1096,21 @@ ZEND_FUNCTION(Ice_unregister)
     //
     // Remove the ID from the ActiveCommunicator's list of registered IDs.
     //
-    ActiveCommunicatorPtr ac = p->second;
+    ac = p->second;
     vector<string>::iterator q = find(ac->ids.begin(), ac->ids.end(), id);
     assert(q != ac->ids.end());
     ac->ids.erase(q);
 
     _registeredCommunicators.erase(p);
+
+    if (ac->ids.empty() && ac->reapTask)
+    {
+        // This was the communicator's last registration: cancel the reap task to break the
+        // ActiveCommunicator <-> ReapCommunicatorTimerTask ownership cycle, which would otherwise keep the
+        // communicator alive until the task fires.
+        _timer->cancel(ac->reapTask);
+        ac->reapTask = nullptr;
+    }
 
     RETURN_TRUE;
 }
