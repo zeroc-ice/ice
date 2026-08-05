@@ -614,18 +614,18 @@ Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
 
     // Add imports required for data member types.
 
-    if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
-    {
-        // For fields with a type that is a Struct or enum, we need to import it as a RuntimeImport,
-        // to initialize the field in the constructor.
-        addRuntimeImport(type, parent);
-    }
-    else if (auto sequence = dynamic_pointer_cast<Sequence>(type))
+    if (auto sequence = dynamic_pointer_cast<Sequence>(type))
     {
         // For fields with a type that is a sequence, we check if it will be using a special mapping.
         // If so, we need to import its mapped type to initialize the field in the constructor.
         addSequenceImports(sequence, parent, true, p->getMetadata());
         addTypingImport(sequence->type(), parent);
+    }
+    else if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
+    {
+        // For fields with a type that is a Struct or enum, we need to import it as a RuntimeImport,
+        // to initialize the field in the constructor.
+        addRuntimeImport(type, parent);
     }
     else
     {

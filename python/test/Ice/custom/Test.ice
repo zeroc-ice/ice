@@ -129,12 +129,12 @@ module Test
         void shutdown();
     }
 
-    sequence<IntList> IntListSeq;
-    sequence<ShortSeq1> ShortSeq1Seq;
-    sequence<IntListDict> IntListDictSeq;
     dictionary<string, IntList> IntListDict;
     dictionary<string, ShortSeq1> ShortSeq1Dict;
     dictionary<string, ByteSeq2> ByteSeq2Dict;
+    sequence<IntList> IntListSeq;
+    sequence<ShortSeq1> ShortSeq1Seq;
+    sequence<IntListDict> IntListDictSeq;
 
     struct NestedS
     {
