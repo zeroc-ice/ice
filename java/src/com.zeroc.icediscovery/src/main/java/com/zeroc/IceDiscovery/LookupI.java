@@ -239,10 +239,12 @@ class LookupI implements Lookup {
         _lookup = lookup;
         _timeout = properties.getIcePropertyAsInt("IceDiscovery.Timeout");
         if (_timeout <= 0) {
-            throw new PropertyException(
-                "property 'IceDiscovery.Timeout' must be greater than 0");
+            throw new PropertyException("property 'IceDiscovery.Timeout' must be greater than 0");
         }
         _retryCount = properties.getIcePropertyAsInt("IceDiscovery.RetryCount");
+        if (_retryCount < 0) {
+            throw new PropertyException("property 'IceDiscovery.RetryCount' must be greater than or equal to 0");
+        }
         _latencyMultiplier = properties.getIcePropertyAsInt("IceDiscovery.LatencyMultiplier");
         if (_latencyMultiplier < 1) {
             throw new PropertyException(

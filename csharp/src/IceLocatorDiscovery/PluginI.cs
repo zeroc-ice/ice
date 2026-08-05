@@ -116,13 +116,13 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
         _timeout = TimeSpan.FromMilliseconds(properties.getIcePropertyAsInt("IceLocatorDiscovery.Timeout"));
         if (_timeout <= TimeSpan.Zero)
         {
-            throw new Ice.PropertyException(
-                "property 'IceLocatorDiscovery.Timeout' must be greater than 0");
+            throw new Ice.PropertyException("property 'IceLocatorDiscovery.Timeout' must be greater than 0");
         }
         _retryCount = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryCount");
         if (_retryCount < 0)
         {
-            _retryCount = 0;
+            throw new Ice.PropertyException(
+                "property 'IceLocatorDiscovery.RetryCount' must be greater than or equal to 0");
         }
         _retryDelay = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryDelay");
         if (_retryDelay < 0)
@@ -488,7 +488,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                     {
                         var s = new StringBuilder("retrying locator lookup:\nlookup = ");
                         s.Append(_lookup);
-                        s.Append("\nretry count = ").Append(_retryCount);
+                        s.Append("\nretry count = ").Append(_pendingRetryCount);
                         if (_instanceName.Length > 0)
                         {
                             s.Append("\ninstance name = ").Append(_instanceName);
