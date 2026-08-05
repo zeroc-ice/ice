@@ -1062,6 +1062,10 @@ ZEND_FUNCTION(Ice_unregister)
 
     string id(s, sLen);
 
+    // Declared before the lock: releasing the last reference destroys the communicator, which we must not do
+    // while holding _registeredCommunicatorsMutex.
+    ActiveCommunicatorPtr ac;
+
     lock_guard lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
@@ -1076,7 +1080,7 @@ ZEND_FUNCTION(Ice_unregister)
     //
     // Remove the ID from the ActiveCommunicator's list of registered IDs.
     //
-    ActiveCommunicatorPtr ac = p->second;
+    ac = p->second;
     vector<string>::iterator q = find(ac->ids.begin(), ac->ids.end(), id);
     assert(q != ac->ids.end());
     ac->ids.erase(q);
