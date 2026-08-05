@@ -37,10 +37,15 @@ namespace IceRuby
     class ValueReader;
     class StreamUtil;
 
+    // Tracks the class instances already printed during a stringification, to detect shared instances and cycles.
+    // The instances are keyed in a Ruby identity hash (instance => index), whose keys remain valid when GC
+    // compaction runs during the stringification.
     struct PrintObjectHistory
     {
-        int index;
-        std::map<VALUE, int> objects;
+        PrintObjectHistory();
+
+        int index{0};  // the index to assign to the next class instance printed for the first time
+        VALUE objects; // Ruby identity hash
     };
 
     //
