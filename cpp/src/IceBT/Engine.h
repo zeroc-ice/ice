@@ -10,7 +10,6 @@
 #include "IceBT/Types.h"
 
 #include <atomic>
-#include <mutex>
 
 namespace IceBT
 {
@@ -62,8 +61,6 @@ namespace IceBT
         std::string getDefaultAdapterAddress() const;
         bool adapterExists(const std::string&) const;
 
-        bool deviceExists(const std::string&) const;
-
         std::string registerProfile(const std::string&, const std::string&, int, const ProfileCallbackPtr&);
         void unregisterProfile(const std::string&);
 
@@ -79,7 +76,6 @@ namespace IceBT
     private:
         const Ice::CommunicatorPtr _communicator;
         std::atomic<bool> _initialized{false};
-        mutable std::mutex _mutex;
         BluetoothServicePtr _service;
     };
 }

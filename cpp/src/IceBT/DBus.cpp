@@ -31,8 +31,6 @@ namespace
     public:
         ExceptionI(const ErrorWrapper& w) { init(w.err); }
 
-        ExceptionI(const DBusError& err) { init(err); }
-
         ExceptionI(const string& s) : Exception(s) {}
 
     private:
@@ -154,12 +152,6 @@ namespace
             return t == DBUS_MESSAGE_TYPE_METHOD_CALL;
         }
 
-        [[nodiscard]] bool isMethodReturn() const override
-        {
-            const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
-            return t == DBUS_MESSAGE_TYPE_METHOD_RETURN;
-        }
-
         [[nodiscard]] string getPath() const override
         {
             const char* s = ::dbus_message_get_path(const_cast<DBusMessage*>(_message));
@@ -178,12 +170,6 @@ namespace
             return s ? string(s) : string();
         }
 
-        [[nodiscard]] string getDestination() const override
-        {
-            const char* s = ::dbus_message_get_destination(const_cast<DBusMessage*>(_message));
-            return s ? string(s) : string();
-        }
-
         void write(const ValuePtr& v) override
         {
             DBusMessageIter iter;
@@ -199,17 +185,6 @@ namespace
             {
                 writeValue(value, &iter);
             }
-        }
-
-        [[nodiscard]] bool checkTypes(const vector<TypePtr>& types) const override
-        {
-            string msgSig = ::dbus_message_get_signature(_message);
-            string sig;
-            for (const auto& type : types)
-            {
-                sig += type->getSignature();
-            }
-            return sig == msgSig;
         }
 
         ValuePtr read() override
@@ -792,18 +767,6 @@ namespace
 
         ~AsyncResultI() { ::dbus_pending_call_unref(_call); }
 
-        bool isPending() const override
-        {
-            lock_guard lock(_mutex);
-            return _status == StatusPending;
-        }
-
-        bool isComplete() const override
-        {
-            lock_guard lock(_mutex);
-            return _status == StatusComplete;
-        }
-
         MessagePtr waitUntilFinished() const override
         {
             unique_lock lock(_mutex);
@@ -1050,8 +1013,6 @@ namespace
 
             _thread = std::thread(&ConnectionI::run, this);
         }
-
-        DBusConnection* connection() { return _connection; }
 
         DBusHandlerResult handleMessage(DBusMessage* m)
         {
