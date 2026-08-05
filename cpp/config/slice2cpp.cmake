@@ -12,6 +12,7 @@
 #   )
 #
 # Example:
+#   find_package(Ice REQUIRED CONFIG)  # CONFIG, or CMake's own FindIce module wins
 #   add_executable(a_target source1.cpp source2.ice source3.ice)
 #   slice2cpp_generate(a_target)
 #
