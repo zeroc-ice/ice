@@ -20,20 +20,6 @@ find_path(Ice_INCLUDE_DIR NAMES Ice/Ice.h
   PATH_SUFFIXES include DOC "Directory containing Ice header files"
   NO_DEFAULT_PATH REQUIRED)
 
-# Read Ice version variables from Ice/Config.h
-if(NOT DEFINED Ice_VERSION)
-  file(STRINGS "${Ice_INCLUDE_DIR}/Ice/Config.h" _ice_config_h_content REGEX "#define ICE_([A-Z]+)_VERSION ")
-
-  if("${_ice_config_h_content}" MATCHES "#define ICE_STRING_VERSION \"([^\"]+)\"")
-    set(Ice_VERSION "${CMAKE_MATCH_1}" CACHE STRING "Ice version")
-  endif()
-
-  if("${_ice_config_h_content}" MATCHES "#define ICE_SO_VERSION \"([^\"]+)\"")
-    set(Ice_SO_VERSION "${CMAKE_MATCH_1}" CACHE STRING "Ice SO version")
-  endif()
-  unset(_ice_config_h_content)
-endif()
-
 find_program(Ice_SLICE2CPP_EXECUTABLE slice2cpp
   HINTS ${Ice_PREFIX}
   PATH_SUFFIXES bin tools
@@ -244,4 +230,4 @@ add_ice_library(IceStorm Ice::Ice)
 add_ice_library(IceBT Ice::Ice)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Ice HANDLE_COMPONENTS CONFIG_MODE)
+find_package_handle_standard_args(Ice HANDLE_COMPONENTS HANDLE_VERSION_RANGE CONFIG_MODE)
