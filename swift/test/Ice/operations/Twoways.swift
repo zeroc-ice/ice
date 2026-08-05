@@ -3,7 +3,6 @@
 import Ice
 import TestCommon
 
-// temporary work-around for issue #816
 func twoways(_ helper: TestHelper, _ p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)

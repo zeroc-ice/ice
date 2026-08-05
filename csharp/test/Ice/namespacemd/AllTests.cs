@@ -65,7 +65,7 @@ public class AllTests : global::Test.AllTests
             output.Flush();
             {
                 // A type in a module nested under a cs:namespace-tagged module must resolve at
-                // WithNamespace.Inner.S (single prefix), not a doubled prefix (regression test for #5478).
+                // WithNamespace.Inner.S (single prefix), not a doubled prefix.
                 test(typeof(WithNamespace.Inner.S).Namespace == "Ice.namespacemd.WithNamespace.Inner");
                 test(typeof(global::ZeroC.Foo.Bar.S).Namespace == "ZeroC.Foo.Bar");
                 test(typeof(global::ZeroC.Other.Bar.S).Namespace == "ZeroC.Other.Bar");

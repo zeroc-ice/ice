@@ -813,11 +813,8 @@ Schannel::SSLEngine::~SSLEngine()
 void
 Schannel::SSLEngine::initialize()
 {
-    //
-    // BUGFIX: we use a global mutex for the initialization of Schannel to
-    // avoid crashes occurring with last Schannel updates see:
-    // https://github.com/zeroc-ice/ice/issues/242
-    //
+    // We use a global mutex for the initialization of Schannel to avoid crashes observed with some Schannel
+    // updates.
     lock_guard globalLock(globalMutex);
 
     Ice::SSL::SSLEngine::initialize();

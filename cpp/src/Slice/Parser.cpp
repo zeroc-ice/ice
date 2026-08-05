@@ -4467,7 +4467,6 @@ Slice::Unit::setCurrentFile(string currentFile, int lineNumber)
         if (!IceInternal::fileExists(resolvedFilename))
         {
             // MCPP may report incorrect absolute paths when files are included using relative paths.
-            // See: https://github.com/zeroc-ice/ice/issues/4253
 
             // If the path is absolute but the file doesn't exist, treat it as relative to the current definition
             // context.

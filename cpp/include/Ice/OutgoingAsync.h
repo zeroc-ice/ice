@@ -25,7 +25,6 @@
 #    pragma warning(disable : 4251) // class ... needs to have dll-interface to be used by clients of class ...
 #elif defined(__clang__)
 #    pragma clang diagnostic push
-// See #2747
 #    pragma clang diagnostic ignored "-Wshadow-uncaptured-local"
 #    pragma clang diagnostic ignored "-Wweak-vtables"
 #endif

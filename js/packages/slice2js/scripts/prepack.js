@@ -78,7 +78,6 @@ let binDestDir = path.resolve(__dirname, "../bin");
 
 // Copy hand-written type declarations for unplugin adapters.
 // These replace the auto-generated ones to avoid leaking all bundler dependencies via unplugin's barrel types.
-// See https://github.com/zeroc-ice/ice/issues/5067
 const typesSourceDir = path.resolve(__dirname, "../types/unplugin");
 const typesDestDir = path.resolve(__dirname, "../dist/unplugin");
 
