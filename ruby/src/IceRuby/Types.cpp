@@ -2142,7 +2142,7 @@ IceRuby::ClassInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHist
     }
     else
     {
-        volatile VALUE printedIndex = callRuby(rb_hash_lookup2, history->objects, value, Qnil);
+        volatile VALUE printedIndex = callRuby(rb_hash_lookup, history->objects, value);
         if (!NIL_P(printedIndex))
         {
             out << "<object #" << FIX2INT(printedIndex) << ">";

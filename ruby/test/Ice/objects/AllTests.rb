@@ -347,7 +347,10 @@ def allTests(helper, communicator)
         holder = Test::D1.new(Test::A1.new("shared"), Test::A1.new(compactor))
         holder.a3 = holder.a1
         # holder is object #0 and the shared instance is object #1; a3 must print as a back reference to object #1.
-        test(holder.inspect.include?("a3 = <object #1>"))
+        # The first assertion checks that the compactor's to_str ran, i.e. that the compaction actually happened.
+        s = holder.inspect
+        test(s.include?("'compacted'"))
+        test(s.include?("a3 = <object #1>"))
     end
     puts "ok"
 
