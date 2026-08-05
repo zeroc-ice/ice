@@ -65,7 +65,8 @@ Starts a graceful closure of this connection once all outstanding invocations ha
 Returns
 -------
 Awaitable[None]
-    A future that becomes available when the connection is closed.)";
+    A future that becomes available when the connection is closed. If the connection was lost or
+    aborted, awaiting this future raises the exception that caused the connection's closure.)";
 
     constexpr const char* connectionCreateProxy_doc = R"(createProxy(identity: Ice.Identity) -> Ice.ObjectPrx
 
@@ -112,8 +113,8 @@ adapter : Ice.ObjectAdapter | None
 Raises
 ------
 LocalException
-    If this connection is an incoming (server) connection: setAdapter can only be called on outgoing
-    connections.)";
+    When this connection is an incoming (server) connection: only outgoing (client) connections
+    support setting the object adapter.)";
 
     constexpr const char* connectionGetAdapter_doc = R"(getAdapter() -> Ice.ObjectAdapter | None
 
@@ -205,7 +206,7 @@ Returns
 Ice.ConnectionInfo
     The connection information.)";
 
-    constexpr const char* connectionGetEndpoint_doc = R"(getEndpoint() -> Endpoint
+    constexpr const char* connectionGetEndpoint_doc = R"(getEndpoint() -> Ice.Endpoint
 
 Gets the endpoint from which the connection was created.
 

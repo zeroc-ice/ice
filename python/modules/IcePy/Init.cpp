@@ -50,7 +50,7 @@ int
     The Ice version.)";
 
     constexpr const char* IcePy_createProperties_doc =
-        R"(createProperties(args: list[str] | None = None, defaults: Ice.Properties | None = None) -> Ice.Properties
+        R"(createProperties(args: list[str] | None = None, defaults: Ice.Properties | None = None) -> Properties
 
 Creates a property set initialized from command-line arguments and a default property set.
 
@@ -105,7 +105,7 @@ Returns
 str
     The stringified identity.)";
 
-    constexpr const char* IcePy_getProcessLogger_doc = R"(getProcessLogger() -> Ice.Logger
+    constexpr const char* IcePy_getProcessLogger_doc = R"(getProcessLogger() -> Ice.Logger | Logger
 
 Gets the per-process logger.
 

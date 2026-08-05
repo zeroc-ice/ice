@@ -1257,7 +1257,7 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_identity",
      reinterpret_cast<PyCFunction>(proxyIceIdentity),
      METH_VARARGS,
-     PyDoc_STR("ice_identity(id: Ice.Identity) -> Ice.ObjectPrx")},
+     PyDoc_STR("ice_identity(newIdentity: Ice.Identity) -> Ice.ObjectPrx")},
     {"ice_getContext",
      reinterpret_cast<PyCFunction>(proxyIceGetContext),
      METH_NOARGS,
@@ -1420,13 +1420,13 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_invoke",
      reinterpret_cast<PyCFunction>(proxyIceInvoke),
      METH_VARARGS | METH_KEYWORDS,
-     PyDoc_STR("ice_invoke(operation: str, mode: Ice.OperationMode, inParams: bytes, ctx: dict[str, str] | None) -> "
+     PyDoc_STR("ice_invoke(operation: str, mode: Ice.OperationMode, inParams: bytes, ctx: dict[str, str] | None = None) -> "
                "tuple[bool, bytes]")},
     {"ice_invokeAsync",
      reinterpret_cast<PyCFunction>(proxyIceInvokeAsync),
      METH_VARARGS | METH_KEYWORDS,
      PyDoc_STR(
-         "ice_invokeAsync(operation: str, mode: Ice.OperationMode, inParams: bytes, ctx: dict[str, str] | None) -> "
+         "ice_invokeAsync(operation: str, mode: Ice.OperationMode, inParams: bytes, ctx: dict[str, str] | None = None) -> "
          "Awaitable[tuple[bool, bytes]]")},
     {"newProxy",
      reinterpret_cast<PyCFunction>(proxyNewProxy),
