@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import ast
 import copy
+import difflib
 import sys
 from pathlib import Path
 
@@ -108,9 +109,13 @@ def main() -> int:
         if stubDoc and not prose:
             problems.append(f"{name}: documented in the stub, but IcePy ships no description")
         elif stubDoc and prose and stubDoc.strip() != prose:
-            problems.append(
-                f"{name}: descriptions differ\n    stub:  {stubDoc.strip()[:100]}\n    IcePy: {prose[:100]}"
+            diff = "\n".join(
+                f"    {line}"
+                for line in difflib.unified_diff(
+                    stubDoc.strip().splitlines(), prose.splitlines(), "stub", "IcePy", lineterm=""
+                )
             )
+            problems.append(f"{name}: descriptions differ\n{diff}")
 
         if stubSignature and not signature and not isDunder(name):
             problems.append(

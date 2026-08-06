@@ -58,7 +58,7 @@ Parameters
 ----------
 args : list[str] | None, optional
     The command-line arguments.
-defaults : Properties | None, optional
+defaults : Ice.Properties | None, optional
     Default values for the new property set.
 
 Returns
