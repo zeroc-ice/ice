@@ -100,6 +100,13 @@ function(slice2cpp_generate target)
       "slice2cpp_generate: INCLUDE_DIR must be a relative path without '..', got '${arg_INCLUDE_DIR}'.")
   endif()
 
+  # A ';' in a path is a CMake list separator; every list these paths enter would split it.
+  foreach(path IN LISTS arg_INCLUDE_DIRS arg_HEADER_OUTPUT_DIR arg_INCLUDE_DIR)
+    if(path MATCHES ";")
+      message(FATAL_ERROR "slice2cpp_generate: paths may not contain ';', got '${path}'.")
+    endif()
+  endforeach()
+
   # The declared outputs must match what slice2cpp writes, or Ninja retries the command on every
   # build without saying why. --header-ext/--source-ext are honored, as in the MSBuild task.
   set(header_ext "h")
@@ -194,10 +201,15 @@ function(slice2cpp_generate target)
 
   # Absolute once: this list is both slice2cpp's -I set and the mirror roots, and a relative entry
   # would resolve against the build directory for one and the source directory for the other.
-  # Ice first, so #include <Ice/...> keeps working.
+  # Canonical too, matching slice2cpp: it follows symlinks in its -I directories (though not on
+  # Windows), and the mirror below must compare the same paths or the generated #include and the
+  # mirrored header disagree under a symlinked root. Ice first, so #include <Ice/...> keeps working.
   set(include_dirs "")
   foreach(dir IN LISTS Ice_SLICE_DIR arg_INCLUDE_DIRS)
     get_filename_component(dir "${dir}" ABSOLUTE)
+    if(NOT WIN32)
+      file(REAL_PATH "${dir}" dir)
+    endif()
     list(APPEND include_dirs "${dir}")
   endforeach()
   set(include_options "")
@@ -212,7 +224,17 @@ function(slice2cpp_generate target)
   foreach(file IN LISTS sources)
     if(file MATCHES "\\.ice$")
 
+      # A ';' in a path is a CMake list separator; from here on it would split the path in the
+      # command, dependency, and output lists.
+      if(file MATCHES ";")
+        message(FATAL_ERROR "slice2cpp_generate: paths may not contain ';', got '${file}'.")
+      endif()
+
       get_filename_component(slice_file_path ${file} ABSOLUTE)
+      if(NOT WIN32)
+        # Canonical like the mirror roots, so a file addressed through a symlink still mirrors.
+        file(REAL_PATH "${slice_file_path}" slice_file_path)
+      endif()
       get_filename_component(slice_file_dir ${slice_file_path} DIRECTORY)
 
       # NAME_WLE: slice2cpp strips only the final extension, so Foo.v1.ice generates Foo.v1.h.
