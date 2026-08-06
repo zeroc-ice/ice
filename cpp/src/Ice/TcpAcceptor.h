@@ -11,7 +11,6 @@
 
 namespace IceInternal
 {
-    class TcpEndpoint;
 
     class TcpAcceptor final : public Acceptor, public NativeInfo, public std::enable_shared_from_this<TcpAcceptor>
     {
