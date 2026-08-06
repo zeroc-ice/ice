@@ -107,29 +107,13 @@
   <Project Path="../src/Slice/msbuild/slice.vcxproj">
     <BuildDependency Project="../src/IceUtil/msbuild/iceutil/iceutil.vcxproj" />
   </Project>
-  <Project Path="../src/slice2cpp/msbuild/slice2cpp.vcxproj">
-    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
-  </Project>
-  <Project Path="../src/slice2cs/msbuild/slice2cs.vcxproj">
-    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
-  </Project>
-  <Project Path="../src/slice2java/msbuild/slice2java.vcxproj">
-    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
-  </Project>
-  <Project Path="../src/slice2js/msbuild/slice2js.vcxproj">
-    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
-  </Project>
-  <Project Path="../src/slice2matlab/msbuild/slice2matlab.vcxproj">
-    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
-  </Project>
-  <Project Path="../src/slice2php/msbuild/slice2php.vcxproj">
-    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
-  </Project>
-  <Project Path="../src/slice2py/msbuild/slice2py.vcxproj">
-    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
-  </Project>
+  <Project Path="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  <Project Path="../src/slice2cs/msbuild/slice2cs.vcxproj" />
+  <Project Path="../src/slice2java/msbuild/slice2java.vcxproj" />
+  <Project Path="../src/slice2js/msbuild/slice2js.vcxproj" />
+  <Project Path="../src/slice2matlab/msbuild/slice2matlab.vcxproj" />
+  <Project Path="../src/slice2php/msbuild/slice2php.vcxproj" />
+  <Project Path="../src/slice2py/msbuild/slice2py.vcxproj" />
   <Project Path="../src/slice2rb/msbuild/slice2rb.vcxproj" />
-  <Project Path="../src/slice2swift/msbuild/slice2swift.vcxproj">
-    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
-  </Project>
+  <Project Path="../src/slice2swift/msbuild/slice2swift.vcxproj" />
 </Solution>

@@ -694,7 +694,7 @@
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
     <Project Path="../test/IceGrid/session/msbuild/verifier/verifier.vcxproj">
-      <BuildDependency Project="../test/IceGrid/allocation/msbuild/verifier/verifier.vcxproj" />
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
   </Folder>
   <Folder Name="/IceGrid/simple/">
