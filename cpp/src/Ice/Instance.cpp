@@ -919,12 +919,6 @@ IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
     _initData.logger = logger;
 }
 
-void
-IceInternal::Instance::setThreadHook(function<void()> threadStart, function<void()> threadStop)
-{
-    _initData.threadStart = std::move(threadStart);
-    _initData.threadStop = std::move(threadStop);
-}
 namespace
 {
     bool logStdErrConvert = true;

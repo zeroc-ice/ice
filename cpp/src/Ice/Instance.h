@@ -40,9 +40,6 @@ namespace IceInternal
     class ThreadObserverTimer;
     using ThreadObserverTimerPtr = std::shared_ptr<ThreadObserverTimer>;
 
-    class MetricsAdminI;
-    using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;
-
     /// Structure to track warnings for attempts to set socket buffer sizes.
     struct BufSizeWarnInfo
     {
@@ -112,7 +109,6 @@ namespace IceInternal
         void setDefaultRouter(const std::optional<Ice::RouterPrx>&);
 
         void setLogger(const Ice::LoggerPtr&);
-        void setThreadHook(std::function<void()>, std::function<void()>);
 
         [[nodiscard]] const Ice::StringConverterPtr& getStringConverter() const { return _stringConverter; }
         [[nodiscard]] const Ice::WstringConverterPtr& getWstringConverter() const { return _wstringConverter; }
@@ -178,7 +174,6 @@ namespace IceInternal
         ThreadObserverTimerPtr _timer;
         EndpointFactoryManagerPtr _endpointFactoryManager;
         Ice::PluginManagerPtr _pluginManager;
-        const Ice::ImplicitContextPtr _implicitContext;
         Ice::StringConverterPtr _stringConverter;
         Ice::WstringConverterPtr _wstringConverter;
         bool _adminEnabled{false};
@@ -186,7 +181,6 @@ namespace IceInternal
         Ice::FacetMap _adminFacets;
         Ice::Identity _adminIdentity;
         std::set<std::string, std::less<>> _adminFacetFilter;
-        IceInternal::MetricsAdminIPtr _metricsAdmin;
         std::map<std::int16_t, BufSizeWarnInfo> _setBufSizeWarn;
         std::mutex _setBufSizeWarnMutex;
         mutable std::recursive_mutex _mutex;
