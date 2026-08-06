@@ -3057,6 +3057,10 @@ class AndroidProcessController(RemoteProcessController):
         # transient failure there must not kill the bond.
         run(f"{self.adb()} logcat -c")
         self._adbTolerantFor(peerAdb, "logcat -c")
+        # `logcat -c` clears only main,system,crash,kernel; the events buffer needs its own clear,
+        # or diagnostics cannot tell one attempt's lifecycle records from an earlier attempt's.
+        self._adbTolerant("logcat -b events -c")
+        self._adbTolerantFor(peerAdb, "logcat -b events -c")
         run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid}")
 
         def tail(log: str) -> str:
@@ -3160,12 +3164,12 @@ class AndroidProcessController(RemoteProcessController):
         lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
         print("\n".join(lines[-80:]))
         # A relaunch emits no new "START u0" and its main-buffer logs are compiled out, so the events
-        # buffer is the only durable record that a second onCreate ran. Scoped to btbond so
-        # unrelated churn cannot displace these lines.
+        # buffer is the only durable record that a second onCreate ran. bond() clears this buffer
+        # per attempt; scoping to btbond keeps the 40 display slots for the lines that matter.
         print("-- btbond lifecycle (events) --")
         events = re.compile(
             "(wm_relaunch|wm_on_(create|destroy)_called|wm_(create|destroy|finish)_activity"
-            "|am_proc_(start|died)).*btbond"
+            "|am_(proc_(start|died)|kill)).*btbond"
         )
         lines = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if events.search(ln)]
         print("\n".join(lines[-40:]) or "<none>")

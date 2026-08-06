@@ -61,6 +61,10 @@ public class MainActivity extends Activity {
     // thread, cleared by the worker's finally, so volatile.
     private static volatile Thread activeWorker;
 
+    // Never cleared: a relaunch must not re-run the intent even after the worker it belongs to has
+    // finished -- activeWorker is null by then, but the run already has its verdict.
+    private static volatile boolean workerStarted;
+
     // Best-effort auto-accept of incoming pairing requests. The app runs as a privileged system app
     // (BLUETOOTH_PRIVILEGED), so setPairingConfirmation should succeed; setPin is a fallback that logs
     // any SecurityException.
@@ -109,21 +113,23 @@ public class MainActivity extends Activity {
         final String uuid = it.getStringExtra("uuid");
         // A relaunch (see onDestroy) re-runs onCreate with the same extras. Two RFCOMM connects to
         // the same peer and UUID resolve the same DLCI and the stack tears both down, taking the
-        // server's accepted connection with them -- so one worker at a time.
+        // server's accepted connection with them -- so one worker per process, ever.
+        //
+        // b is non-null when the instance is being recreated, not on a fresh `am start`. The
+        // worker -- live or already finished -- owns this run's verdict; a FAIL here would become
+        // the last RESULT line and condemn a healthy run. Stay resident so the process keeps an
+        // activity and this receiver.
+        if (b != null && workerStarted) {
+            Log.i(TAG, "relaunch after this process started a worker; it owns this run's verdict");
+            finishWhenWorkerEnds();
+            return;
+        }
         Thread running = activeWorker;
         if (running != null && running.isAlive()) {
-            if (b == null) {
-                // A fresh start while a worker is still going. Nothing else will speak for this
-                // attempt, so give the caller a verdict and a reason.
-                result(mode, false, "a worker is already running in this process");
-                finish();
-            } else {
-                // A relaunch -- savedInstanceState is non-null only then. The original worker owns
-                // this run's verdict; a FAIL here would become the last RESULT line and condemn a
-                // healthy run. Stay resident so the process keeps an activity and this receiver.
-                Log.i(TAG, "relaunch while a worker is running; it owns this run's verdict");
-                finishWhenWorkerEnds();
-            }
+            // A fresh start while a worker is still going. Nothing else will speak for this
+            // attempt, so give the caller a verdict and a reason.
+            result(mode, false, "a worker is already running in this process");
+            finish();
             return;
         }
         Log.i(TAG, "start mode=" + mode + " peer=" + peer);
@@ -140,6 +146,7 @@ public class MainActivity extends Activity {
             }
         });
         activeWorker = worker;
+        workerStarted = true;
         worker.start();
         new Handler(Looper.getMainLooper()).postDelayed(
             () -> {
@@ -155,13 +162,16 @@ public class MainActivity extends Activity {
     // Keeps a refused relaunch resident until the worker is done: a process with no activity is
     // fair game for the OS, worker and sockets included.
     private void finishWhenWorkerEnds() {
+        // Bounded: a worker wedged before its sockets are published never unblocks, and a resident
+        // activity would make every later `am start` a no-op for the rest of the boot.
+        long deadline = System.currentTimeMillis() + WATCHDOG_MS + 30_000;
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(
             new Runnable() {
                 @Override
                 public void run() {
                     Thread running = activeWorker;
-                    if (running == null || !running.isAlive()) {
+                    if (running == null || !running.isAlive() || System.currentTimeMillis() > deadline) {
                         finish();
                     } else {
                         handler.postDelayed(this, 1000);
