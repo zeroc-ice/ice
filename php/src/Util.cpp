@@ -481,6 +481,8 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         if (!createIdentity(&id, e.id()))
         {
             zval_ptr_dtor(&id);
+            zval_ptr_dtor(zex);
+            ZVAL_UNDEF(zex);
             return;
         }
 

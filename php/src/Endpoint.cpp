@@ -371,6 +371,8 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
             zval rawEncoding;
             if (!createEncodingVersion(&rawEncoding, info->rawEncoding))
             {
+                zval_ptr_dtor(zv);
+                ZVAL_UNDEF(zv);
                 return false;
             }
             add_property_zval(zv, "rawEncoding", &rawEncoding);

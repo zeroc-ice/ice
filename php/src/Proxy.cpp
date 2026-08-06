@@ -122,7 +122,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getIdentity)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    createIdentity(return_value, _this->proxy->ice_getIdentity());
+    if (!createIdentity(return_value, _this->proxy->ice_getIdentity()))
+    {
+        RETURN_NULL();
+    }
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_identity_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
