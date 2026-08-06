@@ -216,6 +216,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     ctx = testIntf.getConnectionInfoAsContext()
     test(ctx["incoming"] == "true")
     test(ctx["adapterName"] == "TestAdapter")
+    test(ctx["connectionId"] == "")
     test(ctx["remoteAddress"] == tcpinfo.localAddress)
     test(ctx["localAddress"] == tcpinfo.remoteAddress)
     test(ctx["remotePort"] == str(tcpinfo.localPort))
