@@ -8,18 +8,34 @@
 # the COMPATIBILITY SameMinorVersion policy; version ranges are honored on both endpoints, where
 # SameMinorVersion would reject an upper endpoint in a later x.y.
 
-include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
+# The version is read from ICE_STRING_VERSION in the installed Ice/Config.h, the header the
+# binaries were built with, so it cannot disagree with the installation. IcePrefix.cmake locates
+# the include root from this file's own location; a missing or unreadable header reports no
+# version, and every versioned request fails.
+include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake")
 
 # Report the full version, pre-release suffix included, so Ice_VERSION matches what Ice reports
 # everywhere else. CMake's version comparison ignores the suffix and still derives
 # Ice_VERSION_MAJOR/MINOR/PATCH from the numeric part.
-set(PACKAGE_VERSION "${_ice_package_version}")
+set(PACKAGE_VERSION "")
+if(DEFINED Ice_INCLUDE_ROOT AND EXISTS "${Ice_INCLUDE_ROOT}/Ice/Config.h")
+  file(STRINGS "${Ice_INCLUDE_ROOT}/Ice/Config.h" _ice_config_h_version REGEX "#define ICE_STRING_VERSION ")
+  if(_ice_config_h_version MATCHES "#define ICE_STRING_VERSION \"([^\"]+)\"")
+    set(PACKAGE_VERSION "${CMAKE_MATCH_1}")
+  endif()
+  unset(_ice_config_h_version)
+endif()
+
+# IcePrefix outputs; IceConfig.cmake computes its own, and this file must leave only PACKAGE_*
+# behind.
+unset(Ice_PREFIX)
+unset(Ice_INCLUDE_ROOT)
 
 if(PACKAGE_VERSION MATCHES "^([0-9]+)\\.([0-9]+)")
   set(_ice_version_major "${CMAKE_MATCH_1}")
   set(_ice_version_minor "${CMAKE_MATCH_2}")
 else()
-  # Fail closed on a malformed IceVersion.cmake rather than compare against stale CMAKE_MATCH values.
+  # Fail closed on a malformed version rather than compare against stale CMAKE_MATCH values.
   set(_ice_version_major "")
   set(_ice_version_minor "")
 endif()
@@ -65,5 +81,3 @@ endif()
 
 unset(_ice_version_major)
 unset(_ice_version_minor)
-unset(_ice_package_version)
-unset(_ice_package_so_version)
