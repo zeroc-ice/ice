@@ -8,6 +8,9 @@
 #include "Util.h"
 
 #include <algorithm>
+#include <cassert>
+#include <map>
+#include <mutex>
 #include <thread>
 
 using namespace std;
@@ -455,24 +458,6 @@ namespace IceBT
             return false;
         }
 
-        bool deviceExists(const string& addr) const
-        {
-            lock_guard lock(_mutex);
-
-            //
-            // Check if a remote device exists with the given device address.
-            //
-            for (const auto& remoteDevice : _remoteDevices)
-            {
-                if (remoteDevice.second.getAddress() == IceInternal::toUpper(addr))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         //
         // Calling registerProfile will advertise a service (SDP) profile with the Bluetooth daemon.
         //
@@ -704,7 +689,6 @@ namespace IceBT
 
                 _adapters.clear();
                 _remoteDevices.clear();
-                _defaultAdapterAddress.clear();
 
                 //
                 // The return value of GetManagedObjects is a dictionary structured like this:
@@ -1228,7 +1212,6 @@ namespace IceBT
 
         AdapterMap _adapters;
         RemoteDeviceMap _remoteDevices;
-        string _defaultAdapterAddress;
         vector<thread> _connectThreads;
     };
 }
@@ -1265,12 +1248,6 @@ bool
 IceBT::Engine::adapterExists(const string& addr) const
 {
     return _service->adapterExists(addr);
-}
-
-bool
-IceBT::Engine::deviceExists(const string& addr) const
-{
-    return _service->deviceExists(addr);
 }
 
 string
