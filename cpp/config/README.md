@@ -9,7 +9,8 @@ Slice (`.ice`) files in a target's sources as part of the build.
 ## Requirements
 
 - CMake 3.21 or later
-- An Ice for C++ installation (system package, Homebrew, NuGet, or built from source)
+- An Ice for C++ installation (system package, Homebrew, NuGet, or installed from source with
+  `make install`; the package cannot be used from a source or build tree)
 
 ## Usage
 
