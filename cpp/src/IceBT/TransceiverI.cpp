@@ -249,12 +249,18 @@ void
 IceBT::TransceiverI::connectFailed(std::exception_ptr ex)
 {
     lock_guard lock(_mutex);
-    //
-    // Save the exception - it will be rethrown in initialize().
-    //
-    _exception = ex;
-    //
-    // Wake up the thread pool, which resumes the connection establishment by calling initialize().
-    //
-    _stream->ready(IceInternal::SocketOperationConnect, true);
+
+    // Ignore a failure delivered after the transceiver was closed: there is no connection establishment left to
+    // resume.
+    if (!_closed)
+    {
+        //
+        // Save the exception - it will be rethrown in initialize().
+        //
+        _exception = ex;
+        //
+        // Wake up the thread pool, which resumes the connection establishment by calling initialize().
+        //
+        _stream->ready(IceInternal::SocketOperationConnect, true);
+    }
 }
