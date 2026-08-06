@@ -44,7 +44,7 @@ if(NOT Ice_VERSION OR NOT Ice_SO_VERSION)
   set(Ice_FOUND FALSE)
   string(CONCAT Ice_NOT_FOUND_MESSAGE
     "Could not read ICE_STRING_VERSION and ICE_SO_VERSION from "
-    "'${Ice_INCLUDE_ROOT}/Ice/Config.h': the installation is broken.")
+    "'${Ice_INCLUDE_ROOT}/Ice/Config.h'.")
   return()
 endif()
 
