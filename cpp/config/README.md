@@ -22,10 +22,11 @@ target_link_libraries(client PRIVATE Ice::Ice)
 ```
 
 > [!IMPORTANT]
-> The `CONFIG` (or `NO_MODULE`) keyword is required. CMake bundles its own `FindIce` module, which
-> targets Ice 3.7 and earlier, and module mode wins by default: a plain `find_package(Ice)` runs
-> that module instead of this package and provides none of the imported targets below, nor
-> `slice2cpp_generate`.
+> The `CONFIG` (or `NO_MODULE`) keyword is required. `find_package` has two modes: module mode,
+> which runs a `FindIce` module — and CMake bundles one of its own — and config mode, which loads
+> the `IceConfig.cmake` installed by this package. Module mode wins by default, so a plain
+> `find_package(Ice)` runs CMake's bundled module instead of this package and provides none of the
+> imported targets below, nor `slice2cpp_generate`. `CONFIG` selects config mode.
 
 When Ice is not installed in a standard location, point CMake at it with `CMAKE_PREFIX_PATH` (or
 set `Ice_DIR` to the directory containing `IceConfig.cmake`).
