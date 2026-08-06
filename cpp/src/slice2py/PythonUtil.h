@@ -288,13 +288,17 @@ namespace Slice::Python
         }
 
     private:
-        /// Add the runtime imports for the given Sequence definition.
+        /// Add any necessary imports for the given Sequence definition.
         /// @param sequence The Sequence definition being imported.
         /// @param source The Slice definition that requires the import.
-        /// @param localMetadata Any additional metadata associated with the import.
-        void addRuntimeImportForSequence(
+        /// @param isFieldType Whether the provided sequence is the type of a field.
+        /// Only fields need runtime imports for the sequence's mapped type so their default factories can construct it.
+        /// @param localMetadata Any metadata that is applied to where the sequence is used;
+        /// this takes precedence over metadata applied to the sequence's definition.
+        void addSequenceImports(
             const SequencePtr& sequence,
             const ContainedPtr& source,
+            bool isFieldType,
             const MetadataList& localMetadata);
 
         /// Adds a runtime import for the given Slice definition if it comes from a different module.
@@ -321,13 +325,18 @@ namespace Slice::Python
         /// @param source The Slice definition that requires this import.
         void addTypingImport(const std::string& moduleName, const std::string& definition, const ContainedPtr& source);
 
-        /// Adds a typing import for the package containing the given Slice definition.
+        /// Adds all the necessary typing imports for the given Slice type.
         ///
         /// Typing imports are generated inside an `if TYPE_CHECKING:` block, so they are only used for type hints.
         ///
-        /// @param definition The definition to import the containing package.
+        /// @param type The type to generate imports for.
         /// @param source The Slice definition that requires this import.
-        void addTypingImport(const SyntaxTreeBasePtr& definition, const ContainedPtr& source);
+        /// @param localMetadata Any metadata that is applied to where the type is used;
+        /// this takes precedence over metadata applied to the type's definition.
+        void addTypingImport(
+            const TypePtr& type,
+            const ContainedPtr& source,
+            const MetadataList& localMetadata = MetadataList());
 
         /// Import the meta type for the given Slice definition if it comes from a different module.
         /// @param definition is the Slice definition to import.
