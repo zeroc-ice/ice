@@ -153,6 +153,76 @@ class CustomI(Test.Custom):
         current.adapter.getCommunicator().shutdown()
 
 
+class NestedDictCustomI(Test.NestedDictCustom):
+    @override
+    def opIntListDict(
+        self, v1: dict[str, list[int]], current: Ice.Current
+    ) -> tuple[dict[str, list[int]], dict[str, list[int]]]:
+        for v in v1.values():
+            test(isinstance(v, list))
+        return v1, v1
+
+    @override
+    def opShortSeq1Dict(
+        self, v1: dict[str, array.array[int]], current: Ice.Current
+    ) -> tuple[dict[str, array.array[int]], dict[str, array.array[int]]]:
+        for v in v1.values():
+            test(isinstance(v, array.array))
+            test(v.typecode == "h")
+        return v1, v1
+
+    @override
+    def opByteSeq2Dict(self, v1: dict[str, array.array[int]], current: Ice.Current) -> dict[str, array.array[int]]:
+        for v in v1.values():
+            test(isinstance(v, array.array))
+            test(v.typecode == "b")
+        return v1
+
+    @override
+    def opNestedS(self, v: Test.NestedS, current: Ice.Current) -> Test.NestedS:
+        for s in v.d.values():
+            test(isinstance(s, array.array))
+        for s in v.s:
+            test(isinstance(s, array.array))
+        for s in v.m.values():
+            test(isinstance(s, array.array))
+        for s in v.p.values():
+            test(isinstance(s, list))
+        return v
+
+    @override
+    def opNestedC(self, v: Test.NestedC | None, current: Ice.Current) -> Test.NestedC | None:
+        assert v is not None
+        for s in v.d.values():
+            test(isinstance(s, array.array))
+        for s in v.s:
+            test(isinstance(s, array.array))
+        return v
+
+
+class NestedSeqCustomI(Test.NestedSeqCustom):
+    @override
+    def opIntListSeq(self, v1: list[list[int]], current: Ice.Current) -> tuple[list[list[int]], list[list[int]]]:
+        for v in v1:
+            test(isinstance(v, list))
+        return v1, v1
+
+    @override
+    def opShortSeq1Seq(self, v1: list[array.array[int]], current: Ice.Current) -> list[array.array[int]]:
+        for v in v1:
+            test(isinstance(v, array.array))
+            test(v.typecode == "h")
+        return v1
+
+    @override
+    def opIntListDictSeq(self, v1: list[dict[str, list[int]]], current: Ice.Current) -> list[dict[str, list[int]]]:
+        for d in v1:
+            test(isinstance(d, dict))
+            for v in d.values():
+                test(isinstance(v, list))
+        return v1
+
+
 hasNumPy = False
 try:
     import numpy
@@ -263,6 +333,8 @@ class Server(TestHelper):
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(CustomI(), Ice.stringToIdentity("test"))
+            adapter.add(NestedDictCustomI(), Ice.stringToIdentity("test.nestedDict"))
+            adapter.add(NestedSeqCustomI(), Ice.stringToIdentity("test.nestedSeq"))
             if hasNumPy:
                 adapter.add(NumPyCustomI(), Ice.stringToIdentity("test.numpy"))
             adapter.activate()
