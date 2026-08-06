@@ -150,10 +150,10 @@ module Test
         ShortSeq1Seq s;
     }
 
-    // These operations use numeric and re-mapped sequences, but only nested inside dictionaries.
-    // This tests that the import visitor correctly recurses through the dictionaries' value types when running.
-    // Numeric and re-mapped sequences cannot be used as parameter types: this would cause the import to be generated
-    // without recursing.
+    // These operations use numeric and custom mapped sequences nested inside dictionaries.
+    // This tests that the import visitor recurses through dictionary value types.
+    // For this test to be meaningful, numeric and custom mapped sequences must not appear directly in the operation's
+    // signature; this would cause the import to be registered even without recursion.
     interface NestedDictCustom
     {
         IntListDict opIntListDict(IntListDict v1, out IntListDict v2);
@@ -164,10 +164,10 @@ module Test
         NestedC opNestedC(NestedC v);
     }
 
-    // These operations use numeric and re-mapped sequences, but only nested inside other sequences.
-    // This tests that the import visitor correctly recurses through the sequences' element types when running.
-    // Numeric and re-mapped sequences cannot be used as parameter types: this would cause the import to be generated
-    // without recursing.
+    // These operations use numeric and custom mapped sequences nested inside other sequences.
+    // This tests that the import visitor recurses through sequence element types.
+    // For this test to be meaningful, numeric and custom mapped sequences must not appear directly in the operation's
+    // signature; this would cause the import to be registered even without recursion.
     interface NestedSeqCustom
     {
         IntListSeq opIntListSeq(IntListSeq v1, out IntListSeq v2);

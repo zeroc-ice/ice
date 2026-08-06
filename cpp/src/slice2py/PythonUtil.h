@@ -292,7 +292,9 @@ namespace Slice::Python
         /// @param sequence The Sequence definition being imported.
         /// @param source The Slice definition that requires the import.
         /// @param isFieldType Whether the provided sequence is the type of a field.
-        /// @param localMetadata Any additional metadata associated with the import.
+        /// Only fields need runtime imports for the sequence's mapped type so their default factories can construct it.
+        /// @param localMetadata Any metadata that is applied to where the sequence is used;
+        /// this takes precedence over metadata applied to the sequence's definition.
         void addSequenceImports(
             const SequencePtr& sequence,
             const ContainedPtr& source,
@@ -329,7 +331,8 @@ namespace Slice::Python
         ///
         /// @param type The type to generate imports for.
         /// @param source The Slice definition that requires this import.
-        /// @param localMetadata The local metadata to consider when generating imports.
+        /// @param localMetadata Any metadata that is applied to where the type is used;
+        /// this takes precedence over metadata applied to the type's definition.
         void addTypingImport(
             const TypePtr& type,
             const ContainedPtr& source,
