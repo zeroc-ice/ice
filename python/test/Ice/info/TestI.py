@@ -63,6 +63,7 @@ class MyDerivedClassI(Test.TestIntf):
         info = current.con.getInfo()
         ipinfo = getIPConnectionInfo(info)
         ctx["adapterName"] = info.adapterName
+        ctx["connectionId"] = info.connectionId
         if info.incoming:
             ctx["incoming"] = "true"
         else:
