@@ -72,8 +72,11 @@ function(slice2cpp_generate target)
   get_target_property(target_source_dir ${target} SOURCE_DIR)
   if(NOT target_source_dir STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     message(FATAL_ERROR
-      "slice2cpp_generate: '${target}' was created in '${target_source_dir}'; call slice2cpp_generate "
-      "from that directory.")
+      "slice2cpp_generate: '${target}' was created in '${target_source_dir}', but this call is in "
+      "'${CMAKE_CURRENT_SOURCE_DIR}'. The rule that compiles the Slice files belongs to the directory "
+      "that calls slice2cpp_generate, so nothing would ever generate the sources it adds to "
+      "'${target}'. Move this call next to the add_library() or add_executable() that created "
+      "'${target}'.")
   endif()
 
   if(arg_UNPARSED_ARGUMENTS)
