@@ -48,7 +48,7 @@ public class Client: TestHelperI, @unchecked Sendable {
             do {
                 _ = try inS.read() as Bool
                 try test(false)
-            } catch {}
+            } catch is Ice.MarshalException {}
         }
 
         do {

@@ -17,44 +17,19 @@ public class Custom<T> : IEnumerable<T>
         set => _list[index] = value;
     }
 
-    public void Add(T elmt) => _list.Add(elmt);
+    public void Add(T element) => _list.Add(element);
 
-    public override bool Equals(object obj)
+    public override bool Equals(object obj) => obj is Custom<T> other && _list.SequenceEqual(other._list);
+
+    public override int GetHashCode()
     {
-        try
+        var hash = new HashCode();
+        foreach (T element in _list)
         {
-            var tmp = (Custom<T>)obj;
-            IEnumerator<T> e = tmp.GetEnumerator();
-            foreach (T elmt in _list)
-            {
-                if (!e.MoveNext())
-                {
-                    return false;
-                }
-                if (elmt == null)
-                {
-                    if (e.Current != null)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (!elmt.Equals(e.Current))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            hash.Add(element);
         }
-        catch (Exception)
-        {
-            return false;
-        }
+        return hash.ToHashCode();
     }
-
-    public override int GetHashCode() => base.GetHashCode();
 
     private readonly List<T> _list = new List<T>();
 }

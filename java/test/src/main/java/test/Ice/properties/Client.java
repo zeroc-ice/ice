@@ -208,7 +208,7 @@ public class Client extends TestHelper {
             Properties properties = new Properties();
             properties.setProperty("Foo", "bar");
             try {
-                properties.getIcePropertyAsInt("Foo");
+                properties.getPropertyAsInt("Foo");
                 test(false);
             } catch (PropertyException ex) {}
             System.out.println("ok");
