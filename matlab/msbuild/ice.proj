@@ -2,9 +2,9 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-        <Platform>x64</Platform>
+        <Platform Condition="'$(Platform)' == ''">x64</Platform>
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-        <RootDir>$([System.IO.Path]::GetFullPath( $(MSBuildThisFileDirectory)..\msbuild ))</RootDir>
+        <RootDir>$(MSBuildThisFileDirectory.TrimEnd('\'))</RootDir>
         <ToolboxDir>$(MSBuildThisFileDirectory)..\toolbox\build</ToolboxDir>
         <MatlabVersion Condition="'$(MatlabVersion)' == ''">R2025b</MatlabVersion>
         <MatlabVersion Condition="'$(MATLAB_VERSION)' != ''">$(MATLAB_VERSION)</MatlabVersion>
@@ -25,7 +25,6 @@
         </Otherwise>
     </Choose>
 
-    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
     <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.version.props"/>
     <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.common.targets"/>
 
@@ -33,7 +32,7 @@
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.slnx"
                  Properties="Platform=Any CPU;Configuration=$(Configuration)"
                  Targets="Restore" />
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.slnx" />
+        <Exec Command="&quot;$(NuGetExe)&quot; restore &quot;$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.slnx&quot;" />
     </Target>
 
     <Target Name="BuildCppDist" DependsOnTargets="NuGetRestore">
@@ -69,12 +68,14 @@
 
     <Target Name="Build" DependsOnTargets="BuildDist;NuGetRestore">
         <MSBuild Projects="ice.matlab.test.proj"
-                 Targets="SliceCompile"/>
+                 Targets="SliceCompile"
+                 Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
     </Target>
 
     <Target Name="Clean" DependsOnTargets="CleanDist">
         <MSBuild Projects="ice.matlab.test.proj"
-                 Targets="SliceCompileClean"/>
+                 Targets="SliceCompileClean"
+                 Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
     </Target>
 
     <!-- Replace file contents -->
@@ -131,6 +132,6 @@
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
         <Exec Command="$(MatlabCommand) &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');removeFolderFromPath '$(ToolboxDir)'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Delete Files="toolbox.prj"/>
+        <Delete Files="$(MSBuildThisFileDirectory)..\toolbox\toolbox.prj;$(MSBuildThisFileDirectory)..\toolbox\info.xml"/>
     </Target>
 </Project>
