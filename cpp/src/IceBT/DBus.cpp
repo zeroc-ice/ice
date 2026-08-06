@@ -1,11 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "DBus.h"
-#include <map>
 
 #include <dbus/dbus.h>
 
+#include <cassert>
 #include <condition_variable>
+#include <map>
 #include <mutex>
 #include <stack>
 #include <thread>

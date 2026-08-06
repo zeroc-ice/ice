@@ -53,13 +53,13 @@ namespace IceBT
     public:
         Engine(Ice::CommunicatorPtr);
 
-        Ice::CommunicatorPtr communicator() const;
+        [[nodiscard]] Ice::CommunicatorPtr communicator() const;
 
         void initialize();
-        bool initialized() const;
+        [[nodiscard]] bool initialized() const;
 
-        std::string getDefaultAdapterAddress() const;
-        bool adapterExists(const std::string&) const;
+        [[nodiscard]] std::string getDefaultAdapterAddress() const;
+        [[nodiscard]] bool adapterExists(const std::string&) const;
 
         std::string registerProfile(const std::string&, const std::string&, int, const ProfileCallbackPtr&);
         void unregisterProfile(const std::string&);
@@ -69,7 +69,7 @@ namespace IceBT
         void startDiscovery(const std::string&, std::function<void(const std::string&, const PropertyMap&)>);
         void stopDiscovery(const std::string&);
 
-        DeviceMap getDevices() const;
+        [[nodiscard]] DeviceMap getDevices() const;
 
         void destroy();
 

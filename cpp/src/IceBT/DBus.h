@@ -3,7 +3,6 @@
 #ifndef ICE_BT_DBUS_H
 #define ICE_BT_DBUS_H
 
-#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <sstream>
@@ -431,9 +430,8 @@ namespace IceBT::DBus
         virtual void removeService(const std::string&) = 0;
 
         //
-        // Asynchronously invokes a method call. The returned AsyncResult can be used
-        // to determine completion status and obtain the reply, or supply a callback
-        // to be notified when the call completes.
+        // Asynchronously invokes a method call. The returned AsyncResult can be used to wait for
+        // the reply and obtain it, or supply a callback to be notified when the call completes.
         //
         virtual AsyncResultPtr callAsync(const MessagePtr&, const AsyncCallbackPtr& = nullptr) = 0;
 

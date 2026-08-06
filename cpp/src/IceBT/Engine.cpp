@@ -8,6 +8,7 @@
 #include "Util.h"
 
 #include <algorithm>
+#include <cassert>
 #include <map>
 #include <mutex>
 #include <thread>
