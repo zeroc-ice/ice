@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from .IcePyTypes import Connection, Endpoint
     from .Identity import Identity
     from .Locator import LocatorPrx
+    from .OperationMode import OperationMode
     from .Router import RouterPrx
 
     T = TypeVar("T", bound=ObjectPrx)
@@ -345,6 +346,67 @@ class ObjectPrx(IcePy.ObjectPrx):
             It holds the Slice type ID of the most-derived interface.
         """
         return Object._op_ice_id.invokeAsync(self, ((), context))
+
+    def ice_invoke(
+        self, operation: str, mode: OperationMode, inParams: bytes, ctx: dict[str, str] | None = None
+    ) -> tuple[bool, bytes]:
+        """
+        Invokes an operation dynamically.
+
+        Parameters
+        ----------
+        operation : str
+            The name of the operation to invoke.
+        mode : OperationMode
+            The operation mode (normal or idempotent).
+        inParams : bytes
+            An encapsulation containing the encoded in-parameters for the operation. You can pass an empty byte
+            string when the operation takes no in-parameters; the Ice runtime then marshals an empty encapsulation.
+        ctx : dict[str, str] | None, optional
+            The request context.
+
+        Returns
+        -------
+        tuple[bool, bytes]
+            A success flag and an encapsulation. If the operation completed successfully, the flag is ``True``
+            and the encapsulation contains the encoded out-parameters and return value (the return value follows
+            any out-parameters). If the operation raised a user exception, the flag is ``False`` and the
+            encapsulation contains the encoded user exception. If the operation raised a runtime exception, this
+            function raises it directly. When this proxy is a oneway, datagram, or batch proxy, the flag is
+            always ``True`` and the encapsulation is empty.
+        """
+        return super().ice_invoke(operation, mode, inParams, ctx)
+
+    def ice_invokeAsync(
+        self, operation: str, mode: OperationMode, inParams: bytes, ctx: dict[str, str] | None = None
+    ) -> Awaitable[tuple[bool, bytes]]:
+        """
+        Invokes an operation dynamically.
+
+        Parameters
+        ----------
+        operation : str
+            The name of the operation to invoke.
+        mode : OperationMode
+            The operation mode (normal or idempotent).
+        inParams : bytes
+            An encapsulation containing the encoded in-parameters for the operation. You can pass an empty byte
+            string when the operation takes no in-parameters; the Ice runtime then marshals an empty encapsulation.
+        ctx : dict[str, str] | None, optional
+            The request context.
+
+        Returns
+        -------
+        Awaitable[tuple[bool, bytes]]
+            An :class:`Awaitable` that completes when the invocation completes. It holds a success flag and an
+            encapsulation. If the operation completed successfully, the flag is ``True`` and the encapsulation
+            contains the encoded out-parameters and return value (the return value follows any out-parameters).
+            If the operation raised a user exception, the flag is ``False`` and the encapsulation contains the
+            encoded user exception. If the operation raised a runtime exception, the :class:`Awaitable` raises it
+            directly. When this proxy is a oneway, datagram, or batch proxy, the flag is always ``True`` and the
+            encapsulation is empty.
+        """
+        return super().ice_invokeAsync(operation, mode, inParams, ctx)
 
     def ice_getIdentity(self) -> Identity:
         """
@@ -917,6 +979,30 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getConnection()
 
+    def ice_getConnectionAsync(self) -> Awaitable[Connection | None]:
+        """
+        Gets the connection for this proxy. If the proxy does not yet have an established connection
+        or its connection is closed or being closed, it first attempts to create a new connection.
+        For a fixed proxy, the returned :class:`Awaitable` holds the connection this proxy is bound to,
+        even when this connection is closed.
+
+        Returns
+        -------
+        Awaitable[Connection | None]
+            An :class:`Awaitable` that completes when the connection is available.
+            It holds the Connection for this proxy.
+
+        Notes
+        -----
+        You can call this function to establish a connection or associate the proxy with an existing
+        connection and ignore the result.
+
+        When this proxy reaches its target object through collocation optimization (see
+        ``ice_collocationOptimized``), the :class:`Awaitable` holds ``None``: collocated invocations
+        don't use a connection.
+        """
+        return super().ice_getConnectionAsync()
+
     def ice_getCachedConnection(self) -> Connection | None:
         """
         Gets the Connection cached by this proxy. Once this proxy has been associated with a connection
@@ -945,6 +1031,28 @@ class ObjectPrx(IcePy.ObjectPrx):
         Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.
         """
         return super().ice_flushBatchRequests()
+
+    def ice_flushBatchRequestsAsync(self) -> Awaitable[None]:
+        """
+        Flushes any pending batched requests for this proxy. The call does not block.
+
+        Returns
+        -------
+        Awaitable[None]
+            An :class:`Awaitable` that completes when the flush completes.
+        """
+        return super().ice_flushBatchRequestsAsync()
+
+    def ice_toString(self) -> str:
+        """
+        Creates a stringified version of this proxy.
+
+        Returns
+        -------
+        str
+            A stringified proxy.
+        """
+        return super().ice_toString()
 
     def __repr__(self) -> str:
         return (
