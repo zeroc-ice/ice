@@ -19,40 +19,7 @@ public class Custom<T> : IEnumerable<T>
 
     public void Add(T element) => _list.Add(element);
 
-    public override bool Equals(object obj)
-    {
-        try
-        {
-            var tmp = (Custom<T>)obj;
-            IEnumerator<T> e = tmp.GetEnumerator();
-            foreach (T element in _list)
-            {
-                if (!e.MoveNext())
-                {
-                    return false;
-                }
-                if (element == null)
-                {
-                    if (e.Current != null)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (!element.Equals(e.Current))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return !e.MoveNext();
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
+    public override bool Equals(object obj) => obj is Custom<T> other && _list.SequenceEqual(other._list);
 
     public override int GetHashCode()
     {
