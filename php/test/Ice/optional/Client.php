@@ -13,8 +13,7 @@ function allTests($helper)
 
     echo "testing class stringification... ";
     flush(); {
-        // Stringifying a class must print each required member once and include the optional members. Before #5535
-        // ClassInfo::printMembers iterated the required members twice, so 'requiredA' printed twice and 'ma' never.
+        // Stringifying a class must print each required member once and include the optional members.
         $a = new Test\A();
         $a->requiredA = 11;
         $a->ma = 22;

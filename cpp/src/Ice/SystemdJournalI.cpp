@@ -59,7 +59,7 @@ Ice::SystemdJournalI::write(int priority, const string& message) const
         priority,
         "SYSLOG_IDENTIFIER=%s",
         _prefix.c_str(),
-        NULL); // Using NULL is necessary for EL7, see #293
+        NULL); // The sd_journal_send argument list must be NULL-terminated.
 }
 
 #endif

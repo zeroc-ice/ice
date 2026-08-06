@@ -3,9 +3,8 @@
 #
 # Make sure IceStorm and the subscriber use the same buffer size for
 # sending/receiving datagrams. This ensures the test works with bogus
-# OS configurations where the reicever buffer size is smaller than the
-# send buffer size (causing the received messages to be
-# truncated). See also bug #6070.
+# OS configurations where the receive buffer size is smaller than the
+# send buffer size (causing the received messages to be truncated).
 #
 from __future__ import annotations
 
