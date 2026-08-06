@@ -27,7 +27,7 @@ unset(_ice_package_so_version)
 
 if(NOT DEFINED Ice_PREFIX)
   set(Ice_FOUND FALSE)
-  set(Ice_NOT_FOUND_MESSAGE
+  string(CONCAT Ice_NOT_FOUND_MESSAGE
     "Could not locate the Ice installation: ${CMAKE_CURRENT_LIST_DIR} is not in a recognized "
     "installation layout, or the installation is missing Ice/Ice.h.")
   return()
