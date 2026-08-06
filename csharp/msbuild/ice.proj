@@ -1,12 +1,12 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.version.props" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.version.props" />
     <PropertyGroup>
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-	<!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
+        <!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
         <PackageVersion>$(IcePackageVersion)</PackageVersion>
     </PropertyGroup>
 
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.common.targets" />
 
     <ItemGroup>
         <!-- Packages produced by the source build -->
@@ -42,14 +42,12 @@
     <ItemGroup>
         <!-- .NET Solution files -->
         <SolutionFile Include="ice.slnx">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
-          <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;PackageVersion=$(PackageVersion)</Properties>
         </SolutionFile>
 
         <!-- .NET projects to build with dist target -->
         <DistSolutionFile Include="ice.dist.slnx">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;</Properties>
-          <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;PackageVersion=$(PackageVersion)</Properties>
         </DistSolutionFile>
     </ItemGroup>
 
@@ -70,7 +68,7 @@
     </Target>
 
     <Target Name="Pack">
-        <Exec Command="dotnet pack --no-build @(DistSolutionFile) /p:PackageVersion=$(PackageVersion);Platform=&quot;Any CPU&quot;" />
+        <Exec Command="dotnet pack --no-build &quot;@(DistSolutionFile)&quot; /p:PackageVersion=$(PackageVersion);Platform=&quot;Any CPU&quot;" />
     </Target>
 
     <Target Name="Publish" DependsOnTargets="Pack">
@@ -78,12 +76,15 @@
             <Output TaskParameter="ConsoleOutput" PropertyName="NuGetGlobalPackages" />
         </Exec>
         <PropertyGroup>
-            <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('info : '))</NuGetGlobalPackages>
-            <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('global-packages: '))</NuGetGlobalPackages>
+            <!-- The output is "global-packages: <path>", possibly prefixed with "info : ". -->
+            <NuGetGlobalPackages>$([System.Text.RegularExpressions.Regex]::Replace('$(NuGetGlobalPackages)', '^.*?global-packages:\s*', ''))</NuGetGlobalPackages>
+            <!-- Trim the trailing backslash so that the quoted source argument doesn't end -->
+            <!-- in a backslash-escaped quote. -->
+            <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimEnd('\'))</NuGetGlobalPackages>
         </PropertyGroup>
 
         <RemoveDir Directories="$(NuGetGlobalPackages)\%(DistPackage.Identity)\$(PackageVersion)"
             Condition="Exists('$(NuGetGlobalPackages)\%(DistPackage.Identity)\$(PackageVersion)')"/>
-        <Exec Command="dotnet nuget push %(DistPackage.ProjectDir)/bin/$(Configuration)/%(DistPackage.Identity).$(PackageVersion).nupkg --source $(NuGetGlobalPackages)" />
+        <Exec Command="dotnet nuget push &quot;%(DistPackage.ProjectDir)/bin/$(Configuration)/%(DistPackage.Identity).$(PackageVersion).nupkg&quot; --source &quot;$(NuGetGlobalPackages)&quot;" />
     </Target>
 </Project>
