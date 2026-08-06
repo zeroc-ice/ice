@@ -2436,10 +2436,6 @@ IceRuby::ValueWriter::ValueWriter(VALUE object, ValueMap* valueMap, const ClassI
       _map(valueMap),
       _formal(formal)
 {
-    //
-    // Mark the object as in use for the lifetime of this wrapper.
-    //
-    rb_gc_register_address(&_object);
     if (!_formal || !_formal->interface)
     {
         volatile VALUE cls = CLASS_OF(object);
@@ -2448,6 +2444,9 @@ IceRuby::ValueWriter::ValueWriter(VALUE object, ValueMap* valueMap, const ClassI
         _info = dynamic_pointer_cast<ClassInfo>(getType(type));
         assert(_info);
     }
+
+    // Mark the object as in use for the lifetime of this wrapper. We register last, in case the code above throws.
+    rb_gc_register_address(&_object);
 }
 
 IceRuby::ValueWriter::~ValueWriter() { rb_gc_unregister_address(&_object); }
@@ -2861,6 +2860,7 @@ IceRuby::ExceptionReader::_read(Ice::InputStream* is)
 {
     is->startException();
     _ex = _info->unmarshal(is);
+    is->endException();
 }
 
 bool
