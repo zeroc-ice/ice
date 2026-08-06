@@ -605,6 +605,29 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // Two same-name reader topics on the peer node, each with a sample-filtered reader on this writer's key. Each
+    // reader is the first element of its own topic, so per-topic element numbering gives the two readers the same
+    // element id. Each reader must still receive only the samples its own filter matches.
+    cout << "testing sample filtering across same-name reader topics... " << flush;
+    {
+        Topic<string, string> topic(node, "sameNameSampleFilter");
+        topic.setSampleFilter<string>(
+            "contains",
+            [](const string& substring)
+            {
+                return [substring](const Sample<string, string>& sample)
+                { return sample.getValue().find(substring) != string::npos; };
+            });
+
+        auto writer = makeSingleKeyWriter(topic, "elem", "", config);
+        writer.waitForReaders(2); // the sample-filtered reader of each same-name topic
+        writer.update("a");       // matches only the reader filtering on "a"
+        writer.update("b");       // matches only the reader filtering on "b"
+        writer.update("ab");      // matches both readers
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
     cout << "testing topic collocated key reader and writer... " << flush;
     {
         Topic<string, string> topic(node, "collocated");
