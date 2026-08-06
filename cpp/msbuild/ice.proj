@@ -164,18 +164,4 @@
         <Exec Command="&quot;$(NuGetExe)&quot; pack -NoPackageAnalysis -NonInteractive -Version $(PackageVersion)"
               WorkingDirectory="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp"/>
     </Target>
-
-    <Target Name="Publish" DependsOnTargets="Pack">
-        <Exec Command="&quot;$(NuGetExe)&quot; locals global-packages -list" ConsoleToMSBuild="true" EchoOff="yes">
-            <Output TaskParameter="ConsoleOutput" PropertyName="NuGetGlobalPackages" />
-        </Exec>
-        <PropertyGroup>
-            <!-- The output is "global-packages: <path>", possibly prefixed with "info : ". -->
-            <NuGetGlobalPackages>$([System.Text.RegularExpressions.Regex]::Replace('$(NuGetGlobalPackages)', '^.*?global-packages:\s*', ''))</NuGetGlobalPackages>
-        </PropertyGroup>
-
-        <RemoveDir Directories="$(NuGetGlobalPackages)\ZeroC.Ice.Cpp\$(PackageVersion)"
-            Condition="Exists('$(NuGetGlobalPackages)\ZeroC.Ice.Cpp\$(PackageVersion)')"/>
-        <Exec Command="&quot;$(NuGetExe)&quot; push &quot;$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\ZeroC.Ice.Cpp.$(PackageVersion).nupkg&quot; -source &quot;$(NuGetGlobalPackages)&quot;" />
-    </Target>
 </Project>
