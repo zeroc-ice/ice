@@ -1,7 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
 # Compiles the Slice (.ice) files in a target's sources and adds the generated C++ to the target.
-# Only sees the sources present when it is called.
+# Only sees the sources present when it is called, and must be called from the directory that
+# created the target.
 #
 #   slice2cpp_generate(<target>
 #     [INCLUDE_DIRS <dir>...]     # extra -I directories
@@ -64,6 +65,18 @@ function(slice2cpp_generate target)
   get_target_property(target_type ${target} TYPE)
   if(NOT target_type MATCHES "^(EXECUTABLE|STATIC_LIBRARY|SHARED_LIBRARY|MODULE_LIBRARY|OBJECT_LIBRARY)$")
     message(FATAL_ERROR "slice2cpp_generate: '${target}' is a ${target_type}, which cannot compile Slice.")
+  endif()
+
+  # add_custom_command(OUTPUT) rules only run for targets created in the calling directory; from any
+  # other directory the generated sources would be added with nothing to produce them.
+  get_target_property(target_source_dir ${target} SOURCE_DIR)
+  if(NOT target_source_dir STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    message(FATAL_ERROR
+      "slice2cpp_generate: '${target}' was created in '${target_source_dir}', but this call is in "
+      "'${CMAKE_CURRENT_SOURCE_DIR}'. The rule that compiles the Slice files belongs to the directory "
+      "that calls slice2cpp_generate, so nothing would ever generate the sources it adds to "
+      "'${target}'. Move this call next to the add_library() or add_executable() that created "
+      "'${target}'.")
   endif()
 
   if(arg_UNPARSED_ARGUMENTS)
