@@ -239,8 +239,6 @@ class IceStormAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceStormProcess, Cl
         IceStormProcess.__init__(self, instanceName, instance)
 
     def getExe(self, current: Driver.Current) -> str:
-        # This used to skip the "_32" suffix when testing against a binary distribution, but binary
-        # distribution testing (ICE_BIN_DIST) was removed in #3442.
         assert self.exe is not None
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 

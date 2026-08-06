@@ -117,14 +117,14 @@ function allTests($helper)
         $connection = $testIntf->ice_getConnection();
         $connection->setBufferSize(1024, 2048);
 
-        // setBufferSize must reject non-integer arguments instead of applying a garbage size (see #5534).
+        // setBufferSize must reject non-integer arguments instead of applying a garbage size.
         try {
             $connection->setBufferSize("not an int", 2048);
             test(false);
         } catch (TypeError $ex) {
         }
 
-        // It must also reject values outside the C++ int range instead of silently truncating them (see #5534).
+        // It must also reject values outside the C++ int range instead of silently truncating them.
         try {
             $connection->setBufferSize(2 ** 40, 2048);
             test(false);
@@ -179,7 +179,7 @@ function allTests($helper)
         }
 
         // rcvSize and sndSize must be declared properties on Ice\UDPConnectionInfo, not deprecated dynamic
-        // properties created only at runtime (see #5536).
+        // properties created only at runtime.
         $udpInfo = $testIntf->ice_datagram()->ice_getConnection()->getInfo();
         test($udpInfo instanceof Ice\UDPConnectionInfo);
         $udpInfoClass = new ReflectionClass(Ice\UDPConnectionInfo::class);

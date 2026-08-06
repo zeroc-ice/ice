@@ -137,8 +137,8 @@ IcePHP::ResultCallback::ResultCallback() { ZVAL_UNDEF(&zv); }
 IcePHP::ResultCallback::~ResultCallback()
 {
 #ifdef NDEBUG
-    // BUGFIX releasing this object triggers an assert in zend_weakrefs_notify
-    // see https://github.com/zeroc-ice/ice/issues/1439
+    // Release-build only: with a debug build of PHP, releasing this object triggers an assert in
+    // zend_weakrefs_notify.
     zval_ptr_dtor(&zv);
 #endif
 }
