@@ -29,6 +29,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.IOException;
@@ -113,7 +114,7 @@ public class MainActivity extends Activity {
         final String uuid = it.getStringExtra("uuid");
         // A relaunch (see onDestroy) re-runs onCreate with the same extras. Two RFCOMM connects to
         // the same peer and UUID resolve the same DLCI and the stack tears both down, taking the
-        // server's accepted connection with them -- so one worker per process, ever.
+        // server's accepted connection with them -- so at most one worker per `am start`.
         //
         // b is non-null when the instance is being recreated, not on a fresh `am start`. The
         // worker -- live or already finished -- owns this run's verdict; a FAIL here would become
@@ -163,15 +164,16 @@ public class MainActivity extends Activity {
     // fair game for the OS, worker and sockets included.
     private void finishWhenWorkerEnds() {
         // Bounded: a worker wedged before its sockets are published never unblocks, and a resident
-        // activity would make every later `am start` a no-op for the rest of the boot.
-        long deadline = System.currentTimeMillis() + WATCHDOG_MS + 30_000;
+        // activity would make every later `am start` a no-op for the rest of the boot. uptimeMillis,
+        // matching the postDelayed clock -- wall time can step and trip the cap early.
+        long deadline = SystemClock.uptimeMillis() + WATCHDOG_MS + 30_000;
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(
             new Runnable() {
                 @Override
                 public void run() {
                     Thread running = activeWorker;
-                    if (running == null || !running.isAlive() || System.currentTimeMillis() > deadline) {
+                    if (running == null || !running.isAlive() || SystemClock.uptimeMillis() > deadline) {
                         finish();
                     } else {
                         handler.postDelayed(this, 1000);
