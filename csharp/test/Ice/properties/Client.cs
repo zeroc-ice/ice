@@ -215,7 +215,7 @@ public class Client : Test.TestHelper
             properties.setProperty("Foo", "bar");
             try
             {
-                properties.getIcePropertyAsInt("Foo");
+                properties.getPropertyAsInt("Foo");
                 test(false);
             }
             catch (Ice.PropertyException)
