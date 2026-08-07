@@ -99,8 +99,11 @@ The package also defines two imported executables, neither of which is a compone
 | `Ice_SLICE_DIR`            | The directory containing the Ice Slice files                            |
 | `Ice_SLICE2CPP_EXECUTABLE` | Path to the `slice2cpp` compiler                                        |
 
-`Ice_VERSION` carries the pre-release suffix so it matches what Ice reports everywhere else; CMake's version
-comparisons ignore the suffix and still derive `Ice_VERSION_MAJOR`/`MINOR`/`PATCH` from the numeric part.
+`Ice_VERSION` carries the pre-release suffix so it matches what Ice reports everywhere else. CMake derives
+`Ice_VERSION_MAJOR`, `MINOR` and `PATCH` from the numeric part, and its version comparisons ignore the suffix
+altogether: with `3.9.0-alpha.0` installed, `Ice_VERSION VERSION_EQUAL 3.9.0` is true. A `find_package` request with
+`EXACT` is the exception, since this package compares it as a string: a pre-release does not satisfy `EXACT` for the
+release it precedes.
 
 `Ice_SLICE_DIR` is always passed to slice2cpp by `slice2cpp_generate`, so you never need to add it to `INCLUDE_DIRS`
 yourself.
