@@ -10,6 +10,9 @@
 #     [HEADER_OUTPUT_DIR <dir>]   # put the headers here instead of with the sources
 #     [INCLUDE_DIR <dir>]         # slice2cpp --include-dir
 #     [INCLUDE_SCOPE <scope>]     # PRIVATE (default) or PUBLIC
+#     [DEPENDENCIES <dep>...]     # extra DEPENDS on each generation command
+#     [GENERATED_HEADERS <var>]   # out: absolute paths of the generated headers
+#     [GENERATED_SOURCES <var>]   # out: absolute paths of the generated sources
 #   )
 #
 # Example:
@@ -35,7 +38,23 @@
 # them, so the #include directives slice2cpp emits resolve; a file under no such directory generates
 # flat. Headers land under HEADER_OUTPUT_DIR/INCLUDE_DIR, and both go on the target's include path.
 #
-# A PUBLIC INCLUDE_SCOPE covers the build tree only; installing the headers is the caller's.
+# A PUBLIC INCLUDE_SCOPE covers the build tree only; installing the headers is the caller's:
+# GENERATED_HEADERS and GENERATED_SOURCES name variables to receive the paths, which only this
+# function can compute. They are set in the caller's scope, empty when the target has no Slice, and
+# cover the same sources the call itself saw:
+#
+#   slice2cpp_generate(demo INCLUDE_SCOPE PUBLIC GENERATED_HEADERS demo_headers)
+#   install(FILES ${demo_headers} DESTINATION include/Demo)
+#
+# The paths keep the mirrored layout, and a generated header includes its neighbors by that layout,
+# so a mirrored header set has to be installed with its subdirectories - install(FILES) flattens
+# them, leaving those includes unresolvable.
+#
+# DEPENDENCIES adds DEPENDS edges to every generation command, for .ice files produced by another
+# custom command.
+#
+# Ice::slice2cpp is the compiler, found next to the package. Presetting the Ice_SLICE2CPP_EXECUTABLE
+# cache variable overrides it, for cross-compiling with a host slice2cpp.
 #
 # --header-ext and --source-ext in OPTIONS are honored; options that relocate the outputs or
 # suppress generation are rejected, and contradicting cpp:header-ext metadata is a build-time error.
@@ -50,7 +69,9 @@ endif()
 cmake_policy(VERSION 3.21)
 
 function(slice2cpp_generate target)
-  cmake_parse_arguments(PARSE_ARGV 1 arg "" "INCLUDE_SCOPE;HEADER_OUTPUT_DIR;INCLUDE_DIR" "INCLUDE_DIRS;OPTIONS")
+  cmake_parse_arguments(PARSE_ARGV 1 arg ""
+    "INCLUDE_SCOPE;HEADER_OUTPUT_DIR;INCLUDE_DIR;GENERATED_HEADERS;GENERATED_SOURCES"
+    "INCLUDE_DIRS;OPTIONS;DEPENDENCIES")
 
   if(NOT TARGET ${target})
     message(FATAL_ERROR "slice2cpp_generate: '${target}' is not a target.")
@@ -152,6 +173,15 @@ function(slice2cpp_generate target)
     message(FATAL_ERROR
       "slice2cpp_generate: CMake does not compile '.${source_ext}' as C++ "
       "(known: ${CMAKE_CXX_SOURCE_FILE_EXTENSIONS}).")
+  endif()
+
+  # Cleared up front so a target with no Slice reports empty rather than leaving whatever the
+  # variable held before the call.
+  if(arg_GENERATED_HEADERS)
+    set(${arg_GENERATED_HEADERS} "" PARENT_SCOPE)
+  endif()
+  if(arg_GENERATED_SOURCES)
+    set(${arg_GENERATED_SOURCES} "" PARENT_SCOPE)
   endif()
 
   get_target_property(sources ${target} SOURCES)
@@ -319,14 +349,23 @@ function(slice2cpp_generate target)
         COMMAND $<TARGET_FILE:Ice::slice2cpp> ${include_options} ${include_dir_options} ${arg_OPTIONS}
           ${slice_file_path} --output-dir ${file_output_dir}
         ${move_header_commands}
-        DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp>
+        DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp> ${arg_DEPENDENCIES}
         DEPFILE ${depfile}
         VERBATIM
         COMMENT "Compiling Slice ${file} -> ${output_dir_relative}/${slice_file_name}.${source_ext} ${header_dir_relative}/${slice_file_name}.${header_ext}"
       )
 
       target_sources(${target} PRIVATE ${output_files})
+      list(APPEND generated_headers ${header_file})
+      list(APPEND generated_sources ${source_file})
 
     endif()
   endforeach()
+
+  if(arg_GENERATED_HEADERS)
+    set(${arg_GENERATED_HEADERS} ${generated_headers} PARENT_SCOPE)
+  endif()
+  if(arg_GENERATED_SOURCES)
+    set(${arg_GENERATED_SOURCES} ${generated_sources} PARENT_SCOPE)
+  endif()
 endfunction()
