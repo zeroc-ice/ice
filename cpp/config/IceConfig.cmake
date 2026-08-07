@@ -14,6 +14,16 @@ if(CMAKE_VERSION VERSION_LESS 3.21)
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
+
+set(Ice_SO_VERSION "${_ice_package_so_version}")
+
+# Unconditionally: under find_package this matches what IceConfigVersion.cmake reported, and a
+# leftover cache entry from an older installation must not win over the installed version.
+set(Ice_VERSION "${_ice_package_version}")
+
+unset(_ice_package_version)
+unset(_ice_package_so_version)
 
 if(NOT DEFINED Ice_PREFIX)
   set(Ice_FOUND FALSE)
@@ -23,24 +33,7 @@ if(NOT DEFINED Ice_PREFIX)
   return()
 endif()
 
-# The versions come from the installed Ice/Config.h, the header the binaries were built with, so
-# they cannot disagree with the installation. Plain variables, set unconditionally: under
-# find_package this matches what IceConfigVersion.cmake reported, and a leftover cache entry from
-# an older installation must not win over the installed version.
-set(Ice_VERSION "")
-set(Ice_SO_VERSION "")
-if(EXISTS "${Ice_INCLUDE_ROOT}/Ice/Config.h")
-  file(STRINGS "${Ice_INCLUDE_ROOT}/Ice/Config.h" _ice_config_h_versions REGEX "#define ICE_(STRING|SO)_VERSION ")
-  if(_ice_config_h_versions MATCHES "#define ICE_STRING_VERSION \"([^\"]+)\"")
-    set(Ice_VERSION "${CMAKE_MATCH_1}")
-  endif()
-  if(_ice_config_h_versions MATCHES "#define ICE_SO_VERSION \"([^\"]+)\"")
-    set(Ice_SO_VERSION "${CMAKE_MATCH_1}")
-  endif()
-  unset(_ice_config_h_versions)
-endif()
-
-if(NOT Ice_VERSION OR NOT Ice_SO_VERSION)
+if(NOT Ice_VERSION)
   set(Ice_FOUND FALSE)
   string(CONCAT Ice_NOT_FOUND_MESSAGE
     "Could not read ICE_STRING_VERSION and ICE_SO_VERSION from "
