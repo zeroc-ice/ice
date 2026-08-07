@@ -124,30 +124,36 @@ public class AllTests : global::Test.AllTests
         Dictionary<string, string> d;
         try
         {
-            Console.Out.Write("testing certificate without password... ");
-            Console.Out.Flush();
+            // The two fixtures differ only in how the empty password is encoded before it is fed to the PKCS12 key
+            // derivation function: RFC 7292 appendix B.1 makes it two 0x00 bytes, appendix B.2 makes it a
+            // zero-length block. .NET accepts both. See certs/README.md.
+            foreach (string certBaseName in new[] { "null_password", "password_less" })
             {
-                initData = createClientProps(defaultProperties, "ca1/client_password_less", "ca1/ca1");
-                initData.properties.setProperty("IceSSL.Password", "");
-                using var comm = new Ice.Communicator(initData);
+                Console.Out.Write($"testing certificate without password ({certBaseName})... ");
+                Console.Out.Flush();
+                {
+                    initData = createClientProps(defaultProperties, $"ca1/client_{certBaseName}", "ca1/ca1");
+                    initData.properties.setProperty("IceSSL.Password", "");
+                    using var comm = new Ice.Communicator(initData);
 
-                ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-                d = createServerProps(defaultProperties, "ca1/server_password_less", "ca1/ca1");
-                d["IceSSL.Password"] = "";
-                ServerPrx server = fact.createServer(d);
-                try
-                {
-                    server.ice_ping();
+                    ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, $"ca1/server_{certBaseName}", "ca1/ca1");
+                    d["IceSSL.Password"] = "";
+                    ServerPrx server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                    }
+                    catch (Ice.LocalException ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        test(false);
+                    }
+                    fact.destroyServer(server);
                 }
-                catch (Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                fact.destroyServer(server);
+                Console.Out.WriteLine("ok");
             }
-            Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing certificate verification... ");
             Console.Out.Flush();

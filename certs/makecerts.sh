@@ -210,6 +210,11 @@ revoke_certificates(){
 
 # Create a PKCS12 password-less version of the main client/server ca1 certs. Like the PKCS12 files above, these are
 # exported without a friendlyName.
+#
+# openssl encodes the empty password as two 0x00 bytes, following RFC 7292 appendix B.1. Apple's Security
+# framework instead follows appendix B.2, which makes the empty password a zero-length block, so these files
+# cannot be loaded on macOS or iOS. They are still valid PKCS12, and every other platform reads them, so they
+# stay as the fixture for that case.
 openssl pkcs12 -export -out configuration/ca1/server_password_less.p12 \
     -inkey configuration/ca1/server_key.pem \
     -in configuration/ca1/server_cert.pem \
@@ -219,6 +224,18 @@ openssl pkcs12 -export -out configuration/ca1/client_password_less.p12 \
     -inkey configuration/ca1/client_key.pem \
     -in configuration/ca1/client_cert.pem \
     -passout pass: "${COMMON_PKCS12_ARGS[@]}"
+
+# The same certs with the empty password encoded as a zero-length byte string, which every platform accepts,
+# including macOS and iOS. openssl cannot produce this encoding, hence the helper script.
+./make_passwordless_pkcs12.py \
+    --inkey configuration/ca1/server_key.pem \
+    --in configuration/ca1/server_cert.pem \
+    --out configuration/ca1/server_null_password.p12
+
+./make_passwordless_pkcs12.py \
+    --inkey configuration/ca1/client_key.pem \
+    --in configuration/ca1/client_cert.pem \
+    --out configuration/ca1/client_null_password.p12
 
 # Create an encrypted PEM version of the ca1 server key, used to test IceSSL.Password with OpenSSL.
 openssl pkey -in configuration/ca1/server_key.pem -aes256 \

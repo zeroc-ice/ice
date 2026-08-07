@@ -245,12 +245,12 @@ namespace
         memset(&params, 0, sizeof(params));
         params.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
         params.flags |= kSecKeyNoAccessControl;
-        UniqueRef<CFStringRef> passphraseHolder;
-        if (!passphrase.empty())
-        {
-            passphraseHolder.reset(toCFString(passphrase));
-            params.passphrase = passphraseHolder.get();
-        }
+        // Always pass a passphrase, even an empty one. SecItemImport rejects a PKCS#12 blob with
+        // errSecPassphraseRequired when params.passphrase is null, so leaving it unset makes a certificate with an
+        // empty password impossible to load. An empty passphrase is accepted for the unencrypted PEM certificates and
+        // private keys loaded by the other callers.
+        UniqueRef<CFStringRef> passphraseHolder(toCFString(passphrase));
+        params.passphrase = passphraseHolder.get();
 
         UniqueRef<CFArrayRef> items;
         SecExternalItemType importType = type;
