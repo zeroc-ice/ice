@@ -27,7 +27,6 @@ abstract class CommunicatorChildEditor extends Editor {
                 _target.destroy(); // just removes the child
 
                 try {
-                    // @SuppressWarnings("unchecked")
                     childList.tryAdd(descriptor);
                 } catch (UpdateFailedException e) {
                     // Restore ephemeral
@@ -48,7 +47,6 @@ abstract class CommunicatorChildEditor extends Editor {
                 }
 
                 // Success
-                // @SuppressWarnings("unchecked")
                 _target = childList.findChildWithDescriptor(descriptor);
                 root.updated();
                 if (refresh) {
