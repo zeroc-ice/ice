@@ -727,6 +727,15 @@ DataReaderI::DataReaderI(
     {
         _config->sampleFilter =
             FilterInfo{.name = std::move(sampleFilterName), .criteria = std::move(sampleFilterCriteria)};
+
+        // Sample filtering is evaluated on the writer, which groups the subscribers of a session by facet and
+        // forwards a sample to a facet as soon as one of its subscribers matches. A sample-filtered reader
+        // therefore needs a facet of its own, or it also receives the samples another reader's filter matched.
+        // Element ids restart at 1 in every topic and a node can hold several same-name topics, so the facet is
+        // qualified with the topic id, which the topic factory allocates per node.
+        ostringstream os;
+        os << "fa" << topic->getId() << '-' << _id;
+        _config->facet = os.str();
     }
 }
 
@@ -1003,14 +1012,33 @@ DataReaderI::queue(
         }
         return;
     }
-    else if (checkKey && !matchKey(sample->key))
+    else if (checkKey)
     {
-        if (_traceLevels->data > 2)
+        bool matched;
+        try
         {
-            Trace out(_traceLevels->logger, _traceLevels->dataCat);
-            out << this << ": skipped sample " << sample->id << " (key doesn't match)";
+            matched = matchKey(sample->key);
         }
-        return;
+        catch (const std::exception& ex)
+        {
+            // Checking an inline key calls the reader's key filter, which is application code. A filter that throws
+            // drops the sample for this reader, like a filter that returns false. The session queues the sample with
+            // each reader subscribed to the writer element in turn, so letting the exception escape would also drop
+            // the sample for the readers queued after this one.
+            Warning out(_traceLevels->logger);
+            out << "dropped sample " << sample->id << ": the key filter failed:\n" << ex.what();
+            return;
+        }
+
+        if (!matched)
+        {
+            if (_traceLevels->data > 2)
+            {
+                Trace out(_traceLevels->logger, _traceLevels->dataCat);
+                out << this << ": skipped sample " << sample->id << " (key doesn't match)";
+            }
+            return;
+        }
     }
 
     if (_traceLevels->data > 2)
@@ -1319,14 +1347,6 @@ KeyDataReaderI::KeyDataReaderI(
     {
         Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": created key reader";
-    }
-
-    // If sample filtering is enabled, ensure the updates are received using a session facet specific to this reader.
-    if (_config->sampleFilter)
-    {
-        ostringstream os;
-        os << "fa" << _id;
-        _config->facet = os.str();
     }
 }
 
@@ -1686,14 +1706,6 @@ FilteredDataReaderI::FilteredDataReaderI(
     {
         Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": created filtered reader";
-    }
-
-    // If sample filtering is enabled, ensure the updates are received using a session facet specific to this reader.
-    if (_config->sampleFilter)
-    {
-        ostringstream os;
-        os << "fa" << _id;
-        _config->facet = os.str();
     }
 }
 

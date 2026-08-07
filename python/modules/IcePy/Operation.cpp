@@ -852,7 +852,7 @@ static PyMethodDef DispatchCallbackMethods[] = {
     {"response",
      reinterpret_cast<PyCFunction>(dispatchCallbackResponse),
      METH_VARARGS,
-     PyDoc_STR("response(*args: tuple) -> None")},
+     PyDoc_STR("response(result: Any) -> None")},
     {"exception",
      reinterpret_cast<PyCFunction>(dispatchCallbackException),
      METH_VARARGS,

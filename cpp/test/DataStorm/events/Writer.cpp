@@ -335,6 +335,36 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // An any-key writer marshals the key with the sample, so each filtered reader matches the key itself. The readers
+    // subscribed to one writer element are served in turn, and a reader whose key filter throws must not stop the
+    // readers served after it from receiving the sample.
+    cout << "testing filtered reader whose key filter throws... " << flush;
+    {
+        Topic<string, string> topic(node, "keyFilterThrow");
+        topic.setKeyFilter<string>(
+            "throwOnKey",
+            [](const string& boom)
+            {
+                return [boom](const string& key)
+                {
+                    if (key == boom)
+                    {
+                        throw runtime_error("the key filter failed");
+                    }
+                    return true;
+                };
+            });
+
+        auto writer = makeAnyKeyWriter(topic, "", config);
+        writer.waitForReaders(2);
+
+        writer.add("k1", "v1");
+        writer.add("k2", "v2");
+        writer.add("sentinel", "v3");
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
     cout << "testing filtered sample reader... " << flush;
     {
         Topic<string, string> topic(node, "filtered reader key/value filter");
@@ -602,6 +632,29 @@ void ::Writer::run(int argc, char* argv[])
         barrierWriter.update(0);
 
         [[maybe_unused]] auto _ = makeSingleKeyReader(done, "done").getNextUnread();
+    }
+    cout << "ok" << endl;
+
+    // Two same-name reader topics on the peer node, each with a sample-filtered reader on this writer's key. Each
+    // reader is the first element of its own topic, so per-topic element numbering gives the two readers the same
+    // element id. Each reader must still receive only the samples its own filter matches.
+    cout << "testing sample filtering across same-name reader topics... " << flush;
+    {
+        Topic<string, string> topic(node, "sameNameSampleFilter");
+        topic.setSampleFilter<string>(
+            "contains",
+            [](const string& substring)
+            {
+                return [substring](const Sample<string, string>& sample)
+                { return sample.getValue().find(substring) != string::npos; };
+            });
+
+        auto writer = makeSingleKeyWriter(topic, "elem", "", config);
+        writer.waitForReaders(2); // the sample-filtered reader of each same-name topic
+        writer.update("a");       // matches only the reader filtering on "a"
+        writer.update("b");       // matches only the reader filtering on "b"
+        writer.update("ab");      // matches both readers
+        writer.waitForNoReaders();
     }
     cout << "ok" << endl;
 

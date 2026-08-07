@@ -2385,7 +2385,7 @@ IceRuby::ProxyInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHist
     }
     else
     {
-        out << getString(value);
+        out << getProxy(value)->ice_toString();
     }
 }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.version.props" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.version.props" />
     <PropertyGroup>
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
         <Platform Condition="'$(Platform)' == ''">x64</Platform>
@@ -12,11 +12,9 @@
         <PackageVersion>$(IcePackageVersion)</PackageVersion>
         <IceTestSolution>ice.test.slnx</IceTestSolution>
         <IceDoxygenExamplesSolution>ice.doxygen.examples.slnx</IceDoxygenExamplesSolution>
-        <SymbolServer Condition="'$(SymbolServer)' == ''">SRV*%TEMP%\SymbolCache*https://symbols.zeroc.com</SymbolServer>
     </PropertyGroup>
 
-    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.common.targets" />
 
     <!-- Restore NuGet packages. -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
@@ -24,11 +22,11 @@
             Projects="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.slnx"
             Properties="Platform=Any CPU"
             Targets="Restore" />
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.slnx"/>
+        <Exec Command="&quot;$(NuGetExe)&quot; restore &quot;$(MSBuildThisFileDirectory)ice.slnx&quot;"/>
     </Target>
 
     <Target Name="RemovePackages">
-        <Exec Command="rmdir /s /q $(MSBuildThisFileDirectory)packages" Condition="Exists('$(MSBuildThisFileDirectory)packages')" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)packages" />
     </Target>
 
     <!-- Ice for C++ builds. -->
@@ -83,7 +81,7 @@
                     <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
                 </TestSolution>
 
-                 <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
+                <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
                     <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
                 </DoxygenExamplesSolution>
             </ItemGroup>
@@ -98,6 +96,7 @@
 
     <!-- Clean distribution targets -->
     <Target Name="CleanDist">
+        <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" Targets="Clean" />
         <MSBuild Projects="@(DistSolution)" BuildInParallel="true" Properties="%(Properties)" Targets="Clean" />
     </Target>
 
@@ -115,68 +114,54 @@
 
     <!-- Create nuget packages -->
     <Target Name="Pack" DependsOnTargets="GetNuGet">
-        <RemoveDir Directories="ZeroC.Ice.Cpp" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp" />
 
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="Configuration=Debug;Platform=Win32;PackageDirectory=ZeroC.Ice.Cpp;DefaultBuild=$(DefaultBuild)"
+                 Properties="Configuration=Debug;Platform=Win32;PackageDirectory=$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp;DefaultBuild=$(DefaultBuild)"
                  Condition="'$(Platform)|$(Configuration)' == 'Win32|Debug' or '$(BuildAllConfigurations)' == 'yes'" />
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="Configuration=Debug;Platform=x64;PackageDirectory=ZeroC.Ice.Cpp;DefaultBuild=$(DefaultBuild)"
+                 Properties="Configuration=Debug;Platform=x64;PackageDirectory=$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp;DefaultBuild=$(DefaultBuild)"
                  Condition="'$(Platform)|$(Configuration)' == 'x64|Debug' or '$(BuildAllConfigurations)' == 'yes'"/>
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="Configuration=Release;Platform=Win32;PackageDirectory=ZeroC.Ice.Cpp;DefaultBuild=$(DefaultBuild)"
+                 Properties="Configuration=Release;Platform=Win32;PackageDirectory=$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp;DefaultBuild=$(DefaultBuild)"
                  Condition="'$(Platform)|$(Configuration)' == 'Win32|Release' or '$(BuildAllConfigurations)' == 'yes'"/>
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="Configuration=Release;Platform=x64;PackageDirectory=ZeroC.Ice.Cpp;DefaultBuild=$(DefaultBuild)"
+                 Properties="Configuration=Release;Platform=x64;PackageDirectory=$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp;DefaultBuild=$(DefaultBuild)"
                  Condition="'$(Platform)|$(Configuration)' == 'x64|Release' or '$(BuildAllConfigurations)' == 'yes'"/>
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\README.md"
-              DestinationFiles="ZeroC.Ice.Cpp\README.md" />
+              DestinationFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\README.md" />
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)THIRD_PARTY_LICENSE.txt"
-              DestinationFiles="ZeroC.Ice.Cpp\THIRD_PARTY_LICENSE.txt" />
+              DestinationFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\THIRD_PARTY_LICENSE.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
-              DestinationFiles="ZeroC.Ice.Cpp\ICE_LICENSE.txt" />
+              DestinationFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\ICE_LICENSE.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
-              DestinationFiles="ZeroC.Ice.Cpp\LICENSE.txt" />
+              DestinationFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\LICENSE.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\assets\logo-128x128.png"
-              DestinationFiles="ZeroC.Ice.Cpp\logo-128x128.png" />
-        <Copy SourceFiles="ZeroC.Ice.Cpp.nuspec"
-              DestinationFolder="ZeroC.Ice.Cpp" />
-        <Copy SourceFiles="ZeroC.Ice.Cpp.props"
-              DestinationFiles="ZeroC.Ice.Cpp\build\native\ZeroC.Ice.Cpp.props" />
-        <Copy SourceFiles="ZeroC.Ice.Cpp.targets"
-              DestinationFiles="ZeroC.Ice.Cpp\build\native\ZeroC.Ice.Cpp.targets" />
+              DestinationFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\logo-128x128.png" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp.nuspec"
+              DestinationFolder="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp.props"
+              DestinationFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\build\native\ZeroC.Ice.Cpp.props" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp.targets"
+              DestinationFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\build\native\ZeroC.Ice.Cpp.targets" />
 
         <!-- Copy Ice Tools files to the NuGet package -->
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\bin\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll"
-              DestinationFiles="ZeroC.Ice.Cpp\tasks\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll" />
+              DestinationFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\tasks\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.props"
-              DestinationFiles="ZeroC.Ice.Cpp\build\ZeroC.Ice.Slice.Tools.Cpp.props" />
+              DestinationFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\build\ZeroC.Ice.Slice.Tools.Cpp.props" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.targets"
-              DestinationFiles="ZeroC.Ice.Cpp\build\ZeroC.Ice.Slice.Tools.Cpp.targets" />
+              DestinationFiles="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\build\ZeroC.Ice.Slice.Tools.Cpp.targets" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ProjectItemsSchema.xaml"
-              DestinationFolder="ZeroC.Ice.Cpp\build\" />
+              DestinationFolder="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\build\" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\SliceCompile.Cpp.File.xaml"
-              DestinationFolder="ZeroC.Ice.Cpp\build\" />
+              DestinationFolder="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\build\" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\SliceCompile.Cpp.xaml"
-              DestinationFolder="ZeroC.Ice.Cpp\build\" />
+              DestinationFolder="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\build\" />
 
-        <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive -Version $(PackageVersion)"
-              WorkingDirectory="ZeroC.Ice.Cpp"/>
-    </Target>
-
-    <Target Name="Publish" DependsOnTargets="Pack">
-        <Exec Command="$(NuGetExe) locals global-packages -list" ConsoleToMSBuild="true" EchoOff="yes">
-            <Output TaskParameter="ConsoleOutput" PropertyName="NuGetGlobalPackages" />
-        </Exec>
-        <PropertyGroup>
-            <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('info : '))</NuGetGlobalPackages>
-            <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('global-packages: '))</NuGetGlobalPackages>
-        </PropertyGroup>
-
-        <RemoveDir Directories="$(NuGetGlobalPackages)\ZeroC.Ice.Cpp\$(PackageVersion)"
-            Condition="Exists('$(NuGetGlobalPackages)\ZeroC.Ice.Cpp\$(PackageVersion)')"/>
-        <Exec Command="$(NuGetExe) push $(MSBuildThisFileDirectory)ZeroC.Ice.Cpp\ZeroC.Ice.Cpp.$(PackageVersion).nupkg -source $(NuGetGlobalPackages)" />
+        <Exec Command="&quot;$(NuGetExe)&quot; pack -NoPackageAnalysis -NonInteractive -Version $(PackageVersion)"
+              WorkingDirectory="$(MSBuildThisFileDirectory)ZeroC.Ice.Cpp"/>
     </Target>
 </Project>
