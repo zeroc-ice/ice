@@ -6,8 +6,8 @@
 #   Ice_VERSION      ICE_STRING_VERSION, pre-release suffix included
 #   Ice_SO_VERSION   ICE_SO_VERSION, which forms the Windows library names
 #
-# Both are always assigned, and left empty when the header is missing, unreadable or carries
-# neither define.
+# Both are always assigned, and left empty when the header is missing, unreadable or does not
+# carry both defines.
 
 include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake")
 

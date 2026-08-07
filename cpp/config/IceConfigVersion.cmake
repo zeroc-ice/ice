@@ -20,7 +20,7 @@ set(PACKAGE_VERSION "${Ice_VERSION}")
 # request, as its own generated version files do for a bitness mismatch. The reason goes in
 # PACKAGE_VERSION, which CMake prints against the rejected candidate, likewise following those files.
 if(NOT PACKAGE_VERSION)
-  set(PACKAGE_VERSION "unknown, Ice/Config.h is missing or unreadable")
+  set(PACKAGE_VERSION "unknown - broken installation, cannot read the Ice version from Ice/Config.h")
   set(PACKAGE_VERSION_UNSUITABLE TRUE)
 endif()
 
