@@ -1003,14 +1003,33 @@ DataReaderI::queue(
         }
         return;
     }
-    else if (checkKey && !matchKey(sample->key))
+    else if (checkKey)
     {
-        if (_traceLevels->data > 2)
+        bool matched;
+        try
         {
-            Trace out(_traceLevels->logger, _traceLevels->dataCat);
-            out << this << ": skipped sample " << sample->id << " (key doesn't match)";
+            matched = matchKey(sample->key);
         }
-        return;
+        catch (const std::exception& ex)
+        {
+            // Checking an inline key calls the reader's key filter, which is application code. A filter that throws
+            // drops the sample for this reader, like a filter that returns false. The session queues the sample with
+            // each reader subscribed to the writer element in turn, so letting the exception escape would also drop
+            // the sample for the readers queued after this one.
+            Warning out(_traceLevels->logger);
+            out << "dropped sample " << sample->id << ": the key filter failed:\n" << ex.what();
+            return;
+        }
+
+        if (!matched)
+        {
+            if (_traceLevels->data > 2)
+            {
+                Trace out(_traceLevels->logger, _traceLevels->dataCat);
+                out << this << ": skipped sample " << sample->id << " (key doesn't match)";
+            }
+            return;
+        }
     }
 
     if (_traceLevels->data > 2)
