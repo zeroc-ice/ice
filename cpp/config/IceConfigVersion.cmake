@@ -15,6 +15,15 @@ include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
 # Ice_VERSION_MAJOR/MINOR/PATCH from the numeric part.
 set(PACKAGE_VERSION "${Ice_VERSION}")
 
+# An installation whose version cannot be read is unusable whatever was requested, so it is
+# UNSUITABLE rather than merely incompatible: CMake then passes over it even for an unversioned
+# request, as its own generated version files do for a bitness mismatch. The reason goes in
+# PACKAGE_VERSION, which CMake prints against the rejected candidate, likewise following those files.
+if(NOT PACKAGE_VERSION)
+  set(PACKAGE_VERSION "unknown, Ice/Config.h is missing or unreadable")
+  set(PACKAGE_VERSION_UNSUITABLE TRUE)
+endif()
+
 if(PACKAGE_VERSION MATCHES "^([0-9]+)\\.([0-9]+)")
   set(_ice_version_major "${CMAKE_MATCH_1}")
   set(_ice_version_minor "${CMAKE_MATCH_2}")
