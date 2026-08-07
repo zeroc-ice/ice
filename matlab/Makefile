@@ -65,7 +65,7 @@ $(icethunk_proto): $(icethunk_builddir)/icethunk.c
 $(icethunk_target): $(lang_srcdir)/src/build/icethunk.c $(icethunk_proto)
 	$(CC) $(lang_srcdir)/src/build/icethunk.c $(icethunk_cflags) -o $(icethunk_target)
 
-clean::
+clean distclean::
 	rm -rf $(lang_srcdir)/lib/x86_64-linux-gnu
 	rm -rf $(icethunk_builddir)
 
@@ -115,7 +115,7 @@ else
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "removeFolderFromPath '`realpath build`'"
 endif
 
-clean::
+clean distclean::
 	rm -rf $(icetoolbox_file)
 	rm -rf $(lang_srcdir)/toolbox/build
 	rm -rf $(lang_srcdir)/toolbox/toolbox.prj

@@ -29,7 +29,7 @@ endif
 $1/%.php: $1/%.ice $1/.depend/%.ice.d $(slice2php_path)
 	$(E) "Compiling $$<"
 	$(Q)$(slice2php_path) $(slice2php_flags) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) --depend $$< | \
-		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $1/.depend/$$(*F).ice.d
+		sed 's/\(.*: \\\)/$(subst /,\/,$1)\/\1/' > $1/.depend/$$(*F).ice.d
 	$(Q)$(slice2php_path) $(slice2php_flags) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) $$<
 
 distclean clean::
