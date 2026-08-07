@@ -28,7 +28,7 @@ final class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDis
 
     init(handle: ICEObjectAdapter, communicator: Communicator) {
         self.communicator = communicator
-        servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
+        servantManager = ServantManager(communicator: communicator)
         super.init(handle: handle)
         handle.registerDispatchAdapter(self)
     }
