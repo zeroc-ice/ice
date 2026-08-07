@@ -10,8 +10,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
 
     <application android:label="btbond">
+        <!-- Logic-only activity: handle every config change in place rather than being destroyed
+             and recreated. ApplicationInfo updates still relaunch it regardless; the onCreate guard
+             covers those. -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
