@@ -337,6 +337,9 @@ class ConnectionInfo:
     adapterName: str
     """str: The name of the adapter associated with the connection."""
 
+    connectionId: str
+    """str: The connection ID."""
+
 class DispatchCallback:
     def response(self, result: Any) -> None: ...
     def exception(self, exception: BaseException) -> None: ...

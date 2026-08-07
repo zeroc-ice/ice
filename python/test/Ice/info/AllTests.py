@@ -201,6 +201,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     tcpinfo = getTCPConnectionInfo(info)
     test(not info.incoming)
     test(len(info.adapterName) == 0)
+    test(len(info.connectionId) == 0)
     test(tcpinfo.remotePort == port)
     if defaultHost == "127.0.0.1":
         test(tcpinfo.remoteAddress == defaultHost)
@@ -208,9 +209,14 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(tcpinfo.rcvSize >= 1024)
     test(tcpinfo.sndSize >= 2048)
 
+    connection_with_id = testIntf.ice_connectionId("ID").ice_getConnection()
+    assert connection_with_id is not None
+    test(connection_with_id.getInfo().connectionId == "ID")
+
     ctx = testIntf.getConnectionInfoAsContext()
     test(ctx["incoming"] == "true")
     test(ctx["adapterName"] == "TestAdapter")
+    test(ctx["connectionId"] == "")
     test(ctx["remoteAddress"] == tcpinfo.localAddress)
     test(ctx["localAddress"] == tcpinfo.remoteAddress)
     test(ctx["remotePort"] == str(tcpinfo.localPort))

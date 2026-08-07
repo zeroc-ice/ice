@@ -84,7 +84,7 @@ add_cert_chain() {
 # on-disk container. The test suites run many short-lived processes in parallel, and a process exiting deletes that
 # shared container out from under a process that is still handshaking, which makes Schannel fail with 0x8009030D. With
 # no friendlyName, Windows names the container after a freshly generated GUID, so each import gets its own. This
-# mirrors the fix .NET applied to its own test data. See https://github.com/zeroc-ice/ice/issues/5973.
+# mirrors the fix .NET applied to its own test data.
 #
 # keytool takes the JKS alias from the PKCS12 friendlyName, so the JKS is converted from a temporary named copy.
 export_pkcs12_and_jks() {

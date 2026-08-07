@@ -214,7 +214,7 @@ public class Client extends TestHelper {
             test(!StringUtil.match("bar", "*bar", false));
             test(StringUtil.match("bar", "*bar", true));
 
-            // Wildcard with a non-empty tail (regression test for #5505).
+            // Wildcard with a non-empty tail.
             test(StringUtil.match("fooXXXbar", "foo*bar", false));
             test(!StringUtil.match("fooXXXbaz", "foo*bar", false));
 

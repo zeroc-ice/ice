@@ -1126,17 +1126,3 @@ IceInternal::isDigit(char c)
 {
     return c >= '0' && c <= '9';
 }
-
-string
-IceInternal::removeWhitespace(string_view s)
-{
-    string result;
-    for (unsigned int i = 0; i < s.length(); ++i)
-    {
-        if (!isspace(static_cast<unsigned char>(s[i])))
-        {
-            result += s[i];
-        }
-    }
-    return result;
-}

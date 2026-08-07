@@ -28,7 +28,7 @@ module WithNamespace
     }
 
     // A module nested under a cs:namespace-tagged module: its types must map to
-    // WithNamespace.Inner.*, not a doubled-prefix namespace (regression test for #5478).
+    // WithNamespace.Inner.*, not a doubled-prefix namespace.
     module Inner
     {
         struct S

@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-    class UdpEndpoint;
 
     class UdpTransceiver final : public Transceiver,
                                  public NativeInfo,

@@ -56,10 +56,9 @@ toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 # specializations are defined.
 platform: Platform
 
-# The mapping and configuration currently loading test suites. Set by Mapping.loadTestSuites so that
-# the TestSuite instances created by the test.py scripts it runs pick them up.
+# The mapping currently loading test suites. Set by Mapping.loadTestSuites so that
+# the TestSuite instances created by the test.py scripts it runs pick it up.
 currentMapping: Mapping | None = None
-currentConfig: Mapping.Config | None = None
 
 
 def run(
@@ -1034,8 +1033,6 @@ class Mapping(object):
     ) -> None:
         global currentMapping
         currentMapping = self
-        global currentConfig
-        currentConfig = config
         origsyspath = sys.path
         try:
             prefix = os.path.commonprefix([toplevel, self.component.getScriptDir()])
@@ -3883,6 +3880,7 @@ class Driver:
         self.rlanguages: list[str] = []
         self.failures: list[Any] = []
         self.keepLogs = False
+        self.interface = ""
         self.configs: dict[Mapping, Mapping.Config]
 
         logDir = os.path.join(toplevel, "logs")
@@ -3916,7 +3914,6 @@ class Driver:
         )
 
         self.communicator: Ice.Communicator | None = None
-        self.interface = ""
         self.processControllers: dict[type[ProcessController], ProcessController] = {}
 
     def setConfigs(self, configs: dict[Mapping, Mapping.Config]) -> None:
@@ -4543,24 +4540,6 @@ class PythonMapping(CppBasedMapping):
             print("--python=<interpreter>   Choose the interpreter used to run python tests")
             print("--load-slice             Use Ice.loadSlice instead of the slice2py static generated code.")
             print("--pip-package            Use the installed pip package instead of the local build.")
-
-        def __init__(self, options: list[Option] = []):
-            Mapping.Config.__init__(self, options)
-            self.pythonVersion: tuple[int, ...] | None = None
-
-        def getPythonVersion(self) -> tuple[int, ...]:
-            if self.pythonVersion is None:
-                assert currentConfig is not None
-                version = subprocess.check_output(
-                    [
-                        currentConfig.python,
-                        "-c",
-                        'import sys; print("{0}.{1}".format(sys.version_info[0], sys.version_info[1]))',
-                    ],
-                    text=True,
-                )
-                self.pythonVersion = tuple(int(num) for num in version.split("."))
-            return self.pythonVersion
 
     def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         if current.config.loadSlice:
