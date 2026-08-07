@@ -727,6 +727,15 @@ DataReaderI::DataReaderI(
     {
         _config->sampleFilter =
             FilterInfo{.name = std::move(sampleFilterName), .criteria = std::move(sampleFilterCriteria)};
+
+        // Sample filtering is evaluated on the writer, which groups the subscribers of a session by facet and
+        // forwards a sample to a facet as soon as one of its subscribers matches. A sample-filtered reader
+        // therefore needs a facet of its own, or it also receives the samples another reader's filter matched.
+        // Element ids restart at 1 in every topic and a node can hold several same-name topics, so the facet is
+        // qualified with the topic id, which the topic factory allocates per node.
+        ostringstream os;
+        os << "fa" << topic->getId() << '-' << _id;
+        _config->facet = os.str();
     }
 }
 
@@ -1339,14 +1348,6 @@ KeyDataReaderI::KeyDataReaderI(
         Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": created key reader";
     }
-
-    // If sample filtering is enabled, ensure the updates are received using a session facet specific to this reader.
-    if (_config->sampleFilter)
-    {
-        ostringstream os;
-        os << "fa" << _id;
-        _config->facet = os.str();
-    }
 }
 
 void
@@ -1705,14 +1706,6 @@ FilteredDataReaderI::FilteredDataReaderI(
     {
         Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": created filtered reader";
-    }
-
-    // If sample filtering is enabled, ensure the updates are received using a session facet specific to this reader.
-    if (_config->sampleFilter)
-    {
-        ostringstream os;
-        os << "fa" << _id;
-        _config->facet = os.str();
     }
 }
 

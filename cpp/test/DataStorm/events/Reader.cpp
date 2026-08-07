@@ -789,6 +789,26 @@ void ::Reader::run(int argc, char* argv[])
         doneWriter.waitForReaders();
         doneWriter.update(0);
     }
+
+    // Two same-name topics on this node, each with a sample-filtered reader on the one writer's key. Each reader is
+    // the first element of its own topic, so the two topics number them identically. Each reader must receive only
+    // the samples its own filter matches: the writer publishes "a", "b" and "ab", and the reader filtering on "a"
+    // must see "a" and "ab" while the reader filtering on "b" must see "b" and "ab".
+    {
+        Topic<string, string> topicA(node, "sameNameSampleFilter");
+        Topic<string, string> topicB(node, "sameNameSampleFilter");
+
+        auto readerA = makeSingleKeyReader(topicA, "elem", Filter<string>("contains", "a"), "", config);
+        auto readerB = makeSingleKeyReader(topicB, "elem", Filter<string>("contains", "b"), "", config);
+
+        test(readerA.getNextUnread().getValue() == "a");
+        test(readerA.getNextUnread().getValue() == "ab");
+        test(!readerA.hasUnread());
+
+        test(readerB.getNextUnread().getValue() == "b");
+        test(readerB.getNextUnread().getValue() == "ab");
+        test(!readerB.hasUnread());
+    }
 }
 
 DEFINE_TEST(::Reader)
