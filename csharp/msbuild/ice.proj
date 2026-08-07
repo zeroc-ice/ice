@@ -78,9 +78,10 @@
         <PropertyGroup>
             <!-- The output is "global-packages: <path>", possibly prefixed with "info : ". -->
             <NuGetGlobalPackages>$([System.Text.RegularExpressions.Regex]::Replace('$(NuGetGlobalPackages)', '^.*?global-packages:\s*', ''))</NuGetGlobalPackages>
-            <!-- Trim the trailing backslash so that the quoted source argument doesn't end -->
-            <!-- in a backslash-escaped quote. -->
-            <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimEnd('\'))</NuGetGlobalPackages>
+            <!-- Append a '.' when the path ends with a backslash (it normally does) so that the -->
+            <!-- quoted source argument doesn't end in a backslash-escaped quote. Trimming the -->
+            <!-- backslash instead would corrupt a drive-root path such as E:\ -->
+            <NuGetGlobalPackages Condition="$(NuGetGlobalPackages.EndsWith('\'))">$(NuGetGlobalPackages).</NuGetGlobalPackages>
         </PropertyGroup>
 
         <RemoveDir Directories="$(NuGetGlobalPackages)\%(DistPackage.Identity)\$(PackageVersion)"
