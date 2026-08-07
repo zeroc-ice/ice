@@ -423,17 +423,15 @@ IceRuby_ObjectPrx_ice_getEncodingVersion(VALUE self)
 extern "C" VALUE
 IceRuby_ObjectPrx_ice_encodingVersion(VALUE self, VALUE v)
 {
-    Ice::EncodingVersion val;
-    if (getEncodingVersion(v, val))
+    ICE_RUBY_TRY
     {
-        ICE_RUBY_TRY
-        {
-            Ice::ObjectPrx p = getProxy(self);
-            return createProxy(p->ice_encodingVersion(val), rb_class_of(self));
-        }
-        ICE_RUBY_CATCH
-    }
+        Ice::EncodingVersion val;
+        getEncodingVersion(v, val);
 
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_encodingVersion(val), rb_class_of(self));
+    }
+    ICE_RUBY_CATCH
     return Qnil;
 }
 

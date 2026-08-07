@@ -9,17 +9,15 @@ using namespace IceRuby;
 
 namespace
 {
-    template<typename T> bool setVersion(VALUE p, const T& version)
+    template<typename T> void setVersion(VALUE p, const T& version)
     {
         volatile VALUE major = callRuby(rb_int2inum, version.major);
         volatile VALUE minor = callRuby(rb_int2inum, version.minor);
         rb_ivar_set(p, rb_intern("@major"), major);
         rb_ivar_set(p, rb_intern("@minor"), minor);
-
-        return true;
     }
 
-    template<typename T> bool getVersion(VALUE p, T& v)
+    template<typename T> void getVersion(VALUE p, T& v)
     {
         volatile VALUE major = callRuby(rb_ivar_get, p, rb_intern("@major"));
         volatile VALUE minor = callRuby(rb_ivar_get, p, rb_intern("@minor"));
@@ -30,7 +28,6 @@ namespace
         if (m < 0 || m > 255)
         {
             throw RubyException(rb_eTypeError, "version major must be a value between 0 and 255");
-            return false;
         }
         v.major = m;
 
@@ -38,11 +35,8 @@ namespace
         if (m < 0 || m > 255)
         {
             throw RubyException(rb_eTypeError, "version minor must be a value between 0 and 255");
-            return false;
         }
         v.minor = m;
-
-        return true;
     }
 
     template<typename T> VALUE createVersion(const T& version, const char* type)
@@ -51,11 +45,7 @@ namespace
         assert(!NIL_P(rbType));
 
         volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rbType);
-
-        if (!setVersion<T>(obj, version))
-        {
-            return Qnil;
-        }
+        setVersion<T>(obj, version);
 
         return obj;
     }
@@ -378,7 +368,7 @@ IceRuby::createEncodingVersion(const Ice::EncodingVersion& v)
     return createVersion<Ice::EncodingVersion>(v, Ice_EncodingVersion);
 }
 
-bool
+void
 IceRuby::getEncodingVersion(VALUE p, Ice::EncodingVersion& v)
 {
     volatile VALUE cls = callRuby(rb_path2class, Ice_EncodingVersion);
@@ -389,12 +379,7 @@ IceRuby::getEncodingVersion(VALUE p, Ice::EncodingVersion& v)
         throw RubyException(rb_eTypeError, "value is not an Ice::EncodingVersion");
     }
 
-    if (!getVersion<Ice::EncodingVersion>(p, v))
-    {
-        return false;
-    }
-
-    return true;
+    getVersion<Ice::EncodingVersion>(p, v);
 }
 
 VALUE
