@@ -65,4 +65,4 @@ jobs:
       - name: Check the IcePy stub against the IcePy module
         working-directory: python
         run: |
-          PYTHONPATH=python uv run python checkIcePyStub.py
+          PYTHONPATH=python uv run python ../scripts/checkIcePyStub.py

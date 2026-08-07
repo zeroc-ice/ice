@@ -13,9 +13,9 @@ The signature is compared as well as the prose. autodoc cannot introspect a C ex
 the first line of each docstring -- so that line is a signature the stub also spells out, and it can
 drift just as easily.
 
-Run it after building Ice for Python:
+Run it from the repository root after building Ice for Python:
 
-    PYTHONPATH=python python3 checkIcePyStub.py
+    PYTHONPATH=python/python python3 scripts/checkIcePyStub.py
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ import difflib
 import sys
 from pathlib import Path
 
-STUB = Path(__file__).parent / "python" / "IcePy-stubs" / "__init__.pyi"
+STUB = Path(__file__).parents[1] / "python" / "python" / "IcePy-stubs" / "__init__.pyi"
 
 
 def signatureOf(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:

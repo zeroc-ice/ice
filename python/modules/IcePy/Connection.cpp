@@ -113,7 +113,7 @@ adapter : Ice.ObjectAdapter | None
 Raises
 ------
 LocalException
-    When this connection is an incoming (server) connection: only outgoing (client) connections
+    If this connection is an incoming (server) connection: only outgoing (client) connections
     support setting the object adapter.)";
 
     constexpr const char* connectionGetAdapter_doc = R"(getAdapter() -> Ice.ObjectAdapter | None
