@@ -30,6 +30,37 @@ target_link_libraries(client PRIVATE Ice::Ice)
 When Ice is not installed in a standard location, point CMake at it with `CMAKE_PREFIX_PATH` (or set `Ice_DIR` to the
 directory containing `IceConfig.cmake`).
 
+### Windows
+
+On Windows, Ice for C++ ships as the `ZeroC.Ice.Cpp` NuGet package rather than as an installation. Restore the
+package, then point CMake at the directory it was extracted to:
+
+```shell
+nuget install ZeroC.Ice.Cpp -OutputDirectory packages
+```
+
+```cmake
+set(Ice_ROOT "${CMAKE_CURRENT_LIST_DIR}/packages/ZeroC.Ice.Cpp.<version>")
+find_package(Ice REQUIRED CONFIG)
+```
+
+The package ships both Debug and Release binaries, and the `Ice_WIN32_PLATFORM` cache variable (`x64`, the default, or
+`Win32`) selects the platform within it.
+
+The Ice DLLs are not on the `PATH`, so copy them next to the executable at build time. The `ICE_RUNTIME_DLLS` property
+on `Ice::Ice` lists the ones Ice needs that CMake does not track itself, such as bzip2:
+
+```cmake
+if(WIN32)
+  add_custom_command(TARGET client POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:client>
+      $<TARGET_RUNTIME_DLLS:client>
+      $<GENEX_EVAL:$<TARGET_PROPERTY:Ice::Ice,ICE_RUNTIME_DLLS>>
+    COMMAND_EXPAND_LISTS
+  )
+endif()
+```
+
 A versioned request is answered by the installed version: `find_package(Ice 3.9 CONFIG)` accepts any 3.9 patch release
 that is not older than the request, since Ice treats every x.y as a major release line and only patch releases within a
 line are compatible. Version ranges are honored on both endpoints.
@@ -76,10 +107,6 @@ yourself.
 
 Use `Ice_SLICE2CPP_EXECUTABLE` where generator expressions are unavailable, such as at configure time. A build-time
 custom command should prefer `$<TARGET_FILE:Ice::slice2cpp>`, which also makes the command depend on the compiler.
-
-On Windows, the cache variable `Ice_WIN32_PLATFORM` (`x64`, the default, or `Win32`) selects the platform inside the
-NuGet package, and the `ICE_RUNTIME_DLLS` property on `Ice::Ice` lists the runtime DLLs to copy next to a consuming
-executable.
 
 ## Compiling Slice Files
 
