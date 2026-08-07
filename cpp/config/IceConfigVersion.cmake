@@ -3,16 +3,10 @@
 # Reports this installation's version to find_package. Without this file every
 # find_package(Ice <version>) fails with "version: unknown".
 #
-# CMake's own way to produce this file is write_basic_package_version_file(), which runs inside the
-# package's own CMake build and bakes the version in; the Ice C++ build has none, so the logic here
-# is maintained by hand and IceVersion.cmake reads the version from the installed Ice/Config.h
-# instead. That ties the reported version to the literal the compiler sees, which no install-time
-# substitution can guarantee. An installation whose header is missing or unreadable therefore has
-# no version to report, and CMake passes over it to the next candidate rather than accepting it and
-# failing later.
-#
-# Plain requests follow the COMPATIBILITY SameMinorVersion policy; version ranges are honored on
-# both endpoints, where SameMinorVersion would reject an upper endpoint in a later x.y.
+# CMake's own way to produce this file is write_basic_package_version_file(), but that runs inside a
+# CMake build and the Ice C++ build has none, so the file is maintained by hand. Plain requests follow
+# the COMPATIBILITY SameMinorVersion policy; version ranges are honored on both endpoints, where
+# SameMinorVersion would reject an upper endpoint in a later x.y.
 
 include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
 
