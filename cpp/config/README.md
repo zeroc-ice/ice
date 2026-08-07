@@ -25,8 +25,7 @@ target_link_libraries(client PRIVATE Ice::Ice)
 > [!IMPORTANT]
 > The `CONFIG` (or `NO_MODULE`) keyword is required. It selects config mode, which loads the `IceConfig.cmake`
 > installed by this package. Without it, `find_package` uses module mode and runs the `FindIce` module bundled with
-> CMake, which knows nothing about this package: none of the targets, variables or functions documented below are
-> defined. This applies to every call without `CONFIG`, whatever else you pass — `REQUIRED`, `COMPONENTS`, a version.
+> CMake. This applies to every call without `CONFIG`, whatever else you pass — `REQUIRED`, `COMPONENTS`, a version.
 
 When Ice is not installed in a standard location, point CMake at it with `CMAKE_PREFIX_PATH` (or set `Ice_DIR` to the
 directory containing `IceConfig.cmake`).
