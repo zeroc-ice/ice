@@ -4,10 +4,9 @@
 #
 #   find_package(Ice REQUIRED CONFIG)
 #
-# CONFIG (or NO_MODULE) is required. find_package has two modes: module mode runs a FindIce
-# module, and CMake bundles one of its own; config mode loads this file. Module mode wins by
-# default, so a plain find_package(Ice) runs CMake's bundled module instead of this package and
-# provides none of its imported targets or slice2cpp_generate.
+# CONFIG (or NO_MODULE) is required: it selects config mode, which loads this file. Without it
+# find_package uses module mode, which runs the FindIce module bundled with CMake and provides
+# none of this package's imported targets or slice2cpp_generate. See README.md.
 
 # A previous find_package(Ice) in this scope may have left one behind.
 unset(Ice_NOT_FOUND_MESSAGE)

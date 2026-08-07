@@ -23,25 +23,10 @@ target_link_libraries(client PRIVATE Ice::Ice)
 ```
 
 > [!IMPORTANT]
-> The `CONFIG` (or `NO_MODULE`) keyword is required. `find_package` has two modes: module mode, which runs a
-> `FindIce` module — and CMake bundles one of its own, written for Ice 3.7 — and config mode, which loads the
-> `IceConfig.cmake` installed by this package. Module mode is tried first, and CMake falls back to config mode only
-> when no `FindIce` module exists anywhere; its own always does. So *every* call without `CONFIG` runs CMake's module,
-> whatever else you pass — `REQUIRED`, `COMPONENTS`, a version. None of the targets or functions documented below come
-> from it.
->
-> How that surfaces depends on the installation. The call may fail outright, while reporting your real Ice version,
-> which is what makes it confusing:
->
-> ```text
-> Failed to find all Ice components (missing: Ice_SLICE_DIR Ice_LIBRARY) (found version "3.9.0-alpha.0")
-> ```
->
-> Or it may appear to succeed and define its own `Ice::Ice`, leaving the build to stop later at:
->
-> ```text
-> Unknown CMake command "slice2cpp_generate"
-> ```
+> The `CONFIG` (or `NO_MODULE`) keyword is required. It selects config mode, which loads the `IceConfig.cmake`
+> installed by this package. Without it, `find_package` uses module mode and runs the `FindIce` module bundled with
+> CMake, which knows nothing about this package: none of the targets, variables or functions documented below are
+> defined. This applies to every call without `CONFIG`, whatever else you pass — `REQUIRED`, `COMPONENTS`, a version.
 
 When Ice is not installed in a standard location, point CMake at it with `CMAKE_PREFIX_PATH` (or set `Ice_DIR` to the
 directory containing `IceConfig.cmake`).
