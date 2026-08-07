@@ -185,6 +185,8 @@ class Client < ::TestHelper
             test(s.include?("str = 'string'"))
             # The S1 member is stringified recursively.
             test(s.include?("name = 'name'"))
+            # The proxy member is stringified with ice_toString.
+            test(s.include?("prx = test"))
 
             puts "ok"
         end
