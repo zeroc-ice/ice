@@ -207,21 +207,6 @@ IceRuby::stringSeqToArray(const vector<string>& seq)
     return result;
 }
 
-VALUE
-IceRuby::createNumSeq(const vector<byte>& v)
-{
-    volatile VALUE result = createArray(v.size());
-    long i = 0;
-    if (v.size() > 0)
-    {
-        for (vector<byte>::const_iterator p = v.begin(); p != v.end(); ++p, ++i)
-        {
-            RARRAY_ASET(result, i, INT2FIX(std::to_integer<int>(*p)));
-        }
-    }
-    return result;
-}
-
 namespace
 {
     struct HashToContextIterator : public IceRuby::HashIterator
