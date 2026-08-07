@@ -38,7 +38,7 @@ set(Ice_CONFIG "${CMAKE_CURRENT_LIST_FILE}")
 
 include("${CMAKE_CURRENT_LIST_DIR}/IceTargets.cmake")
 
-# Internal to IcePrefix/IceTargets; Ice_PREFIX is the documented result variable.
+# Internal to the package; Ice_PREFIX is the documented result variable.
 unset(Ice_INCLUDE_ROOT)
 
 include("${CMAKE_CURRENT_LIST_DIR}/slice2cpp.cmake")
