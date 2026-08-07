@@ -120,9 +120,9 @@ public class AllTests {
         defaultProperties.setProperty("Ice.Default.Host", defaultHost);
 
         // A PKCS12 keystore whose password is empty. The two fixtures differ only in how the empty password is
-        // encoded before it is fed to the PKCS12 key derivation function, which RFC 7292 leaves ambiguous. Java
-        // accepts both. See certs/README.md. JKS keystores cannot be password-less: keytool requires at least six
-        // characters.
+        // encoded before it is fed to the PKCS12 key derivation function: RFC 7292 appendix B.1 makes it two 0x00
+        // bytes, appendix B.2 makes it a zero-length block. Java accepts both. See certs/README.md. JKS keystores
+        // cannot be password-less: keytool requires at least six characters.
         if ("PKCS12".equals(keystoreType)) {
             for (String certBaseName : new String[] {"null_password", "password_less"}) {
                 out.print("testing certificate without password (" + certBaseName + ")... ");

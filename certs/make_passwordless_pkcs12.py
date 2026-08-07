@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Write a PKCS#12 file with an empty password that Apple's Security framework accepts.
 
-RFC 7292 derives the MAC and encryption keys from a null-terminated UTF-16BE password, but leaves the empty
-password ambiguous: it is either a zero-length byte string, or a zero-length BMPString, which is just the two
-0x00 terminator bytes. The two produce different keys, so a file written under one reading fails MAC
+RFC 7292 gives two incompatible answers for an empty password. Appendix B.1 says every password is a BMPString
+whose last character is "followed by 2 additional bytes with the value 0x00", which makes the empty password two
+0x00 bytes. Appendix B.2 step 3, deriving the key, instead notes that "if the password is the empty string, then
+so is P" -- a zero-length block. The two produce different keys, so a file written under one reading fails MAC
 verification under the other.
 
 `openssl pkcs12 -export -passout pass:` writes the two-byte form, as do keytool and python-cryptography. Apple
@@ -25,9 +26,14 @@ import hmac
 import os
 
 from cryptography import x509
-from cryptography.hazmat.decrepit.ciphers.algorithms import TripleDES
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.ciphers import Cipher, modes
+
+try:
+    # cryptography 43 moved TripleDES here. Debian 12, used by the Dockerfile in this directory, ships 38.
+    from cryptography.hazmat.decrepit.ciphers.algorithms import TripleDES
+except ImportError:
+    from cryptography.hazmat.primitives.ciphers.algorithms import TripleDES
 
 # --- DER encoding -----------------------------------------------------------------------------------------
 

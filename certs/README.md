@@ -33,10 +33,11 @@ tools to be installed on the host, plus Python 3 with the
 
 ## Password-less PKCS#12 files
 
-RFC 7292 derives the MAC and encryption keys from a null-terminated UTF-16BE password, but leaves the empty
-password ambiguous: it is either a zero-length byte string, or a zero-length BMPString, which is just the two
-`0x00` terminator bytes. The two derive different keys, so a file written under one reading fails MAC
-verification under the other. Readers are generally lenient and accept both; writers pick one.
+RFC 7292 gives two incompatible answers for an empty password. Appendix B.1 says every password is a BMPString
+whose last character is "followed by 2 additional bytes with the value `0x00`", which makes the empty password
+two `0x00` bytes. Appendix B.2 step 3, deriving the key, instead notes that "if the password is the empty
+string, then so is P" — a zero-length block. The two derive different keys, so a file written under one reading
+fails MAC verification under the other. Readers are generally lenient and accept both; writers pick one.
 
 `openssl`, `keytool`, and python-`cryptography` all write the two-byte form. Apple's Security framework accepts
 only the zero-length form. That is why there are two sets of password-less fixtures under

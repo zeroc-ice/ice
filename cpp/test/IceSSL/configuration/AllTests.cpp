@@ -1254,8 +1254,8 @@ testEncryptedKey(const string&, const Ice::PropertiesPtr&)
 // Load a PKCS12 certificate whose password is empty, with IceSSL.Password left empty too.
 //
 // certBaseName selects one of the two password-less fixtures in certs/configuration/ca1. They differ only in how
-// the empty password is encoded before it is fed to the PKCS12 key derivation function, which RFC 7292 leaves
-// ambiguous. See certs/README.md.
+// the empty password is encoded before it is fed to the PKCS12 key derivation function: RFC 7292 appendix B.1
+// makes it two 0x00 bytes, appendix B.2 makes it a zero-length block. See certs/README.md.
 void
 testPasswordLessCert(const string& factoryRef, const Ice::PropertiesPtr& defaultProps, const string& certBaseName)
 {
@@ -2465,10 +2465,10 @@ allTests(Test::TestHelper* helper, const string& defaultDir, bool p12)
     testEncryptedKey(factory, defaultProps);
     if (p12)
     {
-        // Encoded as a zero-length byte string, which every platform accepts.
+        // Encoded as a zero-length block, which every platform accepts.
         testPasswordLessCert(factory, defaultProps, "null_password");
 #ifndef ICE_USE_SECURE_TRANSPORT
-        // Encoded as a zero-length BMPString, which Apple's Security framework rejects.
+        // Encoded as two 0x00 bytes, which Apple's Security framework rejects.
         testPasswordLessCert(factory, defaultProps, "password_less");
 #endif
     }

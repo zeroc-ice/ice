@@ -125,7 +125,8 @@ public class AllTests : global::Test.AllTests
         try
         {
             // The two fixtures differ only in how the empty password is encoded before it is fed to the PKCS12 key
-            // derivation function, which RFC 7292 leaves ambiguous. .NET accepts both. See certs/README.md.
+            // derivation function: RFC 7292 appendix B.1 makes it two 0x00 bytes, appendix B.2 makes it a
+            // zero-length block. .NET accepts both. See certs/README.md.
             foreach (string certBaseName in new[] { "null_password", "password_less" })
             {
                 Console.Out.Write($"testing certificate without password ({certBaseName})... ");
