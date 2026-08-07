@@ -174,93 +174,6 @@ namespace
             DeregisterEventSource(_source);
         }
 
-        static void addKeys(const string& source, const StringConverterPtr& stringConverter)
-        {
-            HKEY hKey;
-            DWORD d;
-            //
-            // Don't need to use a wide string converter as the wide string is passed
-            // to Windows API.
-            //
-            LSTATUS err = RegCreateKeyExW(
-                HKEY_LOCAL_MACHINE,
-                stringToWstring(createKey(source), stringConverter).c_str(),
-                0,
-                const_cast<wchar_t*>(L"REG_SZ"),
-                REG_OPTION_NON_VOLATILE,
-                KEY_ALL_ACCESS,
-                0,
-                &hKey,
-                &d);
-
-            if (err != ERROR_SUCCESS)
-            {
-                throw SyscallException{__FILE__, __LINE__, "RegCreateKeyExW failed", static_cast<DWORD>(err)};
-            }
-
-            //
-            // Get the filename of this DLL.
-            //
-            wchar_t path[_MAX_PATH];
-            assert(_module != 0);
-            if (!GetModuleFileNameW(_module, path, _MAX_PATH))
-            {
-                DWORD error = GetLastError();
-                RegCloseKey(hKey);
-                throw SyscallException{__FILE__, __LINE__, "GetModuleFileNameW failed", error};
-            }
-
-            //
-            // The event resources are bundled into this DLL, therefore
-            // the "EventMessageFile" key should contain the path to this
-            // DLL.
-            //
-            err = RegSetValueExW(
-                hKey,
-                L"EventMessageFile",
-                0,
-                REG_EXPAND_SZ,
-                reinterpret_cast<unsigned char*>(path),
-                static_cast<DWORD>((wcslen(path) * sizeof(wchar_t)) + 1));
-
-            if (err == ERROR_SUCCESS)
-            {
-                //
-                // The "TypesSupported" key indicates the supported event
-                // types.
-                //
-                DWORD typesSupported = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
-                err = RegSetValueExW(
-                    hKey,
-                    L"TypesSupported",
-                    0,
-                    REG_DWORD,
-                    reinterpret_cast<unsigned char*>(&typesSupported),
-                    sizeof(typesSupported));
-            }
-            if (err != ERROR_SUCCESS)
-            {
-                RegCloseKey(hKey);
-                throw SyscallException{__FILE__, __LINE__, "RegSetValueExW failed", static_cast<DWORD>(err)};
-            }
-
-            RegCloseKey(hKey);
-        }
-
-        static void removeKeys(const string& source, const StringConverterPtr& stringConverter)
-        {
-            //
-            // Don't need to use a wide string converter as the wide string is passed
-            // to Windows API.
-            //
-            LSTATUS err =
-                RegDeleteKeyW(HKEY_LOCAL_MACHINE, stringToWstring(createKey(source), stringConverter).c_str());
-            if (err != ERROR_SUCCESS)
-            {
-                throw SyscallException{__FILE__, __LINE__, "RegDeleteKeyW failed", static_cast<DWORD>(err)};
-            }
-        }
-
         virtual void print(const string& prefix, const string& message)
         {
             string s;
@@ -381,8 +294,6 @@ namespace
             ReportEventW(_source, EVENTLOG_ERROR_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, messages, 0);
         }
 
-        static void setModuleHandle(HMODULE module) { _module = module; }
-
     private:
         static string mangleSource(string name)
         {
@@ -397,22 +308,9 @@ namespace
             return name;
         }
 
-        static string createKey(string name)
-        {
-            //
-            // The registry key is:
-            //
-            // HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Application.
-            //
-            return "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + mangleSource(name);
-        }
-
         StringConverterPtr _stringConverter;
         HANDLE _source;
-        static HMODULE _module;
     };
-
-    HMODULE SMEventLoggerI::_module = 0;
 }
 
 #endif
@@ -817,12 +715,6 @@ Ice::Service::configureService(const string& name)
 {
     _service = true;
     _name = name;
-}
-
-void
-Ice::Service::setModuleHandle(HMODULE module)
-{
-    SMEventLoggerI::setModuleHandle(module);
 }
 
 #else
