@@ -1251,6 +1251,38 @@ testEncryptedKey(const string&, const Ice::PropertiesPtr&)
 }
 #endif
 
+// Load a PKCS12 certificate whose password is empty, with IceSSL.Password left empty too.
+//
+// certBaseName selects one of the two password-less fixtures in certs/configuration/ca1. They differ only in how
+// the empty password is encoded before it is fed to the PKCS12 key derivation function, which RFC 7292 leaves
+// ambiguous. See certs/README.md.
+void
+testPasswordLessCert(const string& factoryRef, const Ice::PropertiesPtr& defaultProps, const string& certBaseName)
+{
+    cout << "testing PKCS12 certificate without a password (" << certBaseName << ")... " << flush;
+    InitializationData initData;
+    initData.properties = createClientProps(defaultProps, true, "ca1/client_" + certBaseName, "ca1/ca1");
+    initData.properties->setProperty("IceSSL.Password", "");
+    CommunicatorPtr comm = initialize(initData);
+    Test::ServerFactoryPrx fact{comm, factoryRef};
+
+    Test::Properties d = createServerProps(defaultProps, true, "ca1/server_" + certBaseName, "ca1/ca1");
+    d["IceSSL.Password"] = "";
+    optional<Test::ServerPrx> server = fact->createServer(d);
+    try
+    {
+        server->ice_ping();
+    }
+    catch (const LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    fact->destroyServer(server);
+    comm->destroy();
+    cout << "ok" << endl;
+}
+
 void
 testMutlipleCACerts(const string& factoryRef, const Ice::PropertiesPtr& defaultProps, bool p12)
 {
@@ -2431,6 +2463,15 @@ allTests(Test::TestHelper* helper, const string& defaultDir, bool p12)
     testCertificateChains(factory, defaultDir, defaultProps, p12);
     testCAsDirectory(factory, defaultDir, defaultProps, p12);
     testEncryptedKey(factory, defaultProps);
+    if (p12)
+    {
+        // Encoded as a zero-length byte string, which every platform accepts.
+        testPasswordLessCert(factory, defaultProps, "null_password");
+#ifndef ICE_USE_SECURE_TRANSPORT
+        // Encoded as a zero-length BMPString, which Apple's Security framework rejects.
+        testPasswordLessCert(factory, defaultProps, "password_less");
+#endif
+    }
     testMutlipleCACerts(factory, defaultProps, p12);
     testDerCertificates(factory, defaultProps, p12);
     testTrustOnly(factory, defaultProps, p12);

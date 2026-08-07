@@ -119,6 +119,41 @@ public class AllTests {
         defaultProperties.setProperty("IceSSL.DefaultDir", defaultDir);
         defaultProperties.setProperty("Ice.Default.Host", defaultHost);
 
+        // A PKCS12 keystore whose password is empty. The two fixtures differ only in how the empty password is
+        // encoded before it is fed to the PKCS12 key derivation function, which RFC 7292 leaves ambiguous. Java
+        // accepts both. See certs/README.md. JKS keystores cannot be password-less: keytool requires at least six
+        // characters.
+        if ("PKCS12".equals(keystoreType)) {
+            for (String certBaseName : new String[] {"null_password", "password_less"}) {
+                out.print("testing certificate without password (" + certBaseName + ")... ");
+                out.flush();
+                {
+                    InitializationData initData =
+                        createClientProps(defaultProperties, "ca1/client_" + certBaseName, "ca1/ca1", keystoreType);
+                    initData.properties.setProperty("IceSSL.KeystorePassword", "");
+                    initData.properties.setProperty("IceSSL.Password", "");
+                    Communicator comm = new Communicator(initData);
+                    ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+
+                    Map<String, String> d =
+                        createServerProps(defaultProperties, "ca1/server_" + certBaseName, "ca1/ca1", keystoreType);
+                    d.put("IceSSL.KeystorePassword", "");
+                    d.put("IceSSL.Password", "");
+                    ServerPrx server = fact.createServer(d);
+                    try {
+                        server.ice_ping();
+                    } catch (LocalException ex) {
+                        ex.printStackTrace();
+                        test(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
+                }
+                out.println("ok");
+            }
+        }
+
         out.print("testing certificate verification... ");
         out.flush();
         {
