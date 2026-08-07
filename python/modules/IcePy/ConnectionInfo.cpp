@@ -50,6 +50,12 @@ connectionInfoGetAdapterName(ConnectionInfoObject* self, PyObject* /*args*/)
 }
 
 extern "C" PyObject*
+connectionInfoGetConnectionId(ConnectionInfoObject* self, PyObject* /*args*/)
+{
+    return createString((*self->connectionInfo)->connectionId);
+}
+
+extern "C" PyObject*
 ipConnectionInfoGetLocalAddress(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::IPConnectionInfo>(*self->connectionInfo);
@@ -181,6 +187,11 @@ static PyGetSetDef ConnectionInfoGetters[] = {
      reinterpret_cast<getter>(connectionInfoGetAdapterName),
      nullptr,
      PyDoc_STR("str: The name of the adapter associated with the connection."),
+     nullptr},
+    {"connectionId",
+     reinterpret_cast<getter>(connectionInfoGetConnectionId),
+     nullptr,
+     PyDoc_STR("str: The connection ID."),
      nullptr},
     {} /* sentinel */
 };

@@ -757,7 +757,8 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
     if (!dynamic_pointer_cast<Builtin>(keyType) && !dynamic_pointer_cast<Enum>(keyType))
     {
-        // See https://github.com/zeroc-ice/ice/issues/254
+        // A PHP array key can only be an int or a string, so the PHP mapping only supports dictionary key types
+        // that map to int or string (builtin types and enums).
         p->unit()->warning(p->file(), p->line(), All, "dictionary key type not supported in PHP");
     }
 

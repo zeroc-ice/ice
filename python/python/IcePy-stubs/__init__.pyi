@@ -170,7 +170,7 @@ class Connection:
         Raises
         ------
         LocalException
-            When this connection is an incoming (server) connection: only outgoing (client) connections
+            If this connection is an incoming (server) connection: only outgoing (client) connections
             support setting the object adapter.
         """
         ...
@@ -336,6 +336,9 @@ class ConnectionInfo:
 
     adapterName: str
     """str: The name of the adapter associated with the connection."""
+
+    connectionId: str
+    """str: The connection ID."""
 
 class DispatchCallback:
     def response(self, result: Any) -> None: ...

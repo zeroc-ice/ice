@@ -160,7 +160,11 @@
 
     <Target Name="SliceCompileClean" BeforeTargets="Clean">
         <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).%(SourceExt)')"/>
-        <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).%(HeaderExt)')"/>
+        <!-- Generated headers go to HeaderOutputDir when set, and to OutputDir otherwise. -->
+        <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).%(HeaderExt)')"
+                Condition="'%(SliceCompile.HeaderOutputDir)' == ''"/>
+        <Delete Files="@(SliceCompile->'%(HeaderOutputDir)\%(Filename).%(HeaderExt)')"
+                Condition="'%(SliceCompile.HeaderOutputDir)' != ''"/>
         <Delete Files="@(SliceCompile->'%(OutputDir)\SliceCompile.%(Filename).d')"/>
     </Target>
 </Project>

@@ -3,9 +3,7 @@
 #ifndef ICE_BT_DBUS_H
 #define ICE_BT_DBUS_H
 
-#include <cassert>
 #include <cstdint>
-#include <map>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -127,8 +125,6 @@ namespace IceBT::DBus
     public:
         [[nodiscard]] virtual TypePtr getType() const = 0;
 
-        [[nodiscard]] virtual ValuePtr clone() const = 0;
-
         [[nodiscard]] virtual std::string toString() const = 0;
 
     protected:
@@ -157,8 +153,6 @@ namespace IceBT::DBus
         PrimitiveValue(E val) : v(std::move(val)), kind(K) {}
 
         [[nodiscard]] TypePtr getType() const final { return Type::getPrimitive(kind); }
-
-        [[nodiscard]] ValuePtr clone() const final { return make_shared<PrimitiveValue>(v); }
 
         [[nodiscard]] std::string toString() const final
         {
@@ -213,8 +207,6 @@ namespace IceBT::DBus
 
         [[nodiscard]] TypePtr getType() const override { return _type; }
 
-        [[nodiscard]] ValuePtr clone() const override { return make_shared<VariantValue>(v ? v->clone() : nullptr); }
-
         [[nodiscard]] std::string toString() const override { return v ? v->toString() : "nil"; }
 
         ValuePtr v;
@@ -243,14 +235,6 @@ namespace IceBT::DBus
 
         [[nodiscard]] TypePtr getType() const override { return _type; }
 
-        [[nodiscard]] ValuePtr clone() const override
-        {
-            DictEntryValuePtr r = make_shared<DictEntryValue>(_type);
-            r->key = key->clone();
-            r->value = value->clone();
-            return r;
-        }
-
         [[nodiscard]] std::string toString() const override
         {
             std::ostringstream out;
@@ -278,16 +262,6 @@ namespace IceBT::DBus
 
         [[nodiscard]] TypePtr getType() const override { return _type; }
 
-        [[nodiscard]] ValuePtr clone() const override
-        {
-            auto r = make_shared<ArrayValue>(_type);
-            for (const auto& element : elements)
-            {
-                r->elements.push_back(element->clone());
-            }
-            return r;
-        }
-
         [[nodiscard]] std::string toString() const override
         {
             std::ostringstream out;
@@ -300,18 +274,6 @@ namespace IceBT::DBus
                 out << (*p)->toString();
             }
             return out.str();
-        }
-
-        void toStringMap(std::map<std::string, ValuePtr>& m)
-        {
-            for (const auto& element : elements)
-            {
-                auto de = dynamic_pointer_cast<DictEntryValue>(element);
-                assert(de);
-                auto s = dynamic_pointer_cast<StringValue>(de->key);
-                assert(s);
-                m[s->v] = de->value;
-            }
         }
 
         std::vector<ValuePtr> elements;
@@ -338,16 +300,6 @@ namespace IceBT::DBus
         StructValue(StructTypePtr t) : _type(std::move(t)) {}
 
         [[nodiscard]] TypePtr getType() const final { return _type; }
-
-        [[nodiscard]] ValuePtr clone() const final
-        {
-            auto r = make_shared<StructValue>(_type);
-            for (const auto& member : members)
-            {
-                r->members.push_back(member->clone());
-            }
-            return r;
-        }
 
         [[nodiscard]] std::string toString() const final
         {
@@ -392,12 +344,10 @@ namespace IceBT::DBus
 
         [[nodiscard]] virtual bool isSignal() const = 0;
         [[nodiscard]] virtual bool isMethodCall() const = 0;
-        [[nodiscard]] virtual bool isMethodReturn() const = 0;
 
         [[nodiscard]] virtual std::string getPath() const = 0;
         [[nodiscard]] virtual std::string getInterface() const = 0;
         [[nodiscard]] virtual std::string getMember() const = 0;
-        [[nodiscard]] virtual std::string getDestination() const = 0;
 
         //
         // Writing arguments.
@@ -408,7 +358,6 @@ namespace IceBT::DBus
         //
         // Reading arguments.
         //
-        [[nodiscard]] virtual bool checkTypes(const std::vector<TypePtr>&) const = 0;
         virtual ValuePtr read() = 0;
         virtual std::vector<ValuePtr> readAll() = 0;
 
@@ -432,9 +381,6 @@ namespace IceBT::DBus
     class AsyncResult
     {
     public:
-        [[nodiscard]] virtual bool isPending() const = 0;
-        [[nodiscard]] virtual bool isComplete() const = 0;
-
         [[nodiscard]] virtual MessagePtr waitUntilFinished() const = 0;
 
         [[nodiscard]] virtual MessagePtr getReply() const = 0;
@@ -484,9 +430,8 @@ namespace IceBT::DBus
         virtual void removeService(const std::string&) = 0;
 
         //
-        // Asynchronously invokes a method call. The returned AsyncResult can be used
-        // to determine completion status and obtain the reply, or supply a callback
-        // to be notified when the call completes.
+        // Asynchronously invokes a method call. The returned AsyncResult can be used to wait for
+        // the reply and obtain it, or supply a callback to be notified when the call completes.
         //
         virtual AsyncResultPtr callAsync(const MessagePtr&, const AsyncCallbackPtr& = nullptr) = 0;
 

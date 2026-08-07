@@ -597,6 +597,7 @@ testCertificateVerification(
         try
         {
             server->ice_ping();
+            test(false);
         }
         catch (const Ice::SecurityException&)
         {
@@ -620,6 +621,7 @@ testCertificateVerification(
         try
         {
             server->ice_ping();
+            test(false);
         }
         catch (const Ice::SecurityException&)
         {

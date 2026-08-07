@@ -12,12 +12,10 @@ final class ServantManager: Dispatcher {
         var adminId: Identity?
     }
 
-    private let adapterName: String
     private let communicator: Communicator
     private let state = Mutex<State>(State())
 
-    init(adapterName: String, communicator: Communicator) {
-        self.adapterName = adapterName
+    init(communicator: Communicator) {
         self.communicator = communicator
     }
 

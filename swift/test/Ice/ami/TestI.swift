@@ -68,7 +68,7 @@ actor State {
     }
 
     func sleep(ms: Int32) async throws {
-        try await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(for: .milliseconds(ms))
     }
 }
 

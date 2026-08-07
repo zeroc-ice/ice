@@ -11,6 +11,8 @@ module Test
     sequence<string> StringList; /* By default, a sequence is received as a list. */
     ["python:tuple"] sequence<string> StringTuple;
 
+    sequence<int> IntList; /* By default, sequence<int> is received as a list. */
+
     ["python:array.array"] sequence<bool> BoolSeq1;
     ["python:memoryview:CustomFactory.myBoolSeq:array.array"] sequence<bool> BoolSeq2;
 
@@ -125,5 +127,51 @@ module Test
         M opM(M m);
 
         void shutdown();
+    }
+
+    dictionary<string, IntList> IntListDict;
+    dictionary<string, ShortSeq1> ShortSeq1Dict;
+    dictionary<string, ByteSeq2> ByteSeq2Dict;
+    sequence<IntList> IntListSeq;
+    sequence<ShortSeq1> ShortSeq1Seq;
+    sequence<IntListDict> IntListDictSeq;
+
+    struct NestedS
+    {
+        ShortSeq1Dict d;
+        ShortSeq1Seq s;
+        ByteSeq2Dict m;
+        IntListDict p;
+    }
+
+    class NestedC
+    {
+        ShortSeq1Dict d;
+        ShortSeq1Seq s;
+    }
+
+    // These operations use numeric and custom mapped sequences nested inside dictionaries.
+    // This tests that the import visitor recurses through dictionary value types.
+    // For this test to be meaningful, numeric and custom mapped sequences must not appear directly in the operation's
+    // signature; this would cause the import to be registered even without recursion.
+    interface NestedDictCustom
+    {
+        IntListDict opIntListDict(IntListDict v1, out IntListDict v2);
+        ShortSeq1Dict opShortSeq1Dict(ShortSeq1Dict v1, out ShortSeq1Dict v2);
+        ByteSeq2Dict opByteSeq2Dict(ByteSeq2Dict v1);
+
+        NestedS opNestedS(NestedS v);
+        NestedC opNestedC(NestedC v);
+    }
+
+    // These operations use numeric and custom mapped sequences nested inside other sequences.
+    // This tests that the import visitor recurses through sequence element types.
+    // For this test to be meaningful, numeric and custom mapped sequences must not appear directly in the operation's
+    // signature; this would cause the import to be registered even without recursion.
+    interface NestedSeqCustom
+    {
+        IntListSeq opIntListSeq(IntListSeq v1, out IntListSeq v2);
+        ShortSeq1Seq opShortSeq1Seq(ShortSeq1Seq v1);
+        IntListDictSeq opIntListDictSeq(IntListDictSeq v1);
     }
 }

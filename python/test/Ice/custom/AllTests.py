@@ -76,7 +76,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
     test(r == stringList)
     test(b2 == stringList)
 
-    s = Test.S()  # Must use the default constructor, which relies on imports to construct its fields.
+    s = Test.S()  # Must use the default constructor. This uses the field's default factory which exercises the import.
     s.b1 = bytes(byteList)
     s.b2 = byteList
     s.b4 = byteList
@@ -86,7 +86,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
     s.a1 = array.array("b", byteList)
     custom.sendS(s)
 
-    c = Test.C()  # Must use the default constructor, which relies on imports to construct its fields.
+    c = Test.C()  # Must use the default constructor. This uses the field's default factory which exercises the import.
     c.b1 = bytes(byteList)
     c.b2 = byteList
     c.b4 = byteList
@@ -95,6 +95,67 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
     c.s3 = tuple(stringList)
     c.a1 = array.array("b", byteList)
     custom.sendC(c)
+
+    print("ok")
+
+    sys.stdout.write("testing sequences nested in dictionaries... ")
+    sys.stdout.flush()
+
+    nestedDict = Test.NestedDictCustomPrx(communicator, f"test.nestedDict:{helper.getTestEndpoint()}")
+
+    intListDict = {"a": [1, 2, 3], "b": []}
+    r, o = nestedDict.opIntListDict(intListDict)
+    test(r == intListDict)
+    test(o == intListDict)
+
+    shortSeqDict = {"a": array.array("h", [1, 2, 3]), "b": array.array("h")}
+    r, o = nestedDict.opShortSeq1Dict(shortSeqDict)
+    test(all(isinstance(v, array.array) for v in r.values()))
+    test(all(isinstance(v, array.array) for v in o.values()))
+    test(r == shortSeqDict)
+    test(o == shortSeqDict)
+
+    byteSeqDict = {"x": array.array("b", [1, 2])}
+    r2 = nestedDict.opByteSeq2Dict(byteSeqDict)
+    test(all(isinstance(v, array.array) for v in r2.values()))
+    test(r2 == byteSeqDict)
+
+    ns = Test.NestedS()  # Must use the default constructor, which relies on imports for its field type hints.
+    test(ns.d == {} and ns.s == [] and ns.m == {} and ns.p == {})
+    ns.d = {"k": array.array("h", [5, 6])}
+    ns.s = [array.array("h", [7])]
+    ns.m = {"k": array.array("b", [8])}
+    ns.p = {"k": [9, 10]}
+    test(nestedDict.opNestedS(ns) == ns)
+
+    nc = Test.NestedC()
+    nc.d = {"k": array.array("h", [1])}
+    nc.s = [array.array("h", [2, 3])]
+    nc1 = nestedDict.opNestedC(nc)
+    assert nc1 is not None
+    test(nc1.d == nc.d)
+    test(nc1.s == nc.s)
+
+    print("ok")
+
+    sys.stdout.write("testing sequences nested in sequences... ")
+    sys.stdout.flush()
+
+    nestedSeq = Test.NestedSeqCustomPrx(communicator, f"test.nestedSeq:{helper.getTestEndpoint()}")
+
+    intListSeq = [[1, 2], [3], []]
+    r, o = nestedSeq.opIntListSeq(intListSeq)
+    test(r == intListSeq)
+    test(o == intListSeq)
+
+    shortSeqSeq = [array.array("h", [1, 2]), array.array("h")]
+    r3 = nestedSeq.opShortSeq1Seq(shortSeqSeq)
+    test(all(isinstance(v, array.array) for v in r3))
+    test(r3 == shortSeqSeq)
+
+    intListDictSeq = [{"a": [1]}, {}]
+    r4 = nestedSeq.opIntListDictSeq(intListDictSeq)
+    test(r4 == intListDictSeq)
 
     print("ok")
 

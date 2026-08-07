@@ -185,8 +185,8 @@ module Test
 
         optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
 
-        // Regression test for issue #5480: slice2js must not emit a '?' suffix for an optional parameter
-        // that is followed by a required parameter (this would generate invalid TypeScript, TS1016).
+        // slice2js must not emit a '?' suffix for an optional parameter that is followed by a required
+        // parameter (this would generate invalid TypeScript, TS1016).
         int opOptionalFirstParam(optional(1) int p1, int p2);
 
         // slice2js must not consider 'out' parameters when deciding if the remaining 'in' parameters are

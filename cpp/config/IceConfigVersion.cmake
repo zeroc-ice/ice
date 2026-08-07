@@ -8,18 +8,28 @@
 # the COMPATIBILITY SameMinorVersion policy; version ranges are honored on both endpoints, where
 # SameMinorVersion would reject an upper endpoint in a later x.y.
 
+include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
 
 # Report the full version, pre-release suffix included, so Ice_VERSION matches what Ice reports
 # everywhere else. CMake's version comparison ignores the suffix and still derives
 # Ice_VERSION_MAJOR/MINOR/PATCH from the numeric part.
-set(PACKAGE_VERSION "${_ice_package_version}")
+set(PACKAGE_VERSION "${Ice_VERSION}")
+
+# An installation whose version cannot be read is unusable whatever was requested, so it is
+# UNSUITABLE rather than merely incompatible: CMake then passes over it even for an unversioned
+# request, as its own generated version files do for a bitness mismatch. The reason goes in
+# PACKAGE_VERSION, which CMake prints against the rejected candidate, likewise following those files.
+if(NOT PACKAGE_VERSION)
+  set(PACKAGE_VERSION "unknown - broken installation, cannot read the Ice version from Ice/Config.h")
+  set(PACKAGE_VERSION_UNSUITABLE TRUE)
+endif()
 
 if(PACKAGE_VERSION MATCHES "^([0-9]+)\\.([0-9]+)")
   set(_ice_version_major "${CMAKE_MATCH_1}")
   set(_ice_version_minor "${CMAKE_MATCH_2}")
 else()
-  # Fail closed on a malformed IceVersion.cmake rather than compare against stale CMAKE_MATCH values.
+  # Fail closed on a malformed version rather than compare against stale CMAKE_MATCH values.
   set(_ice_version_major "")
   set(_ice_version_minor "")
 endif()
@@ -65,5 +75,3 @@ endif()
 
 unset(_ice_version_major)
 unset(_ice_version_minor)
-unset(_ice_package_version)
-unset(_ice_package_so_version)
