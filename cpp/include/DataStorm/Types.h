@@ -48,11 +48,11 @@ namespace DataStorm
         /// Clear the sample history when a new sample which is not a partial update is received.
         OnAllExceptPartialUpdate,
 
-        /// Never clear the sample history. The history is then bounded only by Config::sampleCount and
-        /// Config::sampleLifetime, both unbounded by default, so an element configured this way and left with the
-        /// default bounds accumulates samples for as long as it lives: every sample it publishes, for a writer, and
-        /// every sample it receives that the application has not yet read, for a reader. Set Config::sampleCount or
-        /// Config::sampleLifetime on a long-lived element that writes or receives a high volume of samples.
+        /// Never clear the sample history. Only Config::sampleCount and Config::sampleLifetime then bound the
+        /// history, and both are unbounded by default: with the defaults, a writer accumulates every sample it
+        /// publishes and a reader accumulates every sample the application has not yet read, for as long as the
+        /// element lives. Set Config::sampleCount or Config::sampleLifetime on a long-lived element that writes or
+        /// receives a high volume of samples.
         Never
     };
 
