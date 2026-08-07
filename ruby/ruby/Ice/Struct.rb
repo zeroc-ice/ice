@@ -7,5 +7,6 @@ module Ice
       def inspect
           ::Ice::__stringify(self, self.class::ICE_TYPE)
       end
+      alias to_s inspect
   end
 end
