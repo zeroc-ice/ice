@@ -137,10 +137,9 @@ classdef (Hidden) EncapsDecoder10 < IceInternal.EncapsDecoder
             if obj.sliceType == IceInternal.SliceType.ValueSlice
                 if obj.is.readBool()
                     typeIdIndex = obj.is.readSize();
-                    obj.typeIdIndex = typeIdIndex;
-                    obj.typeId = obj.getTypeId(obj.typeIdIndex);
+                    obj.typeId = obj.getTypeId(typeIdIndex);
                 else
-                    [obj.typeIdIndex, obj.typeId] = obj.readTypeId();
+                    obj.typeId = obj.readTypeId();
                 end
             else
                 obj.typeId = obj.is.readString();
@@ -237,6 +236,5 @@ classdef (Hidden) EncapsDecoder10 < IceInternal.EncapsDecoder
         skipFirstSlice
         sliceSize
         typeId
-        typeIdIndex
     end
 end

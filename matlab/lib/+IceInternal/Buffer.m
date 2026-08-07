@@ -2,24 +2,15 @@ classdef (Hidden) Buffer < matlab.mixin.Copyable
     % Copyright (c) ZeroC, Inc.
 
     methods
-        function obj = Buffer(data)
-            if nargin == 1
-                %
-                % Caller provided a uint8 array to be used for unmarshaling.
-                %
-                obj.buf = data;
-                obj.size = length(data);
-                obj.capacity = obj.size;
-            else
-                %
-                % This buffer will be used for marshaling and grows as necessary.
-                %
-                % Use zeros() here. Using "uint8(0)" isn't sufficient.
-                %
-                obj.buf = zeros(1, 1024, 'uint8');
-                obj.size = 0;
-                obj.capacity = length(obj.buf);
-            end
+        function obj = Buffer()
+            %
+            % This buffer is used for marshaling and grows as necessary.
+            %
+            % Use zeros() here. Using "uint8(0)" isn't sufficient.
+            %
+            obj.buf = zeros(1, 1024, 'uint8');
+            obj.size = 0;
+            obj.capacity = length(obj.buf);
         end
         function reset(obj, data)
             if nargin == 2
@@ -32,9 +23,6 @@ classdef (Hidden) Buffer < matlab.mixin.Copyable
                 %
                 obj.size = 0;
             end
-        end
-        function expand(obj, n)
-            obj.resize(obj.size + n);
         end
         function resize(obj, n)
             if n > obj.capacity

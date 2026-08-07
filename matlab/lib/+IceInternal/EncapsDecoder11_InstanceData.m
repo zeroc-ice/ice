@@ -5,7 +5,6 @@ classdef (Hidden) EncapsDecoder11_InstanceData < handle
         function obj = EncapsDecoder11_InstanceData(p)
             if ~isempty(p)
                 obj.previous = p;
-                p.next = obj;
             end
             obj.slices = {};
             obj.indirectionTables = {};
@@ -20,10 +19,8 @@ classdef (Hidden) EncapsDecoder11_InstanceData < handle
         sliceFlags
         sliceSize
         typeId
-        typeIdIndex
         compactId
         indirectPatchList dictionary = dictionary % unconfigured dictionary
         previous
-        next
     end
 end
