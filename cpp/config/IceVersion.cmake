@@ -8,8 +8,8 @@
 #
 # Both are always assigned, and left empty when the header is missing, unreadable or does not
 # carry both defines.
-
-include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake")
+#
+# Reads Ice_INCLUDE_ROOT, so include IcePrefix.cmake first.
 
 set(Ice_VERSION "")
 set(Ice_SO_VERSION "")

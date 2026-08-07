@@ -8,6 +8,7 @@
 # the COMPATIBILITY SameMinorVersion policy; version ranges are honored on both endpoints, where
 # SameMinorVersion would reject an upper endpoint in a later x.y.
 
+include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
 
 # Report the full version, pre-release suffix included, so Ice_VERSION matches what Ice reports
