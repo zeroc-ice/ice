@@ -1068,7 +1068,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   connection this proxy is bound to, even when this connection is closed.
             %
             %   Output Arguments
-            %     r - A future that will be completed when the invocation completes.
+            %     r - A future that will be completed with the connection for this proxy.
             %       Ice.Future scalar
 
             arguments
