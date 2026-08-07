@@ -66,7 +66,7 @@ class TcpTransceiver {
 
             // The error callback can be triggered from the socket write(). We don't want it to be dispatched right
             // away from within the write() so we delay the call with setImmediate. We do the same for close as a
-            // precaution. See also issue #6226.
+            // precaution.
             this._fd.on("close", hadError => Timer.setImmediate(() => this.socketClosed(hadError)));
             this._fd.on("error", err => Timer.setImmediate(() => this.socketError(err)));
 

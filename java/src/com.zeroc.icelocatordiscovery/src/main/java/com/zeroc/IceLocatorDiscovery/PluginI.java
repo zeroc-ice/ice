@@ -138,12 +138,12 @@ class PluginI implements Plugin {
             _lookup = lookup;
             _timeout = properties.getIcePropertyAsInt("IceLocatorDiscovery.Timeout");
             if (_timeout <= 0) {
-                throw new PropertyException(
-                    "property 'IceLocatorDiscovery.Timeout' must be greater than 0");
+                throw new PropertyException("property 'IceLocatorDiscovery.Timeout' must be greater than 0");
             }
             _retryCount = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryCount");
             if (_retryCount < 0) {
-                _retryCount = 0;
+                throw new PropertyException(
+                    "property 'IceLocatorDiscovery.RetryCount' must be greater than or equal to 0");
             }
             _retryDelay = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryDelay");
             if (_retryDelay < 0) {
@@ -448,7 +448,7 @@ class PluginI implements Plugin {
                                 if (_traceLevel > 1) {
                                     StringBuilder s = new StringBuilder("retrying locator lookup:\nlookup = ");
                                     s.append(_lookup);
-                                    s.append("\nretry count = ").append(_retryCount);
+                                    s.append("\nretry count = ").append(_pendingRetryCount);
                                     if (!_instanceName.isEmpty()) {
                                         s.append("\ninstance name = ").append(_instanceName);
                                     }
@@ -502,12 +502,12 @@ class PluginI implements Plugin {
 
         private final LookupPrx _lookup;
         private final Map<LookupPrx, LookupReplyPrx> _lookups = new HashMap<>();
-        private int _timeout;
+        private final int _timeout;
         private Future<?> _future;
         private final ScheduledExecutorService _timer;
         private final int _traceLevel;
-        private int _retryCount;
-        private int _retryDelay;
+        private final int _retryCount;
+        private final int _retryDelay;
 
         private String _instanceName;
         private boolean _warned;

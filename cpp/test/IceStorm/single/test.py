@@ -4,8 +4,7 @@
 # Make sure the subscriber uses a larger size receive buffer size then
 # the IceStorm send buffer size. This ensures the test works with bogus
 # OS configurations where the receiver buffer size is smaller than the
-# send buffer size (causing the received messages to be truncated). See
-# bug #6070 and #7558.
+# send buffer size (causing the received messages to be truncated).
 #
 from __future__ import annotations
 

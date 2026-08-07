@@ -104,11 +104,6 @@ namespace IceInternal
     ICE_API std::string toUpper(std::string_view);
     ICE_API bool isAlpha(char);
     ICE_API bool isDigit(char);
-
-    //
-    // Remove all whitespace from a string
-    //
-    ICE_API std::string removeWhitespace(std::string_view);
 }
 
 #endif

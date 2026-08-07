@@ -29,6 +29,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.IOException;
@@ -56,6 +57,14 @@ public class MainActivity extends Activity {
     private volatile Thread worker;
     private volatile BluetoothServerSocket serverSocket;
     private volatile BluetoothSocket socket;
+
+    // Process-wide -- the instances that race share one process (see onCreate). Set on the main
+    // thread, cleared by the worker's finally, so volatile.
+    private static volatile Thread activeWorker;
+
+    // Never cleared: a relaunch must not re-run the intent even after the worker it belongs to has
+    // finished -- activeWorker is null by then, but the run already has its verdict.
+    private static volatile boolean workerStarted;
 
     // Best-effort auto-accept of incoming pairing requests. The app runs as a privileged system app
     // (BLUETOOTH_PRIVILEGED), so setPairingConfirmation should succeed; setPin is a fallback that logs
@@ -93,7 +102,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-        // ACTION_PAIRING_REQUEST is a system broadcast; register exported (and unregister in onDestroy).
+        // Before the guard below: a relaunch destroys the old instance (and its receiver) first,
+        // so returning earlier would leave the surviving worker with no pairing receiver.
         registerReceiver(
             pairingReceiver,
             new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST),
@@ -102,11 +112,33 @@ public class MainActivity extends Activity {
         final String mode = it.getStringExtra("mode");
         final String peer = it.getStringExtra("peer");
         final String uuid = it.getStringExtra("uuid");
+        // A relaunch (see onDestroy) re-runs onCreate with the same extras. Two RFCOMM connects to
+        // the same peer and UUID resolve the same DLCI and the stack tears both down, taking the
+        // server's accepted connection with them -- so at most one worker per `am start`.
+        //
+        // b is non-null when the instance is being recreated, not on a fresh `am start`. The
+        // worker -- live or already finished -- owns this run's verdict; a FAIL here would become
+        // the last RESULT line and condemn a healthy run. Stay resident so the process keeps an
+        // activity and this receiver.
+        if (b != null && workerStarted) {
+            Log.i(TAG, "relaunch after this process started a worker; it owns this run's verdict");
+            finishWhenWorkerEnds();
+            return;
+        }
+        Thread running = activeWorker;
+        if (running != null && running.isAlive()) {
+            // A fresh start while a worker is still going. Nothing else will speak for this
+            // attempt, so give the caller a verdict and a reason.
+            result(mode, false, "a worker is already running in this process");
+            finish();
+            return;
+        }
         Log.i(TAG, "start mode=" + mode + " peer=" + peer);
         worker = new Thread(() -> {
             try {
                 run(mode, peer, uuid);
             } finally {
+                activeWorker = null;
                 // Finish so a subsequent `am start` re-runs onCreate with the new extras. A
                 // standard-launch-mode activity left resident is simply brought to front, and the
                 // caller would then match the previous run's result line out of logcat.
@@ -114,6 +146,8 @@ public class MainActivity extends Activity {
                 runOnUiThread(MainActivity.this::finish);
             }
         });
+        activeWorker = worker;
+        workerStarted = true;
         worker.start();
         new Handler(Looper.getMainLooper()).postDelayed(
             () -> {
@@ -124,6 +158,29 @@ public class MainActivity extends Activity {
                 }
             },
             WATCHDOG_MS);
+    }
+
+    // Keeps a refused relaunch resident until the worker is done: a process with no activity is
+    // fair game for the OS, worker and sockets included.
+    private void finishWhenWorkerEnds() {
+        // Bounded: a worker wedged before its sockets are published never unblocks, and a resident
+        // activity would make every later `am start` a no-op for the rest of the boot. uptimeMillis,
+        // matching the postDelayed clock -- wall time can step and trip the cap early.
+        long deadline = SystemClock.uptimeMillis() + WATCHDOG_MS + 30_000;
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(
+            new Runnable() {
+                @Override
+                public void run() {
+                    Thread running = activeWorker;
+                    if (running == null || !running.isAlive() || SystemClock.uptimeMillis() > deadline) {
+                        finish();
+                    } else {
+                        handler.postDelayed(this, 1000);
+                    }
+                }
+            },
+            1000);
     }
 
     // Closing the sockets is what actually unblocks accept/connect/read; interrupt() does not.

@@ -25,7 +25,7 @@ Server::run(int argc, char** argv)
 
 #ifdef _WIN32
     // Turn off stack trace collection and printing on Windows with ws(s): they slow down the logging so much that this
-    // test can fail. See #3048.
+    // test can fail.
     if (getTestProtocol(properties).find("ws") == 0)
     {
         properties->setProperty("Ice.PrintStackTraces", "0");

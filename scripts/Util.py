@@ -56,10 +56,9 @@ toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 # specializations are defined.
 platform: Platform
 
-# The mapping and configuration currently loading test suites. Set by Mapping.loadTestSuites so that
-# the TestSuite instances created by the test.py scripts it runs pick them up.
+# The mapping currently loading test suites. Set by Mapping.loadTestSuites so that
+# the TestSuite instances created by the test.py scripts it runs pick it up.
 currentMapping: Mapping | None = None
-currentConfig: Mapping.Config | None = None
 
 
 def run(
@@ -1034,8 +1033,6 @@ class Mapping(object):
     ) -> None:
         global currentMapping
         currentMapping = self
-        global currentConfig
-        currentConfig = config
         origsyspath = sys.path
         try:
             prefix = os.path.commonprefix([toplevel, self.component.getScriptDir()])
@@ -3057,6 +3054,10 @@ class AndroidProcessController(RemoteProcessController):
         # transient failure there must not kill the bond.
         run(f"{self.adb()} logcat -c")
         self._adbTolerantFor(peerAdb, "logcat -c")
+        # `logcat -c` clears only main,system,crash,kernel; the events buffer needs its own clear,
+        # or diagnostics cannot tell one attempt's lifecycle records from an earlier attempt's.
+        self._adbTolerant("logcat -b events -c")
+        self._adbTolerantFor(peerAdb, "logcat -b events -c")
         run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid}")
 
         def tail(log: str) -> str:
@@ -3152,9 +3153,23 @@ class AndroidProcessController(RemoteProcessController):
         print("-- adb forwards --")
         print(self._adbTolerant("forward --list"))
         print("-- controller app logcat --")
-        keep = re.compile("testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc")
+        # BTBOND, not just com.zeroc: btbond's own lines ("listening", "connecting...", "watchdog:")
+        # carry no package name, so only its stack frames were surviving this filter.
+        keep = re.compile(
+            "testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc|BTBOND"
+        )
         lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
-        print("\n".join(lines[-50:]))
+        print("\n".join(lines[-80:]))
+        # A relaunch emits no new "START u0" and its main-buffer logs are compiled out, so the events
+        # buffer is the only durable record that a second onCreate ran. bond() clears this buffer
+        # per attempt; scoping to btbond keeps the 40 display slots for the lines that matter.
+        print("-- btbond lifecycle (events) --")
+        events = re.compile(
+            "(wm_relaunch|wm_on_(create|destroy)_called|wm_(create|destroy|finish)_activity"
+            "|am_(proc_(start|died)|kill)).*btbond"
+        )
+        lines = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if events.search(ln)]
+        print("\n".join(lines[-40:]) or "<none>")
 
     # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
     # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
@@ -3883,6 +3898,7 @@ class Driver:
         self.rlanguages: list[str] = []
         self.failures: list[Any] = []
         self.keepLogs = False
+        self.interface = ""
         self.configs: dict[Mapping, Mapping.Config]
 
         logDir = os.path.join(toplevel, "logs")
@@ -3916,7 +3932,6 @@ class Driver:
         )
 
         self.communicator: Ice.Communicator | None = None
-        self.interface = ""
         self.processControllers: dict[type[ProcessController], ProcessController] = {}
 
     def setConfigs(self, configs: dict[Mapping, Mapping.Config]) -> None:
@@ -4543,24 +4558,6 @@ class PythonMapping(CppBasedMapping):
             print("--python=<interpreter>   Choose the interpreter used to run python tests")
             print("--load-slice             Use Ice.loadSlice instead of the slice2py static generated code.")
             print("--pip-package            Use the installed pip package instead of the local build.")
-
-        def __init__(self, options: list[Option] = []):
-            Mapping.Config.__init__(self, options)
-            self.pythonVersion: tuple[int, ...] | None = None
-
-        def getPythonVersion(self) -> tuple[int, ...]:
-            if self.pythonVersion is None:
-                assert currentConfig is not None
-                version = subprocess.check_output(
-                    [
-                        currentConfig.python,
-                        "-c",
-                        'import sys; print("{0}.{1}".format(sys.version_info[0], sys.version_info[1]))',
-                    ],
-                    text=True,
-                )
-                self.pythonVersion = tuple(int(num) for num in version.split("."))
-            return self.pythonVersion
 
     def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         if current.config.loadSlice:

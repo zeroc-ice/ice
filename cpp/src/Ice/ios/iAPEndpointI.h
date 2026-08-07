@@ -13,7 +13,7 @@
 namespace IceObjC
 {
     class iAPEndpointI;
-    typedef std::shared_ptr<iAPEndpointI> iAPEndpointIPtr;
+    using iAPEndpointIPtr = std::shared_ptr<iAPEndpointI>;
 
     class iAPEndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<iAPEndpointI>
     {

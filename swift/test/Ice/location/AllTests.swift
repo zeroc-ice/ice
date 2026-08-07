@@ -537,7 +537,8 @@ func allTests(_ helper: TestHelper) async throws {
         try await helloPrx.ice_ping()
         try test(false)
     } catch is Ice.NotRegisteredException {
-        // Calls on the well-known proxy are not collocated because of issue #507
+        // Calls on a well-known proxy are never collocated in Swift: collocation for well-known proxies relies
+        // on the C++ object adapter's active servant map, and Swift maintains its own.
     }
 
     // Ensure that calls on the indirect proxy (with adapter ID) are collocated

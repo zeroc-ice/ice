@@ -239,6 +239,30 @@ def twoways(helper: TestHelper, p: Test.MyInterfacePrx) -> None:
         pass
 
     #
+    # Test that floats in sequences are subjected to the same range check as individual float values.
+    #
+    rso, fso, dso = p.opFloatDoubleS((3.402823466e38, -3.402823466e38), ())
+    test(len(fso) == 2)
+
+    rso, fso, dso = p.opFloatDoubleS((float("inf"), float("-inf")), ())
+    test(math.isinf(fso[0]) and math.isinf(fso[1]))
+
+    rso, fso, dso = p.opFloatDoubleS((float("nan"), float("-nan")), ())
+    test(math.isnan(fso[0]) and math.isnan(fso[1]))
+
+    try:
+        p.opFloatDoubleS((3.402823466e38 * 2, 0.0), ())
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        p.opFloatDoubleS((-3.402823466e38 * 2, 0.0), ())
+        test(False)
+    except ValueError:
+        pass
+
+    #
     # Test passing non-sequence values for sequence parameters. The invocation must
     # fail with a clean exception and must not write a corrupt message.
     #

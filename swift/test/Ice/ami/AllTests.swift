@@ -61,6 +61,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
     do {
         let indirect = p.ice_adapterId("dummy")
         try await indirect.op()
+        try test(false)
     } catch is Ice.NoEndpointException {}
 
     do {
