@@ -1479,14 +1479,7 @@ Database::getAllAdapters(const string& expression)
     }
     cursor.close();
 
-    //
-    // COMPILERFIX: We're not using result.insert() here, this doesn't compile on Sun.
-    //
-    // result.insert(result.end(), groups.begin(), groups.end())
-    for (const auto& group : groups)
-    {
-        result.push_back(group);
-    }
+    result.insert(result.end(), groups.begin(), groups.end());
     return result;
 }
 
@@ -1905,7 +1898,7 @@ Database::getObjectInfosByType(const string& type)
 }
 
 void
-Database::addInternalObject(const ObjectInfo& info, bool replace)
+Database::addInternalObject(const ObjectInfo& info)
 {
     lock_guard lock(_mutex);
     const Ice::Identity id = info.proxy->ice_getIdentity();
@@ -1917,10 +1910,6 @@ Database::addInternalObject(const ObjectInfo& info, bool replace)
         ObjectInfo oldInfo;
         if (_internalObjects.get(txn, id, oldInfo))
         {
-            if (!replace)
-            {
-                throw ObjectExistsException(id);
-            }
             _internalObjectsByType.del(txn, oldInfo.type, id);
         }
         addObject(txn, info, true);
