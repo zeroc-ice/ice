@@ -16,11 +16,6 @@ endif()
 include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
 
-# Cleared ahead of the returns below, so a value left by an earlier find_package cannot survive a
-# failed one.
-set(Ice_SO_VERSION "")
-set(Ice_VERSION "")
-
 if(NOT DEFINED Ice_PREFIX)
   set(Ice_FOUND FALSE)
   string(CONCAT Ice_NOT_FOUND_MESSAGE
@@ -28,12 +23,6 @@ if(NOT DEFINED Ice_PREFIX)
     "installation layout, or the installation is missing Ice/Ice.h.")
   return()
 endif()
-
-set(Ice_SO_VERSION "${_ice_package_so_version}")
-set(Ice_VERSION "${_ice_package_version}")
-
-unset(_ice_package_version)
-unset(_ice_package_so_version)
 
 if(NOT Ice_VERSION)
   set(Ice_FOUND FALSE)

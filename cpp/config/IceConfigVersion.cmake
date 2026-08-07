@@ -13,7 +13,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
 # Report the full version, pre-release suffix included, so Ice_VERSION matches what Ice reports
 # everywhere else. CMake's version comparison ignores the suffix and still derives
 # Ice_VERSION_MAJOR/MINOR/PATCH from the numeric part.
-set(PACKAGE_VERSION "${_ice_package_version}")
+set(PACKAGE_VERSION "${Ice_VERSION}")
 
 if(PACKAGE_VERSION MATCHES "^([0-9]+)\\.([0-9]+)")
   set(_ice_version_major "${CMAKE_MATCH_1}")
@@ -65,5 +65,3 @@ endif()
 
 unset(_ice_version_major)
 unset(_ice_version_minor)
-unset(_ice_package_version)
-unset(_ice_package_so_version)
