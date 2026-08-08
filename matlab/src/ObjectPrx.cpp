@@ -18,11 +18,7 @@ namespace
         virtual void exception(exception_ptr);
         virtual void sent();
 
-        void finished(
-            const std::shared_ptr<Ice::Communicator>&,
-            const Ice::EncodingVersion&,
-            bool,
-            std::pair<const byte*, const byte*>);
+        void finished(bool, std::pair<const byte*, const byte*>);
         void getResults(bool&, pair<const byte*, const byte*>&);
 
     protected:
@@ -61,11 +57,7 @@ namespace
         _cond.notify_all();
     }
 
-    void InvocationFuture::finished(
-        const std::shared_ptr<Ice::Communicator>& /*communicator*/,
-        const Ice::EncodingVersion& /*encoding*/,
-        bool b,
-        pair<const byte*, const byte*> p)
+    void InvocationFuture::finished(bool b, pair<const byte*, const byte*> p)
     {
         lock_guard<mutex> lock(_mutex);
         _ok = b;
@@ -296,8 +288,7 @@ extern "C"
                 op,
                 mode,
                 params,
-                [proxy, f](bool ok, pair<const byte*, const byte*> outParams)
-                { f->finished(proxy->ice_getCommunicator(), proxy->ice_getEncodingVersion(), ok, outParams); },
+                [f](bool ok, pair<const byte*, const byte*> outParams) { f->finished(ok, outParams); },
                 [f](exception_ptr e) { f->exception(e); },
                 [f](bool /*sentSynchronously*/) { f->sent(); },
                 *ctxPtr);
@@ -912,12 +903,6 @@ extern "C"
         return createEmptyArray();
     }
 
-    mxArray* Ice_InvocationFuture_id(void* self, unsigned long long* id)
-    {
-        *id = reinterpret_cast<unsigned long long>(self);
-        return createEmptyArray();
-    }
-
     mxArray* Ice_InvocationFuture_wait(void* self)
     {
         bool b = deref<InvocationFuture>(self)->waitForState(Future::State::Finished, -1);
@@ -1000,12 +985,6 @@ extern "C"
     mxArray* Ice_GetConnectionFuture_unref(void* self)
     {
         delete reinterpret_cast<shared_ptr<GetConnectionFuture>*>(self);
-        return createEmptyArray();
-    }
-
-    mxArray* Ice_GetConnectionFuture_id(void* self, unsigned long long* id)
-    {
-        *id = reinterpret_cast<unsigned long long>(self);
         return createEmptyArray();
     }
 
