@@ -102,9 +102,6 @@ namespace Ice
 
 #ifdef _WIN32
         /// @private
-        static void setModuleHandle(HMODULE);
-
-        /// @private
         void serviceMain(int, const wchar_t* const[]);
 
         /// @private
