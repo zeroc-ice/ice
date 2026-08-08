@@ -21,20 +21,10 @@ class BlobjectCall(object):
 
         if "_fwd" in self._curr.ctx and self._curr.ctx["_fwd"] == "o":
             proxy = proxy.ice_oneway()
-            try:
-                ok, out = proxy.ice_invoke(
-                    self._curr.operation,
-                    self._curr.mode,
-                    self._inParams,
-                    self._curr.ctx,
-                )
-                self._future.set_result((ok, out))
-            except Ice.Exception as e:
-                self._future.set_exception(e)
-        else:
-            f = proxy.ice_invokeAsync(self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx)
-            assert isinstance(f, Ice.Future)
-            f.add_done_callback(self.done)
+
+        f = proxy.ice_invokeAsync(self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx)
+        assert isinstance(f, Ice.Future)
+        f.add_done_callback(self.done)
 
     def done(self, future: Ice.Future):
         try:
