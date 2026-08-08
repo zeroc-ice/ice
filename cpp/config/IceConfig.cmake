@@ -1,6 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
 # CMake package configuration file for Ice.
+#
+#   find_package(Ice REQUIRED CONFIG)
+#
+# CONFIG (or NO_MODULE) is required: it selects config mode, which loads this file. Without it
+# find_package uses module mode, which runs the FindIce module bundled with CMake and doesn't
+# load this file.
 
 # A previous find_package(Ice) in this scope may have left one behind.
 unset(Ice_NOT_FOUND_MESSAGE)
