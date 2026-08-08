@@ -440,8 +440,6 @@ IceRuby::TypeInfo::destroy()
 //
 // PrimitiveInfo implementation.
 //
-IceRuby::PrimitiveInfo::PrimitiveInfo() = default;
-
 IceRuby::PrimitiveInfo::PrimitiveInfo(Kind k) : kind(k) {}
 
 string
@@ -2256,10 +2254,9 @@ IceRuby::ProxyInfo::create(VALUE ident)
     return proxyInfo;
 }
 
-IceRuby::ProxyInfo::ProxyInfo(VALUE ident) : isBase(false), rubyClass(Qnil), typeObj(Qnil)
+IceRuby::ProxyInfo::ProxyInfo(VALUE ident) : rubyClass(Qnil), typeObj(Qnil)
 {
     const_cast<string&>(id) = getString(ident);
-    const_cast<bool&>(isBase) = id == Ice::Object::ice_staticId();
 }
 
 void
@@ -2387,38 +2384,6 @@ IceRuby::ProxyInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHist
     {
         out << getProxy(value)->ice_toString();
     }
-}
-
-bool
-IceRuby::ProxyInfo::isA(const ProxyInfoPtr& info)
-{
-    //
-    // Return true if this class has an is-a relationship with info.
-    //
-    if (info->isBase)
-    {
-        return true;
-    }
-    else if (this == info.get())
-    {
-        return true;
-    }
-    else if (base && base->isA(info))
-    {
-        return true;
-    }
-    else if (!interfaces.empty())
-    {
-        for (ProxyInfoList::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
-        {
-            if ((*p)->isA(info))
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
 }
 
 void

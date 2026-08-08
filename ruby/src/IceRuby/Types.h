@@ -194,7 +194,6 @@ namespace IceRuby
             KindString
         };
 
-        PrimitiveInfo();
         PrimitiveInfo(Kind);
 
         std::string getId() const final;
@@ -441,12 +440,9 @@ namespace IceRuby
 
         void destroy() final;
 
-        bool isA(const ProxyInfoPtr&);
-
         const std::string id;
-        const bool isBase; // Is this the ClassInfo for Ice::ObjectPrx?
         const ProxyInfoPtr base;
-        const ProxyInfoList interfaces;
+        const ProxyInfoList interfaces; // TODO this field is also dead but affects public API.
         const VALUE rubyClass;
         const VALUE typeObj;
 
