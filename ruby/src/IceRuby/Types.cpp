@@ -12,18 +12,6 @@
 #include <list>
 #include <math.h>
 
-//
-// Required for RHASH_SIZE to work properly with Ruby 1.8.x.
-// T_ZOMBIE is only defined in Ruby 1.9.
-//
-#ifndef T_ZOMBIE
-#    include "st.h"
-#endif
-
-#ifndef RHASH_SIZE
-#    define RHASH_SIZE(v) RHASH(v)->tbl->num_entries
-#endif
-
 using namespace std;
 using namespace IceRuby;
 using namespace Ice;
