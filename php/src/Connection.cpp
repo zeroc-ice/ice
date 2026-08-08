@@ -197,7 +197,6 @@ ZEND_METHOD(Ice_Connection, getInfo)
     assert(_this);
     try
     {
-        Ice::ConnectionInfoPtr info = _this->getInfo();
         if (!createConnectionInfo(return_value, _this->getInfo()))
         {
             RETURN_NULL();

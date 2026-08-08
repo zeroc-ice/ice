@@ -14,11 +14,8 @@
 #include "Util.h"
 
 #include <chrono>
-#include <condition_variable>
 #include <fstream>
 #include <mutex>
-#include <thread>
-#include <valarray>
 
 #ifdef getcwd
 #    undef getcwd
