@@ -172,6 +172,23 @@ class Client < ::TestHelper
             test(!v1.eql?(v2))
 
             puts "ok"
+
+            print "testing inspect() for Slice structures... "
+            STDOUT.flush
+
+            s = def_s2.inspect
+            test(s.include?("bo = true"))
+            test(s.include?("by = 98"))
+            test(s.include?("sh = 99"))
+            test(s.include?("i = 100"))
+            test(s.include?("l = 101"))
+            test(s.include?("str = 'string'"))
+            # The S1 member is stringified recursively.
+            test(s.include?("name = 'name'"))
+            # The proxy member is stringified with ice_toString.
+            test(s.include?("prx = test"))
+
+            puts "ok"
         end
     end
 end
