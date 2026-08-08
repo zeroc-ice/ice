@@ -32,7 +32,7 @@ endif
 ruby_ldflags    := $(call ruby-call,$$(LIBRUBYARG))
 ruby_libdir     := $(call ruby-call,$$(libdir))
 ifneq ($(ruby_libdir),)
-    ruby_ldflags := -L$(call ruby-call,$$(libdir)) $(ruby_ldflags)
+    ruby_ldflags := -L$(ruby_libdir) $(ruby_ldflags)
 endif
 
 #
