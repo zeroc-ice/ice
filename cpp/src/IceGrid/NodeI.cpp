@@ -766,19 +766,6 @@ NodeI::canRemoveServerDirectory(const string& name)
     return true;
 }
 
-set<shared_ptr<ServerI>>
-NodeI::getApplicationServers(const string& application) const
-{
-    lock_guard lock(_serversMutex);
-    set<shared_ptr<ServerI>> servers;
-    auto p = _serversByApplication.find(application);
-    if (p != _serversByApplication.end())
-    {
-        servers = p->second;
-    }
-    return servers;
-}
-
 string
 NodeI::getFilePath(const string& filename) const
 {

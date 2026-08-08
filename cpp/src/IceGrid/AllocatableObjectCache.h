@@ -90,7 +90,6 @@ namespace IceGrid
 
         const Ice::CommunicatorPtr _communicator;
         std::map<std::string, TypeEntry> _types;
-        std::map<std::string, std::vector<Ice::Identity>> _allocatablesByType;
     };
 
 };
