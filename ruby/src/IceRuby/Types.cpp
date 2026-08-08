@@ -2890,7 +2890,7 @@ IceRuby_defineStruct(VALUE /*self*/, VALUE id, VALUE type, VALUE members)
     ICE_RUBY_TRY
     {
         StructInfoPtr info = make_shared<StructInfo>(id, type, members);
-        volatile VALUE result = createType(info);
+        VALUE result = createType(info);
         rb_define_const(type, "ICE_TYPE", result);
         return result;
     }
@@ -2997,7 +2997,7 @@ IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE 
 
         addExceptionInfo(info->id, info);
 
-        volatile VALUE result = createException(info);
+        VALUE result = createException(info);
         rb_define_const(type, "ICE_TYPE", result);
         return result;
     }
