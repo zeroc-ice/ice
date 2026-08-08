@@ -1,12 +1,7 @@
 #include "../../cpp/src/Ice/ResourceConfig.h"
 
-#ifdef _DEBUG
-#   define ICE_INTERNALNAME "ice\0"
-#   define ICE_ORIGINALFILENAME "ice.mexw64\0"
-#else
-#   define ICE_INTERNALNAME "ice\0"
-#   define ICE_ORIGINALFILENAME "ice.mexw64\0"
-#endif
+#define ICE_INTERNALNAME "ice\0"
+#define ICE_ORIGINALFILENAME "ice.mexw64\0"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION ICE_VERSION

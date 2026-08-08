@@ -248,7 +248,7 @@ classdef Communicator < IceInternal.WrapperObject
             arguments
                 obj (1, 1) Ice.Communicator
             end
-            if isempty(obj.implicitContext)
+            if ismissing(obj.implicitContext)
                 impl = libpointer('voidPtr');
                 obj.iceCall('getImplicitContext', impl);
                 if isNull(impl)
@@ -463,7 +463,7 @@ classdef Communicator < IceInternal.WrapperObject
         SliceLoader
         encoding
         format
-        implicitContext
+        implicitContext = missing % Set lazily by 'getImplicitContext'.
         Properties
         logger
     end

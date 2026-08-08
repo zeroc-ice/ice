@@ -369,7 +369,12 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
         if ((status = object_init_ex(zv, opaqueEndpointInfoClassEntry)) == SUCCESS)
         {
             zval rawEncoding;
-            createEncodingVersion(&rawEncoding, info->rawEncoding);
+            if (!createEncodingVersion(&rawEncoding, info->rawEncoding))
+            {
+                zval_ptr_dtor(zv);
+                ZVAL_UNDEF(zv);
+                return false;
+            }
             add_property_zval(zv, "rawEncoding", &rawEncoding);
             zval_ptr_dtor(&rawEncoding); // add_property_zval increased the refcount of rawEncoding
 

@@ -16,20 +16,19 @@ endif()
 include("${CMAKE_CURRENT_LIST_DIR}/IcePrefix.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/IceVersion.cmake")
 
-set(Ice_SO_VERSION "${_ice_package_so_version}")
-
-# Unconditionally: under find_package this matches what IceConfigVersion.cmake reported, and a
-# leftover cache entry from an older installation must not win over the installed version.
-set(Ice_VERSION "${_ice_package_version}")
-
-unset(_ice_package_version)
-unset(_ice_package_so_version)
-
 if(NOT DEFINED Ice_PREFIX)
   set(Ice_FOUND FALSE)
   string(CONCAT Ice_NOT_FOUND_MESSAGE
     "Could not locate the Ice installation: ${CMAKE_CURRENT_LIST_DIR} is not in a recognized "
     "installation layout, or the installation is missing Ice/Ice.h.")
+  return()
+endif()
+
+if(NOT Ice_VERSION)
+  set(Ice_FOUND FALSE)
+  string(CONCAT Ice_NOT_FOUND_MESSAGE
+    "Could not read ICE_STRING_VERSION and ICE_SO_VERSION from "
+    "'${Ice_INCLUDE_ROOT}/Ice/Config.h'.")
   return()
 endif()
 
@@ -39,7 +38,7 @@ set(Ice_CONFIG "${CMAKE_CURRENT_LIST_FILE}")
 
 include("${CMAKE_CURRENT_LIST_DIR}/IceTargets.cmake")
 
-# Internal to IcePrefix/IceTargets; Ice_PREFIX is the documented result variable.
+# Internal to the package; Ice_PREFIX is the documented result variable.
 unset(Ice_INCLUDE_ROOT)
 
 include("${CMAKE_CURRENT_LIST_DIR}/slice2cpp.cmake")

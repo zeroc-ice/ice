@@ -116,14 +116,6 @@ class Ice(Util.Component):
             )
         elif isinstance(mapping, Util.JavaScriptMapping):
             return ([], ["typescript/.*"])
-        elif isinstance(mapping, Util.SwiftMapping) and config.buildPlatform in [
-            "iphonesimulator",
-            "iphoneos",
-        ]:
-            return (
-                ["Ice/.*", "IceSSL/configuration", "Slice/*"],
-                ["Ice/properties", "Ice/udp"],
-            )
         return ([], [])
 
     def canRun(self, testId: str, mapping: Util.Mapping, current: Util.Driver.Current) -> bool:

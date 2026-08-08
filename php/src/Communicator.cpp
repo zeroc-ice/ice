@@ -453,8 +453,11 @@ ZEND_METHOD(Ice_Communicator, identityToString)
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
-    zend_class_entry* identityClass = nameToClass("\\Ice\\Identity");
-    assert(identityClass);
+    zend_class_entry* identityClass = lookupClass("\\Ice\\Identity");
+    if (!identityClass)
+    {
+        RETURN_NULL();
+    }
 
     zval* zv;
     if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O"), &zv, identityClass) != SUCCESS)
@@ -849,8 +852,11 @@ ZEND_FUNCTION(Ice_initialize)
         RETURN_NULL();
     }
 
-    zend_class_entry* initClass = nameToClass("\\Ice\\InitializationData");
-    assert(initClass);
+    zend_class_entry* initClass = lookupClass("\\Ice\\InitializationData");
+    if (!initClass)
+    {
+        RETURN_NULL();
+    }
 
     //
     // Retrieve the arguments.
@@ -1193,8 +1199,11 @@ ZEND_FUNCTION(Ice_getProperties)
 
 ZEND_FUNCTION(Ice_identityToString)
 {
-    zend_class_entry* identityClass = nameToClass("\\Ice\\Identity");
-    assert(identityClass);
+    zend_class_entry* identityClass = lookupClass("\\Ice\\Identity");
+    if (!identityClass)
+    {
+        RETURN_NULL();
+    }
 
     zval* zv;
     zend_long mode = 0;

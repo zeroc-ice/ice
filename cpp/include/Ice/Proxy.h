@@ -627,7 +627,7 @@ namespace Ice
         /// Gets the connection for this proxy. If the proxy does not yet have an established connection or its
         /// connection is closed or being closed, it first attempts to create a new connection. For a fixed proxy,
         /// this function returns the connection this proxy is bound to, even when this connection is closed.
-        /// @return A future that becomes available when the invocation completes. This future holds:
+        /// @return A future that becomes available when the connection is established. This future holds:
         /// - The connection for this proxy.
         /// @remark When this proxy reaches its target object through collocation optimization (see
         /// #ice_collocationOptimized), the future holds a null connection: collocated invocations don't use a
