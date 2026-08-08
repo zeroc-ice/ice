@@ -48,8 +48,8 @@
 -dontnote com.zeroc.Ice.MetricsMap
 -dontnote com.zeroc.Ice.ObjectPrx
 -dontnote com.zeroc.Ice.PluginManagerI
--dontnote com.zeroc.Ice.IceMX.Observer
--dontnote com.zeroc.Ice.IceMX.ObserverFactory
+-dontnote com.zeroc.IceMX.Observer
+-dontnote com.zeroc.IceMX.ObserverFactory
 
 -dontnote com.zeroc.IceBox.ServiceManagerI
 -dontnote com.zeroc.IceGridGUI.Coordinator
@@ -89,9 +89,7 @@
 -keep public class com.zeroc.IceGrid.** {
   public *;
 }
--keep public class com.zeroc.IceSSL.** {
-  public *;
-}
+
 -keep interface com.zeroc.IceGrid.**
 -keep class com.zeroc.IceMX.**
 -keep interface com.zeroc.IceMX.**

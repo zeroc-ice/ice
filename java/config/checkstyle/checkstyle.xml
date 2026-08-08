@@ -98,6 +98,7 @@
       <property name="allowNonPrintableEscapes" value="true"/>
     </module>
 
+    <module name="UnusedLocalVariable"/>
     <module name="UnusedImports"/>
     <module name="AvoidStarImport"/>
     <module name="OneTopLevelClass"/>

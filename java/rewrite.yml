@@ -14,6 +14,9 @@ recipeList:
   - org.openrewrite.staticanalysis.NeedBraces
   - org.openrewrite.staticanalysis.OperatorWrap
   - org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize
+  - org.openrewrite.staticanalysis.RemoveUnusedLocalVariables
+  - org.openrewrite.staticanalysis.RemoveUnusedPrivateFields
+  - org.openrewrite.staticanalysis.RemoveUnusedPrivateMethods
   - org.openrewrite.staticanalysis.ReplaceStringBuilderWithString
   - org.openrewrite.staticanalysis.ReplaceThreadRunWithThreadStart
   - org.openrewrite.staticanalysis.TypecastParenPad
