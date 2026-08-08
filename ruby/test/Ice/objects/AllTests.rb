@@ -331,6 +331,15 @@ def allTests(helper, communicator)
     end
     puts "ok"
 
+    print "testing stringification of proxy members... "
+    STDOUT.flush
+    f3 = Test::F3.new(nil, Test::F2Prx.new(communicator, "F21:#{helper.getTestEndpoint()}"))
+    s = f3.inspect
+    test(s.include?("::Test::F3"))
+    test(s.include?("f1 = <nil>"))
+    test(s.include?("f2 = #{f3.f2.ice_toString()}"))
+    puts "ok"
+
     print "testing GC compaction during stringification... "
     STDOUT.flush
     if compactionSupported
