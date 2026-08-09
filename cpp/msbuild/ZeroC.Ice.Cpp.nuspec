@@ -3,7 +3,8 @@
   <metadata>
     <id>ZeroC.Ice.Cpp</id>
     <title>Ice for C++ Windows developer kit.</title>
-    <version>3.9.0-alpha0</version>
+    <!-- Placeholder, the actual version is set with "nuget pack -Version". -->
+    <version>0.0.0</version>
     <authors>ZeroC</authors>
     <copyright>Copyright (c) ZeroC, Inc.</copyright>
     <license type="expression">GPL-2.0-only</license>

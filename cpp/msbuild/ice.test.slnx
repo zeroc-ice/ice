@@ -68,6 +68,14 @@
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
   </Folder>
+  <Folder Name="/DataStorm/relaySampleFilter/">
+    <Project Path="../test/DataStorm/relaySampleFilter/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/relaySampleFilter/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
   <Folder Name="/DataStorm/reliability/">
     <Project Path="../test/DataStorm/reliability/msbuild/reader/reader.vcxproj">
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
@@ -694,7 +702,7 @@
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
     <Project Path="../test/IceGrid/session/msbuild/verifier/verifier.vcxproj">
-      <BuildDependency Project="../test/IceGrid/allocation/msbuild/verifier/verifier.vcxproj" />
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
   </Folder>
   <Folder Name="/IceGrid/simple/">

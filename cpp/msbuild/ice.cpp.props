@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <IceLanguageMapping Condition="'$(IceLanguageMapping)' == ''">cpp</IceLanguageMapping>
     <IceBuildingSrc Condition="'$(IceBuildingSrc)' == ''">yes</IceBuildingSrc>
@@ -39,12 +39,10 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>_CONSOLE;_WIN32_WINNT=0x0A00;WIN32_LEAN_AND_MEAN</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0A00;WIN32_LEAN_AND_MEAN</PreprocessorDefinitions>
       <DisableSpecificWarnings>4121;4250;4251;4275;4324</DisableSpecificWarnings>
       <AdditionalOptions>/utf-8 /bigobj %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeaderOutputFile />
       <OmitFramePointers>false</OmitFramePointers>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -123,20 +121,9 @@
   </ItemDefinitionGroup>
 
   <!-- Base target names. -->
-  <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
-    <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
-    <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
-    <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
-    <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'DynamicLibrary' or '$(ConfigurationType)' == 'StaticLibrary'">
+    <TargetName Condition="'$(Configuration)' == 'Debug'">$(ProjectName)$(IceSoVersion)d</TargetName>
+    <TargetName Condition="'$(Configuration)' == 'Release'">$(ProjectName)$(IceSoVersion)</TargetName>
   </PropertyGroup>
 
   <!-- See https://github.com/ccache/ccache/wiki/MS-Visual-Studio -->
