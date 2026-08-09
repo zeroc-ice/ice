@@ -2,6 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.version.props"/>
     <PropertyGroup>
+        <Platform Condition="'$(Platform)' == ''">x64</Platform>
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
         <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
