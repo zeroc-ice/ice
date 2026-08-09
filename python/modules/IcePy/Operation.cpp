@@ -1604,7 +1604,7 @@ IcePy::AsyncInvocation::sent(bool sentSynchronously)
 PyObject*
 IcePy::AsyncInvocation::noResponseResult()
 {
-    return Py_NewRef(Py_None);
+    return Py_None;
 }
 
 IcePy::AsyncTypedInvocation::AsyncTypedInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy, OperationPtr op)
