@@ -101,8 +101,6 @@ compatversion           = $(version)
 ice_cpp_cppflags        = -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
 
 bindir                  = $(call mappingdir,$(or $1,$(currentdir)),bin)
-
-bindir                  = $(call mappingdir,$(or $1,$(currentdir)),bin)
 libdir                  = $(call mappingdir,$(or $1,$(currentdir)),lib)
 includedir              = $(call mappingdir,$(or $1,$(currentdir)),include)
 slicedir                = $(top_srcdir)/slice

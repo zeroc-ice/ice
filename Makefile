@@ -8,7 +8,7 @@ define make-global-rule
 $1::
 	+@for subdir in $2; \
 	do \
-		echo "making all in $$$$subdir"; \
+		echo "making $1 in $$$$subdir"; \
 		( cd $$$$subdir && $(MAKE) $1 ) || exit 1; \
 	done
 endef
@@ -28,5 +28,5 @@ install:: install-doc install-slice
 $(eval $(call install-data-files,$(wildcard $(top_srcdir)/*LICENSE),$(top_srcdir),$(install_docdir),\
          install-doc,"Installing documentation files"))
 
-$(eval $(call install-data-files,$(filter-out Lookup.ice,$(wildcard $(slicedir)/*/*.ice)),$(slicedir),$(install_slicedir),\
+$(eval $(call install-data-files,$(filter-out %/Lookup.ice,$(wildcard $(slicedir)/*/*.ice)),$(slicedir),$(install_slicedir),\
          install-slice,"Installing slice files"))
