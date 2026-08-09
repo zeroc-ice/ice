@@ -21,7 +21,7 @@ ifeq ($(os),Linux)
 endif
 
 python_cppflags         := $(or $(PYTHON_CPPFLAGS),$(shell $(python-config) --includes))
-python_ldflags          := $(PYTHON_LDLFLAGS)
+python_ldflags          := $(PYTHON_LDFLAGS)
 
 # Use .so as default value --extension-suffix is not supported by python-config in all platforms
 python_extsuffix        := $(or $(shell $(python-config) --extension-suffix 2> /dev/null),.so)
@@ -88,7 +88,7 @@ generate-srcs all:: $$(STAMPS_$1)
 srcs:: generate-srcs
 
 # Clean rule
-clean::
+clean distclean::
 	@echo "Cleaning generated Python files for $1..."
 	@if [ -d $1/.depend ]; then \
 	  find $1/.depend -name '*.depend' -exec cat {} + 2>/dev/null | xargs rm -f; \
@@ -111,7 +111,7 @@ generate-srcs all:: $1/__init__.py
 
 srcs:: generate-srcs
 
-clean::
+clean distclean::
 	$(E) "Cleaning Python package $1..."
 	$(Q)$(RM) -f $1/__init__.py
 
@@ -139,6 +139,11 @@ $1/.depend: $$($1_slices) $(slice2py_path)
 	$(Q)touch $1/.depend
 
 generate-srcs all:: $1/.depend
+
+distclean clean::
+	$(E) "Cleaning $1"
+	$(Q)$(RM) -r $1/generated
+	$(Q)$(RM) $1/.depend
 endif
 
 endef

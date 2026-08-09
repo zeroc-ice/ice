@@ -39,3 +39,8 @@ $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,IceGrid))
 $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,IceStorm))
 
 all:: srcs
+
+#
+# The Ruby test suite loads its Slice files at runtime, so there is nothing to build.
+#
+tests::
