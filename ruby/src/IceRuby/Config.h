@@ -55,18 +55,6 @@
 #    pragma GCC diagnostic pop
 #endif
 
-//
-// The Ruby header file win32/win32.h defines a number of macros for
-// functions like shutdown() and close() that wreak havoc.
-//
-#ifdef _WIN32
-#    undef shutdown
-#    undef close
-#    undef read
-#    undef write
-#    undef sleep
-#endif
-
 extern "C"
 {
     typedef VALUE (*ICE_RUBY_ENTRY_POINT)(...);

@@ -38,3 +38,9 @@ all generate-srcs clean distclean install::
 	+$(Q)$(MAKE) -C test $@
 
 srcs:: generate-srcs
+
+#
+# The Python test suite only needs the Slice files from the test directories to be translated.
+#
+tests::
+	+$(Q)$(MAKE) -C test generate-srcs
