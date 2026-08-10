@@ -158,9 +158,8 @@ has no Slice files, and correspond by index. The paths keep the mirrored layout,
 neighbors by that layout — so a mirrored header set has to be installed with its subdirectories; `install(FILES)`
 flattens them, leaving those includes unresolvable.
 
-`DEPENDS` adds `DEPENDS` edges to every generation command. A `.ice` file produced by a custom command in the
-same directory orders itself; `DEPENDS` covers the producers that cannot, such as a custom target driving
-generation in another directory.
+`DEPENDS` adds dependencies to every generation command. A same-directory `.ice` producer orders itself; `DEPENDS`
+is for those that cannot, such as a custom target in another directory.
 
 For example, the following defines a library whose Slice files include files from a shared directory, and publishes
 its generated headers to its own consumers under a `Demo/` prefix:
