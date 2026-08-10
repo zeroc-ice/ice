@@ -52,7 +52,13 @@ IceBT::AcceptorI::close()
     //
     while (!transceivers.empty())
     {
-        transceivers.top()->close();
+        try
+        {
+            transceivers.top()->close();
+        }
+        catch (...)
+        {
+        }
         transceivers.pop();
     }
 
