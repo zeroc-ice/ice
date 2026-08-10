@@ -27,7 +27,7 @@ def getProcessLogger() -> Logger:
 def setProcessLogger(logger: Logger):
     """
     Sets the per-process logger. Communicators created after this call use this logger unless a logger is set in
-    :class:`InitializationData` or configured through logger properties such as ``Ice.LogFile``.
+    :class:`Ice.InitializationData` or configured through logger properties such as ``Ice.LogFile``.
 
     Parameters
     ----------
