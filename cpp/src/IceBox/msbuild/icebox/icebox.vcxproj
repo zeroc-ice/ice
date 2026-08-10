@@ -76,6 +76,9 @@
   <ItemGroup>
     <ResourceCompile Include="..\..\IceBoxExe.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\iceboxlib\iceboxlib.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

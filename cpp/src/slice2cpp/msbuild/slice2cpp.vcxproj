@@ -116,12 +116,8 @@
     <ClInclude Include="..\Gen.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\IceUtil\msbuild\iceutil\iceutil.vcxproj">
-      <Project>{4d1a5110-3176-44ba-8bbb-57bf56519b9f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Slice\msbuild\slice.vcxproj">
-      <Project>{57cd6ac2-0c9d-4648-9e9d-5df60c90f18a}</Project>
-    </ProjectReference>
+    <ProjectReference Include="..\..\IceUtil\msbuild\iceutil\iceutil.vcxproj" />
+    <ProjectReference Include="..\..\Slice\msbuild\slice.vcxproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

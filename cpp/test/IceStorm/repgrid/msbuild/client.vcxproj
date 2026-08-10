@@ -115,5 +115,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\msbuild\testcommon.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
