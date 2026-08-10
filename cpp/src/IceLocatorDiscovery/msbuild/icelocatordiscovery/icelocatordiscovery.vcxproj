@@ -149,6 +149,9 @@
       <BaseDirectoryForGeneratedInclude>IceLocatorDiscovery</BaseDirectoryForGeneratedInclude>
     </SliceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Ice\msbuild\ice\ice.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>

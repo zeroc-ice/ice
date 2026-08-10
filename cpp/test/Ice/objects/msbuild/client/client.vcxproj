@@ -303,5 +303,8 @@
     <SliceCompile Include="..\..\Forward.ice" />
     <SliceCompile Include="..\..\Test.ice" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Common\msbuild\testcommon.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

@@ -1029,6 +1029,12 @@ mc -h "$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice" -r $
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertyDict.ice" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\slice2cpp\msbuild\slice2cpp.vcxproj">
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\ZeroC.Bzip2.1.0.6\build\native\ZeroC.Bzip2.targets" Condition="Exists('..\..\..\..\msbuild\packages\ZeroC.Bzip2.1.0.6\build\native\ZeroC.Bzip2.targets')" />
