@@ -21,7 +21,6 @@ namespace IceRuby
 
     class ProxyInfo;
     using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
-    using ProxyInfoList = std::vector<ProxyInfoPtr>;
 
     //
     // This class is raised as an exception when object marshaling needs to be aborted.
@@ -423,6 +422,8 @@ namespace IceRuby
     public:
         static ProxyInfoPtr create(VALUE);
 
+        // TODO: the 2nd and 3rd parameters are dead code, and should be removed in 3.9.
+        // They cannot be removed yet because slice2rb generated code which passes them in.
         void define(VALUE, VALUE, VALUE);
 
         std::string getId() const final;
@@ -438,11 +439,7 @@ namespace IceRuby
 
         void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
 
-        void destroy() final;
-
         const std::string id;
-        const ProxyInfoPtr base;
-        const ProxyInfoList interfaces; // TODO this field is also dead but affects public API.
         const VALUE rubyClass;
         const VALUE typeObj;
 

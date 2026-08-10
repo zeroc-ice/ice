@@ -2252,17 +2252,14 @@ IceRuby::ProxyInfo::define(VALUE t, VALUE b, VALUE i)
 {
     if (!NIL_P(b))
     {
-        const_cast<ProxyInfoPtr&>(base) = dynamic_pointer_cast<ProxyInfo>(getType(b));
-        assert(base);
+        assert(dynamic_pointer_cast<ProxyInfo>(getType(b)));
     }
 
     volatile VALUE arr = callRuby(rb_check_array_type, i);
     assert(!NIL_P(arr));
     for (int n = 0; n < RARRAY_LEN(arr); ++n)
     {
-        ProxyInfoPtr iface = dynamic_pointer_cast<ProxyInfo>(getType(RARRAY_AREF(arr, n)));
-        assert(iface);
-        const_cast<ProxyInfoList&>(interfaces).push_back(iface);
+        assert(dynamic_pointer_cast<ProxyInfo>(getType(RARRAY_AREF(arr, n))));
     }
 
     const_cast<VALUE&>(rubyClass) = t;
@@ -2372,13 +2369,6 @@ IceRuby::ProxyInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHist
     {
         out << getProxy(value)->ice_toString();
     }
-}
-
-void
-IceRuby::ProxyInfo::destroy()
-{
-    const_cast<ProxyInfoPtr&>(base) = 0;
-    const_cast<ProxyInfoList&>(interfaces).clear();
 }
 
 //
