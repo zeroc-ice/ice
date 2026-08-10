@@ -31,6 +31,10 @@ target_link_libraries(client PRIVATE Ice::Ice)
 When Ice is not installed in a standard location, point CMake at it with `CMAKE_PREFIX_PATH` (or set `Ice_DIR` to the
 directory containing `IceConfig.cmake`).
 
+A versioned request is answered by the installed version: `find_package(Ice 3.9 CONFIG)` accepts any 3.9 patch release
+that is not older than the request, since Ice treats every x.y as a major release line and only patch releases within a
+line are compatible. Version ranges are honored on both endpoints.
+
 ### Windows
 
 On Windows, Ice for C++ ships as the `ZeroC.Ice.Cpp` NuGet package rather than as an installation. Restore the
@@ -61,10 +65,6 @@ if(WIN32)
   )
 endif()
 ```
-
-A versioned request is answered by the installed version: `find_package(Ice 3.9 CONFIG)` accepts any 3.9 patch release
-that is not older than the request, since Ice treats every x.y as a major release line and only patch releases within a
-line are compatible. Version ranges are honored on both endpoints.
 
 ## Imported Targets
 
