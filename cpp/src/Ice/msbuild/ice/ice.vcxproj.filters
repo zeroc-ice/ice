@@ -273,9 +273,6 @@
     <ClCompile Include="..\..\DefaultsAndOverrides.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\DLLMain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\DynamicLibrary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
