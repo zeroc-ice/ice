@@ -435,6 +435,15 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
         if: matrix.config == 'release' && runner.os == 'macOS'
 
+      # The MATLAB API reference is generated separately because the MATLAB mapping does not build on macOS.
+      - name: Generate MATLAB API Reference
+        uses: ./.github/actions/matlab-documentation
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-s3-code-bucket: ${{ secrets.AWS_S3_CODE_BUCKET }}
+        if: matrix.config == 'matlab' && runner.os == 'Linux'
+
       - name: Upload test logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

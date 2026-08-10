@@ -1,0 +1,48 @@
+name: MATLAB API Reference
+description: Generate the API reference for Ice for MATLAB
+inputs:
+  aws-access-key-id:
+    description: "AWS access key ID"
+    required: true
+  aws-secret-access-key:
+    description: "AWS secret access key"
+    required: true
+  aws-s3-code-bucket:
+    description: "AWS S3 bucket for storing the API reference"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    # MATLAB_COMMAND is exported by the setup-matlab action; the MATLAB build must have run before so that
+    # lib/generated is populated.
+    - name: Extract the MATLAB API into matlab-api.json
+      working-directory: ./matlab/docs
+      run: $MATLAB_COMMAND "extractapi"
+      shell: bash
+
+    - name: Render the MATLAB API reference
+      working-directory: ./matlab/docs
+      run: |
+        ice_version=$(sed -n 's/#define ICE_STRING_VERSION "\([^"]*\)".*/\1/p' ../../cpp/include/Ice/Config.h)
+        python3 renderapi.py --input matlab-api.json --output site \
+          --ice-version "$ice_version" \
+          --base-url https://code.zeroc.com/ice/main/api/matlab/
+      shell: bash
+
+    - name: Upload the MATLAB API reference as a workflow artifact
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: matlab-api-reference
+        path: matlab/docs/site
+
+    # See the sync rationale in .github/actions/documentation/action.yml.
+    - name: Sync the MATLAB API reference to S3
+      run: aws s3 sync ./matlab/docs/site s3://${AWS_S3_CODE_BUCKET}/ice/main/api/matlab --delete
+      env:
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        AWS_S3_CODE_BUCKET: ${{ inputs.aws-s3-code-bucket }}
+        AWS_DEFAULT_REGION: us-east-1
+      shell: bash
+      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && github.repository == 'zeroc-ice/ice'

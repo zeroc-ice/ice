@@ -6,3 +6,5 @@ toolbox/build
 toolbox/toolbox.prj
 toolbox/info.xml
 config/result.json
+docs/matlab-api.json
+docs/site/

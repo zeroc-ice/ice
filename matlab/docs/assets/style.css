@@ -1,0 +1,209 @@
+/* Copyright (c) ZeroC, Inc. */
+
+:root {
+    --text: #1f2328;
+    --muted: #59636e;
+    --link: #0b5cad;
+    --border: #d1d9e0;
+    --surface: #f6f8fa;
+    --header-bg: #24292f;
+    --header-text: #ffffff;
+    --deprecated-bg: #fff8e5;
+    --deprecated-border: #d4a72c;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text);
+    background: #ffffff;
+}
+
+header {
+    background: var(--header-bg);
+    padding: 0.75rem 1.5rem;
+}
+
+header a {
+    color: var(--header-text);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+main {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 3rem;
+}
+
+footer {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 2rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+}
+
+h1 {
+    font-size: 1.7rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.4rem;
+}
+
+h2 {
+    font-size: 1.35rem;
+    margin-top: 2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.3rem;
+}
+
+h3 {
+    font-size: 1.1rem;
+    margin-top: 1.5rem;
+}
+
+h4,
+h5,
+h6 {
+    font-size: 0.95rem;
+    margin: 1rem 0 0.4rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+a {
+    color: var(--link);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+code,
+pre {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.9em;
+}
+
+pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.05rem 0.5rem;
+    vertical-align: middle;
+}
+
+.superclasses,
+.inherited {
+    color: var(--muted);
+}
+
+.member {
+    border-top: 1px solid var(--border);
+    margin-top: 1.25rem;
+}
+
+.member h3 {
+    margin-top: 1rem;
+}
+
+ul.members {
+    padding-left: 1.25rem;
+}
+
+ul.members li {
+    margin: 0.2rem 0;
+}
+
+dl.arguments {
+    margin: 0.5rem 0;
+}
+
+dl.arguments dt {
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+dl.arguments dd {
+    margin: 0 0 0.4rem 1.25rem;
+}
+
+.type {
+    display: block;
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.85em;
+}
+
+table.enum {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.75rem 0;
+}
+
+table.enum th,
+table.enum td {
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+table.enum th {
+    background: var(--surface);
+}
+
+table.enum td p {
+    margin: 0;
+}
+
+.deprecated {
+    background: var(--deprecated-bg);
+    border-left: 4px solid var(--deprecated-border);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    margin: 0.75rem 0;
+}
+
+.deprecated .admonition-title {
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+}
+
+.seealso {
+    color: var(--muted);
+}
+
+@media (max-width: 40rem) {
+    body {
+        font-size: 15px;
+    }
+
+    main,
+    footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}

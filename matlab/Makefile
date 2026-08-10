@@ -123,6 +123,21 @@ clean::
 
 toolbox:: $(icetoolbox_file)
 
+# Static API reference, published at https://code.zeroc.com/ice/main/api/matlab/
+doc:: generate-srcs
+ifneq (,$(MATLAB_COMMAND))
+	cd $(lang_srcdir)/docs && $(MATLAB_COMMAND) "extractapi"
+else
+	cd $(lang_srcdir)/docs && $(MATLAB_HOME)/bin/matlab -batch "extractapi"
+endif
+	python3 $(lang_srcdir)/docs/renderapi.py --input $(lang_srcdir)/docs/matlab-api.json \
+	    --output $(lang_srcdir)/docs/site \
+	    --ice-version $(shell sed -n 's/#define ICE_STRING_VERSION "\([^"]*\)".*/\1/p' $(top_srcdir)/cpp/include/Ice/Config.h) \
+	    --base-url https://code.zeroc.com/ice/main/api/matlab/
+
+clean::
+	rm -rf $(lang_srcdir)/docs/matlab-api.json $(lang_srcdir)/docs/site
+
 #
 # Translate the Slice files from test directories
 #
