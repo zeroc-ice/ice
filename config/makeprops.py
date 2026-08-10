@@ -107,9 +107,6 @@ class PropertyHandler(ContentHandler):
     def generatedPropertyArrays(self) -> list[str]:
         return [name for name, propertyArray in self.propertyArrayDict.items() if not propertyArray.isClass]
 
-    def reservedPropertyPrefixes(self) -> list[str]:
-        return [name for name, array in self.propertyArrayDict.items() if not array.isClass]
-
     def parseProperty(self, attrs: AttributesImpl) -> str:
         name = attrs.get("name")
         assert name is not None, "property element is missing its name attribute"

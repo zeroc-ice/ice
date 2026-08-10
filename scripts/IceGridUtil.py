@@ -18,7 +18,6 @@ from Util import (
     Mapping,
     Process,
     ProcessFromBinDir,
-    ProcessIsReleaseOnly,
     Props,
     Server,
     TestCase,
@@ -77,7 +76,7 @@ class IceGridClient(IceGridProcess, Client):
         return Client.getProps(self, current)
 
 
-class IceGridAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceGridClient):
+class IceGridAdmin(ProcessFromBinDir, IceGridClient):
     def __init__(
         self,
         replica: IceGridRegistry | str | None = None,

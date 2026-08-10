@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from Util import Driver, Mapping, ProcessFromBinDir, ProcessIsReleaseOnly, Props, Server
+from Util import Driver, Mapping, ProcessFromBinDir, Props, Server
 
 
-class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
+class IceBridge(ProcessFromBinDir, Server):
     def __init__(self, *args: Any, **kargs: Any):
         Server.__init__(
             self,
