@@ -85,15 +85,4 @@ ZEND_END_ARG_INFO()
 #    define ICE_G(v) (ice_globals.v)
 #endif
 
-#ifndef Z_ADDREF_P
-#    ifndef ZVAL_ADDREF
-#        error "Unknown PHP version"
-#    endif
-#    define Z_ADDREF_P(zv) ZVAL_ADDREF(zv)
-#endif
-
-#ifndef ZEND_MN
-#    define ZEND_MN(name) ZEND_FN(name)
-#endif
-
 #endif
