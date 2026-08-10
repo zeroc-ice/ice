@@ -100,13 +100,6 @@ function(slice2cpp_generate target)
       "slice2cpp_generate: INCLUDE_DIR must be a relative path without '..', got '${arg_INCLUDE_DIR}'.")
   endif()
 
-  # A ';' in a path is a CMake list separator; every list these paths enter would split it.
-  foreach(path IN LISTS arg_INCLUDE_DIRS arg_HEADER_OUTPUT_DIR arg_INCLUDE_DIR)
-    if(path MATCHES ";")
-      message(FATAL_ERROR "slice2cpp_generate: paths may not contain ';', got '${path}'.")
-    endif()
-  endforeach()
-
   # The declared outputs must match what slice2cpp writes, or Ninja retries the command on every
   # build without saying why. --header-ext/--source-ext are honored, as in the MSBuild task.
   set(header_ext "h")
@@ -223,12 +216,6 @@ function(slice2cpp_generate target)
 
   foreach(file IN LISTS sources)
     if(file MATCHES "\\.ice$")
-
-      # A ';' in a path is a CMake list separator; from here on it would split the path in the
-      # command, dependency, and output lists.
-      if(file MATCHES ";")
-        message(FATAL_ERROR "slice2cpp_generate: paths may not contain ';', got '${file}'.")
-      endif()
 
       get_filename_component(slice_file_path ${file} ABSOLUTE)
       if(NOT WIN32)
