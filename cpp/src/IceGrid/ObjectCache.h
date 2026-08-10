@@ -43,8 +43,6 @@ namespace IceGrid
         ObjectInfoSeq getAll(const std::string&);
         ObjectInfoSeq getAllByType(const std::string&);
 
-        [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
-
     private:
         class TypeEntry
         {

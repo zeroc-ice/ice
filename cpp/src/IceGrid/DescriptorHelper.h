@@ -264,12 +264,9 @@ namespace IceGrid
         void printDiff(IceInternal::Output&, const NodeHelper&) const;
 
     private:
-        [[nodiscard]] NodeDescriptor instantiate(const Resolver&) const;
-
         std::string _name;
         NodeDescriptor _def;
         NodeDescriptor _instance;
-        bool _instantiated;
 
         using ServerInstanceHelperDict = std::map<std::string, ServerInstanceHelper>;
         ServerInstanceHelperDict _serverInstances;

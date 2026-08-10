@@ -1455,9 +1455,7 @@ Ice::StringSeq
 Database::getAllAdapters(const string& expression)
 {
     lock_guard lock(_mutex);
-    vector<string> result;
-    vector<string> ids = _adapterCache.getAll(expression);
-    result.swap(ids);
+    vector<string> result = _adapterCache.getAll(expression);
     set<string> groups;
 
     IceDB::ReadOnlyTxn txn(_env);

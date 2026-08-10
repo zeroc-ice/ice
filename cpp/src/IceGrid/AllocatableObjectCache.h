@@ -66,8 +66,6 @@ namespace IceGrid
         void allocateByType(const std::string&, const std::shared_ptr<ObjectAllocationRequest>&);
         bool canTryAllocate(const std::shared_ptr<AllocatableObjectEntry>&);
 
-        [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
-
     private:
         class TypeEntry
         {
