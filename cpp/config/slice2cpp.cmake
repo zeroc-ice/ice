@@ -13,14 +13,15 @@
 #   )
 #
 # Example:
+#   find_package(Ice REQUIRED CONFIG)
 #   add_executable(a_target source1.cpp source2.ice source3.ice)
 #   slice2cpp_generate(a_target)
 #
 # A library whose Slice includes files from a shared directory, publishing its generated headers to
 # its own consumers under a "Demo/" prefix:
 #
-#   add_library(demo Greeter.ice)
-#   slice2cpp_generate(demo
+#   add_library(weather_api Weather.ice)
+#   slice2cpp_generate(weather_api
 #     INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../slice
 #     OPTIONS -DENABLE_EXTRAS
 #     HEADER_OUTPUT_DIR ${CMAKE_BINARY_DIR}/include
@@ -29,7 +30,7 @@
 #
 # Only the .ice files in the target's own sources are compiled. INCLUDE_DIRS just resolves the
 # includes, so a Slice file included from a shared directory needs a target that compiles it, and
-# `demo` links that target to pick up its headers.
+# `weather_api` links that target to pick up its headers.
 #
 # Generated files mirror the layout of the .ice files under the INCLUDE_DIRS directory that reaches
 # them, so the #include directives slice2cpp emits resolve; a file under no such directory generates
