@@ -404,6 +404,28 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // A sample-filtered reader is addressed under a session facet of its own, so this writer forwards a matching
+    // sample to two destinations: the facet of the filtered reader and the unfaceted destination of the reader
+    // that has no sample filter. The unfiltered reader must receive each sample once, not once per destination.
+    cout << "testing an unfiltered reader coexisting with a sample-filtered reader... " << flush;
+    {
+        Topic<string, string> topic(node, "unfilteredWithSampleFilter");
+        topic.setSampleFilter<string>(
+            "contains",
+            [](const string& substring)
+            {
+                return [substring](const Sample<string, string>& sample)
+                { return sample.getValue().find(substring) != string::npos; };
+            });
+
+        auto writer = makeSingleKeyWriter(topic, "elem", "", config);
+        writer.waitForReaders(2); // the unfiltered reader and the sample-filtered one
+        writer.update("a");       // matches the sample filter, so it goes to both destinations
+        writer.update("b");       // does not match, so it goes to the unfaceted destination only
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
     // An any-key reader and a filtered reader coexisting on the same topic must each keep their own subscription:
     // both receive matching samples, and destroying one must not detach the other.
     cout << "testing coexisting any-key and filtered readers... " << flush;
