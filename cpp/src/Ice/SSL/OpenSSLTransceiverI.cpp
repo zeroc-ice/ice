@@ -279,14 +279,19 @@ OpenSSL::TransceiverI::close()
 {
     if (_ssl)
     {
-        int err = SSL_shutdown(_ssl);
-
-        //
-        // Call it one more time if it returned 0.
-        //
-        if (err == 0)
+        // The socket BIO installed in _ssl during initialization caches the fd number. Skip the shutdown
+        // notification when the delegate no longer holds this fd.
+        if (_delegate->getNativeInfo()->fd() != INVALID_SOCKET)
         {
-            SSL_shutdown(_ssl);
+            int err = SSL_shutdown(_ssl);
+
+            //
+            // Call it one more time if it returned 0.
+            //
+            if (err == 0)
+            {
+                SSL_shutdown(_ssl);
+            }
         }
 
         SSL_free(_ssl);
@@ -319,6 +324,12 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
     if (buf.i == buf.b.end())
     {
         return IceInternal::SocketOperationNone;
+    }
+
+    // The socket BIO installed in _ssl caches the fd number; fail instead of letting OpenSSL use a stale number.
+    if (_delegate->getNativeInfo()->fd() == INVALID_SOCKET)
+    {
+        throw ConnectionLostException(__FILE__, __LINE__);
     }
 
     //
@@ -405,6 +416,12 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
     if (buf.i == buf.b.end())
     {
         return IceInternal::SocketOperationNone;
+    }
+
+    // The socket BIO installed in _ssl caches the fd number; fail instead of letting OpenSSL use a stale number.
+    if (_delegate->getNativeInfo()->fd() == INVALID_SOCKET)
+    {
+        throw ConnectionLostException(__FILE__, __LINE__);
     }
 
     _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
