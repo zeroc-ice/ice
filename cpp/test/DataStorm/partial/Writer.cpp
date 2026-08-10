@@ -113,6 +113,15 @@ void ::Writer::run(int argc, char* argv[])
 
     topic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
 
+    // This writer is created here, ahead of the reader topic of the same name, so that the reader attaches to a
+    // writer topic that already holds both update tags: the tags then reach the reader in the topic spec it attaches
+    // to, rather than in a later attachTags call. It publishes at the end of the test.
+    Topic<string, Counter, Op> tagDecodeErrorTopic(node, "tagDecodeErrorTopic");
+    tagDecodeErrorTopic.setWriterDefaultConfig(config);
+    tagDecodeErrorTopic.setUpdater<int>(Op{"undecodable"}, [](Counter& counter, int delta) { counter.value += delta; });
+    tagDecodeErrorTopic.setUpdater<int>(Op{"increment"}, [](Counter& counter, int delta) { counter.value += delta; });
+    auto tagDecodeErrorWriter = makeSingleKeyWriter(tagDecodeErrorTopic, "key");
+
     cout << "testing partial update... " << flush;
     {
         auto writer = makeSingleKeyWriter(topic, "AAPL");
@@ -503,17 +512,12 @@ void ::Writer::run(int argc, char* argv[])
 
     // The writer sends both of its update tags when the reader attaches, and the reader's Decoder rejects one of
     // them. The partial update published with the tag the reader can decode is still applied.
-    Topic<string, Counter, Op> tagDecodeErrorTopic(node, "tagDecodeErrorTopic");
-    tagDecodeErrorTopic.setWriterDefaultConfig(config);
-    tagDecodeErrorTopic.setUpdater<int>(Op{"undecodable"}, [](Counter& counter, int delta) { counter.value += delta; });
-    tagDecodeErrorTopic.setUpdater<int>(Op{"increment"}, [](Counter& counter, int delta) { counter.value += delta; });
     cout << "testing update tag that fails to decode... " << flush;
     {
-        auto writer = makeSingleKeyWriter(tagDecodeErrorTopic, "key");
-        writer.waitForReaders();
-        writer.add(Counter{1});
-        writer.partialUpdate<int>(Op{"increment"})(5);
-        writer.waitForNoReaders();
+        tagDecodeErrorWriter.waitForReaders();
+        tagDecodeErrorWriter.add(Counter{1});
+        tagDecodeErrorWriter.partialUpdate<int>(Op{"increment"})(5);
+        tagDecodeErrorWriter.waitForNoReaders();
     }
     cout << "ok" << endl;
 }
