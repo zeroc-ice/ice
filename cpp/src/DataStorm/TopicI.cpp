@@ -198,7 +198,22 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
     {
         if (info.id > 0)
         {
-            auto key = _keyFactory->decode(_instance->getCommunicator(), info.value);
+            shared_ptr<Key> key;
+            try
+            {
+                key = _keyFactory->decode(_instance->getCommunicator(), info.value);
+            }
+            catch (const std::exception& ex)
+            {
+                // The key factory runs the application's decoder. Skip the peer key it can't decode and keep matching
+                // the remaining ones: the elements the peer announced under the other keys still attach, and a spec
+                // set missing this key is indistinguishable on the wire from one where no local element matched it.
+                Warning out(_traceLevels->logger);
+                out << "skipped a key announced on topic '" << this << "': the key could not be decoded:\n"
+                    << ex.what();
+                continue;
+            }
+
             auto p = _keyElements.find(key);
             if (p != _keyElements.end())
             {
@@ -255,7 +270,23 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
             }
             else
             {
-                peerFilter = _keyFilterFactories->decode(_instance->getCommunicator(), info.name, info.value);
+                try
+                {
+                    peerFilter = _keyFilterFactories->decode(_instance->getCommunicator(), info.name, info.value);
+                }
+                catch (const std::exception& ex)
+                {
+                    // The key filter factory runs the application's decoder. Skip the peer filter it can't decode
+                    // rather than falling back to alwaysMatchFilter the way a null return does above: a null return
+                    // means no factory is registered under that name, while a throw leaves the filter's criteria
+                    // unknown, and matching everything would attach elements the peer's filter meant to exclude.
+                    Warning out(_traceLevels->logger);
+                    out << "skipped the key filter '" << info.name << "' announced on topic '" << this
+                        << "': the filter could not be decoded:\n"
+                        << ex.what();
+                    continue;
+                }
+
                 if (!peerFilter)
                 {
                     peerFilter = alwaysMatchFilter;
@@ -397,7 +428,24 @@ TopicI::attachElements(
                     }
                     else
                     {
-                        filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
+                        try
+                        {
+                            filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            // The key filter factory runs the application's decoder. Skip this spec and keep
+                            // attaching the remaining ones: the elements attached by the earlier specs are already
+                            // registered and their acks must still reach the peer, or it never initializes them.
+                            // Falling back to alwaysMatchFilter the way a null return does would attach elements the
+                            // peer's filter meant to exclude.
+                            Warning out(_traceLevels->logger);
+                            out << "skipped the elements of key filter '" << spec.name << "' on topic '" << this
+                                << "': the filter could not be decoded:\n"
+                                << ex.what();
+                            continue;
+                        }
+
                         if (!filter)
                         {
                             filter = alwaysMatchFilter;
@@ -448,7 +496,21 @@ TopicI::attachElements(
                 shared_ptr<Key> key;
                 if (spec.id > 0) // Key
                 {
-                    key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
+                    try
+                    {
+                        key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
+                    }
+                    catch (const std::exception& ex)
+                    {
+                        // The key factory runs the application's decoder. Skip this spec and keep attaching the
+                        // remaining ones: the elements attached by the earlier specs are already registered and their
+                        // acks must still reach the peer, or it never initializes them.
+                        Warning out(_traceLevels->logger);
+                        out << "skipped the elements announced under a key on topic '" << this
+                            << "': the key could not be decoded:\n"
+                            << ex.what();
+                        continue;
+                    }
                 }
 
                 if (spec.id < 0 || matchKeyFilter(filter, key))
@@ -507,7 +569,24 @@ TopicI::attachElementsAck(
                     }
                     else
                     {
-                        filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
+                        try
+                        {
+                            filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            // The key filter factory runs the application's decoder. Skip this spec and keep
+                            // processing the remaining ones: the elements attached by the earlier specs have their
+                            // initialization callbacks queued below, and abandoning the loop would drop those along
+                            // with the ids collected in removedIds. Falling back to alwaysMatchFilter the way a null
+                            // return does would attach elements the peer's filter meant to exclude.
+                            Warning out(_traceLevels->logger);
+                            out << "skipped the acknowledged elements of key filter '" << spec.name << "' on topic '"
+                                << this << "': the filter could not be decoded:\n"
+                                << ex.what();
+                            continue;
+                        }
+
                         if (!filter)
                         {
                             filter = alwaysMatchFilter;
@@ -575,7 +654,22 @@ TopicI::attachElementsAck(
                 shared_ptr<Key> key;
                 if (spec.id > 0) // Key
                 {
-                    key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
+                    try
+                    {
+                        key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
+                    }
+                    catch (const std::exception& ex)
+                    {
+                        // The key factory runs the application's decoder. Skip this spec and keep processing the
+                        // remaining ones: the elements attached by the earlier specs have their initialization
+                        // callbacks queued below, and abandoning the loop would drop those along with the ids
+                        // collected in removedIds.
+                        Warning out(_traceLevels->logger);
+                        out << "skipped the acknowledged elements announced under a key on topic '" << this
+                            << "': the key could not be decoded:\n"
+                            << ex.what();
+                        continue;
+                    }
                 }
 
                 for (const auto& data : spec.elements)

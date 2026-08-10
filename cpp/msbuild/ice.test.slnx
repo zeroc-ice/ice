@@ -18,6 +18,10 @@
     <Project Path="../test/DataStorm/config/msbuild/reader/reader.vcxproj" />
     <Project Path="../test/DataStorm/config/msbuild/writer/writer.vcxproj" />
   </Folder>
+  <Folder Name="/DataStorm/decoderFailures/">
+    <Project Path="../test/DataStorm/decoderFailures/msbuild/reader/reader.vcxproj" />
+    <Project Path="../test/DataStorm/decoderFailures/msbuild/writer/writer.vcxproj" />
+  </Folder>
   <Folder Name="/DataStorm/events/">
     <Project Path="../test/DataStorm/events/msbuild/reader/reader.vcxproj" />
     <Project Path="../test/DataStorm/events/msbuild/writer/writer.vcxproj" />

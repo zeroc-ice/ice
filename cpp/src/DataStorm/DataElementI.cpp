@@ -107,7 +107,22 @@ DataElementI::attach(
     shared_ptr<Filter> sampleFilter;
     if (auto info = data.config->sampleFilter)
     {
-        sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        try
+        {
+            sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        }
+        catch (const std::exception& ex)
+        {
+            // The sample filter factory runs the application's decoder. Leave this element unattached rather than
+            // attaching it without the filter, which would send the peer the samples its filter meant to exclude.
+            // Returning without an ack confines the failure to this element: the caller attaches the other elements
+            // of the request and acks them, so the peer still initializes them.
+            Warning out(_traceLevels->logger);
+            out << "did not attach '" << this << "' to a peer element: its sample filter '" << info->name
+                << "' could not be decoded:\n"
+                << ex.what();
+            return;
+        }
     }
 
     string facet = data.config->facet.value_or(string{});
@@ -161,7 +176,22 @@ DataElementI::attach(
     shared_ptr<Filter> sampleFilter;
     if (auto info = data.config->sampleFilter)
     {
-        sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        try
+        {
+            sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        }
+        catch (const std::exception& ex)
+        {
+            // The sample filter factory runs the application's decoder. Leave this element unattached rather than
+            // attaching it without the filter, which would send the peer the samples its filter meant to exclude.
+            // Returning no initialization callback confines the failure to this element: the caller attaches and
+            // initializes the other elements of the acknowledgement.
+            Warning out(_traceLevels->logger);
+            out << "did not attach '" << this << "' to a peer element: its sample filter '" << info->name
+                << "' could not be decoded:\n"
+                << ex.what();
+            return nullptr;
+        }
     }
 
     string facet = data.config->facet.value_or(string{});
