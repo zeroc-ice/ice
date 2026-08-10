@@ -95,9 +95,6 @@ export class ConnectionI {
         this._readHeader = false;
         this._writeStream = new OutputStream(); // temporary stream
 
-        this._readStreamPos = -1;
-        this._writeStreamPos = -1;
-
         // The number of user calls currently executed by the event-loop (servant dispatch, invocation response, etc.).
         this._upcallCount = 0;
 

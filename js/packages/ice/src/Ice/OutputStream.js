@@ -504,8 +504,6 @@ export class OutputStream {
 
         this._buf = new Buffer();
 
-        this._closure = null;
-
         this._encapsStack = null;
         this._encapsCache = null;
 
@@ -543,7 +541,6 @@ export class OutputStream {
     swap(other) {
         [other._buf, this._buf] = [this._buf, other._buf];
         [other._encoding, this._encoding] = [this._encoding, other._encoding];
-        [other._closure, this._closure] = [this._closure, other._closure];
 
         //
         // Swap is never called for streams that have encapsulations being written. However,
