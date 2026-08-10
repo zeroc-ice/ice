@@ -38,7 +38,6 @@ namespace IceGrid
         const AdapterPrx _this;
         const std::string _serverId;
         const std::string _id;
-        const std::string _replicaId;
         ServerI* _server;
 
         std::optional<Ice::ObjectPrx> _proxy;
