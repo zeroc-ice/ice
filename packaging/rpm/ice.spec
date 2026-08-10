@@ -454,7 +454,6 @@ cp -p java/lib/icegridgui.jar %{buildroot}%{_javadir}/icegridgui.jar
 %{_libdir}/libIceGrid.so.*
 %{_libdir}/libIceLocatorDiscovery.so.*
 %{_libdir}/libIceStorm.so.*
-%{_libdir}/cmake/*/*.cmake
 %post -n lib%{?nameprefix}ice%{mmversion}-c++ -p /sbin/ldconfig
 %postun -n lib%{?nameprefix}ice%{mmversion}-c++
 /sbin/ldconfig
@@ -487,6 +486,7 @@ exit 0
 %{_libdir}/libIceGrid.so
 %{_libdir}/libIceLocatorDiscovery.so
 %{_libdir}/libIceStorm.so
+%{_libdir}/cmake/*/*.cmake
 %{_includedir}/DataStorm
 %{_includedir}/Glacier2
 %{_includedir}/Ice
