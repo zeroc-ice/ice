@@ -121,5 +121,8 @@
       <SliceCompileSource>..\..\Test.ice</SliceCompileSource>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Common\msbuild\testcommon.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

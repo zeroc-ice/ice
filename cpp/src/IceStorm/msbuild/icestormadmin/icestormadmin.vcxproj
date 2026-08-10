@@ -339,6 +339,16 @@
   <ItemGroup>
     <ResourceCompile Include="..\..\IceStormAdmin.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Glacier2Lib\msbuild\glacier2\glacier2.vcxproj" />
+    <ProjectReference Include="..\..\..\IceBox\msbuild\iceboxlib\iceboxlib.vcxproj" />
+    <ProjectReference Include="..\..\..\IceGridLib\msbuild\icegrid\icegrid.vcxproj" />
+    <ProjectReference Include="..\..\..\IceStormLib\msbuild\icestorm\icestorm.vcxproj" />
+    <ProjectReference Include="..\..\..\slice2cpp\msbuild\slice2cpp.vcxproj">
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
