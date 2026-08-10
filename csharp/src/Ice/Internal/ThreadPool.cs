@@ -550,7 +550,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                 }
             }
         }
-        return _serialize;
+        return _sizeMax > 1 && _serialize;
     }
 
     public bool startMessage(ThreadPoolCurrent current)

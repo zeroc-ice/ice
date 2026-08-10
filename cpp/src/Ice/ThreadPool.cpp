@@ -799,7 +799,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
         }
     }
 
-    return _serialize && current._handler.get() != _workQueue.get();
+    return _sizeMax > 1 && _serialize && current._handler.get() != _workQueue.get();
 }
 
 #if defined(ICE_USE_IOCP)
