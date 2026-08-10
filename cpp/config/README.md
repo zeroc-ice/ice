@@ -125,6 +125,9 @@ slice2cpp_generate(<target>
   [HEADER_OUTPUT_DIR <dir>]   # put the headers here instead of with the sources
   [INCLUDE_DIR <dir>]         # slice2cpp --include-dir
   [INCLUDE_SCOPE <scope>]     # PRIVATE (default) or PUBLIC
+  [DEPENDENCIES <dep>...]     # extra DEPENDS on each generation command
+  [GENERATED_HEADERS <var>]   # out: absolute paths of the generated headers
+  [GENERATED_SOURCES <var>]   # out: absolute paths of the generated sources
 )
 ```
 
@@ -148,6 +151,15 @@ The directories containing the generated headers are added to the target's inclu
 through `target_link_libraries`, they go on that target's include path as well, so its sources can include the
 generated headers. `PUBLIC` applies within the build tree only: these directories are omitted from the target's
 installed interface, and installing the generated headers is the caller's responsibility.
+
+`GENERATED_HEADERS` and `GENERATED_SOURCES` name variables that receive the generated files' absolute paths, for
+installing the headers or setting source properties. Both lists are set in the caller's scope, empty when the target
+has no Slice files, and correspond by index. The paths keep the mirrored layout, and a generated header includes its
+neighbors by that layout — so a mirrored header set has to be installed with its subdirectories; `install(FILES)`
+flattens them, leaving those includes unresolvable.
+
+`DEPENDENCIES` adds `DEPENDS` edges to every generation command, for `.ice` files that are themselves produced by
+another custom command.
 
 For example, the following defines a library whose Slice files include files from a shared directory, and publishes
 its generated headers to its own consumers under a `Demo/` prefix:
