@@ -133,5 +133,9 @@
     <ClInclude Include="..\ServerBlobject.h" />
     <ClInclude Include="..\SessionRouterI.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Glacier2Lib\msbuild\glacier2\glacier2.vcxproj" />
+    <ProjectReference Include="..\..\Ice\msbuild\ice\ice.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

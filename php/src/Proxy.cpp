@@ -57,7 +57,6 @@ namespace IcePHP
     {
     public:
         Proxy(Ice::ObjectPrx, ProxyInfoPtr, CommunicatorInfoPtr);
-        ~Proxy();
 
         bool clone(zval*, Ice::ObjectPrx);
         bool cloneUntyped(zval*, Ice::ObjectPrx);
@@ -66,8 +65,6 @@ namespace IcePHP
         Ice::ObjectPrx proxy;
         ProxyInfoPtr info;
         CommunicatorInfoPtr communicator;
-        zval* connection;
-        zval* cachedConnection;
     };
     using ProxyPtr = shared_ptr<Proxy>;
 
@@ -122,7 +119,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getIdentity)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    createIdentity(return_value, _this->proxy->ice_getIdentity());
+    if (!createIdentity(return_value, _this->proxy->ice_getIdentity()))
+    {
+        RETURN_NULL();
+    }
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_identity_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
@@ -134,8 +134,11 @@ ZEND_METHOD(Ice_ObjectPrx, ice_identity)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    zend_class_entry* cls = nameToClass("\\Ice\\Identity");
-    assert(cls);
+    zend_class_entry* cls = lookupClass("\\Ice\\Identity");
+    if (!cls)
+    {
+        RETURN_NULL();
+    }
 
     zval* zid;
 
@@ -627,8 +630,11 @@ ZEND_METHOD(Ice_ObjectPrx, ice_encodingVersion)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    zend_class_entry* cls = nameToClass("\\Ice\\EncodingVersion");
-    assert(cls);
+    zend_class_entry* cls = lookupClass("\\Ice\\EncodingVersion");
+    if (!cls)
+    {
+        RETURN_NULL();
+    }
 
     zval* zv;
     if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O"), &zv, cls) == FAILURE)
@@ -674,8 +680,6 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getRouter)
             {
                 RETURN_NULL();
             }
-
-            assert(info);
 
             if (!createProxy(return_value, std::move(router.value()), std::move(info), _this->communicator))
             {
@@ -1432,22 +1436,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_checkedCast) { do_cast(INTERNAL_FUNCTION_PARAM_PA
 IcePHP::Proxy::Proxy(Ice::ObjectPrx p, ProxyInfoPtr i, CommunicatorInfoPtr comm)
     : proxy(std::move(p)),
       info(std::move(i)),
-      communicator(std::move(comm)),
-      connection(0),
-      cachedConnection(0)
+      communicator(std::move(comm))
 {
-}
-
-IcePHP::Proxy::~Proxy()
-{
-    if (connection)
-    {
-        zval_ptr_dtor(connection);
-    }
-    if (cachedConnection)
-    {
-        zval_ptr_dtor(cachedConnection);
-    }
 }
 
 bool
@@ -1469,7 +1459,13 @@ IcePHP::Proxy::create(zval* zv, Ice::ObjectPrx p, ProxyInfoPtr info, Communicato
     if (!prxInfo)
     {
         prxInfo = getProxyInfo("::Ice::Object");
-        assert(prxInfo);
+        if (!prxInfo)
+        {
+            // The proxy type registry is populated by PHP code; it's empty when the application didn't load the
+            // Ice library files. Failing here ensures a Proxy object always has type information.
+            runtimeError("no definition for Ice::Object");
+            return false;
+        }
     }
 
     if (object_init_ex(zv, proxyClassEntry) != SUCCESS)

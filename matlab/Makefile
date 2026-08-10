@@ -21,16 +21,7 @@ include $(shell find $(lang_srcdir) -name Makefile.mk)
 $(call make-projects,$(projects))
 srcs:: $(projects)
 
-$(eval $(call make-matlab-package,$(slicedir),lib/generated,Ice,%F.ice \
-    %/FacetMap.ice \
-    %/ImplicitContext.ice \
-    %/Instrumentation.ice \
-    %/Logger.ice \
-    %/ObjectAdapter.ice \
-    %/ObjectFactory.ice \
-    %/Plugin.ice \
-    %/Properties.ice \
-    %/ServantLocator.ice))
+$(eval $(call make-matlab-package,$(slicedir),lib/generated,Ice))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,Glacier2))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceGrid))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceBox))
@@ -65,7 +56,7 @@ $(icethunk_proto): $(icethunk_builddir)/icethunk.c
 $(icethunk_target): $(lang_srcdir)/src/build/icethunk.c $(icethunk_proto)
 	$(CC) $(lang_srcdir)/src/build/icethunk.c $(icethunk_cflags) -o $(icethunk_target)
 
-clean::
+clean distclean::
 	rm -rf $(lang_srcdir)/lib/x86_64-linux-gnu
 	rm -rf $(icethunk_builddir)
 
@@ -115,7 +106,7 @@ else
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "removeFolderFromPath '`realpath build`'"
 endif
 
-clean::
+clean distclean::
 	rm -rf $(icetoolbox_file)
 	rm -rf $(lang_srcdir)/toolbox/build
 	rm -rf $(lang_srcdir)/toolbox/toolbox.prj

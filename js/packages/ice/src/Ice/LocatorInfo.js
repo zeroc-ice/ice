@@ -13,7 +13,6 @@ import { NotRegisteredException } from "./LocalExceptions.js";
 export class LocatorInfo {
     constructor(locator, table, background) {
         this._locator = locator;
-        this._locatorRegistry = null;
         this._table = table;
         this._background = background;
 
@@ -22,7 +21,6 @@ export class LocatorInfo {
     }
 
     destroy() {
-        this._locatorRegistry = null;
         this._table.clear();
     }
 

@@ -148,6 +148,10 @@ namespace IcePy
         virtual function<void()> handleInvoke(PyObject*, PyObject*) = 0;
         virtual void handleResponse(PyObject*, bool, pair<const byte*, const byte*>) = 0;
 
+        // Returns a new reference to the result used to complete the future of an invocation that completes
+        // without a response (oneway/datagram once sent, batch).
+        virtual PyObject* noResponseResult();
+
         PyObject* _pyProxy;
         bool _twoway;
         bool _sent{false};
@@ -190,6 +194,7 @@ namespace IcePy
     protected:
         function<void()> handleInvoke(PyObject*, PyObject*) final;
         void handleResponse(PyObject*, bool, pair<const byte*, const byte*>) final;
+        PyObject* noResponseResult() final;
 
         string _op;
     };
@@ -852,7 +857,7 @@ static PyMethodDef DispatchCallbackMethods[] = {
     {"response",
      reinterpret_cast<PyCFunction>(dispatchCallbackResponse),
      METH_VARARGS,
-     PyDoc_STR("response(*args: tuple) -> None")},
+     PyDoc_STR("response(result: Any) -> None")},
     {"exception",
      reinterpret_cast<PyCFunction>(dispatchCallbackException),
      METH_VARARGS,
@@ -1415,7 +1420,11 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
                 //
                 // For a oneway/datagram invocation, we consider it complete when sent.
                 //
-                tmp = PyObjectHandle{callMethod(future.get(), "set_result", Py_None)};
+                PyObjectHandle result{noResponseResult()};
+                if (result)
+                {
+                    tmp = PyObjectHandle{callMethod(future.get(), "set_result", result.get())};
+                }
                 if (PyErr_Occurred())
                 {
                     return nullptr;
@@ -1451,7 +1460,11 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
     }
     else
     {
-        PyObjectHandle tmp{callMethod(future.get(), "set_result", Py_None)};
+        PyObjectHandle result{noResponseResult()};
+        if (result)
+        {
+            PyObjectHandle tmp{callMethod(future.get(), "set_result", result.get())};
+        }
         if (PyErr_Occurred())
         {
             return nullptr;
@@ -1576,12 +1589,22 @@ IcePy::AsyncInvocation::sent(bool sentSynchronously)
         //
         // For a oneway/datagram invocation, we consider it complete when sent.
         //
-        tmp = PyObjectHandle{callMethod(future.get(), "set_result", Py_None)};
+        PyObjectHandle result{noResponseResult()};
+        if (result)
+        {
+            tmp = PyObjectHandle{callMethod(future.get(), "set_result", result.get())};
+        }
         if (PyErr_Occurred())
         {
             handleException();
         }
     }
+}
+
+PyObject*
+IcePy::AsyncInvocation::noResponseResult()
+{
+    return Py_None;
 }
 
 IcePy::AsyncTypedInvocation::AsyncTypedInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy, OperationPtr op)
@@ -1898,6 +1921,13 @@ IcePy::AsyncBlobjectInvocation::handleResponse(PyObject* future, bool ok, pair<c
 
     PyObjectHandle tmp{callMethod(future, "set_result", args.get())};
     PyErr_Clear();
+}
+
+PyObject*
+IcePy::AsyncBlobjectInvocation::noResponseResult()
+{
+    // ice_invokeAsync completes with (True, b"") when no response is expected.
+    return Py_BuildValue("(Oy)", Py_True, "");
 }
 
 //

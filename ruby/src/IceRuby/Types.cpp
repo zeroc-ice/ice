@@ -12,18 +12,6 @@
 #include <list>
 #include <math.h>
 
-//
-// Required for RHASH_SIZE to work properly with Ruby 1.8.x.
-// T_ZOMBIE is only defined in Ruby 1.9.
-//
-#ifndef T_ZOMBIE
-#    include "st.h"
-#endif
-
-#ifndef RHASH_SIZE
-#    define RHASH_SIZE(v) RHASH(v)->tbl->num_entries
-#endif
-
 using namespace std;
 using namespace IceRuby;
 using namespace Ice;
@@ -2385,7 +2373,7 @@ IceRuby::ProxyInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHist
     }
     else
     {
-        out << getString(value);
+        out << getProxy(value)->ice_toString();
     }
 }
 
@@ -2890,7 +2878,9 @@ IceRuby_defineStruct(VALUE /*self*/, VALUE id, VALUE type, VALUE members)
     ICE_RUBY_TRY
     {
         StructInfoPtr info = make_shared<StructInfo>(id, type, members);
-        return createType(info);
+        VALUE result = createType(info);
+        rb_define_const(type, "ICE_TYPE", result);
+        return result;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -2995,7 +2985,9 @@ IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE 
 
         addExceptionInfo(info->id, info);
 
-        return createException(info);
+        VALUE result = createException(info);
+        rb_define_const(type, "ICE_TYPE", result);
+        return result;
     }
     ICE_RUBY_CATCH
     return Qnil;

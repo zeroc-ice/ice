@@ -14,7 +14,6 @@ else
 Ice_extra_sources       := $(filter-out src/Ice/SSL/SecureTransport%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
 endif
 
-Ice_excludes            = src/Ice/DLLMain.cpp
 Ice[shared]_excludes    = src/Ice/AddDefaultPluginFactories_min.cpp
 Ice[static]_excludes    = src/Ice/AddDefaultPluginFactories_all.cpp
 

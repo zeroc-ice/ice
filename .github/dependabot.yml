@@ -22,6 +22,12 @@ updates:
       interval: monthly
     cooldown:
       default-days: 7
+    ignore:
+      # TypeScript 7 is the native port: it no longer ships the JavaScript compiler API that
+      # typedoc, typescript-eslint and js/dts-bundle.js are built on. Stay on 6.x until they
+      # support it.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       js:
         patterns: ["*"]

@@ -40,14 +40,14 @@ $(DESTDIR)$(prefix)/lib/XCFrameworks/$1.xcframework: lib/XCFrameworks/$1.xcframe
 	$(Q)$(MKDIR) -p $(DESTDIR)$(prefix)/lib/XCFrameworks
 	$(Q)cp -pR lib/XCFrameworks/$1.xcframework $(DESTDIR)$(prefix)/lib/XCFrameworks
 
-clean::
+clean distclean::
 	$(E) Cleaning lib/XCFrameworks/$1.xcframework
 	$(Q)$(RM) -r lib/XCFrameworks/$1.xcframework
 endef
 
-ifeq ($(filter $(config),static),)
+# The xcframeworks are built from the static libraries, so the static configuration is always
+# enabled for these components, even when it's not in CONFIGS.
 $(foreach f, $(xcframeworks), $(eval $f_always_enable_configs := static))
-endif
 
 define make-xcframeworks
 $(foreach f, $(xcframeworks),\

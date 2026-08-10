@@ -40,9 +40,8 @@ class IndirectPatchEntry {
 }
 
 class EncapsDecoder {
-    constructor(stream, encaps, classGraphDepth) {
+    constructor(stream, classGraphDepth) {
         this._stream = stream;
-        this._encaps = encaps;
         this._classGraphDepthMax = classGraphDepth;
         this._classGraphDepth = 0;
         this._patchMap = null; // Lazy initialized, Map<int, Patcher[] >()
@@ -181,8 +180,8 @@ class EncapsDecoder {
 }
 
 class EncapsDecoder10 extends EncapsDecoder {
-    constructor(stream, encaps, classGraphDepth, f) {
-        super(stream, encaps, classGraphDepth, f);
+    constructor(stream, classGraphDepth) {
+        super(stream, classGraphDepth);
         this._sliceType = SliceType.NoSlice;
     }
 
@@ -404,8 +403,8 @@ class EncapsDecoder10 extends EncapsDecoder {
 }
 
 class EncapsDecoder11 extends EncapsDecoder {
-    constructor(stream, encaps, classGraphDepth, f) {
-        super(stream, encaps, classGraphDepth, f);
+    constructor(stream, classGraphDepth) {
+        super(stream, classGraphDepth);
         this._current = null;
         this._valueIdIndex = 1;
     }
@@ -941,7 +940,6 @@ export class InputStream {
 
         this._encapsStack = null;
         this._encapsCache = null;
-        this._closure = null;
         this._startSeq = -1;
         this._sizePos = -1;
 
@@ -1550,9 +1548,9 @@ export class InputStream {
         if (this._encapsStack.decoder === null) {
             // Lazy initialization.
             if (this._encapsStack.encoding_1_0) {
-                this._encapsStack.decoder = new EncapsDecoder10(this, this._encapsStack, this._classGraphDepthMax);
+                this._encapsStack.decoder = new EncapsDecoder10(this, this._classGraphDepthMax);
             } else {
-                this._encapsStack.decoder = new EncapsDecoder11(this, this._encapsStack, this._classGraphDepthMax);
+                this._encapsStack.decoder = new EncapsDecoder11(this, this._classGraphDepthMax);
             }
         }
     }

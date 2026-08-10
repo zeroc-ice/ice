@@ -139,7 +139,6 @@ namespace IceGrid
     private:
         std::vector<std::shared_ptr<ServerCommand>> checkConsistencyNoSync(const Ice::StringSeq&);
 
-        std::set<std::shared_ptr<ServerI>> getApplicationServers(const std::string&) const;
         [[nodiscard]] std::string getFilePath(const std::string&) const;
 
         void loadServer(

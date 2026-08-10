@@ -700,7 +700,6 @@ class Mapping(object):
             self.worker = False
             self.coverage = False
             self.dotnet = False
-            self.framework = ""
             self.android = False
             self.jacoco = ""
             self.device = ""
@@ -961,17 +960,6 @@ class Mapping(object):
             cls.mappings[name] = m
         else:
             cls.disabled[name] = m
-
-    @classmethod
-    def disable(cls, name: str) -> None:
-        m = cls.mappings[name]
-        if m:
-            cls.disabled[name] = m
-            del cls.mappings[name]
-
-    @classmethod
-    def remove(cls, name: str) -> None:
-        del cls.mappings[name]
 
     @classmethod
     def getAll(cls, driver: Driver | None = None, includeDisabled: bool = False) -> list[Mapping]:
@@ -1564,9 +1552,6 @@ class Process(Runnable):
     def isFromBinDir(self) -> bool:
         return False
 
-    def isReleaseOnly(self) -> bool:
-        return False
-
     def getArgs(self, current: Driver.Current) -> Args:
         return []
 
@@ -1709,18 +1694,7 @@ class ProcessFromBinDir:
         return True
 
 
-#
-# Executables for processes inheriting this marker class are only provided
-# as a Release executable on Windows
-#
-
-
-class ProcessIsReleaseOnly:
-    def isReleaseOnly(self) -> bool:
-        return True
-
-
-class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
+class SliceTranslator(ProcessFromBinDir, SimpleClient):
     def __init__(self, translator: str, quiet: bool = False):
         SimpleClient.__init__(self, exe=translator, quiet=quiet, mapping=Mapping.getByName("cpp"))
 
@@ -3054,6 +3028,10 @@ class AndroidProcessController(RemoteProcessController):
         # transient failure there must not kill the bond.
         run(f"{self.adb()} logcat -c")
         self._adbTolerantFor(peerAdb, "logcat -c")
+        # `logcat -c` clears only main,system,crash,kernel; the events buffer needs its own clear,
+        # or diagnostics cannot tell one attempt's lifecycle records from an earlier attempt's.
+        self._adbTolerant("logcat -b events -c")
+        self._adbTolerantFor(peerAdb, "logcat -b events -c")
         run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid}")
 
         def tail(log: str) -> str:
@@ -3149,9 +3127,23 @@ class AndroidProcessController(RemoteProcessController):
         print("-- adb forwards --")
         print(self._adbTolerant("forward --list"))
         print("-- controller app logcat --")
-        keep = re.compile("testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc")
+        # BTBOND, not just com.zeroc: btbond's own lines ("listening", "connecting...", "watchdog:")
+        # carry no package name, so only its stack frames were surviving this filter.
+        keep = re.compile(
+            "testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc|BTBOND"
+        )
         lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
-        print("\n".join(lines[-50:]))
+        print("\n".join(lines[-80:]))
+        # A relaunch emits no new "START u0" and its main-buffer logs are compiled out, so the events
+        # buffer is the only durable record that a second onCreate ran. bond() clears this buffer
+        # per attempt; scoping to btbond keeps the 40 display slots for the lines that matter.
+        print("-- btbond lifecycle (events) --")
+        events = re.compile(
+            "(wm_relaunch|wm_on_(create|destroy)_called|wm_(create|destroy|finish)_activity"
+            "|am_(proc_(start|died)|kill)).*btbond"
+        )
+        lines = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if events.search(ln)]
+        print("\n".join(lines[-40:]) or "<none>")
 
     # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
     # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
@@ -3567,8 +3559,6 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
 
 class iOSDeviceProcessController(RemoteProcessController):
-    appPath = "cpp/test/ios/controller/build"
-
     def __init__(self, current: Driver.Current):
         RemoteProcessController.__init__(self, current, None)
 
@@ -3878,8 +3868,8 @@ class Driver:
         languages = ",".join(os.environ.get("LANGUAGES", "").split(" "))
         self.languages = [languages] if languages else []
         self.rlanguages: list[str] = []
-        self.failures: list[Any] = []
         self.keepLogs = False
+        self.interface = ""
         self.configs: dict[Mapping, Mapping.Config]
 
         logDir = os.path.join(toplevel, "logs")
@@ -3913,7 +3903,6 @@ class Driver:
         )
 
         self.communicator: Ice.Communicator | None = None
-        self.interface = ""
         self.processControllers: dict[type[ProcessController], ProcessController] = {}
 
     def setConfigs(self, configs: dict[Mapping, Mapping.Config]) -> None:

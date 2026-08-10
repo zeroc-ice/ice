@@ -159,7 +159,7 @@ namespace IceGrid
         ObjectInfoSeq getObjectInfosByType(const std::string&);
         ObjectInfoSeq getAllObjectInfos(const std::string& = std::string());
 
-        void addInternalObject(const ObjectInfo&, bool = false);
+        void addInternalObject(const ObjectInfo&);
         void removeInternalObject(const Ice::Identity&);
         Ice::ObjectProxySeq getInternalObjectsByType(const std::string&);
 
@@ -216,12 +216,6 @@ namespace IceGrid
         void deleteObject(const IceDB::ReadWriteTxn&, const ObjectInfo&, bool);
 
         friend struct AddComponent;
-
-        static const std::string _applicationDbName;
-        static const std::string _objectDbName;
-        static const std::string _internalObjectDbName;
-        static const std::string _adapterDbName;
-        static const std::string _replicaGroupDbName;
 
         const Ice::CommunicatorPtr _communicator;
         const Ice::ObjectAdapterPtr _internalAdapter;

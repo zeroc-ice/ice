@@ -336,7 +336,6 @@ export class HashMap {
 
 HashMap.prototype[Symbol.iterator] = HashMap.prototype.entries;
 HashMap.compareEquals = compareEquals;
-HashMap.compareIdentity = compareIdentity;
 HashMap._null = null;
 HashMap._nan = null;
 

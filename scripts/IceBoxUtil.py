@@ -15,7 +15,6 @@ from Util import (
     Linux,
     Mapping,
     ProcessFromBinDir,
-    ProcessIsReleaseOnly,
     Server,
     platform,
 )
@@ -55,7 +54,7 @@ class IceBox(ProcessFromBinDir, Server):
         return args
 
 
-class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
+class IceBoxAdmin(ProcessFromBinDir, Client):
     def getMapping(self, current: Driver.Current) -> Mapping:
         # IceBox admin is only provided with the C++/Java, not C#
         mapping = Client.getMapping(self, current)

@@ -279,11 +279,7 @@ IceRuby::contextToHash(const Ice::Context& ctx)
 }
 
 extern "C" VALUE
-#ifdef RUBY_BLOCK_CALL_FUNC_TAKES_BLOCKARG // Defined Ruby >= 2.1
 IceRuby_Util_hash_foreach_callback(VALUE val, VALUE arg, int, const VALUE*, VALUE)
-#else
-IceRuby_Util_hash_foreach_callback(VALUE val, VALUE arg, int, VALUE*)
-#endif
 {
     VALUE key = rb_ary_entry(val, 0);
     VALUE value = rb_ary_entry(val, 1);
@@ -300,16 +296,6 @@ IceRuby_Util_hash_foreach_callback(VALUE val, VALUE arg, int, VALUE*)
     return val;
 }
 
-extern "C"
-{
-// Defined Ruby >= 2.1. Ruby 2.7 enables RB_BLOCK_CALL_FUNC_STRICT by default
-#ifdef RB_BLOCK_CALL_FUNC_STRICT
-    typedef rb_block_call_func_t ICE_RUBY_HASH_FOREACH_CALLBACK;
-#else
-    typedef VALUE (*ICE_RUBY_HASH_FOREACH_CALLBACK)(...);
-#endif
-}
-
 void
 IceRuby::hashIterate(VALUE h, HashIterator& iter)
 {
@@ -321,7 +307,7 @@ IceRuby::hashIterate(VALUE h, HashIterator& iter)
         rb_intern("each"),
         0,
         static_cast<VALUE*>(0),
-        reinterpret_cast<ICE_RUBY_HASH_FOREACH_CALLBACK>(IceRuby_Util_hash_foreach_callback),
+        IceRuby_Util_hash_foreach_callback,
         reinterpret_cast<VALUE>(&iter));
 }
 

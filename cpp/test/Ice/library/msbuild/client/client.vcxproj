@@ -83,6 +83,10 @@
   <ItemGroup>
     <ClCompile Include="..\..\Client.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Common\msbuild\testcommon.vcxproj" />
+    <ProjectReference Include="..\alltests\alltests.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

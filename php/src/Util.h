@@ -51,6 +51,11 @@ namespace IcePHP
 
     zend_class_entry* nameToClass(const std::string&);
 
+    // Like nameToClass, but fails when the class is not defined - typically because the application didn't load the
+    // Ice library files. On failure, this function raises a RuntimeException in the PHP interpreter and returns
+    // nullptr; the caller must check for nullptr and propagate the failure.
+    zend_class_entry* lookupClass(const std::string&);
+
     bool createIdentity(zval*, const Ice::Identity&);
     bool extractIdentity(zval*, Ice::Identity&);
 
@@ -122,20 +127,6 @@ namespace IcePHP
 
     private:
         zval* _zv;
-    };
-
-    class AutoReleaseString
-    {
-    public:
-        AutoReleaseString(zend_string* s) : _s(s) {}
-        ~AutoReleaseString()
-        {
-            if (_s)
-                zend_string_release(_s);
-        }
-
-    private:
-        zend_string* _s;
     };
 
 } // End of namespace IcePHP

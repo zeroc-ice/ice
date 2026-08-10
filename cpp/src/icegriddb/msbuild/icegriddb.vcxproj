@@ -161,6 +161,14 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Ice\msbuild\ice\ice.vcxproj" />
+    <ProjectReference Include="..\..\IceGridLib\msbuild\icegrid\icegrid.vcxproj" />
+    <ProjectReference Include="..\..\slice2cpp\msbuild\slice2cpp.vcxproj">
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\msbuild\packages\ZeroC.LMDB.0.9.29\build\native\ZeroC.LMDB.targets" Condition="Exists('..\..\..\msbuild\packages\ZeroC.LMDB.0.9.29\build\native\ZeroC.LMDB.targets')" />

@@ -145,22 +145,9 @@
   <ItemGroup>
     <CustomBuild Include="..\..\EventLoggerMsg.mc">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
+      <Command>if not exist "$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\" mkdir "$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice"
+mc -h "$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice" -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc</Command>
+      <Outputs>$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -550,7 +537,6 @@
     <ClCompile Include="..\..\FixedRequestHandler.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />
     <ClCompile Include="..\..\DefaultsAndOverrides.cpp" />
-    <ClCompile Include="..\..\DLLMain.cpp" />
     <ClCompile Include="..\..\DynamicLibrary.cpp" />
     <ClCompile Include="..\..\EndpointFactory.cpp" />
     <ClCompile Include="..\..\EndpointFactoryManager.cpp" />
@@ -1041,6 +1027,12 @@
   <ItemGroup>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertyDict.ice" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\slice2cpp\msbuild\slice2cpp.vcxproj">
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

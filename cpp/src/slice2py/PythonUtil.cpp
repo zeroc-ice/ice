@@ -614,20 +614,23 @@ Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
 
     // Add imports required for data member types.
 
-    // For fields with a type that is a Struct, we need to import it as a RuntimeImport, to
-    // initialize the field in the constructor. For other contained types, we only need the
-    // import for type hints.
     if (auto sequence = dynamic_pointer_cast<Sequence>(type))
     {
-        addRuntimeImportForSequence(sequence, parent, p->getMetadata());
+        // For fields with a type that is a sequence, we check if it will be using a special mapping.
+        // If so, we need to import its mapped type to initialize the field in the constructor.
+        addSequenceImports(sequence, parent, true, p->getMetadata());
+        addTypingImport(sequence->type(), parent);
     }
     else if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
     {
+        // For fields with a type that is a Struct or enum, we need to import it as a RuntimeImport,
+        // to initialize the field in the constructor.
         addRuntimeImport(type, parent);
     }
     else
     {
-        addTypingImport(type, parent);
+        // For other contained types, we only need the import for type hints.
+        addTypingImport(type, parent, p->getMetadata());
     }
     addRuntimeImportForMetaType(type, parent);
 
@@ -696,31 +699,13 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         auto ret = op->returnType();
         if (ret)
         {
-            if (auto sequence = dynamic_pointer_cast<Sequence>(ret))
-            {
-                addRuntimeImportForSequence(sequence, p, op->getMetadata());
-            }
-            else if (dynamic_pointer_cast<Dictionary>(ret))
-            {
-                addTypingImport("collections.abc", "Mapping", p);
-            }
-            addTypingImport(ret, p);
-
+            addTypingImport(ret, p, op->getMetadata());
             addRuntimeImportForMetaType(ret, p);
         }
 
         for (const auto& param : op->parameters())
         {
-            if (auto sequence = dynamic_pointer_cast<Sequence>(param->type()))
-            {
-                addRuntimeImportForSequence(sequence, p, param->getMetadata());
-            }
-            else if (dynamic_pointer_cast<Dictionary>(param->type()))
-            {
-                addTypingImport("collections.abc", "Mapping", p);
-            }
-            addTypingImport(param->type(), p);
-
+            addTypingImport(param->type(), p, param->getMetadata());
             addRuntimeImportForMetaType(param->type(), p);
         }
 
@@ -770,22 +755,17 @@ Slice::Python::ImportVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-Slice::Python::ImportVisitor::addRuntimeImportForSequence(
+Slice::Python::ImportVisitor::addSequenceImports(
     const SequencePtr& sequence,
     const ContainedPtr& source,
+    bool isFieldType,
     const MetadataList& localMetadata)
 {
     auto metadata = getSequenceMetadata(sequence, localMetadata);
     auto directive = metadata ? metadata->directive() : "";
 
-    // Whether the sequence is a field of the source type. Fields need runtime imports for their default factory,
-    // and are annotated with the sequence's own type. Everywhere else the sequence appears in an operation
-    // signature, where it only needs type hints, in the marshaling direction as well as the unmarshaling one.
-    auto isField = dynamic_pointer_cast<ClassDef>(source) || dynamic_pointer_cast<Struct>(source) ||
-                   dynamic_pointer_cast<Exception>(source);
-
     auto builtin = dynamic_pointer_cast<Builtin>(sequence->type());
-    if (!isField && builtin && builtin->kind() <= Builtin::KindDouble)
+    if (builtin && builtin->kind() <= Builtin::KindDouble && dynamic_pointer_cast<InterfaceDef>(source))
     {
         // Marshaling-direction hints for a numeric sequence accept any Buffer.
         addTypingImport("collections.abc", "Buffer", source);
@@ -794,7 +774,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
     if (directive == "python:numpy.ndarray")
     {
         // Import numpy for using it in the field factory.
-        if (isField)
+        if (isFieldType)
         {
             addRuntimeImport("numpy", "", source);
         }
@@ -806,7 +786,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
     else if (directive == "python:array.array")
     {
         // Import array for using it in the field factory.
-        if (isField)
+        if (isFieldType)
         {
             addRuntimeImport("array", "array", source);
         }
@@ -821,7 +801,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
         auto [factory, typeHint] = splitMemoryviewArguments(arguments);
 
         // Import factory for using it in the field factory.
-        if (isField)
+        if (isFieldType)
         {
             auto [factoryPackage, factoryFunction] = splitFQN(factory);
             addRuntimeImport(factoryPackage, factoryFunction, source);
@@ -834,14 +814,9 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
         }
         else
         {
-            // Otherwise, we have no idea what the type is so we just Any
+            // Otherwise, we have no idea what the type is so we just use 'Any'.
             addTypingImport("typing", "Any", source);
         }
-    }
-    else
-    {
-        // This is required to import the sequence element type in case it is not a built-in type.
-        addTypingImport(sequence, source);
     }
 }
 
@@ -979,33 +954,41 @@ Slice::Python::ImportVisitor::addTypingImport(
 }
 
 void
-Slice::Python::ImportVisitor::addTypingImport(const SyntaxTreeBasePtr& definition, const ContainedPtr& source)
+Slice::Python::ImportVisitor::addTypingImport(
+    const TypePtr& type,
+    const ContainedPtr& source,
+    const MetadataList& localMetadata)
 {
-    if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
+    if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
-        if (builtin->kind() == Builtin::KindValue)
-        {
-            addTypingImport("Ice.Value", "Value", source);
-        }
-        else if (builtin->kind() == Builtin::KindObjectProxy)
+        if (builtin->kind() == Builtin::KindObjectProxy)
         {
             addTypingImport("Ice.ObjectPrx", "ObjectPrx", source);
         }
+        else if (builtin->kind() == Builtin::KindValue)
+        {
+            addTypingImport("Ice.Value", "Value", source);
+        }
     }
-    else if (auto sequence = dynamic_pointer_cast<Sequence>(definition))
+    else if (auto sequence = dynamic_pointer_cast<Sequence>(type))
     {
+        addSequenceImports(sequence, source, false, localMetadata);
         addTypingImport(sequence->type(), source);
     }
-    else if (auto dictionary = dynamic_pointer_cast<Dictionary>(definition))
+    else if (auto dictionary = dynamic_pointer_cast<Dictionary>(type))
     {
+        if (dynamic_pointer_cast<InterfaceDef>(source))
+        {
+            addTypingImport("collections.abc", "Mapping", source);
+        }
         addTypingImport(dictionary->keyType(), source);
         addTypingImport(dictionary->valueType(), source);
     }
-    else if (auto interfaceDecl = dynamic_pointer_cast<InterfaceDecl>(definition))
+    else if (auto interfaceDecl = dynamic_pointer_cast<InterfaceDecl>(type))
     {
         addTypingImport(interfaceDecl->mappedScoped("."), interfaceDecl->mappedName() + "Prx", source);
     }
-    else if (auto contained = dynamic_pointer_cast<Contained>(definition))
+    else if (auto contained = dynamic_pointer_cast<Contained>(type))
     {
         addTypingImport(contained->mappedScoped("."), contained->mappedName(), source);
     }

@@ -101,7 +101,6 @@ namespace IcePHP
         Ice::ObjectPrx _prx;
         CommunicatorInfoPtr _communicator;
     };
-    using InvocationPtr = std::shared_ptr<Invocation>;
 
     // TypedInvocation uses the information in the given operation to validate, marshal, and unmarshal parameters and
     // exceptions.
@@ -391,7 +390,6 @@ IcePHP::TypedInvocation::prepareRequest(
             os->startEncapsulation(_prx->ice_getEncodingVersion(), _op->format);
 
             ObjectMap objectMap;
-            ParamInfoList::iterator p;
 
             // Validate the supplied arguments.
             for (const auto& info : _op->inParams)
