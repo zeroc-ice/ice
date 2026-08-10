@@ -57,7 +57,6 @@ namespace IcePHP
     {
     public:
         Proxy(Ice::ObjectPrx, ProxyInfoPtr, CommunicatorInfoPtr);
-        ~Proxy();
 
         bool clone(zval*, Ice::ObjectPrx);
         bool cloneUntyped(zval*, Ice::ObjectPrx);
@@ -66,8 +65,6 @@ namespace IcePHP
         Ice::ObjectPrx proxy;
         ProxyInfoPtr info;
         CommunicatorInfoPtr communicator;
-        zval* connection;
-        zval* cachedConnection;
     };
     using ProxyPtr = shared_ptr<Proxy>;
 
@@ -1439,22 +1436,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_checkedCast) { do_cast(INTERNAL_FUNCTION_PARAM_PA
 IcePHP::Proxy::Proxy(Ice::ObjectPrx p, ProxyInfoPtr i, CommunicatorInfoPtr comm)
     : proxy(std::move(p)),
       info(std::move(i)),
-      communicator(std::move(comm)),
-      connection(0),
-      cachedConnection(0)
+      communicator(std::move(comm))
 {
-}
-
-IcePHP::Proxy::~Proxy()
-{
-    if (connection)
-    {
-        zval_ptr_dtor(connection);
-    }
-    if (cachedConnection)
-    {
-        zval_ptr_dtor(cachedConnection);
-    }
 }
 
 bool

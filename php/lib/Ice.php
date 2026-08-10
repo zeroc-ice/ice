@@ -12,7 +12,6 @@ global $IcePHP__t_float;
 global $IcePHP__t_double;
 global $IcePHP__t_string;
 
-global $Ice_Protocol_1_0;
 global $Ice_Encoding_1_0;
 global $Ice_Encoding_1_1;
 
