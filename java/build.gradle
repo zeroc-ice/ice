@@ -130,6 +130,8 @@ rewrite {
         'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowLogFileDialog.java',
         // This file is never effectively fixed by OpenRewrite, yet OpenRewrite continually attempts to reformat it.
         'java/test/src/main/java/test/Ice/operations/Twoways.java',
+        // This file intentionally declares unused local variables to check the compilation of escaped identifiers.
+        'java/test/src/main/java/test/Slice/escape/Client.java',
     )
 }
 
