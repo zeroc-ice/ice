@@ -1251,6 +1251,35 @@ testEncryptedKey(const string&, const Ice::PropertiesPtr&)
 }
 #endif
 
+// Load a PKCS12 certificate whose password is empty, with IceSSL.Password left empty too. The fixtures are
+// written by `openssl pkcs12 -export -passout pass:`.
+void
+testPasswordLessCert(const string& factoryRef, const Ice::PropertiesPtr& defaultProps)
+{
+    cout << "testing PKCS12 certificate without a password... " << flush;
+    InitializationData initData;
+    initData.properties = createClientProps(defaultProps, true, "ca1/client_password_less", "ca1/ca1");
+    initData.properties->setProperty("IceSSL.Password", "");
+    CommunicatorPtr comm = initialize(initData);
+    Test::ServerFactoryPrx fact{comm, factoryRef};
+
+    Test::Properties d = createServerProps(defaultProps, true, "ca1/server_password_less", "ca1/ca1");
+    d["IceSSL.Password"] = "";
+    optional<Test::ServerPrx> server = fact->createServer(d);
+    try
+    {
+        server->ice_ping();
+    }
+    catch (const LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    fact->destroyServer(server);
+    comm->destroy();
+    cout << "ok" << endl;
+}
+
 void
 testMutlipleCACerts(const string& factoryRef, const Ice::PropertiesPtr& defaultProps, bool p12)
 {
@@ -2431,6 +2460,10 @@ allTests(Test::TestHelper* helper, const string& defaultDir, bool p12)
     testCertificateChains(factory, defaultDir, defaultProps, p12);
     testCAsDirectory(factory, defaultDir, defaultProps, p12);
     testEncryptedKey(factory, defaultProps);
+    if (p12)
+    {
+        testPasswordLessCert(factory, defaultProps);
+    }
     testMutlipleCACerts(factory, defaultProps, p12);
     testDerCertificates(factory, defaultProps, p12);
     testTrustOnly(factory, defaultProps, p12);
