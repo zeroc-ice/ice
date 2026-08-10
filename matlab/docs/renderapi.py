@@ -195,7 +195,7 @@ class HelpRenderer:
     @staticmethod
     def _strip_name_prefix(line, symbol_name):
         short = symbol_name.rpartition(".")[2]
-        token, _, rest = line.partition(" ")
+        token, _, rest = line.lstrip().partition(" ")
         if token == short.upper():
             return rest
         return line
@@ -314,8 +314,9 @@ class HelpRenderer:
     def _render_arguments(self, lines, entry_indent, typed):
         parts = []
         for name, description in self._parse_entries(lines, entry_indent):
-            if typed and len(description) > 1:
-                # The last line of an argument entry is its type line.
+            if typed and len(description) > 1 and not description[-1].rstrip().endswith("."):
+                # The last line of an argument entry is its type line — unless it ends a wrapped sentence, as in
+                # the checkedCast output descriptions, which have no type line.
                 type_line = f'<span class="type">{self._inline(description[-1], type_line=True)}</span>'
                 description = description[:-1]
             else:
@@ -586,6 +587,9 @@ def main():
         sys.exit(f"unsupported schema version {api['schemaVersion']}")
 
     model = Model(api)
+    if args.output.exists():
+        # Remove pages left behind by a previous run for symbols that no longer exist.
+        shutil.rmtree(args.output)
     site = SiteRenderer(model, args.output, args.ice_version, args.base_url)
     site.render_site()
 

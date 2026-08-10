@@ -115,8 +115,13 @@ function cls = extractClass(mc)
             continue;
         end
         entry = extractMethod(mc, m);
+        own = strcmp(m.DefiningClass.Name, mc.Name);
         if strcmp(m.Name, shortName)
             constructor = entry;
+        elseif own && ~helpConforms(entry.help, m.Name)
+            % Undocumented methods (MATLAB-synthesized enumeration methods, marshaling helpers, ...) get generic
+            % or implementation text from help(); they are not part of the documented API.
+            continue;
         else
             methodList{end + 1} = entry; %#ok<AGROW>
         end
@@ -128,6 +133,9 @@ function cls = extractClass(mc)
         % help() falls back to the class help when the constructor has no help block of its own.
         constructor.help = '';
     end
+    if ~isempty(constructor) && ~helpConforms(constructor.help, shortName)
+        constructor.help = '';
+    end
     cls.constructor = constructor;
     cls.methods = methodList;
 
@@ -137,18 +145,24 @@ function cls = extractClass(mc)
         if p.Hidden || ~strcmp(accessName(p.GetAccess), 'public') || isForeignClass(p.DefiningClass.Name)
             continue;
         end
-        propertyList{end + 1} = extractProperty(mc, p); %#ok<AGROW>
+        entry = extractProperty(mc, p);
+        if strcmp(p.DefiningClass.Name, mc.Name) && ~helpConforms(entry.help, p.Name)
+            continue;
+        end
+        propertyList{end + 1} = entry; %#ok<AGROW>
     end
     cls.properties = propertyList;
 
     members = {};
     for i = 1:numel(mc.EnumerationMemberList)
         em = mc.EnumerationMemberList(i);
-        entry.name = em.Name;
-        entry.help = getHelp([mc.Name, '.', em.Name]);
+        memberHelp = getHelp([mc.Name, '.', em.Name]);
+        if ~helpConforms(memberHelp, em.Name)
+            memberHelp = '';
+        end
         % Ice enumerations subclass int32 or uint8, so evaluating a member executes no user code.
-        entry.value = double(eval([mc.Name, '.', em.Name]));
-        members{end + 1} = entry; %#ok<AGROW>
+        members{end + 1} = struct('name', em.Name, 'help', memberHelp, ...
+                                  'value', double(eval([mc.Name, '.', em.Name]))); %#ok<AGROW>
     end
     cls.enumerationMembers = members;
 end
@@ -186,6 +200,10 @@ end
 function f = extractFunction(name)
     f.name = name;
     f.help = getHelp(name);
+    [~, shortName] = splitName(name);
+    if ~helpConforms(f.help, shortName)
+        f.help = '';
+    end
     f.declaration = readDeclaration(name);
 end
 
@@ -246,8 +264,10 @@ function text = getHelp(name)
     % Strip the footer lines that the help command appends after the help comment itself, for example:
     %   Documentation for Ice.Communicator
     %      doc Ice.Communicator
+    %   Help for Ice.Communicator/destroy is inherited from superclass ...
     lines = splitlines(text);
-    footers = ["Documentation for ", "doc ", "Folders named ", "Other uses of ", "Other functions named "];
+    footers = ["Documentation for ", "doc ", "Folders named ", "Other uses of ", "Other functions named ", ...
+               "Help for "];
     for i = 1:numel(lines)
         if startsWith(strip(eraseAnchors(lines{i})), footers)
             lines = lines(1:i - 1);
@@ -262,7 +282,25 @@ function text = getHelp(name)
             lines{i} = line(2:end);
         end
     end
+    if ~isempty(lines)
+        % Property help gets one more level of indentation than class and method help.
+        lines{1} = strip(lines{1}, 'left');
+    end
     text = char(strip(strjoin(lines, newline), 'right'));
+end
+
+function r = helpConforms(text, name)
+    % The help of every documented Ice symbol starts with the symbol name in upper case. Anything else is
+    % fallback text that the help command found elsewhere: generic MATLAB documentation, implementation
+    % comments, or an "is a function" placeholder.
+    r = false;
+    if isempty(text)
+        return;
+    end
+    firstLine = strip(eraseAnchors(extractBefore([text, newline], newline)));
+    token = extractBefore([firstLine, ' '], ' ');
+    % The comparison is deliberately case sensitive: the convention requires the upper-case name.
+    r = strcmp(token, upper(name)); %#ok<STCI>
 end
 
 function text = eraseAnchors(text)
