@@ -2,15 +2,7 @@ name: "Build IceGrid GUI JAR"
 
 on:
   workflow_call:
-    inputs:
-      ice_version:
-        required: false
-        type: string
   workflow_dispatch:
-    inputs:
-      ice_version:
-        description: "The Ice version to build"
-        required: false
 
 jobs:
   build-icegridgui-jar:
