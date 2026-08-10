@@ -72,7 +72,7 @@ class SliceHeadersTestCase(ClientTestCase):
         os.system("cd project1/src/services/settings &&  ln -s ../../../git/services.settings.slices slices")
 
         f = open("project1/git/services.settings.slices/A.ice", "w")
-        f.write("// dumy file")
+        f.write("// dummy file")
         f.close()
         f = open("project1/git/services.settings.slices/B.ice", "w")
         f.write("#include <services/settings/slices/A.ice>")
