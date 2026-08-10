@@ -31,7 +31,7 @@ NodeSessionI::create(
         database->getNode(info->name, true)->setSession(nodeSession);
 
         ObjectInfo objInfo = {node, string{Node::ice_staticId()}};
-        database->addInternalObject(objInfo, true); // Add or update previous node proxy.
+        database->addInternalObject(objInfo); // Add or update previous node proxy.
         database->getInternalAdapter()->add(nodeSession, nodeSessionId);
     }
     catch (const NodeActiveException&)
