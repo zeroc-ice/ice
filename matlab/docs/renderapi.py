@@ -17,8 +17,12 @@ import re
 import shutil
 import sys
 from pathlib import Path
+from typing import Any
 
 BODY_INDENT = 3
+
+# A parsed help block: kind, header line, and content lines.
+Block = tuple[str, str | None, list[str]]
 
 # Sections recognized in a help block, at the base indentation of the body text.
 HEADER_RE = re.compile(
@@ -61,21 +65,21 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 """
 
 
-def esc(text):
+def esc(text: str) -> str:
     return html.escape(text, quote=False)
 
 
-def indent_of(line):
+def indent_of(line: str) -> int:
     return len(line) - len(line.lstrip(" "))
 
 
 class Model:
     """The API model: symbol tables built from matlab-api.json."""
 
-    def __init__(self, api):
+    def __init__(self, api: dict[str, Any]) -> None:
         self.api = api
-        self.classes = {}  # fully qualified name -> class dict
-        self.functions = {}  # fully qualified name -> function dict
+        self.classes: dict[str, dict[str, Any]] = {}
+        self.functions: dict[str, dict[str, Any]] = {}
         for function in api["functions"]:
             self.functions[function["name"]] = function
         for package in api["packages"]:
@@ -84,12 +88,12 @@ class Model:
             for function in package["functions"]:
                 self.functions[function["name"]] = function
 
-    def page(self, name):
+    def page(self, name: str) -> str | None:
         if name in self.classes or name in self.functions:
             return name + ".html"
         return None
 
-    def member_url(self, class_name, member_name):
+    def member_url(self, class_name: str, member_name: str) -> str | None:
         """URL of a class member, following inheritance to the page that documents it."""
         cls = self.classes.get(class_name)
         if cls is None:
@@ -111,7 +115,7 @@ class Model:
             return f"{class_name}.html#{member_name}"
         return None
 
-    def resolve(self, name, context_class=None):
+    def resolve(self, name: str, context_class: str | None = None) -> str | None:
         """Resolve a symbol reference from a See also list or a matlab:help anchor to a URL."""
         name = name.strip().rstrip(".,")
         if not name:
@@ -137,8 +141,8 @@ class Model:
                     return page
         return None
 
-    def derives_from(self, cls, ancestor_name):
-        seen = set()
+    def derives_from(self, cls: dict[str, Any], ancestor_name: str) -> bool:
+        seen: set[str] = set()
         names = list(cls["superclasses"])
         while names:
             name = names.pop()
@@ -150,7 +154,7 @@ class Model:
             names.extend(self.classes[name]["superclasses"])
         return False
 
-    def category(self, cls):
+    def category(self, cls: dict[str, Any]) -> str:
         if cls["kind"] == "enum":
             return "Enumerations"
         name = cls["name"]
@@ -164,12 +168,12 @@ class Model:
 class HelpRenderer:
     """Renders one help comment block into HTML."""
 
-    def __init__(self, model, context_class=None):
+    def __init__(self, model: Model, context_class: str | None = None) -> None:
         self.model = model
         self.context_class = context_class
-        self.links = []
+        self.links: list[tuple[str, str]] = []
 
-    def render(self, text, symbol_name, heading_level):
+    def render(self, text: str, symbol_name: str, heading_level: int) -> str:
         """Render the help text of symbol_name; sections become <h{heading_level}> headings."""
         if not text:
             return ""
@@ -179,7 +183,7 @@ class HelpRenderer:
         blocks = parse_blocks(lines, BODY_INDENT)
         return self._render_blocks(blocks, BODY_INDENT, heading_level)
 
-    def summary(self, text, symbol_name):
+    def summary(self, text: str, symbol_name: str) -> str:
         """The first sentence of the help text, as inline HTML."""
         if not text:
             return ""
@@ -188,19 +192,37 @@ class HelpRenderer:
         first = self._strip_name_prefix(first, symbol_name)
         return self._inline(first)
 
-    def _protect_anchor(self, match):
+    def argument_lists(self, text: str) -> tuple[list[str], bool, list[str]]:
+        """The argument names documented in the help text: input names, whether name-value arguments are
+        documented, and output names."""
+        inputs: list[str] = []
+        outputs: list[str] = []
+        name_value = False
+        for kind, header, lines in parse_blocks(text.split("\n"), BODY_INDENT):
+            if kind != "args":
+                continue
+            names = [name for name, _ in self._parse_entries(lines, BODY_INDENT + 2)]
+            if header == "Input Arguments":
+                inputs = names
+            elif header == "Input Name-Value Arguments":
+                name_value = True
+            elif header == "Output Arguments":
+                outputs = names
+        return inputs, name_value, outputs
+
+    def _protect_anchor(self, match: re.Match[str]) -> str:
         self.links.append((match.group(1), match.group(2)))
         return f"\x01{len(self.links) - 1}\x02"
 
     @staticmethod
-    def _strip_name_prefix(line, symbol_name):
+    def _strip_name_prefix(line: str, symbol_name: str) -> str:
         short = symbol_name.rpartition(".")[2]
         token, _, rest = line.lstrip().partition(" ")
         if token == short.upper():
             return rest
         return line
 
-    def _restore_anchor(self, match):
+    def _restore_anchor(self, match: re.Match[str]) -> str:
         target, label = self.links[int(match.group(1))]
         # The target is a MATLAB command such as "help Ice.Future -displayBanner".
         words = [word for word in target.split() if not word.startswith("-")]
@@ -210,7 +232,7 @@ class HelpRenderer:
             return f'<a href="{url}">{esc(label)}</a>'
         return esc(label)
 
-    def _inline(self, text, type_line=False):
+    def _inline(self, text: str, type_line: bool = False) -> str:
         text = esc(text)
         text = PLACEHOLDER_RE.sub(self._restore_anchor, text)
         if type_line:
@@ -220,16 +242,17 @@ class HelpRenderer:
             text = re.sub(r"\|([^|\n]+)\|", r"<code>\1</code>", text)
         return text
 
-    def _autolink_name(self, match):
+    def _autolink_name(self, match: re.Match[str]) -> str:
         page = self.model.page(match.group(0))
         if page:
             return f'<a href="{page}">{match.group(0)}</a>'
         return match.group(0)
 
-    def _render_blocks(self, blocks, base_indent, heading_level):
-        parts = []
+    def _render_blocks(self, blocks: list[Block], base_indent: int, heading_level: int) -> str:
+        parts: list[str] = []
         h = f"h{heading_level}"
         for kind, header, lines in blocks:
+            header = header or ""
             if kind == "para":
                 parts.append(self._render_paragraphs(lines))
             elif kind == "memberlist":
@@ -259,13 +282,13 @@ class HelpRenderer:
                 parts.append(self._render_deprecated(header, lines))
         return "\n".join(part for part in parts if part)
 
-    def _render_paragraphs(self, lines):
+    def _render_paragraphs(self, lines: list[str]) -> str:
         # Group the lines into paragraphs and "- item" bullet lists.
-        parts = []
-        paragraph = []
-        items = []
+        parts: list[str] = []
+        paragraph: list[str] = []
+        items: list[str] = []
 
-        def flush():
+        def flush() -> None:
             if paragraph:
                 parts.append(f"<p>{self._inline(' '.join(paragraph))}</p>")
                 paragraph.clear()
@@ -289,9 +312,9 @@ class HelpRenderer:
         flush()
         return "\n".join(parts)
 
-    def _parse_entries(self, lines, entry_indent):
+    def _parse_entries(self, lines: list[str], entry_indent: int) -> list[tuple[str, list[str]]]:
         """Parse "name - description" entries with indented continuation lines."""
-        entries = []
+        entries: list[tuple[str, list[str]]] = []
         for line in lines:
             stripped = line.strip()
             if not stripped:
@@ -303,16 +326,16 @@ class HelpRenderer:
                 entries[-1][1].append(stripped)
         return entries
 
-    def _render_member_list(self, lines, entry_indent):
-        items = []
+    def _render_member_list(self, lines: list[str], entry_indent: int) -> str:
+        items: list[str] = []
         for name, description in self._parse_entries(lines, entry_indent):
             url = self.model.member_url(self.context_class, name) if self.context_class else None
             label = f'<a href="{url}">{esc(name)}</a>' if url else f"<code>{esc(name)}</code>"
             items.append(f"<li>{label} &mdash; {self._inline(' '.join(description))}</li>")
         return f'<ul class="members">{"".join(items)}</ul>' if items else ""
 
-    def _render_arguments(self, lines, entry_indent, typed):
-        parts = []
+    def _render_arguments(self, lines: list[str], entry_indent: int, typed: bool) -> str:
+        parts: list[str] = []
         for name, description in self._parse_entries(lines, entry_indent):
             if typed and len(description) > 1 and not description[-1].rstrip().endswith("."):
                 # The last line of an argument entry is its type line — unless it ends a wrapped sentence, as in
@@ -330,7 +353,7 @@ class HelpRenderer:
             parts.append(f"<dd>{self._inline(' '.join(description))}{type_line}</dd>")
         return f'<dl class="arguments">{"".join(parts)}</dl>' if parts else ""
 
-    def _render_pre(self, lines, css_class=None):
+    def _render_pre(self, lines: list[str], css_class: str | None = None) -> str:
         while lines and not lines[0].strip():
             lines = lines[1:]
         while lines and not lines[-1].strip():
@@ -343,9 +366,9 @@ class HelpRenderer:
         css = f' class="{css_class}"' if css_class else ""
         return f"<pre{css}>{body}</pre>"
 
-    def _render_see_also(self, header, lines):
-        text = " ".join([header[len("See also"):]] + [line.strip() for line in lines if line.strip()])
-        rendered = []
+    def _render_see_also(self, header: str, lines: list[str]) -> str:
+        text = " ".join([header[len("See also") :]] + [line.strip() for line in lines if line.strip()])
+        rendered: list[str] = []
         for name in text.split(","):
             name = name.strip().rstrip(".")
             if not name:
@@ -354,22 +377,22 @@ class HelpRenderer:
             rendered.append(f'<a href="{url}">{esc(name)}</a>' if url else esc(name))
         return f'<p class="seealso">See also: {", ".join(rendered)}</p>' if rendered else ""
 
-    def _render_deprecated(self, header, lines):
-        text = header[len("Deprecated"):].lstrip(": ")
+    def _render_deprecated(self, header: str, lines: list[str]) -> str:
+        text = header[len("Deprecated") :].lstrip(": ")
         paragraphs = self._render_paragraphs(([text] if text else []) + lines)
         return f'<div class="deprecated"><p class="admonition-title">Deprecated</p>{paragraphs}</div>'
 
 
-def parse_blocks(lines, base_indent):
+def parse_blocks(lines: list[str], base_indent: int) -> list[Block]:
     """Split help-comment lines into an ordered list of (kind, header, content lines) blocks.
 
     A line at the base indentation that matches HEADER_RE starts a section; its content is every following line
     indented deeper than the base. Everything else is paragraph text.
     """
-    blocks = []
-    paragraph = []
+    blocks: list[Block] = []
+    paragraph: list[str] = []
 
-    def flush():
+    def flush() -> None:
         if paragraph:
             blocks.append(("para", None, paragraph[:]))
             paragraph.clear()
@@ -388,7 +411,7 @@ def parse_blocks(lines, base_indent):
             i += 1
             continue
         flush()
-        content = []
+        content: list[str] = []
         i += 1
         while i < len(lines):
             next_line = lines[i]
@@ -396,26 +419,26 @@ def parse_blocks(lines, base_indent):
                 break
             content.append(next_line)
             i += 1
-        blocks.append((match.lastgroup, stripped, content))
+        blocks.append((match.lastgroup or "para", stripped, content))
     flush()
     return blocks
 
 
 class SiteRenderer:
-    def __init__(self, model, output_dir, ice_version, base_url):
+    def __init__(self, model: Model, output_dir: Path, ice_version: str, base_url: str) -> None:
         self.model = model
         self.output_dir = output_dir
         self.ice_version = ice_version
         self.base_url = base_url
-        self.pages = []
+        self.pages: list[str] = []
 
-    def write_page(self, file_name, title, main):
+    def write_page(self, file_name: str, title: str, main: str) -> None:
         canonical = f'<link rel="canonical" href="{self.base_url}{file_name}">\n' if self.base_url else ""
         text = PAGE_TEMPLATE.format(title=esc(title), canonical=canonical, version=esc(self.ice_version), main=main)
         (self.output_dir / file_name).write_text(text, encoding="utf-8")
         self.pages.append(file_name)
 
-    def render_site(self):
+    def render_site(self) -> None:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         for cls in self.model.classes.values():
             self.render_class(cls)
@@ -424,7 +447,7 @@ class SiteRenderer:
         self.render_index()
         self.render_sitemap()
 
-    def render_class(self, cls):
+    def render_class(self, cls: dict[str, Any]) -> None:
         name = cls["name"]
         renderer = HelpRenderer(self.model, context_class=name)
         parts = [f"<h1>{esc(name)}{self._badges(cls)}</h1>"]
@@ -434,23 +457,23 @@ class SiteRenderer:
         parts.append(renderer.render(cls["help"], name, heading_level=2))
 
         if cls["enumerationMembers"]:
-            rows = []
+            rows: list[str] = []
             for member in cls["enumerationMembers"]:
                 description = renderer.render(member["help"], member["name"], heading_level=6)
                 rows.append(
                     f'<tr id="{member["name"]}"><td><code>{esc(member["name"])}</code></td>'
-                    f'<td>{member["value"]:g}</td><td>{description}</td></tr>'
+                    f"<td>{member['value']:g}</td><td>{description}</td></tr>"
                 )
             parts.append("<h2>Enumeration Members</h2>")
             parts.append(
                 '<table class="enum"><thead><tr><th>Member</th><th>Value</th><th>Description</th></tr></thead>'
-                f'<tbody>{"".join(rows)}</tbody></table>'
+                f"<tbody>{''.join(rows)}</tbody></table>"
             )
 
         constructor = cls.get("constructor")
         if constructor and constructor["help"]:
             parts.append("<h2>Constructor</h2>")
-            parts.append(self._render_member(renderer, constructor, static=False))
+            parts.append(self._render_member(renderer, constructor, name, static=False, is_constructor=True))
 
         own_properties = [p for p in cls["properties"] if p["definingClass"] == name]
         if own_properties:
@@ -462,32 +485,70 @@ class SiteRenderer:
         if own_methods:
             parts.append("<h2>Method Details</h2>")
             for method in sorted(own_methods, key=lambda m: m["name"].lower()):
-                parts.append(self._render_member(renderer, method, static=method["static"]))
+                parts.append(self._render_member(renderer, method, name, static=method["static"]))
 
         parts.append(self._render_inherited(cls, "methods", "Methods"))
         parts.append(self._render_inherited(cls, "properties", "Properties"))
 
         self.write_page(f"{name}.html", f"{name} - Ice for MATLAB API Reference", "\n".join(p for p in parts if p))
 
-    def _badges(self, cls):
-        badges = []
+    def _badges(self, cls: dict[str, Any]) -> str:
+        badges: list[str] = []
         if cls["kind"] == "enum":
             badges.append("Enumeration")
         if cls["abstract"]:
             badges.append("Abstract")
         return "".join(f' <span class="badge">{badge}</span>' for badge in badges)
 
-    def _class_link(self, name):
+    def _class_link(self, name: str) -> str:
         page = self.model.page(name)
         return f'<a href="{page}">{esc(name)}</a>' if page else f"<code>{esc(name)}</code>"
 
-    def _render_member(self, renderer, member, static):
-        badge = ' <span class="badge">Static</span>' if static else ""
-        body = renderer.render(member["help"], member["name"], heading_level=4)
-        return f'<section class="member" id="{member["name"]}"><h3>{esc(member["name"])}{badge}</h3>{body}</section>'
+    def _signature(self, renderer: HelpRenderer, member: dict[str, Any], class_name: str, is_constructor: bool) -> str:
+        """The calling syntax of a method, reconstructed from its documented arguments.
 
-    def _render_property(self, renderer, prop):
-        badges = []
+        The metaclass argument names are unusable here: any method with an arguments block reports a single
+        "varargin" input. The documented Input Arguments and Output Arguments entries are authoritative.
+        """
+        inputs, name_value, outputs = renderer.argument_lists(member["help"])
+        if is_constructor:
+            callee = class_name
+            outputs = ["obj"]
+        elif member["static"]:
+            callee = f"{class_name}.{member['name']}"
+        else:
+            callee = member["name"]
+            inputs = ["obj"] + inputs
+        if name_value:
+            inputs = inputs + ["Name=Value"]
+        if not outputs:
+            outputs = [name for name in member.get("outputs", []) if name != "varargout"]
+        if not outputs:
+            left = ""
+        elif len(outputs) == 1:
+            left = f"{outputs[0]} = "
+        else:
+            left = f"[{', '.join(outputs)}] = "
+        return f'<pre class="syntax">{esc(f"{left}{callee}({', '.join(inputs)})")}</pre>'
+
+    def _render_member(
+        self,
+        renderer: HelpRenderer,
+        member: dict[str, Any],
+        class_name: str,
+        static: bool,
+        is_constructor: bool = False,
+    ) -> str:
+        badge = ' <span class="badge">Static</span>' if static else ""
+        signature = self._signature(renderer, member, class_name, is_constructor)
+        body = renderer.render(member["help"], member["name"], heading_level=4)
+        return (
+            f'<section class="member" id="{member["name"]}">'
+            f"<h3>{esc(member['name'])}{badge}</h3>{signature}{body}</section>"
+        )
+
+    def _render_property(self, renderer: HelpRenderer, prop: dict[str, Any]) -> str:
+        badges: list[str] = []
         if prop["constant"]:
             badges.append("Constant")
         if prop["dependent"]:
@@ -498,8 +559,8 @@ class SiteRenderer:
         body = renderer.render(prop["help"], prop["name"], heading_level=4)
         return f'<section class="member" id="{prop["name"]}"><h3>{esc(prop["name"])}{rendered}</h3>{body}</section>'
 
-    def _render_inherited(self, cls, group, label):
-        by_class = {}
+    def _render_inherited(self, cls: dict[str, Any], group: str, label: str) -> str:
+        by_class: dict[str, list[str]] = {}
         for member in cls[group]:
             defining = member["definingClass"]
             if defining != cls["name"] and defining in self.model.classes:
@@ -515,7 +576,7 @@ class SiteRenderer:
             parts.append(f'<p class="inherited">From {self._class_link(defining)}: {links}</p>')
         return "\n".join(parts)
 
-    def render_function(self, function):
+    def render_function(self, function: dict[str, Any]) -> None:
         name = function["name"]
         renderer = HelpRenderer(self.model, context_class=name)
         parts = [f"<h1>{esc(name)}</h1>"]
@@ -524,19 +585,19 @@ class SiteRenderer:
         parts.append(renderer.render(function["help"], name, heading_level=2))
         self.write_page(f"{name}.html", f"{name} - Ice for MATLAB API Reference", "\n".join(parts))
 
-    def render_index(self):
+    def render_index(self) -> None:
         renderer = HelpRenderer(self.model)
-        parts = [f"<h1>Ice for MATLAB API Reference</h1>"]
+        parts = ["<h1>Ice for MATLAB API Reference</h1>"]
         for package in self.model.api["packages"]:
-            parts.append(f'<h2>{esc(package["name"])}</h2>')
-            groups = {}
+            parts.append(f"<h2>{esc(package['name'])}</h2>")
+            groups: dict[str, list[dict[str, Any]]] = {}
             for cls in package["classes"]:
                 groups.setdefault(self.model.category(cls), []).append(cls)
             for group_name in ("Classes", "Proxies", "Exceptions", "Enumerations"):
                 if group_name not in groups:
                     continue
                 parts.append(f"<h3>{group_name}</h3>")
-                items = []
+                items: list[str] = []
                 for cls in sorted(groups[group_name], key=lambda c: c["name"]):
                     summary = renderer.summary(cls["help"], cls["name"])
                     items.append(f'<li><a href="{cls["name"]}.html">{esc(cls["name"])}</a> &mdash; {summary}</li>')
@@ -555,11 +616,13 @@ class SiteRenderer:
             items = []
             for function in sorted(self.model.api["functions"], key=lambda f: f["name"]):
                 summary = renderer.summary(function["help"], function["name"])
-                items.append(f'<li><a href="{function["name"]}.html">{esc(function["name"])}</a> &mdash; {summary}</li>')
+                items.append(
+                    f'<li><a href="{function["name"]}.html">{esc(function["name"])}</a> &mdash; {summary}</li>'
+                )
             parts.append(f'<ul class="members">{"".join(items)}</ul>')
         self.write_page("index.html", "Ice for MATLAB API Reference", "\n".join(parts))
 
-    def render_sitemap(self):
+    def render_sitemap(self) -> None:
         if not self.base_url:
             return
         urls = "\n".join(f"  <url><loc>{self.base_url}{page}</loc></url>" for page in sorted(self.pages))
@@ -571,8 +634,10 @@ class SiteRenderer:
         (self.output_dir / "sitemap.xml").write_text(text, encoding="utf-8")
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Render matlab-api.json (produced by extractapi.m) into a static HTML API reference."
+    )
     parser.add_argument("--input", required=True, type=Path, help="path to matlab-api.json")
     parser.add_argument("--output", required=True, type=Path, help="output directory for the static site")
     parser.add_argument("--ice-version", required=True, help="Ice version displayed in the page header")

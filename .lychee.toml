@@ -37,6 +37,8 @@ exclude = [
     "^https?://dotnet\\.microsoft\\.com",
     # Symbol server
     "^https?://symbols\\.zeroc\\.com",
+    # Not published yet: goes live with the first main-branch CI run after the PR that adds it merges
+    "^https?://code\\.zeroc\\.com/ice/main/api/matlab",
 ]
 
 # Exclude paths from being checked
