@@ -125,7 +125,7 @@ slice2cpp_generate(<target>
   [HEADER_OUTPUT_DIR <dir>]   # put the headers here instead of with the sources
   [INCLUDE_DIR <dir>]         # slice2cpp --include-dir
   [INCLUDE_SCOPE <scope>]     # PRIVATE (default) or PUBLIC
-  [DEPENDS <dep>...]          # extra DEPENDS on each generation command
+  [DEPENDS <dep>...]          # files or targets the generation commands depend on
   [GENERATED_HEADERS <var>]   # out: absolute paths of the generated headers
   [GENERATED_SOURCES <var>]   # out: absolute paths of the generated sources
 )
