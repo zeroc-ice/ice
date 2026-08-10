@@ -51,8 +51,9 @@
 # so a mirrored header set has to be installed with its subdirectories - install(FILES) flattens
 # them, leaving those includes unresolvable.
 #
-# DEPENDENCIES adds DEPENDS edges to every generation command, for .ice files produced by another
-# custom command.
+# DEPENDENCIES adds DEPENDS edges to every generation command. A .ice file produced by a custom
+# command in this directory orders itself; DEPENDENCIES covers the producers that cannot, such as
+# a custom target driving generation in another directory.
 #
 # Ice::slice2cpp is the compiler, found next to the package. Presetting the Ice_SLICE2CPP_EXECUTABLE
 # cache variable overrides it, for cross-compiling with a host slice2cpp.
