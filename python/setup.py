@@ -105,7 +105,7 @@ def filter_source(filename: str):
     if sys.platform == "win32":
         for exclude in ["SysLoggerI", "OpenSSL", "SecureTransport", "Service"]:
             if exclude in filename:
-                # Skip SysLoggerI, OpenSSL and SecureTransport on Windows
+                # Skip SysLoggerI, OpenSSL, SecureTransport and Service on Windows
                 return False
     elif sys.platform == "darwin":
         for exclude in ["Schannel", "OpenSSL", "bzip2-"]:
