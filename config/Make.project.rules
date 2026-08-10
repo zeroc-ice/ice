@@ -950,7 +950,6 @@ currentdir      = $(call dirname,$(lastword $(MAKEFILE_LIST)))
 unique          = $(strip $(if $1,$(firstword $1) $(call unique,$(filter-out $(firstword $1),$1))))
 runique         = $(strip $(if $1,$(lastword $1) $(call runique,$(filter-out $(lastword $1),$1))))
 files-to-dirs   = $(call unique,$(call dirname,$(filter $(if $2,$(addprefix %.,$2),%),$1)))
-join-with       = $(subst $(space),$1,$(strip $2))
 
 empty           :=
 space           := $(empty) $(empty)

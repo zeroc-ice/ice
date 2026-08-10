@@ -13,7 +13,6 @@ from Util import (
     Mapping,
     Process,
     ProcessFromBinDir,
-    ProcessIsReleaseOnly,
     Props,
     Server,
     TestCase,
@@ -23,7 +22,7 @@ from Util import (
 )
 
 
-class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
+class Glacier2Router(ProcessFromBinDir, Server):
     # icehashpassword.py only emits sha512-crypt (Linux) and PBKDF2-sha256 (macOS/Windows), so schemes like
     # bcrypt need pre-hashed entries. This is a known-answer bcrypt hash of "abc123" (cost 4); the
     # Glacier2/router test authenticates against it where the native crypt library supports bcrypt.
