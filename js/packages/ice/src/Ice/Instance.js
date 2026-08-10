@@ -28,7 +28,6 @@ export class Instance {
         this._outgoingConnectionFactory = null;
         this._objectAdapterFactory = null;
         this._retryQueue = null;
-        this._endpointHostResolver = null;
         this._endpointFactoryManager = null;
     }
 }

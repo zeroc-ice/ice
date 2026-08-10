@@ -18,9 +18,6 @@ install:
 distclean clean: npminstall
 	$(NPM) run clean
 
-lint: npminstall
-	$(NPM) run lint
-
 npminstall:
 	$(NPM) install
 

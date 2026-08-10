@@ -16,7 +16,6 @@ export class Buffer {
             this._limit = 0;
         }
         this._position = 0;
-        this._shrinkCounter = 0;
     }
 
     empty() {
