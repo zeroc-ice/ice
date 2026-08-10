@@ -103,17 +103,17 @@ def filter_source(filename: str):
         return False
 
     if sys.platform == "win32":
-        for exclude in ["SysLoggerI", "OpenSSL", "SecureTransport", "Service", "DLLMain"]:
+        for exclude in ["SysLoggerI", "OpenSSL", "SecureTransport", "Service"]:
             if exclude in filename:
-                # Skip SysLoggerI, OpenSSL and SecureTransport on Windows
+                # Skip SysLoggerI, OpenSSL, SecureTransport and Service on Windows
                 return False
     elif sys.platform == "darwin":
-        for exclude in ["DLLMain", "Schannel", "OpenSSL", "bzip2-"]:
+        for exclude in ["Schannel", "OpenSSL", "bzip2-"]:
             if exclude in filename:
                 # Skip Schannel, OpenSSL and bzip2 on macOS
                 return False
     else:
-        for exclude in ["DLLMain", "Schannel", "SecureTransport", "bzip2-"]:
+        for exclude in ["Schannel", "SecureTransport", "bzip2-"]:
             if exclude in filename:
                 # Skip Schannel, SecureTransport and bzip2 on Linux
                 return False
