@@ -184,6 +184,11 @@ function(slice2cpp_generate target)
     set(${arg_GENERATED_SOURCES} "" PARENT_SCOPE)
   endif()
 
+  # Function scopes inherit the caller's variables, so the accumulators must start empty here or a
+  # caller's variable of the same name leaks into the result.
+  set(generated_headers "")
+  set(generated_sources "")
+
   get_target_property(sources ${target} SOURCES)
   if(NOT sources)
     return()
@@ -295,7 +300,12 @@ function(slice2cpp_generate target)
       get_property(owner GLOBAL PROPERTY ${owner_property})
       if(owner)
         if(owner STREQUAL "${target}|${slice_file_path}")
-          # The same .ice listed twice for this target.
+          # The same .ice seen before: listed twice for this target, or a repeated call. The rule
+          # already exists; report the files without recreating it.
+          if(NOT header_file IN_LIST generated_headers)
+            list(APPEND generated_headers ${header_file})
+            list(APPEND generated_sources ${source_file})
+          endif()
           continue()
         endif()
         message(FATAL_ERROR
