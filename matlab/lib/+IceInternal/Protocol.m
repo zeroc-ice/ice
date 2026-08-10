@@ -12,7 +12,6 @@ classdef (Hidden) Protocol
 
         OPTIONAL_END_MARKER        = uint8(255)
 
-        Encoding_1_0 = Ice.EncodingVersion(1, 0)
         Encoding_1_1 = Ice.EncodingVersion(1, 1)
     end
 end

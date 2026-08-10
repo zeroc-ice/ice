@@ -1003,7 +1003,10 @@ DataReaderI::queue(
     const chrono::time_point<chrono::system_clock>& now,
     bool checkKey)
 {
-    if (_config->facet && *_config->facet != facet)
+    // The writer forwards a sample once per destination facet, and this reader is attached to exactly one of them:
+    // the facet it configured for its sample filter, or the unfaceted destination when it has no sample filter.
+    // Accept only the copy addressed to this reader's destination.
+    if (_config->facet ? *_config->facet != facet : !facet.empty())
     {
         if (_traceLevels->data > 2)
         {

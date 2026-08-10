@@ -123,21 +123,18 @@ classdef (Hidden) EncapsDecoder11 < IceInternal.EncapsDecoder
             if current.sliceType == IceInternal.SliceType.ValueSlice
                 % Must be checked first!
                 if bitand(current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT
-                    current.typeIdIndex = -1;
                     current.compactId = is.readSize();
                     current.typeId = int2str(current.compactId);
                 elseif bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_INDEX)
                     typeIdIndex = is.readSize();
-                    current.typeIdIndex = typeIdIndex;
                     current.typeId = obj.getTypeId(typeIdIndex);
                     current.compactId = -1;
                 elseif bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_STRING)
-                    [current.typeIdIndex, current.typeId] = obj.readTypeId();
+                    current.typeId = obj.readTypeId();
                     current.compactId = -1;
                 else
                     % Only the most derived slice encodes the type ID for the compact format.
                     current.typeId = '';
-                    current.typeIdIndex = -1;
                     current.compactId = -1;
                 end
             else

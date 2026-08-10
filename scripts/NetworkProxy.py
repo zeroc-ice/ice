@@ -7,7 +7,7 @@ import socket
 import threading
 import time
 
-# The remote address a connection proxies to, and the peer address accept() reports.
+# The remote address a connection proxies to, as read from the connect request.
 Address = tuple[str, int]
 
 
@@ -16,10 +16,9 @@ class InvalidRequest(Exception):
 
 
 class BaseConnection(threading.Thread):
-    def __init__(self, sock: socket.socket, remote: Address):
+    def __init__(self, sock: socket.socket):
         threading.Thread.__init__(self)
         self.socket: socket.socket | None = sock
-        self.remote = remote
         self.remoteSocket: socket.socket | None = None
         self.closed = False
 
@@ -102,7 +101,7 @@ class BaseProxy(threading.Thread):
         if self.failed:
             raise self.failed
 
-    def createConnection(self, sock: socket.socket, peer: Address) -> BaseConnection:
+    def createConnection(self, sock: socket.socket) -> BaseConnection:
         # Overridden to build the protocol specific connection.
         raise NotImplementedError()
 
@@ -133,8 +132,8 @@ class BaseProxy(threading.Thread):
         try:
             assert self.socket is not None
             while not self.closed:
-                incoming, peer = self.socket.accept()
-                connection = self.createConnection(incoming, peer)
+                incoming, _ = self.socket.accept()
+                connection = self.createConnection(incoming)
                 connection.start()
                 with self.cond:
                     self.connections.append(connection)
@@ -200,8 +199,8 @@ class SocksConnection(BaseConnection):
 
 
 class SocksProxy(BaseProxy):
-    def createConnection(self, sock: socket.socket, peer: Address) -> BaseConnection:
-        return SocksConnection(sock, peer)
+    def createConnection(self, sock: socket.socket) -> BaseConnection:
+        return SocksConnection(sock)
 
 
 class HttpConnection(BaseConnection):
@@ -253,5 +252,5 @@ class HttpConnection(BaseConnection):
 
 
 class HttpProxy(BaseProxy):
-    def createConnection(self, sock: socket.socket, peer: Address) -> BaseConnection:
-        return HttpConnection(sock, peer)
+    def createConnection(self, sock: socket.socket) -> BaseConnection:
+        return HttpConnection(sock)

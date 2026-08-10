@@ -5,7 +5,6 @@ classdef (Hidden) EncapsEncoder10 < IceInternal.EncapsEncoder
         function obj = EncapsEncoder10(os, encaps)
             obj@IceInternal.EncapsEncoder(os, encaps);
             obj.sliceType = IceInternal.SliceType.NoSlice;
-            obj.valueIdIndex = 0;
             obj.toBeMarshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             obj.marshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
         end
@@ -132,7 +131,6 @@ classdef (Hidden) EncapsEncoder10 < IceInternal.EncapsEncoder
     properties (Access = private)
         sliceType
         writeSlice
-        valueIdIndex
         toBeMarshaledMap
         marshaledMap
     end

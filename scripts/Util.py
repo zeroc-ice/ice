@@ -700,7 +700,6 @@ class Mapping(object):
             self.worker = False
             self.coverage = False
             self.dotnet = False
-            self.framework = ""
             self.android = False
             self.jacoco = ""
             self.device = ""
@@ -961,17 +960,6 @@ class Mapping(object):
             cls.mappings[name] = m
         else:
             cls.disabled[name] = m
-
-    @classmethod
-    def disable(cls, name: str) -> None:
-        m = cls.mappings[name]
-        if m:
-            cls.disabled[name] = m
-            del cls.mappings[name]
-
-    @classmethod
-    def remove(cls, name: str) -> None:
-        del cls.mappings[name]
 
     @classmethod
     def getAll(cls, driver: Driver | None = None, includeDisabled: bool = False) -> list[Mapping]:
@@ -1564,9 +1552,6 @@ class Process(Runnable):
     def isFromBinDir(self) -> bool:
         return False
 
-    def isReleaseOnly(self) -> bool:
-        return False
-
     def getArgs(self, current: Driver.Current) -> Args:
         return []
 
@@ -1709,18 +1694,7 @@ class ProcessFromBinDir:
         return True
 
 
-#
-# Executables for processes inheriting this marker class are only provided
-# as a Release executable on Windows
-#
-
-
-class ProcessIsReleaseOnly:
-    def isReleaseOnly(self) -> bool:
-        return True
-
-
-class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
+class SliceTranslator(ProcessFromBinDir, SimpleClient):
     def __init__(self, translator: str, quiet: bool = False):
         SimpleClient.__init__(self, exe=translator, quiet=quiet, mapping=Mapping.getByName("cpp"))
 
@@ -3585,8 +3559,6 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
 
 class iOSDeviceProcessController(RemoteProcessController):
-    appPath = "cpp/test/ios/controller/build"
-
     def __init__(self, current: Driver.Current):
         RemoteProcessController.__init__(self, current, None)
 
@@ -3896,7 +3868,6 @@ class Driver:
         languages = ",".join(os.environ.get("LANGUAGES", "").split(" "))
         self.languages = [languages] if languages else []
         self.rlanguages: list[str] = []
-        self.failures: list[Any] = []
         self.keepLogs = False
         self.interface = ""
         self.configs: dict[Mapping, Mapping.Config]

@@ -291,6 +291,18 @@ def allTests(helper, communicator)
     end
     puts "ok"
 
+    print "testing stringification... "
+    STDOUT.flush
+    s = Test::S.new("hello")
+    test(s.to_s == s.inspect)
+    test(s.to_s == "\n{\n    str = 'hello'\n}")
+    b = Test::Base.new(Test::S.new("hello"), "base")
+    test(b.to_s == b.inspect)
+    test(b.to_s.include?("::Test::Base"))
+    test(b.to_s.include?("str = 'hello'"))
+    test(b.to_s.include?("str = 'base'"))
+    puts "ok"
+
     print "testing GC compaction during unmarshaling... "
     STDOUT.flush
     begin

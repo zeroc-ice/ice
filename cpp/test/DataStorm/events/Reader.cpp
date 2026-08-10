@@ -435,6 +435,23 @@ void ::Reader::run(int argc, char* argv[])
         }
     }
 
+    // An unfiltered reader and a sample-filtered reader on the same key of the same writer. The writer forwards a
+    // matching sample to the filtered reader's facet as well as to the unfaceted destination, and the unfiltered
+    // reader must receive it once: the writer publishes "a" and then "b", so this reader reads "a" then "b".
+    {
+        Topic<string, string> topic(node, "unfilteredWithSampleFilter");
+
+        auto plain = makeSingleKeyReader(topic, "elem", "", config);
+        auto filtered = makeSingleKeyReader(topic, "elem", Filter<string>("contains", "a"), "", config);
+
+        test(plain.getNextUnread().getValue() == "a");
+        test(plain.getNextUnread().getValue() == "b");
+        test(!plain.hasUnread());
+
+        test(filtered.getNextUnread().getValue() == "a");
+        test(!filtered.hasUnread());
+    }
+
     // Coexisting any-key and filtered readers on the same topic: each keeps its own subscription. Both receive a
     // sample matching the filter, and destroying the filtered reader leaves the any-key reader subscribed.
     {
