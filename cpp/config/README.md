@@ -138,6 +138,10 @@ Only the `.ice` files in the target's own sources are compiled. `INCLUDE_DIRS` m
 file included from a shared directory needs a target of its own that compiles it, which this target then links to pick
 up its headers.
 
+`--header-ext` and `--source-ext` in `OPTIONS` are honored; options that relocate the outputs or suppress generation
+are rejected. Contradicting `cpp:header-ext` metadata is a build-time error, and `cpp:source-ext` metadata is not
+supported.
+
 Generated files are placed under `<current binary dir>/generated/<target>`; with `HEADER_OUTPUT_DIR`, the headers are
 placed under `HEADER_OUTPUT_DIR[/INCLUDE_DIR]` instead. When a Slice file includes another, e.g.
 `#include <Demo/Weather.ice>`, the generated code includes the corresponding generated header by the same path,
