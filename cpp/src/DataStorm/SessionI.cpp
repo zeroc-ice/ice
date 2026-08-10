@@ -592,7 +592,22 @@ SessionI::initSamples(int64_t topicId, int64_t peerTopicId, DataSamplesSeq initi
                     }
                     else
                     {
-                        key = topic->getKeyFactory()->decode(_instance->getCommunicator(), sample.keyValue);
+                        try
+                        {
+                            key = topic->getKeyFactory()->decode(_instance->getCommunicator(), sample.keyValue);
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            // The key factory runs the application's decoder. Abandon the batch and leave the reader
+                            // uninitialized, like the unknown-key case below, so a later redelivery can still
+                            // initialize it. The session protocol is fire-and-forget, so a local warning is the only
+                            // way to report the failure.
+                            Warning out(_traceLevels->logger);
+                            out << "discarded the initialization samples for '" << element
+                                << "': the key could not be decoded:\n"
+                                << ex.what();
+                            return;
+                        }
                     }
 
                     assert(key);
@@ -1471,12 +1486,34 @@ SessionI::subscriberInitialized(
             // key.
             assert(sample.keyId == 0 || key == subscriber.findKey(sample.keyId));
 
+            shared_ptr<Key> sampleKey = key;
+            if (!sampleKey)
+            {
+                try
+                {
+                    sampleKey = keyFactory->decode(_instance->getCommunicator(), sample.keyValue);
+                }
+                catch (const std::exception& ex)
+                {
+                    // The key factory runs the application's decoder. Abandon these samples and keep the subscriber's
+                    // previous state, so the peer still offers them on the next initialization. Returning instead of
+                    // letting the exception escape confines the failure to this element: the other elements in the
+                    // ack are still attached and initialized. The session protocol is fire-and-forget, so a local
+                    // warning is the only way to report the failure.
+                    Warning out(_traceLevels->logger);
+                    out << "discarded the initialization samples for '" << element
+                        << "': the key could not be decoded:\n"
+                        << ex.what();
+                    return {};
+                }
+            }
+
             samplesI.push_back(sampleFactory->create(
                 _id,
                 elementSubscribers->name,
                 sample.id,
                 sample.event,
-                key ? key : keyFactory->decode(_instance->getCommunicator(), sample.keyValue),
+                sampleKey,
                 subscriber.findTag(sample.tag),
                 sample.value,
                 sample.timestamp));
