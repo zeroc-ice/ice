@@ -31,10 +31,13 @@ namespace
                 if (auto session = _nodeSessionManager->getSession(
                         Identity{.name = current.id.name.substr(pos + 1), .category = ""}))
                 {
-                    // Forward the call to the target session, don't need to wait for the result.
+                    // Forward the call to the target session, don't need to wait for the result. The facet is part
+                    // of the addressing and is carried over: a writer addresses a sample-filtered reader under a
+                    // facet of its own, and the reader discards a sample that does not arrive under it.
                     Identity id{.name = current.id.name.substr(0, pos), .category = current.id.category.substr(0, 1)};
                     session->getConnection()
                         ->createProxy(std::move(id))
+                        ->ice_facet(current.facet)
                         ->ice_invokeAsync(
                             current.operation,
                             current.mode,

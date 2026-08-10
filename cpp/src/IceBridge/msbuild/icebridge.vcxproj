@@ -83,5 +83,8 @@
   <ItemGroup>
     <ClCompile Include="..\IceBridge.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Ice\msbuild\ice\ice.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

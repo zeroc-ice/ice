@@ -31,6 +31,14 @@ class Client(TestHelper):
         ok, _ = f.result()
         test(ok)
 
+        # ice_invokeAsync on a oneway or batch oneway proxy completes with (True, b"").
+        f = hello.ice_oneway().ice_invokeAsync("ice_ping", Ice.OperationMode.Normal, b"")
+        assert isinstance(f, Ice.Future)
+        test(f.result() == (True, b""))
+        f = hello.ice_batchOneway().ice_invokeAsync("ice_ping", Ice.OperationMode.Normal, b"")
+        assert isinstance(f, Ice.Future)
+        test(f.result() == (True, b""))
+
         # ice_invoke/ice_invokeAsync with the context passed as a keyword argument. The router's blobject records the
         # context it receives, so a dropped context is caught here rather than silently ignored.
         ok, _ = hello.ice_invoke("ice_ping", Ice.OperationMode.Normal, b"", ctx={"ctx": "sync"})

@@ -129,20 +129,6 @@ namespace IcePHP
         zval* _zv;
     };
 
-    class AutoReleaseString
-    {
-    public:
-        AutoReleaseString(zend_string* s) : _s(s) {}
-        ~AutoReleaseString()
-        {
-            if (_s)
-                zend_string_release(_s);
-        }
-
-    private:
-        zend_string* _s;
-    };
-
 } // End of namespace IcePHP
 
 #endif

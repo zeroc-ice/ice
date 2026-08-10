@@ -157,6 +157,16 @@
       <SliceCompileSource>..\..\Internal.ice</SliceCompileSource>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Ice\msbuild\ice\ice.vcxproj" />
+    <ProjectReference Include="..\..\..\IceBox\msbuild\iceboxlib\iceboxlib.vcxproj" />
+    <ProjectReference Include="..\..\..\IceGridLib\msbuild\icegrid\icegrid.vcxproj" />
+    <ProjectReference Include="..\..\..\IceLocatorDiscovery\msbuild\icelocatordiscovery\icelocatordiscovery.vcxproj" />
+    <ProjectReference Include="..\..\..\slice2cpp\msbuild\slice2cpp.vcxproj">
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\ZeroC.Expat.2.4.1\build\native\ZeroC.Expat.targets" Condition="Exists('..\..\..\..\msbuild\packages\ZeroC.Expat.2.4.1\build\native\ZeroC.Expat.targets')" />

@@ -123,7 +123,6 @@ endif
 ifneq ($(filter %.ice $2/%.$7,$4),)
 # Rules to build generated sources from <srcdir>/generated
 $3/%.o: $2/%.$7
-$3/%.o: $2/%.$7
 	$(E) "Compiling [$8-$9] $$<"
 	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@)\
 	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
@@ -132,7 +131,6 @@ endif
 
 ifneq ($(filter %.cpp,$4),)
 # Rules to build C++ sources from <srcdir>
-$3/%.o: $1/%.cpp
 $3/%.o: $1/%.cpp
 	$(E) "Compiling [$8-$9] $$<"
 	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@)\
@@ -143,7 +141,6 @@ endif
 ifneq ($(filter %.mm,$4),)
 # Rules to build Objective-C++ sources from <srcdir>
 $3/%.o: $1/%.mm
-$3/%.o: $1/%.mm
 	$(E) "Compiling [$8-$9] $$<"
 	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@)\
 	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
@@ -152,7 +149,6 @@ endif
 
 ifneq ($(filter %.m,$4),)
 # Rules to build Objective-C sources from <srcdir>
-$3/%.o: $1/%.m
 $3/%.o: $1/%.m
 	$(E) "Compiling [$8-$9] $$<"
 	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@)\
@@ -189,7 +185,7 @@ endef
 #
 define make-bison
 $1/%.h $1/%.cpp: $1/%.y
-	@$(RM) $$*.h $$*.cpp
+	@$(RM) $1/$$*.h $1/$$*.cpp
 	bison -tv $2 --header=$1/$$*.h -o $1/$$*.cpp $$<
 	@$(RM) $1/$$*.output
 endef
@@ -213,6 +209,7 @@ define make-static-library
 $2/$(call mklibname,$1,$3,$4): $5
 	$(E) "Linking [$8-$9] $$@"
 	$(Q)$(MKDIR) -p $2
+	@$(RM) $$@
 	$(Q)$(call mklib,$2/$(call mklibname,$1,$3,$4),$(strip $5),$1,$3,$4,$(LDFLAGS) $(strip $7),$8)
 endef
 
@@ -224,7 +221,7 @@ $(DESTDIR)$5/$(call mklibname,$1,$3,$4): $2/$(call mklibname,$1,$3,$4) | $(DESTD
 endef
 
 # $(call get-static-library-targets,$1=libname,$2=libdir,$3=version,$4=soversion,$5=devinstall)
-get-static-library-targets = $(if $2,$2/$(call mklibname,$1))
+get-static-library-targets = $(if $2,$2/$(call mklibname,$1,$3,$4))
 
 #
 # $(call make-shared-library,$1=libname,$2=libdir,$3=version,$4=soversion,$5=objects,$6=dependencies,$7=ldflags,
@@ -678,7 +675,7 @@ $2_distclean::
 #
 ifeq ($$($2_devinstall),yes)
 ifneq ($$(and $$($2_components),$(filter library,$3),$$(filter $(includedir)/%,$$($2_includedir))),)
-$$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h) $$(wildcard $$($2_includedir)/**/*.h),$(includedir),$(install_includedir),$2_install))
+$$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h) $$(wildcard $$($2_includedir)/*/*.h),$(includedir),$(install_includedir),$2_install))
 ifeq ($$($2_install_generated_headers),yes)
 ifneq ($$($2_generated_headers),)
 $$(eval $$(call install-data-files,$$($2_generated_headers),$(includedir)/generated,$(install_includedir),$2_install))
@@ -949,11 +946,10 @@ is-system-install       ?= $(filter $(system-install-dir),$1)
 # Helper functions
 #
 dirname         = $(patsubst %/,%,$(if $(findstring /,$1),$(dir $1)))
-currentdir      = $(call dirname,$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
+currentdir      = $(call dirname,$(lastword $(MAKEFILE_LIST)))
 unique          = $(strip $(if $1,$(firstword $1) $(call unique,$(filter-out $(firstword $1),$1))))
 runique         = $(strip $(if $1,$(lastword $1) $(call runique,$(filter-out $(lastword $1),$1))))
 files-to-dirs   = $(call unique,$(call dirname,$(filter $(if $2,$(addprefix %.,$2),%),$1)))
-join-with       = $(subst $(space),$1,$(strip $2))
 
 empty           :=
 space           := $(empty) $(empty)
@@ -1181,5 +1177,6 @@ install::
 #
 # Rule to view the value of a variable (e.g.: make debug V=Ice_sources to print out the variable Ice_sources).
 #
+.PHONY: print
 print:
 	$(foreach v,$(filter $(V),$(.VARIABLES)),$(warning $v = $($v)))

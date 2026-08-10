@@ -448,6 +448,14 @@
     <ClInclude Include="..\..\..\..\include\IceGrid\IceGrid.h" />
     <ClInclude Include="..\..\..\..\include\IceGrid\ReplicaGroupFilter.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Glacier2Lib\msbuild\glacier2\glacier2.vcxproj" />
+    <ProjectReference Include="..\..\..\Ice\msbuild\ice\ice.vcxproj" />
+    <ProjectReference Include="..\..\..\slice2cpp\msbuild\slice2cpp.vcxproj">
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>

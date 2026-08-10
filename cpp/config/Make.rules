@@ -105,7 +105,7 @@ $(create-test-project)
 endef
 
 #
-# Create top-level include/config dir
+# Create the config dir where templates.xml is installed.
 #
-$(DESTDIR)$(install_includedir) $(DESTDIR)$(install_configdir):
-	$(Q)$(MKDIR) $@
+$(DESTDIR)$(install_configdir):
+	$(Q)$(MKDIR) -p $@

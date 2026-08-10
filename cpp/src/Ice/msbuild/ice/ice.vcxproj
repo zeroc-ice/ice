@@ -537,7 +537,6 @@ mc -h "$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice" -r $
     <ClCompile Include="..\..\FixedRequestHandler.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />
     <ClCompile Include="..\..\DefaultsAndOverrides.cpp" />
-    <ClCompile Include="..\..\DLLMain.cpp" />
     <ClCompile Include="..\..\DynamicLibrary.cpp" />
     <ClCompile Include="..\..\EndpointFactory.cpp" />
     <ClCompile Include="..\..\EndpointFactoryManager.cpp" />
@@ -1028,6 +1027,12 @@ mc -h "$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice" -r $
   <ItemGroup>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertyDict.ice" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\slice2cpp\msbuild\slice2cpp.vcxproj">
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2009,8 +2009,7 @@ ServerInstanceHelper::getReplicaGroups(set<string>& replicaGroups) const
 
 NodeHelper::NodeHelper(string name, NodeDescriptor descriptor, const Resolver& appResolve, bool instantiate)
     : _name(std::move(name)),
-      _def(std::move(descriptor)),
-      _instantiated(instantiate)
+      _def(std::move(descriptor))
 {
     if (_name.empty())
     {
@@ -2249,7 +2248,6 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 void
 NodeHelper::getIds(multiset<string>& serverIds, multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
-    assert(_instantiated);
     for (const auto& serverInstance : _serverInstances)
     {
         serverIds.insert(serverInstance.first);
@@ -2265,7 +2263,6 @@ NodeHelper::getIds(multiset<string>& serverIds, multiset<string>& adapterIds, mu
 void
 NodeHelper::getReplicaGroups(set<string>& replicaGroups) const
 {
-    assert(_instantiated);
     for (const auto& serverInstance : _serverInstances)
     {
         serverInstance.second.getReplicaGroups(replicaGroups);
@@ -2285,14 +2282,12 @@ NodeHelper::getDefinition() const
 const NodeDescriptor&
 NodeHelper::getInstance() const
 {
-    assert(_instantiated);
     return _instance;
 }
 
 void
 NodeHelper::getServerInfos(const string& app, const string& uuid, int revision, map<string, ServerInfo>& servers) const
 {
-    assert(_instantiated);
     for (const auto& serverInstance : _serverInstances)
     {
         ServerInfo info;
@@ -2318,8 +2313,6 @@ NodeHelper::getServerInfos(const string& app, const string& uuid, int revision, 
 void
 NodeHelper::print(Output& out) const
 {
-    assert(_instantiated);
-
     out << nl << "node '" << _name << "'";
     out << sb;
     if (!_instance.loadFactor.empty())
@@ -2382,8 +2375,6 @@ NodeHelper::print(Output& out) const
 void
 NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
 {
-    assert(_instantiated);
-
     ServerInstanceHelperDict updated1 = getDictUpdatedElts(helper._serverInstances, _serverInstances);
     Ice::StringSeq removed1 = getDictRemovedElts(helper._serverInstances, _serverInstances);
     ServerInstanceHelperDict updated2 = getDictUpdatedElts(helper._servers, _servers);

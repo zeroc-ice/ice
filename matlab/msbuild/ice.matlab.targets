@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0"
-    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Target Name="SliceCompile">
         <MakeDir Directories="@(SliceCompile->'%(OutputDir)')"/>
-        <Exec Command="&quot;$(IceToolsPath)\slice2matlab.exe&quot; --output-dir %(SliceCompile.OutputDir) -I&quot;$(IceHome)\slice&quot; %(SliceCompile.AdditionalOptions) @(SliceCompile->'%(Identity)', ' ')" />
+        <Exec Command="&quot;$(IceToolsPath)\slice2matlab.exe&quot; --output-dir &quot;%(SliceCompile.OutputDir)&quot; -I&quot;$(IceHome)\slice&quot; %(SliceCompile.AdditionalOptions) @(SliceCompile->'&quot;%(Identity)&quot;', ' ')" />
     </Target>
 
+    <!-- The output directories contain only generated code. -->
     <Target Name="SliceCompileClean">
-        <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).m')" />
+        <RemoveDir Directories="@(SliceCompile->'%(OutputDir)')" />
     </Target>
 </Project>

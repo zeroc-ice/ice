@@ -73,6 +73,10 @@
   <ItemGroup>
     <ClCompile Include="..\..\Admin.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Ice\msbuild\ice\ice.vcxproj" />
+    <ProjectReference Include="..\iceboxlib\iceboxlib.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -10,16 +10,15 @@
         <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
     </PropertyGroup>
 
-    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
     <PropertyGroup>
         <CppDistTargets>slice2py;icediscovery;icelocatordiscovery;glacier2router</CppDistTargets>
     </PropertyGroup>
 
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.common.targets" />
 
     <!-- Restore NuGet packages -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.slnx"/>
+        <Exec Command="&quot;$(NuGetExe)&quot; restore &quot;$(MSBuildThisFileDirectory)ice.slnx&quot;"/>
     </Target>
 
     <ItemDefinitionGroup>
@@ -43,7 +42,9 @@
 
     <ItemGroup>
         <TestSliceCompile Include="$(MSBuildThisFileDirectory)..\test\**\*.ice">
-            <OutputDir>$(MSBuildThisFileDirectory)..\test\%(RecursiveDir)</OutputDir>
+            <!-- Trim the trailing backslash from RecursiveDir so that the quoted output -->
+            <!-- directory argument doesn't end in a backslash-escaped quote. -->
+            <OutputDir>$(MSBuildThisFileDirectory)..\test\$([System.String]::Copy('%(RecursiveDir)').TrimEnd('\'))</OutputDir>
         </TestSliceCompile>
     </ItemGroup>
 
@@ -54,7 +55,7 @@
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.slnx"
                  Properties="Platform=Any CPU;Configuration=$(Configuration)" />
 
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.slnx"/>
+        <Exec Command="&quot;$(NuGetExe)&quot; restore &quot;$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.slnx&quot;"/>
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.slnx"
                  Targets="$(CppDistTargets)"
                  BuildInParallel="true"
@@ -68,7 +69,7 @@
 
     <Target Name="Build" DependsOnTargets="BuildDist">
         <MakeDir Directories="@(TestSliceCompile->'%(OutputDir)')"/>
-        <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\cpp\bin\$(Platform)\$(Configuration)\slice2py.exe&quot; --output-dir %(TestSliceCompile.OutputDir) -I&quot;$(IceHome)\slice&quot; @(TestSliceCompile->'%(Identity)', ' ')" />
+        <Exec Command="&quot;$(IceToolsPath)\slice2py.exe&quot; --output-dir &quot;%(TestSliceCompile.OutputDir)&quot; -I&quot;$(IceHome)\slice&quot; @(TestSliceCompile->'&quot;%(Identity)&quot;', ' ')" />
     </Target>
 
     <Target Name="Clean">
@@ -78,12 +79,21 @@
     </Target>
 
     <Target Name="SliceCompile" BeforeTargets="BuildDist"
-            Condition="@(SliceCompile) != ''">
-        <MakeDir Directories="$(SliceCompileOutputDir)"/>
-        <Exec Command="$(IceToolsPath)\slice2py.exe --output-dir %(SliceCompile.OutputDir) -I$(IceHome)\slice %(SliceCompile.AdditionalOptions) @(SliceCompile->'%(Identity)', ' ')" />
+            Condition="'@(SliceCompile)' != ''">
+        <Exec Command="&quot;$(IceToolsPath)\slice2py.exe&quot; --output-dir &quot;%(SliceCompile.OutputDir)&quot; -I&quot;$(IceHome)\slice&quot; %(SliceCompile.AdditionalOptions) @(SliceCompile->'&quot;%(Identity)&quot;', ' ')" />
     </Target>
 
     <Target Name="SliceCompileClean" BeforeTargets="Clean">
+        <!-- These packages contain only generated code, except for the py.typed marker files. -->
+        <!-- The generated modules in the Ice package are not removed; they are enumerated only -->
+        <!-- in the python/python .gitignore. -->
+        <ItemGroup>
+            <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\Glacier2\**\*.py"/>
+            <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\IceBox\**\*.py"/>
+            <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\IceGrid\**\*.py"/>
+            <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\IceMX\**\*.py"/>
+            <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\IceStorm\**\*.py"/>
+        </ItemGroup>
         <Delete Files="@(PythonGenerated)"/>
     </Target>
 </Project>

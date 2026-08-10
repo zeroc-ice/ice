@@ -16,6 +16,7 @@
       <NoWarn>NU5100</NoWarn>
       <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
       <PackageTags>ice;rpc;msbuild;slice</PackageTags>
+      <PackageIcon>slice-logo-128x128.png</PackageIcon>
 
       <!-- Internal properties used to compute the slice2cs compiler location for the current platform. -->
       <_IceOSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</_IceOSName>
@@ -32,7 +33,7 @@
       <Content Include="ZeroC.Ice.Slice.Tools.targets" Pack="true" PackagePath="build/" />
       <None Include="$(OutputPath)/$(AssemblyName).dll" Pack="true" PackagePath="tasks/" Visible="false" />
       <Content Include="README.md" Pack="true" PackagePath="/" />
-      <Content Include="$(MSBuildThisFileDirectory)../../../assets/logo-128x128.png" Pack="true" PackagePath="/" />
+      <Content Include="$(MSBuildThisFileDirectory)../../../assets/slice-logo-128x128.png" Pack="true" PackagePath="/" />
     </ItemGroup>
 
     <ItemGroup>

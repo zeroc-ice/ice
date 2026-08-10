@@ -91,7 +91,6 @@ namespace IceGrid
 
     protected:
         void printObjectAdapter(const Ice::CommunicatorPtr&, IceInternal::Output&, const AdapterDescriptor&) const;
-        void printPropertySet(IceInternal::Output&, const PropertySetDescriptor&) const;
         [[nodiscard]] virtual std::string getProperty(const std::string&) const;
 
         void instantiateImpl(const std::shared_ptr<CommunicatorDescriptor>&, const Resolver&) const;
@@ -265,12 +264,9 @@ namespace IceGrid
         void printDiff(IceInternal::Output&, const NodeHelper&) const;
 
     private:
-        [[nodiscard]] NodeDescriptor instantiate(const Resolver&) const;
-
         std::string _name;
         NodeDescriptor _def;
         NodeDescriptor _instance;
-        bool _instantiated;
 
         using ServerInstanceHelperDict = std::map<std::string, ServerInstanceHelper>;
         ServerInstanceHelperDict _serverInstances;
