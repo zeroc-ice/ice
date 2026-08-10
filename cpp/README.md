@@ -1,6 +1,6 @@
 # Ice for C++
 
-[Examples] | [Documentation] | [API Reference] | [Building from source]
+[Examples] | [Documentation] | [API Reference] | [Building from source] | [CMake package]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
@@ -115,4 +115,5 @@ namespace Server
 [Documentation]: https://docs.zeroc.com/ice/latest/cpp
 [API Reference]: https://code.zeroc.com/ice/main/api/cpp/index.html
 [Building from source]: ./BUILDING.md
+[CMake package]: ./config/README.md
 [Ice framework]: https://github.com/zeroc-ice/ice

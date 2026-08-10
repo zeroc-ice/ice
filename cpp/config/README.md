@@ -49,8 +49,8 @@ set(Ice_ROOT "${CMAKE_CURRENT_LIST_DIR}/packages/ZeroC.Ice.Cpp.<version>")
 find_package(Ice REQUIRED CONFIG)
 ```
 
-The package ships both Debug and Release binaries, and the `Ice_WIN32_PLATFORM` cache variable (`x64`, the default, or
-`Win32`) selects the platform within it.
+The package ships both Debug and Release binaries, and the `Ice_WIN32_PLATFORM` cache variable (`x64` or `Win32`)
+selects the platform within it. It defaults to the build architecture, so it only needs setting to cross the two.
 
 The Ice DLLs are not on the `PATH`, so copy them next to the executable at build time. The `ICE_RUNTIME_DLLS` property
 on `Ice::Ice` lists the ones Ice needs that CMake does not track itself, such as bzip2:
@@ -58,9 +58,10 @@ on `Ice::Ice` lists the ones Ice needs that CMake does not track itself, such as
 ```cmake
 if(WIN32)
   add_custom_command(TARGET client POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:client>
+    COMMAND ${CMAKE_COMMAND} -E copy
       $<TARGET_RUNTIME_DLLS:client>
       $<GENEX_EVAL:$<TARGET_PROPERTY:Ice::Ice,ICE_RUNTIME_DLLS>>
+      $<TARGET_FILE_DIR:client>
     COMMAND_EXPAND_LISTS
   )
 endif()
@@ -86,8 +87,7 @@ Components present in the installation are always available; listing them in `fi
 additionally makes them required.
 
 The package also defines two imported executables, neither of which is a component: `Ice::slice2cpp`, the compiler
-`slice2cpp_generate` runs, and on Windows `Ice::icebox_EXE`. Both are always defined and cannot be listed in
-`COMPONENTS`.
+`slice2cpp_generate` runs, and on Windows `Ice::icebox_EXE`. Neither can be listed in `COMPONENTS`.
 
 ## Result Variables
 
@@ -110,7 +110,8 @@ release it precedes.
 yourself.
 
 Use `Ice_SLICE2CPP_EXECUTABLE` where generator expressions are unavailable, such as at configure time. A build-time
-custom command should prefer `$<TARGET_FILE:Ice::slice2cpp>`, which also makes the command depend on the compiler.
+custom command should prefer `$<TARGET_FILE:Ice::slice2cpp>` in its `COMMAND`, and list it in `DEPENDS` so the
+command re-runs when the compiler changes.
 
 ## Compiling Slice Files
 
