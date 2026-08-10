@@ -32,20 +32,20 @@ namespace DataStorm
         Priority
     };
 
-    /// The clear history policy specifies when the history is cleared. The history can be cleared based on the
-    /// event of the received sample.
+    /// The clear history policy specifies when a reader or writer clears its sample history. A sample is added to
+    /// the history when the writer writes it, and when the reader receives it.
     enum struct ClearHistoryPolicy
     {
-        /// Clear the sample history when an Add sample is received.
+        /// Clear the sample history when an Add sample is added to the history.
         OnAdd,
 
-        /// Clear the sample history when a Remove sample is received.
+        /// Clear the sample history when a Remove sample is added to the history.
         OnRemove,
 
-        /// Clear the sample history when a new sample is received.
+        /// Clear the sample history when a new sample is added to the history. This is the default policy.
         OnAll,
 
-        /// Clear the sample history when a new sample which is not a partial update is received.
+        /// Clear the sample history when a new sample which is not a partial update is added to the history.
         OnAllExceptPartialUpdate,
 
         /// Never clear the sample history. Only Config::sampleCount and Config::sampleLifetime then bound the
@@ -84,8 +84,8 @@ namespace DataStorm
         /// from the history. By default, the samples are kept for an unlimited amount of time.
         std::optional<int> sampleLifetime;
 
-        /// The clear history policy specifies when samples are removed from the sample history. By default,
-        /// samples are removed when a new sample is received which effectively disables the sample history.
+        /// The clear history policy specifies when the sample history is cleared. By default, the sample history
+        /// is cleared when a new sample is added, which effectively disables the sample history.
         std::optional<ClearHistoryPolicy> clearHistory;
     };
 
