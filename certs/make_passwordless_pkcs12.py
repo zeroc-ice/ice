@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-"""Write a PKCS#12 file with an empty password that Apple's Security framework accepts.
+"""Write a PKCS#12 file with an empty password that macOS accepts.
 
 RFC 7292 gives two incompatible answers for an empty password. Appendix B.1 says every password is a BMPString
 whose last character is "followed by 2 additional bytes with the value 0x00", which makes the empty password two
 0x00 bytes. Appendix B.2 step 3, deriving the key, instead notes that "if the password is the empty string, then
-so is P" -- a zero-length block. The two produce different keys, so a file written under one reading fails MAC
-verification under the other.
+so is P" -- a zero-length block. Read strictly, B.1 is the formatting step and B.2 works on its output, so B.1
+wins; implementations disagree anyway. The two produce different keys, so a file written under one reading fails
+MAC verification under the other.
 
-`openssl pkcs12 -export -passout pass:` writes the two-byte form, as do keytool and python-cryptography. Apple
-accepts only the zero-length form: SecItemImport reports errSecPassphraseRequired (-25260) or
-errSecPkcs12VerifyFailure (-25264) for the two-byte form, and SecPKCS12Import reports errSecAuthFailed
-(-25293). This script writes the zero-length form, which every reader we care about accepts -- OpenSSL,
-Security framework, Java KeyStore, .NET, and python-cryptography.
+`openssl pkcs12 -export -passout pass:` writes the two-byte form, as do keytool and python-cryptography.
+OpenSSL, Schannel, Java KeyStore and .NET read both forms. The two Apple platforms each read only one, and not
+the same one: macOS takes only the zero-length form (SecItemImport reports errSecPassphraseRequired (-25260) or
+errSecPkcs12VerifyFailure (-25264), SecPKCS12Import errSecAuthFailed (-25293), for the two-byte form), while
+iOS takes only the two-byte form and rejects the zero-length one with errSecAuthFailed (-25293).
+
+This script writes the zero-length form, so its output is the fixture for macOS; the openssl-generated
+`*_password_less.p12` files remain the fixture for iOS.
 
 The private key must go in a pkcs8ShroudedKeyBag: with a plain, unencrypted keyBag, SecPKCS12Import returns
 the certificate but no identity, and Java's KeyStore reports no aliases at all.
@@ -38,39 +42,39 @@ except ImportError:
 # --- DER encoding -----------------------------------------------------------------------------------------
 
 
-def _length(n):
+def _length(n: int) -> bytes:
     if n < 0x80:
         return bytes([n])
     encoded = n.to_bytes((n.bit_length() + 7) // 8, "big")
     return bytes([0x80 | len(encoded)]) + encoded
 
 
-def tlv(tag, body):
+def tlv(tag: int, body: bytes) -> bytes:
     return bytes([tag]) + _length(len(body)) + body
 
 
-def seq(*parts):
+def seq(*parts: bytes) -> bytes:
     return tlv(0x30, b"".join(parts))
 
 
-def octets(body):
+def octets(body: bytes) -> bytes:
     return tlv(0x04, body)
 
 
-def integer(value):
+def integer(value: int) -> bytes:
     return tlv(0x02, value.to_bytes(max(1, (value.bit_length() + 8) // 8), "big"))
 
 
-def null():
+def null() -> bytes:
     return b"\x05\x00"
 
 
-def explicit(index, body):
+def explicit(index: int, body: bytes) -> bytes:
     """[index] EXPLICIT body"""
     return tlv(0xA0 | index, body)
 
 
-def oid(dotted):
+def oid(dotted: str) -> bytes:
     parts = [int(part) for part in dotted.split(".")]
     body = bytes([parts[0] * 40 + parts[1]])
     for part in parts[2:]:
@@ -94,8 +98,8 @@ OID_LOCAL_KEY_ID = oid("1.2.840.113549.1.9.21")
 
 # --- RFC 7292 appendix B.2 key derivation ---------------------------------------------------------------
 
-# The empty password, encoded as a zero-length byte string rather than as a zero-length BMPString. This single
-# value is what makes the output importable on Apple platforms.
+# The empty password, encoded as a zero-length block rather than as the two 0x00 bytes of a NULL-terminated
+# empty BMPString. This single value is what makes the output importable on macOS.
 EMPTY_PASSWORD = b""
 
 PURPOSE_KEY = 1
@@ -106,10 +110,10 @@ _DIGEST_SIZE = 20  # SHA-1
 _BLOCK_SIZE = 64  # SHA-1
 
 
-def derive(salt, iterations, length, purpose):
+def derive(salt: bytes, iterations: int, length: int, purpose: int) -> bytes:
     """RFC 7292 appendix B.2, specialized to SHA-1 and an empty password."""
 
-    def fill(data):
+    def fill(data: bytes) -> bytes:
         # v * ceil(len(data) / v) bytes of data repeated. An empty input stays empty, which is exactly how the
         # zero-length password differs from the two-byte one.
         if not data:
@@ -137,7 +141,7 @@ def derive(salt, iterations, length, purpose):
     return output[:length]
 
 
-def encrypt(plaintext, salt, iterations):
+def encrypt(plaintext: bytes, salt: bytes, iterations: int) -> bytes:
     """pbeWithSHA1And3-KeyTripleDES-CBC"""
     key = derive(salt, iterations, 24, PURPOSE_KEY)
     iv = derive(salt, iterations, 8, PURPOSE_IV)
@@ -146,11 +150,11 @@ def encrypt(plaintext, salt, iterations):
     return encryptor.update(plaintext + bytes([padding]) * padding) + encryptor.finalize()
 
 
-def pbe_algorithm(salt, iterations):
+def pbe_algorithm(salt: bytes, iterations: int) -> bytes:
     return seq(OID_PBE_SHA1_3DES, seq(octets(salt), integer(iterations)))
 
 
-def local_key_id(value):
+def local_key_id(value: bytes) -> bytes:
     """A localKeyId attribute, so that readers can pair the certificate with its private key.
 
     Without it the file still loads, but `openssl pkcs12 -clcerts` and PKCS12_parse cannot tell which
@@ -162,7 +166,7 @@ def local_key_id(value):
 # --- PKCS#12 ----------------------------------------------------------------------------------------------
 
 
-def build(key_pem, certificate_pem, iterations=2048):
+def build(key_pem: bytes, certificate_pem: bytes, iterations: int = 2048) -> bytes:
     key = serialization.load_pem_private_key(key_pem, password=None)
     certificate = x509.load_pem_x509_certificate(certificate_pem)
 
@@ -215,7 +219,7 @@ def build(key_pem, certificate_pem, iterations=2048):
     return seq(integer(3), seq(OID_DATA, explicit(0, octets(authenticated_safe))), mac_data)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--inkey", required=True, help="PEM private key file")
     parser.add_argument("--in", dest="certificate", required=True, help="PEM certificate file")

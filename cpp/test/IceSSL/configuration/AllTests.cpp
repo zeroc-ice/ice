@@ -1254,8 +1254,9 @@ testEncryptedKey(const string&, const Ice::PropertiesPtr&)
 // Load a PKCS12 certificate whose password is empty, with IceSSL.Password left empty too.
 //
 // certBaseName selects one of the two password-less fixtures in certs/configuration/ca1. They differ only in how
-// the empty password is encoded before it is fed to the PKCS12 key derivation function: RFC 7292 appendix B.1
-// makes it two 0x00 bytes, appendix B.2 makes it a zero-length block. See certs/README.md.
+// the empty password is encoded before it is fed to the PKCS12 key derivation function: "password_less" uses the
+// two 0x00 bytes of RFC 7292 appendix B.1, "null_password" the zero-length block of appendix B.2 step 3. See
+// certs/README.md.
 void
 testPasswordLessCert(const string& factoryRef, const Ice::PropertiesPtr& defaultProps, const string& certBaseName)
 {
@@ -2465,10 +2466,15 @@ allTests(Test::TestHelper* helper, const string& defaultDir, bool p12)
     testEncryptedKey(factory, defaultProps);
     if (p12)
     {
-        // Encoded as a zero-length block, which every platform accepts.
+        // The two Apple platforms accept opposite encodings of the empty password, and reject the other one with
+        // errSecAuthFailed (-25293), so each one gets the single fixture it can read.
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
         testPasswordLessCert(factory, defaultProps, "null_password");
-#ifndef ICE_USE_SECURE_TRANSPORT
-        // Encoded as two 0x00 bytes, which Apple's Security framework rejects.
+#elif defined(ICE_USE_SECURE_TRANSPORT_IOS)
+        testPasswordLessCert(factory, defaultProps, "password_less");
+#else
+        // OpenSSL and Schannel read both.
+        testPasswordLessCert(factory, defaultProps, "null_password");
         testPasswordLessCert(factory, defaultProps, "password_less");
 #endif
     }
