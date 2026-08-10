@@ -7,6 +7,34 @@ def test(b)
 end
 
 def allTests(helper, communicator)
+    print "testing exception inspect... "
+    STDOUT.flush
+
+    ex = Test::C.new
+    ex.aMem = 1
+    ex.bMem = 2
+    ex.cMem = 3
+    s = ex.inspect
+    test(s.include?("exception ::Test::C"))
+    test(s.include?("aMem = 1"))
+    test(s.include?("bMem = 2"))
+    test(s.include?("cMem = 3"))
+
+    ex = Test::Mod::A.new
+    ex.aMem = 1
+    ex.a2Mem = 2
+    s = ex.inspect
+    test(s.include?("exception ::Test::Mod::A"))
+    test(s.include?("aMem = 1"))
+    test(s.include?("a2Mem = 2"))
+
+    # Members that were never assigned print as <not defined>.
+    s = Test::A.new.inspect
+    test(s.include?("exception ::Test::A"))
+    test(s.include?("aMem = <not defined>"))
+
+    puts "ok"
+
     print "testing stringToProxy... "
     STDOUT.flush
     ref = "thrower:#{helper.getTestEndpoint()}"

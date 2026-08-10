@@ -389,8 +389,9 @@ namespace DataStorm
 
         /// Sets a key filter factory. The given factory function must return a filter function that returns `true` if
         /// the key matches the filter criteria, `false` otherwise.
-        /// Register all key filters before creating any reader or writer for this topic: the set of filters is not
-        /// synchronized, so modifying it once the topic is in use races with the Ice threads that use the topic.
+        /// Register all key filter factories before creating any reader or writer for this topic: the set of
+        /// factories is not synchronized, so modifying it once the topic is in use races with the Ice threads that
+        /// use the topic.
         /// @param name The name of the key filter.
         /// @param factory The filter factory function.
         template<typename Criteria>
@@ -400,8 +401,15 @@ namespace DataStorm
 
         /// Sets a sample filter factory. The given factory function must return a filter function that returns `true`
         /// if the sample matches the filter criteria, `false` otherwise.
-        /// Register all sample filters before creating any reader or writer for this topic: the set of filters is not
-        /// synchronized, so modifying it once the topic is in use races with the Ice threads that use the topic.
+        /// Register all sample filter factories before creating any reader or writer for this topic: the set of
+        /// factories is not synchronized, so modifying it once the topic is in use races with the Ice threads that
+        /// use the topic.
+        /// A sample filter interacts with partial updates: a writer sends only the samples a reader's filter matches,
+        /// so the reader can receive a partial update for a key whose full value it never received. The reader has
+        /// nothing to resolve such updates against and discards them until it receives a full value for the key. And
+        /// when the filter rejects some samples for a key but a later partial update matches, the reader applies that
+        /// update to the last value it received for the key — not to the value the writer computed the update
+        /// against — so the reader's value can silently diverge from the writer's.
         /// @param name The name of the sample filter.
         /// @param factory The filter factory function.
         template<typename Criteria>
@@ -782,6 +790,9 @@ namespace DataStorm
         /// returned function is called: a full value was written for the key and the key was not since removed.
         /// Calling the returned function for a key with no current value is an application error that throws
         /// std::logic_error and publishes nothing.
+        /// A reader that uses a sample filter receives only the samples its filter matches: such a reader can lack
+        /// a current value for the key even though the writer has one, and it discards partial updates until it
+        /// receives a full value for the key. See Topic::setSampleFilter.
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag);
@@ -848,6 +859,9 @@ namespace DataStorm
         /// returned function is called: a full value was written for the key and the key was not since removed.
         /// Calling the returned function for a key with no current value is an application error that throws
         /// std::logic_error and publishes nothing.
+        /// A reader that uses a sample filter receives only the samples its filter matches: such a reader can lack
+        /// a current value for the key even though the writer has one, and it discards partial updates until it
+        /// receives a full value for the key. See Topic::setSampleFilter.
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag);

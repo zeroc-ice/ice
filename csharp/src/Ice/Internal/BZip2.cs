@@ -36,7 +36,6 @@ public static class BZip2
     private enum BzAction
     {
         Run = 0,
-        Flush = 1,
         Finish = 2
     }
 

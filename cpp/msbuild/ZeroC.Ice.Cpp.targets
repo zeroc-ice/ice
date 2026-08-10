@@ -7,7 +7,7 @@
         <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
 
         <!-- Set the debugger environment PATH to include the package bin directory for the selected configuration. -->
-        <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
+        <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration);%PATH%</LocalDebuggerEnvironment>
     </PropertyGroup>
 
     <!-- Import Slice Tools targets file -->

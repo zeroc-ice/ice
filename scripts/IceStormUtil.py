@@ -14,7 +14,6 @@ from Util import (
     Mapping,
     Process,
     ProcessFromBinDir,
-    ProcessIsReleaseOnly,
     Props,
     Server,
     TestCase,
@@ -221,7 +220,7 @@ class IceStormProcess(_IceStormProcessBase):
         return props
 
 
-class IceStormAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceStormProcess, Client):
+class IceStormAdmin(ProcessFromBinDir, IceStormProcess, Client):
     def __init__(
         self,
         instanceName: str | None = None,

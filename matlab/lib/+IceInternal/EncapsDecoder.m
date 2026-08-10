@@ -58,10 +58,9 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
                 throw(Ice.MarshalException('unknown type id index'));
             end
         end
-        function [typeIdIndex, typeId] = readTypeId(obj)
+        function typeId = readTypeId(obj)
             typeId = obj.is.readString();
             obj.typeIdMap{end + 1} = typeId;
-            typeIdIndex = length(obj.typeIdMap);
         end
         function r = newInstance(obj, typeId)
             r = obj.is.getCommunicator().getSliceLoader().newInstance(typeId);

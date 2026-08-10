@@ -942,10 +942,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         {
                             startCB = _startCallback;
                             _startCallback = null;
-                            if (startCB is not null)
-                            {
-                                ++upcallCount;
-                            }
+                            ++upcallCount;
                         }
                     }
                     else

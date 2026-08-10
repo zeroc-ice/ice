@@ -192,8 +192,6 @@ public class ByteBuffer
         return this;
     }
 
-    public bool getBool() => get() == 1;
-
     public void getBoolSeq(bool[] seq)
     {
         int len = System.Buffer.ByteLength(seq);

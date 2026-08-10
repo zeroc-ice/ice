@@ -21,6 +21,6 @@ $(slice2swift_artifactbundle): bin/slice2swift
 
 srcs all:: $(slice2swift_artifactbundle)
 
-clean::
+clean distclean::
 	$(E) Cleaning slice2swift artifact bundles
 	$(Q)$(RM) -r $(slice2swift_artifactbundle) $(slice2swift_artifactbundle_dir)

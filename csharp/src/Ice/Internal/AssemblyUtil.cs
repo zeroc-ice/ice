@@ -10,7 +10,6 @@ public static class AssemblyUtil
 {
     public static readonly bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     public static readonly bool isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-    public static readonly bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
     public static object createInstance(Type t)
     {

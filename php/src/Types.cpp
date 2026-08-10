@@ -2594,19 +2594,16 @@ IcePHP::ProxyInfo::getId() const
 bool
 IcePHP::ProxyInfo::validate(zval* zv, bool throwException)
 {
-    if (Z_TYPE_P(zv) != IS_NULL)
+    if (Z_TYPE_P(zv) != IS_NULL && (Z_TYPE_P(zv) != IS_OBJECT || Z_OBJCE_P(zv) != proxyClassEntry))
     {
-        if (Z_TYPE_P(zv) != IS_OBJECT || (Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) != proxyClassEntry))
+        if (throwException)
         {
-            if (throwException)
-            {
-                string s = zendTypeToString(Z_TYPE_P(zv));
-                ostringstream os;
-                os << "expected proxy value or null but received " << s;
-                invalidArgument(os.str());
-            }
-            return false;
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            ostringstream os;
+            os << "expected proxy value or null but received " << s;
+            invalidArgument(os.str());
         }
+        return false;
     }
 
     return true;

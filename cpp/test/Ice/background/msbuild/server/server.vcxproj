@@ -100,6 +100,10 @@
     <ClInclude Include="..\..\Configuration.h" />
     <ClInclude Include="..\..\TestI.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Common\msbuild\testcommon.vcxproj" />
+    <ProjectReference Include="..\testtransport\testtransport.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

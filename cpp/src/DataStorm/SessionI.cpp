@@ -218,12 +218,7 @@ SessionI::attachTopic(TopicSpec spec, const Current&)
                 // If the topic spec has tags, decode them and add them to the subscriber.
                 if (!spec.tags.empty())
                 {
-                    auto& subscriber = _topics.at(spec.id).getSubscriber(topic);
-                    for (const auto& tag : spec.tags)
-                    {
-                        subscriber.tags[tag.id] =
-                            topic->getTagFactory()->decode(_instance->getCommunicator(), tag.value);
-                    }
+                    decodeTags(topic, spec.tags, _topics.at(spec.id).getSubscriber(topic).tags);
                 }
 
                 // Provide the local tags to the remote topic by calling attachTagsAsync.
@@ -318,24 +313,7 @@ SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, cons
             // every tag is decoded; the subscriber keeps its current tags until then. Any other call adds to the tags
             // the subscriber already holds, and decodes into them directly.
             map<int64_t, shared_ptr<Tag>> replacement;
-            auto& decoded = initialize ? replacement : subscriber.tags;
-            for (const auto& tag : tags)
-            {
-                try
-                {
-                    decoded[tag.id] = topic->getTagFactory()->decode(_instance->getCommunicator(), tag.value);
-                }
-                catch (const std::exception& ex)
-                {
-                    // The tag factory runs the application's decoder. Skip a tag it can't decode: the peer resends
-                    // its tags on reconnect; until then a partial update carrying the skipped tag resolves to the
-                    // key's current value.
-                    Warning out(_traceLevels->logger);
-                    out << "skipped update tag " << tag.id << " on topic '" << topic << "': the tag could not be "
-                        << "decoded:\n"
-                        << ex.what();
-                }
-            }
+            decodeTags(topic, tags, initialize ? replacement : subscriber.tags);
 
             if (initialize)
             {
@@ -1635,6 +1613,29 @@ SessionI::runWithTopic(
                 return;
             }
             callback(p->second);
+        }
+    }
+}
+
+void
+SessionI::decodeTags(
+    const shared_ptr<TopicI>& topic,
+    const ElementInfoSeq& tags,
+    map<int64_t, shared_ptr<Tag>>& decoded)
+{
+    for (const auto& tag : tags)
+    {
+        try
+        {
+            decoded[tag.id] = topic->getTagFactory()->decode(_instance->getCommunicator(), tag.value);
+        }
+        catch (const std::exception& ex)
+        {
+            // The tag factory runs the application's decoder. Skip a tag it can't decode rather than let it abandon
+            // the tags around it and the attach that carried them. The peer resends its tags on reconnect.
+            Warning out(_traceLevels->logger);
+            out << "skipped update tag " << tag.id << " on topic '" << topic << "': the tag could not be decoded:\n"
+                << ex.what();
         }
     }
 }

@@ -463,6 +463,19 @@ namespace DataStormI
             const std::shared_ptr<TopicI>& topic,
             const std::function<void(TopicSubscriber&)>& callback);
 
+        /// Decodes the update tags the peer sent for a topic and adds them to the given tag map.
+        ///
+        /// The tag factory runs the application's decoder, so a tag it rejects is skipped with a warning instead of
+        /// abandoning the tags around it and the attach that carried them. The peer resends its tags on reconnect.
+        ///
+        /// @param topic The topic the tags belong to.
+        /// @param tags The encoded tags received from the peer.
+        /// @param decoded The tag map the decoded tags are added to.
+        void decodeTags(
+            const std::shared_ptr<TopicI>& topic,
+            const DataStormContract::ElementInfoSeq& tags,
+            std::map<std::int64_t, std::shared_ptr<Tag>>& decoded);
+
         /// Returns the topics that match the specified name.
         ///
         /// This method is implemented by the derived classes `PublisherSessionI` and `SubscriberSessionI`:
