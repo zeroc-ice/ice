@@ -125,7 +125,7 @@ slice2cpp_generate(<target>
   [HEADER_OUTPUT_DIR <dir>]   # put the headers here instead of with the sources
   [INCLUDE_DIR <dir>]         # slice2cpp --include-dir
   [INCLUDE_SCOPE <scope>]     # PRIVATE (default) or PUBLIC
-  [DEPENDENCIES <dep>...]     # extra DEPENDS on each generation command
+  [DEPENDS <dep>...]          # extra DEPENDS on each generation command
   [GENERATED_HEADERS <var>]   # out: absolute paths of the generated headers
   [GENERATED_SOURCES <var>]   # out: absolute paths of the generated sources
 )
@@ -158,8 +158,8 @@ has no Slice files, and correspond by index. The paths keep the mirrored layout,
 neighbors by that layout — so a mirrored header set has to be installed with its subdirectories; `install(FILES)`
 flattens them, leaving those includes unresolvable.
 
-`DEPENDENCIES` adds `DEPENDS` edges to every generation command. A `.ice` file produced by a custom command in the
-same directory orders itself; `DEPENDENCIES` covers the producers that cannot, such as a custom target driving
+`DEPENDS` adds `DEPENDS` edges to every generation command. A `.ice` file produced by a custom command in the
+same directory orders itself; `DEPENDS` covers the producers that cannot, such as a custom target driving
 generation in another directory.
 
 For example, the following defines a library whose Slice files include files from a shared directory, and publishes

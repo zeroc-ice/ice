@@ -10,7 +10,7 @@
 #     [HEADER_OUTPUT_DIR <dir>]   # put the headers here instead of with the sources
 #     [INCLUDE_DIR <dir>]         # slice2cpp --include-dir
 #     [INCLUDE_SCOPE <scope>]     # PRIVATE (default) or PUBLIC
-#     [DEPENDENCIES <dep>...]     # extra DEPENDS on each generation command
+#     [DEPENDS <dep>...]          # extra DEPENDS on each generation command
 #     [GENERATED_HEADERS <var>]   # out: absolute paths of the generated headers
 #     [GENERATED_SOURCES <var>]   # out: absolute paths of the generated sources
 #   )
@@ -51,8 +51,8 @@
 # so a mirrored header set has to be installed with its subdirectories - install(FILES) flattens
 # them, leaving those includes unresolvable.
 #
-# DEPENDENCIES adds DEPENDS edges to every generation command. A .ice file produced by a custom
-# command in this directory orders itself; DEPENDENCIES covers the producers that cannot, such as
+# DEPENDS adds DEPENDS edges to every generation command. A .ice file produced by a custom
+# command in this directory orders itself; DEPENDS covers the producers that cannot, such as
 # a custom target driving generation in another directory.
 #
 # Ice::slice2cpp is the compiler, found next to the package. Presetting the Ice_SLICE2CPP_EXECUTABLE
@@ -73,7 +73,7 @@ cmake_policy(VERSION 3.21)
 function(slice2cpp_generate target)
   cmake_parse_arguments(PARSE_ARGV 1 arg ""
     "INCLUDE_SCOPE;HEADER_OUTPUT_DIR;INCLUDE_DIR;GENERATED_HEADERS;GENERATED_SOURCES"
-    "INCLUDE_DIRS;OPTIONS;DEPENDENCIES")
+    "INCLUDE_DIRS;OPTIONS;DEPENDS")
 
   if(NOT TARGET ${target})
     message(FATAL_ERROR "slice2cpp_generate: '${target}' is not a target.")
@@ -361,7 +361,7 @@ function(slice2cpp_generate target)
         COMMAND $<TARGET_FILE:Ice::slice2cpp> ${include_options} ${include_dir_options} ${arg_OPTIONS}
           ${slice_file_path} --output-dir ${file_output_dir}
         ${move_header_commands}
-        DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp> ${arg_DEPENDENCIES}
+        DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp> ${arg_DEPENDS}
         DEPFILE ${depfile}
         VERBATIM
         COMMENT "Compiling Slice ${file} -> ${output_dir_relative}/${slice_file_name}.${source_ext} ${header_dir_relative}/${slice_file_name}.${header_ext}"
