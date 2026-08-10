@@ -996,8 +996,7 @@ DataReaderI::queue(
 {
     // The writer forwards a sample once per destination facet, and this reader is attached to exactly one of them:
     // the facet it configured for its sample filter, or the unfaceted destination when it has no sample filter.
-    // Both sides are compared, so a reader without a facet accepts only an unfaceted sample: testing the facet
-    // only when this reader has one would also give it the copy addressed to a sample-filtered reader of the key.
+    // Accept only the copy addressed to this reader's destination.
     if (_config->facet ? *_config->facet != facet : !facet.empty())
     {
         if (_traceLevels->data > 2)
