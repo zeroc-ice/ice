@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <!-- Import Ice version properties -->
   <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.version.props" />
@@ -16,8 +16,8 @@
     <LangVersion>12.0</LangVersion>
     <RollForward>Major</RollForward>
     <WarningLevel>4</WarningLevel>
-     <!-- The 1.2 beta version is required for supporting the latest language features.
-            See: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/pull/3187 -->
+    <!-- The 1.2 beta version is required for supporting the latest language features.
+         See: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/pull/3187 -->
     <StyleCopAnalyzersVersion>1.2.0-beta.556</StyleCopAnalyzersVersion>
     <AnalysisMode>All</AnalysisMode>
   </PropertyGroup>
@@ -46,13 +46,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-      <DebugType>portable</DebugType>
       <Optimize>false</Optimize>
-      <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-      <DebugType>portable</DebugType>
       <Optimize>true</Optimize>
   </PropertyGroup>
 

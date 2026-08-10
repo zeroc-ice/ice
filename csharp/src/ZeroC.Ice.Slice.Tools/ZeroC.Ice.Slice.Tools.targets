@@ -80,7 +80,7 @@
     </ItemGroup>
 
     <Target Name="SliceCompile" BeforeTargets="CoreCompile"
-            Condition="@(SliceCompile) != ''">
+            Condition="'@(SliceCompile)' != ''">
 
         <Error Text="_IceSliceToolsPath is set to a non-existing directory: `$(_IceSliceToolsPath)'. Did you forget to build the slice2cs compiler?"
            Condition="!Exists('$(_IceSliceToolsPath)')" />
