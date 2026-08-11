@@ -7,6 +7,9 @@ namespace Ice.Instrumentation;
 /// <summary>
 /// The base interface for Ice observers.
 /// </summary>
+/// <remarks>The Ice runtime calls observers while updating its internal state and does not guard against exceptions
+/// they throw. Implementations of this interface and its derived interfaces must not throw exceptions: a thrown
+/// exception can leave the Ice runtime in an inconsistent state or terminate the process.</remarks>
 public interface Observer
 {
     /// <summary>
@@ -200,6 +203,15 @@ public interface ObserverUpdater
     void updateThreadObservers();
 }
 
+/// <summary>
+/// The communicator observer interface used by the Ice runtime to obtain and update observers for its observable
+/// objects. This interface should be implemented by add-ins that wish to observe Ice objects in order to collect
+/// statistics. An instance of this interface can be provided to the Ice runtime through the communicator
+/// initialization data.
+/// </summary>
+/// <remarks>The Ice runtime calls this interface while updating its internal state and does not guard against
+/// exceptions it throws. An implementation of this interface must not throw exceptions: a thrown exception can leave
+/// the Ice runtime in an inconsistent state or terminate the process.</remarks>
 public interface CommunicatorObserver
 {
     /// <summary>
