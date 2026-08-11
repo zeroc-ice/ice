@@ -1,6 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import functools
+import logging
 import random
 import sys
 import threading
@@ -33,6 +34,17 @@ class CloseCallbackI:
 
     def __call__(self, connection: Ice.Connection) -> None:
         pass
+
+
+class RecordingLogHandler(logging.Handler):
+    """A logging handler that keeps the records it receives, so a test can check what was logged."""
+
+    def __init__(self):
+        logging.Handler.__init__(self)
+        self.records: list[logging.LogRecord] = []
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self.records.append(record)
 
 
 class CallbackBase:
@@ -501,6 +513,39 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
     testController.resumeAdapter()
     for r in cbs:
         r.check()
+
+    print("ok")
+
+    sys.stdout.write("testing callback exception handling... ")
+    sys.stdout.flush()
+
+    # An exception raised by a done or sent callback must be caught and logged, and never propagate to the caller.
+    # This holds whether the callback was registered before or after the future completed / the request was sent.
+    def raiseInCallback(arg: Any) -> None:
+        raise RuntimeError("callback failure")
+
+    handler = RecordingLogHandler()
+    logger = logging.getLogger("Ice.Future")
+    logger.addHandler(handler)
+    propagate = logger.propagate
+    logger.propagate = False  # Keep the expected tracebacks out of the test output.
+    try:
+        pendingFuture = Ice.Future()
+        pendingFuture.add_done_callback(raiseInCallback)
+        pendingFuture.set_result(None)
+
+        Ice.Future.completed(None).add_done_callback(raiseInCallback)
+
+        sentFuture = cast(Ice.InvocationFuture, p.opAsync())
+        sentFuture.sent()
+        test(sentFuture.is_sent())
+        sentFuture.add_sent_callback(raiseInCallback)
+        sentFuture.result()
+    finally:
+        logger.propagate = propagate
+        logger.removeHandler(handler)
+
+    test(len(handler.records) == 3)
 
     print("ok")
 

@@ -102,6 +102,8 @@ class Future(Awaitable[_T]):
         Attaches a callback function which will be called when this future completes or is cancelled.
         If this future is already complete, ``fn`` is called immediately from the calling thread.
 
+        An exception raised by ``fn`` is caught and logged.
+
         Parameters
         ----------
         fn : Callable[[Future], Any]
@@ -111,7 +113,7 @@ class Future(Awaitable[_T]):
             if self._state == Future.StateRunning:
                 self._doneCallbacks.append(fn)
                 return
-        fn(self)
+        self._callCallbacks([fn])
 
     def result(self, timeout: int | float | None = None) -> _T:
         """
