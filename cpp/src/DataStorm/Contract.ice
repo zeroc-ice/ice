@@ -14,17 +14,17 @@ module DataStormContract
     /// @see DataSample
     enum ClearHistoryPolicy
     {
-        /// Clear the sample history when a SampleEvent::Add sample is added to the history.
+        /// Clear the sample history when a DataStorm::SampleEvent::Add sample is added to the history.
         OnAdd,
 
-        /// Clear the sample history when a SampleEvent::Remove sample is added to the history.
+        /// Clear the sample history when a DataStorm::SampleEvent::Remove sample is added to the history.
         OnRemove,
 
         /// Clear the sample history when a new sample is added to the history.
         OnAll,
 
-        /// Clear the sample history when a new sample which is not a SampleEvent::PartialUpdate sample is added to
-        /// the history.
+        /// Clear the sample history when a new sample which is not a DataStorm::SampleEvent::PartialUpdate sample is
+        /// added to the history.
         OnAllExceptPartialUpdate,
 
         /// Never clear the sample history.
