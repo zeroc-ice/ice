@@ -72,6 +72,13 @@ class Client extends TestHelper
         $reapCommunicator->destroy();
         test(Ice\find("Reap") == null);
 
+        // A communicator registered with an expiration time and never unregistered must still be destroyed at module
+        // shutdown. The reap task holds the only remaining reference at that point, so if it isn't cancelled the
+        // communicator survives and PHP reports "communicator not destroyed during global destruction."
+        $communicator = Ice\initialize();
+        Ice\register($communicator, "Hello9", 40000);
+        test(Ice\find('Hello9') != null);
+
         // A proxy keeps its communicator alive at the C++ level, but not the PHP object that wraps it. Once that PHP
         // object is freed, ice_getCommunicator must return a working communicator by re-wrapping the same underlying
         // communicator.
