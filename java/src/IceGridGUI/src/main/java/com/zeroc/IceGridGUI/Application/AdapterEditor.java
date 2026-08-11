@@ -551,9 +551,6 @@ class AdapterEditor extends CommunicatorChildEditor {
     private JComboBox _publishedEndpoints = new JComboBox(new Object[]{PUBLISH_ACTUAL});
     private JTextField _proxyOptions = new JTextField(20);
 
-    private JTextField _currentStatus = new JTextField(20);
-    private JTextField _currentEndpoints = new JTextField(20);
-
     private JCheckBox _serverLifetime;
 
     private ArrayMapField _objects;

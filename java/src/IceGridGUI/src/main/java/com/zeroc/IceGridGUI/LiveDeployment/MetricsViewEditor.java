@@ -1179,7 +1179,6 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         }
 
         private double _scaleFactor = 1.0d;
-        private String _columnName;
         private TableCellRenderer _cellRenderer;
         private final Map<String, Metrics> _deltas = new HashMap<>();
     }
@@ -1535,12 +1534,6 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                                                     .getCellRenderer());
                                     }
                                 }
-
-                                int idColumn =
-                                    table.getColumnModel()
-                                        .getColumnIndex(
-                                            _properties.getProperty(
-                                                prefix + ".id.columnName"));
 
                                 for (Metrics m : objects) {
                                     model.addMetrics(m, timestamp);
