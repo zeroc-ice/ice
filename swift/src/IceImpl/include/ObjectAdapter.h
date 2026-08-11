@@ -1,17 +1,14 @@
 // Copyright (c) ZeroC, Inc.
 #import "LocalObject.h"
 
-@class ICECommunicator;
 @class ICEObjectPrx;
 @class ICEEndpoint;
-@class ICEConnection;
 @protocol ICEDispatchAdapter;
 
 NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @interface ICEObjectAdapter : ICELocalObject
 - (NSString*)getName;
-- (ICECommunicator*)getCommunicator;
 - (BOOL)activate:(NSError* _Nullable* _Nonnull)error;
 - (void)hold;
 - (void)waitForHold;
