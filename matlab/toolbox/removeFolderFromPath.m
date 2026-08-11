@@ -2,7 +2,7 @@
 
 function removeFolderFromPath(p)
   try
-    fprintf(1, 'Removing toolxbox folder from path... ');
+    fprintf(1, 'Removing toolbox folder from path... ');
     rmpath(p);
     savepath();
     fprintf(1, 'ok\n');

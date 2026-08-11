@@ -242,19 +242,19 @@ IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
         throw FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
 
-    OVERLAPPED overlaped;
-    overlaped.Internal = 0;
-    overlaped.InternalHigh = 0;
-    overlaped.Offset = 0;
-    overlaped.OffsetHigh = 0;
+    OVERLAPPED overlapped;
+    overlapped.Internal = 0;
+    overlapped.InternalHigh = 0;
+    overlapped.Offset = 0;
+    overlapped.OffsetHigh = 0;
 
 #    if defined(_MSC_VER)
-    overlaped.hEvent = nullptr;
+    overlapped.hEvent = nullptr;
 #    else
-    overlaped.hEvent = 0;
+    overlapped.hEvent = 0;
 #    endif
 
-    if (::LockFileEx(_fd, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 0, 0, &overlaped) == 0)
+    if (::LockFileEx(_fd, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 0, 0, &overlapped) == 0)
     {
         ::CloseHandle(_fd);
         throw FileLockException(__FILE__, __LINE__, GetLastError(), _path);
