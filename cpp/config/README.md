@@ -157,8 +157,8 @@ generated headers. `PUBLIC` applies within the build tree only: these directorie
 installed interface, and installing the generated headers is the caller's responsibility.
 
 `GENERATED_HEADERS` and `GENERATED_SOURCES` name variables that receive the generated files' absolute paths, for
-installing the headers or setting source properties. Both lists are set in the caller's scope, empty when the target
-has no Slice files, and correspond by index:
+installing the headers or setting source properties. Both lists cover the files this call generated — empty when it
+generated none — are set in the caller's scope, and correspond by index:
 
 ```cmake
 slice2cpp_generate(weather_api INCLUDE_SCOPE PUBLIC GENERATED_HEADERS weather_api_headers)

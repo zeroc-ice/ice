@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 # slice2cpp_generate compiles the Slice (.ice) files in a target's sources and adds the generated
-# C++ to the target. README.md documents it.
+# C++ to the target. Documented at https://github.com/zeroc-ice/ice/blob/main/cpp/config/README.md
 
 # This file is loaded by every consumer of the Ice package, not only the ones that generate Slice.
 if(CMAKE_VERSION VERSION_LESS 3.21)
@@ -244,11 +244,8 @@ function(slice2cpp_generate target)
       if(owner)
         if(owner STREQUAL "${target}|${slice_file_path}")
           # The same .ice seen before: listed twice for this target, or a repeated call. The rule
-          # already exists; report the files without recreating it.
-          if(NOT header_file IN_LIST generated_headers)
-            list(APPEND generated_headers ${header_file})
-            list(APPEND generated_sources ${source_file})
-          endif()
+          # already exists, possibly with different options, so this call neither recreates nor
+          # reports it.
           continue()
         endif()
         message(FATAL_ERROR
