@@ -30,17 +30,24 @@ function allTests($helper)
     echo "testing that internal classes reject unserialization... ";
     flush(); {
         // These classes wrap native C++ state that only the extension's factory functions populate. An instance
-        // fabricated by the PHP unserializer would carry a null native pointer and crash the first time a native
-        // method dereferenced it, so they are marked non-serializable. Regression test for that crash.
+        // fabricated by the PHP unserializer would carry a null native pointer and crash the first time it was used.
         foreach (
             [
                 "IcePHP_Communicator",
-                "Ice\\ObjectPrx",
                 "IcePHP_Connection",
                 "IcePHP_Endpoint",
-                "Ice\\TCPEndpointInfo",
                 "IcePHP_Properties",
                 "IcePHP_Logger",
+                "IcePHP_TypeInfo",
+                "IcePHP_ExceptionInfo",
+                "Ice\\ObjectPrx",
+                "Ice\\EndpointInfo",
+                "Ice\\IPEndpointInfo",
+                "Ice\\TCPEndpointInfo",
+                "Ice\\UDPEndpointInfo",
+                "Ice\\WSEndpointInfo",
+                "Ice\\OpaqueEndpointInfo",
+                "Ice\\SSLEndpointInfo",
             ] as $className
         ) {
             try {
