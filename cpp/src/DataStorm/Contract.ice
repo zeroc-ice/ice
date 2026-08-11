@@ -10,23 +10,24 @@
 
 module DataStormContract
 {
-    /// Defines policies for clearing the data sample history of a reader in response to sample events.
+    /// Defines policies for clearing the sample history of a reader or writer.
     /// @see DataSample
     enum ClearHistoryPolicy
     {
-        /// The reader clears its history when a new data sample is added.
+        /// Clear the sample history when a DataStorm::SampleEvent::Add sample is added to the history.
         OnAdd,
 
-        /// The reader clears its history when a data sample is removed.
+        /// Clear the sample history when a DataStorm::SampleEvent::Remove sample is added to the history.
         OnRemove,
 
-        /// The reader clears its history when any data sample event occurs.
+        /// Clear the sample history when a new sample is added to the history.
         OnAll,
 
-        /// The reader clears its history for all data sample events except for partial update events.
+        /// Clear the sample history when a new sample which is not a DataStorm::SampleEvent::PartialUpdate sample is
+        /// added to the history.
         OnAllExceptPartialUpdate,
 
-        /// The reader never clears its history.
+        /// Never clear the sample history.
         Never
     }
 
