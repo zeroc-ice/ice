@@ -245,18 +245,36 @@ namespace
         memset(&params, 0, sizeof(params));
         params.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
         params.flags |= kSecKeyNoAccessControl;
-        UniqueRef<CFStringRef> passphraseHolder;
-        if (!passphrase.empty())
-        {
-            passphraseHolder.reset(toCFString(passphrase));
-            params.passphrase = passphraseHolder.get();
-        }
+        // Always pass a passphrase, even an empty one: SecItemImport rejects a PKCS12 file with
+        // errSecPassphraseRequired when params.passphrase is null, without looking at the file contents.
+        UniqueRef<CFStringRef> passphraseHolder(toCFString(passphrase));
+        params.passphrase = passphraseHolder.get();
 
         UniqueRef<CFArrayRef> items;
         SecExternalItemType importType = type;
         SecExternalFormat format = type == kSecItemTypeUnknown ? kSecFormatPKCS12 : kSecFormatUnknown;
         UniqueRef<CFStringRef> path(toCFString(file));
         OSStatus err = SecItemImport(data.get(), path.get(), &format, &importType, 0, &params, keychain, &items.get());
+
+        if (err == errSecPkcs12VerifyFailure && passphrase.empty())
+        {
+            // There are two encodings of the empty PKCS12 password, and they derive different keys. RFC 7292
+            // appendix B.1 formats every password as a NULL-terminated UTF-16BE string, which makes the empty
+            // password two 0x00 bytes; appendix B.2 step 3 instead notes that an empty password gives an empty
+            // block. openssl and keytool write the first, .NET writes either one depending on whether the
+            // password is "" or null.
+            //
+            // SecItemImport reads a CFString passphrase as the second encoding and a CFData passphrase as the
+            // raw password bytes, so retry with the two bytes appendix B.1 asks for. This mirrors .NET's own
+            // PKCS12 reader, which retries the other encoding when MAC verification fails.
+            const uint8_t emptyPassword[2] = {0, 0};
+            UniqueRef<CFDataRef> dataPassphrase(
+                CFDataCreate(kCFAllocatorDefault, emptyPassword, sizeof(emptyPassword)));
+            params.passphrase = dataPassphrase.get();
+            importType = type;
+            format = type == kSecItemTypeUnknown ? kSecFormatPKCS12 : kSecFormatUnknown;
+            err = SecItemImport(data.get(), path.get(), &format, &importType, 0, &params, keychain, &items.get());
+        }
 
         if (err != noErr)
         {
