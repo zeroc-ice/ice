@@ -55,6 +55,8 @@ namespace Ice::SSL::OpenSSL
     private:
         friend class Ice::SSL::OpenSSL::SSLEngine;
 
+        void invalidateBIOFd() const;
+
         const InstancePtr _instance;
         const Ice::SSL::OpenSSL::SSLEnginePtr _engine;
         const std::string _host;

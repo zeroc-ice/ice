@@ -539,15 +539,24 @@ OpenSSL::TransceiverI::getInfo(bool incoming, string adapterName, string connect
     // adapterName is the name of the object adapter currently associated with this connection, while _adapterName
     // represents the name of the object adapter that created this connection (incoming only).
 
+    Ice::ConnectionInfoPtr delegateInfo;
+    try
+    {
+        delegateInfo = _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId));
+    }
+    catch (...)
+    {
+        invalidateBIOFd();
+        throw;
+    }
+
     X509* peerCertificate = nullptr;
     if (_peerCertificate)
     {
         peerCertificate = X509_dup(_peerCertificate);
     }
 
-    return make_shared<ConnectionInfo>(
-        _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId)),
-        peerCertificate);
+    return make_shared<ConnectionInfo>(std::move(delegateInfo), peerCertificate);
 }
 
 void
@@ -558,7 +567,27 @@ OpenSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 void
 OpenSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
 {
-    _delegate->setBufferSize(rcvSize, sndSize);
+    try
+    {
+        _delegate->setBufferSize(rcvSize, sndSize);
+    }
+    catch (...)
+    {
+        invalidateBIOFd();
+        throw;
+    }
+}
+
+void
+OpenSSL::TransceiverI::invalidateBIOFd() const
+{
+    if (_ssl && _delegate->getNativeInfo()->fd() == INVALID_SOCKET)
+    {
+        // The socket BIO installed in _ssl caches the fd number. The delegate no longer holds this fd, so invalidate
+        // the BIO's copy: later TLS I/O — including handshake records written from inside SSL_accept/SSL_connect —
+        // fails with EBADF instead of touching a reused descriptor.
+        BIO_set_fd(SSL_get_wbio(_ssl), INVALID_SOCKET, BIO_NOCLOSE);
+    }
 }
 
 int
