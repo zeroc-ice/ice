@@ -428,8 +428,6 @@ IceRuby::TypeInfo::destroy()
 //
 // PrimitiveInfo implementation.
 //
-IceRuby::PrimitiveInfo::PrimitiveInfo() = default;
-
 IceRuby::PrimitiveInfo::PrimitiveInfo(Kind k) : kind(k) {}
 
 string
@@ -2244,10 +2242,9 @@ IceRuby::ProxyInfo::create(VALUE ident)
     return proxyInfo;
 }
 
-IceRuby::ProxyInfo::ProxyInfo(VALUE ident) : isBase(false), rubyClass(Qnil), typeObj(Qnil)
+IceRuby::ProxyInfo::ProxyInfo(VALUE ident) : rubyClass(Qnil), typeObj(Qnil)
 {
     const_cast<string&>(id) = getString(ident);
-    const_cast<bool&>(isBase) = id == Ice::Object::ice_staticId();
 }
 
 void
@@ -2255,17 +2252,14 @@ IceRuby::ProxyInfo::define(VALUE t, VALUE b, VALUE i)
 {
     if (!NIL_P(b))
     {
-        const_cast<ProxyInfoPtr&>(base) = dynamic_pointer_cast<ProxyInfo>(getType(b));
-        assert(base);
+        assert(dynamic_pointer_cast<ProxyInfo>(getType(b)));
     }
 
     volatile VALUE arr = callRuby(rb_check_array_type, i);
     assert(!NIL_P(arr));
     for (int n = 0; n < RARRAY_LEN(arr); ++n)
     {
-        ProxyInfoPtr iface = dynamic_pointer_cast<ProxyInfo>(getType(RARRAY_AREF(arr, n)));
-        assert(iface);
-        const_cast<ProxyInfoList&>(interfaces).push_back(iface);
+        assert(dynamic_pointer_cast<ProxyInfo>(getType(RARRAY_AREF(arr, n))));
     }
 
     const_cast<VALUE&>(rubyClass) = t;
@@ -2375,45 +2369,6 @@ IceRuby::ProxyInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHist
     {
         out << getProxy(value)->ice_toString();
     }
-}
-
-bool
-IceRuby::ProxyInfo::isA(const ProxyInfoPtr& info)
-{
-    //
-    // Return true if this class has an is-a relationship with info.
-    //
-    if (info->isBase)
-    {
-        return true;
-    }
-    else if (this == info.get())
-    {
-        return true;
-    }
-    else if (base && base->isA(info))
-    {
-        return true;
-    }
-    else if (!interfaces.empty())
-    {
-        for (ProxyInfoList::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
-        {
-            if ((*p)->isA(info))
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-void
-IceRuby::ProxyInfo::destroy()
-{
-    const_cast<ProxyInfoPtr&>(base) = 0;
-    const_cast<ProxyInfoList&>(interfaces).clear();
 }
 
 //

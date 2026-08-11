@@ -86,12 +86,6 @@ namespace IceRuby
     VALUE stringSeqToArray(const std::vector<std::string>&);
 
     //
-    // Convert a vector of std::byte into a Ruby array of numbers.
-    // May raise RubyException.
-    //
-    VALUE createNumSeq(const std::vector<std::byte>&);
-
-    //
     // Convert a Ruby hash to Ice::Context. Returns true on success
     // and false if the value is not a hash. May raise RubyException.
     //
@@ -136,9 +130,9 @@ namespace IceRuby
     VALUE createEncodingVersion(const Ice::EncodingVersion&);
 
     //
-    // Extracts the members of an encoding version.
+    // Extracts the members of an encoding version. May raise RubyException.
     //
-    bool getEncodingVersion(VALUE, Ice::EncodingVersion&);
+    void getEncodingVersion(VALUE, Ice::EncodingVersion&);
 
     //
     // The callRuby functions are used to invoke Ruby C API functions
