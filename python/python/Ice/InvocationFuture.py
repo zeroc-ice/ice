@@ -86,6 +86,8 @@ class InvocationFuture(Future):
         Attaches a callback function which will be called when the invocation is sent.
         If the invocation has already been sent, ``fn`` is called immediately from the calling thread.
 
+        An exception raised by ``fn`` is caught and logged.
+
         Parameters
         ----------
         fn : Callable[[bool], None]
@@ -96,7 +98,7 @@ class InvocationFuture(Future):
             if not self._sent:
                 self._sentCallbacks.append(fn)
                 return
-        fn(self._sentSynchronously)
+        self._callSentCallbacks([fn], self._sentSynchronously)
 
     def sent(self, timeout: int | float | None = None) -> bool:
         """
@@ -151,11 +153,14 @@ class InvocationFuture(Future):
             self._sentCallbacks = []
             self._condition.notify_all()
 
+        self._callSentCallbacks(callbacks, sentSynchronously)
+
+    def _callSentCallbacks(self, callbacks: list[Callable[[bool], None]], sentSynchronously: bool):
         for callback in callbacks:
             try:
                 callback(sentSynchronously)
-            except Exception as ex:
-                logging.getLogger("Ice.Future").exception("sent callback raised exception: %s", ex)
+            except Exception:
+                logging.getLogger("Ice.Future").exception("sent callback raised exception")
 
 
 __all__ = ["InvocationFuture"]
