@@ -114,7 +114,7 @@ public class BZip2 {
             }
             is.close();
         } catch (Exception ex) {
-            throw new ProtocolException("bzip2 uncompression failed", ex);
+            throw new ProtocolException("bzip2 decompression failed", ex);
         }
 
         // Copy the header from the compressed stream to the uncompressed one.

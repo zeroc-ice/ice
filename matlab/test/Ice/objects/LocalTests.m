@@ -71,7 +71,7 @@ classdef LocalTests
             % Prior to conversion, the result is a CellArrayHandle
             assert(isa(r, 'IceInternal.CellArrayHandle'));
             r = C1Seq.convert(r);
-            % Now the result should be a cell arary
+            % Now the result should be a cell array
             assert(isa(r, 'cell'));
             assert(length(r) == length(seq));
             for i = 1:10
@@ -284,7 +284,7 @@ classdef LocalTests
             % Prior to conversion, the sequence is a CellArrayHandle
             assert(isa(r.c1seq, 'IceInternal.CellArrayHandle'));
             r = r.ice_convert();
-            % Now the result should be a cell arary
+            % Now the result should be a cell array
             assert(isa(r.c1seq, 'cell'));
             assert(length(r.c1seq) == length(s3.c1seq));
             for i = 1:10
@@ -517,7 +517,7 @@ classdef LocalTests
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
-            % Now the member should be a cell arary
+            % Now the member should be a cell array
             assert(isa(h.value.c1seq, 'cell'));
             assert(length(h.value.c1seq) == length(cb.c1seq));
             for i = 1:10

@@ -179,7 +179,7 @@ public abstract class TreeNode extends TreeNodeBase {
             amiFailure(
                 prefix,
                 title,
-                "Node '" + nnee.name + " 'was not registered with the IceGrid Registry.");
+                "Node '" + nnee.name + "' was not registered with the IceGrid Registry");
         } else if (e instanceof NodeUnreachableException) {
             NodeUnreachableException nue =
                 (NodeUnreachableException) e;

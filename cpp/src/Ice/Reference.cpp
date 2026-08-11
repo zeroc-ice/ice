@@ -1409,7 +1409,7 @@ IceInternal::RoutableReference::createConnectionAsync(
     OutgoingConnectionFactoryPtr factory = getInstance()->outgoingConnectionFactory();
     auto self = static_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
 
-    auto createConnectionSucceded =
+    auto createConnectionSucceeded =
         [routerInfo = _routerInfo, response = std::move(response)](Ice::ConnectionIPtr connection, bool compress)
     {
         // If we have a router, set the object adapter for this router (if any) to the new connection, so that
@@ -1424,7 +1424,7 @@ IceInternal::RoutableReference::createConnectionAsync(
     if (getCacheConnection() || endpoints.size() == 1)
     {
         // Get an existing connection or create one if there's no existing connection to one of the given endpoints.
-        factory->createAsync(std::move(endpoints), false, std::move(createConnectionSucceded), std::move(exception));
+        factory->createAsync(std::move(endpoints), false, std::move(createConnectionSucceeded), std::move(exception));
     }
     else
     {
@@ -1438,11 +1438,11 @@ IceInternal::RoutableReference::createConnectionAsync(
             CreateConnectionState(
                 vector<EndpointIPtr> endpoints,
                 OutgoingConnectionFactoryPtr factory,
-                function<void(Ice::ConnectionIPtr, bool)> createConnectionSucceded,
+                function<void(Ice::ConnectionIPtr, bool)> createConnectionSucceeded,
                 function<void(exception_ptr)> exception)
                 : _endpoints(std::move(endpoints)),
                   _factory(std::move(factory)),
-                  _createConnectionSucceded(std::move(createConnectionSucceded)),
+                  _createConnectionSucceeded(std::move(createConnectionSucceeded)),
                   _createConnectionFailed(std::move(exception))
             {
             }
@@ -1452,7 +1452,7 @@ IceInternal::RoutableReference::createConnectionAsync(
                 _factory->createAsync(
                     {_endpoints[_endpointIndex]},
                     true,
-                    _createConnectionSucceded,
+                    _createConnectionSucceeded,
                     [self = shared_from_this()](exception_ptr e) { self->handleException(e); });
             }
 
@@ -1473,7 +1473,7 @@ IceInternal::RoutableReference::createConnectionAsync(
                 _factory->createAsync(
                     {_endpoints[_endpointIndex]},
                     more,
-                    _createConnectionSucceded,
+                    _createConnectionSucceeded,
                     [self = shared_from_this()](exception_ptr e) { self->handleException(e); });
             }
 
@@ -1482,14 +1482,14 @@ IceInternal::RoutableReference::createConnectionAsync(
             size_t _endpointIndex = 0;
             vector<EndpointIPtr> _endpoints;
             OutgoingConnectionFactoryPtr _factory;
-            std::function<void(Ice::ConnectionIPtr, bool)> _createConnectionSucceded;
+            std::function<void(Ice::ConnectionIPtr, bool)> _createConnectionSucceeded;
             std::function<void(exception_ptr)> _createConnectionFailed;
         };
 
         auto state = make_shared<CreateConnectionState>(
             std::move(endpoints),
             std::move(factory),
-            std::move(createConnectionSucceded),
+            std::move(createConnectionSucceeded),
             std::move(exception));
         state->createAsync();
     }

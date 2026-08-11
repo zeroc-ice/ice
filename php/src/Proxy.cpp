@@ -1119,7 +1119,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_invocationTimeout_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, invocationTiemout)
+ZEND_ARG_INFO(0, invocationTimeout)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_invocationTimeout)

@@ -2,7 +2,7 @@
 
 function addFolderToPath(f)
   try
-    fprintf(1, 'Adding toolxbox folder to path... ');
+    fprintf(1, 'Adding toolbox folder to path... ');
     addpath(f);
     savepath();
     fprintf(1, 'ok\n');

@@ -1281,7 +1281,7 @@ testPasswordLessCert(const string& factoryRef, const Ice::PropertiesPtr& default
 }
 
 void
-testMutlipleCACerts(const string& factoryRef, const Ice::PropertiesPtr& defaultProps, bool p12)
+testMultipleCACerts(const string& factoryRef, const Ice::PropertiesPtr& defaultProps, bool p12)
 {
     cout << "testing multiple CA certificates... " << flush;
     {
@@ -2464,7 +2464,7 @@ allTests(Test::TestHelper* helper, const string& defaultDir, bool p12)
     {
         testPasswordLessCert(factory, defaultProps);
     }
-    testMutlipleCACerts(factory, defaultProps, p12);
+    testMultipleCACerts(factory, defaultProps, p12);
     testDerCertificates(factory, defaultProps, p12);
     testTrustOnly(factory, defaultProps, p12);
     testCrlRevocation(factory, defaultDir, defaultProps, p12);

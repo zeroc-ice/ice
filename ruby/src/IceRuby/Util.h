@@ -137,7 +137,7 @@ namespace IceRuby
     //
     // The callRuby functions are used to invoke Ruby C API functions
     // while translating any Ruby exception into RubyException so that
-    // C++ objects are cleaned up properly. Overloadings are provided
+    // C++ objects are cleaned up properly. Overloads are provided
     // to support API functions that accept multiple arguments.
     //
     template<typename Fun> VALUE callRuby(Fun fun);
@@ -296,7 +296,7 @@ namespace IceRuby
     //
     // The callRubyVoid functions are used to invoke Ruby C API functions
     // while translating any Ruby exception into RubyException so that
-    // C++ objects are cleaned up properly. Overloadings are provided
+    // C++ objects are cleaned up properly. Overloads are provided
     // to support API functions that accept multiple arguments.
     //
     template<typename Fun> void callRubyVoid(Fun fun);

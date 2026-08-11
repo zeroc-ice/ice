@@ -2650,11 +2650,11 @@ Database::finishApplicationUpdate(
     {
         try
         {
-            for (const auto& entrie : entries)
+            for (const auto& entry : entries)
             {
                 try
                 {
-                    entrie->waitForSync();
+                    entry->waitForSync();
                 }
                 catch (const NodeUnreachableException&)
                 {

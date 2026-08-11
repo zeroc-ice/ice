@@ -1067,7 +1067,7 @@ $1_ldflags      ?= -l$1
 endef
 
 #
-# $(call repathfromdir,path)
+# $(call relpathfromdir,path)
 #
 # Returns reversed relative path for directory (e.g.: test/Ice/operations
 # is transformed to ../../..). This is used for rpath computations.
