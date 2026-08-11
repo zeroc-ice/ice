@@ -54,8 +54,17 @@ def initialize(
     -------
     Communicator
         The new communicator.
+
+    Raises
+    ------
+    ValueError
+        If ``initData`` is provided together with ``args`` or ``eventLoop``.
     """
-    return Communicator(initData=initData) if initData is not None else Communicator(args, eventLoop)
+    if initData is not None:
+        if args is not None or eventLoop is not None:
+            raise ValueError("the 'initData' argument is mutually exclusive with the 'args' and 'eventLoop' arguments")
+        return Communicator(initData=initData)
+    return Communicator(args, eventLoop)
 
 
 def stringVersion() -> str:

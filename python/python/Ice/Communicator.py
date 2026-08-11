@@ -87,9 +87,17 @@ class Communicator:
             provided, the event loop adapter can be set using the :attr:`InitializationData.eventLoopAdapter` attribute.
         initData : InitializationData | None, optional
             Options for the new communicator. This argument and the `args` argument are mutually exclusive.
+
+        Raises
+        ------
+        ValueError
+            If `initData` is provided together with `args` or `eventLoop`.
         """
+        if initData is not None and (args is not None or eventLoop is not None):
+            raise ValueError("the 'initData' argument is mutually exclusive with the 'args' and 'eventLoop' arguments")
+
         eventLoopAdapter = None
-        if initData:
+        if initData is not None:
             eventLoopAdapter = initData.eventLoopAdapter
         elif eventLoop:
             eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)

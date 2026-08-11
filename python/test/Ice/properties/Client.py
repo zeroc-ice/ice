@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) ZeroC, Inc.
 
+import asyncio
 import sys
 
 from TestHelper import TestHelper, test
@@ -128,5 +129,41 @@ class Client(TestHelper):
         with Ice.initialize() as communicator:
             properties = communicator.getProperties()
             test(properties.getIceProperty("Ice.ProgramName") == "TestHelper.py")
+
+        print("ok")
+
+        sys.stdout.write("testing mutually exclusive communicator arguments... ")
+        sys.stdout.flush()
+
+        # initData is mutually exclusive with args and eventLoop; combining them must be rejected instead of
+        # silently ignoring one of the arguments.
+        initData = Ice.InitializationData()
+        eventLoop = asyncio.new_event_loop()
+        try:
+            try:
+                Ice.Communicator(args, initData=initData)  # type: ignore
+                test(False)
+            except ValueError:
+                pass
+
+            try:
+                Ice.Communicator(eventLoop=eventLoop, initData=initData)  # type: ignore
+                test(False)
+            except ValueError:
+                pass
+
+            try:
+                Ice.initialize(args, initData=initData)  # type: ignore
+                test(False)
+            except ValueError:
+                pass
+
+            try:
+                Ice.initialize(eventLoop=eventLoop, initData=initData)  # type: ignore
+                test(False)
+            except ValueError:
+                pass
+        finally:
+            eventLoop.close()
 
         print("ok")
