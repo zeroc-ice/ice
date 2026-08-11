@@ -195,10 +195,15 @@ function(slice2cpp_generate target)
 
   # Absolute once: this list is both slice2cpp's -I set and the mirror roots, and a relative entry
   # would resolve against the build directory for one and the source directory for the other.
-  # Ice first, so #include <Ice/...> keeps working.
+  # Canonical too, matching slice2cpp: it follows symlinks in its -I directories (though not on
+  # Windows), and the mirror below must compare the same paths or the generated #include and the
+  # mirrored header disagree under a symlinked root. Ice first, so #include <Ice/...> keeps working.
   set(include_dirs "")
   foreach(dir IN LISTS Ice_SLICE_DIR arg_INCLUDE_DIRS)
     get_filename_component(dir "${dir}" ABSOLUTE)
+    if(NOT WIN32)
+      file(REAL_PATH "${dir}" dir)
+    endif()
     list(APPEND include_dirs "${dir}")
   endforeach()
   set(include_options "")
@@ -214,6 +219,10 @@ function(slice2cpp_generate target)
     if(file MATCHES "\\.ice$")
 
       get_filename_component(slice_file_path ${file} ABSOLUTE)
+      if(NOT WIN32)
+        # Canonical like the mirror roots, so a file addressed through a symlink still mirrors.
+        file(REAL_PATH "${slice_file_path}" slice_file_path)
+      endif()
       get_filename_component(slice_file_dir ${slice_file_path} DIRECTORY)
 
       # NAME_WLE: slice2cpp strips only the final extension, so Foo.v1.ice generates Foo.v1.h.
