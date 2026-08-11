@@ -32,20 +32,24 @@ namespace DataStorm
         Priority
     };
 
-    /// The clear history policy specifies when the history is cleared. The history can be cleared based on the
-    /// event of the received sample.
+    /// The clear history policy specifies when a reader or writer clears its sample history. The policy applies
+    /// each time a sample is added to a history: a writer adds a sample to its history when it writes the sample,
+    /// and a reader adds a sample to its history when it receives it, either as a new sample or as part of the
+    /// initial samples received when the reader attaches to a writer. The writer also applies the clear history
+    /// policy of an attaching reader to its own history to select the initial samples it sends to this reader.
     enum struct ClearHistoryPolicy
     {
-        /// Clear the sample history when an Add sample is received.
+        /// Clear the sample history when a SampleEvent::Add sample is added to the history.
         OnAdd,
 
-        /// Clear the sample history when a Remove sample is received.
+        /// Clear the sample history when a SampleEvent::Remove sample is added to the history.
         OnRemove,
 
-        /// Clear the sample history when a new sample is received.
+        /// Clear the sample history when a new sample is added to the history.
         OnAll,
 
-        /// Clear the sample history when a new sample which is not a partial update is received.
+        /// Clear the sample history when a new sample which is not a SampleEvent::PartialUpdate sample is added to
+        /// the history.
         OnAllExceptPartialUpdate,
 
         /// Never clear the sample history. Only Config::sampleCount and Config::sampleLifetime then bound the
@@ -56,7 +60,10 @@ namespace DataStorm
         Never
     };
 
-    /// The configuration base class holds configuration options common to readers and writers.
+    /// The configuration base class holds configuration options common to readers and writers. A configuration
+    /// option set to nullopt is resolved from the topic's default reader or writer configuration (see
+    /// Topic::setReaderDefaultConfig and Topic::setWriterDefaultConfig), and ultimately from the corresponding
+    /// DataStorm.Topic.* property.
     /// @headerfile DataStorm/DataStorm.h
     class Config
     {
@@ -76,16 +83,24 @@ namespace DataStorm
         }
 
         /// The sampleCount configuration specifies how many samples are kept by the reader or writer in its sample
-        /// history. By default, the sample count is unlimited.
+        /// history. 0 means no samples are kept and a negative value means the sample count is unlimited. nullopt
+        /// is equivalent to the topic's default sample count: the value of the DataStorm.Topic.SampleCount
+        /// property (-1 by default), unless replaced with Topic::setReaderDefaultConfig or
+        /// Topic::setWriterDefaultConfig.
         std::optional<int> sampleCount;
 
         /// The sampleLifetime configuration specifies samples to keep in the writer or reader history based on
         /// their age. Samples with a timestamp older than the sampleLifetime value (in milliseconds) are discarded
-        /// from the history. By default, the samples are kept for an unlimited amount of time.
+        /// from the history. 0 or a negative value means samples are kept for an unlimited amount of time. nullopt
+        /// is equivalent to the topic's default sample lifetime: the value of the DataStorm.Topic.SampleLifetime
+        /// property (0 by default), unless replaced with Topic::setReaderDefaultConfig or
+        /// Topic::setWriterDefaultConfig.
         std::optional<int> sampleLifetime;
 
-        /// The clear history policy specifies when samples are removed from the sample history. By default,
-        /// samples are removed when a new sample is received which effectively disables the sample history.
+        /// The clear history policy specifies when the sample history is cleared. nullopt is equivalent to the
+        /// topic's default clear history policy: the value of the DataStorm.Topic.ClearHistory property (OnAll by
+        /// default, which effectively disables the sample history as it then holds at most the latest sample),
+        /// unless replaced with Topic::setReaderDefaultConfig or Topic::setWriterDefaultConfig.
         std::optional<ClearHistoryPolicy> clearHistory;
     };
 
@@ -110,7 +125,9 @@ namespace DataStorm
         {
         }
 
-        /// Specifies if and how samples are discarded after being received by a reader.
+        /// Specifies if and how samples are discarded after being received by a reader. nullopt is equivalent to
+        /// the topic's default discard policy: the value of the DataStorm.Topic.DiscardPolicy property (Never
+        /// by default, corresponding to DiscardPolicy::None), unless replaced with Topic::setReaderDefaultConfig.
         std::optional<DiscardPolicy> discardPolicy;
     };
 
@@ -136,7 +153,9 @@ namespace DataStorm
         {
         }
 
-        /// Specifies the writer priority. The priority is used by readers using the priority discard policy.
+        /// Specifies the writer priority. The priority is used by readers using the DiscardPolicy::Priority discard
+        /// policy. nullopt is equivalent to the topic's default priority: the value of the DataStorm.Topic.Priority
+        /// property (0 by default), unless replaced with Topic::setWriterDefaultConfig.
         std::optional<int> priority;
     };
 
