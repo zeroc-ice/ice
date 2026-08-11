@@ -169,7 +169,7 @@ final class CollocatedRequestHandler implements RequestHandler {
                 try {
                     _adapter.incDirectCount();
                 } catch (ObjectAdapterDestroyedException ex) {
-                    handleException(ex, requestId, false);
+                    handleException(ex, requestId);
                     break;
                 }
 
@@ -197,7 +197,7 @@ final class CollocatedRequestHandler implements RequestHandler {
             }
             is.clear();
         } catch (LocalException ex) {
-            dispatchException(ex, requestId, false); // Fatal dispatch exception
+            dispatchException(ex, requestId); // Fatal dispatch exception
         } catch (RuntimeException | Error ex) {
             // A runtime exception or an error was thrown outside of servant code (i.e., by Ice code).
             // Note that this code does NOT send a response to the client.
@@ -208,7 +208,7 @@ final class CollocatedRequestHandler implements RequestHandler {
             pw.flush();
 
             _logger.error(sw.toString());
-            dispatchException(uex, requestId, false);
+            dispatchException(uex, requestId);
         } finally {
             _adapter.decDirectCount();
         }
@@ -256,12 +256,12 @@ final class CollocatedRequestHandler implements RequestHandler {
         _adapter.decDirectCount();
     }
 
-    private void dispatchException(LocalException ex, int requestId, boolean amd) {
-        handleException(ex, requestId, amd);
+    private void dispatchException(LocalException ex, int requestId) {
+        handleException(ex, requestId);
         _adapter.decDirectCount();
     }
 
-    private void handleException(LocalException ex, int requestId, boolean amd) {
+    private void handleException(LocalException ex, int requestId) {
         if (requestId == 0) {
             return; // Ignore exception for oneway messages.
         }
@@ -275,13 +275,7 @@ final class CollocatedRequestHandler implements RequestHandler {
         }
 
         if (outAsync != null) {
-            // If called from an AMD dispatch, invoke asynchronously the completion callback since
-            // this might be called from the user code.
-            if (amd) {
-                outAsync.invokeCompletedAsync();
-            } else {
-                outAsync.invokeCompleted();
-            }
+            outAsync.invokeCompleted();
         }
     }
 

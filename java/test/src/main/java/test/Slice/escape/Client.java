@@ -78,6 +78,7 @@ public class Client extends TestHelper {
     // This section of the test is present to ensure that the C++ types are named correctly. It is
     // not expected to run.
     @SuppressWarnings({"unused", "null"})
+    //CHECKSTYLE:OFF: UnusedLocalVariable
     private static void testtypes() {
         _assert v = _assert.escaped_boolean;
         _break b = new _break();
@@ -104,6 +105,7 @@ public class Client extends TestHelper {
         _finalize k = new finalizeServantI();
         assert escaped_synchronized.value == 0;
     }
+    //CHECKSTYLE:ON: UnusedLocalVariable
 
     public void run(String[] args) {
         var initData = new InitializationData();

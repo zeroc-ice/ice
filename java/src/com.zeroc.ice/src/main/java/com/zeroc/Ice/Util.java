@@ -354,39 +354,6 @@ public final class Util {
         return (InvocationFuture<T>) f;
     }
 
-    /**
-     * Translates a Slice type id to a Java class name.
-     *
-     * @param id The Slice type id, such as {@code ::Module::Type}.
-     * @return The equivalent Java class name, or null if the type id is malformed.
-     */
-    public static String typeIdToClass(String id) {
-        if (!id.startsWith("::")) {
-            return null;
-        }
-
-        StringBuilder buf = new StringBuilder(id.length());
-        int start = 2;
-        boolean done = false;
-        while (!done) {
-            int end = id.indexOf(':', start);
-            String s;
-            if (end != -1) {
-                s = id.substring(start, end);
-                start = end + 2;
-            } else {
-                s = id.substring(start);
-                done = true;
-            }
-            if (buf.length() > 0) {
-                buf.append('.');
-            }
-            buf.append(s);
-        }
-
-        return buf.toString();
-    }
-
     static String createThreadName(final Properties properties, final String name) {
         String threadName = properties.getIceProperty("Ice.ProgramName");
         if (!threadName.isEmpty()) {
