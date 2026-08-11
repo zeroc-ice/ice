@@ -325,7 +325,7 @@ network programming interfaces and allows you to focus your efforts on
 your application logic.
 
 %prep
-%setup -q -n %{name}-%{archive_tag}
+%setup -q -n ice-%{archive_tag}
 
 %build
 #
