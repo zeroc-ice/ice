@@ -380,8 +380,16 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
         {
             if (!self->holdFuture)
             {
-                self->holdFuture = new std::future<void>();
-                *self->holdFuture = std::async(std::launch::async, [&self] { (*self->adapter)->waitForHold(); });
+                try
+                {
+                    self->holdFuture =
+                        new std::future<void>{waitInThread([adapter = *self->adapter] { adapter->waitForHold(); })};
+                }
+                catch (...) // starting the wait can fail, for example when the system is out of resources
+                {
+                    setPythonException(current_exception());
+                    return nullptr;
+                }
             }
 
             {
@@ -469,9 +477,16 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
         {
             if (!self->deactivateFuture)
             {
-                self->deactivateFuture = new std::future<void>();
-                *self->deactivateFuture =
-                    std::async(std::launch::async, [&self] { (*self->adapter)->waitForDeactivate(); });
+                try
+                {
+                    self->deactivateFuture = new std::future<void>{
+                        waitInThread([adapter = *self->adapter] { adapter->waitForDeactivate(); })};
+                }
+                catch (...) // starting the wait can fail, for example when the system is out of resources
+                {
+                    setPythonException(current_exception());
+                    return nullptr;
+                }
             }
 
             {
