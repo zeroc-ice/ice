@@ -252,7 +252,6 @@ class Future(Awaitable[_T]):
 
         while testFn():
             if timeout is not None:
-                # Use a monotonic clock: a wall-clock adjustment must not shorten or lengthen the wait.
                 start = time.monotonic()
                 self._condition.wait(timeout)
                 # Subtract the elapsed time so far from the timeout
