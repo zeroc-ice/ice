@@ -22,9 +22,6 @@ matlab_cflags = -fexceptions \
 
 matlab_cppflags := $(matlab_cflags)
 
-ifneq ($(shell $(CC) -E $(lang_srcdir)/../cpp/config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
-matlab_cppflags := $(matlab_cppflags) -std=c++17
-endif
 matlab_ldflags  := -L$(MATLAB_HOME)/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++
 
 #
