@@ -1677,6 +1677,9 @@ IcePHP::proxyInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "ObjectPrx", _proxyMethods);
     ce.create_object = handleAlloc;
     proxyClassEntry = zend_register_internal_class(&ce);
+    // Forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    proxyClassEntry->ce_flags |= ZEND_ACC_NOT_SERIALIZABLE;
     // proxyClassEntry->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
     memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _handlers.clone_obj = handleClone;

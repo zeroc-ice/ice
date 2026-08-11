@@ -27,6 +27,32 @@ function allTests($helper)
 {
     $communicator = $helper->communicator();
 
+    echo "testing that internal classes reject unserialization... ";
+    flush(); {
+        // These classes wrap native C++ state that only the extension's factory functions populate. An instance
+        // fabricated by the PHP unserializer would carry a null native pointer and crash the first time a native
+        // method dereferenced it, so they are marked non-serializable. Regression test for that crash.
+        foreach (
+            [
+                "IcePHP_Communicator",
+                "Ice\\ObjectPrx",
+                "IcePHP_Connection",
+                "IcePHP_Endpoint",
+                "Ice\\TCPEndpointInfo",
+                "IcePHP_Properties",
+                "IcePHP_Logger",
+            ] as $className
+        ) {
+            try {
+                $o = unserialize('O:' . strlen($className) . ':"' . $className . '":0:{}');
+                // If unserialize does not throw, it must at least not yield a usable instance of the class.
+                test(!($o instanceof $className));
+            } catch (Throwable $ex) {
+            }
+        }
+    }
+    echo "ok\n";
+
     echo "testing proxy endpoint information... ";
     flush(); {
         $p1 = $communicator->stringToProxy(

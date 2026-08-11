@@ -352,6 +352,9 @@ IcePHP::connectionInit(void)
     INIT_CLASS_ENTRY(ce, "IcePHP_Connection", _connectionClassMethods);
     ce.create_object = handleConnectionAlloc;
     connectionClassEntry = zend_register_internal_class(&ce);
+    // Mark the class as final to prevent subclassing, and forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    connectionClassEntry->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
     memcpy(&_connectionHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _connectionHandlers.clone_obj = nullptr;
