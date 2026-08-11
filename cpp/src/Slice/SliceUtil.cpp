@@ -284,7 +284,9 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
     {
         for (const auto& includePath : includePaths)
         {
-            if (i.compare(0, includePath.length(), includePath) == 0)
+            // The prefix test needs a path boundary, or "/a/b" would cover a file under "/a/bc".
+            if (i.length() > includePath.length() + 1 && i[includePath.length()] == '/' &&
+                i.compare(0, includePath.length(), includePath) == 0)
             {
                 string s = i.substr(includePath.length() + 1); // + 1 for the '/'
                 if (s.size() < result.size())

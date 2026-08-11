@@ -72,7 +72,7 @@ class SliceHeadersTestCase(ClientTestCase):
         os.system("cd project1/src/services/settings &&  ln -s ../../../git/services.settings.slices slices")
 
         f = open("project1/git/services.settings.slices/A.ice", "w")
-        f.write("// dumy file")
+        f.write("// dummy file")
         f.close()
         f = open("project1/git/services.settings.slices/B.ice", "w")
         f.write("#include <services/settings/slices/A.ice>")
@@ -138,6 +138,22 @@ class SliceHeadersTestCase(ClientTestCase):
         os.system("cd project1 && %s -I%s/tmp/Ice/slice A.ice" % (slice2cppCommand, basedir))
         f = open("project1/A.h")
         if not re.search(re.escape("#include <Ice/Identity.h>"), f.read()):
+            raise RuntimeError("failed!")
+        self.clean()
+
+        #
+        # An include dir that is a string prefix of a sibling directory must not cover its files
+        #
+        os.system("mkdir -p project1/api project1/apix")
+        f = open("project1/apix/A.ice", "w")
+        f.write("// dummy file")
+        f.close()
+        f = open("project1/B.ice", "w")
+        f.write("#include <apix/A.ice>")
+        f.close()
+        os.system("cd project1 && %s -Iapi -I. B.ice" % slice2cppCommand)
+        f = open("project1/B.h")
+        if not re.search(re.escape("#include <apix/A.h>"), f.read()):
             raise RuntimeError("failed!")
         self.clean()
 
