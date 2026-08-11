@@ -436,9 +436,16 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
         {
             if (self->shutdownFuture == nullptr)
             {
-                self->shutdownFuture = new std::future<void>();
-                *self->shutdownFuture =
-                    std::async(std::launch::async, [&self] { (*self->communicator)->waitForShutdown(); });
+                try
+                {
+                    self->shutdownFuture = new std::future<void>{
+                        waitInThread([communicator = *self->communicator] { communicator->waitForShutdown(); })};
+                }
+                catch (...) // starting the wait can fail, for example when the system is out of resources
+                {
+                    setPythonException(current_exception());
+                    return nullptr;
+                }
             }
 
             {
