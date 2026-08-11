@@ -1,46 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-# Compiles the Slice (.ice) files in a target's sources and adds the generated C++ to the target.
-# Only sees the sources present when it is called, and must be called from the directory that
-# created the target.
-#
-#   slice2cpp_generate(<target>
-#     [INCLUDE_DIRS <dir>...]     # extra -I directories
-#     [OPTIONS <option>...]       # extra slice2cpp options, e.g. -DFOO or --header-ext hpp
-#     [HEADER_OUTPUT_DIR <dir>]   # put the headers here instead of with the sources
-#     [INCLUDE_DIR <dir>]         # slice2cpp --include-dir
-#     [INCLUDE_SCOPE <scope>]     # PRIVATE (default) or PUBLIC
-#   )
-#
-# Example:
-#   find_package(Ice REQUIRED CONFIG)
-#   add_executable(a_target source1.cpp source2.ice source3.ice)
-#   slice2cpp_generate(a_target)
-#
-# A library whose Slice includes files from a shared directory, publishing its generated headers to
-# its own consumers under a "Demo/" prefix:
-#
-#   add_library(weather_api Weather.ice)
-#   slice2cpp_generate(weather_api
-#     INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../slice
-#     OPTIONS -DENABLE_EXTRAS
-#     HEADER_OUTPUT_DIR ${CMAKE_BINARY_DIR}/include
-#     INCLUDE_DIR Demo
-#     INCLUDE_SCOPE PUBLIC)
-#
-# Only the .ice files in the target's own sources are compiled. INCLUDE_DIRS just resolves the
-# includes, so a Slice file included from a shared directory needs a target that compiles it, and
-# `weather_api` links that target to pick up its headers.
-#
-# Generated files mirror the layout of the .ice files under the INCLUDE_DIRS directory that reaches
-# them, so the #include directives slice2cpp emits resolve; a file under no such directory generates
-# flat. Headers land under HEADER_OUTPUT_DIR/INCLUDE_DIR, and both go on the target's include path.
-#
-# A PUBLIC INCLUDE_SCOPE covers the build tree only; installing the headers is the caller's.
-#
-# --header-ext and --source-ext in OPTIONS are honored; options that relocate the outputs or
-# suppress generation are rejected, and contradicting cpp:header-ext metadata is a build-time error.
-# cpp:source-ext metadata is not supported.
+# slice2cpp_generate compiles the Slice (.ice) files in a target's sources and adds the generated
+# C++ to the target. Documented at https://github.com/zeroc-ice/ice/blob/main/cpp/config/README.md
 
 # This file is loaded by every consumer of the Ice package, not only the ones that generate Slice.
 if(CMAKE_VERSION VERSION_LESS 3.21)
@@ -51,7 +12,9 @@ endif()
 cmake_policy(VERSION 3.21)
 
 function(slice2cpp_generate target)
-  cmake_parse_arguments(PARSE_ARGV 1 arg "" "INCLUDE_SCOPE;HEADER_OUTPUT_DIR;INCLUDE_DIR" "INCLUDE_DIRS;OPTIONS")
+  cmake_parse_arguments(PARSE_ARGV 1 arg ""
+    "INCLUDE_SCOPE;HEADER_OUTPUT_DIR;INCLUDE_DIR;GENERATED_HEADERS;GENERATED_SOURCES"
+    "INCLUDE_DIRS;OPTIONS;DEPENDS")
 
   if(NOT TARGET ${target})
     message(FATAL_ERROR "slice2cpp_generate: '${target}' is not a target.")
@@ -154,6 +117,20 @@ function(slice2cpp_generate target)
       "slice2cpp_generate: CMake does not compile '.${source_ext}' as C++ "
       "(known: ${CMAKE_CXX_SOURCE_FILE_EXTENSIONS}).")
   endif()
+
+  # Cleared up front so a target with no Slice reports empty rather than leaving whatever the
+  # variable held before the call.
+  if(arg_GENERATED_HEADERS)
+    set(${arg_GENERATED_HEADERS} "" PARENT_SCOPE)
+  endif()
+  if(arg_GENERATED_SOURCES)
+    set(${arg_GENERATED_SOURCES} "" PARENT_SCOPE)
+  endif()
+
+  # Function scopes inherit the caller's variables, so the accumulators must start empty here or a
+  # caller's variable of the same name leaks into the result.
+  set(generated_headers "")
+  set(generated_sources "")
 
   get_target_property(sources ${target} SOURCES)
   if(NOT sources)
@@ -275,7 +252,9 @@ function(slice2cpp_generate target)
       get_property(owner GLOBAL PROPERTY ${owner_property})
       if(owner)
         if(owner STREQUAL "${target}|${slice_file_path}")
-          # The same .ice listed twice for this target.
+          # The same .ice seen before: listed twice for this target, or a repeated call. The rule
+          # already exists, possibly with different options, so this call neither recreates nor
+          # reports it.
           continue()
         endif()
         message(FATAL_ERROR
@@ -329,14 +308,23 @@ function(slice2cpp_generate target)
         COMMAND $<TARGET_FILE:Ice::slice2cpp> ${include_options} ${include_dir_options} ${arg_OPTIONS}
           ${slice_file_path} --output-dir ${file_output_dir}
         ${move_header_commands}
-        DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp>
+        DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp> ${arg_DEPENDS}
         DEPFILE ${depfile}
         VERBATIM
         COMMENT "Compiling Slice ${file} -> ${output_dir_relative}/${slice_file_name}.${source_ext} ${header_dir_relative}/${slice_file_name}.${header_ext}"
       )
 
       target_sources(${target} PRIVATE ${output_files})
+      list(APPEND generated_headers ${header_file})
+      list(APPEND generated_sources ${source_file})
 
     endif()
   endforeach()
+
+  if(arg_GENERATED_HEADERS)
+    set(${arg_GENERATED_HEADERS} ${generated_headers} PARENT_SCOPE)
+  endif()
+  if(arg_GENERATED_SOURCES)
+    set(${arg_GENERATED_SOURCES} ${generated_sources} PARENT_SCOPE)
+  endif()
 endfunction()
