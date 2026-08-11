@@ -20,7 +20,6 @@ matlab_cflags = -fexceptions \
     -DMATLAB_MEX_FILE \
     -I$(MATLAB_HOME)/extern/include
 
-# The C++ standard comes from the platform-wide cppflags in config/Make.rules.$(os).
 matlab_cppflags := $(matlab_cflags)
 
 matlab_ldflags  := -L$(MATLAB_HOME)/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++
