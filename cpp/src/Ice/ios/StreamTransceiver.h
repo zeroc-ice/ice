@@ -76,7 +76,9 @@ namespace IceObjC
         bool _writeStreamRegistered;
         bool _opening;
 
-        std::mutex _mutex;
+        // Protects the state shared with the run-loop thread, which doesn't use the Connection's mutex — including
+        // _fd (inherited from NativeInfo), whose writers hold the Connection's mutex in addition to this one.
+        mutable std::mutex _mutex;
         bool _error;
 
         State _state;

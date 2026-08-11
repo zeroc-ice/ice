@@ -482,6 +482,7 @@ IceObjC::StreamTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceObjC::StreamTransceiver::getInfo(bool incoming, string adapterName, string connectionId) const
 {
+    lock_guard lock(_mutex);
     if (_fd == INVALID_SOCKET)
     {
         return make_shared<TCPConnectionInfo>(incoming, std::move(adapterName), std::move(connectionId));
@@ -529,6 +530,7 @@ IceObjC::StreamTransceiver::checkSendSize(const Buffer& /*buf*/)
 void
 IceObjC::StreamTransceiver::setBufferSize(int rcvSize, int sndSize)
 {
+    lock_guard lock(_mutex);
     try
     {
         setTcpBufSize(_fd, rcvSize, sndSize, _instance);
