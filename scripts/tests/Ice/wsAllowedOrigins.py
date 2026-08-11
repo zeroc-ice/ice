@@ -139,8 +139,7 @@ class WSConnectionHeaderTestCase(ClientServerTestCase):
             ("upgrade", True, "lowercase token"),
             ("keep-alive, Upgrade", True, "token in a list"),
             ("Upgrade , keep-alive", True, "token with surrounding whitespace"),
-            # An apostrophe is a legal token character, and quotes are not stripped from a token: a header field is
-            # not an Ice property list.
+            # An apostrophe is a legal token character, while a quote is not part of the token it surrounds.
             ("foo'bar, Upgrade", True, "token containing an apostrophe"),
             ("notupgrade", False, "token containing 'upgrade' as a substring"),
             ("keep-alive, upgraded", False, "list without an 'upgrade' token"),

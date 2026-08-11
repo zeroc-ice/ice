@@ -693,20 +693,9 @@ internal sealed class WSTransceiver : Transceiver
     }
 
     // Returns true if the Connection header field - a comma-separated list of tokens, already trimmed and lowercased
-    // by HttpParser.getHeader - includes the "upgrade" token required by RFC 6455 section 4. StringUtil.splitString is
-    // not used here because it gives quotes their Ice property-list meaning: it would accept a quoted "upgrade", and
-    // reject a list holding a token that legitimately contains an apostrophe.
-    private static bool hasUpgradeToken(string connectionField)
-    {
-        foreach (string token in connectionField.Split(','))
-        {
-            if (token.Trim().Equals("upgrade", StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    // by HttpParser.getHeader - includes the "upgrade" token required by RFC 6455 section 4.
+    private static bool hasUpgradeToken(string connectionField) =>
+        connectionField.Split(',').Any(token => token.Trim().Equals("upgrade", StringComparison.Ordinal));
 
     private void init(ProtocolInstance instance, Transceiver del)
     {

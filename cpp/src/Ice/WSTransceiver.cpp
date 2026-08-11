@@ -53,9 +53,7 @@ namespace
     const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT(cert-err58-cpp)
 
     // Returns true if the Connection header field - a comma-separated list of tokens, already trimmed and lowercased
-    // by HttpParser::getHeader - includes the "upgrade" token required by RFC 6455 section 4. splitString is not used
-    // here because it gives quotes their Ice property-list meaning: it would accept a quoted "upgrade", and reject a
-    // list holding a token that legitimately contains an apostrophe.
+    // by HttpParser::getHeader - includes the "upgrade" token required by RFC 6455 section 4.
     bool hasUpgradeToken(string_view connectionField)
     {
         while (!connectionField.empty())

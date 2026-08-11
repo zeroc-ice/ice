@@ -429,9 +429,7 @@ final class WSTransceiver implements Transceiver {
 
     // Returns true if the Connection header field - a comma-separated list of tokens, already trimmed
     // and lowercased by HttpParser.getHeader - includes the "upgrade" token required by RFC 6455
-    // section 4. StringUtil.splitString is not used here because it gives quotes their Ice
-    // property-list meaning: it would accept a quoted "upgrade", and reject a list holding a token
-    // that legitimately contains an apostrophe.
+    // section 4.
     private static boolean hasUpgradeToken(String connectionField) {
         for (String token : connectionField.split(",")) {
             if ("upgrade".equals(token.trim())) {
