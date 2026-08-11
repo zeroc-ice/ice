@@ -40,6 +40,28 @@ IceBT::AcceptorI::getNativeInfo()
 void
 IceBT::AcceptorI::close()
 {
+    stack<IceInternal::TransceiverPtr> transceivers;
+    {
+        lock_guard lock(_mutex);
+        _closed = true;
+        _transceivers.swap(transceivers);
+    }
+
+    //
+    // Close queued transceivers that were never accepted, otherwise their sockets would leak.
+    //
+    while (!transceivers.empty())
+    {
+        try
+        {
+            transceivers.top()->close();
+        }
+        catch (...)
+        {
+        }
+        transceivers.pop();
+    }
+
     if (!_path.empty())
     {
         try
@@ -154,6 +176,15 @@ void
 IceBT::AcceptorI::newConnection(int fd)
 {
     lock_guard lock(_mutex);
+
+    if (_closed)
+    {
+        //
+        // The acceptor was closed: nothing will ever accept this connection, so close the socket here.
+        //
+        IceInternal::closeSocketNoThrow(fd);
+        return;
+    }
 
     _transceivers.push(
         make_shared<TransceiverI>(_instance, make_shared<StreamSocket>(_instance, fd, _bufSize), nullptr, _uuid));

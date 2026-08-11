@@ -47,6 +47,7 @@ namespace IceBT
         std::string _path;
 
         std::mutex _mutex;
+        bool _closed{false};
         std::stack<IceInternal::TransceiverPtr> _transceivers;
     };
 }
