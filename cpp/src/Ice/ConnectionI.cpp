@@ -1855,7 +1855,17 @@ Ice::ConnectionI::getInfo() const
     {
         rethrow_exception(_exception);
     }
-    return initConnectionInfo();
+
+    try
+    {
+        return initConnectionInfo();
+    }
+    catch (...)
+    {
+        // The failing call may have closed the socket, so close the connection as well.
+        const_cast<ConnectionI*>(this)->setState(StateClosed, current_exception());
+        throw;
+    }
 }
 
 void
@@ -1866,7 +1876,17 @@ Ice::ConnectionI::setBufferSize(int32_t rcvSize, int32_t sndSize)
     {
         rethrow_exception(_exception);
     }
-    _transceiver->setBufferSize(rcvSize, sndSize);
+
+    try
+    {
+        _transceiver->setBufferSize(rcvSize, sndSize);
+    }
+    catch (...)
+    {
+        // The failing call may have closed the socket, so close the connection as well.
+        setState(StateClosed, current_exception());
+        throw;
+    }
     _info = nullptr; // Invalidate the cached connection info
 }
 
