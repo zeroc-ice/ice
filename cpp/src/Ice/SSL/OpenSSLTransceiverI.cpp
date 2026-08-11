@@ -165,7 +165,9 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                         break;
                     }
 
-                    if (IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
+                    // A handshake I/O failure after the delegate lost its fd is a connection loss.
+                    if (_delegate->getNativeInfo()->fd() == INVALID_SOCKET || IceInternal::connectionLost() ||
+                        IceInternal::getSocketErrno() == 0)
                     {
                         throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
                     }
