@@ -75,20 +75,17 @@ final class Base64 {
     }
 
     public static byte[] decode(String str) {
-        StringBuilder newStr = new StringBuilder(str.length());
-
-        for (int j = 0; j < str.length(); j++) {
-            char c = str.charAt(j);
-            if (isBase64(c)) {
-                newStr.append(c);
-            } else {
-                String msg = "invalid base64 character '" + str.charAt(j) + "' (ordinal " + ((int) str.charAt(j)) + ")";
-                throw new IllegalArgumentException(msg);
-            }
+        if (str.length() == 0) {
+            return new byte[0];
         }
 
-        if (newStr.length() == 0) {
-            return null;
+        // Check that each character in the string is a valid base64 character.
+        for (int j = 0; j < str.length(); j++) {
+            char c = str.charAt(j);
+            if (!isBase64(c)) {
+                String msg = "invalid base64 character '" + c + "' (ordinal " + ((int) c) + ")";
+                throw new IllegalArgumentException(msg);
+            }
         }
 
         // Note: This is how we were previously computing the size of the return sequence. The
@@ -97,36 +94,32 @@ final class Base64 {
         // size_t totalBytes = (lines * 76) + (((str.size() - (lines * 78)) * 3) / 4);
 
         // Figure out how long the final sequence is going to be.
-        int totalBytes = (newStr.length() * 3 / 4) + 1;
+        int totalBytes = (str.length() * 3 / 4) + 1; // This is always over-allocating right?
 
-        ByteBuffer retval = ByteBuffer.allocate(totalBytes);
+        ByteBuffer retval = ByteBuffer.allocate(totalBytes); // Can probably just remove this buffer really.
 
-        int by1;
-        int by2;
-        int by3;
-        int by4;
-
+        int by1, by2, by3, by4;
         char c1, c2, c3, c4;
 
         int pos = 0;
-        for (int i = 0; i < newStr.length(); i += 4) {
+        for (int i = 0; i < str.length(); i += 4) {
             c1 = 'A';
             c2 = 'A';
             c3 = 'A';
             c4 = 'A';
 
-            c1 = newStr.charAt(i);
+            c1 = str.charAt(i);
 
-            if ((i + 1) < newStr.length()) {
-                c2 = newStr.charAt(i + 1);
+            if ((i + 1) < str.length()) {
+                c2 = str.charAt(i + 1);
             }
 
-            if ((i + 2) < newStr.length()) {
-                c3 = newStr.charAt(i + 2);
+            if ((i + 2) < str.length()) {
+                c3 = str.charAt(i + 2);
             }
 
-            if ((i + 3) < newStr.length()) {
-                c4 = newStr.charAt(i + 3);
+            if ((i + 3) < str.length()) {
+                c4 = str.charAt(i + 3);
             }
 
             by1 = decode(c1) & 0xff;
