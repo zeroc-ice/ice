@@ -159,7 +159,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
     PyObject* cookieObj{Py_None};
     if (PyTuple_Check(res.get()))
     {
-        if (PyTuple_GET_SIZE(res.get()) > 2)
+        if (PyTuple_GET_SIZE(res.get()) == 0 || PyTuple_GET_SIZE(res.get()) > 2)
         {
             const Ice::CommunicatorPtr com{current.adapter->getCommunicator()};
             if (com->getProperties()->getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)

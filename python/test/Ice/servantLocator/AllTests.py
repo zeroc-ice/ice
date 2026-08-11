@@ -239,6 +239,12 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
         ).ice_ping()
     except Ice.ObjectNotExistException:
         pass
+    try:
+        cast(
+            Ice.ObjectPrx, communicator.stringToProxy("emptyTupleReturnValue:{0}".format(helper.getTestEndpoint()))
+        ).ice_ping()
+    except Ice.ObjectNotExistException:
+        pass
     print("ok")
 
     return obj

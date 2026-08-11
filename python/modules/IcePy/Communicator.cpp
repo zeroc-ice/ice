@@ -294,8 +294,7 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
     }
 
     // Break cyclic reference between this object and its Python wrapper.
-    Py_XDECREF(self->wrapper);
-    self->wrapper = nullptr;
+    Py_CLEAR(self->wrapper);
 
     if (PyErr_Occurred())
     {
@@ -326,6 +325,9 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
 
     // We create a new reference to `completed` to ensure it remains alive until the callback is invoked.
     // This is necessary in case the user abandons the future, for example by cancelling it.
+    // We also create a new reference to this communicator object: the callback below can outlive all other
+    // references, and it must keep the object alive until it's done using it.
+    Py_INCREF(reinterpret_cast<PyObject*>(self));
     (*self->communicator)
         ->destroyAsync(
             [self, completed = Py_NewRef(completed)]()
@@ -342,9 +344,14 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
                     (*self->executor)->setCommunicator(nullptr); // Break cyclic reference.
                 }
 
-                // Break cyclic reference between this object and its Python wrapper.
-                Py_XDECREF(self->wrapper);
-                self->wrapper = nullptr;
+                // Break cyclic reference between this object and its Python wrapper. Py_CLEAR nulls the field
+                // before releasing the reference, as releasing it can deallocate the wrapper, which in turn
+                // releases its own reference to this object.
+                Py_CLEAR(self->wrapper);
+
+                // Release the reference created when this callback was registered. This can deallocate the
+                // communicator object, so self must not be used past this point.
+                Py_DECREF(reinterpret_cast<PyObject*>(self));
 
                 PyObject* emptyArgs = PyTuple_New(0);
                 if (!emptyArgs)
