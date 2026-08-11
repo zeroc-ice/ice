@@ -252,10 +252,10 @@ class Future(Awaitable[_T]):
 
         while testFn():
             if timeout is not None:
-                start = time.time()
+                start = time.monotonic()
                 self._condition.wait(timeout)
                 # Subtract the elapsed time so far from the timeout
-                timeout -= time.time() - start
+                timeout -= time.monotonic() - start
                 if timeout <= 0:
                     return False
             else:
