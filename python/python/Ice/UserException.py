@@ -11,7 +11,7 @@ class UserException(IceException):
     def __str__(self):
         # Types derived from UserException are data classes. We override __str__ to delegate to the generated __repr__,
         # since the built-in __str__ from BaseException only works when all arguments are passed to the constructor,
-        # which is not the case for exceptions unmarshalled from the wire.
+        # which is not the case for exceptions unmarshaled from the wire.
         return self.__repr__()
 
 
