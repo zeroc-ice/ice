@@ -35,25 +35,21 @@ extension CompileSlicePlugin: BuildToolPlugin {
 
 #endif
 
-enum PluginError: Error {
+enum PluginError: Error, CustomStringConvertible, LocalizedError {
     case invalidTarget(String)
-    case missingCompiler(String)
-    case missingConfigFile(String, String)
     case missingIceSliceFiles(String)
 
     var description: String {
         switch self {
         case .invalidTarget(let targetType):
             return "Expected a SwiftSourceModuleTarget but got '\(targetType)'."
-        case .missingCompiler(let path):
-            return "Missing slice compiler: '\(path)'."
-        case .missingConfigFile(let path, let target):
-            return
-                "Missing config file '\(path)' for target '\(target)'. This file must be included in your sources."
         case .missingIceSliceFiles(let path):
             return "The Ice slice files are missing. Expected location: `\(path)`"
         }
     }
+
+    // Without this, the build system reports these errors as "The operation couldn't be completed."
+    var errorDescription: String? { description }
 }
 
 /// Represents the contents of a `slice-plugin.json` file.
@@ -99,16 +95,12 @@ struct CompileSlicePlugin {
 
     /// The Ice slice directory, derived from this plugin's source file location.
     /// Path: CompileSlicePlugin.swift -> CompileSlice -> Plugins -> swift -> (ice root) -> slice
-    private static let iceSliceDir: URL? = {
+    private static let iceSliceDir: URL = {
         var url = URL(fileURLWithPath: #filePath)
         for _ in 0..<4 {
             url.deleteLastPathComponent()
         }
         url.append(path: "slice")
-        let identityIce = url.appending(path: "Ice/Identity.ice")
-        guard FileManager.default.fileExists(atPath: identityIce.path) else {
-            return nil
-        }
         return url
     }()
 
@@ -159,9 +151,11 @@ struct CompileSlicePlugin {
         }
 
         // Add the Ice slice directory last, so user-provided paths take precedence.
-        if let iceSliceDir = CompileSlicePlugin.iceSliceDir {
-            searchPaths.append("-I\(iceSliceDir.path)")
+        let iceSliceDir = CompileSlicePlugin.iceSliceDir
+        guard FileManager.default.fileExists(atPath: iceSliceDir.appending(path: "Ice/Identity.ice").path) else {
+            throw PluginError.missingIceSliceFiles(iceSliceDir.path)
         }
+        searchPaths.append("-I\(iceSliceDir.path)")
 
         // Create the build commands for each slice file.
         return sliceSources.map { sliceSource in
