@@ -4,6 +4,7 @@
 #include "NodeI.h"
 #include "SessionI.h"
 #include "TopicFactoryI.h"
+#include "TraceUtil.h"
 
 using namespace std;
 using namespace DataStormI;
@@ -154,6 +155,27 @@ TopicI::getTags() const
     return tags;
 }
 
+bool
+TopicI::matchKeyFilter(const shared_ptr<Filter>& filter, const shared_ptr<Key>& key) const
+{
+    try
+    {
+        return filter->match(key);
+    }
+    catch (const std::exception& ex)
+    {
+        // The filter predicate is application code. Treating a throwing predicate as not matching leaves this key
+        // unattached and lets the attach continue with the topic's remaining keys and filters, the way a predicate
+        // that returns false does. Letting the exception escape would instead abandon the whole attach, and since
+        // the session protocol is fire-and-forget the peer would never learn that nothing was attached.
+        Warning out(_traceLevels->logger);
+        out << "topic '" << _name << "': did not attach the elements for key '" << key->toString() << "': the '"
+            << filter->getName() << "' key filter failed:\n"
+            << ex.what();
+        return false;
+    }
+}
+
 ElementSpecSeq
 TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shared_ptr<SessionI>& session)
 {
@@ -189,7 +211,7 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
             // Add filtered elements matching the key.
             for (const auto& [filter, filteredDataElements] : _filteredElements)
             {
-                if (filter->match(key))
+                if (matchKeyFilter(filter, key))
                 {
                     ElementDataSeq elements;
                     for (const auto& dataElement : filteredDataElements)
@@ -231,7 +253,7 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
             // Add key elements matching the filter.
             for (const auto& [key, keyDataElements] : _keyElements)
             {
-                if (peerFilter->match(key))
+                if (matchKeyFilter(peerFilter, key))
                 {
                     ElementDataSeq elements;
                     for (const auto& dataElement : keyDataElements)
@@ -372,7 +394,7 @@ TopicI::attachElements(
                 }
 
                 // Iterate over the data elements for the matching key, attaching them to the data elements of the spec.
-                if (spec.id > 0 || filter->match(key))
+                if (spec.id > 0 || matchKeyFilter(filter, key))
                 {
                     for (const auto& dataElement : p->second)
                     {
@@ -417,7 +439,7 @@ TopicI::attachElements(
                     key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
                 }
 
-                if (spec.id < 0 || filter->match(key))
+                if (spec.id < 0 || matchKeyFilter(filter, key))
                 {
                     for (const auto& dataElement : p->second)
                     {
@@ -494,7 +516,7 @@ TopicI::attachElementsAck(
                                 initCb = dataElement
                                              ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
                             }
-                            else if (filter->match(key)) // Filter
+                            else if (matchKeyFilter(filter, key)) // Filter
                             {
                                 initCb = dataElement
                                              ->attach(topicId, spec.id, key, filter, session, prx, data, now, batches);
@@ -558,7 +580,7 @@ TopicI::attachElementsAck(
                                     dataElement
                                         ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, batches);
                             }
-                            else if (filter->match(key))
+                            else if (matchKeyFilter(filter, key))
                             {
                                 initCb = dataElement
                                              ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);

@@ -118,6 +118,13 @@ namespace DataStormI
         void remove(const std::shared_ptr<DataElementI>&, const std::vector<std::shared_ptr<Key>>&);
 
     protected:
+        /// Checks whether a key filter matches a key.
+        ///
+        /// @param filter The key filter.
+        /// @param key The key to match.
+        /// @return `true` if the filter matches the key; `false` otherwise, including when the filter throws.
+        [[nodiscard]] bool matchKeyFilter(const std::shared_ptr<Filter>& filter, const std::shared_ptr<Key>& key) const;
+
         void waitForListeners(int count) const;
         [[nodiscard]] bool hasListeners() const;
         void notifyListenerWaiters() const;
