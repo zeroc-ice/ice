@@ -66,7 +66,7 @@ jobs:
 
           echo "Syncing current repository from S3..."
           mkdir -p "${UPLOAD_PATH}"
-          aws s3 sync "s3://zeroc-downloads/${UPLOAD_PATH}" "${UPLOAD_PATH}"
+          aws s3 sync "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" "${UPLOAD_PATH}"
           echo "Creating/updating repository with new DEB packages..."
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
@@ -85,10 +85,11 @@ jobs:
           # the build-deb-ice-repo-packages workflow
           aws s3 sync \
             "${UPLOAD_PATH}" \
-            "s3://zeroc-downloads/${UPLOAD_PATH}" \
+            "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" \
             --delete \
             --exclude "ice-repo-*.deb"
         env:
+          S3_DOWNLOADS_BUCKET: ${{ vars.S3_DOWNLOADS_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
