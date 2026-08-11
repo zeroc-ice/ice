@@ -6,16 +6,10 @@ on:
       ice_version:
         required: true
         type: string
-      channel:
-        required: true
-        type: string
   workflow_dispatch:
     inputs:
       ice_version:
         description: "The Ice version number to use"
-        required: true
-      channel:
-        description: "The channel to publish to (e.g., 3.8, nightly)"
         required: true
 
 permissions:

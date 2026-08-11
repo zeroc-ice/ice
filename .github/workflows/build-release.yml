@@ -196,7 +196,6 @@ jobs:
     uses: ./.github/workflows/build-cpp-windows-binaries.yml
     needs: configure
     with:
-      ice_version: ${{ needs.configure.outputs.semver_version }}
       authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
@@ -228,8 +227,6 @@ jobs:
     name: Build IceGrid GUI JAR
     uses: ./.github/workflows/build-icegridgui-jar.yml
     needs: configure
-    with:
-      ice_version: ${{ needs.configure.outputs.semver_version }}
     secrets: inherit
 
   build-windows-installer:
@@ -261,7 +258,6 @@ jobs:
     needs: configure
     with:
       ice_version: ${{ needs.configure.outputs.semver_version }}
-      channel: ${{ needs.configure.outputs.channel }}
     secrets: inherit
 
   build-all:
