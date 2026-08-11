@@ -115,5 +115,5 @@ namespace Server
 [Documentation]: https://docs.zeroc.com/ice/latest/cpp
 [API Reference]: https://code.zeroc.com/ice/main/api/cpp/index.html
 [Building from source]: ./BUILDING.md
-[CMake package]: ./config/README.md
+[CMake package]: ./cmake/README.md
 [Ice framework]: https://github.com/zeroc-ice/ice

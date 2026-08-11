@@ -32,7 +32,7 @@
                          $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice"/>
 
         <!-- CMake support files -->
-        <CMakeFiles Include="$(IceSrcRootDir)config\*.cmake" />
+        <CMakeFiles Include="$(IceSrcRootDir)cmake\*.cmake" />
     </ItemGroup>
 
     <!-- Copy required files to the package specific directories -->

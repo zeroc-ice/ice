@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 # slice2cpp_generate compiles the Slice (.ice) files in a target's sources and adds the generated
-# C++ to the target. Documented at https://github.com/zeroc-ice/ice/blob/main/cpp/config/README.md
+# C++ to the target. Documented at https://github.com/zeroc-ice/ice/blob/main/cpp/cmake/README.md
 
 # This file is loaded by every consumer of the Ice package, not only the ones that generate Slice.
 if(CMAKE_VERSION VERSION_LESS 3.21)
