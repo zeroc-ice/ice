@@ -19,7 +19,7 @@ flowchart LR
 
 ## Prerequisites
 
-1. PHP 8.0 or higher.
+1. PHP 8.4 or higher.
 2. The Slice-to-PHP compiler (`slice2php`).
 3. The Ice for C++ test suite, for running PHP client tests against the C++ servers.
 4. Python 3.12 is required to run the tests.
