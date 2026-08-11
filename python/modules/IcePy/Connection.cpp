@@ -100,7 +100,7 @@ Associates an object adapter with this connection.
 
 When a connection receives a request, it dispatches this request using its associated object adapter.
 If the associated object adapter is ``None``, the connection rejects any incoming request with an
-:class:`ObjectNotExistException`.
+:class:`Ice.ObjectNotExistException`.
 
 The default object adapter of an incoming connection is the object adapter that created this connection;
 the default object adapter of an outgoing connection is the communicator's default object adapter.
@@ -229,8 +229,8 @@ sndSize : int
     constexpr const char* connectionThrowException_doc = R"(throwException() -> None
 
 Raises an exception that provides the reason for the closure of this connection. For example,
-this function raises :class:`CloseConnectionException` when the connection was closed gracefully by the peer;
-it raises :class:`ConnectionAbortedException` when the connection is aborted with :func:`abort`.
+this function raises :class:`Ice.CloseConnectionException` when the connection was closed gracefully by the peer;
+it raises :class:`Ice.ConnectionAbortedException` when the connection is aborted with :meth:`~Ice.Connection.abort`.
 This function does nothing if the connection is not yet closing or closed.)";
 }
 

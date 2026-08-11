@@ -29,9 +29,9 @@ class ServantLocator(ABC):
         The implementation can raise any exception, including :class:`Ice.UserException`.
         The Ice runtime will marshal this exception in the response.
 
-        If you call :meth:`Ice.ServantLocator.locate` from your own code, you must also call
-        :meth:`Ice.ServantLocator.finished` when you have finished using the servant, provided that
-        :meth:`Ice.ServantLocator.locate` did not return ``None``.
+        If you call :meth:`~Ice.ServantLocator.locate` from your own code, you must also call
+        :meth:`~Ice.ServantLocator.finished` when you have finished using the servant, provided that
+        :meth:`~Ice.ServantLocator.locate` did not return ``None``.
 
         Parameters
         ----------
@@ -43,7 +43,7 @@ class ServantLocator(ABC):
         Object | tuple[Object, object | None] | None
             The located servant, or ``None`` if no suitable servant was found. The servant can also be returned as
             a ``(servant, cookie)`` tuple, where the cookie is an arbitrary object that will be passed to
-            :meth:`Ice.ServantLocator.finished`.
+            :meth:`~Ice.ServantLocator.finished`.
         """
         pass
 
@@ -51,25 +51,25 @@ class ServantLocator(ABC):
     def finished(self, current: Current, servant: Object, cookie: object | None):
         """
         Notifies this servant locator that the dispatch on the servant returned by
-        :meth:`Ice.ServantLocator.locate` is complete. The object adapter calls this function only when
-        :meth:`Ice.ServantLocator.locate` didn't return ``None``.
+        :meth:`~Ice.ServantLocator.locate` is complete. The object adapter calls this function only when
+        :meth:`~Ice.ServantLocator.locate` didn't return ``None``.
 
         Notes
         -----
 
         The implementation can raise any exception, including :class:`Ice.UserException`.
         The Ice runtime will marshal this exception in the response. If both the dispatch and
-        :meth:`Ice.ServantLocator.finished` raise an exception, the exception raised by
-        :meth:`Ice.ServantLocator.finished` prevails and is marshaled back to the client.
+        :meth:`~Ice.ServantLocator.finished` raise an exception, the exception raised by
+        :meth:`~Ice.ServantLocator.finished` prevails and is marshaled back to the client.
 
         Parameters
         ----------
         current : Current
             Information about the incoming request for which a servant was located.
         servant : Object
-            The servant that was returned by :meth:`Ice.ServantLocator.locate`.
+            The servant that was returned by :meth:`~Ice.ServantLocator.locate`.
         cookie : object | None
-            The cookie that was returned by :meth:`Ice.ServantLocator.locate`.
+            The cookie that was returned by :meth:`~Ice.ServantLocator.locate`.
         """
         pass
 

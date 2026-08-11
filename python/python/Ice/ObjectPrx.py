@@ -744,7 +744,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         See Also
         --------
-        :meth:`Ice.ObjectPrx.ice_collocationOptimized`
+        :meth:`~Ice.ObjectPrx.ice_collocationOptimized`
         """
         return super().ice_isCollocationOptimized()
 
@@ -975,7 +975,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         connection and ignore the return value.
 
         When this proxy reaches its target object through collocation optimization (see
-        :meth:`Ice.ObjectPrx.ice_collocationOptimized`), this function returns ``None``: collocated invocations
+        :meth:`~Ice.ObjectPrx.ice_collocationOptimized`), this function returns ``None``: collocated invocations
         don't use a connection.
         """
         return super().ice_getConnection()
@@ -999,7 +999,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         connection and ignore the result.
 
         When this proxy reaches its target object through collocation optimization (see
-        :meth:`Ice.ObjectPrx.ice_collocationOptimized`), the :class:`~collections.abc.Awaitable` holds ``None``:
+        :meth:`~Ice.ObjectPrx.ice_collocationOptimized`), the :class:`~collections.abc.Awaitable` holds ``None``:
         collocated invocations don't use a connection.
         """
         return super().ice_getConnectionAsync()
@@ -1020,10 +1020,10 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Notes
         -----
-        A proxy with connection caching disabled (see :meth:`Ice.ObjectPrx.ice_connectionCached`) never caches a
+        A proxy with connection caching disabled (see :meth:`~Ice.ObjectPrx.ice_connectionCached`) never caches a
         connection: for such a proxy, this function always returns ``None``. This function also returns ``None`` when
         this proxy reaches its target object through collocation optimization (see
-        :meth:`Ice.ObjectPrx.ice_collocationOptimized`): collocated invocations don't use a connection.
+        :meth:`~Ice.ObjectPrx.ice_collocationOptimized`): collocated invocations don't use a connection.
         """
         return super().ice_getCachedConnection()
 

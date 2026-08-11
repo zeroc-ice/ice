@@ -130,7 +130,7 @@ class Communicator:
 
     def destroy(self) -> None:
         """
-        Destroys this communicator. This function calls :meth:`Ice.Communicator.shutdown` implicitly. Calling this
+        Destroys this communicator. This function calls :meth:`~Ice.Communicator.shutdown` implicitly. Calling this
         function destroys all object adapters, and closes all outgoing connections. This function waits for all
         outstanding dispatches to complete before returning. This includes "bidirectional dispatches" that execute on
         outgoing connections.
@@ -141,7 +141,7 @@ class Communicator:
         """
         Destroys this communicator asynchronously.
 
-        See :meth:`Ice.Communicator.destroy`.
+        See :meth:`~Ice.Communicator.destroy`.
         """
         future = Future()
 
@@ -166,8 +166,8 @@ class Communicator:
         """
         Waits for shutdown to complete. This function calls :meth:`Ice.ObjectAdapter.waitForDeactivate` on all object
         adapters created by this communicator. In a client application that does not accept incoming connections, this
-        function returns as soon as another thread calls :meth:`Ice.Communicator.shutdown` or
-        :meth:`Ice.Communicator.destroy` on this communicator.
+        function returns as soon as another thread calls :meth:`~Ice.Communicator.shutdown` or
+        :meth:`~Ice.Communicator.destroy` on this communicator.
         """
         # If invoked by the main thread, waitForShutdown only blocks for the specified timeout in order to give us a
         # chance to handle signals.
@@ -182,7 +182,7 @@ class Communicator:
         Notes
         -----
         The shutdown of a communicator completes when all its incoming connections are closed.
-        Awaiting this task is equivalent to calling :meth:`Ice.Communicator.waitForShutdown`.
+        Awaiting this task is equivalent to calling :meth:`~Ice.Communicator.waitForShutdown`.
 
         Returns
         -------
@@ -193,12 +193,12 @@ class Communicator:
 
     def isShutdown(self) -> bool:
         """
-        Checks whether or not :meth:`Ice.Communicator.shutdown` was called on this communicator.
+        Checks whether or not :meth:`~Ice.Communicator.shutdown` was called on this communicator.
 
         Returns
         -------
         bool
-            ``True`` if :meth:`Ice.Communicator.shutdown` was called on this communicator, ``False`` otherwise
+            ``True`` if :meth:`~Ice.Communicator.shutdown` was called on this communicator, ``False`` otherwise
         """
         return self._impl.isShutdown()
 
@@ -328,10 +328,9 @@ class Communicator:
 
     def createObjectAdapterWithEndpoints(self, name: str, endpoints: str) -> ObjectAdapter:
         """
-        Creates a new object adapter with endpoints. This function sets the property ``name.Endpoints``,
-        and then calls :meth:`Ice.Communicator.createObjectAdapter`. It is provided as a convenience function.
-        Calling this function
-        with an empty name will result in a UUID being generated for the name.
+        Creates a new object adapter with endpoints. This function sets the property ``name.Endpoints``, and then
+        calls :meth:`~Ice.Communicator.createObjectAdapter`. It is provided as a convenience function. Calling this
+        function with an empty name will result in a UUID being generated for the name.
 
         Parameters
         ----------
@@ -382,7 +381,7 @@ class Communicator:
         """
         Gets the object adapter that is associated by default with new outgoing connections created by this
         communicator. This function returns ``None`` unless you set a non-``None`` default object adapter using
-        :meth:`Ice.Communicator.setDefaultObjectAdapter`.
+        :meth:`~Ice.Communicator.setDefaultObjectAdapter`.
 
         Returns
         -------
@@ -655,7 +654,7 @@ class Communicator:
         -------
         Object | None
             The servant associated with this Admin facet, or ``None`` if this facet is implemented by the Ice
-            runtime. See :meth:`Ice.Communicator.findAdminFacet` for the list of such facets.
+            runtime. See :meth:`~Ice.Communicator.findAdminFacet` for the list of such facets.
 
         Raises
         ------
@@ -689,7 +688,7 @@ class Communicator:
         Notes
         -----
         Some Admin facets are implemented by the Ice runtime itself rather than by a Python servant. The
-        ``Properties`` facet is returned as an ``IcePy.NativePropertiesAdmin``, which is not an :class:`Ice.Object`.
+        ``Properties`` facet is returned as an :class:`Ice.NativePropertiesAdmin`, which is not an :class:`Ice.Object`.
         The other runtime facets, such as ``Process`` and ``Metrics``, are reported as ``None`` even though they are
         registered and reachable through the Admin object.
         """
@@ -703,7 +702,7 @@ class Communicator:
         -------
         dict[str, Object | IcePy.NativePropertiesAdmin]
             A collection containing all the facet names and servants of the Admin object. Facets implemented by the
-            Ice runtime with no Python servant are omitted; see :meth:`Ice.Communicator.findAdminFacet`.
+            Ice runtime with no Python servant are omitted; see :meth:`~Ice.Communicator.findAdminFacet`.
 
         Raises
         ------

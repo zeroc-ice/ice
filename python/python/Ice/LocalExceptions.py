@@ -355,7 +355,7 @@ class AlreadyRegisteredException(LocalException):
     @property
     def kindOfObject(self) -> str:
         """
-        Returns the kind of object that is already registered, such as "servant", "facet", "default servant",
+        Returns the kind of object that is already registered, one of "servant", "facet", "default servant",
         "servant locator", "plugin", "object adapter", or "object adapter with router".
 
         Returns
