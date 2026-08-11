@@ -692,6 +692,22 @@ internal sealed class WSTransceiver : Transceiver
         Debug.Assert(_readBufferSize > 256);
     }
 
+    // Returns true if the Connection header field - a comma-separated list of tokens, already trimmed and lowercased
+    // by HttpParser.getHeader - includes the "upgrade" token required by RFC 6455 section 4. StringUtil.splitString is
+    // not used here because it gives quotes their Ice property-list meaning: it would accept a quoted "upgrade", and
+    // reject a list holding a token that legitimately contains an apostrophe.
+    private static bool hasUpgradeToken(string connectionField)
+    {
+        foreach (string token in connectionField.Split(','))
+        {
+            if (token.Trim().Equals("upgrade", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void init(ProtocolInstance instance, Transceiver del)
     {
         _instance = instance;
@@ -763,7 +779,7 @@ internal sealed class WSTransceiver : Transceiver
         {
             throw new WebSocketException("missing value for Connection field");
         }
-        else if (!val.Contains("upgrade", StringComparison.Ordinal))
+        else if (!hasUpgradeToken(val))
         {
             throw new WebSocketException("invalid value `" + val + "' for Connection field");
         }
@@ -940,7 +956,7 @@ internal sealed class WSTransceiver : Transceiver
         {
             throw new WebSocketException("missing value for Connection field");
         }
-        else if (!val.Contains("upgrade", StringComparison.Ordinal))
+        else if (!hasUpgradeToken(val))
         {
             throw new WebSocketException("invalid value `" + val + "' for Connection field");
         }

@@ -427,6 +427,20 @@ final class WSTransceiver implements Transceiver {
         _pingPayload = new byte[0];
     }
 
+    // Returns true if the Connection header field - a comma-separated list of tokens, already trimmed
+    // and lowercased by HttpParser.getHeader - includes the "upgrade" token required by RFC 6455
+    // section 4. StringUtil.splitString is not used here because it gives quotes their Ice
+    // property-list meaning: it would accept a quoted "upgrade", and reject a list holding a token
+    // that legitimately contains an apostrophe.
+    private static boolean hasUpgradeToken(String connectionField) {
+        for (String token : connectionField.split(",")) {
+            if ("upgrade".equals(token.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void handleRequest(Buffer responseBuffer) {
         // The opening handshake must be a GET request (RFC 6455 section 4.1). We check the message type first
         // because method() (used just below) and uri() (used later) assert the parser holds a request.
@@ -459,7 +473,7 @@ final class WSTransceiver implements Transceiver {
         val = _parser.getHeader("Connection", true);
         if (val == null) {
             throw new WebSocketException("missing value for Connection field");
-        } else if (val.indexOf("upgrade") == -1) {
+        } else if (!hasUpgradeToken(val)) {
             throw new WebSocketException("invalid value `" + val + "' for Connection field");
         }
 
@@ -605,7 +619,7 @@ final class WSTransceiver implements Transceiver {
         val = _parser.getHeader("Connection", true);
         if (val == null) {
             throw new WebSocketException("missing value for Connection field");
-        } else if (val.indexOf("upgrade") == -1) {
+        } else if (!hasUpgradeToken(val)) {
             throw new WebSocketException("invalid value `" + val + "' for Connection field");
         }
 
