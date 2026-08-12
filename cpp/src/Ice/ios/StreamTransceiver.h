@@ -77,7 +77,9 @@ namespace IceObjC
         bool _opening;
 
         // Protects the state shared with the run-loop thread, which doesn't use the Connection's mutex — including
-        // _fd (inherited from NativeInfo), whose writers hold the Connection's mutex in addition to this one.
+        // _fd (inherited from NativeInfo), whose writers hold the Connection's mutex in addition to this one. The
+        // exception is close(), which writes _fd unlocked: it only runs after the selector's finish handshake, when
+        // the run-loop thread no longer uses this transceiver.
         mutable std::mutex _mutex;
         bool _error;
 
