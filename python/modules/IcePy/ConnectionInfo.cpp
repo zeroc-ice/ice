@@ -262,8 +262,8 @@ static PyGetSetDef WSConnectionInfoGetters[] = {
     {"headers",
      reinterpret_cast<getter>(wsConnectionInfoGetHeaders),
      nullptr,
-     PyDoc_STR("dict[str, str]: The HTTP headers from the WebSocket upgrade handshake: the request headers for an "
-               "incoming connection, and the response headers for an outgoing connection."),
+     PyDoc_STR("dict[str, str]: The HTTP headers from the WebSocket upgrade handshake, with the request headers for "
+               "an incoming connection and the response headers for an outgoing connection."),
      nullptr},
     {} /* sentinel */
 };

@@ -25,19 +25,21 @@ class InitializationData:
     ----------
     properties : Ice.Properties | None
         The properties for the communicator.
-        If not ``None``, this corresponds to the object returned by the :func:`Communicator.getProperties` function.
+        If not ``None``, this corresponds to the object returned by the :meth:`Ice.Communicator.getProperties` function.
     logger : Ice.Logger | None
         The logger for the communicator.
     threadStart : Callable[[], None] | None
-        A :class:`Callable` that is invoked whenever the communicator starts a new thread.
+        A :class:`~collections.abc.Callable` that is invoked whenever the communicator starts a new thread.
     threadStop : Callable[[], None] | None
-        A :class:`Callable` that is invoked whenever a thread created by the communicator is about to be destroyed.
+        A :class:`~collections.abc.Callable` that is invoked whenever a thread created by the communicator is about
+        to be destroyed.
     executor : Callable[[Callable[[], None], Connection], None] | None
-        A :class:`Callable` that the communicator invokes to execute dispatches and async invocation callbacks.
+        A :class:`~collections.abc.Callable` that the communicator invokes to execute dispatches and async invocation
+        callbacks.
         The callable receives two arguments: a callable and an Ice.Connection object.
         The executor must eventually invoke the callable with no arguments.
     batchRequestInterceptor : Callable[[Ice.BatchRequest, int, int], None] | None
-        A :class:`Callable` that is invoked by the Ice runtime to enqueue a batch request.
+        A :class:`~collections.abc.Callable` that is invoked by the Ice runtime to enqueue a batch request.
         The callable receives three arguments: a BatchRequest object, an integer representing the number of requests
         currently in the queue, and an integer representing the number of bytes consumed by the requests in the queue.
         The interceptor calls ``enqueue`` on the BatchRequest to confirm queuing of the request; a request that is not
@@ -47,7 +49,7 @@ class InitializationData:
         executing coroutines returned by Ice asynchronous dispatch functions and for wrapping Ice futures (from Ice
         Async APIs) into futures that can be awaited in the application's event loop.
     sliceLoader : Callable[[str], Ice.Value | Ice.UserException | None] | None
-        A :class:`Callable` used to create instances of Slice classes and user exceptions.
+        A :class:`~collections.abc.Callable` used to create instances of Slice classes and user exceptions.
         Applications can supply a custom slice loader that the Ice runtime will use during unmarshaling.
         The callable receives one argument: a type ID or compact type ID (as a string) and returns a new instance of the
         corresponding class or exception, or ``None`` if no such class or exception could be found.
