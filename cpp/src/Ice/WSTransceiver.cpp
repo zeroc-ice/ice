@@ -1013,11 +1013,19 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         throw WebSocketException("missing value for WebSocket key");
     }
 
-    vector<byte> decodedKey = Base64::decode(key);
-    if (decodedKey.size() != 16)
+    try
     {
-        throw WebSocketException("invalid value '" + key + "' for WebSocket key");
+        vector<byte> decodedKey = Base64::decode(key);
+        if (decodedKey.size() != 16)
+        {
+            throw WebSocketException("WebSocket key '" + key + "' has invalid length");
+        }
     }
+    catch (const std::invalid_argument&)
+    {
+        throw WebSocketException("invalid base64 value '" + key + "' for WebSocket key");
+    }
+
 
     //
     // Optionally validate the Origin header against the adapter's allowed-origins list.
@@ -1076,8 +1084,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     string input = key + _wsUUID;
     vector<byte> hash;
     sha1(reinterpret_cast<const byte*>(&input[0]), input.size(), hash);
-    out << IceInternal::Base64::encode(hash) << "\r\n"
-        << "\r\n"; // EOM
+    out << IceInternal::Base64::encode(hash) << "\r\n\r\n"; // EOM
 
     string str = out.str();
     responseBuffer.b.resize(str.size());
