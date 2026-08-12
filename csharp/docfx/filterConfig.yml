@@ -5,3 +5,13 @@ apiRules:
 - exclude:
     uidRegex: ^Ice\.UtilInternal\..*
     type: Type
+# Implementation classes that are public but are not part of the API.
+- exclude:
+    uidRegex: ^Ice\.ConnectionI$
+    type: Type
+- exclude:
+    uidRegex: ^Ice\.ImplicitContextI$
+    type: Type
+- exclude:
+    uidRegex: ^Ice\.ObjectPrxHelperBase(\..*)?$
+    type: Type
