@@ -57,7 +57,14 @@ namespace IcePy
         std::future<void>* shutdownFuture;
         std::exception_ptr* shutdownException;
         bool shutdown;
+
+        // Extra references to the Python-owning wrappers stored in the communicator's InitializationData. They
+        // ensure the final release of each wrapper - which releases Python objects - happens in communicatorDealloc
+        // with the GIL held, and not in ~Instance, which can run without the GIL.
         ExecutorPtr* executor;
+        LoggerWrapperPtr* logger;
+        std::shared_ptr<ThreadHook>* threadHook;
+        std::shared_ptr<BatchRequestInterceptorWrapper>* batchRequestInterceptor;
     };
 
     void removeSliceLoader(const Ice::CommunicatorPtr& communicator);
@@ -78,6 +85,9 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->shutdownException = nullptr;
     self->shutdown = false;
     self->executor = nullptr;
+    self->logger = nullptr;
+    self->threadHook = nullptr;
+    self->batchRequestInterceptor = nullptr;
     return self;
 }
 
@@ -95,6 +105,9 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     Ice::InitializationData initData;
     ExecutorPtr executorWrapper;
+    LoggerWrapperPtr loggerWrapper;
+    shared_ptr<ThreadHook> threadHookWrapper;
+    shared_ptr<BatchRequestInterceptorWrapper> batchRequestInterceptorWrapper;
 
     Ice::SliceLoaderPtr sliceLoader = DefaultSliceLoader::instance();
 
@@ -122,14 +135,15 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
             if (logger.get())
             {
-                initData.logger = make_shared<LoggerWrapper>(logger.get());
+                loggerWrapper = make_shared<LoggerWrapper>(logger.get());
+                initData.logger = loggerWrapper;
             }
 
             if (threadStart.get() || threadStop.get())
             {
-                auto threadHook = make_shared<ThreadHook>(threadStart.get(), threadStop.get());
-                initData.threadStart = [threadHook]() { threadHook->start(); };
-                initData.threadStop = [threadHook]() { threadHook->stop(); };
+                threadHookWrapper = make_shared<ThreadHook>(threadStart.get(), threadStop.get());
+                initData.threadStart = [threadHook = threadHookWrapper]() { threadHook->start(); };
+                initData.threadStop = [threadHook = threadHookWrapper]() { threadHook->stop(); };
             }
 
             if (executor.get())
@@ -142,7 +156,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
             if (batchRequestInterceptor.get())
             {
-                auto batchRequestInterceptorWrapper =
+                batchRequestInterceptorWrapper =
                     make_shared<BatchRequestInterceptorWrapper>(batchRequestInterceptor.get());
                 initData.batchRequestInterceptor =
                     [batchRequestInterceptorWrapper](const Ice::BatchRequest& req, int count, int size)
@@ -244,6 +258,21 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         executorWrapper->setCommunicator(communicator);
     }
 
+    if (loggerWrapper)
+    {
+        self->logger = new LoggerWrapperPtr(loggerWrapper);
+    }
+
+    if (threadHookWrapper)
+    {
+        self->threadHook = new shared_ptr<ThreadHook>(threadHookWrapper);
+    }
+
+    if (batchRequestInterceptorWrapper)
+    {
+        self->batchRequestInterceptor = new shared_ptr<BatchRequestInterceptorWrapper>(batchRequestInterceptorWrapper);
+    }
+
     return 0;
 }
 
@@ -273,10 +302,13 @@ communicatorDealloc(CommunicatorObject* self)
     delete self->shutdownException;
     delete self->shutdownFuture;
 
-    // Keep this after the communicator release above: it ensures the last release of the
-    // ExecutorPtr - which releases a Python object - always runs here with the GIL held,
-    // never in ~Instance (which can run with the GIL released).
+    // Keep these after the communicator release above: it ensures the last release of each wrapper - which
+    // releases Python objects - always runs here with the GIL held, never in ~Instance (which can run with the
+    // GIL released).
     delete self->executor;
+    delete self->logger;
+    delete self->threadHook;
+    delete self->batchRequestInterceptor;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
