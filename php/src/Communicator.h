@@ -22,8 +22,13 @@ extern "C"
 
 namespace IcePHP
 {
+    // Called when the PHP module is loaded and unloaded, i.e. once per process. communicatorShutdown destroys the
+    // communicators that outlived the requests that created them.
     bool communicatorInit(void);
     bool communicatorShutdown(void);
+
+    // Called at the start and end of each PHP request. communicatorRequestShutdown releases the request's hold on
+    // the communicators it used; a registered communicator survives until it expires or the module shuts down.
     bool communicatorRequestInit(void);
     bool communicatorRequestShutdown(void);
 
