@@ -1325,7 +1325,17 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 throw _exception;
             }
-            return initConnectionInfo();
+
+            try
+            {
+                return initConnectionInfo();
+            }
+            catch (LocalException ex)
+            {
+                // The failing call may have closed the socket, so close the connection as well.
+                setState(StateClosed, ex);
+                throw;
+            }
         }
     }
 
@@ -1338,7 +1348,17 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 throw _exception;
             }
-            _transceiver.setBufferSize(rcvSize, sndSize);
+
+            try
+            {
+                _transceiver.setBufferSize(rcvSize, sndSize);
+            }
+            catch (LocalException ex)
+            {
+                // The failing call may have closed the socket, so close the connection as well.
+                setState(StateClosed, ex);
+                throw;
+            }
             _info = null; // Invalidate the cached connection info
         }
     }
@@ -1713,19 +1733,33 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             ConnectionState newState = toConnectionState(state);
             if (oldState != newState)
             {
-                _observer = _instance.initializationData().observer.getConnectionObserver(
-                    initConnectionInfo(),
-                    _endpoint,
-                    newState,
-                    _observer);
-                if (_observer is not null)
+                ConnectionInfo connectionInfo = null;
+                try
                 {
-                    _observer.attach();
+                    connectionInfo = initConnectionInfo();
                 }
-                else
+                catch (System.Exception)
                 {
-                    _writeStreamPos = -1;
-                    _readStreamPos = -1;
+                    // initConnectionInfo can fail. The state transition must complete regardless, so we ignore this
+                    // exception and skip the observer update.
+                }
+
+                if (connectionInfo is not null)
+                {
+                    _observer = _instance.initializationData().observer.getConnectionObserver(
+                        connectionInfo,
+                        _endpoint,
+                        newState,
+                        _observer);
+                    if (_observer is not null)
+                    {
+                        _observer.attach();
+                    }
+                    else
+                    {
+                        _writeStreamPos = -1;
+                        _readStreamPos = -1;
+                    }
                 }
             }
             if (_observer is not null && state == StateClosed && _exception is not null)

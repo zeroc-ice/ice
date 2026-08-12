@@ -948,7 +948,14 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         if (_state >= StateClosed) {
             throw (LocalException) _exception.fillInStackTrace();
         }
-        return initConnectionInfo();
+
+        try {
+            return initConnectionInfo();
+        } catch (LocalException ex) {
+            // The failing call may have closed the socket, so close the connection as well.
+            setState(StateClosed, ex);
+            throw ex;
+        }
     }
 
     @Override
@@ -956,7 +963,14 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         if (_state >= StateClosed) {
             throw (LocalException) _exception.fillInStackTrace();
         }
-        _transceiver.setBufferSize(rcvSize, sndSize);
+
+        try {
+            _transceiver.setBufferSize(rcvSize, sndSize);
+        } catch (LocalException ex) {
+            // The failing call may have closed the socket, so close the connection as well.
+            setState(StateClosed, ex);
+            throw ex;
+        }
         _info = null; // Invalidate the cached connection info
     }
 
@@ -1254,16 +1268,26 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             ConnectionState oldState = toConnectionState(_state);
             ConnectionState newState = toConnectionState(state);
             if (oldState != newState) {
-                _observer =
-                    _instance
-                        .initializationData()
-                        .observer
-                        .getConnectionObserver(initConnectionInfo(), _endpoint, newState, _observer);
-                if (_observer != null) {
-                    _observer.attach();
-                } else {
-                    _writeStreamPos = -1;
-                    _readStreamPos = -1;
+                ConnectionInfo connectionInfo = null;
+                try {
+                    connectionInfo = initConnectionInfo();
+                } catch (LocalException ex) {
+                    // initConnectionInfo can fail. The state transition must complete regardless, so we ignore this
+                    // exception and skip the observer update.
+                }
+
+                if (connectionInfo != null) {
+                    _observer =
+                        _instance
+                            .initializationData()
+                            .observer
+                            .getConnectionObserver(connectionInfo, _endpoint, newState, _observer);
+                    if (_observer != null) {
+                        _observer.attach();
+                    } else {
+                        _writeStreamPos = -1;
+                        _readStreamPos = -1;
+                    }
                 }
             }
             if (_observer != null && state == StateClosed && _exception != null) {
