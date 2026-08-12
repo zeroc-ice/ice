@@ -35,25 +35,20 @@ extension CompileSlicePlugin: BuildToolPlugin {
 
 #endif
 
-enum PluginError: Error {
+enum PluginError: Error, CustomStringConvertible, LocalizedError {
     case invalidTarget(String)
-    case missingCompiler(String)
-    case missingConfigFile(String, String)
     case missingIceSliceFiles(String)
 
     var description: String {
         switch self {
         case .invalidTarget(let targetType):
             return "Expected a SwiftSourceModuleTarget but got '\(targetType)'."
-        case .missingCompiler(let path):
-            return "Missing slice compiler: '\(path)'."
-        case .missingConfigFile(let path, let target):
-            return
-                "Missing config file '\(path)' for target '\(target)'. This file must be included in your sources."
         case .missingIceSliceFiles(let path):
-            return "The Ice slice files are missing. Expected location: `\(path)`"
+            return "The Ice Slice files are missing. Expected location: '\(path)'."
         }
     }
+
+    var errorDescription: String? { description }
 }
 
 /// Represents the contents of a `slice-plugin.json` file.
@@ -63,7 +58,7 @@ enum PluginError: Error {
 ///   are always included and do not need to be listed here.
 ///
 /// - `search_paths`: Optional list of directories to add as `-I` search paths when invoking `slice2swift`.
-///   These paths are also relative to the config file location. Note: The Ice slice directory is automatically
+///   These paths are also relative to the config file location. Note: The Ice Slice directory is automatically
 ///   included and does not need to be listed here.
 ///
 /// - Example:
@@ -80,7 +75,7 @@ struct Config: Codable {
 
     /// Optional list of directories to add as `-I` search paths when invoking `slice2swift`.
     /// Paths are relative to the `slice-plugin.json` file.
-    /// Note: The Ice slice directory is automatically included.
+    /// Note: The Ice Slice directory is automatically included.
     var search_paths: [String]?
 }
 
@@ -88,7 +83,7 @@ struct Config: Codable {
 /// The `slice2swift` compilation can be configured using a `slice-plugin.json` file in the target's source files.
 /// By default the plugin will compile all `.ice` files in the target's source files.
 ///
-/// The Ice slice directory is automatically added to the search path, so you don't need to include it in
+/// The Ice Slice directory is automatically added to the search path, so you don't need to include it in
 /// `search_paths`. This allows Slice files to import Ice definitions (e.g., `#include <Ice/Identity.ice>`)
 /// without additional configuration.
 @main
@@ -97,18 +92,14 @@ struct CompileSlicePlugin {
     /// The name of the configuration file.
     private static let configFileName = "slice-plugin.json"
 
-    /// The Ice slice directory, derived from this plugin's source file location.
+    /// The Ice Slice directory, derived from this plugin's source file location.
     /// Path: CompileSlicePlugin.swift -> CompileSlice -> Plugins -> swift -> (ice root) -> slice
-    private static let iceSliceDir: URL? = {
+    private static let iceSliceDir: URL = {
         var url = URL(fileURLWithPath: #filePath)
         for _ in 0..<4 {
             url.deleteLastPathComponent()
         }
         url.append(path: "slice")
-        let identityIce = url.appending(path: "Ice/Identity.ice")
-        guard FileManager.default.fileExists(atPath: identityIce.path) else {
-            return nil
-        }
         return url
     }()
 
@@ -136,7 +127,7 @@ struct CompileSlicePlugin {
             let configData = try Data(contentsOf: configFileURL)
             let config = try JSONDecoder().decode(Config.self, from: configData)
 
-            // Add additional slice files from config.sources. The files are relative to the config file location.
+            // Add additional Slice files from config.sources. The files are relative to the config file location.
             let baseDirectory = configFileURL.deletingLastPathComponent()
             for source in config.sources ?? [] {
                 let sourceFileOrDirectory = baseDirectory.appending(path: source)
@@ -158,12 +149,13 @@ struct CompileSlicePlugin {
             }
         }
 
-        // Add the Ice slice directory last, so user-provided paths take precedence.
-        if let iceSliceDir = CompileSlicePlugin.iceSliceDir {
-            searchPaths.append("-I\(iceSliceDir.path)")
+        // Add the Ice Slice directory last, so user-provided paths take precedence.
+        guard FileManager.default.fileExists(atPath: Self.iceSliceDir.appending(path: "Ice/Identity.ice").path) else {
+            throw PluginError.missingIceSliceFiles(Self.iceSliceDir.path)
         }
+        searchPaths.append("-I\(Self.iceSliceDir.path)")
 
-        // Create the build commands for each slice file.
+        // Create the build commands for each Slice file.
         return sliceSources.map { sliceSource in
             let outputFile = outputDir.appending(path: sliceSource.lastPathComponent)
                 .deletingPathExtension()
