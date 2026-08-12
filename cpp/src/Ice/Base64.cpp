@@ -14,9 +14,8 @@ string
 IceInternal::Base64::encode(const vector<byte>& plainSeq)
 {
     // Reserve the exact amount of space needed for the returned base64 string.
-    size_t totalBytes = ((plainSeq.size() + 2) / 3) * 4;
     string retval;
-    retval.reserve(totalBytes);
+    retval.reserve(((plainSeq.size() + 2) / 3) * 4);
 
     for (size_t i = 0; i < plainSeq.size(); i += 3)
     {
@@ -58,7 +57,7 @@ IceInternal::Base64::encode(const vector<byte>& plainSeq)
 vector<byte>
 IceInternal::Base64::decode(string str)
 {
-    // First, remove any whitespace form the string.
+    // First, remove any whitespace from the string.
     auto it = std::remove_if(str.begin(), str.end(), [](unsigned char c) { return std::isspace(c); });
     str.erase(it, str.end());
 
@@ -69,54 +68,32 @@ IceInternal::Base64::decode(string str)
     {
         ostringstream os;
         os << "invalid base64 character '" << *it << "' (ordinal " << static_cast<int>(*it) << ")";
-        throw std::invalid_argument("invalid base64 string");
+        throw std::invalid_argument(os.str());
     }
     // Drop any padding characters at this point.
     str.erase(paddingStart, str.end());
 
-    // Reject any base64 strings with only 1 out 4 characters in the final sequence.
+    // Reject any base64 strings with only 1 out of 4 characters in the final sequence.
     // The final sequence may have 2, 3, or 4 characters, but 1 can't encode a full byte.
-    if (str.size() % 4 == 1)
+    if (str.length() % 4 == 1)
     {
         throw std::invalid_argument("invalid base64 string length");
     }
 
-    // Reserve enough space for the decoded sequence. The final sequence may be smaller than this.
-    size_t totalBytes = ((str.size() + 2) / 3) * 4;
     vector<byte> retval;
-    retval.reserve(totalBytes);
-
-    byte by1{0};
-    byte by2{0};
-    byte by3{0};
-    byte by4{0};
-
-    char c1, c2, c3, c4;
+    retval.reserve((str.length() * 3) / 4);
 
     for (size_t i = 0; i < str.length(); i += 4)
     {
-        c2 = '=';
-        c3 = '=';
-        c4 = '=';
+        const char c1 = str[i];
+        const char c2 = str[i + 1];  // Guaranteed okay because of the 'str.length() % 4 == 1' check above.
+        const char c3 = ((i + 2) < str.length()) ? str[i + 2] : '=';
+        const char c4 = ((i + 3) < str.length()) ? str[i + 3] : '=';
 
-        c1 = str[i];
-        if ((i + 1) < str.length())
-        {
-            c2 = str[i + 1];
-        }
-        if ((i + 2) < str.length())
-        {
-            c3 = str[i + 2];
-        }
-        if ((i + 3) < str.length())
-        {
-            c4 = str[i + 3];
-        }
-
-        by1 = decode(c1);
-        by2 = decode(c2);
-        by3 = decode(c3);
-        by4 = decode(c4);
+        const byte by1 = decode(c1);
+        const byte by2 = decode(c2);
+        const byte by3 = decode(c3);
+        const byte by4 = decode(c4);
 
         retval.push_back((by1 << 2) | by2 >> 4);
         if (c3 != '=')
