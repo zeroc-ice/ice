@@ -168,7 +168,7 @@ final class OpaqueEndpointI extends EndpointI {
         }
         s += " -e " + Protocol.encodingVersionToString(_rawEncoding);
         if (_rawBytes.length > 0) {
-            s += " -v " + Base64.encode(_rawBytes);
+            s += " -v " + Util.encodeWithBase64(_rawBytes);
         }
         return s;
     }
@@ -256,7 +256,7 @@ final class OpaqueEndpointI extends EndpointI {
                 }
 
                 try {
-                    _rawBytes = Base64.decode(argument);
+                    _rawBytes = Util.decodeBase64String(argument);
                 } catch (IllegalArgumentException ex) {
                     throw new ParseException("invalid Base64 input in endpoint '" + endpoint + "'", ex);
                 }

@@ -60,7 +60,7 @@ final class WSTransceiver implements Transceiver {
                     // The value for Sec-WebSocket-Key is a 16-byte random number, encoded with Base64.
                     byte[] key = new byte[16];
                     _rand.nextBytes(key);
-                    _key = Base64.encode(key);
+                    _key = Util.encodeWithBase64(key);
                     out.append(_key + "\r\n\r\n"); // EOM
 
                     _writeBuffer.resize(out.length(), false);
@@ -498,7 +498,7 @@ final class WSTransceiver implements Transceiver {
         }
 
         try {
-            byte[] decodedKey = Base64.decode(key);
+            byte[] decodedKey = Util.decodeBase64String(key);
             if (decodedKey.length != 16) {
                 throw new WebSocketException("WebSocket key `" + key + "' has invalid length");
             }
@@ -550,7 +550,7 @@ final class WSTransceiver implements Transceiver {
             final MessageDigest sha1 = MessageDigest.getInstance("SHA1");
             sha1.update(input.getBytes(_ascii));
             final byte[] hash = sha1.digest();
-            out.append(Base64.encode(hash) + "\r\n" + "\r\n"); // EOM
+            out.append(Util.encodeWithBase64(hash) + "\r\n\r\n"); // EOM
         } catch (NoSuchAlgorithmException ex) {
             throw new WebSocketException(ex);
         }
@@ -635,7 +635,7 @@ final class WSTransceiver implements Transceiver {
             final String input = _key + _wsUUID;
             final MessageDigest sha1 = MessageDigest.getInstance("SHA1");
             sha1.update(input.getBytes(_ascii));
-            if (!val.equals(Base64.encode(sha1.digest()))) {
+            if (!val.equals(Util.encodeWithBase64(sha1.digest()))) {
                 throw new WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
             }
         } catch (NoSuchAlgorithmException ex) {
