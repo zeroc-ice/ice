@@ -729,6 +729,31 @@ public class AllTests : global::Test.AllTests
             }
             Console.Out.WriteLine("ok");
 
+            Console.Out.Write("testing certificate chains... ");
+            Console.Out.Flush();
+            {
+                // The server certificate is issued by ca1/i1/i2, and its certificate file holds the i1 and i2
+                // intermediate CA certificates. The client only trusts the ca1 root certificate, so the server must
+                // send the intermediate certificates for the client to validate the server certificate.
+                initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
+                using var comm = new Ice.Communicator(initData);
+                ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                test(fact != null);
+                d = createServerProps(defaultProperties, "ca1/i1/i2/server", "ca1/ca1");
+                ServerPrx server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                }
+                catch (Ice.LocalException ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    test(false);
+                }
+                fact.destroyServer(server);
+            }
+            Console.Out.WriteLine("ok");
+
             if (Ice.Internal.AssemblyUtil.isWindows && isAdministrator)
             {
                 // LocalMachine certificate store is not supported on non Windows platforms.

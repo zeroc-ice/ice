@@ -23,6 +23,9 @@ internal class SSLEngine : IDisposable
 
     public void Dispose()
     {
+        // The certificate context holds on to the certificates released below.
+        _certificateContext = null;
+
         // Release the unmanaged key handles that back each X509Certificate2. The certificate
         // collection itself isn't IDisposable, so we have to walk its contents.
         if (_certs is not null)
@@ -97,7 +100,6 @@ internal class SSLEngine : IDisposable
 
             try
             {
-                X509Certificate2 cert;
                 X509KeyStorageFlags importFlags;
                 if (_useMachineContext)
                 {
@@ -108,6 +110,9 @@ internal class SSLEngine : IDisposable
                     importFlags = X509KeyStorageFlags.UserKeySet;
                 }
 
+                // With a PKCS#12 file holding a certificate chain, this returns the certificate with the private
+                // key.
+                X509Certificate2 cert;
                 if (passwordStr.Length > 0)
                 {
                     using SecureString password = createSecureString(passwordStr);
@@ -118,6 +123,37 @@ internal class SSLEngine : IDisposable
                     cert = new X509Certificate2(certFile, (string)null, importFlags);
                 }
                 _certs.Add(cert);
+
+                if (cert.HasPrivateKey)
+                {
+                    // The file can also hold the CA certificates that complete the chain of the certificate above.
+                    // SslStream only sends these intermediate certificates to the peer when we supply the
+                    // certificate through a certificate context; with a bare certificate, a peer that trusts only
+                    // the root CA sees a partial chain and rejects the connection.
+                    //
+                    // We keep the certificate loaded above as the one we present to the peer, and use this second
+                    // load only for the CA certificates: with .NET 8 on Windows, a certificate imported into a
+                    // collection loses its private key as soon as any copy of it is disposed, and
+                    // SslStreamCertificateContext.Create disposes its own copy of the certificate we give it.
+                    var fileCerts = new X509Certificate2Collection();
+                    fileCerts.Import(certFile, passwordStr.Length > 0 ? passwordStr : null, importFlags);
+
+                    // The certificates loaded above are released with the others in Dispose. We must not release
+                    // the private key holders any earlier: on Windows, a PKCS#12 file with a friendly name gives
+                    // all its loads the same key container, and disposing one of them erases the private key of
+                    // the certificate we present to the peer.
+                    _certs.AddRange(fileCerts);
+
+                    var caCerts = new X509Certificate2Collection();
+                    foreach (X509Certificate2 fileCert in fileCerts)
+                    {
+                        if (!fileCert.HasPrivateKey)
+                        {
+                            caCerts.Add(fileCert);
+                        }
+                    }
+                    _certificateContext = SslStreamCertificateContext.Create(cert, caCerts);
+                }
             }
             catch (CryptographicException ex)
             {
@@ -224,34 +260,44 @@ internal class SSLEngine : IDisposable
     {
         var authenticationOptions = new SslClientAuthenticationOptions
         {
-            ClientCertificates = _certs,
-            LocalCertificateSelectionCallback = (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
-            {
-                if (certs == null || certs.Count == 0)
-                {
-                    return null;
-                }
-                else if (certs.Count == 1)
-                {
-                    return certs[0];
-                }
-
-                // Use the first certificate that match the acceptable issuers.
-                if (acceptableIssuers != null && acceptableIssuers.Length > 0)
-                {
-                    foreach (X509Certificate certificate in certs)
-                    {
-                        if (Array.IndexOf(acceptableIssuers, certificate.Issuer) != -1)
-                        {
-                            return certificate;
-                        }
-                    }
-                }
-                return certs[0];
-            },
             RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
             TargetHost = host,
         };
+
+        if (_certificateContext is not null)
+        {
+            // The certificate context carries the intermediate CA certificates loaded with the certificate.
+            authenticationOptions.ClientCertificateContext = _certificateContext;
+        }
+        else
+        {
+            authenticationOptions.ClientCertificates = _certs;
+            authenticationOptions.LocalCertificateSelectionCallback =
+                (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                {
+                    if (certs == null || certs.Count == 0)
+                    {
+                        return null;
+                    }
+                    else if (certs.Count == 1)
+                    {
+                        return certs[0];
+                    }
+
+                    // Use the first certificate that match the acceptable issuers.
+                    if (acceptableIssuers != null && acceptableIssuers.Length > 0)
+                    {
+                        foreach (X509Certificate certificate in certs)
+                        {
+                            if (Array.IndexOf(acceptableIssuers, certificate.Issuer) != -1)
+                            {
+                                return certificate;
+                            }
+                        }
+                    }
+                    return certs[0];
+                };
+        }
 
         authenticationOptions.CertificateChainPolicy = new X509ChainPolicy();
         if (_caCerts is null)
@@ -285,19 +331,22 @@ internal class SSLEngine : IDisposable
     internal SslServerAuthenticationOptions createServerAuthenticationOptions(
         RemoteCertificateValidationCallback remoteCertificateValidationCallback)
     {
-        // Get the certificate collection and select the first one.
-        X509Certificate2 cert = null;
-        if (_certs.Count > 0)
-        {
-            cert = _certs[0];
-        }
-
         var authenticationOptions = new SslServerAuthenticationOptions
         {
-            ServerCertificate = cert,
             ClientCertificateRequired = _verifyPeer > 0,
             RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
         };
+
+        if (_certificateContext is not null)
+        {
+            // The certificate context carries the intermediate CA certificates loaded with the certificate.
+            authenticationOptions.ServerCertificateContext = _certificateContext;
+        }
+        else if (_certs.Count > 0)
+        {
+            // Get the certificate collection and select the first one.
+            authenticationOptions.ServerCertificate = _certs[0];
+        }
 
         authenticationOptions.CertificateChainPolicy = new X509ChainPolicy();
         if (_caCerts is null)
@@ -566,6 +615,11 @@ internal class SSLEngine : IDisposable
     private int _verifyPeer;
     private int _checkCRL;
     private X509Certificate2Collection _certs;
+
+    // The certificate context built from IceSSL.CertFile; it carries the CA certificates we send to the peer along
+    // with our certificate. It remains null when the certificate file holds no private key, and when the
+    // certificate comes from IceSSL.FindCert, where the platform completes the chain from the certificate store.
+    private SslStreamCertificateContext _certificateContext;
     private bool _useMachineContext;
     private X509Certificate2Collection _caCerts;
     private readonly TrustManager _trustManager;
