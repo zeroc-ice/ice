@@ -1272,8 +1272,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 try {
                     connectionInfo = initConnectionInfo();
                 } catch (LocalException ex) {
-                    // initConnectionInfo can fail. The state transition must complete regardless, so we ignore this
-                    // exception and skip the observer update.
+                    // initConnectionInfo can fail. The transition to StateClosed cannot unwind — _threadPool.finish
+                    // has already run — so skip the observer update and let the transition complete. For any other
+                    // transition, propagate: the caller closes the connection.
+                    if (state != StateClosed) {
+                        throw ex;
+                    }
                 }
 
                 if (connectionInfo != null) {
