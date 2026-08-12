@@ -1026,7 +1026,6 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         throw WebSocketException("invalid base64 value '" + key + "' for WebSocket key");
     }
 
-
     //
     // Optionally validate the Origin header against the adapter's allowed-origins list.
     // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.

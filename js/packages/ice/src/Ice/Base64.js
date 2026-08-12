@@ -48,19 +48,7 @@ function decodeChar(c) {
 
 
 function isBase64(c) {
-    if (c >= "A" && c <= "Z") {
-        return true;
-    }
-
-    if (c >= "a" && c <= "z") {
-        return true;
-    }
-
-    if (c >= "0" && c <= "9") {
-        return true;
-    }
-
-    return c == "+" || c == "/";
+    return (c >= "A" && c <= "Z") || (c >= "a" && c <= "z") || (c >= "0" && c <= "9") || c == "+" || c == "/";
 }
 
 export class Base64 {
@@ -73,14 +61,8 @@ export class Base64 {
 
         for (let i = 0; i < buf.length; i += 3) {
             const by1 = buf[i] & 0xff;
-            const by2 = 0;
-            const by3 = 0;
-            if (i + 1 < buf.length) {
-                by2 = buf[i + 1] & 0xff;
-            }
-            if (i + 2 < buf.length) {
-                by3 = buf[i + 2] & 0xff;
-            }
+            const by2 = (i + 1 < buf.length) ? buf[i + 1] & 0xff : 0;
+            const by3 = (i + 2 < buf.length) ? buf[i + 2] & 0xff : 0;
 
             v.push(encodeChar((by1 >> 2) & 0xff));
             v.push(encodeChar((((by1 & 0x3) << 4) | (by2 >> 4)) & 0xff));

@@ -62,7 +62,7 @@ IceInternal::Base64::decode(string str)
     str.erase(it, str.end());
 
     // Reject any non-base64 characters.
-    auto paddingStart = str.begin() + str.find_last_not_of('=') + 1;
+    auto paddingStart = str.begin() + (str.find_last_not_of('=') + 1);
     it = std::find_if_not(str.begin(), paddingStart, isBase64);
     if (it != paddingStart)
     {
@@ -110,9 +110,9 @@ IceInternal::Base64::decode(string str)
 }
 
 bool
-IceInternal::Base64::isBase64(unsigned char c)
+IceInternal::Base64::isBase64(char c)
 {
-    return std::isalnum(c) || c == '+' || c == '/';
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '+' || c == '/';
 }
 
 char

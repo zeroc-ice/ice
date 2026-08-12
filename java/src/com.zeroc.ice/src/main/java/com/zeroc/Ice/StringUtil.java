@@ -534,5 +534,26 @@ public final class StringUtil {
         return true;
     }
 
+    /**
+     * Encodes a byte array into a base64-encoded string.
+     * @param bytes the byte array to encode
+     * @return the base64-encoded string
+     */
+    static String encodeBase64(byte[] bytes) {
+        return java.util.Base64.getEncoder().encodeToString(bytes);
+    }
+
+    /**
+     * Decodes a base64-encoded string into a byte array.
+     * @param str the base64-encoded string to decode
+     * @return the decoded byte array
+     * @throws IllegalArgumentException if the input string is not a valid base64-encoded string
+     */
+    static byte[] decodeBase64(String str) {
+        // Remove any whitespace and newlines from the string before decoding it.
+        str = str.replaceAll("\\s", "");
+        return java.util.Base64.getDecoder().decode(str);
+    }
+
     private StringUtil() {}
 }
