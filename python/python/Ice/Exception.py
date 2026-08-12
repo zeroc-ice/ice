@@ -6,7 +6,7 @@ from builtins import Exception as BuiltinsException
 class Exception(BuiltinsException):
     """
     Abstract base class for all Ice exceptions.
-    It has only two derived classes: :class:`LocalException` and :class:`UserException`.
+    It has only two derived classes: :class:`Ice.LocalException` and :class:`Ice.UserException`.
     """
 
     _ice_id: str

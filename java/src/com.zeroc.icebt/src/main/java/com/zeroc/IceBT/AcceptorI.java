@@ -32,6 +32,7 @@ final class AcceptorI implements Acceptor {
     public void close() {
         synchronized (this) {
             _closed = true;
+            notify(); // Notify the acceptor thread
         }
 
         if (_socket != null) {
@@ -136,11 +137,14 @@ final class AcceptorI implements Acceptor {
 
     private void runAccept() {
         synchronized (this) {
-            // Wait for the ready callback to be set by the selector.
-            while (_readyCallback == null) {
+            // Wait for the ready callback to be set by the selector, or for the acceptor to be closed.
+            while (_readyCallback == null && !_closed) {
                 try {
                     wait();
                 } catch (InterruptedException ex) {}
+            }
+            if (_closed) {
+                return;
             }
         }
 

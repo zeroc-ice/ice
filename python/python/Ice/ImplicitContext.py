@@ -77,7 +77,8 @@ class ImplicitContext:
         -------
         str
             The value associated with the key, or the empty string if no value is associated with the key.
-            :func:`containsKey` allows you to distinguish between an empty-string value and no value at all.
+            :meth:`~Ice.ImplicitContext.containsKey` allows you to distinguish between an empty-string value and no
+            value at all.
         """
         return self._impl.get(key)
 

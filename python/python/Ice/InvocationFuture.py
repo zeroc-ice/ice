@@ -34,13 +34,13 @@ class InvocationFuture(Future):
         """
         Cancels the invocation.
 
-        This function invokes :func:`Future.cancel` to cancel the underlying future.
+        This function invokes :meth:`Ice.Future.cancel` to cancel the underlying future.
         If the cancellation is successful, the associated invocation is also cancelled.
 
         Cancelling an invocation prevents a queued invocation from being sent.
         If the invocation has already been sent, cancellation ensures that any reply from the server is ignored.
 
-        After cancellation, :func:`done` returns ``True``, and attempting to retrieve the result raises an
+        After cancellation, :meth:`Ice.Future.done` returns ``True``, and attempting to retrieve the result raises an
         :class:`Ice.InvocationCanceledException`.
 
         Notes
