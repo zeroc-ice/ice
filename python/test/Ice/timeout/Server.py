@@ -68,8 +68,7 @@ class Server(TestHelper):
         properties = self.createTestProperties(args)
 
         #
-        # The client sends large messages to cause the transport
-        # buffers to fill up.
+        # The client sends large messages to cause the transport buffers to fill up.
         #
         properties.setProperty("Ice.MessageSizeMax", "10000")
 

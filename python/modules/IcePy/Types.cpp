@@ -69,11 +69,6 @@ namespace IcePy
         PyObject_HEAD IcePy::ExceptionInfoPtr* info;
     };
 
-    struct BufferObject
-    {
-        PyObject_HEAD IcePy::BufferPtr* buffer;
-    };
-
     extern PyTypeObject TypeInfoType;
     extern PyTypeObject ExceptionInfoType;
 
