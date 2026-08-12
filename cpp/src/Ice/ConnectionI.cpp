@@ -1866,7 +1866,16 @@ Ice::ConnectionI::setBufferSize(int32_t rcvSize, int32_t sndSize)
     {
         rethrow_exception(_exception);
     }
-    _transceiver->setBufferSize(rcvSize, sndSize);
+    try
+    {
+        _transceiver->setBufferSize(rcvSize, sndSize);
+    }
+    catch (...)
+    {
+        // The failing call may have closed the socket, so close the connection as well.
+        setState(StateClosed, current_exception());
+        throw;
+    }
     _info = nullptr; // Invalidate the cached connection info
 }
 

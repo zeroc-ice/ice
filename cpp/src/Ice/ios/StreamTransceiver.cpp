@@ -495,19 +495,8 @@ IceObjC::StreamTransceiver::getInfo(bool incoming, string adapterName, string co
         int remotePort;
         fdToAddressAndPort(_fd, localAddress, localPort, remoteAddress, remotePort);
 
-        int rcvSize;
-        int sndSize;
-        try
-        {
-            rcvSize = getRecvBufferSize(_fd);
-            sndSize = getSendBufferSize(_fd);
-        }
-        catch (const SocketException&)
-        {
-            // The failing call closed the fd.
-            const_cast<StreamTransceiver*>(this)->clearFd();
-            throw;
-        }
+        int rcvSize = getRecvBufferSizeNoThrow(_fd);
+        int sndSize = getSendBufferSizeNoThrow(_fd);
 
         return make_shared<TCPConnectionInfo>(
             incoming,
