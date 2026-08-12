@@ -956,7 +956,13 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         if (_state >= StateClosed) {
             throw (LocalException) _exception.fillInStackTrace();
         }
-        _transceiver.setBufferSize(rcvSize, sndSize);
+        try {
+            _transceiver.setBufferSize(rcvSize, sndSize);
+        } catch (LocalException ex) {
+            // The failing call may have closed the socket, so close the connection as well.
+            setState(StateClosed, ex);
+            throw ex;
+        }
         _info = null; // Invalidate the cached connection info
     }
 

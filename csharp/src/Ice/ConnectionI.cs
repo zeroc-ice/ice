@@ -1338,7 +1338,16 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 throw _exception;
             }
-            _transceiver.setBufferSize(rcvSize, sndSize);
+            try
+            {
+                _transceiver.setBufferSize(rcvSize, sndSize);
+            }
+            catch (LocalException ex)
+            {
+                // The failing call may have closed the socket, so close the connection as well.
+                setState(StateClosed, ex);
+                throw;
+            }
             _info = null; // Invalidate the cached connection info
         }
     }

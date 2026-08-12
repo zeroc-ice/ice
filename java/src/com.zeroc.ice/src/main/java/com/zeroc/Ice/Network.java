@@ -419,6 +419,23 @@ public final class Network {
         }
     }
 
+    // Non-throwing variants that return 0 on failure and never close the channel.
+    public static int getSendBufferSizeNoThrow(SocketChannel fd) {
+        try {
+            return fd.socket().getSendBufferSize();
+        } catch (IOException ex) {
+            return 0;
+        }
+    }
+
+    public static int getRecvBufferSizeNoThrow(SocketChannel fd) {
+        try {
+            return fd.socket().getReceiveBufferSize();
+        } catch (IOException ex) {
+            return 0;
+        }
+    }
+
     public static void setRecvBufferSize(ServerSocketChannel fd, int size) {
         try {
             ServerSocket socket = fd.socket();
@@ -476,6 +493,23 @@ public final class Network {
         } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
+        }
+    }
+
+    // Non-throwing variants that return 0 on failure and never close the channel.
+    public static int getSendBufferSizeNoThrow(DatagramChannel fd) {
+        try {
+            return fd.socket().getSendBufferSize();
+        } catch (IOException ex) {
+            return 0;
+        }
+    }
+
+    public static int getRecvBufferSizeNoThrow(DatagramChannel fd) {
+        try {
+            return fd.socket().getReceiveBufferSize();
+        } catch (IOException ex) {
+            return 0;
         }
     }
 
