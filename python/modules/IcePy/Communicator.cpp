@@ -344,9 +344,7 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
                     (*self->executor)->setCommunicator(nullptr); // Break cyclic reference.
                 }
 
-                // Break cyclic reference between this object and its Python wrapper. Py_CLEAR nulls the field
-                // before releasing the reference, as releasing it can deallocate the wrapper, which in turn
-                // releases its own reference to this object.
+                // Break cyclic reference between this object and its Python wrapper.
                 Py_CLEAR(self->wrapper);
 
                 // Release the reference created when this callback was registered. This can deallocate the
@@ -377,7 +375,9 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
 
 #if PY_VERSION_HEX >= 0x030D0000
                 // With Python 3.13 and later, we use Py_IsFinalizing to conditionally release the references to
-                // completed and emptyArgs when the interpreter is not finalizing.
+                // completed and emptyArgs when the interpreter is not finalizing. With earlier Python versions,
+                // which don't provide Py_IsFinalizing, we deliberately always leak these references: destroyAsync
+                // typically runs once per communicator, so the leak is small and bounded.
                 if (!Py_IsFinalizing())
                 {
                     Py_DECREF(completed);
