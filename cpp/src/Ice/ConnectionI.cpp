@@ -2218,9 +2218,23 @@ Ice::ConnectionI::setState(State state)
         ConnectionState newState = toConnectionState(state);
         if (oldState != newState)
         {
-            _observer.attach(
-                _instance->initializationData()
-                    .observer->getConnectionObserver(initConnectionInfo(), _endpoint, newState, _observer.get()));
+            ConnectionInfoPtr connectionInfo;
+            try
+            {
+                connectionInfo = initConnectionInfo();
+            }
+            catch (const Ice::LocalException&)
+            {
+                // initConnectionInfo can fail. The state transition must complete regardless, so we ignore this
+                // exception and skip the observer update.
+            }
+
+            if (connectionInfo)
+            {
+                _observer.attach(
+                    _instance->initializationData()
+                        .observer->getConnectionObserver(connectionInfo, _endpoint, newState, _observer.get()));
+            }
         }
         if (_observer && state == StateClosed && _exception)
         {
