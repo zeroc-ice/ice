@@ -751,7 +751,7 @@ internal sealed class WSTransceiver : Transceiver
         }
         else if (val != "websocket")
         {
-            throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
+            throw new WebSocketException("invalid value '" + val + "' for Upgrade field");
         }
 
         //
@@ -765,7 +765,7 @@ internal sealed class WSTransceiver : Transceiver
         }
         else if (!val.Contains("upgrade", StringComparison.Ordinal))
         {
-            throw new WebSocketException("invalid value `" + val + "' for Connection field");
+            throw new WebSocketException("invalid value '" + val + "' for Connection field");
         }
 
         //
@@ -778,7 +778,7 @@ internal sealed class WSTransceiver : Transceiver
         }
         else if (val != "13")
         {
-            throw new WebSocketException("unsupported WebSocket version `" + val + "'");
+            throw new WebSocketException("unsupported WebSocket version '" + val + "'");
         }
 
         //
@@ -791,12 +791,12 @@ internal sealed class WSTransceiver : Transceiver
         if (val != null)
         {
             string[] protocols = Ice.UtilInternal.StringUtil.splitString(val, ",") ??
-                throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
+                throw new WebSocketException("invalid value '" + val + "' for WebSocket protocol");
             foreach (string p in protocols)
             {
                 if (!p.Trim().Equals(_iceProtocol, StringComparison.Ordinal))
                 {
-                    throw new WebSocketException("unknown value `" + p + "' for WebSocket protocol");
+                    throw new WebSocketException("unknown value '" + p + "' for WebSocket protocol");
                 }
                 addProtocol = true;
             }
@@ -808,10 +808,17 @@ internal sealed class WSTransceiver : Transceiver
         //
         string key = _parser.getHeader("Sec-WebSocket-Key", false) ??
             throw new WebSocketException("missing value for WebSocket key");
-        byte[] decodedKey = Convert.FromBase64String(key);
-        if (decodedKey.Length != 16)
+        try
         {
-            throw new WebSocketException("invalid value `" + key + "' for WebSocket key");
+            byte[] decodedKey = Convert.FromBase64String(key);
+            if (decodedKey.Length != 16)
+            {
+                throw new WebSocketException("WebSocket key '" + key + "' has invalid length");
+            }
+        }
+        catch (FormatException)
+        {
+            throw new WebSocketException("invalid base64 value '" + key + "' for WebSocket key");
         }
 
         //
@@ -873,7 +880,7 @@ internal sealed class WSTransceiver : Transceiver
         using var sha1 = SHA1.Create();
         byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350
-        @out.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
+        @out.Append(Convert.ToBase64String(hash) + "\r\n\r\n"); // EOM
 
         byte[] bytes = _utf8.GetBytes(@out.ToString());
         Debug.Assert(bytes.Length == @out.Length);
@@ -926,7 +933,7 @@ internal sealed class WSTransceiver : Transceiver
         }
         else if (val != "websocket")
         {
-            throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
+            throw new WebSocketException("invalid value '" + val + "' for Upgrade field");
         }
 
         //
@@ -942,7 +949,7 @@ internal sealed class WSTransceiver : Transceiver
         }
         else if (!val.Contains("upgrade", StringComparison.Ordinal))
         {
-            throw new WebSocketException("invalid value `" + val + "' for Connection field");
+            throw new WebSocketException("invalid value '" + val + "' for Connection field");
         }
 
         //
@@ -955,7 +962,7 @@ internal sealed class WSTransceiver : Transceiver
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
         if (val != null && !val.Equals(_iceProtocol, StringComparison.Ordinal))
         {
-            throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
+            throw new WebSocketException("invalid value '" + val + "' for WebSocket protocol");
         }
 
         //
@@ -976,7 +983,7 @@ internal sealed class WSTransceiver : Transceiver
 #pragma warning restore CA5350
         if (!val.Equals(Convert.ToBase64String(hash), StringComparison.Ordinal))
         {
-            throw new WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
+            throw new WebSocketException("invalid value '" + val + "' for Sec-WebSocket-Accept");
         }
     }
 

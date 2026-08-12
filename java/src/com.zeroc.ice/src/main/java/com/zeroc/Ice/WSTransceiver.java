@@ -451,7 +451,7 @@ final class WSTransceiver implements Transceiver {
         if (val == null) {
             throw new WebSocketException("missing value for Upgrade field");
         } else if (!"websocket".equals(val)) {
-            throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
+            throw new WebSocketException("invalid value '" + val + "' for Upgrade field");
         }
 
         // "A |Connection| header field that includes the token 'Upgrade',
@@ -460,7 +460,7 @@ final class WSTransceiver implements Transceiver {
         if (val == null) {
             throw new WebSocketException("missing value for Connection field");
         } else if (val.indexOf("upgrade") == -1) {
-            throw new WebSocketException("invalid value `" + val + "' for Connection field");
+            throw new WebSocketException("invalid value '" + val + "' for Connection field");
         }
 
         // "A |Sec-WebSocket-Version| header field, with a value of 13."
@@ -468,7 +468,7 @@ final class WSTransceiver implements Transceiver {
         if (val == null) {
             throw new WebSocketException("missing value for WebSocket version");
         } else if (!"13".equals(val)) {
-            throw new WebSocketException("unsupported WebSocket version `" + val + "'");
+            throw new WebSocketException("unsupported WebSocket version '" + val + "'");
         }
 
         // "Optionally, a |Sec-WebSocket-Protocol| header field, with a list
@@ -479,12 +479,11 @@ final class WSTransceiver implements Transceiver {
         if (val != null) {
             String[] protocols = StringUtil.splitString(val, ",");
             if (protocols == null) {
-                throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
+                throw new WebSocketException("invalid value '" + val + "' for WebSocket protocol");
             }
             for (String p : protocols) {
                 if (!_iceProtocol.equals(p.trim())) {
-                    throw new WebSocketException(
-                        "unknown value `" + p + "' for WebSocket protocol");
+                    throw new WebSocketException("unknown value '" + p + "' for WebSocket protocol");
                 }
                 addProtocol = true;
             }
@@ -500,10 +499,10 @@ final class WSTransceiver implements Transceiver {
         try {
             byte[] decodedKey = Util.decodeBase64String(key);
             if (decodedKey.length != 16) {
-                throw new WebSocketException("WebSocket key `" + key + "' has invalid length");
+                throw new WebSocketException("WebSocket key '" + key + "' has invalid length");
             }
         } catch (IllegalArgumentException ex) {
-            throw new WebSocketException("invalid base64 value `" + key + "' for WebSocket key");
+            throw new WebSocketException("invalid base64 value '" + key + "' for WebSocket key");
         }
 
         // Optionally validate the Origin header against the adapter's allowed-origins list.
@@ -595,7 +594,7 @@ final class WSTransceiver implements Transceiver {
         if (val == null) {
             throw new WebSocketException("missing value for Upgrade field");
         } else if (!"websocket".equals(val)) {
-            throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
+            throw new WebSocketException("invalid value '" + val + "' for Upgrade field");
         }
 
         // "If the response lacks a |Connection| header field or the
@@ -606,7 +605,7 @@ final class WSTransceiver implements Transceiver {
         if (val == null) {
             throw new WebSocketException("missing value for Connection field");
         } else if (val.indexOf("upgrade") == -1) {
-            throw new WebSocketException("invalid value `" + val + "' for Connection field");
+            throw new WebSocketException("invalid value '" + val + "' for Connection field");
         }
 
         // "If the response includes a |Sec-WebSocket-Protocol| header field
@@ -616,7 +615,7 @@ final class WSTransceiver implements Transceiver {
         //  the WebSocket Connection_."
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
         if (val != null && !_iceProtocol.equals(val)) {
-            throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
+            throw new WebSocketException("invalid value '" + val + "' for WebSocket protocol");
         }
 
         // "If the response lacks a |Sec-WebSocket-Accept| header field or
@@ -636,7 +635,7 @@ final class WSTransceiver implements Transceiver {
             final MessageDigest sha1 = MessageDigest.getInstance("SHA1");
             sha1.update(input.getBytes(_ascii));
             if (!val.equals(Util.encodeWithBase64(sha1.digest()))) {
-                throw new WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
+                throw new WebSocketException("invalid value '" + val + "' for Sec-WebSocket-Accept");
             }
         } catch (NoSuchAlgorithmException ex) {
             throw new WebSocketException(ex);
