@@ -5,7 +5,7 @@ from enum import Enum
 
 class ToStringMode(Enum):
     """
-    The output mode for xxxToString functions such as :func:`identityToString`.
+    The output mode for xxxToString functions such as :func:`Ice.identityToString`.
     The actual encoding format for the string is the same for all modes: you don't need to specify an
     encoding format or mode when reading such a string.
     """

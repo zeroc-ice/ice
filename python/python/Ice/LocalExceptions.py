@@ -44,7 +44,7 @@ class DispatchException(LocalException):
     @property
     def replyStatus(self) -> int:
         """
-        Returns the reply status as an int (see :class:`ReplyStatus`).
+        Returns the reply status as an int (see :class:`Ice.ReplyStatus`).
 
         Returns
         -------
@@ -148,8 +148,8 @@ class OperationNotExistException(RequestFailedException):
 
 class UnknownException(DispatchException):
     """
-    The exception that is raised when a dispatch failed with an exception that is not a :class:`LocalException` or a
-    :class:`UserException`.
+    The exception that is raised when a dispatch failed with an exception that is not a :class:`Ice.LocalException`
+    or a :class:`Ice.UserException`.
     """
 
     _ice_id = "::Ice::UnknownException"
@@ -161,8 +161,8 @@ class UnknownException(DispatchException):
 @final
 class UnknownLocalException(UnknownException):
     """
-    The exception that is raised when a dispatch failed with a :class:`LocalException` that is not a
-    :class:`DispatchException`.
+    The exception that is raised when a dispatch failed with a :class:`Ice.LocalException` that is not a
+    :class:`Ice.DispatchException`.
     """
 
     _ice_id = "::Ice::UnknownLocalException"
@@ -174,7 +174,7 @@ class UnknownLocalException(UnknownException):
 @final
 class UnknownUserException(UnknownException):
     """
-    The exception that is raised when a client receives a :class:`UserException` that was not declared in the
+    The exception that is raised when a client receives a :class:`Ice.UserException` that was not declared in the
     operation's exception specification.
     """
 
@@ -355,8 +355,8 @@ class AlreadyRegisteredException(LocalException):
     @property
     def kindOfObject(self) -> str:
         """
-        Returns the kind of object that is already registered: "servant", "facet", "default servant",
-        "servant locator", "plugin", "object adapter", "object adapter with router".
+        Returns the kind of object that is already registered, one of "servant", "facet", "default servant",
+        "servant locator", "plugin", "object adapter", or "object adapter with router".
 
         Returns
         -------
@@ -509,7 +509,7 @@ class NotRegisteredException(LocalException):
 @final
 class ObjectAdapterDeactivatedException(LocalException):
     """
-    The exception that is raised when attempting to use an :class:`ObjectAdapter` that has been deactivated.
+    The exception that is raised when attempting to use an :class:`Ice.ObjectAdapter` that has been deactivated.
     """
 
     _ice_id = "::Ice::ObjectAdapterDeactivatedException"
@@ -518,7 +518,7 @@ class ObjectAdapterDeactivatedException(LocalException):
 @final
 class ObjectAdapterDestroyedException(LocalException):
     """
-    The exception that is raised when attempting to use an :class:`ObjectAdapter` that has been destroyed.
+    The exception that is raised when attempting to use an :class:`Ice.ObjectAdapter` that has been destroyed.
     """
 
     _ice_id = "::Ice::ObjectAdapterDestroyedException"
@@ -527,8 +527,8 @@ class ObjectAdapterDestroyedException(LocalException):
 @final
 class ObjectAdapterIdInUseException(LocalException):
     """
-    The exception that is raised when an :class:`ObjectAdapter` cannot be activated. This can happen when a
-    :class:`Locator` implementation detects another active :class:`ObjectAdapter` with the same adapter ID.
+    The exception that is raised when an :class:`Ice.ObjectAdapter` cannot be activated. This can happen when a
+    :class:`Ice.Locator` implementation detects another active :class:`Ice.ObjectAdapter` with the same adapter ID.
     """
 
     _ice_id = "::Ice::ObjectAdapterIdInUseException"
@@ -555,8 +555,9 @@ class SecurityException(LocalException):
 @final
 class TwowayOnlyException(LocalException):
     """
-    The exception that is raised when attempting to invoke an operation with ``ice_oneway``, ``ice_batchOneway``,
-    ``ice_datagram``, or ``ice_batchDatagram``, and the operation has a return value, an out parameter, or an exception
+    The exception that is raised when attempting to invoke an operation with :meth:`Ice.ObjectPrx.ice_oneway`,
+    :meth:`Ice.ObjectPrx.ice_batchOneway`, :meth:`Ice.ObjectPrx.ice_datagram`, or
+    :meth:`Ice.ObjectPrx.ice_batchDatagram`, and the operation has a return value, an out parameter, or an exception
     specification.
     """
 
