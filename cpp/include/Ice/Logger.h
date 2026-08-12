@@ -34,20 +34,24 @@ namespace Ice
         /// Prints a message.
         /// The message is printed literally, without any decorations such as executable name or timestamp.
         /// @param message The message to log.
+        /// @remark An implementation of this function must not throw exceptions.
         virtual void print(const std::string& message) = 0;
 
         /// Logs a trace message.
         /// @param category The trace category.
         /// @param message The trace message to log.
+        /// @remark An implementation of this function must not throw exceptions.
         virtual void trace(const std::string& category, const std::string& message) = 0;
 
         /// Logs a warning message.
         /// @param message The warning message to log.
+        /// @remark An implementation of this function must not throw exceptions.
         /// @see #error
         virtual void warning(const std::string& message) = 0;
 
         /// Logs an error message.
         /// @param message The error message to log.
+        /// @remark An implementation of this function must not throw exceptions.
         /// @see #warning
         virtual void error(const std::string& message) = 0;
 

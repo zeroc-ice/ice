@@ -4,6 +4,10 @@ package com.zeroc.Ice.Instrumentation;
 
 /**
  * The object observer interface used by instrumented objects to notify the observer of their existence.
+ *
+ * <p>The Ice runtime calls observers while updating its internal state and does not guard against exceptions they
+ * throw. Implementations of this interface and its derived interfaces must not throw exceptions: a thrown exception
+ * can leave the Ice runtime in an inconsistent state or terminate an Ice runtime thread.
  */
 public interface Observer {
     /**
