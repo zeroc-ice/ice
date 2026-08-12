@@ -16,9 +16,6 @@
 
 namespace IcePy
 {
-    class Buffer;
-    using BufferPtr = std::shared_ptr<Buffer>;
-
     class ExceptionInfo;
     using ExceptionInfoPtr = std::shared_ptr<ExceptionInfo>;
     using ExceptionInfoList = std::vector<ExceptionInfoPtr>;
@@ -585,8 +582,6 @@ namespace IcePy
 
     PyObject* createException(const ExceptionInfoPtr&);
     ExceptionInfoPtr getException(PyObject*);
-
-    PyObject* createBuffer(const BufferPtr&);
 }
 
 extern "C" PyObject* IcePy_defineEnum(PyObject*, PyObject*);
