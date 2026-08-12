@@ -231,12 +231,21 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
         cast(
             Ice.ObjectPrx, communicator.stringToProxy("invalidReturnValue:{0}".format(helper.getTestEndpoint()))
         ).ice_ping()
+        test(False)
     except Ice.ObjectNotExistException:
         pass
     try:
         cast(
             Ice.ObjectPrx, communicator.stringToProxy("invalidReturnType:{0}".format(helper.getTestEndpoint()))
         ).ice_ping()
+        test(False)
+    except Ice.ObjectNotExistException:
+        pass
+    try:
+        cast(
+            Ice.ObjectPrx, communicator.stringToProxy("emptyTupleReturnValue:{0}".format(helper.getTestEndpoint()))
+        ).ice_ping()
+        test(False)
     except Ice.ObjectNotExistException:
         pass
     print("ok")
