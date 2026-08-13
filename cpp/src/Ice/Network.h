@@ -222,6 +222,10 @@ namespace IceInternal
     ICE_API void setRecvBufferSize(SOCKET, int);
     ICE_API int getRecvBufferSize(SOCKET);
 
+    // Non-throwing variants that return 0 on failure and never close the fd.
+    ICE_API int getSendBufferSizeNoThrow(SOCKET) noexcept;
+    ICE_API int getRecvBufferSizeNoThrow(SOCKET) noexcept;
+
     ICE_API void setMcastGroup(SOCKET, const Address&, const std::string&);
     ICE_API void setMcastInterface(SOCKET, const std::string&, const Address&);
     ICE_API void setMcastTtl(SOCKET, int, const Address&);

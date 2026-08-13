@@ -1099,7 +1099,7 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
         //
         setRecvBufferSize(fd, rcvSize);
         int size = getRecvBufferSize(fd);
-        if (size > 0 && size < rcvSize)
+        if (size < rcvSize)
         {
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.
@@ -1122,7 +1122,7 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
         //
         setSendBufferSize(fd, sndSize);
         int size = getSendBufferSize(fd);
-        if (size > 0 && size < sndSize)
+        if (size < sndSize)
         {
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.
@@ -1196,10 +1196,8 @@ IceInternal::setSendBufferSize(SOCKET fd, int sz)
 int
 IceInternal::getSendBufferSize(SOCKET fd)
 {
-    int sz;
-    socklen_t len = sizeof(sz);
-    if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
-        static_cast<unsigned int>(len) != sizeof(sz))
+    int sz = getSendBufferSizeNoThrow(fd);
+    if (sz == 0)
     {
         closeSocketNoThrow(fd);
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
@@ -1220,13 +1218,37 @@ IceInternal::setRecvBufferSize(SOCKET fd, int sz)
 int
 IceInternal::getRecvBufferSize(SOCKET fd)
 {
+    int sz = getRecvBufferSizeNoThrow(fd);
+    if (sz == 0)
+    {
+        closeSocketNoThrow(fd);
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
+    }
+    return sz;
+}
+
+int
+IceInternal::getSendBufferSizeNoThrow(SOCKET fd) noexcept
+{
+    int sz;
+    socklen_t len = sizeof(sz);
+    if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
+        static_cast<unsigned int>(len) != sizeof(sz))
+    {
+        return 0;
+    }
+    return sz;
+}
+
+int
+IceInternal::getRecvBufferSizeNoThrow(SOCKET fd) noexcept
+{
     int sz;
     socklen_t len = sizeof(sz);
     if (getsockopt(fd, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
         static_cast<unsigned int>(len) != sizeof(sz))
     {
-        closeSocketNoThrow(fd);
-        throw SocketException(__FILE__, __LINE__, getSocketErrno());
+        return 0;
     }
     return sz;
 }

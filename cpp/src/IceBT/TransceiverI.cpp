@@ -141,19 +141,8 @@ IceBT::TransceiverI::getInfo(bool incoming, string adapterName, string connectio
         int remoteChannel;
         fdToAddressAndChannel(_stream->fd(), localAddress, localChannel, remoteAddress, remoteChannel);
 
-        int rcvSize;
-        int sndSize;
-        try
-        {
-            rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
-            sndSize = IceInternal::getSendBufferSize(_stream->fd());
-        }
-        catch (const Ice::SocketException&)
-        {
-            // The failing call closed the fd.
-            _stream->clearFd();
-            throw;
-        }
+        int rcvSize = IceInternal::getRecvBufferSizeNoThrow(_stream->fd());
+        int sndSize = IceInternal::getSendBufferSizeNoThrow(_stream->fd());
 
         return make_shared<ConnectionInfo>(
             incoming,

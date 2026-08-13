@@ -541,16 +541,7 @@ OpenSSL::TransceiverI::getInfo(bool incoming, string adapterName, string connect
     // adapterName is the name of the object adapter currently associated with this connection, while _adapterName
     // represents the name of the object adapter that created this connection (incoming only).
 
-    Ice::ConnectionInfoPtr delegateInfo;
-    try
-    {
-        delegateInfo = _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId));
-    }
-    catch (...)
-    {
-        invalidateBIOFd();
-        throw;
-    }
+    Ice::ConnectionInfoPtr delegateInfo = _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId));
 
     X509* peerCertificate = nullptr;
     if (_peerCertificate)
