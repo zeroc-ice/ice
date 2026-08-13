@@ -272,6 +272,10 @@ communicatorDealloc(CommunicatorObject* self)
 
     delete self->shutdownException;
     delete self->shutdownFuture;
+
+    // Keep this after the communicator release above: it ensures the last release of the
+    // ExecutorPtr - which releases a Python object - always runs here with the GIL held,
+    // never in ~Instance (which can run with the GIL released).
     delete self->executor;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }

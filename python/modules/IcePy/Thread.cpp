@@ -5,6 +5,40 @@
 using namespace std;
 using namespace IcePy;
 
+std::future<void>
+IcePy::waitInThread(std::function<void()> wait)
+{
+    auto promise{make_shared<std::promise<void>>()};
+    std::future<void> future{promise->get_future()};
+
+    std::thread{[wait = std::move(wait), promise]() mutable
+                {
+                    exception_ptr ex;
+                    try
+                    {
+                        wait();
+                    }
+                    catch (...)
+                    {
+                        ex = current_exception();
+                    }
+
+                    wait = nullptr; // destroy the captures before making the future ready
+
+                    if (ex)
+                    {
+                        promise->set_exception(ex);
+                    }
+                    else
+                    {
+                        promise->set_value();
+                    }
+                }}
+        .detach();
+
+    return future;
+}
+
 IcePy::AllowThreads::AllowThreads() { _state = PyEval_SaveThread(); }
 
 IcePy::AllowThreads::~AllowThreads() { PyEval_RestoreThread(_state); }
