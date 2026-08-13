@@ -16,7 +16,9 @@ updating the Swift package manifest with release binary hashes), and then run `p
 
 The `nightly-release` workflow orchestrates the nightly path. It always runs `build-release`; when `publish` is true,
 it then prunes expired nightly artifacts and runs `publish-release`. Pruning must finish before publishing because it
-can remove packages from the APT and RPM repository trees, while the publish workflows regenerate their metadata.
+can remove packages from the RPM repository trees, while the publish workflows regenerate their metadata. The APT
+repositories are not touched by the prune: their packages, indices, and database are maintained by reprepro, which
+removes expired nightly packages during publish.
 Run `nightly-release` with `publish` false to build nightly artifacts without changing the repositories.
 
 The scheduler dispatches `nightly-release` for branches that contain this split workflow. Maintenance branches that

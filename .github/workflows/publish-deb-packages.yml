@@ -72,6 +72,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace" \
             -e GPG_KEY="${GPG_KEY}" \
             -e GPG_KEY_ID="${GPG_KEY_ID}" \
+            -e DAYS_TO_KEEP="${DAYS_TO_KEEP}" \
             ghcr.io/zeroc-ice/deb-repo-builder:${CHANNEL} \
             /workspace/ice/packaging/deb/create-deb-repo.sh \
             --staging /workspace/staging/ \

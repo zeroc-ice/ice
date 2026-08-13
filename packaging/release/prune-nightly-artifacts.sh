@@ -48,6 +48,14 @@ for key in $keys; do
         continue
     fi
 
+    # The APT pool is managed by reprepro during publish (see packaging/deb/create-deb-repo.sh),
+    # which removes expired nightly packages together with their database and index entries.
+    # Deleting pool objects here would leave the APT indices referencing missing files.
+    if [[ "$key" == */pool/* ]]; then
+        ((++ignored))
+        continue
+    fi
+
     # Extract date part from various nightly formats:
     # - nightly.20250821, nightly-20250821, nightly20250821
     # - pre.20250821, pre-20250821
