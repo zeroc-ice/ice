@@ -116,9 +116,10 @@ DataElementI::attach(
             // The sample filter factory runs the application's decoder. Leave this element unattached rather than
             // attaching it without the filter, which would send the peer the samples its filter meant to exclude.
             // Returning without an ack confines the failure to this element: the caller attaches the other elements
-            // of the request and acks them, so the peer still initializes them.
+            // of the request and acks them, so the peer still initializes them. Print the element id rather than the
+            // element, whose keys stream through the application's formatter — application code inside this catch.
             Warning out(_traceLevels->logger);
-            out << "did not attach '" << this << "' to a peer element: its sample filter '" << info->name
+            out << "did not attach 'e" << _id << "' to a peer element: its sample filter '" << info->name
                 << "' could not be decoded:\n"
                 << ex.what();
             return;
@@ -185,9 +186,10 @@ DataElementI::attach(
             // The sample filter factory runs the application's decoder. Leave this element unattached rather than
             // attaching it without the filter, which would send the peer the samples its filter meant to exclude.
             // Returning no initialization callback confines the failure to this element: the caller attaches and
-            // initializes the other elements of the acknowledgement.
+            // initializes the other elements of the acknowledgement. Print the element id rather than the element,
+            // whose keys stream through the application's formatter — application code inside this catch.
             Warning out(_traceLevels->logger);
-            out << "did not attach '" << this << "' to a peer element: its sample filter '" << info->name
+            out << "did not attach 'e" << _id << "' to a peer element: its sample filter '" << info->name
                 << "' could not be decoded:\n"
                 << ex.what();
             return nullptr;
