@@ -166,8 +166,7 @@ TopicI::matchKeyFilter(const shared_ptr<Filter>& filter, const shared_ptr<Key>& 
     {
         // The filter predicate is application code. Treating a throwing predicate as not matching leaves this key
         // unattached and lets the attach continue with the topic's remaining keys and filters, the way a predicate
-        // that returns false does. Letting the exception escape would instead abandon the whole attach, and since
-        // the session protocol is fire-and-forget the peer would never learn that nothing was attached.
+        // that returns false does.
 
         // The key's toString runs the application's formatter — more application code — so it can throw too; the
         // placeholder keeps such a throw from escaping the guard.
