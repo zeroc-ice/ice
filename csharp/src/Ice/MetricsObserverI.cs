@@ -5,8 +5,15 @@ using System.Diagnostics;
 
 namespace IceMX;
 
+/// <summary>
+/// Helper class for metrics operations.
+/// </summary>
+/// <typeparam name="T">The metrics type.</typeparam>
 public class MetricsHelper<T> where T : Metrics
 {
+    /// <summary>
+    /// Resolves attribute values from metrics objects.
+    /// </summary>
     public class AttributeResolver
     {
         private abstract class Resolver
@@ -238,8 +245,16 @@ public class MetricsHelper<T> where T : Metrics
     private readonly AttributeResolver _attributes;
 }
 
+/// <summary>
+/// Observer implementation for metrics collection.
+/// </summary>
+/// <typeparam name="T">The metrics type.</typeparam>
 public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Metrics, new()
 {
+    /// <summary>
+    /// Represents a function that updates a metrics object.
+    /// </summary>
+    /// <param name="m">The metrics object to update.</param>
     public delegate void MetricsUpdate(T m);
 
     public virtual void attach() => Start();
@@ -338,6 +353,11 @@ public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Met
     private long _previousDelay;
 }
 
+/// <summary>
+/// Factory for creating observer instances for metrics collection.
+/// </summary>
+/// <typeparam name="T">The metrics type.</typeparam>
+/// <typeparam name="O">The observer type.</typeparam>
 public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T>, new()
 {
     public ObserverFactory(Ice.Internal.MetricsAdminI metrics, string name)
