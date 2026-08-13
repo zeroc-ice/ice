@@ -479,8 +479,6 @@ ZEND_METHOD(Ice_Communicator, identityToString)
     }
 }
 
-ZEND_METHOD(Ice_Communicator, getImplicitContext) { runtimeError("not implemented"); }
-
 ZEND_METHOD(Ice_Communicator, getProperties)
 {
     if (ZEND_NUM_ARGS() > 0)
@@ -1284,8 +1282,6 @@ static zend_function_entry _classMethods[] = {
     ZEND_ME(Ice_Communicator, proxyToProperty, Ice_Communicator_proxyToProperty_arginfo, ZEND_ACC_PUBLIC)
     // identityToString
     ZEND_ME(Ice_Communicator, identityToString, Ice_Communicator_identityToString_arginfo, ZEND_ACC_PUBLIC)
-    // getImplicitContext
-    ZEND_ME(Ice_Communicator, getImplicitContext, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // getProperties
     ZEND_ME(Ice_Communicator, getProperties, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // getLogger
