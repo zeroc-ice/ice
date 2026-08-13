@@ -1099,7 +1099,7 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
         //
         setRecvBufferSize(fd, rcvSize);
         int size = getRecvBufferSize(fd);
-        if (size > 0 && size < rcvSize)
+        if (size < rcvSize)
         {
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.
@@ -1122,7 +1122,7 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
         //
         setSendBufferSize(fd, sndSize);
         int size = getSendBufferSize(fd);
-        if (size > 0 && size < sndSize)
+        if (size < sndSize)
         {
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.

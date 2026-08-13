@@ -43,7 +43,7 @@ IceBT::StreamSocket::setBufferSize(SOCKET fd, int rcvSize, int sndSize)
         //
         IceInternal::setRecvBufferSize(fd, rcvSize);
         int size = IceInternal::getRecvBufferSize(fd);
-        if (size > 0 && size < rcvSize)
+        if (size < rcvSize)
         {
             //
             // Warn if the size that was set is less than the requested size and
@@ -68,7 +68,7 @@ IceBT::StreamSocket::setBufferSize(SOCKET fd, int rcvSize, int sndSize)
         //
         IceInternal::setSendBufferSize(fd, sndSize);
         int size = IceInternal::getSendBufferSize(fd);
-        if (size > 0 && size < sndSize)
+        if (size < sndSize)
         {
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.

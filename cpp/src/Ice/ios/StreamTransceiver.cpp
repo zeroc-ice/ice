@@ -98,7 +98,7 @@ IceObjC::StreamTransceiver::registerWithRunLoop(SocketOperation op)
     lock_guard lock(_mutex);
     if (_state == StateConnected && _fd == INVALID_SOCKET)
     {
-        // A failed getInfo or setBufferSize call closed the fd. The streams still reference the closed number, so
+        // A failed setBufferSize call closed the fd. The streams still reference the closed number, so
         // don't schedule them with the run loop; report the operations as ready so the thread pool calls read or
         // write, which throws.
         return op;
@@ -352,8 +352,7 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
         lock_guard lock(_mutex);
         if (_fd == INVALID_SOCKET)
         {
-            // The streams perform their I/O on the socket recorded in _fd; a failed getInfo or setBufferSize call
-            // closed it.
+            // The streams perform their I/O on the socket recorded in _fd; a failed setBufferSize call closed it.
             throw ConnectionLostException(__FILE__, __LINE__);
         }
         if (_error)
@@ -409,8 +408,7 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
         lock_guard lock(_mutex);
         if (_fd == INVALID_SOCKET)
         {
-            // The streams perform their I/O on the socket recorded in _fd; a failed getInfo or setBufferSize call
-            // closed it.
+            // The streams perform their I/O on the socket recorded in _fd; a failed setBufferSize call closed it.
             throw ConnectionLostException(__FILE__, __LINE__);
         }
         if (_error)
