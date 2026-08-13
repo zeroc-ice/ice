@@ -17,12 +17,13 @@ public sealed class ConnectionInfo : Ice.ConnectionInfo
     public readonly string cipher;
 
     /// <summary>
-    /// The certificate chain.
+    /// The peer's certificate, in a single-element array; empty when the peer did not provide a certificate.
     /// </summary>
     public readonly X509Certificate2[] certs;
 
     /// <summary>
-    /// The certificate chain verification status.
+    /// The certificate verification status. This field is always <see langword="true" />: a connection whose
+    /// certificate verification fails is aborted during the SSL handshake.
     /// </summary>
     public readonly bool verified;
 
