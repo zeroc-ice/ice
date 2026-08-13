@@ -251,6 +251,35 @@ export class StringUtil {
         }
         return Number(b);
     }
+
+    static encodeBase64(bytes) {
+        if (bytes === null || bytes.length === 0) {
+            return "";
+        }
+
+        // btoa encodes a "binary string" with one character per byte, so map the bytes into that form first.
+        let binary = "";
+        for (let i = 0; i < bytes.length; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+
+        return btoa(binary);
+    }
+
+    static decodeBase64(str) {
+        try {
+            const binary = atob(str);
+
+            // atob returns a "binary string" with one character per byte; unpack it into the byte array callers expect.
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return bytes;
+        } catch {
+            throw new Error(`invalid base64 string '${str}'`);
+        }
+    }
 }
 
 function encodeChar(c, sb, special, toStringMode) {
@@ -549,33 +578,4 @@ function decodeChar(s, start, end, special, result) {
     }
 
     return start;
-}
-
-function encodeBase64(bytes) {
-    if (bytes === null || bytes.length === 0) {
-        return "";
-    }
-
-    // btoa encodes a "binary string" with one character per byte, so map the bytes into that form first.
-    let binary = "";
-    for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-
-    return btoa(binary);
-}
-
-function decodeBase64(str) {
-    try {
-        const binary = atob(str);
-
-        // atob returns a "binary string" with one character per byte; unpack it into the byte array callers expect.
-        const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-            bytes[i] = binary.charCodeAt(i);
-        }
-        return bytes;
-    } catch {
-        throw new Error(`invalid base64 string '${str}'`);
-    }
 }

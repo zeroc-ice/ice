@@ -106,7 +106,7 @@ export class OpaqueEndpointI extends EndpointI {
         let s = "";
         s += " -t " + this._type;
         s += " -e " + encodingVersionToString(this._rawEncoding);
-        s += " -v " + encodeBase64(this._rawBytes);
+        s += " -v " + StringUtil.encodeBase64(this._rawBytes);
         return s;
     }
 
@@ -223,7 +223,7 @@ export class OpaqueEndpointI extends EndpointI {
                     throw new ParseException(`no argument provided for -v option in endpoint ${endpoint}`);
                 }
                 try {
-                    this._rawBytes = decodeBase64(argument);
+                    this._rawBytes = StringUtil.decodeBase64(argument);
                 } catch (ex) {
                     throw new ParseException(`invalid base64 value '${argument}' in endpoint ${endpoint}`, {
                         cause: ex,

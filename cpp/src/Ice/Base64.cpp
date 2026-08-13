@@ -62,7 +62,7 @@ IceInternal::Base64::decode(string str)
     str.erase(it, str.end());
 
     // Reject any non-base64 characters.
-    auto paddingStart = str.begin() + (str.find_last_not_of('=') + 1);
+    auto paddingStart = str.begin() + static_cast<ptrdiff_t>(str.find_last_not_of('=') + 1);
     it = std::find_if_not(str.begin(), paddingStart, isBase64);
     if (it != paddingStart)
     {
@@ -86,7 +86,7 @@ IceInternal::Base64::decode(string str)
     for (size_t i = 0; i < str.length(); i += 4)
     {
         const char c1 = str[i];
-        const char c2 = str[i + 1];  // Guaranteed okay because of the 'str.length() % 4 == 1' check above.
+        const char c2 = str[i + 1]; // Guaranteed okay because of the 'str.length() % 4 == 1' check above.
         const char c3 = ((i + 2) < str.length()) ? str[i + 2] : '=';
         const char c4 = ((i + 3) < str.length()) ? str[i + 3] : '=';
 
