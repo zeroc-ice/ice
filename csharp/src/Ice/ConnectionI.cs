@@ -1713,7 +1713,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
         catch (LocalException ex)
         {
-            _logger.error("unexpected connection exception:\n" + ex + "\n" + _transceiver.ToString());
+            _logger.error("unexpected connection exception:\n" + ex + "\n" + _desc);
         }
 
         if (_instance.initializationData().observer is not null)
@@ -2672,7 +2672,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return _info;
     }
 
-    private void warning(string msg, System.Exception ex) => _logger.warning($"{msg}:\n{ex}\n{_transceiver}");
+    private void warning(string msg, System.Exception ex) => _logger.warning($"{msg}:\n{ex}\n{_desc}");
 
     private void observerStartRead(Ice.Internal.Buffer buf)
     {
