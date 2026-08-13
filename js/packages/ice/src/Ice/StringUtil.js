@@ -253,7 +253,7 @@ export class StringUtil {
     }
 
     static encodeBase64(bytes) {
-        if (bytes === null || bytes.length === 0) {
+        if (bytes === null) {
             return "";
         }
 
@@ -267,18 +267,14 @@ export class StringUtil {
     }
 
     static decodeBase64(str) {
-        try {
-            const binary = atob(str);
+        const binary = atob(str);
 
-            // atob returns a "binary string" with one character per byte; unpack it into the byte array callers expect.
-            const bytes = new Uint8Array(binary.length);
-            for (let i = 0; i < binary.length; i++) {
-                bytes[i] = binary.charCodeAt(i);
-            }
-            return bytes;
-        } catch {
-            throw new Error(`invalid base64 string '${str}'`);
+        // atob returns a "binary string" with one character per byte; unpack it into the byte array callers expect.
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
         }
+        return bytes;
     }
 }
 

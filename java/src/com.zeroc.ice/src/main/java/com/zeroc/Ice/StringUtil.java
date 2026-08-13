@@ -536,6 +536,7 @@ public final class StringUtil {
 
     /**
      * Encodes a byte array into a base64-encoded string.
+     *
      * @param bytes the byte array to encode
      * @return the base64-encoded string
      */
@@ -545,6 +546,7 @@ public final class StringUtil {
 
     /**
      * Decodes a base64-encoded string into a byte array.
+     *
      * @param str the base64-encoded string to decode
      * @return the decoded byte array
      * @throws IllegalArgumentException if the input string is not a valid base64-encoded string
