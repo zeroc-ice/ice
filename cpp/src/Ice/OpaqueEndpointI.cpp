@@ -331,7 +331,7 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
                 throw ParseException(
                     __FILE__,
                     __LINE__,
-                    "invalid base64 string '" + argument + "' in endpoint '" + endpoint + "':\n" + ex.what());
+                    "invalid base64 value '" + argument + "' in endpoint '" + endpoint + "':\n" + ex.what());
             }
             return true;
         }
