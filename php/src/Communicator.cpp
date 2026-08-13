@@ -1548,6 +1548,18 @@ IcePHP::communicatorShutdown(void)
     {
         lock_guard lock(_registeredCommunicatorsMutex);
         _registeredCommunicators.swap(registeredCommunicators);
+
+        // Cancel any scheduled reap task to break the ActiveCommunicator <-> ReapCommunicatorTimerTask ownership
+        // cycle, which would otherwise keep the communicator alive past module shutdown.
+        for (const auto& entry : registeredCommunicators)
+        {
+            const ActiveCommunicatorPtr& ac = entry.second;
+            if (ac->reapTask)
+            {
+                _timer->cancel(ac->reapTask);
+                ac->reapTask = nullptr;
+            }
+        }
     }
 
     // Clearing the map releases the last remaining reference counts of the ActiveCommunicator objects. The

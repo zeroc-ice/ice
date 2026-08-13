@@ -272,6 +272,10 @@ communicatorDealloc(CommunicatorObject* self)
 
     delete self->shutdownException;
     delete self->shutdownFuture;
+
+    // Keep this after the communicator release above: it ensures the last release of the
+    // ExecutorPtr - which releases a Python object - always runs here with the GIL held,
+    // never in ~Instance (which can run with the GIL released).
     delete self->executor;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
@@ -294,8 +298,7 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
     }
 
     // Break cyclic reference between this object and its Python wrapper.
-    Py_XDECREF(self->wrapper);
-    self->wrapper = nullptr;
+    Py_CLEAR(self->wrapper);
 
     if (PyErr_Occurred())
     {
@@ -326,6 +329,9 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
 
     // We create a new reference to `completed` to ensure it remains alive until the callback is invoked.
     // This is necessary in case the user abandons the future, for example by cancelling it.
+    // We also create a new reference to this communicator object: the callback below can outlive all other
+    // references, and it must keep the object alive until it's done using it.
+    Py_INCREF(reinterpret_cast<PyObject*>(self));
     (*self->communicator)
         ->destroyAsync(
             [self, completed = Py_NewRef(completed)]()
@@ -343,8 +349,11 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
                 }
 
                 // Break cyclic reference between this object and its Python wrapper.
-                Py_XDECREF(self->wrapper);
-                self->wrapper = nullptr;
+                Py_CLEAR(self->wrapper);
+
+                // Release the reference created when this callback was registered. This can deallocate the
+                // communicator object, so self must not be used past this point.
+                Py_DECREF(reinterpret_cast<PyObject*>(self));
 
                 PyObject* emptyArgs = PyTuple_New(0);
                 if (!emptyArgs)
@@ -370,7 +379,9 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
 
 #if PY_VERSION_HEX >= 0x030D0000
                 // With Python 3.13 and later, we use Py_IsFinalizing to conditionally release the references to
-                // completed and emptyArgs when the interpreter is not finalizing.
+                // completed and emptyArgs when the interpreter is not finalizing. With earlier Python versions,
+                // which don't provide Py_IsFinalizing, we deliberately always leak these references: destroyAsync
+                // typically runs once per communicator, so the leak is small and bounded.
                 if (!Py_IsFinalizing())
                 {
                     Py_DECREF(completed);

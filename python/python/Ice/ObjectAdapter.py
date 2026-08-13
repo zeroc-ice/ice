@@ -23,8 +23,9 @@ class ObjectAdapter:
     An object adapter is the main server-side Ice API. It has two main purposes:
 
     - accept incoming connections from clients and dispatch requests received over these connections
-      (see :func:`activate`); and
-    - maintain servants that handle the requests (see :func:`add`, :func:`addDefaultServant`).
+      (see :meth:`~Ice.ObjectAdapter.activate`); and
+    - maintain servants that handle the requests (see :meth:`~Ice.ObjectAdapter.add`,
+      :meth:`~Ice.ObjectAdapter.addDefaultServant`).
 
     An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
     instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at all).
@@ -70,7 +71,7 @@ class ObjectAdapter:
     def hold(self) -> None:
         """
         Stops reading requests from incoming connections. Outstanding dispatches are not affected.
-        The object adapter can be reactivated with :func:`activate`.
+        The object adapter can be reactivated with :meth:`~Ice.ObjectAdapter.activate`.
 
         Notes
         -----
@@ -81,8 +82,8 @@ class ObjectAdapter:
 
     def waitForHold(self) -> None:
         """
-        Waits until the object adapter is in the holding state (see :func:`hold`) and the dispatch of requests received
-        over incoming connections has completed.
+        Waits until the object adapter is in the holding state (see :meth:`~Ice.ObjectAdapter.hold`) and the dispatch of
+        requests received over incoming connections has completed.
 
         Notes
         -----
@@ -99,7 +100,7 @@ class ObjectAdapter:
         Deactivates this object adapter: stops accepting new connections from clients and closes gracefully all
         incoming connections created by this object adapter once all outstanding dispatches have completed.
         If this object adapter is indirect, this function also unregisters the object adapter from the locator
-        (see :func:`activate`).
+        (see :meth:`~Ice.ObjectAdapter.activate`).
 
         This function does not cancel outstanding dispatches: it lets them execute until completion.
         A deactivated object adapter cannot be reactivated again; it can only be destroyed.
@@ -108,8 +109,9 @@ class ObjectAdapter:
 
     def waitForDeactivate(self) -> None:
         """
-        Waits until :func:`deactivate` is called on this object adapter and all connections accepted by this object adapter
-        are closed. A connection is closed only after all outstanding dispatches on this connection have completed.
+        Waits until :meth:`~Ice.ObjectAdapter.deactivate` is called on this object adapter and all connections accepted
+        by this object adapter are closed. A connection is closed only after all outstanding dispatches on this
+        connection have completed.
         """
         # If invoked by the main thread, waitForDeactivate only blocks for the specified timeout in order to give us a
         # chance to handle signals.
@@ -118,12 +120,13 @@ class ObjectAdapter:
 
     def isDeactivated(self) -> bool:
         """
-        Checks whether or not :func:`deactivate` was called on this object adapter.
+        Checks whether or not :meth:`~Ice.ObjectAdapter.deactivate` was called on this object adapter.
 
         Returns
         -------
         bool
-            ``True`` if :func:`deactivate` has been called on this object adapter, ``False`` otherwise.
+            ``True`` if :meth:`~Ice.ObjectAdapter.deactivate` has been called on this object adapter, ``False``
+            otherwise.
         """
         return self._impl.isDeactivated()
 
@@ -141,7 +144,7 @@ class ObjectAdapter:
 
         Notes
         -----
-        This function is equivalent to calling :func:`addFacet` with an empty facet.
+        This function is equivalent to calling :meth:`~Ice.ObjectAdapter.addFacet` with an empty facet.
 
         Parameters
         ----------
@@ -245,7 +248,7 @@ class ObjectAdapter:
           - If a servant locator is found, the object adapter tries to find a servant using this servant locator.
 
         - If all the previous steps fail, the object adapter gives up and the caller receives an
-          :class:`ObjectNotExistException` or a :class:`FacetNotExistException`.
+          :class:`Ice.ObjectNotExistException` or a :class:`Ice.FacetNotExistException`.
 
         Parameters
         ----------
@@ -413,7 +416,8 @@ class ObjectAdapter:
 
     def findByProxy(self, proxy: ObjectPrx) -> Object | None:
         """
-        Looks up a servant with an identity and a facet. It's equivalent to calling :func:`findFacet`.
+        Looks up a servant with an identity and a facet. It's equivalent to calling
+        :meth:`~Ice.ObjectAdapter.findFacet`.
 
         Notes
         -----

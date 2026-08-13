@@ -18,7 +18,6 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
 - (bool)isShutdown;
 - (nullable id)stringToProxy:(NSString*)str
                        error:(NSError* _Nullable* _Nonnull)error NS_SWIFT_NAME(stringToProxy(str:));
-;
 - (nullable id)propertyToProxy:(NSString*)property
                          error:(NSError* _Nullable* _Nonnull)error NS_SWIFT_NAME(propertyToProxy(property:));
 - (nullable NSDictionary<NSString*, NSString*>*)proxyToProperty:(ICEObjectPrx*)prx
@@ -27,13 +26,11 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
     NS_SWIFT_NAME(proxyToProperty(prx:property:));
 - (NSString*)identityToString:(NSString*)name
                      category:(NSString*)category NS_SWIFT_NAME(identityToString(name:category:));
-;
 - (nullable ICEObjectAdapter*)createObjectAdapter:(NSString*)name error:(NSError* _Nullable* _Nonnull)error;
 - (nullable ICEObjectAdapter*)createObjectAdapterWithEndpoints:(NSString*)name
                                                      endpoints:(NSString*)endpoints
                                                          error:(NSError* _Nullable* _Nonnull)error
     NS_SWIFT_NAME(createObjectAdapterWithEndpoints(name:endpoints:));
-;
 - (nullable ICEObjectAdapter*)createObjectAdapterWithRouter:(NSString*)name
                                                      router:(ICEObjectPrx*)router
                                                       error:(NSError* _Nullable* _Nonnull)error

@@ -117,6 +117,44 @@ class WSAllowedOriginsPortTestCase(ClientServerTestCase):
         current.writeln("ok")
 
 
+class WSConnectionHeaderTestCase(ClientServerTestCase):
+    # The Connection header field is a comma-separated list of tokens, and RFC 6455 section 4 requires one of them to
+    # be an ASCII case-insensitive match for "Upgrade". A value that merely embeds "upgrade" inside a longer token,
+    # such as "notupgrade", is not such a token and must not open a WebSocket connection.
+    def __init__(self):
+        ClientServerTestCase.__init__(
+            self,
+            "Connection header token",
+            server=Server(quiet=True, waitForShutdown=False),
+        )
+
+    def runClientSide(self, current: Driver.Current) -> None:
+        current.write("testing Connection header token matching... ")
+        host = current.host
+        assert host is not None
+        port = current.driver.getTestPort(0)
+        cases = [
+            # (Connection header value, expected to be accepted, description)
+            ("Upgrade", True, "single token"),
+            ("upgrade", True, "lowercase token"),
+            ("keep-alive, Upgrade", True, "token in a list"),
+            ("Upgrade , keep-alive", True, "token with surrounding whitespace"),
+            # An apostrophe is a legal token character, while a quote is not part of the token it surrounds.
+            ("foo'bar, Upgrade", True, "token containing an apostrophe"),
+            ("notupgrade", False, "token containing 'upgrade' as a substring"),
+            ("keep-alive, upgraded", False, "list without an 'upgrade' token"),
+            ("keep-alive", False, "list without an 'upgrade' token or substring"),
+            ('"Upgrade"', False, "double-quoted token"),
+            ("'Upgrade'", False, "single-quoted token"),
+        ]
+        for connection, expected_accepted, label in cases:
+            accepted, status = probe(host, port, None, connection=connection)
+            if accepted != expected_accepted:
+                action = "accepted" if accepted else "rejected"
+                raise RuntimeError("{0}: server {1} unexpectedly (status: {2})".format(label, action, status))
+        current.writeln("ok")
+
+
 class WSPingTestCase(ClientServerTestCase):
     # Exercises the WebSocket PING/PONG control-frame path. A zero-length ping (the common keep-alive case sent by
     # browsers and load balancers) must elicit an empty pong; before the corresponding fix the server formed
@@ -151,6 +189,7 @@ TestSuite(
         WSAllowedOriginsTestCase(),
         WSAllowedOriginsWildcardTestCase(),
         WSAllowedOriginsPortTestCase(),
+        WSConnectionHeaderTestCase(),
         WSPingTestCase(),
     ],
 )

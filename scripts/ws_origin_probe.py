@@ -35,20 +35,27 @@ import socket
 import sys
 
 
-def probe(host: str, port: int, origin: str | None, timeout: float = 5.0) -> tuple[bool, str]:
+def probe(
+    host: str,
+    port: int,
+    origin: str | None,
+    timeout: float = 5.0,
+    connection: str = "Upgrade",
+) -> tuple[bool, str]:
     """
     Send a WebSocket upgrade and return (accepted, status_line).
 
     'accepted' is True iff the server responded with HTTP/1.1 101 ...
     'status_line' is the first line of the response, or a short error
     string if the server closed the connection without writing one.
+    'connection' is the value of the Connection request header.
     """
     key = base64.b64encode(os.urandom(16)).decode("ascii")
     lines = [
         "GET / HTTP/1.1",
         f"Host: {host}:{port}",
         "Upgrade: websocket",
-        "Connection: Upgrade",
+        f"Connection: {connection}",
         f"Sec-WebSocket-Key: {key}",
         "Sec-WebSocket-Version: 13",
         "Sec-WebSocket-Protocol: ice.zeroc.com",
@@ -109,6 +116,11 @@ def main() -> int:
     p.add_argument("port", type=int)
     p.add_argument("--origin", help="Value for the Origin request header")
     p.add_argument(
+        "--connection",
+        default="Upgrade",
+        help="Value for the Connection request header (default: Upgrade)",
+    )
+    p.add_argument(
         "--cases",
         action="store_true",
         help="Run a standard battery of cases; pass --allowed for known-good origins",
@@ -126,7 +138,7 @@ def main() -> int:
         return run_cases(args.host, args.port, args.allowed)
 
     try:
-        accepted, status = probe(args.host, args.port, args.origin)
+        accepted, status = probe(args.host, args.port, args.origin, connection=args.connection)
     except Exception as e:
         print(f"error: {e}", file=sys.stderr)
         return 2

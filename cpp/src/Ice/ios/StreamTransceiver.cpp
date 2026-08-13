@@ -96,6 +96,13 @@ SocketOperation
 IceObjC::StreamTransceiver::registerWithRunLoop(SocketOperation op)
 {
     lock_guard lock(_mutex);
+    if (_state == StateConnected && _fd == INVALID_SOCKET)
+    {
+        // A failed getInfo or setBufferSize call closed the fd. The streams still reference the closed number, so
+        // don't schedule them with the run loop; report the operations as ready so the thread pool calls read or
+        // write, which throws.
+        return op;
+    }
     SocketOperation readyOp = SocketOperationNone;
     if (op & SocketOperationConnect)
     {
@@ -343,6 +350,12 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
     // the stream notification callbacks with an internal lock held.
     {
         lock_guard lock(_mutex);
+        if (_fd == INVALID_SOCKET)
+        {
+            // The streams perform their I/O on the socket recorded in _fd; a failed getInfo or setBufferSize call
+            // closed it.
+            throw ConnectionLostException(__FILE__, __LINE__);
+        }
         if (_error)
         {
             checkErrorStatus(_writeStream.get(), 0, __FILE__, __LINE__);
@@ -394,6 +407,12 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
     // the stream notification callbacks with an internal lock held.
     {
         lock_guard lock(_mutex);
+        if (_fd == INVALID_SOCKET)
+        {
+            // The streams perform their I/O on the socket recorded in _fd; a failed getInfo or setBufferSize call
+            // closed it.
+            throw ConnectionLostException(__FILE__, __LINE__);
+        }
         if (_error)
         {
             checkErrorStatus(0, _readStream.get(), __FILE__, __LINE__);
@@ -463,6 +482,7 @@ IceObjC::StreamTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceObjC::StreamTransceiver::getInfo(bool incoming, string adapterName, string connectionId) const
 {
+    lock_guard lock(_mutex);
     if (_fd == INVALID_SOCKET)
     {
         return make_shared<TCPConnectionInfo>(incoming, std::move(adapterName), std::move(connectionId));
@@ -510,6 +530,7 @@ IceObjC::StreamTransceiver::checkSendSize(const Buffer& /*buf*/)
 void
 IceObjC::StreamTransceiver::setBufferSize(int rcvSize, int sndSize)
 {
+    lock_guard lock(_mutex);
     try
     {
         setTcpBufSize(_fd, rcvSize, sndSize, _instance);

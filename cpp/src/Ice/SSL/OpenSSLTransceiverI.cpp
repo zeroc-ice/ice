@@ -165,7 +165,9 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                         break;
                     }
 
-                    if (IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
+                    // A handshake I/O failure after the delegate lost its fd is a connection loss.
+                    if (_delegate->getNativeInfo()->fd() == INVALID_SOCKET || IceInternal::connectionLost() ||
+                        IceInternal::getSocketErrno() == 0)
                     {
                         throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
                     }
@@ -279,14 +281,19 @@ OpenSSL::TransceiverI::close()
 {
     if (_ssl)
     {
-        int err = SSL_shutdown(_ssl);
-
-        //
-        // Call it one more time if it returned 0.
-        //
-        if (err == 0)
+        // The socket BIO installed in _ssl during initialization caches the fd number. Skip the shutdown
+        // notification when the delegate no longer holds this fd.
+        if (_delegate->getNativeInfo()->fd() != INVALID_SOCKET)
         {
-            SSL_shutdown(_ssl);
+            int err = SSL_shutdown(_ssl);
+
+            //
+            // Call it one more time if it returned 0.
+            //
+            if (err == 0)
+            {
+                SSL_shutdown(_ssl);
+            }
         }
 
         SSL_free(_ssl);
@@ -319,6 +326,12 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
     if (buf.i == buf.b.end())
     {
         return IceInternal::SocketOperationNone;
+    }
+
+    // The socket BIO installed in _ssl caches the fd number; fail instead of letting OpenSSL use a stale number.
+    if (_delegate->getNativeInfo()->fd() == INVALID_SOCKET)
+    {
+        throw ConnectionLostException(__FILE__, __LINE__);
     }
 
     //
@@ -405,6 +418,12 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
     if (buf.i == buf.b.end())
     {
         return IceInternal::SocketOperationNone;
+    }
+
+    // The socket BIO installed in _ssl caches the fd number; fail instead of letting OpenSSL use a stale number.
+    if (_delegate->getNativeInfo()->fd() == INVALID_SOCKET)
+    {
+        throw ConnectionLostException(__FILE__, __LINE__);
     }
 
     _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
@@ -522,15 +541,24 @@ OpenSSL::TransceiverI::getInfo(bool incoming, string adapterName, string connect
     // adapterName is the name of the object adapter currently associated with this connection, while _adapterName
     // represents the name of the object adapter that created this connection (incoming only).
 
+    Ice::ConnectionInfoPtr delegateInfo;
+    try
+    {
+        delegateInfo = _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId));
+    }
+    catch (...)
+    {
+        invalidateBIOFd();
+        throw;
+    }
+
     X509* peerCertificate = nullptr;
     if (_peerCertificate)
     {
         peerCertificate = X509_dup(_peerCertificate);
     }
 
-    return make_shared<ConnectionInfo>(
-        _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId)),
-        peerCertificate);
+    return make_shared<ConnectionInfo>(std::move(delegateInfo), peerCertificate);
 }
 
 void
@@ -541,7 +569,27 @@ OpenSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 void
 OpenSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
 {
-    _delegate->setBufferSize(rcvSize, sndSize);
+    try
+    {
+        _delegate->setBufferSize(rcvSize, sndSize);
+    }
+    catch (...)
+    {
+        invalidateBIOFd();
+        throw;
+    }
+}
+
+void
+OpenSSL::TransceiverI::invalidateBIOFd() const
+{
+    if (_ssl && _delegate->getNativeInfo()->fd() == INVALID_SOCKET)
+    {
+        // The socket BIO installed in _ssl caches the fd number. The delegate no longer holds this fd, so invalidate
+        // the BIO's copy: later TLS I/O — including handshake records written from inside SSL_accept/SSL_connect —
+        // fails with EBADF instead of touching a reused descriptor.
+        BIO_set_fd(SSL_get_wbio(_ssl), INVALID_SOCKET, BIO_NOCLOSE);
+    }
 }
 
 int

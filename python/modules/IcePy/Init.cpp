@@ -132,11 +132,12 @@ This function does not generate any Python source files. Instead, the generated 
 running interpreter.
 
 This function does not generate any code for Slice files included by the Slice files being loaded. It is the caller's
-responsibility to load all necessary Slice definitions. This can be done in a single call to :func:`loadSlice` by
-providing all Slice files (including included files) in the `args` parameter, or by making multiple calls to
-:func:`loadSlice`.
+responsibility to load all necessary Slice definitions. This can be done in a single call to :func:`Ice.loadSlice`
+by providing all Slice files (including included files) in the `args` parameter, or by making multiple calls to
+:func:`Ice.loadSlice`.
 
-When :func:`loadSlice` is called multiple times with the same Slice file, the corresponding Python code is not reloaded.
+When :func:`Ice.loadSlice` is called multiple times with the same Slice file, the corresponding Python code is not
+reloaded.
 
 Parameters
 ----------

@@ -38,7 +38,7 @@ def initialize(
     Creates a new communicator.
 
     This function is provided for backwards compatibility.
-    New code should call the :class:`Communicator` constructor directly.
+    New code should call the :class:`Ice.Communicator` constructor directly.
 
     Parameters
     ----------
@@ -142,7 +142,7 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
     Creates a property set initialized from command-line arguments and a default property set.
 
     This function is provided for backwards compatibility.
-    New code should call the :class:`Properties` constructor directly.
+    New code should call the :class:`Ice.Properties` constructor directly.
 
     Parameters
     ----------
@@ -168,10 +168,10 @@ def loadSlice(args: list[str]) -> None:
 
     This function does not generate any code for Slice files included by the Slice files being loaded.
     It is the caller's responsibility to load all necessary Slice definitions. This can be done in a single call to
-    :func:`loadSlice` by providing all Slice files (including included files) in the `args` parameter,
-    or by making multiple calls to :func:`loadSlice`.
+    :func:`Ice.loadSlice` by providing all Slice files (including included files) in the `args` parameter,
+    or by making multiple calls to :func:`Ice.loadSlice`.
 
-    When :func:`loadSlice` is called multiple times with the same Slice file,
+    When :func:`Ice.loadSlice` is called multiple times with the same Slice file,
     the corresponding Python code is not reloaded.
 
     Parameters

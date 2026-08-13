@@ -2,9 +2,7 @@
 
 #import "include/ObjectAdapter.h"
 #import "Convert.h"
-#import "include/Communicator.h"
 #import "include/Config.h"
-#import "include/Connection.h"
 #import "include/DispatchAdapter.h"
 #import "include/ObjectPrx.h"
 
@@ -18,12 +16,6 @@
 - (NSString*)getName
 {
     return toNSString(self.objectAdapter->getName());
-}
-
-- (ICECommunicator*)getCommunicator
-{
-    auto comm = self.objectAdapter->getCommunicator();
-    return [ICECommunicator getHandle:comm];
 }
 
 - (BOOL)activate:(NSError* _Nullable* _Nonnull)error

@@ -8,6 +8,10 @@ class Logger(ABC):
     Represents Ice's abstraction for logging and tracing.
 
     Applications can provide their own logger by implementing this abstraction and setting a logger on the communicator.
+
+    The Ice runtime calls :meth:`print`, :meth:`trace`, :meth:`warning` and :meth:`error` from contexts where
+    exceptions cannot be handled. Implementations of these methods must not raise exceptions: a raised exception can
+    terminate the process.
     """
 
     @abstractmethod
@@ -16,6 +20,8 @@ class Logger(ABC):
         Prints a message.
 
         The message is printed literally, without any decorations such as executable name or timestamp.
+
+        An implementation of this method must not raise exceptions.
 
         Parameters
         ----------
@@ -34,6 +40,8 @@ class Logger(ABC):
         """
         Logs a trace message.
 
+        An implementation of this method must not raise exceptions.
+
         Parameters
         ----------
         category : str
@@ -48,6 +56,8 @@ class Logger(ABC):
         """
         Logs a warning message.
 
+        An implementation of this method must not raise exceptions.
+
         Parameters
         ----------
         message : str
@@ -59,6 +69,8 @@ class Logger(ABC):
     def error(self, message: str):
         """
         Logs an error message.
+
+        An implementation of this method must not raise exceptions.
 
         Parameters
         ----------

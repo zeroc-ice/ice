@@ -1,14 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 #import "Config.h"
 
-@class ICEObjectPrx;
-@class ICEImplicitContext;
-@class ICEProperties;
 @class ICEEndpoint;
 @class ICEConnection;
-@class ICEInputStream;
 @class ICECommunicator;
-@protocol ICELoggerProtocol;
 @protocol ICEOutputStreamHelper;
 
 NS_ASSUME_NONNULL_BEGIN

@@ -108,6 +108,9 @@ class ServantLocatorI(Ice.ServantLocator):
         if current.id.name == "invalidReturnType":
             return "invalid"  # type: ignore
 
+        if current.id.name == "emptyTupleReturnValue":
+            return ()  # type: ignore
+
         test(current.id.name == "locate" or current.id.name == "finished")
         if current.id.name == "locate":
             self.exception(current)

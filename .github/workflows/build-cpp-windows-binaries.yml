@@ -3,9 +3,6 @@ name: "Build C++ Windows Binaries"
 on:
   workflow_call:
     inputs:
-      ice_version:
-        required: false
-        type: string
       authenticode_sign:
         description: "Sign Windows binaries with Authenticode"
         required: false
@@ -13,9 +10,6 @@ on:
         default: false
   workflow_dispatch:
     inputs:
-      ice_version:
-        description: "The Ice version to build"
-        required: false
       authenticode_sign:
         description: "Sign Windows binaries with Authenticode"
         required: false

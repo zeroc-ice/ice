@@ -14,6 +14,10 @@ import java.util.Map;
  * its observable objects. This interface should be implemented by add-ins that wish to observe Ice
  * objects in order to collect statistics. An instance of this interface can be provided to the Ice
  * runtime through the Ice communicator initialization data.
+ *
+ * <p>The Ice runtime calls this interface while updating its internal state and does not guard against exceptions
+ * it throws. An implementation of this interface must not throw exceptions: a thrown exception can leave the Ice
+ * runtime in an inconsistent state or terminate an Ice runtime thread.
  */
 public interface CommunicatorObserver {
     /**

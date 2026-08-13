@@ -186,7 +186,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         Awaitable[ObjectPrx | None]
-            An :class:`Awaitable` that completes when the invocation completes.
+            An :class:`~collections.abc.Awaitable` that completes when the invocation completes.
             It holds a new proxy with the requested facet, or ``None`` if the source proxy is ``None`` or if the
             target object/facet does not support the requested type.
         """
@@ -248,7 +248,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         Awaitable[bool]
-            An :class:`Awaitable` that completes when the invocation completes.
+            An :class:`~collections.abc.Awaitable` that completes when the invocation completes.
             It holds ``True`` if the target object implements the Slice interface specified by ``id``
             or implements a derived interface, ``False`` otherwise.
         """
@@ -277,7 +277,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         Awaitable[None]
-            An :class:`Awaitable` that completes when the invocation completes.
+            An :class:`~collections.abc.Awaitable` that completes when the invocation completes.
         """
         return Object._op_ice_ping.invokeAsync(self, ((), context))
 
@@ -309,7 +309,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         Awaitable[list[str]]
-            An :class:`Awaitable` that completes when the invocation completes.
+            An :class:`~collections.abc.Awaitable` that completes when the invocation completes.
             It holds the Slice type IDs of the interfaces supported by the target object, in alphabetical order.
         """
         return Object._op_ice_ids.invokeAsync(self, ((), context))
@@ -342,7 +342,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         Awaitable[str]
-            An :class:`Awaitable` that completes when the invocation completes.
+            An :class:`~collections.abc.Awaitable` that completes when the invocation completes.
             It holds the Slice type ID of the most-derived interface.
         """
         return Object._op_ice_id.invokeAsync(self, ((), context))
@@ -398,12 +398,13 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         Awaitable[tuple[bool, bytes]]
-            An :class:`Awaitable` that completes when the invocation completes. It holds a success flag and an
-            encapsulation. If the operation completed successfully, the flag is ``True`` and the encapsulation
-            contains the encoded out-parameters and return value (the return value follows any out-parameters).
-            If the operation raised a user exception, the flag is ``False`` and the encapsulation contains the
-            encoded user exception. If the operation raised a runtime exception, the :class:`Awaitable` raises it
-            directly. When this proxy is a oneway, datagram, or batch proxy, the flag is always ``True`` and the
+            An :class:`~collections.abc.Awaitable` that completes when the invocation completes. It holds a success
+            flag and an encapsulation. If the operation completed successfully, the flag is ``True`` and the
+            encapsulation contains the encoded out-parameters and return value (the return value follows any
+            out-parameters). If the operation raised a user exception, the flag is ``False`` and the encapsulation
+            contains the encoded user exception. If the operation raised a runtime exception, the
+            :class:`~collections.abc.Awaitable` raises it directly.
+            When this proxy is a oneway, datagram, or batch proxy, the flag is always ``True`` and the
             encapsulation is empty.
         """
         return super().ice_invokeAsync(operation, mode, inParams, ctx)
@@ -743,7 +744,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         See Also
         --------
-        ice_collocationOptimized
+        :meth:`~Ice.ObjectPrx.ice_collocationOptimized`
         """
         return super().ice_isCollocationOptimized()
 
@@ -974,8 +975,8 @@ class ObjectPrx(IcePy.ObjectPrx):
         connection and ignore the return value.
 
         When this proxy reaches its target object through collocation optimization (see
-        ``ice_collocationOptimized``), this function returns ``None``: collocated invocations don't use
-        a connection.
+        :meth:`~Ice.ObjectPrx.ice_collocationOptimized`), this function returns ``None``: collocated invocations
+        don't use a connection.
         """
         return super().ice_getConnection()
 
@@ -983,13 +984,13 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         Gets the connection for this proxy. If the proxy does not yet have an established connection
         or its connection is closed or being closed, it first attempts to create a new connection.
-        For a fixed proxy, the returned :class:`Awaitable` holds the connection this proxy is bound to,
+        For a fixed proxy, the returned :class:`~collections.abc.Awaitable` holds the connection this proxy is bound to,
         even when this connection is closed.
 
         Returns
         -------
         Awaitable[Connection | None]
-            An :class:`Awaitable` that completes when the connection is available.
+            An :class:`~collections.abc.Awaitable` that completes when the connection is available.
             It holds the Connection for this proxy.
 
         Notes
@@ -998,8 +999,8 @@ class ObjectPrx(IcePy.ObjectPrx):
         connection and ignore the result.
 
         When this proxy reaches its target object through collocation optimization (see
-        ``ice_collocationOptimized``), the :class:`Awaitable` holds ``None``: collocated invocations
-        don't use a connection.
+        :meth:`~Ice.ObjectPrx.ice_collocationOptimized`), the :class:`~collections.abc.Awaitable` holds ``None``:
+        collocated invocations don't use a connection.
         """
         return super().ice_getConnectionAsync()
 
@@ -1019,10 +1020,10 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Notes
         -----
-        A proxy with connection caching disabled (see ``ice_connectionCached``) never caches a connection:
-        for such a proxy, this function always returns ``None``. This function also returns ``None`` when
+        A proxy with connection caching disabled (see :meth:`~Ice.ObjectPrx.ice_connectionCached`) never caches a
+        connection: for such a proxy, this function always returns ``None``. This function also returns ``None`` when
         this proxy reaches its target object through collocation optimization (see
-        ``ice_collocationOptimized``): collocated invocations don't use a connection.
+        :meth:`~Ice.ObjectPrx.ice_collocationOptimized`): collocated invocations don't use a connection.
         """
         return super().ice_getCachedConnection()
 
@@ -1039,7 +1040,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         Awaitable[None]
-            An :class:`Awaitable` that completes when the flush completes.
+            An :class:`~collections.abc.Awaitable` that completes when the flush completes.
         """
         return super().ice_flushBatchRequestsAsync()
 
