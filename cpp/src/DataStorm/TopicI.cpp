@@ -206,8 +206,8 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
             catch (const std::exception& ex)
             {
                 // The key factory runs the application's decoder. Skip the peer key it can't decode and keep matching
-                // the remaining ones: the elements the peer announced under the other keys still attach, and a spec
-                // set missing this key is indistinguishable on the wire from one where no local element matched it.
+                // the remaining ones: the elements the peer announced under the other keys still attach, and the
+                // returned specs are indistinguishable on the wire from ones where no local element matched this key.
                 Warning out(_traceLevels->logger);
                 out << "skipped a key announced on topic '" << this << "': the key could not be decoded:\n"
                     << ex.what();
@@ -277,7 +277,7 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
                 catch (const std::exception& ex)
                 {
                     // The key filter factory runs the application's decoder. Skip the peer filter it can't decode
-                    // rather than falling back to alwaysMatchFilter the way a null return does above: a null return
+                    // rather than falling back to alwaysMatchFilter the way a null return does below: a null return
                     // means no factory is registered under that name, while a throw leaves the filter's criteria
                     // unknown, and matching everything would attach elements the peer's filter meant to exclude.
                     Warning out(_traceLevels->logger);
