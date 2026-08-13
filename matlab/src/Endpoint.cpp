@@ -101,7 +101,7 @@ namespace
                 {
                     // We don't set InfoType because there is no reserved int16 constant for Opaque.
                     mxSetFieldByNumber(r, 0, Field::RawEncoding, createEncodingVersion(opaqueInfo->rawEncoding));
-                    const std::byte* p = &opaqueInfo->rawBytes[0];
+                    const std::byte* p = opaqueInfo->rawBytes.data();
                     mxSetFieldByNumber(r, 0, Field::RawBytes, createByteArray(p, p + opaqueInfo->rawBytes.size()));
                 }
             }

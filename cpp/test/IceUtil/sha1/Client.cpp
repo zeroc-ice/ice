@@ -82,7 +82,7 @@ Client::run(int, char*[])
         vector<unsigned char> buffer;
         IceInternal::sha1(reinterpret_cast<const unsigned char*>(item->data), strlen(item->data), buffer);
         test(buffer.size() == 20);
-        string digest = toHex(string(reinterpret_cast<const char*>(&buffer[0]), 20));
+        string digest = toHex(string(reinterpret_cast<const char*>(buffer.data()), 20));
         test(item->digest == digest);
     }
 
@@ -93,7 +93,7 @@ Client::run(int, char*[])
         //
         // Test adding the data in chunks
         //
-        const auto* begin = reinterpret_cast<const unsigned char*>(&item->data[0]);
+        const auto* begin = reinterpret_cast<const unsigned char*>(item->data);
         const unsigned char* end = begin + strlen(item->data);
         while (begin != end)
         {
@@ -104,7 +104,7 @@ Client::run(int, char*[])
         vector<unsigned char> buffer;
         hasher.finalize(buffer);
         test(buffer.size() == 20);
-        string digest = toHex(string(reinterpret_cast<const char*>(&buffer[0]), 20));
+        string digest = toHex(string(reinterpret_cast<const char*>(buffer.data()), 20));
         test(item->digest == digest);
     }
     cout << "ok" << endl;

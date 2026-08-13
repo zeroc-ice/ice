@@ -1258,8 +1258,8 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             pair<const byte*, const byte*> rb{0, 0};
             if (!result.empty())
             {
-                rb.first = &result[0];
-                rb.second = &result[0] + result.size();
+                rb.first = result.data();
+                rb.second = result.data() + result.size();
             }
 
             if (!status)
@@ -1447,7 +1447,7 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
                 //
                 // Delegate to the subclass.
                 //
-                pair<const byte*, const byte*> p(&_results[0], &_results[0] + _results.size());
+                pair<const byte*, const byte*> p(_results.data(), _results.data() + _results.size());
                 handleResponse(future.get(), _ok, p);
                 if (PyErr_Occurred())
                 {
@@ -1804,8 +1804,9 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
         }
         else
         {
-            op = PyObjectHandle{
-                PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&out[0]), static_cast<Py_ssize_t>(out.size()))};
+            op = PyObjectHandle{PyBytes_FromStringAndSize(
+                reinterpret_cast<const char*>(out.data()),
+                static_cast<Py_ssize_t>(out.size()))};
         }
         if (!op.get())
         {

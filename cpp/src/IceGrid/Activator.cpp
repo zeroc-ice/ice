@@ -706,7 +706,7 @@ Activator::activate(
     struct passwd* pw;
 
     int err;
-    while ((err = getpwuid_r(uid, &pwbuf, &buffer[0], buffer.size(), &pw)) == ERANGE &&
+    while ((err = getpwuid_r(uid, &pwbuf, buffer.data(), buffer.size(), &pw)) == ERANGE &&
            buffer.size() < 1024 * 1024) // Limit buffer to 1M
     {
         buffer.resize(buffer.size() * 2);
@@ -727,16 +727,16 @@ Activator::activate(
     groups.resize(20);
     int ngroups = static_cast<int>(groups.size());
 #    if defined(__APPLE__)
-    if (getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(&groups[0]), &ngroups) < 0)
+    if (getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(groups.data()), &ngroups) < 0)
 #    else
-    if (getgrouplist(pw->pw_name, gid, &groups[0], &ngroups) < 0)
+    if (getgrouplist(pw->pw_name, gid, groups.data(), &ngroups) < 0)
 #    endif
     {
         groups.resize(static_cast<size_t>(ngroups));
 #    if defined(__APPLE__)
-        getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(&groups[0]), &ngroups);
+        getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(groups.data()), &ngroups);
 #    else
-        getgrouplist(pw->pw_name, gid, &groups[0], &ngroups);
+        getgrouplist(pw->pw_name, gid, groups.data(), &ngroups);
 #    endif
     }
     else
@@ -834,7 +834,7 @@ Activator::activate(
         //
         // Don't initialize supplementary groups if we are not running as root.
         //
-        if (getuid() == 0 && setgroups(static_cast<int>(groups.size()), &groups[0]) == -1)
+        if (getuid() == 0 && setgroups(static_cast<int>(groups.size()), groups.data()) == -1)
         {
             ostringstream os;
             for (auto p = groups.begin(); p != groups.end(); ++p)

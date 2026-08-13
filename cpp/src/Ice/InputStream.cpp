@@ -602,7 +602,7 @@ Ice::InputStream::read(vector<int16_t>& v)
         if constexpr (endian::native == endian::big)
         {
             const byte* src = &(*begin);
-            byte* dest = reinterpret_cast<byte*>(&v[0]) + sizeof(int16_t) - 1;
+            byte* dest = reinterpret_cast<byte*>(v.data()) + sizeof(int16_t) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -612,7 +612,7 @@ Ice::InputStream::read(vector<int16_t>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<byte*>(&v[0]));
+            copy(begin, i, reinterpret_cast<byte*>(v.data()));
         }
     }
     else
@@ -660,7 +660,7 @@ Ice::InputStream::read(vector<int32_t>& v)
         if constexpr (endian::native == endian::big)
         {
             const byte* src = &(*begin);
-            byte* dest = reinterpret_cast<byte*>(&v[0]) + sizeof(int32_t) - 1;
+            byte* dest = reinterpret_cast<byte*>(v.data()) + sizeof(int32_t) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -672,7 +672,7 @@ Ice::InputStream::read(vector<int32_t>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<byte*>(&v[0]));
+            copy(begin, i, reinterpret_cast<byte*>(v.data()));
         }
     }
     else
@@ -728,7 +728,7 @@ Ice::InputStream::read(vector<int64_t>& v)
         if constexpr (endian::native == endian::big)
         {
             const byte* src = &(*begin);
-            byte* dest = reinterpret_cast<byte*>(&v[0]) + sizeof(int64_t) - 1;
+            byte* dest = reinterpret_cast<byte*>(v.data()) + sizeof(int64_t) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -744,7 +744,7 @@ Ice::InputStream::read(vector<int64_t>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<byte*>(&v[0]));
+            copy(begin, i, reinterpret_cast<byte*>(v.data()));
         }
     }
     else
@@ -792,7 +792,7 @@ Ice::InputStream::read(vector<float>& v)
         if constexpr (endian::native == endian::big)
         {
             const byte* src = &(*begin);
-            byte* dest = reinterpret_cast<byte*>(&v[0]) + sizeof(float) - 1;
+            byte* dest = reinterpret_cast<byte*>(v.data()) + sizeof(float) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -804,7 +804,7 @@ Ice::InputStream::read(vector<float>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<byte*>(&v[0]));
+            copy(begin, i, reinterpret_cast<byte*>(v.data()));
         }
     }
     else
@@ -860,7 +860,7 @@ Ice::InputStream::read(vector<double>& v)
         if constexpr (endian::native == endian::big)
         {
             const byte* src = &(*begin);
-            byte* dest = reinterpret_cast<byte*>(&v[0]) + sizeof(double) - 1;
+            byte* dest = reinterpret_cast<byte*>(v.data()) + sizeof(double) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -876,7 +876,7 @@ Ice::InputStream::read(vector<double>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<byte*>(&v[0]));
+            copy(begin, i, reinterpret_cast<byte*>(v.data()));
         }
     }
     else

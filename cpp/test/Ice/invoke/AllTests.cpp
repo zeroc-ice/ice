@@ -57,7 +57,7 @@ allTests(Test::TestHelper* helper)
         }
 
         // ice_invoke with array mapping
-        pair<const byte*, const byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
+        pair<const byte*, const byte*> inPair(inEncaps.data(), inEncaps.data() + inEncaps.size());
         if (cl->ice_invoke("opString", OperationMode::Normal, inPair, outEncaps))
         {
             InputStream in(communicator, out.getEncoding(), outEncaps);

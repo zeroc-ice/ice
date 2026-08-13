@@ -18,7 +18,7 @@ namespace
     //
     template<typename T> pair<const T*, const T*> toArrayRange(const vector<T>& v)
     {
-        return make_pair(&v[0], &v[0] + v.size());
+        return make_pair(v.data(), v.data() + v.size());
     }
 
     template<typename T> pair<const T*, const T*> toArrayRange(const T* v, size_t sz) { return make_pair(v, v + sz); }

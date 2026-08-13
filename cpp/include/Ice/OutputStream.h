@@ -263,7 +263,7 @@ namespace Ice
             {
                 Container::size_type position = b.size();
                 resize(position + sz);
-                memcpy(&b[position], &v[0], sz);
+                memcpy(&b[position], v, sz);
             }
         }
 
@@ -402,7 +402,7 @@ namespace Ice
             }
             else
             {
-                write(&v[0], &v[0] + v.size());
+                write(v.data(), v.data() + v.size());
             }
         }
 

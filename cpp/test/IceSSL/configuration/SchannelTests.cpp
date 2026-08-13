@@ -45,7 +45,7 @@ loadPfxStore(const string& path)
 
     CRYPT_DATA_BLOB pfxBlob;
     pfxBlob.cbData = static_cast<DWORD>(buffer.size());
-    pfxBlob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
+    pfxBlob.pbData = reinterpret_cast<BYTE*>(buffer.data());
 
     HCERTSTORE store = PFXImportCertStore(&pfxBlob, L"password", CRYPT_USER_KEYSET);
     if (store == nullptr)
@@ -88,7 +88,7 @@ loadTrustedRootCertificates(const string& path)
     if (!CertAddEncodedCertificateToStore(
             store,
             X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-            &buffer[0],
+            buffer.data(),
             static_cast<DWORD>(buffer.size()),
             CERT_STORE_ADD_NEW,
             nullptr))

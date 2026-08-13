@@ -47,7 +47,7 @@ readFile(const string& file, vector<char>& buffer)
     buffer.resize(static_cast<size_t>(is.tellg()));
     is.seekg(0, is.beg);
 
-    is.read(&buffer[0], static_cast<streamsize>(buffer.size()));
+    is.read(buffer.data(), static_cast<streamsize>(buffer.size()));
 
     if (!is.good())
     {
@@ -74,7 +74,7 @@ public:
 
             CRYPT_DATA_BLOB p12Blob;
             p12Blob.cbData = static_cast<DWORD>(buffer.size());
-            p12Blob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
+            p12Blob.pbData = reinterpret_cast<BYTE*>(buffer.data());
 
             HCERTSTORE p12 = PFXImportCertStore(&p12Blob, L"password", CRYPT_USER_KEYSET);
             _stores.push_back(p12);
@@ -114,9 +114,9 @@ public:
             if (CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, &size))
             {
                 vector<char> buf(size);
-                if (CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, &buf[0], &size))
+                if (CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, buf.data(), &size))
                 {
-                    CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
+                    CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(buf.data());
                     HCRYPTPROV cryptProv = 0;
                     if (CryptAcquireContextW(
                             &cryptProv,

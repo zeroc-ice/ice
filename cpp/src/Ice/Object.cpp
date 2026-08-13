@@ -91,7 +91,7 @@ Ice::Object::_iceD_ice_ids(
             }
             else
             {
-                ostr->write(&ret[0], &ret[0] + ret.size(), false);
+                ostr->write(ret.data(), ret.data() + ret.size(), false);
             }
         },
         request.current()));

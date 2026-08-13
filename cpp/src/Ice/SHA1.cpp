@@ -105,16 +105,16 @@ IceInternal::SHA1::Hasher::finalize(vector<unsigned char>& md)
 #if defined(_WIN32)
     md.resize(SHA_DIGEST_LENGTH);
     DWORD length = SHA_DIGEST_LENGTH;
-    if (!CryptGetHashParam(_hash, HP_HASHVAL, &md[0], &length, 0))
+    if (!CryptGetHashParam(_hash, HP_HASHVAL, md.data(), &length, 0))
     {
         throw Ice::SyscallException{__FILE__, __LINE__, "CryptGetHashParam failed", GetLastError()};
     }
 #elif defined(__APPLE__)
     md.resize(CC_SHA1_DIGEST_LENGTH);
-    CC_SHA1_Final(&md[0], &_ctx);
+    CC_SHA1_Final(md.data(), &_ctx);
 #else
     md.resize(SHA_DIGEST_LENGTH);
-    SHA1_Final(&md[0], &_ctx);
+    SHA1_Final(md.data(), &_ctx);
 #endif
 }
 
@@ -124,16 +124,16 @@ IceInternal::SHA1::Hasher::finalize(vector<byte>& md)
 #if defined(_WIN32)
     md.resize(SHA_DIGEST_LENGTH);
     DWORD length = SHA_DIGEST_LENGTH;
-    if (!CryptGetHashParam(_hash, HP_HASHVAL, reinterpret_cast<unsigned char*>(&md[0]), &length, 0))
+    if (!CryptGetHashParam(_hash, HP_HASHVAL, reinterpret_cast<unsigned char*>(md.data()), &length, 0))
     {
         throw Ice::SyscallException{__FILE__, __LINE__, "CryptGetHashParam failed", GetLastError()};
     }
 #elif defined(__APPLE__)
     md.resize(CC_SHA1_DIGEST_LENGTH);
-    CC_SHA1_Final(reinterpret_cast<unsigned char*>(&md[0]), &_ctx);
+    CC_SHA1_Final(reinterpret_cast<unsigned char*>(md.data()), &_ctx);
 #else
     md.resize(SHA_DIGEST_LENGTH);
-    SHA1_Final(reinterpret_cast<unsigned char*>(&md[0]), &_ctx);
+    SHA1_Final(reinterpret_cast<unsigned char*>(md.data()), &_ctx);
 #endif
 }
 
@@ -168,10 +168,10 @@ IceInternal::sha1(const unsigned char* data, size_t length, vector<unsigned char
     hasher.finalize(md);
 #elif defined(__APPLE__)
     md.resize(CC_SHA1_DIGEST_LENGTH);
-    CC_SHA1(&data[0], static_cast<CC_LONG>(length), &md[0]);
+    CC_SHA1(data, static_cast<CC_LONG>(length), md.data());
 #else
     md.resize(SHA_DIGEST_LENGTH);
-    ::SHA1(&data[0], length, &md[0]);
+    ::SHA1(data, length, md.data());
 #endif
 }
 
@@ -185,11 +185,11 @@ IceInternal::sha1(const byte* data, size_t length, vector<byte>& md)
 #elif defined(__APPLE__)
     md.resize(CC_SHA1_DIGEST_LENGTH);
     CC_SHA1(
-        reinterpret_cast<const unsigned char*>(&data[0]),
+        reinterpret_cast<const unsigned char*>(data),
         static_cast<CC_LONG>(length),
-        reinterpret_cast<unsigned char*>(&md[0]));
+        reinterpret_cast<unsigned char*>(md.data()));
 #else
     md.resize(SHA_DIGEST_LENGTH);
-    ::SHA1(reinterpret_cast<const unsigned char*>(&data[0]), length, reinterpret_cast<unsigned char*>(&md[0]));
+    ::SHA1(reinterpret_cast<const unsigned char*>(data), length, reinterpret_cast<unsigned char*>(md.data()));
 #endif
 }

@@ -155,7 +155,7 @@ opaqueEndpointInfoGetRawBytes(EndpointInfoObject* self, PyObject* /*args*/)
     auto info = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(*self->endpointInfo);
     assert(info);
     return PyBytes_FromStringAndSize(
-        reinterpret_cast<const char*>(&info->rawBytes[0]),
+        reinterpret_cast<const char*>(info->rawBytes.data()),
         static_cast<int>(info->rawBytes.size()));
 }
 
