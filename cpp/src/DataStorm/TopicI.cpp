@@ -169,8 +169,8 @@ TopicI::matchKeyFilter(const shared_ptr<Filter>& filter, const shared_ptr<Key>& 
         // that returns false does. Letting the exception escape would instead abandon the whole attach, and since
         // the session protocol is fire-and-forget the peer would never learn that nothing was attached.
 
-        // The key's toString runs the application's formatter, which can throw too — plausibly, when the same
-        // type's filter just threw. Fall back to a placeholder rather than let it escape the guard.
+        // The key's toString runs the application's formatter — more application code — so it can throw too; the
+        // placeholder keeps such a throw from escaping the guard.
         string keyString;
         try
         {
