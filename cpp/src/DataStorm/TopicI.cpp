@@ -206,8 +206,7 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
             catch (const std::exception& ex)
             {
                 // The key factory runs the application's decoder. Skip the peer key it can't decode and keep matching
-                // the remaining ones: the elements the peer announced under the other keys still attach, and the
-                // returned specs are indistinguishable on the wire from ones where no local element matched this key.
+                // the remaining ones.
                 Warning out(_traceLevels->logger);
                 out << "skipped a key announced on topic '" << this << "': the key could not be decoded:\n"
                     << ex.what();
@@ -435,10 +434,8 @@ TopicI::attachElements(
                         catch (const std::exception& ex)
                         {
                             // The key filter factory runs the application's decoder. Skip this spec and keep
-                            // attaching the remaining ones: the elements attached by the earlier specs are already
-                            // registered and their acks must still reach the peer, or it never initializes them.
-                            // Falling back to alwaysMatchFilter the way a null return does would attach elements the
-                            // peer's filter meant to exclude.
+                            // attaching the remaining ones. Falling back to alwaysMatchFilter the way a null return
+                            // does would attach elements the peer's filter meant to exclude.
                             Warning out(_traceLevels->logger);
                             out << "skipped the elements of key filter '" << spec.name << "' on topic '" << this
                                 << "': the filter could not be decoded:\n"
@@ -503,8 +500,7 @@ TopicI::attachElements(
                     catch (const std::exception& ex)
                     {
                         // The key factory runs the application's decoder. Skip this spec and keep attaching the
-                        // remaining ones: the elements attached by the earlier specs are already registered and their
-                        // acks must still reach the peer, or it never initializes them.
+                        // remaining ones.
                         Warning out(_traceLevels->logger);
                         out << "skipped the elements announced under a key on topic '" << this
                             << "': the key could not be decoded:\n"
@@ -579,11 +575,10 @@ TopicI::attachElementsAck(
                         }
                         catch (const std::exception& ex)
                         {
-                            // The key filter factory runs the application's decoder. Leave the filter null: the loop
-                            // below then skips attaching these elements — falling back to alwaysMatchFilter the way a
-                            // null return does would attach elements the peer's filter meant to exclude — while still
-                            // recording the ids of the elements this node no longer holds in removedIds. Skipping the
-                            // whole spec would drop that bookkeeping along with the attachments.
+                            // The key filter factory runs the application's decoder. Leave the filter null — falling
+                            // back to alwaysMatchFilter the way a null return does would attach elements the peer's
+                            // filter meant to exclude. Skipping the whole spec would drop the removedIds bookkeeping
+                            // along with the attachments.
                             Warning out(_traceLevels->logger);
                             out << "skipped the acknowledged elements of key filter '" << spec.name << "' on topic '"
                                 << this << "': the filter could not be decoded:\n"
@@ -658,10 +653,8 @@ TopicI::attachElementsAck(
                     }
                     catch (const std::exception& ex)
                     {
-                        // The key factory runs the application's decoder. Leave the key null: the loop below then
-                        // skips attaching these elements while still recording the ids of the elements this node no
-                        // longer holds in removedIds. Skipping the whole spec would drop that bookkeeping along with
-                        // the attachments.
+                        // The key factory runs the application's decoder. Leave the key null. Skipping the whole spec
+                        // would drop the removedIds bookkeeping along with the attachments.
                         Warning out(_traceLevels->logger);
                         out << "skipped the acknowledged elements announced under a key on topic '" << this
                             << "': the key could not be decoded:\n"

@@ -115,9 +115,8 @@ DataElementI::attach(
         {
             // The sample filter factory runs the application's decoder. Leave this element unattached rather than
             // attaching it without the filter, which would send the peer the samples its filter meant to exclude.
-            // Returning without an ack confines the failure to this element: the caller attaches the other elements
-            // of the request and acks them, so the peer still initializes them. The warning prints the element id:
-            // streaming the element itself would run the application's key formatter inside this very catch.
+            // The warning prints the element id: streaming the element itself would run the application's key
+            // formatter inside this very catch.
             Warning out(_traceLevels->logger);
             out << "did not attach 'e" << _id << "' to a peer element: its sample filter '" << info->name
                 << "' could not be decoded:\n"
@@ -185,9 +184,8 @@ DataElementI::attach(
         {
             // The sample filter factory runs the application's decoder. Leave this element unattached rather than
             // attaching it without the filter, which would send the peer the samples its filter meant to exclude.
-            // Returning no initialization callback confines the failure to this element: the caller attaches and
-            // initializes the other elements of the acknowledgement. The warning prints the element id: streaming
-            // the element itself would run the application's key formatter inside this very catch.
+            // The warning prints the element id: streaming the element itself would run the application's key
+            // formatter inside this very catch.
             Warning out(_traceLevels->logger);
             out << "did not attach 'e" << _id << "' to a peer element: its sample filter '" << info->name
                 << "' could not be decoded:\n"
