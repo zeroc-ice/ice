@@ -52,6 +52,23 @@ namespace
     const string _iceProtocol = "ice.zeroc.com";                   // NOLINT(cert-err58-cpp)
     const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT(cert-err58-cpp)
 
+    // Returns true if the Connection header field - a comma-separated list of tokens, already trimmed and lowercased
+    // by HttpParser::getHeader - includes the "upgrade" token required by RFC 6455 section 4.
+    bool hasUpgradeToken(string_view connectionField)
+    {
+        while (!connectionField.empty())
+        {
+            auto comma = connectionField.find(',');
+            string_view token = connectionField.substr(0, comma);
+            connectionField.remove_prefix(comma == string_view::npos ? connectionField.size() : comma + 1);
+            if (IceInternal::trim(token) == "upgrade")
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     //
     // Rename to avoid conflict with OS 10.10 htonll
     //
@@ -963,7 +980,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     {
         throw WebSocketException("missing value for Connection field");
     }
-    else if (val.find("upgrade") == string::npos)
+    else if (!hasUpgradeToken(val))
     {
         throw WebSocketException("invalid value '" + val + "' for Connection field");
     }
@@ -1142,7 +1159,7 @@ IceInternal::WSTransceiver::handleResponse()
     {
         throw WebSocketException("missing value for Connection field");
     }
-    else if (val.find("upgrade") == string::npos)
+    else if (!hasUpgradeToken(val))
     {
         throw WebSocketException("invalid value '" + val + "' for Connection field");
     }
