@@ -490,7 +490,8 @@ internal sealed class UdpTransceiver : Transceiver
         {
             return new UDPConnectionInfo(incoming, adapterName, connectionId);
         }
-        else
+
+        try
         {
             EndPoint localEndpoint = Network.getLocalAddress(_fd);
 
@@ -531,6 +532,11 @@ internal sealed class UdpTransceiver : Transceiver
                     _rcvSize,
                     _sndSize);
             }
+        }
+        catch (ObjectDisposedException)
+        {
+            // Treat a disposed socket like a null fd.
+            return new UDPConnectionInfo(incoming, adapterName, connectionId);
         }
     }
 

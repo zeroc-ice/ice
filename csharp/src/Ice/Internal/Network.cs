@@ -279,6 +279,31 @@ internal sealed class Network
         return sz;
     }
 
+    // Non-throwing variants that return 0 on failure and never close the socket.
+    internal static int getSendBufferSizeNoThrow(Socket socket)
+    {
+        try
+        {
+            return (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    internal static int getRecvBufferSizeNoThrow(Socket socket)
+    {
+        try
+        {
+            return (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
     internal static void setReuseAddress(Socket socket, bool reuse)
     {
         try

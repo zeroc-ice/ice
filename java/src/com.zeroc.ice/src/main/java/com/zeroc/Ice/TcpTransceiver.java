@@ -70,6 +70,8 @@ final class TcpTransceiver implements Transceiver {
         if (_stream.fd() == null) {
             return new TCPConnectionInfo(incoming, adapterName, connectionId);
         } else {
+            // A closed SocketChannel's socket still reports its addresses, so there is no need to check
+            // whether the channel is open.
             Socket socket = _stream.fd().socket();
 
             String remoteAddress = "";
@@ -79,12 +81,8 @@ final class TcpTransceiver implements Transceiver {
                 remotePort = socket.getPort();
             }
 
-            int rcvSize = 0;
-            int sndSize = 0;
-            if (!socket.isClosed()) {
-                rcvSize = Network.getRecvBufferSize(_stream.fd());
-                sndSize = Network.getSendBufferSize(_stream.fd());
-            }
+            int rcvSize = Network.getRecvBufferSizeNoThrow(_stream.fd());
+            int sndSize = Network.getSendBufferSizeNoThrow(_stream.fd());
 
             return new TCPConnectionInfo(
                 incoming,
