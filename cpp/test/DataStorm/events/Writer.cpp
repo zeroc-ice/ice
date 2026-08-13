@@ -365,6 +365,36 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // A filtered reader attaching to keyed writers evaluates the key filter once per key. The key the filter throws
+    // on stays unattached; the topic's other keys still attach.
+    cout << "testing key filter that throws while a peer attaches... " << flush;
+    {
+        Topic<string, string> topic(node, "attachKeyFilterThrow");
+        topic.setKeyFilter<string>(
+            "throwOnKey",
+            [](const string& boom)
+            {
+                return [boom](const string& key)
+                {
+                    if (key == boom)
+                    {
+                        throw runtime_error("the key filter failed");
+                    }
+                    return true;
+                };
+            });
+
+        auto writer1 = makeSingleKeyWriter(topic, "k1", "", config);
+        auto writer2 = makeSingleKeyWriter(topic, "k2", "", config);
+
+        writer2.waitForReaders(1);
+        test(!writer1.hasReaders());
+
+        writer2.add("v2");
+        writer2.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
     cout << "testing filtered sample reader... " << flush;
     {
         Topic<string, string> topic(node, "filtered reader key/value filter");
