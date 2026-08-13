@@ -572,24 +572,22 @@ TopicI::attachElementsAck(
                         try
                         {
                             filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
+                            if (!filter)
+                            {
+                                filter = alwaysMatchFilter;
+                            }
                         }
                         catch (const std::exception& ex)
                         {
-                            // The key filter factory runs the application's decoder. Skip this spec and keep
-                            // processing the remaining ones: the elements attached by the earlier specs have their
-                            // initialization callbacks queued below, and abandoning the loop would drop those along
-                            // with the ids collected in removedIds. Falling back to alwaysMatchFilter the way a null
-                            // return does would attach elements the peer's filter meant to exclude.
+                            // The key filter factory runs the application's decoder. Leave the filter null: the loop
+                            // below then skips attaching these elements — falling back to alwaysMatchFilter the way a
+                            // null return does would attach elements the peer's filter meant to exclude — while still
+                            // recording the ids of the elements this node no longer holds in removedIds. Skipping the
+                            // whole spec would drop that bookkeeping along with the attachments.
                             Warning out(_traceLevels->logger);
                             out << "skipped the acknowledged elements of key filter '" << spec.name << "' on topic '"
                                 << this << "': the filter could not be decoded:\n"
                                 << ex.what();
-                            continue;
-                        }
-
-                        if (!filter)
-                        {
-                            filter = alwaysMatchFilter;
                         }
                     }
                 }
@@ -607,7 +605,7 @@ TopicI::attachElementsAck(
                                 initCb = dataElement
                                              ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
                             }
-                            else if (matchKeyFilter(filter, key)) // Filter
+                            else if (filter && matchKeyFilter(filter, key)) // Filter
                             {
                                 initCb = dataElement
                                              ->attach(topicId, spec.id, key, filter, session, prx, data, now, batches);
@@ -660,15 +658,14 @@ TopicI::attachElementsAck(
                     }
                     catch (const std::exception& ex)
                     {
-                        // The key factory runs the application's decoder. Skip this spec and keep processing the
-                        // remaining ones: the elements attached by the earlier specs have their initialization
-                        // callbacks queued below, and abandoning the loop would drop those along with the ids
-                        // collected in removedIds.
+                        // The key factory runs the application's decoder. Leave the key null: the loop below then
+                        // skips attaching these elements while still recording the ids of the elements this node no
+                        // longer holds in removedIds. Skipping the whole spec would drop that bookkeeping along with
+                        // the attachments.
                         Warning out(_traceLevels->logger);
                         out << "skipped the acknowledged elements announced under a key on topic '" << this
                             << "': the key could not be decoded:\n"
                             << ex.what();
-                        continue;
                     }
                 }
 
@@ -686,7 +683,7 @@ TopicI::attachElementsAck(
                                     dataElement
                                         ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, batches);
                             }
-                            else if (matchKeyFilter(filter, key))
+                            else if (key && matchKeyFilter(filter, key))
                             {
                                 initCb = dataElement
                                              ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
