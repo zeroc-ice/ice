@@ -494,7 +494,8 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret, pair<
     for (const auto& info : _op->optionalOutParams)
     {
         auto cb = make_shared<ResultCallback>();
-        if (_op->returnType && info->tag == _op->returnType->tag)
+        // The optional return value is represented in optionalOutParams by the returnType ParamInfo object itself.
+        if (info == _op->returnType)
         {
             retCallback = cb;
         }
