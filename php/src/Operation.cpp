@@ -23,7 +23,7 @@ namespace IcePHP
     public:
         TypeInfoPtr type;
         bool optional;
-        int tag;
+        int tag{-1}; // a non-optional parameter or return value has no tag
         int pos;
     };
     using ParamInfoPtr = std::shared_ptr<ParamInfo>;
