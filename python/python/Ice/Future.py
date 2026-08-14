@@ -119,14 +119,14 @@ class Future(Awaitable[_T]):
         """
         Retrieves the result of this future's operation.
 
-        If the operation has not completed, this function will wait up to ``timeout``-many seconds for it to finish.
-        If the operation raised an exception, this function raises the same exception.
+        If the operation has not completed, this method will wait up to ``timeout``-many seconds for it to finish.
+        If the operation raised an exception, this method raises the same exception.
 
         Parameters
         ----------
         timeout : int | float | None, optional
             Maximum time (in seconds) to wait for the result.
-            If ``None`` (the default), this function waits indefinitely until the operation completes.
+            If ``None`` (the default), this method waits indefinitely until the operation completes.
             A timeout of ``0`` returns immediately (a non-blocking poll), raising :class:`Ice.TimeoutException`
             if the result is not yet available.
 
@@ -161,13 +161,13 @@ class Future(Awaitable[_T]):
         """
         Retrieves the exception raised by this future's operation.
 
-        If the operation has not completed, this function will wait up to ``timeout``-many seconds for it to finish.
+        If the operation has not completed, this method will wait up to ``timeout``-many seconds for it to finish.
 
         Parameters
         ----------
         timeout : int | float | None, optional
             Maximum time (in seconds) to wait for the exception.
-            If ``None`` (the default), this function waits indefinitely until the operation completes.
+            If ``None`` (the default), this method waits indefinitely until the operation completes.
             A timeout of ``0`` returns immediately (a non-blocking poll), raising :class:`Ice.TimeoutException`
             if the operation has not yet completed.
 
@@ -195,10 +195,10 @@ class Future(Awaitable[_T]):
         """
         Sets the result of this future and marks it as completed.
 
-        This function stores the provided ``result`` and transitions the future's state to "done".
+        This method stores the provided ``result`` and transitions the future's state to "done".
         Any registered callbacks are executed after the state update.
 
-        If the future is not in a running state, this function has no effect.
+        If the future is not in a running state, this method has no effect.
 
         Parameters
         ----------
@@ -221,10 +221,10 @@ class Future(Awaitable[_T]):
         """
         Sets an exception for this future and marks it as completed.
 
-        This function stores the provided exception ``ex`` and transitions the future's state to "done".
+        This method stores the provided exception ``ex`` and transitions the future's state to "done".
         Any registered callbacks are executed after the state update.
 
-        If the future is not in a running state, this function has no effect.
+        If the future is not in a running state, this method has no effect.
 
         Parameters
         ----------
@@ -364,13 +364,13 @@ class FutureLike(Protocol[_T_co]):
         """
         Retrieves the result of the ``Future``.
 
-        If the ``Future`` has not completed, this function will wait up to ``timeout``-many seconds for it to finish.
+        If the ``Future`` has not completed, this method will wait up to ``timeout``-many seconds for it to finish.
 
         Parameters
         ----------
         timeout : int | float | None, optional
             Maximum time (in seconds) to wait for the result.
-            If ``None`` (the default), this function waits indefinitely until the operation completes.
+            If ``None`` (the default), this method waits indefinitely until the operation completes.
 
         Returns
         -------

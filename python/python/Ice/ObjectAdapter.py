@@ -69,7 +69,7 @@ class ObjectAdapter:
         Notes
         -----
         When this object adapter is an indirect object adapter configured with a locator proxy, this
-        function also registers the object adapter's published endpoints with this locator.
+        method also registers the object adapter's published endpoints with this locator.
         """
         self._impl.activate()
 
@@ -80,7 +80,7 @@ class ObjectAdapter:
 
         Notes
         -----
-        This function is provided for backward compatibility with older versions of Ice.
+        This method is provided for backward compatibility with older versions of Ice.
         Don't use it in new applications.
         """
         self._impl.hold()
@@ -92,7 +92,7 @@ class ObjectAdapter:
 
         Notes
         -----
-        This function is provided for backward compatibility with older versions of Ice.
+        This method is provided for backward compatibility with older versions of Ice.
         Don't use it in new applications.
         """
         # If invoked by the main thread, waitForHold only blocks for the specified timeout in order to give us a chance
@@ -104,10 +104,10 @@ class ObjectAdapter:
         """
         Deactivates this object adapter: stops accepting new connections from clients and closes gracefully all
         incoming connections created by this object adapter once all outstanding dispatches have completed.
-        If this object adapter is indirect, this function also unregisters the object adapter from the locator
+        If this object adapter is indirect, this method also unregisters the object adapter from the locator
         (see :meth:`~Ice.ObjectAdapter.activate`).
 
-        This function does not cancel outstanding dispatches: it lets them execute until completion.
+        This method does not cancel outstanding dispatches: it lets them execute until completion.
         A deactivated object adapter cannot be reactivated again; it can only be destroyed.
         """
         self._impl.deactivate()
@@ -138,7 +138,7 @@ class ObjectAdapter:
     def destroy(self) -> None:
         """
         Destroys this object adapter and cleans up all resources associated with it.
-        Once this function has returned, you can recreate another object adapter with the same name.
+        Once this method has returned, you can recreate another object adapter with the same name.
         """
         self._impl.destroy()
 
@@ -149,7 +149,7 @@ class ObjectAdapter:
 
         Notes
         -----
-        This function is equivalent to calling :meth:`~Ice.ObjectAdapter.addFacet` with an empty facet.
+        This method is equivalent to calling :meth:`~Ice.ObjectAdapter.addFacet` with an empty facet.
 
         Parameters
         ----------
@@ -316,7 +316,7 @@ class ObjectAdapter:
 
     def removeAllFacets(self, id: Identity) -> dict[str, Object]:
         """
-        Removes all facets with the given identity from the Active Servant Map. This function completely removes the
+        Removes all facets with the given identity from the Active Servant Map. This method completely removes the
         Ice object, including its default facet.
 
         Parameters
@@ -363,7 +363,7 @@ class ObjectAdapter:
 
         Notes
         -----
-        This function only tries to find the servant in the ASM and among the default servants.
+        This method only tries to find the servant in the ASM and among the default servants.
         It does not attempt to locate a servant using servant locators.
 
         Parameters
@@ -385,7 +385,7 @@ class ObjectAdapter:
 
         Notes
         -----
-        This function only tries to find the servant in the ASM and among the default servants.
+        This method only tries to find the servant in the ASM and among the default servants.
         It does not attempt to locate a servant using servant locators.
 
         Parameters
@@ -426,7 +426,7 @@ class ObjectAdapter:
 
         Notes
         -----
-        This function only tries to find the servant in the ASM and among the default servants.
+        This method only tries to find the servant in the ASM and among the default servants.
         It does not attempt to locate a servant using servant locators.
 
         Parameters
@@ -593,7 +593,7 @@ class ObjectAdapter:
 
         Notes
         -----
-        This function remains usable after the object adapter has been deactivated.
+        This method remains usable after the object adapter has been deactivated.
 
         Returns
         -------
@@ -608,7 +608,7 @@ class ObjectAdapter:
 
         Notes
         -----
-        This function remains usable after the object adapter has been deactivated.
+        This method remains usable after the object adapter has been deactivated.
 
         Returns
         -------

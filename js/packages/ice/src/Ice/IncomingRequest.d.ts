@@ -3,7 +3,7 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * Represents a request received by a connection. It's the argument to the dispatch function on Object.
+         * Represents a request received by a connection. It's the argument to the dispatch method on Object.
          * @see {@link Object.dispatch}.
          */
         class IncomingRequest {

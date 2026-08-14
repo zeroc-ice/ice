@@ -51,7 +51,7 @@ class ServantLocator(ABC):
     def finished(self, current: Current, servant: Object, cookie: object | None):
         """
         Notifies this servant locator that the dispatch on the servant returned by
-        :meth:`~Ice.ServantLocator.locate` is complete. The object adapter calls this function only when
+        :meth:`~Ice.ServantLocator.locate` is complete. The object adapter calls this method only when
         :meth:`~Ice.ServantLocator.locate` didn't return ``None``.
 
         Notes
