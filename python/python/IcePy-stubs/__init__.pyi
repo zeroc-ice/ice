@@ -715,19 +715,177 @@ class WSEndpointInfo(EndpointInfo):
     resource: str
     """str: The URI configured with the endpoint."""
 
-def stringVersion() -> str: ...
-def intVersion() -> int: ...
-def createProperties(args: list[str] | None = None, defaults: Ice.Properties | None = None, /) -> Properties: ...
-def stringToIdentity(str: str, /) -> Ice.Identity: ...
-def identityToString(identity: Ice.Identity, toStringMode: Ice.ToStringMode | None = None, /) -> str: ...
-def getProcessLogger() -> Ice.Logger | Logger: ...
-def setProcessLogger(logger: Ice.Logger, /) -> None: ...
+def stringVersion() -> str:
+    """
+    Returns the Ice version in the form ``A.B.C``, where ``A`` indicates the major version, ``B`` indicates the
+    minor version, and ``C`` indicates the patch level.
+    For pre-releases, the version includes a pre-release suffix, for example ``3.9.0-alpha.0``.
+
+    Returns
+    -------
+    str
+        The Ice version.
+    """
+    ...
+
+def intVersion() -> int:
+    """
+    Returns the Ice version as an integer in the form ``AABBCC``, where ``AA`` indicates the major version,
+    ``BB`` indicates the minor version, and ``CC`` indicates the patch level.
+    For example, for Ice 3.9.1, the returned value is 30901.
+    For pre-releases, ``CC`` encodes the pre-release; for example, for Ice 3.9.0-alpha.0, the returned value
+    is 30950.
+
+    Returns
+    -------
+    int
+        The Ice version.
+    """
+    ...
+
+def createProperties(args: list[str] | None = None, defaults: Ice.Properties | None = None, /) -> Properties:
+    """
+    Creates a property set initialized from command-line arguments and a default property set.
+
+    Parameters
+    ----------
+    args : list[str] | None, optional
+        The command-line arguments.
+    defaults : Ice.Properties | None, optional
+        Default values for the new property set.
+
+    Returns
+    -------
+    Properties
+        A new property set.
+    """
+    ...
+
+def stringToIdentity(str: str, /) -> Ice.Identity:
+    """
+    Converts a stringified identity into an Identity.
+
+    Parameters
+    ----------
+    str : str
+        The stringified identity.
+
+    Returns
+    -------
+    Ice.Identity
+        An Identity created from the provided string.
+
+    Raises
+    ------
+    ParseException
+        If the string cannot be converted to an object identity.
+    LocalException
+        If the resulting identity has an empty name.
+    """
+    ...
+
+def identityToString(identity: Ice.Identity, toStringMode: Ice.ToStringMode | None = None, /) -> str:
+    """
+    Converts an Identity into a string using the specified mode.
+
+    Parameters
+    ----------
+    identity : Ice.Identity
+        The identity.
+    toStringMode : Ice.ToStringMode | None, optional
+        Specifies how to handle non-ASCII characters and non-printable ASCII characters.
+        The default is :const:`Ice.ToStringMode.Unicode`.
+
+    Returns
+    -------
+    str
+        The stringified identity.
+    """
+    ...
+
+def getProcessLogger() -> Ice.Logger | Logger:
+    """
+    Gets the per-process logger.
+
+    Returns
+    -------
+    Ice.Logger | Logger
+        The current per-process logger instance.
+    """
+    ...
+
+def setProcessLogger(logger: Ice.Logger, /) -> None:
+    """
+    Sets the per-process logger. Communicators created after this call use this logger unless a logger is set
+    in InitializationData or configured through logger properties such as Ice.LogFile.
+
+    Parameters
+    ----------
+    logger : Ice.Logger
+        The new per-process logger instance.
+    """
+    ...
 
 #
 # Functions to load/compile Slice definitions with 'slice2py'.
 #
-def loadSlice(args: list[str], /) -> None: ...
-def compileSlice(args: list[str], /) -> int: ...
+def loadSlice(args: list[str], /) -> None:
+    """
+    Compiles Slice definitions and loads the generated code directly into the current Python environment.
+
+    This function does not generate any Python source files. Instead, the generated Python code is loaded
+    directly into the running interpreter.
+
+    This function does not generate any code for Slice files included by the Slice files being loaded. It is
+    the caller's responsibility to load all necessary Slice definitions. This can be done in a single call to
+    :func:`Ice.loadSlice` by providing all Slice files (including included files) in the `args` parameter, or
+    by making multiple calls to :func:`Ice.loadSlice`.
+
+    When :func:`Ice.loadSlice` is called multiple times with the same Slice file, the corresponding Python
+    code is not reloaded.
+
+    Parameters
+    ----------
+    args : list[str]
+        The list of command-line arguments for the Slice loader. These arguments may include both compiler options and
+        the Slice files to compile.
+
+        Supported compiler options:
+
+            - ``-DNAME``:  Define NAME as 1.
+            - ``-DNAME=DEF``:  Define NAME as DEF.
+            - ``-UNAME``:  Remove any definition for NAME.
+            - ``-IDIR``:  Put DIR in the include file search path.
+            - ``-d``, ``--debug``:  Print debug messages.
+
+    Raises
+    ------
+    RuntimeError
+        If an error occurs during Slice parsing or compilation.
+    """
+    ...
+
+def compileSlice(args: list[str], /) -> int:
+    """
+    Compiles Slice definitions. The behavior is identical to that of the `slice2py` compiler.
+
+    Any errors or warnings emitted during compilation are printed to 'stderr'.
+
+    This is an internal function used in the implementation of the `slice2py` Python script included in the
+    Ice Python package.
+
+    Parameters
+    ----------
+    args : list[str]
+        The list of command-line arguments for Slice compilation, following the same syntax as the `slice2py`
+        compiler.
+
+    Returns
+    -------
+    int
+        The exit code: 0 indicates success, and a non-zero value indicates failure.
+    """
+    ...
 
 #
 # Internal API for IcePy
