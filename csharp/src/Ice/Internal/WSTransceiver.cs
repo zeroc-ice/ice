@@ -813,10 +813,17 @@ internal sealed class WSTransceiver : Transceiver
         //
         string key = _parser.getHeader("Sec-WebSocket-Key", false) ??
             throw new WebSocketException("missing value for WebSocket key");
-        byte[] decodedKey = Convert.FromBase64String(key);
-        if (decodedKey.Length != 16)
+        try
         {
-            throw new WebSocketException("invalid value '" + key + "' for WebSocket key");
+            byte[] decodedKey = Convert.FromBase64String(key);
+            if (decodedKey.Length != 16)
+            {
+                throw new WebSocketException("WebSocket key '" + key + "' has invalid length");
+            }
+        }
+        catch (FormatException)
+        {
+            throw new WebSocketException("invalid base64 value '" + key + "' for WebSocket key");
         }
 
         //
@@ -878,7 +885,7 @@ internal sealed class WSTransceiver : Transceiver
         using var sha1 = SHA1.Create();
         byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350
-        @out.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
+        @out.Append(Convert.ToBase64String(hash) + "\r\n\r\n"); // EOM
 
         byte[] bytes = _utf8.GetBytes(@out.ToString());
         Debug.Assert(bytes.Length == @out.Length);
