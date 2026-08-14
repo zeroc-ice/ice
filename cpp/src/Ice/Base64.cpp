@@ -71,7 +71,7 @@ IceInternal::Base64::decode(string str)
         throw std::invalid_argument(os.str());
     }
     // Reject bad padding. There can be at most 2 padding characters, and it must make the total length a multiple of 4.
-    if ((paddingStart != str.end()) || (str.end() - paddingStart > 2) || ((str.size() % 4) != 0))
+    if (paddingStart != str.end() && (str.end() - paddingStart > 2 || (str.size() % 4) != 0))
     {
         throw std::invalid_argument("invalid base64 padding");
     }
