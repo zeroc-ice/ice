@@ -2347,7 +2347,6 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         // one which is specified.
         //
         vector<char> buf(256);
-        buf.resize(256);
         DWORD size = static_cast<DWORD>(buf.size());
         bool success = GetUserName(buf.data(), &size);
         if (!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER)

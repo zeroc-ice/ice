@@ -523,7 +523,7 @@ Ice::Properties::load(string_view file)
                     continue;
                 }
                 string name =
-                    wstringToString(wstring(reinterpret_cast<wchar_t*>(nameBuf.data()), nameBufSize), stringConverter);
+                    wstringToString(wstring(nameBuf.data(), nameBufSize), stringConverter);
                 if (keyType != REG_SZ && keyType != REG_EXPAND_SZ)
                 {
                     ostringstream os;

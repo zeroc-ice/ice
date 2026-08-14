@@ -1303,7 +1303,7 @@ Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
             return SCH_CREDENTIALS{
                 .dwVersion = SCH_CREDENTIALS_VERSION,
                 .cCreds = static_cast<DWORD>(_allCerts.size()),
-                .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.size() > 0 ? _allCerts.data() : nullptr),
+                .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.data()),
                 .dwFlags = SCH_CRED_NO_DEFAULT_CREDS | SCH_CRED_NO_SERVERNAME_CHECK | SCH_USE_STRONG_CRYPTO};
         },
         .trustedRootCertificates = _rootStore,
@@ -1355,7 +1355,7 @@ Schannel::SSLEngine::createServerAuthenticationOptions() const
                 return SCH_CREDENTIALS{
                     .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = static_cast<DWORD>(_allCerts.size()),
-                    .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.size() > 0 ? _allCerts.data() : nullptr),
+                    .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.data()),
                     // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and
                     // Schannel doesn't seem to send the root certificate either way.
                     .dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_USE_STRONG_CRYPTO};
