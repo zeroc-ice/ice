@@ -63,8 +63,8 @@ namespace IcePy
         // with the GIL held, and not in ~Instance, which can run without the GIL.
         ExecutorPtr* executor;
         LoggerWrapperPtr* logger;
-        std::shared_ptr<ThreadHook>* threadHook;
-        std::shared_ptr<BatchRequestInterceptorWrapper>* batchRequestInterceptor;
+        ThreadHookPtr* threadHook;
+        BatchRequestInterceptorWrapperPtr* batchRequestInterceptor;
     };
 
     void removeSliceLoader(const Ice::CommunicatorPtr& communicator);
@@ -106,8 +106,8 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::InitializationData initData;
     ExecutorPtr executorWrapper;
     LoggerWrapperPtr loggerWrapper;
-    shared_ptr<ThreadHook> threadHookWrapper;
-    shared_ptr<BatchRequestInterceptorWrapper> batchRequestInterceptorWrapper;
+    ThreadHookPtr threadHookWrapper;
+    BatchRequestInterceptorWrapperPtr batchRequestInterceptorWrapper;
 
     Ice::SliceLoaderPtr sliceLoader = DefaultSliceLoader::instance();
 
@@ -265,12 +265,12 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     if (threadHookWrapper)
     {
-        self->threadHook = new shared_ptr<ThreadHook>(threadHookWrapper);
+        self->threadHook = new ThreadHookPtr(threadHookWrapper);
     }
 
     if (batchRequestInterceptorWrapper)
     {
-        self->batchRequestInterceptor = new shared_ptr<BatchRequestInterceptorWrapper>(batchRequestInterceptorWrapper);
+        self->batchRequestInterceptor = new BatchRequestInterceptorWrapperPtr(batchRequestInterceptorWrapper);
     }
 
     return 0;
