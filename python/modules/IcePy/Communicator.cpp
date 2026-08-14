@@ -302,7 +302,7 @@ communicatorDealloc(CommunicatorObject* self)
     delete self->shutdownException;
     delete self->shutdownFuture;
 
-    // Keep these after the communicator release above: it ensures the last release of each wrapper - which
+    // Keep these after the communicator release above: they ensure the last release of each wrapper - which
     // releases Python objects - always runs here with the GIL held, never in ~Instance (which can run with the
     // GIL released).
     delete self->executor;
