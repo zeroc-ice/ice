@@ -84,7 +84,7 @@ jobs:
 
           echo "Syncing current repository from S3..."
           mkdir -p "${DISTRIBUTION}"
-          aws s3 sync "s3://zeroc-downloads/${UPLOAD_PATH}" "${DISTRIBUTION}"
+          aws s3 sync "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" "${DISTRIBUTION}"
 
           echo "Creating/updating repository with new RPMs..."
           docker_args=(
@@ -103,12 +103,13 @@ jobs:
           # the build-rpm-ice-repo-packages workflow
           aws s3 sync \
             "${DISTRIBUTION}" \
-            "s3://zeroc-downloads/${UPLOAD_PATH}" \
+            "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" \
             --delete \
             --exclude "ice-repo-*.noarch.rpm"
         env:
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}
+          S3_DOWNLOADS_BUCKET: ${{ vars.S3_DOWNLOADS_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
