@@ -1,5 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
+import gc
 import sys
 from typing import cast
 
@@ -443,6 +444,28 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyInter
     sys.stdout.flush()
 
     test(base.ice_getCommunicator() == communicator)
+
+    # ice_getCommunicator raises CommunicatorDestroyedException once the communicator is destroyed, including after
+    # the communicator object itself is garbage collected.
+    comm = Ice.initialize()
+    p = comm.stringToProxy(f"test:{helper.getTestEndpoint()}")
+    assert p is not None
+    comm.destroy()
+    try:
+        p.ice_getCommunicator()
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass
+    del comm
+    gc.collect()
+    try:
+        p.ice_getCommunicator()
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass
+
+    # repr never raises, even on a proxy whose communicator was destroyed.
+    test("destroyed communicator" in repr(p))
 
     print("ok")
 

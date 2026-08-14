@@ -1068,7 +1068,12 @@ communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
 extern "C" PyObject*
 communicatorGetWrapper(CommunicatorObject* self, PyObject* /*args*/)
 {
-    assert(self->wrapper);
+    if (!self->wrapper)
+    {
+        // The wrapper is cleared when the communicator is destroyed.
+        setPythonException(make_exception_ptr(Ice::CommunicatorDestroyedException{__FILE__, __LINE__}));
+        return nullptr;
+    }
     return Py_NewRef(self->wrapper);
 }
 
@@ -1589,18 +1594,15 @@ IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
 PyObject*
 IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
 {
+    // The map entry is erased when the communicator object is deallocated, and the wrapper is cleared when the
+    // communicator is destroyed.
     auto p = communicatorMap.find(communicator);
-    assert(p != communicatorMap.end());
-    auto* obj = reinterpret_cast<CommunicatorObject*>(p->second);
-    if (obj->wrapper)
+    if (p == communicatorMap.end() || !reinterpret_cast<CommunicatorObject*>(p->second)->wrapper)
     {
-        return Py_NewRef(obj->wrapper);
+        setPythonException(make_exception_ptr(Ice::CommunicatorDestroyedException{__FILE__, __LINE__}));
+        return nullptr;
     }
-    else
-    {
-        // Communicator must have been destroyed already.
-        return Py_None;
-    }
+    return Py_NewRef(reinterpret_cast<CommunicatorObject*>(p->second)->wrapper);
 }
 
 Ice::SliceLoaderPtr

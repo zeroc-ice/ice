@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Self, overload
 
 import IcePy
 
+from .LocalExceptions import CommunicatorDestroyedException
 from .Object import Object
 
 if TYPE_CHECKING:
@@ -212,6 +213,11 @@ class ObjectPrx(IcePy.ObjectPrx):
         -------
         Communicator
             The communicator that created this proxy.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         return super().ice_getCommunicator()
 
@@ -1056,9 +1062,13 @@ class ObjectPrx(IcePy.ObjectPrx):
         return super().ice_toString()
 
     def __repr__(self) -> str:
+        try:
+            communicator = repr(self.ice_getCommunicator())
+        except CommunicatorDestroyedException:
+            communicator = "<destroyed communicator>"
         return (
             f"{self.__class__.__module__}.{self.__class__.__qualname__}("
-            f"communicator={self.ice_getCommunicator()!r}, "
+            f"communicator={communicator}, "
             f"proxyString={self.ice_toString()!r})"
         )
 
