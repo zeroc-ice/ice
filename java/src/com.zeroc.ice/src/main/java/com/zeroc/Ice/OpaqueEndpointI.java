@@ -258,8 +258,7 @@ final class OpaqueEndpointI extends EndpointI {
                 try {
                     _rawBytes = StringUtil.decodeBase64(argument);
                 } catch (IllegalArgumentException ex) {
-                    throw new ParseException(
-                        "invalid base64 value '" + argument + "' in endpoint '" + endpoint + "'", ex);
+                    throw new ParseException("invalid base64 value in endpoint '" + endpoint + "'", ex);
                 }
                 return true;
             }

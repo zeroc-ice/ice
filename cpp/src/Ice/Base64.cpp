@@ -67,8 +67,13 @@ IceInternal::Base64::decode(string str)
     if (it != paddingStart)
     {
         ostringstream os;
-        os << "invalid base64 character '" << *it << "' (ordinal " << static_cast<int>(*it) << ")";
+        os << "invalid base64 character '" << *it << "' (ordinal " << +static_cast<unsigned char>(*it) << ")";
         throw std::invalid_argument(os.str());
+    }
+    // Reject bad padding. There can be at most 2 padding characters, and it must make the total length a multiple of 4.
+    if ((paddingStart != str.end()) || (str.end() - paddingStart > 2) || ((str.size() % 4) != 0))
+    {
+        throw std::invalid_argument("invalid base64 padding");
     }
     // Drop any padding characters at this point.
     str.erase(paddingStart, str.end());
