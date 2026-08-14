@@ -191,10 +191,10 @@ namespace DataStormI
         /// @param now The timestamp indicating when the attachment was requested.
         /// @param initializationBatches Output parameter filled with the initialization batches built from the
         /// publisher's queued samples. This parameter is always empty when the method is called on the subscriber side.
-        /// @return A function that initializes the reader with the prepared samples:
-        /// - For a publisher, this method always returns a `nullptr` function.
-        /// - For a subscriber, this method returns a function that initializes the reader with samples provided by the
-        /// peer.
+        /// @return A function that commits the subscriber's initialization state for the attached element and delivers
+        /// the samples provided by the peer, if any. The caller runs it only once every element in the acknowledgment
+        /// has attached. Returns `nullptr` when the element was left unattached because its sample filter could not be
+        /// decoded.
         [[nodiscard]] std::function<void()> attach(
             std::int64_t topicId,
             std::int64_t id,

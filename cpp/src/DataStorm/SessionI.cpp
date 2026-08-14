@@ -1447,7 +1447,8 @@ SessionI::subscriberInitialized(
     const shared_ptr<Key>& key,
     const std::shared_ptr<DataElementI>& element)
 {
-    // Called with the session locked, from DataElementI::attach.
+    // Called with the session and topic locked, from the initialization closure returned by DataElementI::attach,
+    // which TopicI::attachElementsAck runs once every spec in the ack has attached.
     assert(_topics.find(topicId) != _topics.end());
     TopicSubscriber& subscriber = _topics.at(topicId).getSubscriber(element->getTopic());
     ElementSubscribers* elementSubscribers = subscriber.get(elementId);
