@@ -63,6 +63,7 @@ namespace IcePy
         PyObjectHandle _threadStart;
         PyObjectHandle _threadStop;
     };
+    using ThreadHookPtr = std::shared_ptr<ThreadHook>;
 }
 
 #endif
