@@ -107,7 +107,22 @@ DataElementI::attach(
     shared_ptr<Filter> sampleFilter;
     if (auto info = data.config->sampleFilter)
     {
-        sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        try
+        {
+            sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        }
+        catch (const std::exception& ex)
+        {
+            // The sample filter factory runs the application's decoder. Leave this element unattached rather than
+            // attaching it without the filter, which would send the peer the samples its filter meant to exclude.
+            // The warning prints the element id: streaming the element itself would run the application's key
+            // formatter inside this very catch.
+            Warning out(_traceLevels->logger);
+            out << "did not attach 'e" << _id << "' to a peer element: its sample filter '" << info->name
+                << "' could not be decoded:\n"
+                << ex.what();
+            return;
+        }
     }
 
     string facet = data.config->facet.value_or(string{});
@@ -161,7 +176,22 @@ DataElementI::attach(
     shared_ptr<Filter> sampleFilter;
     if (auto info = data.config->sampleFilter)
     {
-        sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        try
+        {
+            sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        }
+        catch (const std::exception& ex)
+        {
+            // The sample filter factory runs the application's decoder. Leave this element unattached rather than
+            // attaching it without the filter, which would send the peer the samples its filter meant to exclude.
+            // The warning prints the element id: streaming the element itself would run the application's key
+            // formatter inside this very catch.
+            Warning out(_traceLevels->logger);
+            out << "did not attach 'e" << _id << "' to a peer element: its sample filter '" << info->name
+                << "' could not be decoded:\n"
+                << ex.what();
+            return nullptr;
+        }
     }
 
     string facet = data.config->facet.value_or(string{});

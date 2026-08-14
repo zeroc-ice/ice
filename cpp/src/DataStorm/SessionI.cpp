@@ -1773,7 +1773,21 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                 }
                 else
                 {
-                    key = topic->getKeyFactory()->decode(_instance->getCommunicator(), dataSample.keyValue);
+                    try
+                    {
+                        key = topic->getKeyFactory()->decode(_instance->getCommunicator(), dataSample.keyValue);
+                    }
+                    catch (const std::exception& ex)
+                    {
+                        // The key factory runs the application's decoder. Discard the sample rather than let the
+                        // exception escape: an escape would discard it for every reader attached to this writer
+                        // element and skip the other local topics subscribed to this remote topic.
+                        Warning out(_traceLevels->logger);
+                        out << _id << ": discarding sample '" << dataSample.id << "' from 'e" << elementId << '@'
+                            << topicId << "': the key could not be decoded:\n"
+                            << ex.what();
+                        return;
+                    }
                 }
                 assert(key);
 
