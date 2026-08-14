@@ -64,7 +64,13 @@ getEnhancedProviderKeyContainers()
     test(CryptAcquireContextW(&cryptProv, nullptr, MS_ENHANCED_PROV_W, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT));
 
     DWORD bufferSize = 0;
-    test(CryptGetProvParam(cryptProv, PP_ENUMCONTAINERS, nullptr, &bufferSize, CRYPT_FIRST));
+    if (!CryptGetProvParam(cryptProv, PP_ENUMCONTAINERS, nullptr, &bufferSize, CRYPT_FIRST))
+    {
+        const DWORD error = GetLastError();
+        test(CryptReleaseContext(cryptProv, 0));
+        test(error == ERROR_NO_MORE_ITEMS);
+        return {};
+    }
     vector<BYTE> buffer(bufferSize);
 
     set<string> containers;
