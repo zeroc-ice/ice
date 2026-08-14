@@ -217,9 +217,9 @@ compile(const vector<string>& argv)
                 {
                     string target = removeExtension(baseName(fileName)) +
                                     (genMode == Slice::GenMode::IceRpc ? ".IceRpc.cs" : ".cs");
-                    dependencyGenerator.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                    dependencyGenerator.addMakefileRule(unit->topLevelFile(), target);
                 }
-                // else XML dependencies are written below after all units have been processed.
+                // The dependencies are written below, after all units have been processed.
             }
             else
             {
@@ -268,7 +268,11 @@ compile(const vector<string>& argv)
         return status;
     }
 
-    if (dependXML)
+    if (depend)
+    {
+        dependencyGenerator.writeMakefileDependencies(dependFile);
+    }
+    else if (dependXML)
     {
         dependencyGenerator.writeXMLDependencies(dependFile);
     }
