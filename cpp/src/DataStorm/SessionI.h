@@ -401,6 +401,9 @@ namespace DataStormI
         [[nodiscard]] DataStormContract::LongLongDict
         getLastIds(std::int64_t topic, std::int64_t keyOrFilterId, const std::shared_ptr<DataElementI>& element);
 
+        /// Marks the subscriber initialized and advances its lastId past the acked samples.
+        ///
+        /// @return The samples the subscriber should be initialized with.
         [[nodiscard]] std::vector<std::shared_ptr<Sample>> subscriberInitialized(
             std::int64_t,
             std::int64_t,
