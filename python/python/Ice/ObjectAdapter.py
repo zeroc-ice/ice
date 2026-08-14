@@ -53,6 +53,11 @@ class ObjectAdapter:
         -------
         Communicator
             This object adapter's communicator.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         communicator = self._impl.getCommunicator()
         return communicator._getWrapper()

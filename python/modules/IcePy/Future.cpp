@@ -8,7 +8,10 @@ PyObject*
 IcePy::wrapFuture(const Ice::CommunicatorPtr& communicator, PyObject* future)
 {
     PyObjectHandle communicatorHandle{IcePy::getCommunicatorWrapper(communicator)};
-    assert(communicatorHandle.get());
+    if (!communicatorHandle.get())
+    {
+        return nullptr;
+    }
     return wrapFuture(communicatorHandle.get(), future);
 }
 
