@@ -284,7 +284,7 @@ internal sealed class OpaqueEndpointI : EndpointI
                 }
                 catch (System.FormatException ex)
                 {
-                    throw new ParseException($"invalid Base64 input in endpoint '{endpoint}'", ex);
+                    throw new ParseException($"invalid base64 value '{argument}' in endpoint '{endpoint}'", ex);
                 }
 
                 return true;

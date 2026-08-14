@@ -14,10 +14,10 @@ namespace IceInternal
     {
     public:
         static std::string encode(const std::vector<std::byte>&);
-        static std::vector<std::byte> decode(const std::string&);
-        static bool isBase64(char);
+        static std::vector<std::byte> decode(std::string);
 
     private:
+        static bool isBase64(char);
         static char encode(std::byte);
         static std::byte decode(char);
     };

@@ -607,7 +607,18 @@ namespace
                     break;
                 }
 
-                vector<byte> data(IceInternal::Base64::decode(string(&buffer[startpos], size)));
+                vector<std::byte> data;
+                try
+                {
+                    data = IceInternal::Base64::decode(string(&buffer[startpos], size));
+                }
+                catch (const std::invalid_argument&)
+                {
+                    throw InitializationException(
+                        __FILE__,
+                        __LINE__,
+                        "SSL transport: certificate " + file + " is not a valid PEM-encoded certificate");
+                }
                 UniqueRef<CFDataRef> certdata(CFDataCreate(
                     kCFAllocatorDefault,
                     reinterpret_cast<uint8_t*>(&data[0]),

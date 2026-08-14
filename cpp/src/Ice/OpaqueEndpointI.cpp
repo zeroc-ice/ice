@@ -322,17 +322,17 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
                     __LINE__,
                     "no argument provided for -v option in endpoint '" + endpoint + "'");
             }
-            for (char i : argument)
+            try
             {
-                if (!Base64::isBase64(i))
-                {
-                    ostringstream os;
-                    os << "invalid base64 character '" << i << "' (ordinal " << static_cast<int>(i) << ") in endpoint '"
-                       << endpoint << "'";
-                    throw ParseException(__FILE__, __LINE__, os.str());
-                }
+                const_cast<vector<byte>&>(_rawBytes) = Base64::decode(argument);
             }
-            const_cast<vector<byte>&>(_rawBytes) = Base64::decode(argument);
+            catch (const std::invalid_argument& ex)
+            {
+                throw ParseException(
+                    __FILE__,
+                    __LINE__,
+                    "invalid base64 value in endpoint '" + endpoint + "':\n" + ex.what());
+            }
             return true;
         }
 
