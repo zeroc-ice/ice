@@ -5,7 +5,7 @@ trap 'echo "🔥 ERROR: command \"$BASH_COMMAND\" exited with code $?" >&2' ERR
 
 # Config (override via env)
 # Note: Set S3_DOWNLOADS_BUCKET in GitHub repository variables
-BUCKET="${BUCKET:-${S3_DOWNLOADS_BUCKET:-zeroc-downloads}}"  # S3 bucket name
+BUCKET="${BUCKET:-${S3_DOWNLOADS_BUCKET:?}}"  # S3 bucket name
 CHANNEL="${CHANNEL:-3.9}"                   # release channel (e.g., 3.9, 3.8)
 PREFIX="${PREFIX:-ice/nightly/$CHANNEL/}"   # no leading slash
 DAYS_TO_KEEP="${DAYS_TO_KEEP:-7}"           # default: keep last 7 days

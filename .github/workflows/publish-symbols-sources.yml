@@ -57,15 +57,16 @@ jobs:
           UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
 
           # Upload zip to S3
-          aws s3 cp "staging/windows-indexed-pdbs-${VERSION}.zip" "s3://zeroc-downloads/${UPLOAD_PATH}/windows-indexed-pdbs-${VERSION}.zip"
+          aws s3 cp "staging/windows-indexed-pdbs-${VERSION}.zip" "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/windows-indexed-pdbs-${VERSION}.zip"
 
           # Upload sources to S3 (version is already in the directory structure)
-          aws s3 sync "staging/windows-symbols-sources/sources/" "s3://zeroc-downloads/${UPLOAD_PATH}/sources/"
+          aws s3 sync "staging/windows-symbols-sources/sources/" "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/sources/"
           # Upload symbol store to S3 (version is already in the directory structure)
-          aws s3 sync "staging/windows-symbols-sources/symbols/" "s3://zeroc-downloads/${UPLOAD_PATH}/symbols/"
+          aws s3 sync "staging/windows-symbols-sources/symbols/" "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/symbols/"
         env:
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}
+          S3_DOWNLOADS_BUCKET: ${{ vars.S3_DOWNLOADS_BUCKET }}
 
   # Stable releases - incremental update to shared symbol store with proper 000admin handling
   # Downloads existing 000admin, uses symstore add to create proper transaction, uploads result
@@ -77,6 +78,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       S3_BUCKET: ${{ vars.S3_SYMBOLS_BUCKET }}
+      S3_DOWNLOADS_BUCKET: ${{ vars.S3_DOWNLOADS_BUCKET }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -129,7 +131,7 @@ jobs:
           Compress-Archive -Path "staging/windows-indexed-pdbs" -DestinationPath "staging/$zipName"
 
           # Upload zip to S3
-          aws s3 cp "staging/$zipName" "s3://zeroc-downloads/ice/${{ inputs.channel }}/$zipName"
+          aws s3 cp "staging/$zipName" "s3://${{ env.S3_DOWNLOADS_BUCKET }}/ice/${{ inputs.channel }}/$zipName"
 
           # Upload sources to S3
           aws s3 sync "staging/windows-symbols-sources/sources/" "s3://${{ env.S3_BUCKET }}/sources/ice/"
