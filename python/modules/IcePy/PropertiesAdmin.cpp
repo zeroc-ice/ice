@@ -13,7 +13,7 @@ using namespace IcePy;
 namespace
 {
     constexpr const char* nativePropertiesAdminAddUpdateCB_doc =
-        R"(addUpdateCallback(callback: Callable[[dict[str, str]], None]) -> None
+        R"(addUpdateCallback(callback: Callable[[dict[str, str]], None], /) -> None
 
 Registers an update callback that will be invoked when a property update occurs.
 
@@ -23,7 +23,7 @@ callback : Callable[[dict[str, str]], None]
     The callback.)";
 
     constexpr const char* nativePropertiesAdminRemoveUpdateCB_doc =
-        R"(removeUpdateCallback(callback: Callable[[dict[str, str]], None]) -> None
+        R"(removeUpdateCallback(callback: Callable[[dict[str, str]], None], /) -> None
 
 Removes a previously registered update callback.
 

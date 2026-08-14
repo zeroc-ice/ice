@@ -68,7 +68,7 @@ Awaitable[None]
     A future that becomes available when the connection is closed. If the connection was lost or
     aborted, awaiting this future raises the exception that caused the connection's closure.)";
 
-    constexpr const char* connectionCreateProxy_doc = R"(createProxy(identity: Ice.Identity) -> Ice.ObjectPrx
+    constexpr const char* connectionCreateProxy_doc = R"(createProxy(identity: Ice.Identity, /) -> Ice.ObjectPrx
 
 Creates a special proxy (a 'fixed proxy') that always uses this connection.
 
@@ -94,7 +94,7 @@ Disables the inactivity check on this connection.
 By default, Ice will close connections that remain inactive for a certain period.
 This function disables that behavior for this connection.)";
 
-    constexpr const char* connectionSetAdapter_doc = R"(setAdapter(adapter: Ice.ObjectAdapter | None) -> None
+    constexpr const char* connectionSetAdapter_doc = R"(setAdapter(adapter: Ice.ObjectAdapter | None, /) -> None
 
 Associates an object adapter with this connection.
 
@@ -125,7 +125,8 @@ Returns
 Ice.ObjectAdapter | None
     The object adapter associated with this connection.)";
 
-    constexpr const char* connectionFlushBatchRequests_doc = R"(flushBatchRequests(compress: Ice.CompressBatch) -> None
+    constexpr const char* connectionFlushBatchRequests_doc =
+        R"(flushBatchRequests(compress: Ice.CompressBatch, /) -> None
 
 Flushes any pending batch requests for this connection.
 
@@ -143,7 +144,7 @@ LocalException
     has been destroyed.)";
 
     constexpr const char* connectionFlushBatchRequestsAsync_doc =
-        R"(flushBatchRequestsAsync(compress: Ice.CompressBatch) -> Awaitable[None]
+        R"(flushBatchRequestsAsync(compress: Ice.CompressBatch, /) -> Awaitable[None]
 
 Flushes any pending batch requests for this connection asynchronously.
 
@@ -165,7 +166,7 @@ CommunicatorDestroyedException
     If the communicator has been destroyed. This exception is raised synchronously.)";
 
     constexpr const char* connectionSetCloseCallback_doc =
-        R"(setCloseCallback(callback: Callable[[Connection], None] | None) -> None
+        R"(setCloseCallback(callback: Callable[[Connection], None] | None, /) -> None
 
 Sets a close callback on the connection. The callback is called by the connection when it's closed.
 The callback is called from the Ice thread pool associated with the connection.
@@ -215,7 +216,7 @@ Returns
 Ice.Endpoint
     The endpoint from which the connection was created.)";
 
-    constexpr const char* connectionSetBufferSize_doc = R"(setBufferSize(rcvSize: int, sndSize: int) -> None
+    constexpr const char* connectionSetBufferSize_doc = R"(setBufferSize(rcvSize: int, sndSize: int, /) -> None
 
 Sets the size of the receive and send buffers.
 
