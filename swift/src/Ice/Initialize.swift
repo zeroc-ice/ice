@@ -172,13 +172,13 @@ public func createProperties(_ args: inout [String], defaults: Properties? = nil
 }
 
 /// The Ice version as an integer in the form AABBCC, where AA indicates the major version, BB indicates the minor
-/// version, and CC indicates the patch level. For example, for Ice 3.9.1, the value is 30901.
-/// For pre-releases, CC encodes the pre-release instead of the patch version. For example, for Ice 3.9.0-alpha.0
-/// the value is 30950.
+/// version, and CC indicates the patch level. For example, for Ice 3.8.3, the value is 30803.
+/// For pre-releases, CC encodes the pre-release instead of the patch version. For example, for Ice 3.8.0-alpha.0
+/// the value is 30850.
 public let intVersion: Int = 30803
 
 /// The Ice version in the form `A.B.C`, where A indicates the major version, B indicates the minor version, and C
-/// indicates the patch level, with an optional pre-release suffix, e.g. `3.9.0-alpha.0`.
+/// indicates the patch level, with an optional pre-release suffix, e.g. `3.8.0-alpha.0`.
 public let stringVersion: String = "3.8.3"
 
 /// Identifies encoding version 1.0.

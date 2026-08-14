@@ -47,9 +47,9 @@ declare module "@zeroc/ice" {
          * - B: minor version
          * - C: patch version
          *
-         * The version may include a pre-release suffix, for example, "3.9.0-alpha.0".
+         * The version may include a pre-release suffix, for example, "3.8.0-alpha.0".
          *
-         * @returns The Ice version in the form `A.B.C`, with an optional pre-release suffix, e.g. `3.9.0-alpha.0`.
+         * @returns The Ice version in the form `A.B.C`, with an optional pre-release suffix, e.g. `3.8.0-alpha.0`.
          */
         function stringVersion(): string;
 
@@ -59,10 +59,10 @@ declare module "@zeroc/ice" {
          * - BB: minor version
          * - CC: patch version
          *
-         * For example, for Ice 3.9.1, the returned value is 30901.
+         * For example, for Ice 3.8.3, the returned value is 30803.
          *
          * For pre-releases, CC encodes the pre-release instead of the patch version. For example, for
-         * Ice 3.9.0-alpha.0, the returned value is 30950.
+         * Ice 3.8.0-alpha.0, the returned value is 30850.
          *
          * @returns The Ice version as an integer.
          */
