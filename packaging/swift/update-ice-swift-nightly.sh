@@ -119,7 +119,7 @@ git config user.email "git@zeroc.com"
 if ! git diff --cached --quiet; then
     git commit -m "ice: ${version} ${QUALITY} build"
     git tag -a "${version}" -m "ice: ${version} ${QUALITY} build"
-    git push origin ${CHANNEL} --tags
+    git push origin "${CHANNEL}" --tags
 else
     echo "No changes to commit"
 fi
