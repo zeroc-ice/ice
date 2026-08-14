@@ -25,6 +25,7 @@ namespace IcePy
     private:
         PyObjectHandle _interceptor;
     };
+    using BatchRequestInterceptorWrapperPtr = std::shared_ptr<BatchRequestInterceptorWrapper>;
 }
 
 #endif
