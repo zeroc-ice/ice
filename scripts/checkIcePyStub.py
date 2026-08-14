@@ -28,6 +28,7 @@ import ast
 import copy
 import difflib
 import inspect
+import re
 import sys
 import types
 from pathlib import Path
@@ -38,6 +39,9 @@ STUB = Path(__file__).parents[1] / "python" / "python" / "IcePy-stubs" / "__init
 # skipped the same way, which also deliberately leaves the __hash__ = None of an unhashable type
 # undeclared -- what a stub must declare is a slot object does not have, like ExecutorCall's __call__.
 TYPE_METADATA = {"__dict__", "__weakref__", "__module__", "__qualname__", "__new__", "__slots__"}
+LIST_ITEM = re.compile(r"(?:[-+*]|#\.|\d+[.)])\s")
+FIELD_LIST_ITEM = re.compile(r":[^:\s][^:]*:\s")
+NUMPYDOC_FIELD = re.compile(r"[^:]+\s:\s\S")
 
 
 def signatureOf(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
@@ -49,6 +53,17 @@ def signatureOf(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
         del args.args[0]
     rendered = f"{node.name}({ast.unparse(args)})"
     return f"{rendered} -> {ast.unparse(node.returns)}" if node.returns else rendered
+
+
+def isProperty(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
+    """Return whether node declares a property rather than a callable method."""
+    return any(
+        isinstance(decorator, ast.Name)
+        and decorator.id == "property"
+        or isinstance(decorator, ast.Attribute)
+        and decorator.attr == "property"
+        for decorator in node.decorator_list
+    )
 
 
 def attributeDoc(body: list[ast.stmt], index: int) -> str | None:
@@ -79,7 +94,9 @@ def stubDeclarations() -> tuple[dict[str, tuple[str | None, str | None]], list[s
     def add(name: str, doc: str | None, signature: str | None) -> None:
         if name in entries:
             duplicates.append(name)
-        entries[name] = (doc, signature)
+            del entries[name]
+        elif name not in duplicates:
+            entries[name] = (doc, signature)
 
     for node in ast.parse(STUB.read_text(encoding="utf-8")).body:
         if isinstance(node, ast.ClassDef):
@@ -90,7 +107,11 @@ def stubDeclarations() -> tuple[dict[str, tuple[str | None, str | None]], list[s
             for index, member in enumerate(node.body):
                 if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     members.add(member.name)
-                    add(f"{node.name}.{member.name}", ast.get_docstring(member), signatureOf(member))
+                    add(
+                        f"{node.name}.{member.name}",
+                        ast.get_docstring(member),
+                        None if isProperty(member) else signatureOf(member),
+                    )
                 elif isinstance(member, ast.AnnAssign) and isinstance(member.target, ast.Name):
                     members.add(member.target.id)
                     add(f"{node.name}.{member.target.id}", attributeDoc(node.body, index), None)
@@ -125,8 +146,9 @@ def shipped(name: str) -> tuple[bool, str | None, bool]:
     import IcePy
 
     head, _, member = name.partition(".")
-    obj = vars(IcePy).get(head)
-    if obj is None:
+    missing = object()
+    obj = vars(IcePy).get(head, missing)
+    if obj is missing:
         return False, None, False
     if not member:
         doc = obj.__doc__
@@ -134,12 +156,19 @@ def shipped(name: str) -> tuple[bool, str | None, bool]:
             # The C sources set tp_doc to the type's own name as a placeholder for "undocumented".
             doc = None
         return True, doc, False
+    if not isinstance(obj, type):
+        return False, None, False
     for cls in obj.__mro__:
         if member in vars(cls):
             value = vars(cls)[member]
             if isinstance(value, (staticmethod, classmethod)):
                 value = value.__func__  # the wrapper's own __doc__ describes staticmethod itself
-            pythonSupplied = value is None or isinstance(value, types.WrapperDescriptorType) or cls is object
+            pythonSupplied = (
+                value is None
+                and member == "__hash__"
+                or isinstance(value, types.WrapperDescriptorType)
+                or cls is object
+            )
             return True, None if value is None else getattr(value, "__doc__", None), pythonSupplied
     return False, None, False
 
@@ -168,21 +197,58 @@ def normalizeProse(text: str) -> str:
     """
     Fold hard line wrapping so reflowing a paragraph does not read as drift.
 
-    Consecutive lines with the same indentation join into one; blank lines, indentation changes, and
-    section underlines (numpydoc's ``-------``) all break a run, so document structure still has to
-    match exactly.
+    Consecutive prose lines with the same indentation join into one. Structural lines such as list
+    items, fields, directives, and section underlines remain separate, as do indented literal and
+    preformatted blocks.
     """
     out: list[str] = []
     joinIndent = None  # indentation of the line out[-1] belongs to, when it can accept continuations
+    literalMarkerIndent = None
+    preformattedIndent = None
     for line in text.split("\n"):
         stripped = line.strip()
-        underline = bool(stripped) and not stripped.strip("-=~^\"'`#*+_")
         indent = len(line) - len(line.lstrip())
-        if stripped and not underline and indent == joinIndent:
+
+        if preformattedIndent is not None:
+            if not stripped or indent >= preformattedIndent:
+                out.append(line)
+                joinIndent = None
+                continue
+            preformattedIndent = None
+
+        if literalMarkerIndent is not None:
+            if not stripped:
+                out.append(line)
+                joinIndent = None
+                continue
+            if indent > literalMarkerIndent:
+                preformattedIndent = indent
+                out.append(line)
+                joinIndent = None
+                continue
+            literalMarkerIndent = None
+
+        if not stripped:
+            out.append(line)
+            joinIndent = None
+            continue
+
+        underline = not stripped.strip("-=~^\"'`#*+_")
+        structural = (
+            underline
+            or LIST_ITEM.match(stripped) is not None
+            or FIELD_LIST_ITEM.match(stripped) is not None
+            or NUMPYDOC_FIELD.match(stripped) is not None
+            or stripped.startswith((".. ", ">>>", "...", "```", "|"))
+        )
+        if not structural and indent == joinIndent:
             out[-1] = f"{out[-1]} {stripped}"
         else:
             out.append(line)
-            joinIndent = indent if stripped and not underline else None
+        joinIndent = None if structural else indent
+        if stripped.endswith("::"):
+            literalMarkerIndent = indent
+            joinIndent = None
     return "\n".join(out)
 
 
@@ -234,14 +300,21 @@ def main() -> int:
             problems.append(f"{name}: documented in the stub, but IcePy ships no description")
         elif prose and not stubDoc:
             problems.append(f"{name}: IcePy ships a description, but the stub does not document it")
-        elif stubDoc and prose and normalizeProse(stubDoc.strip()) != normalizeProse(prose):
-            diff = "\n".join(
-                f"    {line}"
-                for line in difflib.unified_diff(
-                    stubDoc.strip().splitlines(), prose.splitlines(), "stub", "IcePy", lineterm=""
+        elif stubDoc and prose:
+            normalizedStubDoc = normalizeProse(stubDoc.strip())
+            normalizedShippedDoc = normalizeProse(prose)
+            if normalizedStubDoc != normalizedShippedDoc:
+                diff = "\n".join(
+                    f"    {line}"
+                    for line in difflib.unified_diff(
+                        normalizedStubDoc.splitlines(),
+                        normalizedShippedDoc.splitlines(),
+                        "stub",
+                        "IcePy",
+                        lineterm="",
+                    )
                 )
-            )
-            problems.append(f"{name}: descriptions differ\n{diff}")
+                problems.append(f"{name}: descriptions differ\n{diff}")
 
         if stubSignature and not signature:
             problems.append(
