@@ -492,6 +492,48 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // A late-joining sample-filtered reader runs this writer's sample filter over the queued samples while it
+    // attaches. The sample the predicate throws on is skipped like one the predicate rejects; the reader still
+    // attaches and is initialized with the samples the predicate accepts. The throwing sample is written last so
+    // it is both in the writer's queued history and the last value for its key; each attachment scan — over the
+    // queued samples and over the last value per key — then runs the predicate on it.
+    cout << "testing sample filter that throws while a peer attaches... " << flush;
+    {
+        Topic<string, string> topic(node, "attachSampleFilterThrow");
+        Topic<string, int> barrier(node, "attachSampleFilterThrowBarrier");
+        Topic<string, int> done(node, "attachSampleFilterThrowDone");
+
+        topic.setSampleFilter<string>(
+            "throwOnValue",
+            [](const string& boom)
+            {
+                return [boom](const Sample<string, string>& sample)
+                {
+                    if (sample.getValue() == boom)
+                    {
+                        throw runtime_error("the sample filter failed");
+                    }
+                    return true;
+                };
+            });
+
+        auto writer = makeSingleKeyWriter(topic, "elem", "", config);
+        writer.add("value1");
+        writer.update("value3");
+        writer.update("boom");
+
+        // The samples are queued; the reader may attach now.
+        auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
+        barrierWriter.waitForReaders();
+        barrierWriter.update(0);
+
+        // Hold off teardown until the reader confirms it was initialized. Inferring the reader's progress
+        // from this writer's listener count would race the reader's lifetime: the count can rise and drop
+        // back to zero between two observations.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(done, "done").getNextUnread();
+    }
+    cout << "ok" << endl;
+
     // An any-key reader and a filtered reader coexisting on the same topic must each keep their own subscription:
     // both receive matching samples, and destroying one must not detach the other.
     cout << "testing coexisting any-key and filtered readers... " << flush;
