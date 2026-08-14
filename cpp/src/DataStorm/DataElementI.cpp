@@ -1666,7 +1666,7 @@ KeyDataWriterI::getSamples(
         for (const auto& [baseKey, baseSample] : _lastByKey)
         {
             if (baseSample->id <= lastId || !baseSample->hasValue() || (key && key != baseSample->key) ||
-                (sampleFilter && !matchSampleFilter(baseSample)) || covered.count(baseSample->key))
+                covered.count(baseSample->key) || (sampleFilter && !matchSampleFilter(baseSample)))
             {
                 continue;
             }
