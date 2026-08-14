@@ -527,8 +527,9 @@ void ::Writer::run(int argc, char* argv[])
         barrierWriter.waitForReaders();
         barrierWriter.update(0);
 
-        // Gate teardown on the reader signalling it was initialized, so this writer never races the late reader's
-        // lifetime through a listener count that can drop back to zero before it is observed.
+        // Hold off teardown until the reader confirms it was initialized. Inferring the reader's progress
+        // from this writer's listener count would race the reader's lifetime: the count can rise and drop
+        // back to zero between two observations.
         [[maybe_unused]] auto _ = makeSingleKeyReader(done, "done").getNextUnread();
     }
     cout << "ok" << endl;
