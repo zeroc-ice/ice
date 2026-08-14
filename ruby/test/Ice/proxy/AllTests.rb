@@ -571,6 +571,15 @@ def allTests(helper, communicator)
     test({e1 => "v"}[e3] == "v")                      # usable as a value-based Hash key
 
     #
+    # Standard Ruby semantics for a non-Endpoint operand: == and eql? return false, <=> returns nil.
+    #
+    test(e1 != nil)
+    test(!(e1 == "not an endpoint"))
+    test(!e1.eql?("not an endpoint"))
+    test((e1 <=> nil).nil?)
+    test((e1 <=> "not an endpoint").nil?)
+
+    #
     # ice_endpoints accepts any object implementing Ruby's to_ary array-conversion protocol.
     #
     toAry = Object.new
