@@ -506,9 +506,9 @@ void ::Reader::run(int argc, char* argv[])
         test(!filtered.hasUnread());
     }
 
-    // A late-joining sample-filtered reader over a writer whose queue holds a sample the filter predicate throws
-    // on. The writer treats that sample as not matching, so this reader attaches and is initialized with the other
-    // two samples.
+    // Create a sample-filtered reader after the writer queued three samples, one of which makes the
+    // filter predicate throw. The writer treats that sample as not matching, so the reader still
+    // attaches and is initialized with the other two samples.
     {
         Topic<string, string> topic(node, "attachSampleFilterThrow");
         Topic<string, int> barrier(node, "attachSampleFilterThrowBarrier");
