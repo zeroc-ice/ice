@@ -348,6 +348,60 @@ void ::Reader::run(int argc, char* argv[])
     }
 
     {
+        // One filtered reader over two keyed writers, with a key filter that throws on "k1". The reader attaches to
+        // the writer of "k2" and receives its samples; the writer of "k1" stays unattached.
+        Topic<string, string> topic(node, "attachKeyFilterThrow");
+        topic.setKeyFilter<string>(
+            "throwOnKey",
+            [](const string& boom)
+            {
+                return [boom](const string& key)
+                {
+                    if (key == boom)
+                    {
+                        throw runtime_error("the key filter failed");
+                    }
+                    return true;
+                };
+            });
+
+        auto reader = makeFilteredKeyReader(topic, Filter<string>("throwOnKey", "k1"), "", config);
+        reader.waitForWriters(1);
+
+        auto sample = reader.getNextUnread();
+        test(sample.getKey() == "k2");
+        test(sample.getValue() == "v2");
+    }
+
+    {
+        // The writer queues k1, k2 and sentinel before this reader attaches, so they arrive as one initialization
+        // batch. The filter throws on k1: that sample is dropped like a rejected key, and k2 and sentinel are still
+        // delivered.
+        Topic<string, string> topic(node, "initKeyFilterThrow");
+        topic.setKeyFilter<string>(
+            "throwOnKey",
+            [](const string& boom)
+            {
+                return [boom](const string& key)
+                {
+                    if (key == boom)
+                    {
+                        throw runtime_error("the key filter failed");
+                    }
+                    return true;
+                };
+            });
+
+        Topic<string, string> readyTopic(node, "initKeyFilterThrowReady");
+        auto ready = makeSingleKeyReader(readyTopic, "ready", "", config);
+        test(ready.getNextUnread().getValue() == "go");
+
+        auto reader = makeFilteredKeyReader(topic, Filter<string>("throwOnKey", "k1"), "", config);
+        test(reader.getNextUnread().getKey() == "k2");
+        test(reader.getNextUnread().getKey() == "sentinel");
+    }
+
+    {
         Topic<string, string> topic(node, "filtered reader key/value filter");
 
         {

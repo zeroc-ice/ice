@@ -42,16 +42,17 @@ jobs:
         run: |
           if [ "${QUALITY}" = "stable" ]; then
             UPLOAD_PATH="ice/${CHANNEL}"
-            aws s3 cp staging/matlab-packages-windows-*/ice-*-win.mltbx "s3://zeroc-downloads/${UPLOAD_PATH}/"
-            aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-linux.mltbx "s3://zeroc-downloads/${UPLOAD_PATH}/"
+            aws s3 cp staging/matlab-packages-windows-*/ice-*-win.mltbx "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/"
+            aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-linux.mltbx "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/"
           else
             UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
             # Rename the Toolbox files to ice-nightly-R2025b-<os>.mltbx if it's the nightly channel
-            aws s3 cp staging/matlab-packages-windows-*/ice-*-R2025b-win.mltbx "s3://zeroc-downloads/${UPLOAD_PATH}/ice-${QUALITY}-R2025b-win.mltbx"
-            aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-R2025b-linux.mltbx "s3://zeroc-downloads/${UPLOAD_PATH}/ice-${QUALITY}-R2025b-linux.mltbx"
+            aws s3 cp staging/matlab-packages-windows-*/ice-*-R2025b-win.mltbx "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/ice-${QUALITY}-R2025b-win.mltbx"
+            aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-R2025b-linux.mltbx "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/ice-${QUALITY}-R2025b-linux.mltbx"
           fi
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}
+          S3_DOWNLOADS_BUCKET: ${{ vars.S3_DOWNLOADS_BUCKET }}

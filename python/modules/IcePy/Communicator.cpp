@@ -57,7 +57,14 @@ namespace IcePy
         std::future<void>* shutdownFuture;
         std::exception_ptr* shutdownException;
         bool shutdown;
+
+        // Extra references to the Python-owning wrappers stored in the communicator's InitializationData. They
+        // ensure the final release of each wrapper - which releases Python objects - happens in communicatorDealloc
+        // with the GIL held, and not in ~Instance, which can run without the GIL.
         ExecutorPtr* executor;
+        LoggerWrapperPtr* logger;
+        ThreadHookPtr* threadHook;
+        BatchRequestInterceptorWrapperPtr* batchRequestInterceptor;
     };
 
     void removeSliceLoader(const Ice::CommunicatorPtr& communicator);
@@ -78,6 +85,9 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->shutdownException = nullptr;
     self->shutdown = false;
     self->executor = nullptr;
+    self->logger = nullptr;
+    self->threadHook = nullptr;
+    self->batchRequestInterceptor = nullptr;
     return self;
 }
 
@@ -95,6 +105,9 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     Ice::InitializationData initData;
     ExecutorPtr executorWrapper;
+    LoggerWrapperPtr loggerWrapper;
+    ThreadHookPtr threadHookWrapper;
+    BatchRequestInterceptorWrapperPtr batchRequestInterceptorWrapper;
 
     Ice::SliceLoaderPtr sliceLoader = DefaultSliceLoader::instance();
 
@@ -122,14 +135,15 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
             if (logger.get())
             {
-                initData.logger = make_shared<LoggerWrapper>(logger.get());
+                loggerWrapper = make_shared<LoggerWrapper>(logger.get());
+                initData.logger = loggerWrapper;
             }
 
             if (threadStart.get() || threadStop.get())
             {
-                auto threadHook = make_shared<ThreadHook>(threadStart.get(), threadStop.get());
-                initData.threadStart = [threadHook]() { threadHook->start(); };
-                initData.threadStop = [threadHook]() { threadHook->stop(); };
+                threadHookWrapper = make_shared<ThreadHook>(threadStart.get(), threadStop.get());
+                initData.threadStart = [threadHook = threadHookWrapper]() { threadHook->start(); };
+                initData.threadStop = [threadHook = threadHookWrapper]() { threadHook->stop(); };
             }
 
             if (executor.get())
@@ -142,7 +156,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
             if (batchRequestInterceptor.get())
             {
-                auto batchRequestInterceptorWrapper =
+                batchRequestInterceptorWrapper =
                     make_shared<BatchRequestInterceptorWrapper>(batchRequestInterceptor.get());
                 initData.batchRequestInterceptor =
                     [batchRequestInterceptorWrapper](const Ice::BatchRequest& req, int count, int size)
@@ -244,6 +258,21 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         executorWrapper->setCommunicator(communicator);
     }
 
+    if (loggerWrapper)
+    {
+        self->logger = new LoggerWrapperPtr(loggerWrapper);
+    }
+
+    if (threadHookWrapper)
+    {
+        self->threadHook = new ThreadHookPtr(threadHookWrapper);
+    }
+
+    if (batchRequestInterceptorWrapper)
+    {
+        self->batchRequestInterceptor = new BatchRequestInterceptorWrapperPtr(batchRequestInterceptorWrapper);
+    }
+
     return 0;
 }
 
@@ -273,10 +302,13 @@ communicatorDealloc(CommunicatorObject* self)
     delete self->shutdownException;
     delete self->shutdownFuture;
 
-    // Keep this after the communicator release above: it ensures the last release of the
-    // ExecutorPtr - which releases a Python object - always runs here with the GIL held,
-    // never in ~Instance (which can run with the GIL released).
+    // Keep these after the communicator release above: they ensure the last release of each wrapper - which
+    // releases Python objects - always runs here with the GIL held, never in ~Instance (which can run with the
+    // GIL released).
     delete self->executor;
+    delete self->logger;
+    delete self->threadHook;
+    delete self->batchRequestInterceptor;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
@@ -1068,7 +1100,12 @@ communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
 extern "C" PyObject*
 communicatorGetWrapper(CommunicatorObject* self, PyObject* /*args*/)
 {
-    assert(self->wrapper);
+    if (!self->wrapper)
+    {
+        // The wrapper is cleared when the communicator is destroyed.
+        setPythonException(make_exception_ptr(Ice::CommunicatorDestroyedException{__FILE__, __LINE__}));
+        return nullptr;
+    }
     return Py_NewRef(self->wrapper);
 }
 
@@ -1404,12 +1441,12 @@ static PyMethodDef CommunicatorMethods[] = {
     {"destroyAsync",
      reinterpret_cast<PyCFunction>(communicatorDestroyAsync),
      METH_VARARGS,
-     PyDoc_STR("destroyAsync(callable: Callable) -> None")},
+     PyDoc_STR("destroyAsync(callable: Callable, /) -> None")},
     {"shutdown", reinterpret_cast<PyCFunction>(communicatorShutdown), METH_NOARGS, PyDoc_STR("shutdown() -> None")},
     {"waitForShutdown",
      reinterpret_cast<PyCFunction>(communicatorWaitForShutdown),
      METH_VARARGS,
-     PyDoc_STR("waitForShutdown(timeout: int) -> bool")},
+     PyDoc_STR("waitForShutdown(timeout: int, /) -> bool")},
     {"shutdownCompleted",
      reinterpret_cast<PyCFunction>(communicatorShutdownCompleted),
      METH_NOARGS,
@@ -1421,35 +1458,35 @@ static PyMethodDef CommunicatorMethods[] = {
     {"stringToProxy",
      reinterpret_cast<PyCFunction>(communicatorStringToProxy),
      METH_VARARGS,
-     PyDoc_STR("stringToProxy(str: str) -> Ice.ObjectPrx | None")},
+     PyDoc_STR("stringToProxy(str: str, /) -> Ice.ObjectPrx | None")},
     {"proxyToString",
      reinterpret_cast<PyCFunction>(communicatorProxyToString),
      METH_VARARGS,
-     PyDoc_STR("proxyToString(proxy: Ice.ObjectPrx | None) -> str")},
+     PyDoc_STR("proxyToString(proxy: Ice.ObjectPrx | None, /) -> str")},
     {"propertyToProxy",
      reinterpret_cast<PyCFunction>(communicatorPropertyToProxy),
      METH_VARARGS,
-     PyDoc_STR("propertyToProxy(property: str) -> Ice.ObjectPrx | None")},
+     PyDoc_STR("propertyToProxy(property: str, /) -> Ice.ObjectPrx | None")},
     {"proxyToProperty",
      reinterpret_cast<PyCFunction>(communicatorProxyToProperty),
      METH_VARARGS,
-     PyDoc_STR("proxyToProperty(proxy: Ice.ObjectPrx, property: str) -> dict[str, str]")},
+     PyDoc_STR("proxyToProperty(proxy: Ice.ObjectPrx, property: str, /) -> dict[str, str]")},
     {"identityToString",
      reinterpret_cast<PyCFunction>(communicatorIdentityToString),
      METH_VARARGS,
-     PyDoc_STR("identityToString(identity: Ice.Identity) -> str")},
+     PyDoc_STR("identityToString(identity: Ice.Identity, /) -> str")},
     {"createObjectAdapter",
      reinterpret_cast<PyCFunction>(communicatorCreateObjectAdapter),
      METH_VARARGS,
-     PyDoc_STR("createObjectAdapter(name: str) -> ObjectAdapter")},
+     PyDoc_STR("createObjectAdapter(name: str, /) -> ObjectAdapter")},
     {"createObjectAdapterWithEndpoints",
      reinterpret_cast<PyCFunction>(communicatorCreateObjectAdapterWithEndpoints),
      METH_VARARGS,
-     PyDoc_STR("createObjectAdapterWithEndpoints(name: str, endpoints: str) -> ObjectAdapter")},
+     PyDoc_STR("createObjectAdapterWithEndpoints(name: str, endpoints: str, /) -> ObjectAdapter")},
     {"createObjectAdapterWithRouter",
      reinterpret_cast<PyCFunction>(communicatorCreateObjectAdapterWithRouter),
      METH_VARARGS,
-     PyDoc_STR("createObjectAdapterWithRouter(name: str, router: Ice.RouterPrx) -> ObjectAdapter")},
+     PyDoc_STR("createObjectAdapterWithRouter(name: str, router: Ice.RouterPrx, /) -> ObjectAdapter")},
     {"getDefaultObjectAdapter",
      reinterpret_cast<PyCFunction>(communicatorGetDefaultObjectAdapter),
      METH_NOARGS,
@@ -1457,7 +1494,7 @@ static PyMethodDef CommunicatorMethods[] = {
     {"setDefaultObjectAdapter",
      reinterpret_cast<PyCFunction>(communicatorSetDefaultObjectAdapter),
      METH_VARARGS,
-     PyDoc_STR("setDefaultObjectAdapter(adapter: Ice.ObjectAdapter | None) -> None")},
+     PyDoc_STR("setDefaultObjectAdapter(adapter: Ice.ObjectAdapter | None, /) -> None")},
     {"getImplicitContext",
      reinterpret_cast<PyCFunction>(communicatorGetImplicitContext),
      METH_NOARGS,
@@ -1477,7 +1514,7 @@ static PyMethodDef CommunicatorMethods[] = {
     {"setDefaultRouter",
      reinterpret_cast<PyCFunction>(communicatorSetDefaultRouter),
      METH_VARARGS,
-     PyDoc_STR("setDefaultRouter(router: Ice.RouterPrx | None) -> None")},
+     PyDoc_STR("setDefaultRouter(router: Ice.RouterPrx | None, /) -> None")},
     {"getDefaultLocator",
      reinterpret_cast<PyCFunction>(communicatorGetDefaultLocator),
      METH_NOARGS,
@@ -1485,19 +1522,19 @@ static PyMethodDef CommunicatorMethods[] = {
     {"setDefaultLocator",
      reinterpret_cast<PyCFunction>(communicatorSetDefaultLocator),
      METH_VARARGS,
-     PyDoc_STR("setDefaultLocator(locator: Ice.LocatorPrx | None) -> None")},
+     PyDoc_STR("setDefaultLocator(locator: Ice.LocatorPrx | None, /) -> None")},
     {"flushBatchRequests",
      reinterpret_cast<PyCFunction>(communicatorFlushBatchRequests),
      METH_VARARGS,
-     PyDoc_STR("flushBatchRequests(compress: Ice.CompressBatch) -> None")},
+     PyDoc_STR("flushBatchRequests(compress: Ice.CompressBatch, /) -> None")},
     {"flushBatchRequestsAsync",
      reinterpret_cast<PyCFunction>(communicatorFlushBatchRequestsAsync),
      METH_VARARGS,
-     PyDoc_STR("flushBatchRequestsAsync(compress: Ice.CompressBatch) -> Awaitable[None]")},
+     PyDoc_STR("flushBatchRequestsAsync(compress: Ice.CompressBatch, /) -> Awaitable[None]")},
     {"createAdmin",
      reinterpret_cast<PyCFunction>(communicatorCreateAdmin),
      METH_VARARGS,
-     PyDoc_STR("createAdmin(adminAdapter: Ice.ObjectAdapter | None, adminIdentity: Ice.Identity) -> Ice.ObjectPrx")},
+     PyDoc_STR("createAdmin(adminAdapter: Ice.ObjectAdapter | None, adminIdentity: Ice.Identity, /) -> Ice.ObjectPrx")},
     {"getAdmin",
      reinterpret_cast<PyCFunction>(communicatorGetAdmin),
      METH_NOARGS,
@@ -1505,11 +1542,11 @@ static PyMethodDef CommunicatorMethods[] = {
     {"addAdminFacet",
      reinterpret_cast<PyCFunction>(communicatorAddAdminFacet),
      METH_VARARGS,
-     PyDoc_STR("addAdminFacet(servant: Ice.Object, facet: str) -> None")},
+     PyDoc_STR("addAdminFacet(servant: Ice.Object, facet: str, /) -> None")},
     {"findAdminFacet",
      reinterpret_cast<PyCFunction>(communicatorFindAdminFacet),
      METH_VARARGS,
-     PyDoc_STR("findAdminFacet(facet: str) -> Ice.Object | NativePropertiesAdmin | None")},
+     PyDoc_STR("findAdminFacet(facet: str, /) -> Ice.Object | NativePropertiesAdmin | None")},
     {"findAllAdminFacets",
      reinterpret_cast<PyCFunction>(communicatorFindAllAdminFacets),
      METH_NOARGS,
@@ -1517,11 +1554,11 @@ static PyMethodDef CommunicatorMethods[] = {
     {"removeAdminFacet",
      reinterpret_cast<PyCFunction>(communicatorRemoveAdminFacet),
      METH_VARARGS,
-     PyDoc_STR("removeAdminFacet(facet: str) -> Ice.Object | None")},
+     PyDoc_STR("removeAdminFacet(facet: str, /) -> Ice.Object | None")},
     {"_setWrapper",
      reinterpret_cast<PyCFunction>(communicatorSetWrapper),
      METH_VARARGS,
-     PyDoc_STR("_setWrapper(wrapper: Ice.Communicator) -> None")},
+     PyDoc_STR("_setWrapper(wrapper: Ice.Communicator, /) -> None")},
     {"_getWrapper",
      reinterpret_cast<PyCFunction>(communicatorGetWrapper),
      METH_NOARGS,
@@ -1589,18 +1626,15 @@ IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
 PyObject*
 IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
 {
+    // The map entry is erased when the communicator object is deallocated, and the wrapper is cleared when the
+    // communicator is destroyed.
     auto p = communicatorMap.find(communicator);
-    assert(p != communicatorMap.end());
-    auto* obj = reinterpret_cast<CommunicatorObject*>(p->second);
-    if (obj->wrapper)
+    if (p == communicatorMap.end() || !reinterpret_cast<CommunicatorObject*>(p->second)->wrapper)
     {
-        return Py_NewRef(obj->wrapper);
+        setPythonException(make_exception_ptr(Ice::CommunicatorDestroyedException{__FILE__, __LINE__}));
+        return nullptr;
     }
-    else
-    {
-        // Communicator must have been destroyed already.
-        return Py_None;
-    }
+    return Py_NewRef(reinterpret_cast<CommunicatorObject*>(p->second)->wrapper);
 }
 
 Ice::SliceLoaderPtr

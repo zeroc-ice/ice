@@ -23,7 +23,7 @@ namespace IcePHP
     public:
         TypeInfoPtr type;
         bool optional;
-        int tag;
+        int tag{-1}; // a non-optional parameter or return value has no tag
         int pos;
     };
     using ParamInfoPtr = std::shared_ptr<ParamInfo>;
@@ -494,7 +494,8 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret, pair<
     for (const auto& info : _op->optionalOutParams)
     {
         auto cb = make_shared<ResultCallback>();
-        if (_op->returnType && info->tag == _op->returnType->tag)
+        // The optional return value is represented in optionalOutParams by the returnType ParamInfo object itself.
+        if (info == _op->returnType)
         {
             retCallback = cb;
         }

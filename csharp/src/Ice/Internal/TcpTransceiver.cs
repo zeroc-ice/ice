@@ -51,19 +51,27 @@ internal sealed class TcpTransceiver : Transceiver
         }
         else
         {
-            EndPoint localEndpoint = Network.getLocalAddress(_stream.fd());
-            EndPoint remoteEndpoint = Network.getRemoteAddress(_stream.fd());
+            try
+            {
+                EndPoint localEndpoint = Network.getLocalAddress(_stream.fd());
+                EndPoint remoteEndpoint = Network.getRemoteAddress(_stream.fd());
 
-            return new TCPConnectionInfo(
-                incoming,
-                adapterName,
-                connectionId,
-                Network.endpointAddressToString(localEndpoint),
-                Network.endpointPort(localEndpoint),
-                Network.endpointAddressToString(remoteEndpoint),
-                Network.endpointPort(remoteEndpoint),
-                Network.getRecvBufferSize(_stream.fd()),
-                Network.getSendBufferSize(_stream.fd()));
+                return new TCPConnectionInfo(
+                    incoming,
+                    adapterName,
+                    connectionId,
+                    Network.endpointAddressToString(localEndpoint),
+                    Network.endpointPort(localEndpoint),
+                    Network.endpointAddressToString(remoteEndpoint),
+                    Network.endpointPort(remoteEndpoint),
+                    Network.getRecvBufferSizeNoThrow(_stream.fd()),
+                    Network.getSendBufferSizeNoThrow(_stream.fd()));
+            }
+            catch (ObjectDisposedException)
+            {
+                // Treat a disposed socket like a null fd.
+                return new TCPConnectionInfo(incoming, adapterName, connectionId);
+            }
         }
     }
 

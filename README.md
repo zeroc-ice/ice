@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/zeroc-ice/ice/3.7/.github/assets/ice-banner.svg" height="150" width="150" />
+  <img src="https://raw.githubusercontent.com/zeroc-ice/ice/main/.github/assets/ice-banner.svg" height="150" width="150" />
 </p>
 
 [![CI](https://github.com/zeroc-ice/ice/actions/workflows/ci.yml/badge.svg)][ci-home]

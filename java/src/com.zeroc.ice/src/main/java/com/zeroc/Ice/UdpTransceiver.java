@@ -193,17 +193,14 @@ final class UdpTransceiver implements Transceiver {
 
     @Override
     public ConnectionInfo getInfo(boolean incoming, String adapterName, String connectionId) {
-        if (_fd == null) {
+        // A closed channel reports no local address, so treat it like a null fd.
+        if (_fd == null || !_fd.isOpen()) {
             return new UDPConnectionInfo(incoming, adapterName, connectionId);
         } else {
             DatagramSocket socket = _fd.socket();
 
-            int rcvSize = 0;
-            int sndSize = 0;
-            if (!socket.isClosed()) {
-                rcvSize = Network.getRecvBufferSize(_fd);
-                sndSize = Network.getSendBufferSize(_fd);
-            }
+            int rcvSize = Network.getRecvBufferSizeNoThrow(_fd);
+            int sndSize = Network.getSendBufferSizeNoThrow(_fd);
 
             if (_state == StateNotConnected) {
                 assert _incoming;

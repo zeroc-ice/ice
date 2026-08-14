@@ -2,72 +2,48 @@
 
 #include "Base64.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cstddef>
 #include <iterator>
+#include <sstream>
 
 using namespace std;
 
 string
 IceInternal::Base64::encode(const vector<byte>& plainSeq)
 {
+    // Reserve the exact amount of space needed for the returned base64 string.
     string retval;
-
-    if (plainSeq.size() == 0)
-    {
-        return retval;
-    }
-
-    // Reserve enough space for the returned base64 string
-    size_t base64Bytes = (((plainSeq.size() * 4) / 3) + 1);
-    size_t newlineBytes = (((base64Bytes * 2) / 76) + 1);
-    size_t totalBytes = base64Bytes + newlineBytes;
-
-    retval.reserve(totalBytes);
-
-    byte by1 = byte{0};
-    byte by2 = byte{0};
-    byte by3 = byte{0};
-    byte by4 = byte{0};
-    byte by5 = byte{0};
-    byte by6 = byte{0};
-    byte by7 = byte{0};
+    retval.reserve(((plainSeq.size() + 2) / 3) * 4);
 
     for (size_t i = 0; i < plainSeq.size(); i += 3)
     {
-        by1 = plainSeq[i];
-        by2 = byte{0};
-        by3 = byte{0};
-
+        byte by1 = plainSeq[i];
+        byte by2 = byte{0};
+        byte by3 = byte{0};
         if ((i + 1) < plainSeq.size())
         {
             by2 = plainSeq[i + 1];
         }
-
         if ((i + 2) < plainSeq.size())
         {
             by3 = plainSeq[i + 2];
         }
 
-        by4 = by1 >> 2;
-        by5 = (by1 & byte{0x3}) << 4 | (by2 >> 4);
-        by6 = (by2 & byte{0xf}) << 2 | (by3 >> 6);
-        by7 = by3 & byte{0x3f};
-
-        retval += encode(by4);
-        retval += encode(by5);
-
+        retval += encode(by1 >> 2);
+        retval += encode((by1 & byte{0x3}) << 4 | (by2 >> 4));
         if ((i + 1) < plainSeq.size())
         {
-            retval += encode(by6);
+            retval += encode((by2 & byte{0xf}) << 2 | (by3 >> 6));
         }
         else
         {
             retval += "=";
         }
-
         if ((i + 2) < plainSeq.size())
         {
-            retval += encode(by7);
+            retval += encode(by3 & byte{0x3f});
         }
         else
         {
@@ -75,96 +51,60 @@ IceInternal::Base64::encode(const vector<byte>& plainSeq)
         }
     }
 
-    string outString;
-    outString.reserve(totalBytes);
-    string::iterator iter = retval.begin();
-
-    while ((retval.end() - iter) > 76)
-    {
-        copy(iter, iter + 76, back_inserter(outString));
-        outString += "\r\n";
-        iter += 76;
-    }
-
-    copy(iter, retval.end(), back_inserter(outString));
-
-    return outString;
+    return retval;
 }
 
 vector<byte>
-IceInternal::Base64::decode(const string& str)
+IceInternal::Base64::decode(string str)
 {
-    string newStr;
+    // First, remove any whitespace from the string.
+    auto it = std::remove_if(str.begin(), str.end(), [](unsigned char c) { return std::isspace(c); });
+    str.erase(it, str.end());
 
-    newStr.reserve(str.length());
-
-    for (size_t j = 0; j < str.length(); j++)
+    // Reject any non-base64 characters.
+    auto paddingStart = str.begin() + static_cast<ptrdiff_t>(str.find_last_not_of('=') + 1);
+    it = std::find_if_not(str.begin(), paddingStart, isBase64);
+    if (it != paddingStart)
     {
-        if (isBase64(str[j]))
-        {
-            newStr += str[j];
-        }
+        ostringstream os;
+        os << "invalid base64 character '" << *it << "' (ordinal " << +static_cast<unsigned char>(*it) << ")";
+        throw std::invalid_argument(os.str());
+    }
+    // Reject bad padding. There can be at most 2 padding characters, and it must make the total length a multiple of 4.
+    if (paddingStart != str.end() && (str.end() - paddingStart > 2 || (str.size() % 4) != 0))
+    {
+        throw std::invalid_argument("invalid base64 padding");
+    }
+    // Drop any padding characters at this point.
+    str.erase(paddingStart, str.end());
+
+    // Reject any base64 strings with only 1 out of 4 characters in the final sequence.
+    // The final sequence may have 2, 3, or 4 characters, but 1 can't encode a full byte.
+    if (str.length() % 4 == 1)
+    {
+        throw std::invalid_argument("invalid base64 string length");
     }
 
     vector<byte> retval;
+    retval.reserve((str.length() * 3) / 4);
 
-    if (newStr.length() == 0)
+    for (size_t i = 0; i < str.length(); i += 4)
     {
-        return retval;
-    }
+        const char c1 = str[i];
+        const char c2 = str[i + 1]; // Guaranteed okay because of the 'str.length() % 4 == 1' check above.
+        const char c3 = ((i + 2) < str.length()) ? str[i + 2] : '=';
+        const char c4 = ((i + 3) < str.length()) ? str[i + 3] : '=';
 
-    // Note: This is how we were previously computing the size of the return
-    //       sequence.  The method below is more efficient (and correct).
-    // size_t lines = str.size() / 78;
-    // size_t totalBytes = (lines * 76) + (((str.size() - (lines * 78)) * 3) / 4);
-
-    // Figure out how long the final sequence is going to be.
-    size_t totalBytes = (newStr.size() * 3 / 4) + 1;
-
-    retval.reserve(totalBytes);
-
-    byte by1{0};
-    byte by2{0};
-    byte by3{0};
-    byte by4{0};
-
-    char c1, c2, c3, c4;
-
-    for (size_t i = 0; i < newStr.length(); i += 4)
-    {
-        c2 = 'A';
-        c3 = 'A';
-        c4 = 'A';
-
-        c1 = newStr[i];
-
-        if ((i + 1) < newStr.length())
-        {
-            c2 = newStr[i + 1];
-        }
-
-        if ((i + 2) < newStr.length())
-        {
-            c3 = newStr[i + 2];
-        }
-
-        if ((i + 3) < newStr.length())
-        {
-            c4 = newStr[i + 3];
-        }
-
-        by1 = decode(c1);
-        by2 = decode(c2);
-        by3 = decode(c3);
-        by4 = decode(c4);
+        const byte by1 = decode(c1);
+        const byte by2 = decode(c2);
+        const byte by3 = decode(c3);
+        const byte by4 = decode(c4);
 
         retval.push_back((by1 << 2) | by2 >> 4);
-
         if (c3 != '=')
         {
             retval.push_back(((by2 & byte{0xf}) << 4) | (by3 >> 2));
         }
-
         if (c4 != '=')
         {
             retval.push_back(((by3 & byte{0x3}) << 6) | by4);
@@ -177,37 +117,7 @@ IceInternal::Base64::decode(const string& str)
 bool
 IceInternal::Base64::isBase64(char c)
 {
-    if (c >= 'A' && c <= 'Z')
-    {
-        return true;
-    }
-
-    if (c >= 'a' && c <= 'z')
-    {
-        return true;
-    }
-
-    if (c >= '0' && c <= '9')
-    {
-        return true;
-    }
-
-    if (c == '+')
-    {
-        return true;
-    }
-
-    if (c == '/')
-    {
-        return true;
-    }
-
-    if (c == '=')
-    {
-        return true;
-    }
-
-    return false;
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '+' || c == '/';
 }
 
 char

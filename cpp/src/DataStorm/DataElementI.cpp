@@ -107,7 +107,22 @@ DataElementI::attach(
     shared_ptr<Filter> sampleFilter;
     if (auto info = data.config->sampleFilter)
     {
-        sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        try
+        {
+            sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        }
+        catch (const std::exception& ex)
+        {
+            // The sample filter factory runs the application's decoder. Leave this element unattached rather than
+            // attaching it without the filter, which would send the peer the samples its filter meant to exclude.
+            // The warning prints the element id: streaming the element itself would run the application's key
+            // formatter inside this very catch.
+            Warning out(_traceLevels->logger);
+            out << "did not attach 'e" << _id << "' to a peer element: its sample filter '" << info->name
+                << "' could not be decoded:\n"
+                << ex.what();
+            return;
+        }
     }
 
     string facet = data.config->facet.value_or(string{});
@@ -161,7 +176,22 @@ DataElementI::attach(
     shared_ptr<Filter> sampleFilter;
     if (auto info = data.config->sampleFilter)
     {
-        sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        try
+        {
+            sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
+        }
+        catch (const std::exception& ex)
+        {
+            // The sample filter factory runs the application's decoder. Leave this element unattached rather than
+            // attaching it without the filter, which would send the peer the samples its filter meant to exclude.
+            // The warning prints the element id: streaming the element itself would run the application's key
+            // formatter inside this very catch.
+            Warning out(_traceLevels->logger);
+            out << "did not attach 'e" << _id << "' to a peer element: its sample filter '" << info->name
+                << "' could not be decoded:\n"
+                << ex.what();
+            return nullptr;
+        }
     }
 
     string facet = data.config->facet.value_or(string{});
@@ -198,14 +228,16 @@ DataElementI::attach(
         initializationBatches.push_back(std::move(initializationBatch));
     }
 
-    auto samplesI =
-        session->subscriberInitialized(topicId, id > 0 ? data.id : -data.id, data.samples, key, shared_from_this());
-    if (!samplesI.empty())
+    // The closure commits the subscriber state (initialized, lastId advanced past the acked samples) together with
+    // the sample delivery, or not at all.
+    return [=, self = shared_from_this()]()
     {
-        return [=, samplesI = std::move(samplesI), self = shared_from_this()]()
-        { self->initSamples(samplesI, topicId, data.id, priority, now, id < 0); };
-    }
-    return nullptr;
+        auto samplesI = session->subscriberInitialized(topicId, id > 0 ? data.id : -data.id, data.samples, key, self);
+        if (!samplesI.empty())
+        {
+            self->initSamples(samplesI, topicId, data.id, priority, now, id < 0);
+        }
+    };
 }
 
 bool
@@ -811,9 +843,26 @@ DataReaderI::initSamples(
     map<shared_ptr<Key>, shared_ptr<Sample>> previousByKey = _lastByKey;
     for (const auto& sample : samples)
     {
-        if (checkKey && !matchKey(sample->key))
+        if (checkKey)
         {
-            continue;
+            bool matched;
+            try
+            {
+                matched = matchKey(sample->key);
+            }
+            catch (const std::exception& ex)
+            {
+                // Checking an inline key calls the reader's key filter, which is application code. A filter that
+                // throws drops the sample, like a filter that returns false.
+                Warning out(_traceLevels->logger);
+                out << "dropped sample " << sample->id << ": the key filter failed:\n" << ex.what();
+                continue;
+            }
+
+            if (!matched)
+            {
+                continue;
+            }
         }
 
         // Apply discard policies:

@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-import { Base64 } from "./Base64.js";
 import { ParseException } from "./LocalExceptions.js";
 import { HashUtil } from "./HashUtil.js";
 import { StringUtil } from "./StringUtil.js";
@@ -107,7 +106,7 @@ export class OpaqueEndpointI extends EndpointI {
         let s = "";
         s += " -t " + this._type;
         s += " -e " + encodingVersionToString(this._rawEncoding);
-        s += " -v " + Base64.encode(this._rawBytes);
+        s += " -v " + StringUtil.encodeBase64(this._rawBytes);
         return s;
     }
 
@@ -223,14 +222,13 @@ export class OpaqueEndpointI extends EndpointI {
                 if (argument === null || argument.length === 0) {
                     throw new ParseException(`no argument provided for -v option in endpoint ${endpoint}`);
                 }
-                for (let i = 0; i < argument.length; ++i) {
-                    if (!Base64.isBase64(argument.charAt(i))) {
-                        throw new ParseException(
-                            `invalid base64 character '${argument.charAt(i)}' (ordinal ${argument.charCodeAt(i)}) in endpoint ${endpoint}`,
-                        );
-                    }
+                try {
+                    this._rawBytes = StringUtil.decodeBase64(argument);
+                } catch (ex) {
+                    throw new ParseException(`invalid base64 value '${argument}' in endpoint ${endpoint}`, {
+                        cause: ex,
+                    });
                 }
-                this._rawBytes = Base64.decode(argument);
                 return true;
             }
 

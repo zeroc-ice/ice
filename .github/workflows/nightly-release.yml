@@ -39,8 +39,10 @@ jobs:
 
   publish:
     name: Publish Release
-    # Pruning removes dated packages from the APT and RPM repositories without
-    # updating their metadata. Publishing must run afterwards to rebuild it.
+    # Pruning removes dated RPM packages and loose artifacts without updating
+    # repository metadata. Publishing must run afterwards to rebuild it. The
+    # APT repositories are not touched by the prune: reprepro removes expired
+    # nightly packages during publish, keeping metadata and pool consistent.
     if: ${{ inputs.publish == true }}
     needs:
       - build

@@ -105,6 +105,9 @@ public enum ConnectionState
     ConnectionStateClosed
 }
 
+/// <summary>
+/// Represents an observer for Ice connections.
+/// </summary>
 public interface ConnectionObserver : Observer
 {
     /// <summary>
@@ -120,6 +123,9 @@ public interface ConnectionObserver : Observer
     void receivedBytes(int num);
 }
 
+/// <summary>
+/// Represents an observer for dispatches.
+/// </summary>
 public interface DispatchObserver : Observer
 {
     /// <summary>
@@ -134,6 +140,9 @@ public interface DispatchObserver : Observer
     void reply(int size);
 }
 
+/// <summary>
+/// Represents an observer for remote or collocated invocations.
+/// </summary>
 public interface ChildInvocationObserver : Observer
 {
     /// <summary>
@@ -143,14 +152,24 @@ public interface ChildInvocationObserver : Observer
     void reply(int size);
 }
 
+/// <summary>
+/// Represents an observer for remote invocations.
+/// </summary>
 public interface RemoteObserver : ChildInvocationObserver
 {
 }
 
+/// <summary>
+/// Represents an observer for collocated invocations.
+/// </summary>
 public interface CollocatedObserver : ChildInvocationObserver
 {
 }
 
+/// <summary>
+/// Represents an observer for invocations on proxies. A proxy invocation can either result in a collocated or remote
+/// invocation. If it results in a remote invocation, a sub-observer is requested for the remote invocation.
+/// </summary>
 public interface InvocationObserver : Observer
 {
     /// <summary>
@@ -183,6 +202,14 @@ public interface InvocationObserver : Observer
     CollocatedObserver getCollocatedObserver(ObjectAdapter adapter, int requestId, int size);
 }
 
+/// <summary>
+/// The observer updater interface. This interface is implemented by the Ice runtime and an instance of this interface
+/// is provided by the Ice communicator on initialization to the <see cref="CommunicatorObserver" /> object set with
+/// the communicator initialization data. The Ice communicator calls
+/// <see cref="CommunicatorObserver.setObserverUpdater" /> to provide the observer updater. This interface can be used
+/// by add-ins implementing the <see cref="CommunicatorObserver" /> interface to update the observers of connections
+/// and threads.
+/// </summary>
 public interface ObserverUpdater
 {
     /// <summary>

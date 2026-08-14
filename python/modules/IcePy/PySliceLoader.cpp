@@ -9,10 +9,10 @@ using namespace std;
 
 IcePy::PySliceLoader::PySliceLoader(PyObject* sliceLoader) : _sliceLoader{Py_NewRef(sliceLoader)}
 {
-    assert(_sliceLoader);
-    assert(_sliceLoader != Py_None);
+    assert(_sliceLoader.get());
+    assert(_sliceLoader.get() != Py_None);
 
-    if (!PyCallable_Check(_sliceLoader))
+    if (!PyCallable_Check(_sliceLoader.get()))
     {
         throw Ice::InitializationException{__FILE__, __LINE__, "sliceLoader must be a callable"};
     }
@@ -20,9 +20,8 @@ IcePy::PySliceLoader::PySliceLoader(PyObject* sliceLoader) : _sliceLoader{Py_New
 
 IcePy::PySliceLoader::~PySliceLoader()
 {
-    // Called by destroy/destroyAsync with the GIL locked.
+    // Called by destroy/destroyAsync with the GIL locked; releasing _sliceLoader requires the GIL.
     assert(PyGILState_Check());
-    Py_DECREF(_sliceLoader);
 }
 
 Ice::ValuePtr
@@ -32,7 +31,7 @@ IcePy::PySliceLoader::newClassInstance(string_view typeId) const
     assert(PyGILState_Check());
 
     PyObjectHandle obj{
-        PyObject_CallFunction(_sliceLoader, "s#", typeId.data(), static_cast<Py_ssize_t>(typeId.size()))};
+        PyObject_CallFunction(_sliceLoader.get(), "s#", typeId.data(), static_cast<Py_ssize_t>(typeId.size()))};
 
     if (!obj)
     {

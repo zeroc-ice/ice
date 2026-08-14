@@ -46,6 +46,18 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestInt
     adapter.destroy()
     print("ok")
 
+    sys.stdout.write("testing getCommunicator on a destroyed communicator... ")
+    sys.stdout.flush()
+    comm = Ice.initialize()
+    bidirAdapter = comm.createObjectAdapter("")
+    comm.destroy()
+    try:
+        bidirAdapter.getCommunicator()
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass
+    print("ok")
+
     sys.stdout.write("testing connection closure... ")
     sys.stdout.flush()
     for _ in range(10):

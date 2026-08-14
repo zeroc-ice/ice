@@ -844,12 +844,15 @@ static PyMethodDef OperationMethods[] = {
     {"invoke",
      reinterpret_cast<PyCFunction>(operationInvoke),
      METH_VARARGS,
-     PyDoc_STR("invoke(proxy: ObjectPrx, args: tuple) -> Any")},
+     PyDoc_STR("invoke(proxy: ObjectPrx, args: tuple, /) -> Any")},
     {"invokeAsync",
      reinterpret_cast<PyCFunction>(operationInvokeAsync),
      METH_VARARGS,
-     PyDoc_STR("invokeAsync(proxy: ObjectPrx, args: tuple) -> Awaitable[Any]")},
-    {"deprecate", reinterpret_cast<PyCFunction>(operationDeprecate), METH_VARARGS, PyDoc_STR("deprecate(reason: str)")},
+     PyDoc_STR("invokeAsync(proxy: ObjectPrx, args: tuple, /) -> Awaitable[Any]")},
+    {"deprecate",
+     reinterpret_cast<PyCFunction>(operationDeprecate),
+     METH_VARARGS,
+     PyDoc_STR("deprecate(reason: str, /)")},
     {} /* sentinel */
 };
 
@@ -857,11 +860,11 @@ static PyMethodDef DispatchCallbackMethods[] = {
     {"response",
      reinterpret_cast<PyCFunction>(dispatchCallbackResponse),
      METH_VARARGS,
-     PyDoc_STR("response(result: Any) -> None")},
+     PyDoc_STR("response(result: Any, /) -> None")},
     {"exception",
      reinterpret_cast<PyCFunction>(dispatchCallbackException),
      METH_VARARGS,
-     PyDoc_STR("exception(exception: BaseException) -> None")},
+     PyDoc_STR("exception(exception: BaseException, /) -> None")},
     {} /* sentinel */
 };
 

@@ -6,7 +6,6 @@
 #define OPENSSL_NO_DEPRECATED
 
 #include "SSLUtil.h"
-#include "../Base64.h"
 #include "../FileUtil.h"
 #include "../Network.h"
 #include "../UniqueRef.h"

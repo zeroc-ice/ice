@@ -127,3 +127,42 @@ done < <(find "$STAGING/deb-packages-$DISTRIBUTION-amd64" -type f -name "*.dsc")
 for package in "${src_packages[@]}"; do
     reprepro -b "$DIST_DIR" includedsc "$CODENAME" "$package"
 done
+
+# For the nightly quality, remove packages older than DAYS_TO_KEEP days from the repository.
+# reprepro updates its database and the repository indices, and deletes the corresponding pool
+# files. This must be done here rather than by the standalone S3 prune
+# (packaging/release/prune-nightly-artifacts.sh): deleting pool objects behind reprepro's back
+# leaves the indices referencing missing files, which is how packages dropped from the build
+# ended up as permanent apt 404s.
+if [[ "$QUALITY" == "nightly" ]]; then
+    DAYS_TO_KEEP="${DAYS_TO_KEEP:-7}"
+    today_sec=$(date +%s)
+    declare -A old_versions=()
+
+    echo "Scanning for nightly versions older than $DAYS_TO_KEEP days..."
+    if ! versions=$(reprepro -b "$DIST_DIR" --list-format '${version}\n' list "$CODENAME"); then
+        echo "Warning: reprepro list failed, skipping nightly cleanup" >&2
+        versions=""
+    fi
+
+    while read -r version; do
+        if [[ "$version" =~ nightly([0-9]{8}) ]]; then
+            date_part="${BASH_REMATCH[1]}"
+            pkg_date_sec=$(date -d "$date_part" +%s 2>/dev/null || echo 0)
+            if (( pkg_date_sec <= 0 )); then
+                echo "Skipping version $version (invalid date: $date_part)"
+                continue
+            fi
+
+            age_days=$(( (today_sec - pkg_date_sec) / 86400 ))
+            if (( age_days > DAYS_TO_KEEP )); then
+                old_versions["$version"]=1
+            fi
+        fi
+    done <<< "$versions"
+
+    for version in "${!old_versions[@]}"; do
+        echo "Removing outdated nightly version $version..."
+        reprepro -b "$DIST_DIR" removefilter "$CODENAME" "Version (== $version)"
+    done
+fi

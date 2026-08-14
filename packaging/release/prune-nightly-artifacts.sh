@@ -5,7 +5,7 @@ trap 'echo "🔥 ERROR: command \"$BASH_COMMAND\" exited with code $?" >&2' ERR
 
 # Config (override via env)
 # Note: Set S3_DOWNLOADS_BUCKET in GitHub repository variables
-BUCKET="${BUCKET:-${S3_DOWNLOADS_BUCKET:-zeroc-downloads}}"  # S3 bucket name
+BUCKET="${BUCKET:-${S3_DOWNLOADS_BUCKET:?}}"  # S3 bucket name
 CHANNEL="${CHANNEL:-3.9}"                   # release channel (e.g., 3.9, 3.8)
 PREFIX="${PREFIX:-ice/nightly/$CHANNEL/}"   # no leading slash
 DAYS_TO_KEEP="${DAYS_TO_KEEP:-7}"           # default: keep last 7 days
@@ -44,6 +44,14 @@ for key in $keys; do
     # ignore "directories"
     if [[ "$key" == */ ]]; then
         echo "📁 Ignoring directory-like key: $key"
+        ((++ignored))
+        continue
+    fi
+
+    # The APT pool is managed by reprepro during publish (see packaging/deb/create-deb-repo.sh),
+    # which removes expired nightly packages together with their database and index entries.
+    # Deleting pool objects here would leave the APT indices referencing missing files.
+    if [[ "$key" == */pool/* ]]; then
         ((++ignored))
         continue
     fi

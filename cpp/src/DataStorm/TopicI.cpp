@@ -4,6 +4,7 @@
 #include "NodeI.h"
 #include "SessionI.h"
 #include "TopicFactoryI.h"
+#include "TraceUtil.h"
 
 using namespace std;
 using namespace DataStormI;
@@ -154,6 +155,39 @@ TopicI::getTags() const
     return tags;
 }
 
+bool
+TopicI::matchKeyFilter(const shared_ptr<Filter>& filter, const shared_ptr<Key>& key) const
+{
+    try
+    {
+        return filter->match(key);
+    }
+    catch (const std::exception& ex)
+    {
+        // The filter predicate is application code. Treating a throwing predicate as not matching leaves this key
+        // unattached and lets the attach continue with the topic's remaining keys and filters, the way a predicate
+        // that returns false does.
+
+        // The key's toString runs the application's formatter — more application code — so it can throw too; the
+        // placeholder keeps such a throw from escaping the guard.
+        string keyString;
+        try
+        {
+            keyString = key->toString();
+        }
+        catch (const std::exception&)
+        {
+            keyString = "<unavailable>";
+        }
+
+        Warning out(_traceLevels->logger);
+        out << "topic '" << _name << "': did not attach the elements for key '" << keyString << "': the '"
+            << filter->getName() << "' key filter failed:\n"
+            << ex.what();
+        return false;
+    }
+}
+
 ElementSpecSeq
 TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shared_ptr<SessionI>& session)
 {
@@ -164,7 +198,21 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
     {
         if (info.id > 0)
         {
-            auto key = _keyFactory->decode(_instance->getCommunicator(), info.value);
+            shared_ptr<Key> key;
+            try
+            {
+                key = _keyFactory->decode(_instance->getCommunicator(), info.value);
+            }
+            catch (const std::exception& ex)
+            {
+                // The key factory runs the application's decoder. Skip the peer key it can't decode and keep matching
+                // the remaining ones.
+                Warning out(_traceLevels->logger);
+                out << "skipped a key announced on topic '" << this << "': the key could not be decoded:\n"
+                    << ex.what();
+                continue;
+            }
+
             auto p = _keyElements.find(key);
             if (p != _keyElements.end())
             {
@@ -189,7 +237,7 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
             // Add filtered elements matching the key.
             for (const auto& [filter, filteredDataElements] : _filteredElements)
             {
-                if (filter->match(key))
+                if (matchKeyFilter(filter, key))
                 {
                     ElementDataSeq elements;
                     for (const auto& dataElement : filteredDataElements)
@@ -221,7 +269,23 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
             }
             else
             {
-                peerFilter = _keyFilterFactories->decode(_instance->getCommunicator(), info.name, info.value);
+                try
+                {
+                    peerFilter = _keyFilterFactories->decode(_instance->getCommunicator(), info.name, info.value);
+                }
+                catch (const std::exception& ex)
+                {
+                    // The key filter factory runs the application's decoder. Skip the peer filter it can't decode
+                    // rather than falling back to alwaysMatchFilter the way a null return does below: a null return
+                    // means no factory is registered under that name, while a throw leaves the filter's criteria
+                    // unknown, and matching everything would attach elements the peer's filter meant to exclude.
+                    Warning out(_traceLevels->logger);
+                    out << "skipped the key filter '" << info.name << "' announced on topic '" << this
+                        << "': the filter could not be decoded:\n"
+                        << ex.what();
+                    continue;
+                }
+
                 if (!peerFilter)
                 {
                     peerFilter = alwaysMatchFilter;
@@ -231,7 +295,7 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
             // Add key elements matching the filter.
             for (const auto& [key, keyDataElements] : _keyElements)
             {
-                if (peerFilter->match(key))
+                if (matchKeyFilter(peerFilter, key))
                 {
                     ElementDataSeq elements;
                     for (const auto& dataElement : keyDataElements)
@@ -363,7 +427,22 @@ TopicI::attachElements(
                     }
                     else
                     {
-                        filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
+                        try
+                        {
+                            filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            // The key filter factory runs the application's decoder. Skip this spec and keep
+                            // attaching the remaining ones. Falling back to alwaysMatchFilter the way a null return
+                            // does would attach elements the peer's filter meant to exclude.
+                            Warning out(_traceLevels->logger);
+                            out << "skipped the elements of key filter '" << spec.name << "' on topic '" << this
+                                << "': the filter could not be decoded:\n"
+                                << ex.what();
+                            continue;
+                        }
+
                         if (!filter)
                         {
                             filter = alwaysMatchFilter;
@@ -372,7 +451,7 @@ TopicI::attachElements(
                 }
 
                 // Iterate over the data elements for the matching key, attaching them to the data elements of the spec.
-                if (spec.id > 0 || filter->match(key))
+                if (spec.id > 0 || matchKeyFilter(filter, key))
                 {
                     for (const auto& dataElement : p->second)
                     {
@@ -414,10 +493,23 @@ TopicI::attachElements(
                 shared_ptr<Key> key;
                 if (spec.id > 0) // Key
                 {
-                    key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
+                    try
+                    {
+                        key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
+                    }
+                    catch (const std::exception& ex)
+                    {
+                        // The key factory runs the application's decoder. Skip this spec and keep attaching the
+                        // remaining ones.
+                        Warning out(_traceLevels->logger);
+                        out << "skipped the elements announced under a key on topic '" << this
+                            << "': the key could not be decoded:\n"
+                            << ex.what();
+                        continue;
+                    }
                 }
 
-                if (spec.id < 0 || filter->match(key))
+                if (spec.id < 0 || matchKeyFilter(filter, key))
                 {
                     for (const auto& dataElement : p->second)
                     {
@@ -473,10 +565,24 @@ TopicI::attachElementsAck(
                     }
                     else
                     {
-                        filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
-                        if (!filter)
+                        try
                         {
-                            filter = alwaysMatchFilter;
+                            filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
+                            if (!filter)
+                            {
+                                filter = alwaysMatchFilter;
+                            }
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            // The key filter factory runs the application's decoder. Leave the filter null — falling
+                            // back to alwaysMatchFilter the way a null return does would attach elements the peer's
+                            // filter meant to exclude. Skipping the whole spec would drop the removedIds bookkeeping
+                            // along with the attachments.
+                            Warning out(_traceLevels->logger);
+                            out << "skipped the acknowledged elements of key filter '" << spec.name << "' on topic '"
+                                << this << "': the filter could not be decoded:\n"
+                                << ex.what();
                         }
                     }
                 }
@@ -494,7 +600,7 @@ TopicI::attachElementsAck(
                                 initCb = dataElement
                                              ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
                             }
-                            else if (filter->match(key)) // Filter
+                            else if (filter && matchKeyFilter(filter, key)) // Filter
                             {
                                 initCb = dataElement
                                              ->attach(topicId, spec.id, key, filter, session, prx, data, now, batches);
@@ -541,7 +647,19 @@ TopicI::attachElementsAck(
                 shared_ptr<Key> key;
                 if (spec.id > 0) // Key
                 {
-                    key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
+                    try
+                    {
+                        key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
+                    }
+                    catch (const std::exception& ex)
+                    {
+                        // The key factory runs the application's decoder. Leave the key null. Skipping the whole spec
+                        // would drop the removedIds bookkeeping along with the attachments.
+                        Warning out(_traceLevels->logger);
+                        out << "skipped the acknowledged elements announced under a key on topic '" << this
+                            << "': the key could not be decoded:\n"
+                            << ex.what();
+                    }
                 }
 
                 for (const auto& data : spec.elements)
@@ -558,7 +676,7 @@ TopicI::attachElementsAck(
                                     dataElement
                                         ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, batches);
                             }
-                            else if (filter->match(key))
+                            else if (key && matchKeyFilter(filter, key))
                             {
                                 initCb = dataElement
                                              ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
