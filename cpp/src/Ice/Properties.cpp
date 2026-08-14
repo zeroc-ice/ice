@@ -522,8 +522,7 @@ Ice::Properties::load(string_view file)
                     getProcessLogger()->warning(os.str());
                     continue;
                 }
-                string name =
-                    wstringToString(wstring(nameBuf.data(), nameBufSize), stringConverter);
+                string name = wstringToString(wstring(nameBuf.data(), nameBufSize), stringConverter);
                 if (keyType != REG_SZ && keyType != REG_EXPAND_SZ)
                 {
                     ostringstream os;
