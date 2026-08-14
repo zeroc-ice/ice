@@ -228,11 +228,8 @@ DataElementI::attach(
         initializationBatches.push_back(std::move(initializationBatch));
     }
 
-    // subscriberInitialized marks the subscriber initialized and advances its lastId past the acked samples, and
-    // TopicI::attachElementsAck runs the returned closures only once every spec in the ack has attached. Defer the
-    // whole call into the closure so the subscriber state is committed together with the sample delivery: if
-    // attaching a later spec throws, the closure never runs, no state is committed for samples that were never
-    // delivered, and the peer still offers them on the next initialization.
+    // The closure commits the subscriber state (initialized, lastId advanced past the acked samples) together with
+    // the sample delivery, or not at all.
     return [=, self = shared_from_this()]()
     {
         auto samplesI = session->subscriberInitialized(topicId, id > 0 ? data.id : -data.id, data.samples, key, self);
@@ -856,9 +853,7 @@ DataReaderI::initSamples(
             catch (const std::exception& ex)
             {
                 // Checking an inline key calls the reader's key filter, which is application code. A filter that
-                // throws drops the sample, like a filter that returns false. The reader is marked initialized with
-                // its lastId advanced before the batch is delivered, so letting the exception escape would discard
-                // the rest of a batch the peer never offers again.
+                // throws drops the sample, like a filter that returns false.
                 Warning out(_traceLevels->logger);
                 out << "dropped sample " << sample->id << ": the key filter failed:\n" << ex.what();
                 continue;
