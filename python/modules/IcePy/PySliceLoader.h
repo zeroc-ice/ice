@@ -5,6 +5,7 @@
 
 #include "Config.h"
 #include "Ice/Ice.h"
+#include "Util.h"
 
 namespace IcePy
 {
@@ -20,7 +21,7 @@ namespace IcePy
         // TODO: we currently don't support loading of custom Slice exceptions from Python.
 
     private:
-        PyObject* _sliceLoader;
+        PyObjectHandle _sliceLoader;
     };
 }
 
