@@ -297,7 +297,7 @@ public sealed class Util
     /// <summary>
     /// Returns the Ice version as an integer in the form AABBCC, where AA
     /// indicates the major version, BB indicates the minor version, and CC
-    /// indicates the patch level. For example, for Ice 3.8.3, the returned value is 30803.
+    /// indicates the patch level. For example, for Ice 3.9.1, the returned value is 30901.
     /// </summary>
     /// <returns>The Ice version.</returns>
     public static int intVersion() => 30803; // AABBCC, with AA=major, BB=minor, CC=patch
