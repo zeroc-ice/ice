@@ -1026,6 +1026,10 @@ Schannel::SSLEngine::initialize()
             PCRYPT_PRIVATE_KEY_INFO keyInfo = nullptr;
             BYTE* key = nullptr;
             HCRYPTKEY hKey = 0;
+            HCRYPTPROV cryptProv = 0;
+            wstring keySetName;
+            DWORD contextFlags = 0;
+            bool keySetCreated = false;
             try
             {
                 // First try to decode as a PKCS#8 key, if that fails try PKCS#1.
@@ -1086,10 +1090,9 @@ Schannel::SSLEngine::initialize()
                 }
 
                 // Create a new RSA key set to store our key.
-                const wstring keySetName = Ice::stringToWstring(generateUUID());
-                HCRYPTPROV cryptProv = 0;
+                keySetName = Ice::stringToWstring(generateUUID());
 
-                DWORD contextFlags = CRYPT_NEWKEYSET;
+                contextFlags = CRYPT_NEWKEYSET;
                 if (certStoreLocation == "LocalMachine")
                 {
                     contextFlags |= CRYPT_MACHINE_KEYSET;
@@ -1107,6 +1110,7 @@ Schannel::SSLEngine::initialize()
                         __LINE__,
                         "SSL transport: error acquiring cryptographic context:\n" + lastErrorToString());
                 }
+                keySetCreated = true;
 
                 // Import the private key.
                 if (!CryptImportKey(cryptProv, key, outLength, 0, 0, &hKey))
@@ -1120,6 +1124,8 @@ Schannel::SSLEngine::initialize()
 
                 CryptDestroyKey(hKey);
                 hKey = 0;
+                CryptReleaseContext(cryptProv, 0);
+                cryptProv = 0;
 
                 // Create a new memory store to place the certificate.
                 store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
@@ -1151,6 +1157,7 @@ Schannel::SSLEngine::initialize()
                 _importedCerts.push_back(cert);
                 _allCerts.push_back(cert);
                 _stores.push_back(store);
+                keySetCreated = false;
             }
             catch (...)
             {
@@ -1167,6 +1174,22 @@ Schannel::SSLEngine::initialize()
                 if (hKey)
                 {
                     CryptDestroyKey(hKey);
+                }
+
+                if (cryptProv)
+                {
+                    CryptReleaseContext(cryptProv, 0);
+                }
+
+                if (keySetCreated)
+                {
+                    HCRYPTPROV prov = 0;
+                    CryptAcquireContextW(
+                        &prov,
+                        keySetName.c_str(),
+                        MS_ENHANCED_PROV_W,
+                        PROV_RSA_FULL,
+                        (contextFlags & CRYPT_MACHINE_KEYSET) | CRYPT_DELETEKEYSET);
                 }
 
                 if (cert)
