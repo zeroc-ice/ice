@@ -4,6 +4,8 @@
 
 #    include "SysLoggerI.h"
 #    include "Ice/LocalExceptions.h"
+
+#    include <mutex>
 #    include <syslog.h>
 
 using namespace std;
