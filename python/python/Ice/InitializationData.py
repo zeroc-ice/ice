@@ -25,7 +25,7 @@ class InitializationData:
     ----------
     properties : Ice.Properties | None
         The properties for the communicator.
-        If not ``None``, this corresponds to the object returned by the :meth:`Ice.Communicator.getProperties` function.
+        If not ``None``, this corresponds to the object returned by the :meth:`Ice.Communicator.getProperties` method.
     logger : Ice.Logger | None
         The logger for the communicator.
     threadStart : Callable[[], None] | None
@@ -46,7 +46,7 @@ class InitializationData:
         enqueued is discarded.
     eventLoopAdapter : Ice.EventLoopAdapter | None
         An event loop adapter used to run coroutines and wrap futures. If provided, this adapter is responsible for
-        executing coroutines returned by Ice asynchronous dispatch functions and for wrapping Ice futures (from Ice
+        executing coroutines returned by Ice asynchronous dispatch methods and for wrapping Ice futures (from Ice
         Async APIs) into futures that can be awaited in the application's event loop.
     sliceLoader : Callable[[str], Ice.Value | Ice.UserException | None] | None
         A :class:`~collections.abc.Callable` used to create instances of Slice classes and user exceptions.

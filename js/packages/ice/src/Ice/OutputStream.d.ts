@@ -128,8 +128,8 @@ declare module "@zeroc/ice" {
 
             /**
              * Encodes the state of class instances whose insertion was delayed during a previous call to
-             * {@link OutputStream#writeValue}. This function must be called only once. For backward compatibility with
-             * encoding version 1.0, this function must be called only when non-optional fields or parameters use class
+             * {@link OutputStream#writeValue}. This method must be called only once. For backward compatibility with
+             * encoding version 1.0, this method must be called only when non-optional fields or parameters use class
              * types.
              */
             writePendingValues(): void;

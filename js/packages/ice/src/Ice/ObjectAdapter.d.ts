@@ -144,7 +144,7 @@ declare module "@zeroc/ice" {
             removeFacet(id: Identity, facet: string): Ice.Object;
 
             /**
-             * Removes all facets with the given identity from the Active Servant Map. The function completely removes
+             * Removes all facets with the given identity from the Active Servant Map. This method completely removes
              * the Ice object, including its default facet.
              * @param id The identity of the Ice object to be removed.
              * @returns A collection containing all the facet names and servants of the removed Ice object.
@@ -166,7 +166,7 @@ declare module "@zeroc/ice" {
              * @param id The identity of an Ice object.
              * @returns The servant that implements the Ice object with the given identity, or null if no such servant
              * has been found.
-             * @remarks This function only tries to find the servant in the ASM and among the default servants. It does
+             * @remarks This method only tries to find the servant in the ASM and among the default servants. It does
              * not attempt to locate a servant using servant locators.
              */
             find(id: Identity): Ice.Object | null;
@@ -178,7 +178,7 @@ declare module "@zeroc/ice" {
              * @param facet The facet of an Ice object. An empty facet means the default facet.
              * @returns The servant that implements the Ice object with the given identity and facet, or null if no
              * such servant has been found.
-             * @remarks This function only tries to find the servant in the ASM and among the default servants. It does
+             * @remarks This method only tries to find the servant in the ASM and among the default servants. It does
              * not attempt to locate a servant using servant locators.
              */
             findFacet(id: Identity, facet: string): Ice.Object | null;

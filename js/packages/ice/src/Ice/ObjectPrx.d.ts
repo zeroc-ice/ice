@@ -327,11 +327,11 @@ declare module "@zeroc/ice" {
             /**
              * Gets the connection for this proxy. If the proxy does not yet have an established connection or its
              * connection is closed or being closed, it first attempts to create a new connection. For a fixed
-             * proxy, this function returns the connection this proxy is bound to, even when this connection is
+             * proxy, this method returns the connection this proxy is bound to, even when this connection is
              * closed.
              *
              * @returns An asynchronous result that resolves to the connection used by this proxy.
-             * @remarks You can call this function to establish a connection or associate the proxy with an existing
+             * @remarks You can call this method to establish a connection or associate the proxy with an existing
              * connection.
              */
             ice_getConnection(): AsyncResult<Connection>;
@@ -339,14 +339,14 @@ declare module "@zeroc/ice" {
             /**
              * Gets the cached Connection for this proxy. Once this proxy has been associated with a connection
              * (typically during its first invocation), it caches this connection and continues using it for
-             * subsequent invocations, until an invocation on this proxy fails. This function never attempts to
-             * establish a connection. For a fixed proxy, this function returns the connection this proxy is bound
-             * to, even when this connection is closed. This function never throws.
+             * subsequent invocations, until an invocation on this proxy fails. This method never attempts to
+             * establish a connection. For a fixed proxy, this method returns the connection this proxy is bound
+             * to, even when this connection is closed. This method never throws.
              *
              * @returns The cached connection, or `null` if this proxy doesn't have a cached connection. The
              * returned connection can be closed.
              * @remarks A proxy with connection caching disabled (see {@link ice_connectionCached}) never caches a
-             * connection: for such a proxy, this function always returns `null`.
+             * connection: for such a proxy, this method always returns `null`.
              */
             ice_getCachedConnection(): Connection | null;
 

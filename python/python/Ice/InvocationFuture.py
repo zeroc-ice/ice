@@ -34,7 +34,7 @@ class InvocationFuture(Future):
         """
         Cancels the invocation.
 
-        This function invokes :meth:`Ice.Future.cancel` to cancel the underlying future.
+        This method invokes :meth:`Ice.Future.cancel` to cancel the underlying future.
         If the cancellation is successful, the associated invocation is also cancelled.
 
         Cancelling an invocation prevents a queued invocation from being sent.
@@ -104,13 +104,13 @@ class InvocationFuture(Future):
         """
         Waits until the invocation has been sent.
 
-        If the invocation has not been sent, this function will wait up to ``timeout``-many seconds for it to send.
+        If the invocation has not been sent, this method will wait up to ``timeout``-many seconds for it to send.
 
         Parameters
         ----------
         timeout : int | float | None, optional
             Maximum time (in seconds) to wait for the invocation to be sent.
-            If ``None`` (the default), this function waits indefinitely.
+            If ``None`` (the default), this method waits indefinitely.
             A timeout of ``0`` returns immediately (a non-blocking poll), raising :class:`Ice.TimeoutException`
             if the invocation has not yet been sent.
 

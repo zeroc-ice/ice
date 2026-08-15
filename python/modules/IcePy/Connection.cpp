@@ -92,7 +92,7 @@ CommunicatorDestroyedException
 Disables the inactivity check on this connection.
 
 By default, Ice will close connections that remain inactive for a certain period.
-This function disables that behavior for this connection.)";
+This method disables that behavior for this connection.)";
 
     constexpr const char* connectionSetAdapter_doc = R"(setAdapter(adapter: Ice.ObjectAdapter | None, /) -> None
 
@@ -191,7 +191,7 @@ Returns a description of the connection as human readable text, suitable for log
 
 Notes
 -----
-This function remains usable after the connection is closed or aborted.
+This method remains usable after the connection is closed or aborted.
 
 Returns
 -------
@@ -229,10 +229,10 @@ sndSize : int
 
     constexpr const char* connectionThrowException_doc = R"(throwException() -> None
 
-Raises an exception that provides the reason for the closure of this connection. For example, this function
+Raises an exception that provides the reason for the closure of this connection. For example, this method
 raises :class:`Ice.CloseConnectionException` when the connection was closed gracefully by the peer; it raises
 :class:`Ice.ConnectionAbortedException` when the connection is aborted with :meth:`~Ice.Connection.abort`.
-This function does nothing if the connection is not yet closing or closed.)";
+This method does nothing if the connection is not yet closing or closed.)";
 }
 
 namespace IcePy
