@@ -378,7 +378,7 @@ class ObjectPrx(IcePy.ObjectPrx):
             and the encapsulation contains the encoded out-parameters and return value (the return value follows
             any out-parameters). If the operation raised a user exception, the flag is ``False`` and the
             encapsulation contains the encoded user exception. If the operation raised a runtime exception, this
-            function raises it directly. When this proxy is a oneway, datagram, or batch proxy, the flag is
+            method raises it directly. When this proxy is a oneway, datagram, or batch proxy, the flag is
             always ``True`` and the encapsulation is empty.
         """
         return super().ice_invoke(operation, mode, inParams, ctx)
@@ -967,7 +967,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         Gets the connection for this proxy. If the proxy does not yet have an established connection
         or its connection is closed or being closed, it first attempts to create a new connection.
-        For a fixed proxy, this function returns the connection this proxy is bound to, even when
+        For a fixed proxy, this method returns the connection this proxy is bound to, even when
         this connection is closed.
 
         Returns
@@ -977,11 +977,11 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Notes
         -----
-        You can call this function to establish a connection or associate the proxy with an existing
+        You can call this method to establish a connection or associate the proxy with an existing
         connection and ignore the return value.
 
         When this proxy reaches its target object through collocation optimization (see
-        :meth:`~Ice.ObjectPrx.ice_collocationOptimized`), this function returns ``None``: collocated invocations
+        :meth:`~Ice.ObjectPrx.ice_collocationOptimized`), this method returns ``None``: collocated invocations
         don't use a connection.
         """
         return super().ice_getConnection()
@@ -1001,7 +1001,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Notes
         -----
-        You can call this function to establish a connection or associate the proxy with an existing
+        You can call this method to establish a connection or associate the proxy with an existing
         connection and ignore the result.
 
         When this proxy reaches its target object through collocation optimization (see
@@ -1014,9 +1014,9 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         Gets the Connection cached by this proxy. Once this proxy has been associated with a connection
         (typically during its first invocation), it caches this connection and continues using it for
-        subsequent invocations, until an invocation on this proxy fails. This function never attempts to
-        establish a connection. For a fixed proxy, this function returns the connection this proxy is bound
-        to, even when this connection is closed. This function never raises an exception.
+        subsequent invocations, until an invocation on this proxy fails. This method never attempts to
+        establish a connection. For a fixed proxy, this method returns the connection this proxy is bound
+        to, even when this connection is closed. This method never raises an exception.
 
         Returns
         -------
@@ -1027,7 +1027,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         Notes
         -----
         A proxy with connection caching disabled (see :meth:`~Ice.ObjectPrx.ice_connectionCached`) never caches a
-        connection: for such a proxy, this function always returns ``None``. This function also returns ``None`` when
+        connection: for such a proxy, this method always returns ``None``. This method also returns ``None`` when
         this proxy reaches its target object through collocation optimization (see
         :meth:`~Ice.ObjectPrx.ice_collocationOptimized`): collocated invocations don't use a connection.
         """

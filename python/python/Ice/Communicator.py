@@ -78,7 +78,7 @@ class Communicator:
         Parameters
         ----------
         args : list[str] | None, optional
-            The command-line arguments, parsed into Ice properties by this function.
+            The command-line arguments, parsed into Ice properties by this constructor.
         eventLoop : asyncio.AbstractEventLoop | None, optional
             An asyncio event loop used to run coroutines and wrap futures. If provided, a new event loop adapter is
             created and configured with the communicator. This adapter is responsible for executing coroutines returned
@@ -130,8 +130,8 @@ class Communicator:
 
     def destroy(self) -> None:
         """
-        Destroys this communicator. This function calls :meth:`~Ice.Communicator.shutdown` implicitly. Calling this
-        function destroys all object adapters, and closes all outgoing connections. This function waits for all
+        Destroys this communicator. This method calls :meth:`~Ice.Communicator.shutdown` implicitly. Calling this
+        method destroys all object adapters, and closes all outgoing connections. This method waits for all
         outstanding dispatches to complete before returning. This includes "bidirectional dispatches" that execute on
         outgoing connections.
         """
@@ -157,16 +157,16 @@ class Communicator:
 
     def shutdown(self) -> None:
         """
-        Shuts down this communicator. This function calls :meth:`Ice.ObjectAdapter.deactivate` on all object adapters
+        Shuts down this communicator. This method calls :meth:`Ice.ObjectAdapter.deactivate` on all object adapters
         created by this communicator. Shutting down a communicator has no effect on outgoing connections.
         """
         self._impl.shutdown()
 
     def waitForShutdown(self) -> None:
         """
-        Waits for shutdown to complete. This function calls :meth:`Ice.ObjectAdapter.waitForDeactivate` on all object
+        Waits for shutdown to complete. This method calls :meth:`Ice.ObjectAdapter.waitForDeactivate` on all object
         adapters created by this communicator. In a client application that does not accept incoming connections, this
-        function returns as soon as another thread calls :meth:`~Ice.Communicator.shutdown` or
+        method returns as soon as another thread calls :meth:`~Ice.Communicator.shutdown` or
         :meth:`~Ice.Communicator.destroy` on this communicator.
         """
         # If invoked by the main thread, waitForShutdown only blocks for the specified timeout in order to give us a
@@ -328,9 +328,9 @@ class Communicator:
 
     def createObjectAdapterWithEndpoints(self, name: str, endpoints: str) -> ObjectAdapter:
         """
-        Creates a new object adapter with endpoints. This function sets the property ``name.Endpoints``, and then
-        calls :meth:`~Ice.Communicator.createObjectAdapter`. It is provided as a convenience function. Calling this
-        function with an empty name will result in a UUID being generated for the name.
+        Creates a new object adapter with endpoints. This method sets the property ``name.Endpoints``, and then
+        calls :meth:`~Ice.Communicator.createObjectAdapter`. It is provided as a convenience method. Calling this
+        method with an empty name will result in a UUID being generated for the name.
 
         Parameters
         ----------
@@ -354,8 +354,8 @@ class Communicator:
 
     def createObjectAdapterWithRouter(self, name: str, router: RouterPrx) -> ObjectAdapter:
         """
-        Creates a new object adapter with a router. This function creates a routed object adapter.
-        Calling this function with an empty name will result in a UUID being generated for the name.
+        Creates a new object adapter with a router. This method creates a routed object adapter.
+        Calling this method with an empty name will result in a UUID being generated for the name.
 
         Parameters
         ----------
@@ -380,7 +380,7 @@ class Communicator:
     def getDefaultObjectAdapter(self) -> ObjectAdapter | None:
         """
         Gets the object adapter that is associated by default with new outgoing connections created by this
-        communicator. This function returns ``None`` unless you set a non-``None`` default object adapter using
+        communicator. This method returns ``None`` unless you set a non-``None`` default object adapter using
         :meth:`~Ice.Communicator.setDefaultObjectAdapter`.
 
         Returns
@@ -398,7 +398,7 @@ class Communicator:
     def setDefaultObjectAdapter(self, adapter: ObjectAdapter | None):
         """
         Sets the object adapter that will be associated with new outgoing connections created by this communicator.
-        This function has no effect on existing outgoing connections, or on incoming connections.
+        This method has no effect on existing outgoing connections, or on incoming connections.
 
         Parameters
         ----------
@@ -474,7 +474,7 @@ class Communicator:
     def setDefaultRouter(self, router: RouterPrx | None):
         """
         Sets the default router of this communicator. All newly created proxies will use this default router.
-        This function has no effect on existing proxies.
+        This method has no effect on existing proxies.
 
         Notes
         -----
@@ -511,7 +511,7 @@ class Communicator:
     def setDefaultLocator(self, locator: LocatorPrx | None):
         """
         Sets the default locator of this communicator. All newly created proxies will use this default locator.
-        This function has no effect on existing proxies or object adapters.
+        This method has no effect on existing proxies or object adapters.
 
         Notes
         -----
@@ -575,13 +575,13 @@ class Communicator:
         """
         Adds the Admin object with all its facets to the provided object adapter.
         If ``Ice.Admin.ServerId`` is set and the provided object adapter has a :class:`Ice.LocatorPrx`,
-        this function registers the Admin's Process facet with the locator's :class:`Ice.LocatorRegistryPrx`.
+        this method registers the Admin's Process facet with the locator's :class:`Ice.LocatorRegistryPrx`.
 
         Parameters
         ----------
         adminAdapter : ObjectAdapter | None
             The object adapter used to host the Admin object; if it is ``None`` and ``Ice.Admin.Endpoints`` is set,
-            this function uses the ``Ice.Admin`` object adapter, after creating and activating this adapter.
+            this method uses the ``Ice.Admin`` object adapter, after creating and activating this adapter.
         adminId : Identity
             The identity of the Admin object.
 
@@ -593,7 +593,7 @@ class Communicator:
         Raises
         ------
         InitializationException
-            If this function is called more than once.
+            If this method is called more than once.
         CommunicatorDestroyedException
             If the communicator has been destroyed.
         """
@@ -603,10 +603,10 @@ class Communicator:
         """
         Gets a proxy to the main facet of the Admin object.
 
-        This function also creates the Admin object and creates and activates the ``Ice.Admin`` object adapter to host
-        this Admin object if ``Ice.Admin.Endpoints`` is set. The identity of the Admin object created by this function
+        This method also creates the Admin object and creates and activates the ``Ice.Admin`` object adapter to host
+        this Admin object if ``Ice.Admin.Endpoints`` is set. The identity of the Admin object created by this method
         is ``{value of Ice.Admin.InstanceName}/admin``, or ``{UUID}/admin`` when ``Ice.Admin.InstanceName`` is not set.
-        If ``Ice.Admin.DelayCreation`` is ``0`` or not set, this function is called by the communicator initialization,
+        If ``Ice.Admin.DelayCreation`` is ``0`` or not set, this method is called by the communicator initialization,
         after initialization of all plugins.
 
         Returns

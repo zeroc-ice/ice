@@ -34,7 +34,7 @@ declare module "@zeroc/ice" {
 
             /**
              * Notifies this servant locator that the dispatch on the servant returned by {@link locate} is complete.
-             * The object adapter calls this function only when {@link locate} returns a non-null servant.
+             * The object adapter calls this method only when {@link locate} returns a non-null servant.
              *
              * @remarks The implementation can throw any exception, including {@link UserException}. The Ice runtime
              * marshals this exception in the response. If both the dispatch and `finished` throw an exception, the
