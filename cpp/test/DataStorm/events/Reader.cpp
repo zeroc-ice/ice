@@ -399,6 +399,10 @@ void ::Reader::run(int argc, char* argv[])
         auto reader = makeFilteredKeyReader(topic, Filter<string>("throwOnKey", "k1"), "", config);
         test(reader.getNextUnread().getKey() == "k2");
         test(reader.getNextUnread().getKey() == "sentinel");
+
+        auto done = makeSingleKeyWriter(readyTopic, "done");
+        done.waitForReaders(1);
+        done.add("done");
     }
 
     {
