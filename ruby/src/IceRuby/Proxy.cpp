@@ -762,13 +762,9 @@ IceRuby_ObjectPrx_cmp(VALUE self, VALUE other)
 {
     ICE_RUBY_TRY
     {
-        if (NIL_P(other))
-        {
-            return INT2NUM(1);
-        }
         if (!checkProxy(other))
         {
-            throw RubyException(rb_eTypeError, "argument must be a proxy");
+            return Qnil;
         }
         Ice::ObjectPrx p1 = getProxy(self);
         Ice::ObjectPrx p2 = getProxy(other);
