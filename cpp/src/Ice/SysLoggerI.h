@@ -16,6 +16,9 @@ namespace Ice
         SysLoggerI(std::string prefix, int facility);
         ~SysLoggerI() override;
 
+        SysLoggerI(const SysLoggerI&) = delete;
+        SysLoggerI& operator=(const SysLoggerI&) = delete;
+
         void print(const std::string&) final;
         void trace(const std::string&, const std::string&) final;
         void warning(const std::string&) final;

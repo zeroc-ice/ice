@@ -20,7 +20,10 @@ namespace
     // this state and serializes the syslog calls.
     mutex sysLogMutex;
     int sysLogCount = 0;
-    string sysLogIdent;
+
+    // Intentionally leaked: openlog retains the ident pointer, and a logger stored in a global can still call syslog
+    // during static destruction, so this buffer must never be freed.
+    string& sysLogIdent = *new string;
 
     int parseFacility(string_view facilityString)
     {
@@ -151,30 +154,31 @@ Ice::SysLoggerI::~SysLoggerI()
 void
 Ice::SysLoggerI::print(const string& message)
 {
+    // The Logger contract requires these methods not to throw, so we let syslog do the formatting instead of
+    // building a std::string that could throw bad_alloc.
     lock_guard lock(sysLogMutex);
-    syslog(_facility | LOG_INFO, "%s", (_bodyPrefix + message).c_str());
+    syslog(_facility | LOG_INFO, "%s%s", _bodyPrefix.c_str(), message.c_str());
 }
 
 void
 Ice::SysLoggerI::trace(const string& category, const string& message)
 {
     lock_guard lock(sysLogMutex);
-    string s = _bodyPrefix + category + ": " + message;
-    syslog(_facility | LOG_INFO, "%s", s.c_str());
+    syslog(_facility | LOG_INFO, "%s%s: %s", _bodyPrefix.c_str(), category.c_str(), message.c_str());
 }
 
 void
 Ice::SysLoggerI::warning(const string& message)
 {
     lock_guard lock(sysLogMutex);
-    syslog(_facility | LOG_WARNING, "%s", (_bodyPrefix + message).c_str());
+    syslog(_facility | LOG_WARNING, "%s%s", _bodyPrefix.c_str(), message.c_str());
 }
 
 void
 Ice::SysLoggerI::error(const string& message)
 {
     lock_guard lock(sysLogMutex);
-    syslog(_facility | LOG_ERR, "%s", (_bodyPrefix + message).c_str());
+    syslog(_facility | LOG_ERR, "%s%s", _bodyPrefix.c_str(), message.c_str());
 }
 
 string
