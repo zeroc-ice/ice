@@ -20,6 +20,7 @@ class SliceGenerationTestCase(ClientTestCase):
                 "classes",
                 "File1.ice",
                 "File2.ice",
+                "a&b/File3.ice",
             ],
         )
 
