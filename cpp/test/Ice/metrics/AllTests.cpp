@@ -493,7 +493,9 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     string isSecure;
     if (!collocated)
     {
-        Ice::EndpointInfoPtr endpointInfo = metrics->ice_getConnection()->getEndpoint()->getInfo();
+        // Use the cached connection: as of 3.8.3, ice_getConnection would re-establish a closed connection,
+        // which changes the connection metrics the test asserts on.
+        Ice::EndpointInfoPtr endpointInfo = metrics->ice_getCachedConnection()->getEndpoint()->getInfo();
         {
             ostringstream os;
             os << endpointInfo->type();
@@ -607,7 +609,9 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
         updateProps(clientProps, serverProps, update.get(), props, "Connection");
 
-        metrics->ice_getConnection()->close().get();
+        // Use the cached connection: as of 3.8.3, ice_getConnection would re-establish a closed connection,
+        // which changes the connection metrics the test asserts on.
+        metrics->ice_getCachedConnection()->close().get();
 
         // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the connection.
         this_thread::sleep_for(chrono::milliseconds(100));

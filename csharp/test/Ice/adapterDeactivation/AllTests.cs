@@ -354,7 +354,9 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing whether server is gone... ");
         output.Flush();
-        if (obj.ice_getConnection() is null) // collocated
+        // As of 3.8.3, ice_getConnection reconnects (and throws) when the close initiated by the
+        // deactivation has already been processed; the cached connection detects collocation without any I/O.
+        if (obj.ice_getCachedConnection() is null) // collocated
         {
             obj.ice_ping();
             output.WriteLine("ok");

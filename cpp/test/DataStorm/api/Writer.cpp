@@ -284,11 +284,13 @@ void ::Writer::run(int argc, char* argv[])
         test(skw.getLast().getKey() == "key");
         test(skw.getLast().getValue() == "");
         test(skw.getLast().getEvent() == SampleEvent::Remove);
-        skw.partialUpdate<string>("partialupdate")("update");
-        test(skw.getLast().getKey() == "key");
-        test(skw.getLast().getValue() == "");
-        test(skw.getLast().getUpdateTag() == "partialupdate");
-        test(skw.getLast().getEvent() == SampleEvent::PartialUpdate);
+        // As of 3.8.3, a partial update on a key with no current value throws; the 3.8.2 block below is
+        // disabled.
+        // skw.partialUpdate<string>("partialupdate")("update");
+        // test(skw.getLast().getKey() == "key");
+        // test(skw.getLast().getValue() == "");
+        // test(skw.getLast().getUpdateTag() == "partialupdate");
+        // test(skw.getLast().getEvent() == SampleEvent::PartialUpdate);
 
         ostringstream os;
         os << skw.getLast();
