@@ -13,4 +13,10 @@
     <file name="classes/test/Slice/generation/Test/Interface2.java"/>
     <file name="classes/test/Slice/generation/Test/AsyncInterface2.java"/>
   </source>
+  <source name="a&amp;b/File3.ice">
+    <file name="classes/test/Slice/generation/Test/Interface3Prx.java"/>
+    <file name="classes/test/Slice/generation/Test/_Interface3PrxI.java"/>
+    <file name="classes/test/Slice/generation/Test/Interface3.java"/>
+    <file name="classes/test/Slice/generation/Test/AsyncInterface3.java"/>
+  </source>
 </generated>

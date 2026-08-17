@@ -90,6 +90,11 @@ namespace Slice
 
     [[nodiscard]] std::string relativePath(const std::string& path1, const std::string& path2);
 
+    /// Escapes a file name for use in a double-quoted XML attribute value.
+    /// @param name The file name to escape.
+    /// @return The escaped file name.
+    [[nodiscard]] std::string escapeXMLAttribute(std::string_view name);
+
     /// The DependencyGenerator class is used to collect dependencies of Slice units.
     class DependencyGenerator final
     {

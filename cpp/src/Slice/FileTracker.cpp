@@ -3,6 +3,7 @@
 #include "FileTracker.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
+#include "Util.h"
 
 #include <cassert>
 
@@ -75,10 +76,10 @@ Slice::FileTracker::dumpxml()
     {
         if (!p.second.empty())
         {
-            consoleOut << endl << "  <source name=\"" << p.first << "\">";
+            consoleOut << endl << "  <source name=\"" << escapeXMLAttribute(p.first) << "\">";
             for (const auto& q : p.second)
             {
-                consoleOut << endl << "    <file name=\"" << q << "\"/>";
+                consoleOut << endl << "    <file name=\"" << escapeXMLAttribute(q) << "\"/>";
             }
             consoleOut << endl << "  </source>";
         }

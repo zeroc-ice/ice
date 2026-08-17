@@ -42,45 +42,6 @@ namespace
         }
     }
 
-    // Escapes a file name for use in a double-quoted XML attribute value.
-    string escapeXMLAttribute(string_view name)
-    {
-        ostringstream os;
-        for (char c : name)
-        {
-            switch (c)
-            {
-                case '&':
-                    os << "&amp;";
-                    break;
-                case '<':
-                    os << "&lt;";
-                    break;
-                case '>':
-                    os << "&gt;";
-                    break;
-                case '"':
-                    os << "&quot;";
-                    break;
-                // An XML parser replaces a literal tab, line feed or carriage return in an attribute value by a
-                // space. Character references survive this normalization.
-                case '\t':
-                    os << "&#x9;";
-                    break;
-                case '\n':
-                    os << "&#xA;";
-                    break;
-                case '\r':
-                    os << "&#xD;";
-                    break;
-                default:
-                    os << c;
-                    break;
-            }
-        }
-        return os.str();
-    }
-
     // Escapes a file name and wraps it in double quotes, to produce a JSON string.
     string toJSONString(string_view name)
     {
@@ -717,6 +678,45 @@ Slice::relativePath(const string& path1, const string& path2)
     newPath += f1;
 
     return newPath;
+}
+
+string
+Slice::escapeXMLAttribute(string_view name)
+{
+    ostringstream os;
+    for (char c : name)
+    {
+        switch (c)
+        {
+            case '&':
+                os << "&amp;";
+                break;
+            case '<':
+                os << "&lt;";
+                break;
+            case '>':
+                os << "&gt;";
+                break;
+            case '"':
+                os << "&quot;";
+                break;
+            // An XML parser replaces a literal tab, line feed or carriage return in an attribute value by a
+            // space. Character references survive this normalization.
+            case '\t':
+                os << "&#x9;";
+                break;
+            case '\n':
+                os << "&#xA;";
+                break;
+            case '\r':
+                os << "&#xD;";
+                break;
+            default:
+                os << c;
+                break;
+        }
+    }
+    return os.str();
 }
 
 void
