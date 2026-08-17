@@ -12,6 +12,14 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # Homebrew 6 requires third-party taps to be trusted, and the runner image ships aws/tap
+    # untrusted, so every brew command warns. We install nothing from it; untapping leaves the
+    # preinstalled aws CLI in place.
+    - name: Untap aws/tap on macOS
+      if: runner.os == 'macOS'
+      shell: bash
+      run: brew untap aws/tap || true
+
     - name: Install dependencies on macOS
       if: runner.os == 'macOS' && inputs.profile == 'full'
       shell: bash
