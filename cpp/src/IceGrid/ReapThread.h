@@ -93,9 +93,14 @@ namespace IceGrid
         void connectionClosed(const Ice::ConnectionPtr&);
 
     private:
+        struct ReapableItem;
+
         void run();
 
         bool calcWakeInterval();
+
+        // Removes the item's _connections entry, if any. Must be called with _mutex locked.
+        void detachConnection(const ReapableItem& item);
 
         Ice::CloseCallback _closeCallback;
         std::chrono::milliseconds _wakeInterval{0};
@@ -106,6 +111,7 @@ namespace IceGrid
             Ice::ConnectionPtr connection;
             std::chrono::milliseconds timeout;
         };
+
         std::list<ReapableItem> _sessions;
 
         std::map<Ice::ConnectionPtr, std::set<std::shared_ptr<Reapable>>> _connections;

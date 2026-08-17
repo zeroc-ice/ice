@@ -61,20 +61,8 @@ ReapThread::run()
                 }
                 // else session is already destroyed and we clean-up
 
-                // Remove the reapable
-                if (p->connection)
-                {
-                    auto q = _connections.find(p->connection);
-                    if (q != _connections.end())
-                    {
-                        q->second.erase(p->item);
-                        if (q->second.empty())
-                        {
-                            p->connection->setCloseCallback(nullptr);
-                            _connections.erase(q);
-                        }
-                    }
-                }
+                // Remove the reapable item
+                detachConnection(*p);
                 p = _sessions.erase(p);
             }
         }
@@ -130,6 +118,22 @@ ReapThread::add(const shared_ptr<Reapable>& reapable, chrono::seconds timeout, c
     {
         return;
     }
+
+    // The run thread can sleep forever when all remaining sessions have a 0s timeout, so it can't be relied upon to
+    // remove entries for sessions destroyed explicitly. Remove them now.
+    _sessions.remove_if(
+        [this](const ReapableItem& item)
+        {
+            if (item.item->timestamp())
+            {
+                return false;
+            }
+            else
+            {
+                detachConnection(item);
+                return true;
+            }
+        });
 
     // The timeout is 0s (public session timeouts) or >= 10s (node session timeout, replica session timeout).
     assert(timeout == 0s || timeout >= 10s);
@@ -218,4 +222,22 @@ ReapThread::calcWakeInterval()
 
     _wakeInterval = minimum;
     return oldWakeInterval == 0s || minimum < oldWakeInterval;
+}
+
+void
+ReapThread::detachConnection(const ReapableItem& item)
+{
+    if (item.connection)
+    {
+        auto p = _connections.find(item.connection);
+        if (p != _connections.end())
+        {
+            p->second.erase(item.item);
+            if (p->second.empty())
+            {
+                item.connection->setCloseCallback(nullptr);
+                _connections.erase(p);
+            }
+        }
+    }
 }
