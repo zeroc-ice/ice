@@ -41,7 +41,7 @@ namespace
         unsigned long size = 256;
         localized.resize(size);
         PDH_STATUS err;
-        while ((err = PdhLookupPerfNameByIndex(0, idx, &localized[0], &size)) == PDH_MORE_DATA)
+        while ((err = PdhLookupPerfNameByIndex(0, idx, localized.data(), &size)) == PDH_MORE_DATA)
         {
             size += 256;
             localized.resize(size);
@@ -56,7 +56,7 @@ namespace
 
             throw Ice::SyscallException{__FILE__, __LINE__, "PdhLookupPerfNameByIndex failed", static_cast<DWORD>(err)};
         }
-        return string(&localized[0]);
+        return string(localized.data());
     }
 
     typedef BOOL(WINAPI* LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
@@ -77,7 +77,7 @@ namespace
         DWORD returnLength = sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) * static_cast<int>(buffer.size());
         while (true)
         {
-            DWORD rc = glpi(&buffer[0], &returnLength);
+            DWORD rc = glpi(buffer.data(), &returnLength);
             if (!rc)
             {
                 if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
@@ -220,11 +220,11 @@ PlatformInfo::PlatformInfo(
                 vector<unsigned char> buffer;
                 buffer.resize(size);
 
-                if (GetFileVersionInfoW(path, 0, size, &buffer[0]))
+                if (GetFileVersionInfoW(path, 0, size, buffer.data()))
                 {
                     VS_FIXEDFILEINFO* ffi;
                     unsigned int ffiLen;
-                    if (VerQueryValueW(&buffer[0], L"", (LPVOID*)&ffi, &ffiLen))
+                    if (VerQueryValueW(buffer.data(), L"", (LPVOID*)&ffi, &ffiLen))
                     {
                         major = HIWORD(ffi->dwProductVersionMS);
                         minor = LOWORD(ffi->dwProductVersionMS);

@@ -37,7 +37,7 @@ IceInternal::Buffer::Container::Container(const vector<value_type>& v) noexcept 
     }
     else
     {
-        _buf = const_cast<value_type*>(&v[0]);
+        _buf = const_cast<value_type*>(v.data());
         _size = v.size();
         _capacity = _size;
         _owned = false;

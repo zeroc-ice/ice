@@ -96,7 +96,7 @@ IceInternal::TcpAcceptor::startAccept()
     _acceptFd = createSocket(false, _addr);
     const int sz = static_cast<int>(_acceptBuf.size() / 2);
     _info.error = ERROR_SUCCESS;
-    if (!AcceptEx(_fd, _acceptFd, &_acceptBuf[0], 0, sz, sz, &_info.count, &_info))
+    if (!AcceptEx(_fd, _acceptFd, _acceptBuf.data(), 0, sz, sz, &_info.count, &_info))
     {
         if (!wouldBlock())
         {

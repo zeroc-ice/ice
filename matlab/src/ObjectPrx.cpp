@@ -78,7 +78,7 @@ namespace
         ok = _ok;
         if (!_data.empty())
         {
-            p.first = &_data[0];
+            p.first = _data.data();
             p.second = p.first + _data.size();
         }
         else
@@ -241,7 +241,7 @@ extern "C"
             mxArray* results = nullptr;
             if (!v.empty())
             {
-                results = createByteArray(&v[0], &v[0] + v.size());
+                results = createByteArray(v.data(), v.data() + v.size());
             }
             return createResultValue(createInvokeResultValue(createBool(ok), results));
         }

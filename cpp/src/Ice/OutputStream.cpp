@@ -306,7 +306,7 @@ Ice::OutputStream::writeEncapsulation(const byte* v, int32_t sz)
 
     Container::size_type position = b.size();
     resize(position + static_cast<size_t>(sz));
-    memcpy(&b[position], &v[0], static_cast<size_t>(sz));
+    memcpy(&b[position], v, static_cast<size_t>(sz));
 }
 
 void
@@ -338,7 +338,7 @@ Ice::OutputStream::writeBlob(const vector<byte>& v)
     {
         Container::size_type pos = b.size();
         resize(pos + v.size());
-        memcpy(&b[pos], &v[0], v.size());
+        memcpy(&b[pos], v.data(), v.size());
     }
 }
 

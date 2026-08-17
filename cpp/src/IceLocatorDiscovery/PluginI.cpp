@@ -321,7 +321,7 @@ Request::invoke(const Ice::LocatorPrx& l)
                     }
                     else
                     {
-                        outPair.first = &outParams[0];
+                        outPair.first = outParams.data();
                         outPair.second = outPair.first + outParams.size();
                     }
                     self->response(ok, outPair);

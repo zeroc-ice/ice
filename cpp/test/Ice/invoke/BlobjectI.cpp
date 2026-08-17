@@ -113,8 +113,8 @@ BlobjectArrayAsyncI::ice_invokeAsync(
     pair<const byte*, const byte*> outPair(static_cast<const byte*>(nullptr), static_cast<const byte*>(nullptr));
     if (outEncaps.size() != 0)
     {
-        outPair.first = &outEncaps[0];
-        outPair.second = &outEncaps[0] + outEncaps.size();
+        outPair.first = outEncaps.data();
+        outPair.second = outEncaps.data() + outEncaps.size();
     }
     response(ok, outPair);
 }

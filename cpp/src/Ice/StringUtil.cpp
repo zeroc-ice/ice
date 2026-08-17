@@ -1037,10 +1037,10 @@ IceInternal::errorToString(int error)
         //
         // Use the XSI-compliant version of strerror_r
         //
-        int err = strerror_r(error, &buffer[0], buffer.size());
+        int err = strerror_r(error, buffer.data(), buffer.size());
         if (err == 0)
         {
-            return {&buffer[0]};
+            return {buffer.data()};
         }
 #    else
         //
@@ -1048,7 +1048,7 @@ IceInternal::errorToString(int error)
         //
         int oerrno = errno;
         errno = 0;
-        const char* msg = strerror_r(error, &buffer[0], buffer.size());
+        const char* msg = strerror_r(error, buffer.data(), buffer.size());
         int err = errno;
         errno = oerrno;
         if (err == 0)

@@ -870,7 +870,7 @@ ZEND_FUNCTION(Ice_initialize)
 
     if (ZEND_NUM_ARGS() == 1)
     {
-        zval* arg = &args[0];
+        zval* arg = args;
         while (Z_TYPE_P(arg) == IS_REFERENCE)
         {
             arg = Z_REFVAL_P(arg);

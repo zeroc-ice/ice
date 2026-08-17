@@ -464,7 +464,14 @@ namespace
                             }
 
                             vector<BYTE> buffer(length);
-                            if (!CertStrToNameW(X509_ASN_ENCODING, argW.c_str(), flags[i], 0, &buffer[0], &length, 0))
+                            if (!CertStrToNameW(
+                                    X509_ASN_ENCODING,
+                                    argW.c_str(),
+                                    flags[i],
+                                    0,
+                                    buffer.data(),
+                                    &length,
+                                    0))
                             {
                                 throw InitializationException(
                                     __FILE__,
@@ -473,7 +480,7 @@ namespace
                                         IceInternal::lastErrorToString());
                             }
 
-                            CERT_NAME_BLOB name = {length, &buffer[0]};
+                            CERT_NAME_BLOB name = {length, buffer.data()};
 
                             DWORD findType = field == "SUBJECTDN" ? CERT_FIND_SUBJECT_NAME : CERT_FIND_ISSUER_NAME;
                             addMatchingCertificates(store, tmpStore, findType, &name);
@@ -490,7 +497,7 @@ namespace
                                 "SSL transport: invalid 'IceSSL.FindCert' property: cannot decode the value");
                         }
 
-                        CRYPT_HASH_BLOB hash = {static_cast<DWORD>(buffer.size()), &buffer[0]};
+                        CRYPT_HASH_BLOB hash = {static_cast<DWORD>(buffer.size()), buffer.data()};
                         DWORD findType = field == "THUMBPRINT" ? CERT_FIND_HASH : CERT_FIND_KEY_IDENTIFIER;
                         addMatchingCertificates(store, tmpStore, findType, &hash);
                     }
@@ -510,7 +517,7 @@ namespace
                         std::vector<BYTE> serialData(buffer.size());
                         std::reverse_copy(std::begin(buffer), std::end(buffer), std::begin(serialData));
 
-                        CRYPT_INTEGER_BLOB serial = {static_cast<DWORD>(serialData.size()), &serialData[0]};
+                        CRYPT_INTEGER_BLOB serial = {static_cast<DWORD>(serialData.size()), serialData.data()};
                         PCCERT_CONTEXT next = nullptr;
                         do
                         {
@@ -627,7 +634,7 @@ namespace
                     &buffer[startpos],
                     static_cast<DWORD>(size),
                     CRYPT_STRING_ANY,
-                    &outBuffer[0],
+                    outBuffer.data(),
                     &outLength,
                     0,
                     0))
@@ -642,7 +649,7 @@ namespace
             if (!CertAddEncodedCertificateToStore(
                     store,
                     X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-                    &outBuffer[0],
+                    outBuffer.data(),
                     outLength,
                     CERT_STORE_ADD_NEW,
                     first ? cert : 0))
@@ -778,11 +785,11 @@ Schannel::SSLEngine::~SSLEngine()
                 continue;
             }
             vector<char> buf(length);
-            if (!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, &buf[0], &length))
+            if (!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, buf.data(), &length))
             {
                 continue;
             }
-            CRYPT_KEY_PROV_INFO* key = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
+            CRYPT_KEY_PROV_INFO* key = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(buf.data());
             HCRYPTPROV prov = 0;
             CryptAcquireContextW(&prov, key->pwszContainerName, key->pwszProvName, key->dwProvType, CRYPT_DELETEKEYSET);
         }
@@ -920,7 +927,7 @@ Schannel::SSLEngine::initialize()
 
         CRYPT_DATA_BLOB pfxBlob;
         pfxBlob.cbData = static_cast<DWORD>(buffer.size());
-        pfxBlob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
+        pfxBlob.pbData = reinterpret_cast<BYTE*>(buffer.data());
 
         PCCERT_CONTEXT cert = nullptr;
         DWORD importFlags = (certStoreLocation == "LocalMachine") ? CRYPT_MACHINE_KEYSET : CRYPT_USER_KEYSET;
@@ -1010,10 +1017,10 @@ Schannel::SSLEngine::initialize()
 
             // Convert the PEM encoded buffer to DER binary format.
             if (!CryptStringToBinary(
-                    &buffer[0],
+                    buffer.data(),
                     static_cast<DWORD>(buffer.size()),
                     CRYPT_STRING_BASE64HEADER,
-                    &outBuffer[0],
+                    outBuffer.data(),
                     &outLength,
                     0,
                     0))
@@ -1033,7 +1040,7 @@ Schannel::SSLEngine::initialize()
                 if (CryptDecodeObjectEx(
                         X509_ASN_ENCODING,
                         PKCS_PRIVATE_KEY_INFO,
-                        &outBuffer[0],
+                        outBuffer.data(),
                         outLength,
                         CRYPT_DECODE_ALLOC_FLAG,
                         0,
@@ -1072,7 +1079,7 @@ Schannel::SSLEngine::initialize()
                     if (!CryptDecodeObjectEx(
                             X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                             PKCS_RSA_PRIVATE_KEY,
-                            &outBuffer[0],
+                            outBuffer.data(),
                             outLength,
                             CRYPT_DECODE_ALLOC_FLAG,
                             0,
@@ -1296,7 +1303,7 @@ Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
             return SCH_CREDENTIALS{
                 .dwVersion = SCH_CREDENTIALS_VERSION,
                 .cCreds = static_cast<DWORD>(_allCerts.size()),
-                .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.size() > 0 ? &_allCerts[0] : nullptr),
+                .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.data()),
                 .dwFlags = SCH_CRED_NO_DEFAULT_CREDS | SCH_CRED_NO_SERVERNAME_CHECK | SCH_USE_STRONG_CRYPTO};
         },
         .trustedRootCertificates = _rootStore,
@@ -1348,7 +1355,7 @@ Schannel::SSLEngine::createServerAuthenticationOptions() const
                 return SCH_CREDENTIALS{
                     .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = static_cast<DWORD>(_allCerts.size()),
-                    .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.size() > 0 ? &_allCerts[0] : nullptr),
+                    .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.data()),
                     // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and
                     // Schannel doesn't seem to send the root certificate either way.
                     .dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_USE_STRONG_CRYPTO};
