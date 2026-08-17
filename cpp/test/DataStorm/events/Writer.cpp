@@ -426,8 +426,10 @@ void ::Writer::run(int argc, char* argv[])
         auto ready = makeSingleKeyWriter(readyTopic, "ready", "", config);
         ready.add("go");
 
-        writer.waitForReaders(1);
-        writer.waitForNoReaders();
+        // The reader acknowledges on the ready topic once it has read all its samples; keep the writers alive until
+        // then.
+        auto done = makeSingleKeyReader(readyTopic, "done");
+        test(done.getNextUnread().getValue() == "done");
     }
     cout << "ok" << endl;
 
