@@ -570,17 +570,17 @@ Selector::select(int timeout)
     while (true)
     {
 #    if defined(ICE_USE_EPOLL)
-        _count = epoll_wait(_queueFd, &_events[0], _events.size(), timeout);
+        _count = epoll_wait(_queueFd, _events.data(), _events.size(), timeout);
 #    else // ICE_USE_KQUEUE
         assert(!_events.empty());
         if (timeout >= 0)
         {
             timespec ts{.tv_sec = timeout, .tv_nsec = 0};
-            _count = kevent(_queueFd, nullptr, 0, &_events[0], static_cast<int>(_events.size()), &ts);
+            _count = kevent(_queueFd, nullptr, 0, _events.data(), static_cast<int>(_events.size()), &ts);
         }
         else
         {
-            _count = kevent(_queueFd, nullptr, 0, &_events[0], static_cast<int>(_events.size()), nullptr);
+            _count = kevent(_queueFd, nullptr, 0, _events.data(), static_cast<int>(_events.size()), nullptr);
         }
 #    endif
 
@@ -640,9 +640,9 @@ Selector::updateSelector()
 {
     int rs = kevent(
         _queueFd,
-        &_changes[0],
+        _changes.data(),
         static_cast<int>(_changes.size()),
-        &_changes[0],
+        _changes.data(),
         static_cast<int>(_changes.size()),
         &zeroTimeout);
     if (rs < 0)

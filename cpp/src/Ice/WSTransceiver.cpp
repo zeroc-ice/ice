@@ -249,7 +249,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                 // encoded with Base64.
                 //
                 vector<byte> key(16);
-                IceInternal::generateRandom(reinterpret_cast<char*>(&key[0]), key.size());
+                IceInternal::generateRandom(reinterpret_cast<char*>(key.data()), key.size());
                 _key = IceInternal::Base64::encode(key);
                 out << _key << "\r\n\r\n"; // EOM
 
@@ -1099,7 +1099,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     out << "Sec-WebSocket-Accept: ";
     string input = key + _wsUUID;
     vector<byte> hash;
-    sha1(reinterpret_cast<const byte*>(&input[0]), input.size(), hash);
+    sha1(reinterpret_cast<const byte*>(input.data()), input.size(), hash);
     out << IceInternal::Base64::encode(hash) << "\r\n\r\n"; // EOM
 
     string str = out.str();
@@ -1197,7 +1197,7 @@ IceInternal::WSTransceiver::handleResponse()
     }
     string input = _key + _wsUUID;
     vector<byte> hash;
-    sha1(reinterpret_cast<const byte*>(&input[0]), input.size(), hash);
+    sha1(reinterpret_cast<const byte*>(input.data()), input.size(), hash);
     if (val != IceInternal::Base64::encode(hash))
     {
         throw WebSocketException("invalid value '" + val + "' for Sec-WebSocket-Accept");
@@ -1466,7 +1466,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
             {
                 _pingPayload.clear();
                 _pingPayload.resize(_readPayloadLength);
-                memcpy(&_pingPayload[0], _readI, _pingPayload.size());
+                memcpy(_pingPayload.data(), _readI, _pingPayload.size());
                 if (_incoming)
                 {
                     // A client masks its frames (RFC 6455 §5.3), so unmask the ping payload here, just like the

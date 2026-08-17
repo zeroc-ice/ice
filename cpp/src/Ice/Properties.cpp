@@ -497,7 +497,15 @@ Ice::Properties::load(string_view file)
                 DWORD keyType;
                 DWORD nameBufSize = static_cast<DWORD>(nameBuf.size());
                 DWORD dataBufSize = static_cast<DWORD>(dataBuf.size());
-                err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, nullptr, &keyType, &dataBuf[0], &dataBufSize);
+                err = RegEnumValueW(
+                    iceKey,
+                    i,
+                    nameBuf.data(),
+                    &nameBufSize,
+                    nullptr,
+                    &keyType,
+                    dataBuf.data(),
+                    &dataBufSize);
                 if (err != ERROR_SUCCESS || nameBufSize == 0)
                 {
                     ostringstream os;
@@ -514,8 +522,7 @@ Ice::Properties::load(string_view file)
                     getProcessLogger()->warning(os.str());
                     continue;
                 }
-                string name =
-                    wstringToString(wstring(reinterpret_cast<wchar_t*>(&nameBuf[0]), nameBufSize), stringConverter);
+                string name = wstringToString(wstring(nameBuf.data(), nameBufSize), stringConverter);
                 if (keyType != REG_SZ && keyType != REG_EXPAND_SZ)
                 {
                     ostringstream os;
@@ -525,7 +532,8 @@ Ice::Properties::load(string_view file)
                 }
 
                 string value;
-                wstring valueW = wstring(reinterpret_cast<wchar_t*>(&dataBuf[0]), (dataBufSize / sizeof(wchar_t)) - 1);
+                wstring valueW =
+                    wstring(reinterpret_cast<wchar_t*>(dataBuf.data()), (dataBufSize / sizeof(wchar_t)) - 1);
                 if (keyType == REG_SZ)
                 {
                     value = wstringToString(valueW, stringConverter);
@@ -535,14 +543,14 @@ Ice::Properties::load(string_view file)
                     vector<wchar_t> expandedValue(1024);
                     DWORD sz = ExpandEnvironmentStringsW(
                         valueW.c_str(),
-                        &expandedValue[0],
+                        expandedValue.data(),
                         static_cast<DWORD>(expandedValue.size()));
                     if (sz >= expandedValue.size())
                     {
                         expandedValue.resize(sz + 1);
                         if (ExpandEnvironmentStringsW(
                                 valueW.c_str(),
-                                &expandedValue[0],
+                                expandedValue.data(),
                                 static_cast<DWORD>(expandedValue.size())) == 0)
                         {
                             ostringstream os;
@@ -553,7 +561,7 @@ Ice::Properties::load(string_view file)
                             continue;
                         }
                     }
-                    value = wstringToString(wstring(&expandedValue[0], sz - 1), stringConverter);
+                    value = wstringToString(wstring(expandedValue.data(), sz - 1), stringConverter);
                 }
                 setProperty(name, value);
             }
@@ -895,15 +903,15 @@ Ice::Properties::loadConfig()
     {
 #ifdef _WIN32
         vector<wchar_t> v(256);
-        DWORD ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], static_cast<DWORD>(v.size()));
+        DWORD ret = GetEnvironmentVariableW(L"ICE_CONFIG", v.data(), static_cast<DWORD>(v.size()));
         if (ret >= v.size())
         {
             v.resize(ret + 1);
-            ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], static_cast<DWORD>(v.size()));
+            ret = GetEnvironmentVariableW(L"ICE_CONFIG", v.data(), static_cast<DWORD>(v.size()));
         }
         if (ret > 0)
         {
-            value = wstringToString(wstring(&v[0], ret), getProcessStringConverter());
+            value = wstringToString(wstring(v.data(), ret), getProcessStringConverter());
         }
         else
         {

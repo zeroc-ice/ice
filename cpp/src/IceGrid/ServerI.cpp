@@ -51,7 +51,7 @@ namespace IceGrid
             size_t entrysize = sizeof(struct dirent) - sizeof(entry->d_name) + strlen(entry->d_name) + 1;
             namelist[index].resize(entrysize);
 
-            memcpy(&namelist[index][0], entry, entrysize);
+            memcpy(namelist[index].data(), entry, entrysize);
         }
 
         if (closedir(d))
@@ -61,7 +61,7 @@ namespace IceGrid
 
         for (auto& i : namelist)
         {
-            string name = reinterpret_cast<struct dirent*>(&i[0])->d_name;
+            string name = reinterpret_cast<struct dirent*>(i.data())->d_name;
             assert(!name.empty());
 
             if (name == ".")
@@ -335,9 +335,9 @@ namespace IceGrid
             string variable = v.substr(beg + 1, end - beg - 1);
             DWORD ret = GetEnvironmentVariableW(
                 Ice::stringToWstring(variable).c_str(),
-                &buf[0],
+                buf.data(),
                 static_cast<DWORD>(buf.size()));
-            string valstr = (ret > 0 && ret < buf.size()) ? Ice::wstringToString(&buf[0]) : string("");
+            string valstr = (ret > 0 && ret < buf.size()) ? Ice::wstringToString(buf.data()) : string("");
             v.replace(beg, end - beg + 1, valstr);
             beg += valstr.size();
         }
@@ -2347,19 +2347,18 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         // one which is specified.
         //
         vector<char> buf(256);
-        buf.resize(256);
         DWORD size = static_cast<DWORD>(buf.size());
-        bool success = GetUserName(&buf[0], &size);
+        bool success = GetUserName(buf.data(), &size);
         if (!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
         {
             buf.resize(size);
-            success = GetUserName(&buf[0], &size);
+            success = GetUserName(buf.data(), &size);
         }
         if (!success)
         {
             throw Ice::SyscallException{__FILE__, __LINE__, "GetUserName failed", GetLastError()};
         }
-        if (user != string(&buf[0]))
+        if (user != string(buf.data()))
         {
             throw runtime_error(
                 "could not load server under user account '" + user + "': feature not supported on Windows");
@@ -2377,11 +2376,11 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         }
         vector<char> buffer(static_cast<size_t>(sz));
         struct passwd* pw;
-        int err = getpwnam_r(user.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw);
+        int err = getpwnam_r(user.c_str(), &pwbuf, buffer.data(), buffer.size(), &pw);
         while (err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
         {
             buffer.resize(buffer.size() * 2);
-            err = getpwnam_r(user.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw);
+            err = getpwnam_r(user.c_str(), &pwbuf, buffer.data(), buffer.size(), &pw);
         }
 
         if (err != 0)

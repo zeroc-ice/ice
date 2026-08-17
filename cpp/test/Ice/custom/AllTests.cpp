@@ -1520,7 +1520,7 @@ allTests(TestHelper* helper)
             in,
             [&](pair<const byte*, const byte*> out)
             {
-                test(arrayRangeEquals<byte>(make_pair<const byte*>(&in[0], &in[0] + in.size()), out));
+                test(arrayRangeEquals<byte>(make_pair<const byte*>(in.data(), in.data() + in.size()), out));
                 done.set_value(true);
             },
             [&](std::exception_ptr) { done.set_value(false); });

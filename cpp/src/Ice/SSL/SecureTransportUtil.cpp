@@ -549,7 +549,7 @@ namespace
         }
 
         SecKeychainAttributeList attrs;
-        attrs.attr = &attributes[0];
+        attrs.attr = attributes.data();
         attrs.count = static_cast<UInt32>(attributes.size());
         SecKeychainItemModifyAttributesAndData(reinterpret_cast<SecKeychainItemRef>(key.get()), &attrs, 0, nullptr);
 
@@ -621,7 +621,7 @@ namespace
                 }
                 UniqueRef<CFDataRef> certdata(CFDataCreate(
                     kCFAllocatorDefault,
-                    reinterpret_cast<uint8_t*>(&data[0]),
+                    reinterpret_cast<uint8_t*>(data.data()),
                     static_cast<CFIndex>(data.size())));
                 UniqueRef<SecCertificateRef> cert(SecCertificateCreateWithData(0, certdata.get()));
                 if (!cert)
@@ -866,7 +866,8 @@ Ice::SSL::SecureTransport::findCertificateChain(
             {
                 throw InitializationException(__FILE__, __LINE__, "SSL transport: invalid value '" + value + "'");
             }
-            UniqueRef<CFDataRef> v(CFDataCreate(kCFAllocatorDefault, &buffer[0], static_cast<CFIndex>(buffer.size())));
+            UniqueRef<CFDataRef> v(
+                CFDataCreate(kCFAllocatorDefault, buffer.data(), static_cast<CFIndex>(buffer.size())));
             CFDictionarySetValue(
                 query.get(),
                 field == "SUBJECTKEYID" ? kSecAttrSubjectKeyID : kSecAttrSerialNumber,

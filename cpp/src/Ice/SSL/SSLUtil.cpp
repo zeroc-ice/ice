@@ -34,8 +34,8 @@ Ice::SSL::fromCFString(CFStringRef v)
         CFIndex size = CFStringGetMaximumSizeForEncoding(CFStringGetLength(v), kCFStringEncodingUTF8);
         vector<char> buffer;
         buffer.resize(static_cast<size_t>(size + 1));
-        CFStringGetCString(v, &buffer[0], static_cast<CFIndex>(buffer.size()), kCFStringEncodingUTF8);
-        s.assign(&buffer[0]);
+        CFStringGetCString(v, buffer.data(), static_cast<CFIndex>(buffer.size()), kCFStringEncodingUTF8);
+        s.assign(buffer.data());
     }
     return s;
 }
@@ -101,7 +101,7 @@ Ice::SSL::readFile(const string& file, vector<char>& buffer)
 
     if (!buffer.empty())
     {
-        is.read(&buffer[0], static_cast<streamsize>(buffer.size()));
+        is.read(buffer.data(), static_cast<streamsize>(buffer.size()));
         if (!is.good())
         {
             throw CertificateReadException(__FILE__, __LINE__, "error reading file " + file);
@@ -250,13 +250,13 @@ namespace
                 X509_ASN_ENCODING,
                 certName,
                 CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG,
-                &buffer[0],
+                buffer.data(),
                 length))
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceInternal::lastErrorToString());
         }
 
-        string s(&buffer[0]);
+        string s(buffer.data());
         for (const auto& certificateOID : certificateOIDS)
         {
             const string name = string(certificateOID.first) + "=";
@@ -395,12 +395,12 @@ Ice::SSL::encodeCertificate(PCCERT_CONTEXT cert)
             cert->pbCertEncoded,
             cert->cbCertEncoded,
             CRYPT_STRING_BASE64HEADER | CRYPT_STRING_NOCR,
-            &encoded[0],
+            encoded.data(),
             &encodedLength))
     {
         throw CertificateEncodingException(__FILE__, __LINE__, IceInternal::lastErrorToString());
     }
-    s.assign(&encoded[0]);
+    s.assign(encoded.data());
     return s;
 }
 
@@ -413,10 +413,10 @@ Ice::SSL::decodeCertificate(const string& data)
     derBuffer.resize(derLength);
 
     if (!CryptStringToBinary(
-            &data.c_str()[0],
+            data.c_str(),
             static_cast<DWORD>(data.size()),
             CRYPT_STRING_BASE64HEADER,
-            &derBuffer[0],
+            derBuffer.data(),
             &derLength,
             nullptr,
             nullptr))
@@ -430,7 +430,7 @@ Ice::SSL::decodeCertificate(const string& data)
     if (!CryptDecodeObjectEx(
             X509_ASN_ENCODING,
             X509_CERT,
-            &derBuffer[0],
+            derBuffer.data(),
             derLength,
             CRYPT_DECODE_ALLOC_FLAG,
             nullptr,
@@ -660,7 +660,7 @@ Ice::SSL::encodeCertificate(X509* certificate)
 X509*
 Ice::SSL::decodeCertificate(const string& data)
 {
-    BIO* cert = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(&data[0])), static_cast<int>(data.size()));
+    BIO* cert = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(data.data())), static_cast<int>(data.size()));
     x509_st* x = PEM_read_bio_X509(cert, nullptr, nullptr, nullptr);
     BIO_free(cert);
     if (x == nullptr)

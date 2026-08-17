@@ -509,6 +509,11 @@ mxArray*
 IceMatlab::createByteArray(const byte* begin, const byte* end)
 {
     mxArray* r = mxCreateUninitNumericMatrix(1, end - begin, mxUINT8_CLASS, mxREAL);
-    memcpy(reinterpret_cast<uint8_t*>(mxGetData(r)), begin, end - begin);
+    // Guard the copy: for an empty range both 'begin' and 'mxGetData(r)' are null, and passing null to memcpy is
+    // undefined behavior even when the size is zero.
+    if (begin != end)
+    {
+        memcpy(reinterpret_cast<uint8_t*>(mxGetData(r)), begin, end - begin);
+    }
     return r;
 }

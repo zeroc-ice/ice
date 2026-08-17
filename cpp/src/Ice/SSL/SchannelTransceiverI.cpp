@@ -149,7 +149,7 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             // before validating below, so close() releases the full transferred set even if validation throws
             // (CertFreeCertificateContext(nullptr) is a no-op). They are released in close().
             _allCerts.assign(_credentials.paCred, _credentials.paCred + _credentials.cCreds);
-            _credentials.paCred = &_allCerts[0];
+            _credentials.paCred = _allCerts.data();
 
             for (PCCERT_CONTEXT certificate : _allCerts)
             {

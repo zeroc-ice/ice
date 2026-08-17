@@ -677,8 +677,8 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
                 pair<const byte*, const byte*> rb(0, 0);
                 if (!result.empty())
                 {
-                    rb.first = &result[0];
-                    rb.second = &result[0] + result.size();
+                    rb.first = result.data();
+                    rb.second = result.data() + result.size();
                 }
 
                 zval ex;
@@ -695,8 +695,8 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
                 pair<const byte*, const byte*> rb(0, 0);
                 if (!result.empty())
                 {
-                    rb.first = &result[0];
-                    rb.second = &result[0] + result.size();
+                    rb.first = result.data();
+                    rb.second = result.data() + result.size();
                 }
                 unmarshalResults(ZEND_NUM_ARGS(), args, return_value, rb);
             }

@@ -1493,7 +1493,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             }
             else
             {
-                os->write(&seq[0], &seq[0] + seq.size(), false); // Bypass string conversion.
+                os->write(seq.data(), seq.data() + seq.size(), false); // Bypass string conversion.
             }
             break;
         }

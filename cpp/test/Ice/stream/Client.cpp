@@ -1064,7 +1064,7 @@ allTests(Test::TestHelper* helper, const CustomSliceLoaderPtr& customSliceLoader
         Ice::OutputStream out(p);
         vector<byte> v;
         v.resize(127);
-        ::memset(&v[0], 0xFF, v.size());
+        ::memset(v.data(), 0xFF, v.size());
         out.write(v);
         out.write(uint8_t{0xFF});   // This extra byte should make the stream reallocate.
         test(out.pos() == 129);     // 127 bytes + leading size (1 byte) + 1 byte
