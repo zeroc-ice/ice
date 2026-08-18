@@ -3,15 +3,19 @@ name: Binary Compatibility
 on:
   workflow_dispatch:
 
-# Builds tests from a stable tag and distribution libraries from the branch HEAD, then swaps the HEAD libraries into
-# the stable test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible with that stable
-# release.
+# Builds tests from a stable baseline and distribution libraries from the branch HEAD, then swaps the HEAD libraries
+# into the baseline test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible with that
+# stable release.
+#
+# STABLE_TAG points at a baseline tag rather than the release tag itself: the release tree plus the test changes forced
+# by behavior we changed on purpose since that release. Only test and test-script files differ from the release, so the
+# tests still build against the release's headers and generated code. Cut a new baseline when a release ships.
 #
 # Each stable branch (3.7, 3.8) maintains its own copy of this workflow with branch-specific configuration below.
 
 # Branch-specific configuration:
 env:
-  STABLE_TAG: "v3.8.1"
+  STABLE_TAG: "binary-compat-3.8.2"
 
 jobs:
   compat:
@@ -175,8 +179,6 @@ jobs:
         shell: bash
 
       # Run the stable test suite against the HEAD libraries.
-      # Exclude IceSSL/configuration because the 3.8.0 test connects to the decommissioned Glacier2 demo proxy on
-      # zeroc.com (removed from HEAD by #5047).
       # Exclude Slice/macros because it compares compile-time and runtime Ice versions (Util.intVersion()), which
       # won't match when built and run with different patch versions.
       - name: Run compatibility tests
@@ -185,7 +187,7 @@ jobs:
         with:
           working_directory: stable
           flags: >-
-            --rfilter="IceSSL/configuration|Slice/macros"
+            --rfilter="Slice/macros"
             ${{ matrix.os == 'ubuntu-24.04' && '--languages=cpp,csharp,java' || '--languages=cpp' }}
 
       - name: Upload test results
