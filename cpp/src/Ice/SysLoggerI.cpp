@@ -4,160 +4,181 @@
 
 #    include "SysLoggerI.h"
 #    include "Ice/LocalExceptions.h"
+
+#    include <mutex>
 #    include <syslog.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-// syslog's openlog/closelog and its ident are process-global, and openlog retains the ident pointer rather than
-// copying it. We therefore allow at most one SysLoggerI alive at a time, so the ident never dangles and closelog never
-// tears down a connection another logger is still using. The constructor claims this flag; the destructor releases it.
-std::mutex Ice::SysLoggerI::_mutex;
-bool Ice::SysLoggerI::_active = false;
-
-Ice::SysLoggerI::SysLoggerI(string prefix, string_view facilityString) : _facility(0), _prefix(std::move(prefix))
+namespace
 {
-    if (facilityString == "LOG_KERN")
+    // openlog/closelog and the syslog ident are process-global, and openlog retains the ident pointer rather than
+    // copying it. All SysLoggerI instances therefore share a single openlog call: the first instance donates its
+    // prefix as the process-wide ident, and the last instance to be destroyed calls closelog. sysLogMutex guards
+    // this state and serializes the syslog calls.
+    mutex sysLogMutex;
+    int sysLogCount = 0;
+
+    // Intentionally leaked: openlog retains the ident pointer, and a logger stored in a global can still call syslog
+    // during static destruction, so this buffer must never be freed.
+    string& sysLogIdent = *new string; // NOLINT(cert-err58-cpp)
+
+    int parseFacility(string_view facilityString)
     {
-        _facility = LOG_KERN;
-    }
-    else if (facilityString == "LOG_USER")
-    {
-        _facility = LOG_USER;
-    }
-    else if (facilityString == "LOG_MAIL")
-    {
-        _facility = LOG_MAIL;
-    }
-    else if (facilityString == "LOG_DAEMON")
-    {
-        _facility = LOG_DAEMON;
-    }
-    else if (facilityString == "LOG_AUTH")
-    {
-        _facility = LOG_AUTH;
-    }
-    else if (facilityString == "LOG_SYSLOG")
-    {
-        _facility = LOG_SYSLOG;
-    }
-    else if (facilityString == "LOG_LPR")
-    {
-        _facility = LOG_LPR;
-    }
-    else if (facilityString == "LOG_NEWS")
-    {
-        _facility = LOG_NEWS;
-    }
-    else if (facilityString == "LOG_UUCP")
-    {
-        _facility = LOG_UUCP;
-    }
-    else if (facilityString == "LOG_CRON")
-    {
-        _facility = LOG_CRON;
-    }
+        if (facilityString == "LOG_KERN")
+        {
+            return LOG_KERN;
+        }
+        else if (facilityString == "LOG_USER")
+        {
+            return LOG_USER;
+        }
+        else if (facilityString == "LOG_MAIL")
+        {
+            return LOG_MAIL;
+        }
+        else if (facilityString == "LOG_DAEMON")
+        {
+            return LOG_DAEMON;
+        }
+        else if (facilityString == "LOG_AUTH")
+        {
+            return LOG_AUTH;
+        }
+        else if (facilityString == "LOG_SYSLOG")
+        {
+            return LOG_SYSLOG;
+        }
+        else if (facilityString == "LOG_LPR")
+        {
+            return LOG_LPR;
+        }
+        else if (facilityString == "LOG_NEWS")
+        {
+            return LOG_NEWS;
+        }
+        else if (facilityString == "LOG_UUCP")
+        {
+            return LOG_UUCP;
+        }
+        else if (facilityString == "LOG_CRON")
+        {
+            return LOG_CRON;
+        }
 #    ifdef LOG_AUTHPRIV
-    else if (facilityString == "LOG_AUTHPRIV")
-    {
-        _facility = LOG_AUTHPRIV;
-    }
+        else if (facilityString == "LOG_AUTHPRIV")
+        {
+            return LOG_AUTHPRIV;
+        }
 #    endif
 #    ifdef LOG_FTP
-    else if (facilityString == "LOG_FTP")
-    {
-        _facility = LOG_FTP;
-    }
+        else if (facilityString == "LOG_FTP")
+        {
+            return LOG_FTP;
+        }
 #    endif
-    else if (facilityString == "LOG_LOCAL0")
-    {
-        _facility = LOG_LOCAL0;
+        else if (facilityString == "LOG_LOCAL0")
+        {
+            return LOG_LOCAL0;
+        }
+        else if (facilityString == "LOG_LOCAL1")
+        {
+            return LOG_LOCAL1;
+        }
+        else if (facilityString == "LOG_LOCAL2")
+        {
+            return LOG_LOCAL2;
+        }
+        else if (facilityString == "LOG_LOCAL3")
+        {
+            return LOG_LOCAL3;
+        }
+        else if (facilityString == "LOG_LOCAL4")
+        {
+            return LOG_LOCAL4;
+        }
+        else if (facilityString == "LOG_LOCAL5")
+        {
+            return LOG_LOCAL5;
+        }
+        else if (facilityString == "LOG_LOCAL6")
+        {
+            return LOG_LOCAL6;
+        }
+        else if (facilityString == "LOG_LOCAL7")
+        {
+            return LOG_LOCAL7;
+        }
+        else
+        {
+            throw InitializationException(
+                __FILE__,
+                __LINE__,
+                "Invalid value for Ice.SyslogFacility: " + string{facilityString});
+        }
     }
-    else if (facilityString == "LOG_LOCAL1")
-    {
-        _facility = LOG_LOCAL1;
-    }
-    else if (facilityString == "LOG_LOCAL2")
-    {
-        _facility = LOG_LOCAL2;
-    }
-    else if (facilityString == "LOG_LOCAL3")
-    {
-        _facility = LOG_LOCAL3;
-    }
-    else if (facilityString == "LOG_LOCAL4")
-    {
-        _facility = LOG_LOCAL4;
-    }
-    else if (facilityString == "LOG_LOCAL5")
-    {
-        _facility = LOG_LOCAL5;
-    }
-    else if (facilityString == "LOG_LOCAL6")
-    {
-        _facility = LOG_LOCAL6;
-    }
-    else if (facilityString == "LOG_LOCAL7")
-    {
-        _facility = LOG_LOCAL7;
-    }
-    else
-    {
-        throw InitializationException(
-            __FILE__,
-            __LINE__,
-            "Invalid value for Ice.SyslogFacility: " + string{facilityString});
-    }
+}
 
-    claimSyslog(__FILE__, __LINE__);
-
-    int logopt = LOG_PID | LOG_CONS;
-    openlog(_prefix.c_str(), logopt, _facility);
+Ice::SysLoggerI::SysLoggerI(string prefix, string_view facilityString)
+    : SysLoggerI(std::move(prefix), parseFacility(facilityString))
+{
 }
 
 Ice::SysLoggerI::SysLoggerI(string prefix, int facility) : _facility(facility), _prefix(std::move(prefix))
 {
-    claimSyslog(__FILE__, __LINE__);
-
-    int logopt = LOG_PID | LOG_CONS;
-    openlog(_prefix.c_str(), logopt, facility);
+    lock_guard lock(sysLogMutex);
+    if (sysLogCount++ == 0)
+    {
+        sysLogIdent = _prefix;
+        // The facility argument is only a default for syslog calls that don't specify one; each log method passes
+        // this logger's facility with the message priority.
+        openlog(sysLogIdent.c_str(), LOG_PID | LOG_CONS, 0);
+    }
+    if (!_prefix.empty() && _prefix != sysLogIdent)
+    {
+        _bodyPrefix = _prefix + ": ";
+    }
 }
 
 Ice::SysLoggerI::~SysLoggerI()
 {
-    lock_guard lock(_mutex);
-    closelog();
-    _active = false;
+    lock_guard lock(sysLogMutex);
+    if (--sysLogCount == 0)
+    {
+        closelog();
+    }
 }
 
 void
 Ice::SysLoggerI::print(const string& message)
 {
-    lock_guard lock(_mutex);
-    syslog(LOG_INFO, "%s", message.c_str());
+    // The Logger contract requires these methods not to throw, so we let syslog do the formatting instead of
+    // building a std::string that could throw bad_alloc.
+    lock_guard lock(sysLogMutex);
+    syslog(_facility | LOG_INFO, "%s%s", _bodyPrefix.c_str(), message.c_str());
 }
 
 void
 Ice::SysLoggerI::trace(const string& category, const string& message)
 {
-    lock_guard lock(_mutex);
-    string s = category + ": " + message;
-    syslog(LOG_INFO, "%s", s.c_str());
+    lock_guard lock(sysLogMutex);
+    syslog(_facility | LOG_INFO, "%s%s: %s", _bodyPrefix.c_str(), category.c_str(), message.c_str());
 }
 
 void
 Ice::SysLoggerI::warning(const string& message)
 {
-    lock_guard lock(_mutex);
-    syslog(LOG_WARNING, "%s", message.c_str());
+    lock_guard lock(sysLogMutex);
+    syslog(_facility | LOG_WARNING, "%s%s", _bodyPrefix.c_str(), message.c_str());
 }
 
 void
 Ice::SysLoggerI::error(const string& message)
 {
-    lock_guard lock(_mutex);
-    syslog(LOG_ERR, "%s", message.c_str());
+    lock_guard lock(sysLogMutex);
+    syslog(_facility | LOG_ERR, "%s%s", _bodyPrefix.c_str(), message.c_str());
 }
 
 string
@@ -167,21 +188,9 @@ Ice::SysLoggerI::getPrefix()
 }
 
 Ice::LoggerPtr
-Ice::SysLoggerI::cloneWithPrefix(string)
+Ice::SysLoggerI::cloneWithPrefix(string prefix)
 {
-    // syslog is process-global, so a second SysLoggerI would fight over the global openlog ident and connection.
-    throw FeatureNotSupportedException(__FILE__, __LINE__, "the Ice syslog logger does not support cloneWithPrefix");
-}
-
-void
-Ice::SysLoggerI::claimSyslog(const char* file, int line)
-{
-    lock_guard lock(_mutex);
-    if (_active)
-    {
-        throw InitializationException(file, line, "another Ice syslog logger is already active in this process");
-    }
-    _active = true;
+    return make_shared<SysLoggerI>(std::move(prefix), _facility);
 }
 
 #endif
