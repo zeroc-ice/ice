@@ -98,6 +98,11 @@ def allTests(helper, communicator)
     test((Test::SimpleEnum::Red <=> 0).nil?);
     test((Test::SimpleEnum::Red <=> nil).nil?);
     test(![Test::SimpleEnum::Red].include?(0));
+    begin
+        Test::SimpleEnum::Red < 0
+        test(false)
+    rescue ArgumentError
+    end
 
     puts "ok"
 
