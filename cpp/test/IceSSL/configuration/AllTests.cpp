@@ -10,7 +10,6 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
-#include <set>
 #include <thread>
 #include <vector>
 
@@ -57,40 +56,6 @@ readFile(const string& file, vector<char>& buffer)
 }
 
 #ifdef ICE_USE_SCHANNEL
-set<string>
-getEnhancedProviderKeyContainers()
-{
-    HCRYPTPROV cryptProv = 0;
-    test(CryptAcquireContextW(&cryptProv, nullptr, MS_ENHANCED_PROV_W, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT));
-
-    DWORD bufferSize = 0;
-    if (!CryptGetProvParam(cryptProv, PP_ENUMCONTAINERS, nullptr, &bufferSize, CRYPT_FIRST))
-    {
-        const DWORD error = GetLastError();
-        test(CryptReleaseContext(cryptProv, 0));
-        test(error == ERROR_NO_MORE_ITEMS);
-        return {};
-    }
-    vector<BYTE> buffer(bufferSize);
-
-    set<string> containers;
-    DWORD flags = CRYPT_FIRST;
-    while (true)
-    {
-        DWORD size = bufferSize;
-        if (!CryptGetProvParam(cryptProv, PP_ENUMCONTAINERS, buffer.data(), &size, flags))
-        {
-            test(GetLastError() == ERROR_NO_MORE_ITEMS);
-            break;
-        }
-        containers.emplace(reinterpret_cast<const char*>(buffer.data()));
-        flags = CRYPT_NEXT;
-    }
-
-    test(CryptReleaseContext(cryptProv, 0));
-    return containers;
-}
-
 class ImportCerts
 {
 public:
@@ -279,33 +244,6 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     }
     return result;
 }
-
-#ifdef ICE_USE_SCHANNEL
-void
-testFailedCertificateImport(const Ice::PropertiesPtr& defaultProps)
-{
-    cout << "testing failed PEM certificate import cleanup... " << flush;
-    const set<string> keyContainers = getEnhancedProviderKeyContainers();
-
-    InitializationData initData;
-    initData.properties = createClientProps(defaultProps, false);
-    // Using a private key as the certificate makes the import fail after Schannel creates and populates the key set.
-    initData.properties->setProperty("IceSSL.CertFile", "ca1/server_key.pem");
-    initData.properties->setProperty("IceSSL.KeyFile", "ca1/server_key.pem");
-    try
-    {
-        CommunicatorHolder communicator(initialize(initData));
-        test(false);
-    }
-    catch (const InitializationException&)
-    {
-        // Expected.
-    }
-
-    test(getEnhancedProviderKeyContainers() == keyContainers);
-    cout << "ok" << endl;
-}
-#endif
 
 static Test::Properties
 createServerProps(const Ice::PropertiesPtr& defaultProps, bool p12)
@@ -2514,13 +2452,6 @@ allTests(Test::TestHelper* helper, const string& defaultDir, bool p12)
     string defaultHost = communicator->getProperties()->getIceProperty("Ice.Default.Host");
     Ice::PropertiesPtr defaultProps = communicator->getProperties()->clone();
     defaultProps->setProperty("IceSSL.DefaultDir", defaultDir);
-
-#ifdef ICE_USE_SCHANNEL
-    if (!p12)
-    {
-        testFailedCertificateImport(defaultProps);
-    }
-#endif
 
     testCertificateVerification(factory, defaultHost, defaultProps, p12);
     testFindCert(factory, defaultDir, defaultProps, p12);

@@ -1157,7 +1157,6 @@ Schannel::SSLEngine::initialize()
                 _importedCerts.push_back(cert);
                 _allCerts.push_back(cert);
                 _stores.push_back(store);
-                keySetCreated = false;
             }
             catch (...)
             {
@@ -1183,6 +1182,8 @@ Schannel::SSLEngine::initialize()
 
                 if (keySetCreated)
                 {
+                    // With CRYPT_DELETEKEYSET, CryptAcquireContextW deletes the key container; the returned
+                    // handle is undefined and must not be released.
                     HCRYPTPROV prov = 0;
                     CryptAcquireContextW(
                         &prov,
