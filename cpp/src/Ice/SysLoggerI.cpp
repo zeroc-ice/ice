@@ -23,7 +23,7 @@ namespace
 
     // Intentionally leaked: openlog retains the ident pointer, and a logger stored in a global can still call syslog
     // during static destruction, so this buffer must never be freed.
-    string& sysLogIdent = *new string;
+    string& sysLogIdent = *new string; // NOLINT(cert-err58-cpp)
 
     int parseFacility(string_view facilityString)
     {
