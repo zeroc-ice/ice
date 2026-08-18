@@ -23,8 +23,7 @@ module Ice
         end
 
         def <=>(other)
-            other.is_a?(EndpointSelectionType) or raise ArgumentError, "value must be an EndpointSelectionType"
-            @value <=> other.to_i
+            @value <=> other.to_i if other.is_a?(EndpointSelectionType)
         end
 
         def hash
