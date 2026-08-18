@@ -707,22 +707,13 @@ void
 ServerEntry::waitImpl(chrono::seconds timeout)
 {
     unique_lock lock(_mutex);
-    if (timeout != 0s)
+    if (timeout > 0s)
     {
-        while (_synchronizing)
-        {
-            if (timeout > 0s)
-            {
-                if (_condVar.wait_for(lock, timeout) == cv_status::timeout)
-                {
-                    break; // Timeout
-                }
-            }
-            else
-            {
-                _condVar.wait(lock);
-            }
-        }
+        _condVar.wait_until(lock, chrono::steady_clock::now() + timeout, [this] { return !_synchronizing; });
+    }
+    else if (timeout < 0s)
+    {
+        _condVar.wait(lock, [this] { return !_synchronizing; });
     }
     if (_synchronizing) // If we are still synchronizing, throw SynchronizationException
     {
