@@ -439,6 +439,15 @@ def allTests(helper, communicator)
 
     compObj = communicator.stringToProxy("foo")
 
+    #
+    # Standard Ruby semantics for a non-proxy operand: == and eql? return false, <=> returns nil.
+    #
+    test(compObj != nil)
+    test(!(compObj == "not a proxy"))
+    test(!compObj.eql?("not a proxy"))
+    test((compObj <=> nil).nil?)
+    test((compObj <=> "not a proxy").nil?)
+
     test(compObj.ice_facet("facet") == compObj.ice_facet("facet"))
     test(compObj.ice_facet("facet") != compObj.ice_facet("facet1"))
     #test(compObj.ice_facet("facet") < compObj.ice_facet("facet1"))
