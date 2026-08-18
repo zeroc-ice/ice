@@ -15,7 +15,7 @@ on:
 
 # Branch-specific configuration:
 env:
-  STABLE_TAG: "binary-compat-3.8.2"
+  STABLE_TAG: "3.8.2-binary-compat"
 
 jobs:
   compat:
