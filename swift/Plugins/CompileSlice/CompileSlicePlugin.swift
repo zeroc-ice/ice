@@ -137,9 +137,10 @@ struct CompileSlicePlugin {
                 if sourceFileOrDirectory.pathExtension == "ice" {
                     sliceSources.append(sourceFileOrDirectory)
                 } else {
+                    // Standardized because contentsOfDirectory(at:) does not follow a symbolic link.
                     sliceSources.append(
                         contentsOf: try FileManager.default.contentsOfDirectory(
-                            at: sourceFileOrDirectory,
+                            at: sourceFileOrDirectory.standardizedFileURL,
                             includingPropertiesForKeys: nil
                         ).filter { $0.pathExtension == "ice" })
                 }
