@@ -164,7 +164,7 @@ struct CompileSlicePlugin {
 
         sliceSources = Self.uniqueFiles(sliceSources)
 
-        // Nothing to generate, and slice2swift rejects an empty file list.
+        // Nothing to generate.
         guard !sliceSources.isEmpty else {
             return []
         }
