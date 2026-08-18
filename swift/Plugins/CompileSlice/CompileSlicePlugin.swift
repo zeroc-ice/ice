@@ -38,7 +38,6 @@ extension CompileSlicePlugin: BuildToolPlugin {
 enum PluginError: Error, CustomStringConvertible, LocalizedError {
     case invalidTarget(String)
     case missingIceSliceFiles(String)
-    case duplicateSliceFileName(String, String)
     case dependencyScanFailed(String)
 
     var description: String {
@@ -47,9 +46,6 @@ enum PluginError: Error, CustomStringConvertible, LocalizedError {
             return "Expected a SwiftSourceModuleTarget but got '\(targetType)'."
         case .missingIceSliceFiles(let path):
             return "The Ice Slice files are missing. Expected location: '\(path)'."
-        case .duplicateSliceFileName(let first, let second):
-            let generated = URL(fileURLWithPath: first).deletingPathExtension().lastPathComponent + ".swift"
-            return "The Slice files '\(first)' and '\(second)' would both generate '\(generated)'."
         case .dependencyScanFailed(let reason):
             return "Could not determine the Slice include dependencies: \(reason)."
         }
@@ -162,24 +158,12 @@ struct CompileSlicePlugin {
         }
         searchPathDirs.append(Self.iceSliceDir)
 
-        sliceSources = Self.uniqueFiles(sliceSources)
-
         // Nothing to generate.
         guard !sliceSources.isEmpty else {
             return []
         }
 
         let includeArguments = searchPathDirs.map { "-I\($0.path)" }
-
-        // slice2swift names each generated file after the base name of its Slice file, so two sources
-        // with the same file name would produce build commands fighting over one output.
-        var sourcesByName: [String: URL] = [:]
-        for sliceSource in sliceSources {
-            let name = sliceSource.deletingPathExtension().lastPathComponent
-            if let other = sourcesByName.updateValue(sliceSource, forKey: name) {
-                throw PluginError.duplicateSliceFileName(other.path, sliceSource.path)
-            }
-        }
 
         // Ask the compiler which files each source includes, so that editing an included file
         // regenerates every file that includes it.
@@ -252,12 +236,6 @@ struct CompileSlicePlugin {
             throw PluginError.dependencyScanFailed("the output of '--depend-xml' could not be parsed")
         }
         return dependencies
-    }
-
-    /// Standardizes the given file URLs and removes duplicates, preserving their order.
-    private static func uniqueFiles(_ urls: [URL]) -> [URL] {
-        var seen = Set<String>()
-        return urls.map { $0.standardizedFileURL }.filter { seen.insert($0.path).inserted }
     }
 }
 
