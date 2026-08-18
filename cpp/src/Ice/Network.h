@@ -200,8 +200,8 @@ namespace IceInternal
     ICE_API std::string addrToString(const Address&);
     ICE_API void fdToLocalAddress(SOCKET, Address&);
     ICE_API bool fdToRemoteAddress(SOCKET, Address&);
-    ICE_API std::string fdToString(SOCKET, const NetworkProxyPtr&, const Address&);
-    ICE_API std::string fdToString(SOCKET);
+    ICE_API std::string fdToString(SOCKET, const NetworkProxyPtr&, const Address&) noexcept;
+    ICE_API std::string fdToString(SOCKET) noexcept;
     ICE_API void fdToAddressAndPort(SOCKET, std::string&, int&, std::string&, int&);
     ICE_API void addrToAddressAndPort(const Address&, std::string&, int&);
     ICE_API std::string addressesToString(const Address&, const Address&, bool);

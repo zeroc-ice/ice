@@ -31,15 +31,7 @@ StreamSocket::StreamSocket(
         _state = _proxy ? StateProxyWrite : StateConnected;
     }
 #endif
-    try
-    {
-        _desc = fdToString(_fd, _proxy, _addr);
-    }
-    catch (const Ice::Exception&)
-    {
-        closeSocketNoThrow(_fd);
-        throw;
-    }
+    _desc = fdToString(_fd, _proxy, _addr);
 }
 
 StreamSocket::StreamSocket(ProtocolInstancePtr instance, SOCKET fd, const TcpBufSize& bufSize)
@@ -55,15 +47,7 @@ StreamSocket::StreamSocket(ProtocolInstancePtr instance, SOCKET fd, const TcpBuf
 #endif
 {
     init(bufSize);
-    try
-    {
-        _desc = fdToString(fd);
-    }
-    catch (const Ice::Exception&)
-    {
-        closeSocketNoThrow(fd);
-        throw;
-    }
+    _desc = fdToString(fd);
 }
 
 StreamSocket::~StreamSocket() { assert(_fd == INVALID_SOCKET); }

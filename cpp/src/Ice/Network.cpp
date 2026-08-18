@@ -869,70 +869,86 @@ IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
 }
 
 std::string
-IceInternal::fdToString(SOCKET fd, const NetworkProxyPtr& proxy, const Address& target)
+IceInternal::fdToString(SOCKET fd, const NetworkProxyPtr& proxy, const Address& target) noexcept
 {
     if (fd == INVALID_SOCKET)
     {
         return "<closed>";
     }
 
-    ostringstream s;
+    try
+    {
+        ostringstream s;
 
-    Address remoteAddr;
-    bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
+        Address remoteAddr;
+        bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
 
 #ifdef _WIN32
-    if (!peerConnected)
-    {
-        //
-        // The local address is only accessible with connected sockets on Windows.
-        //
-        s << "local address = <not available>";
-    }
-    else
+        if (!peerConnected)
+        {
+            //
+            // The local address is only accessible with connected sockets on Windows.
+            //
+            s << "local address = <not available>";
+        }
+        else
 #endif
-    {
-        Address localAddr;
-        fdToLocalAddress(fd, localAddr);
-        s << "local address = " << addrToString(localAddr);
-    }
-
-    if (proxy)
-    {
-        if (!peerConnected)
         {
-            remoteAddr = proxy->getAddress();
+            Address localAddr;
+            fdToLocalAddress(fd, localAddr);
+            s << "local address = " << addrToString(localAddr);
         }
-        s << "\n" + proxy->getName() + " proxy address = " << addrToString(remoteAddr);
-        s << "\nremote address = " << addrToString(target);
-    }
-    else
-    {
-        if (!peerConnected)
-        {
-            remoteAddr = target;
-        }
-        s << "\nremote address = " << addrToString(remoteAddr);
-    }
 
-    return s.str();
+        if (proxy)
+        {
+            if (!peerConnected)
+            {
+                remoteAddr = proxy->getAddress();
+            }
+            s << "\n" + proxy->getName() + " proxy address = " << addrToString(remoteAddr);
+            s << "\nremote address = " << addrToString(target);
+        }
+        else
+        {
+            if (!peerConnected)
+            {
+                remoteAddr = target;
+            }
+            s << "\nremote address = " << addrToString(remoteAddr);
+        }
+
+        return s.str();
+    }
+    catch (...)
+    {
+        // The description is best-effort: the address queries can fail only in extreme conditions such as kernel
+        // resource exhaustion.
+        return "<not available>";
+    }
 }
 
 std::string
-IceInternal::fdToString(SOCKET fd)
+IceInternal::fdToString(SOCKET fd) noexcept
 {
     if (fd == INVALID_SOCKET)
     {
         return "<closed>";
     }
 
-    Address localAddr;
-    fdToLocalAddress(fd, localAddr);
+    try
+    {
+        Address localAddr;
+        fdToLocalAddress(fd, localAddr);
 
-    Address remoteAddr;
-    bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
+        Address remoteAddr;
+        bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
 
-    return addressesToString(localAddr, remoteAddr, peerConnected);
+        return addressesToString(localAddr, remoteAddr, peerConnected);
+    }
+    catch (...)
+    {
+        return "<not available>";
+    }
 }
 
 void
