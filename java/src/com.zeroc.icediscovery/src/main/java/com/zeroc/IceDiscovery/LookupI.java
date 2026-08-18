@@ -134,9 +134,10 @@ class LookupI implements Lookup {
                 _proxies.add(proxy);
                 if (_latency == 0) {
                     // The aggregation window is the measured response time, scaled by IceDiscovery.LatencyMultiplier,
-                    // with a 1ms floor so we never schedule a degenerate zero-length window.
-                    long responseTimeMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - _start);
-                    _latency = Math.max(1, responseTimeMs * _latencyMultiplier);
+                    // with a 1ms floor so we never schedule a degenerate zero-length window. The scaling is applied in
+                    // nanoseconds so a sub-millisecond response time isn't truncated to zero before scaling.
+                    _latency = Math.max(
+                        1, TimeUnit.NANOSECONDS.toMillis((System.nanoTime() - _start) * _latencyMultiplier));
                     cancelTimer();
                     scheduleTimer(_latency);
                 }
