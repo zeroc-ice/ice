@@ -66,7 +66,6 @@
 #    include <csignal>
 #    include <pwd.h>
 #    include <sys/types.h>
-#    include <syslog.h>
 #endif
 
 #if defined(__linux__) || defined(__GLIBC__)
@@ -87,7 +86,6 @@ namespace
     struct sigaction oldAction;
 #endif
     bool printProcessIdDone = false;
-    string identForOpenlog;
 
     //
     // Should be called with staticMutex locked
@@ -1020,15 +1018,6 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 sigemptyset(&action.sa_mask);
                 action.sa_flags = 0;
                 sigaction(SIGPIPE, &action, &oldAction);
-                if (_initData.properties->getIcePropertyAsInt("Ice.UseSyslog") > 0)
-                {
-                    identForOpenlog = programName;
-                    if (identForOpenlog.empty())
-                    {
-                        identForOpenlog = "<Unknown Ice Program>";
-                    }
-                    openlog(identForOpenlog.c_str(), LOG_PID, LOG_USER);
-                }
 #else
                 logStdErrConvert = _initData.properties->getIcePropertyAsInt("Ice.LogStdErr.Convert") > 0 &&
                                    _initData.properties->getIceProperty("Ice.StdErr").empty();
@@ -1377,12 +1366,6 @@ IceInternal::Instance::~Instance()
 
 #ifndef _WIN32
         sigaction(SIGPIPE, &oldAction, nullptr);
-
-        if (!identForOpenlog.empty())
-        {
-            closelog();
-            identForOpenlog.clear();
-        }
 #endif
     }
 }
