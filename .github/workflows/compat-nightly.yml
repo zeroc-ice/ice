@@ -18,7 +18,8 @@ on:
 
 # Branch-specific configuration:
 env:
-  STABLE_REF: "compat-3.8"
+  # TODO: temporary, pointed at the PR #6646 baseline for testing. Restore to "compat-3.8" before merging.
+  STABLE_REF: "compat-3.8-pr6646"
 
 jobs:
   compat:
