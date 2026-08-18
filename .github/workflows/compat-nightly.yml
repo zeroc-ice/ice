@@ -183,6 +183,8 @@ jobs:
         shell: bash
 
       # Run the stable test suite against the HEAD libraries.
+      # Exclude IceSSL/configuration because its FindCerts cases need the test certificates imported into the OS
+      # certificate store, which this job never does.
       # Exclude Slice/macros because it compares compile-time and runtime Ice versions (Util.intVersion()), which
       # won't match when built and run with different patch versions.
       - name: Run compatibility tests
@@ -191,7 +193,7 @@ jobs:
         with:
           working_directory: stable
           flags: >-
-            --rfilter="Slice/macros"
+            --rfilter="IceSSL/configuration|Slice/macros"
             ${{ matrix.os == 'ubuntu-24.04' && '--languages=cpp,csharp,java' || '--languages=cpp' }}
 
       - name: Upload test results
