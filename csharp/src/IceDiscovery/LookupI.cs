@@ -81,7 +81,7 @@ internal abstract class Request<T>
 internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 {
     public AdapterRequest(LookupI lookup, string id, int retryCount)
-        : base(lookup, id, retryCount) => _start = DateTime.Now.Ticks;
+        : base(lookup, id, retryCount) => _start = Stopwatch.GetTimestamp();
 
     public override bool retry()
     {
@@ -93,7 +93,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 
             // Restart the replica-group latency window so it's measured from this round rather than from request
             // creation.
-            _start = DateTime.Now.Ticks;
+            _start = Stopwatch.GetTimestamp();
             return true;
         }
         return false;
@@ -107,9 +107,11 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
             if (_latency == TimeSpan.Zero)
             {
                 // The aggregation window is the measured response time, scaled by IceDiscovery.LatencyMultiplier,
-                // with a 1ms floor so we never schedule a degenerate zero-length window.
-                double responseTimeMs = TimeSpan.FromTicks(DateTime.Now.Ticks - _start).TotalMilliseconds;
-                _latency = TimeSpan.FromMilliseconds(Math.Max(1, (long)(responseTimeMs * lookup_.latencyMultiplier())));
+                // clamped to the timer's valid delay range, with a 1ms floor so we never schedule a degenerate
+                // zero-length window.
+                double responseTimeMs = Stopwatch.GetElapsedTime(_start).TotalMilliseconds;
+                _latency = TimeSpan.FromMilliseconds(
+                    Math.Clamp(responseTimeMs * lookup_.latencyMultiplier(), 1, int.MaxValue));
                 lookup_.timer().cancel(this);
                 lookup_.timer().schedule(this, _latency);
             }
