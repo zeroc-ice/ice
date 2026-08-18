@@ -78,7 +78,6 @@ IceRuby_Endpoint_cmp(VALUE self, VALUE other)
     {
         if (!checkEndpoint(other))
         {
-            // The standard Ruby behavior: <=> returns nil when the operands are not comparable.
             return Qnil;
         }
         Ice::EndpointPtr p1 = Ice::EndpointPtr(*reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self)));
