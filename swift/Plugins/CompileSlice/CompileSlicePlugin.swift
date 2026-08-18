@@ -48,9 +48,8 @@ enum PluginError: Error, CustomStringConvertible, LocalizedError {
         case .missingIceSliceFiles(let path):
             return "The Ice Slice files are missing. Expected location: '\(path)'."
         case .duplicateSliceFileName(let first, let second):
-            return
-                "The Slice files '\(first)' and '\(second)' have the same file name and would generate "
-                + "the same Swift file."
+            let generated = URL(fileURLWithPath: first).deletingPathExtension().lastPathComponent + ".swift"
+            return "The Slice files '\(first)' and '\(second)' would both generate '\(generated)'."
         case .dependencyScanFailed(let reason):
             return "Could not determine the Slice include dependencies: \(reason)."
         }
