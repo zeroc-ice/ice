@@ -143,20 +143,29 @@ namespace
 }
 
 string
-IceBT::fdToString(SOCKET fd)
+IceBT::fdToString(SOCKET fd) noexcept
 {
     if (fd == INVALID_SOCKET)
     {
         return "<closed>";
     }
 
-    SocketAddress localAddr;
-    fdToLocalAddress(fd, localAddr);
+    try
+    {
+        SocketAddress localAddr;
+        fdToLocalAddress(fd, localAddr);
 
-    SocketAddress remoteAddr;
-    bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
+        SocketAddress remoteAddr;
+        bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
 
-    return addressesToString(localAddr, remoteAddr, peerConnected);
+        return addressesToString(localAddr, remoteAddr, peerConnected);
+    }
+    catch (...)
+    {
+        // The description is best-effort: the address queries can fail only in extreme conditions such as kernel
+        // resource exhaustion.
+        return "<not available>";
+    }
 }
 
 void
