@@ -164,6 +164,12 @@ struct CompileSlicePlugin {
         searchPathDirs.append(Self.iceSliceDir)
 
         sliceSources = Self.uniqueFiles(sliceSources)
+
+        // Nothing to generate, and slice2swift rejects an empty file list.
+        guard !sliceSources.isEmpty else {
+            return []
+        }
+
         let includeArguments = searchPathDirs.map { "-I\($0.path)" }
 
         // slice2swift names each generated file after the base name of its Slice file, so two sources
