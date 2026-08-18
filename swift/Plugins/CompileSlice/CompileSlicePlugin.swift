@@ -158,11 +158,6 @@ struct CompileSlicePlugin {
         }
         searchPathDirs.append(Self.iceSliceDir)
 
-        // Nothing to generate.
-        guard !sliceSources.isEmpty else {
-            return []
-        }
-
         let includeArguments = searchPathDirs.map { "-I\($0.path)" }
 
         // Ask the compiler which files each source includes, so that editing an included file
