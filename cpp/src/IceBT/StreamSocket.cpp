@@ -15,6 +15,8 @@ IceBT::StreamSocket::StreamSocket(InstancePtr instance, SOCKET fd, const BTBufSi
       _instance(std::move(instance))
 {
     assert(fd != INVALID_SOCKET);
+    // Both calls close the fd before throwing a SocketException, so a failure cannot leak the fd — the exception
+    // abandons the object under construction and nothing uses the stale _fd afterward.
     IceInternal::setBlock(fd, false);
     setBufferSize(fd, bufSize.rcvSize(), bufSize.sndSize());
     _desc = fdToString(fd);
