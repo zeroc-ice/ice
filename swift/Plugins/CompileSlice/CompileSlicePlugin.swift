@@ -158,6 +158,9 @@ struct CompileSlicePlugin {
         }
         searchPathDirs.append(Self.iceSliceDir)
 
+        // slice2swift resolves the paths it reports, so match it before looking dependencies up.
+        sliceSources = sliceSources.map { $0.standardizedFileURL }
+
         let includeArguments = searchPathDirs.map { "-I\($0.path)" }
 
         // Ask the compiler which files each source includes, so that editing an included file
