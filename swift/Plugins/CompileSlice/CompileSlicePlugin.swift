@@ -38,6 +38,7 @@ extension CompileSlicePlugin: BuildToolPlugin {
 enum PluginError: Error, CustomStringConvertible, LocalizedError {
     case invalidTarget(String)
     case missingIceSliceFiles(String)
+    case dependencyScanFailed(String)
 
     var description: String {
         switch self {
@@ -45,6 +46,8 @@ enum PluginError: Error, CustomStringConvertible, LocalizedError {
             return "Expected a SwiftSourceModuleTarget but got '\(targetType)'."
         case .missingIceSliceFiles(let path):
             return "The Ice Slice files are missing. Expected location: '\(path)'."
+        case .dependencyScanFailed(let reason):
+            return "Could not determine the Slice include dependencies: \(reason)."
         }
     }
 
@@ -122,7 +125,7 @@ struct CompileSlicePlugin {
             .url
 
         // Decode config and apply additional sources and search paths.
-        var searchPaths: [String] = []
+        var searchPathDirs: [URL] = []
         if let configFileURL = configFileURL {
             let configData = try Data(contentsOf: configFileURL)
             let config = try JSONDecoder().decode(Config.self, from: configData)
@@ -134,9 +137,10 @@ struct CompileSlicePlugin {
                 if sourceFileOrDirectory.pathExtension == "ice" {
                     sliceSources.append(sourceFileOrDirectory)
                 } else {
+                    // Standardized because contentsOfDirectory(at:) does not follow a symbolic link.
                     sliceSources.append(
                         contentsOf: try FileManager.default.contentsOfDirectory(
-                            at: sourceFileOrDirectory,
+                            at: sourceFileOrDirectory.standardizedFileURL,
                             includingPropertiesForKeys: nil
                         ).filter { $0.pathExtension == "ice" })
                 }
@@ -145,7 +149,7 @@ struct CompileSlicePlugin {
             // Add additional search paths from config.search_paths.
             // These paths are relative to the config file location.
             for path in config.search_paths ?? [] {
-                searchPaths.append("-I\(baseDirectory.appending(path: path).path)")
+                searchPathDirs.append(baseDirectory.appending(path: path))
             }
         }
 
@@ -153,7 +157,28 @@ struct CompileSlicePlugin {
         guard FileManager.default.fileExists(atPath: Self.iceSliceDir.appending(path: "Ice/Identity.ice").path) else {
             throw PluginError.missingIceSliceFiles(Self.iceSliceDir.path)
         }
-        searchPaths.append("-I\(Self.iceSliceDir.path)")
+        searchPathDirs.append(Self.iceSliceDir)
+
+        // slice2swift resolves the paths it reports, so match it before looking dependencies up.
+        sliceSources = sliceSources.map { $0.standardizedFileURL }
+
+        let includeArguments = searchPathDirs.map { "-I\($0.path)" }
+
+        // Ask the compiler which files each source includes, so that editing an included file
+        // regenerates every file that includes it.
+        let dependencies = try Self.sliceDependencies(
+            slice2swift: slice2swift,
+            includeArguments: includeArguments,
+            sources: sliceSources
+        )
+
+        // A source missing from the report would silently lose its dependencies, so treat it as an error
+        // rather than generating Swift code that later goes stale.
+        if let dependencies {
+            for sliceSource in sliceSources where dependencies[sliceSource.path] == nil {
+                throw PluginError.dependencyScanFailed("nothing was reported for '\(sliceSource.path)'")
+            }
+        }
 
         // Create the build commands for each Slice file.
         return sliceSources.map { sliceSource in
@@ -164,13 +189,100 @@ struct CompileSlicePlugin {
             return .buildCommand(
                 displayName: "Compile Slice \(sliceSource.lastPathComponent)",
                 executable: slice2swift,
-                arguments: searchPaths + ["--output-dir", outputDir.path, sliceSource.path],
-                // It's important to declare both the Slice file and the config file as input files so the build system can
-                // detect changes. This also avoids warnings about unused files.
-                // TODO: We should also include imported Slice dependencies as inputs.
-                inputFiles: [sliceSource] + (configFileURL.map { [$0] } ?? []),
+                arguments: includeArguments + ["--output-dir", outputDir.path, sliceSource.path],
+                // The build system re-runs this command when any declared input changes, so it must see
+                // everything slice2swift reads: the compiler, the config file and the included Slice files.
+                inputFiles: [sliceSource, slice2swift]
+                    + (dependencies?[sliceSource.path] ?? [])
+                    + (configFileURL.map { [$0] } ?? []),
                 outputFiles: [URL(fileURLWithPath: outputFile.path)]
             )
+        }
+    }
+
+    /// Runs `slice2swift --depend-xml` to find the Slice files each source includes, directly or
+    /// transitively. Returns nil when the compiler rejects the Slice files: the build commands then report
+    /// those errors, and the next successful run restores the dependencies.
+    private static func sliceDependencies(
+        slice2swift: URL,
+        includeArguments: [String],
+        sources: [URL]
+    ) throws -> [String: [URL]]? {
+        let process = Process()
+        process.executableURL = slice2swift
+        process.arguments = includeArguments + ["--depend-xml"] + sources.map { $0.path }
+
+        let standardOutput = Pipe()
+        process.standardOutput = standardOutput
+        process.standardError = FileHandle.nullDevice
+
+        do {
+            try process.run()
+        } catch {
+            throw PluginError.dependencyScanFailed("'\(slice2swift.path)' could not be run")
+        }
+
+        // Read before waiting so a large dependency graph cannot fill the pipe and deadlock.
+        let output = standardOutput.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+
+        // The compiler reports nothing when any of the Slice files fails to parse.
+        guard process.terminationStatus == 0 else {
+            return nil
+        }
+
+        guard let dependencies = DependencyParser().parse(output) else {
+            throw PluginError.dependencyScanFailed("the output of '--depend-xml' could not be parsed")
+        }
+        return dependencies
+    }
+}
+
+/// Parses the output of `slice2swift --depend-xml`: one `<source>` element per Slice file, holding a
+/// `<dependsOn>` element per included file. The compiler flattens transitive includes for us.
+private final class DependencyParser: NSObject, XMLParserDelegate {
+    private var dependencies: [String: [URL]] = [:]
+    private var currentSource: String?
+
+    func parse(_ data: Data) -> [String: [URL]]? {
+        let parser = XMLParser(data: data)
+        parser.delegate = self
+        return parser.parse() ? dependencies : nil
+    }
+
+    func parser(
+        _ parser: XMLParser,
+        didStartElement elementName: String,
+        namespaceURI: String?,
+        qualifiedName: String?,
+        attributes: [String: String]
+    ) {
+        guard let name = attributes["name"] else {
+            return
+        }
+        let url = URL(fileURLWithPath: name).standardizedFileURL
+
+        switch elementName {
+        case "source":
+            currentSource = url.path
+            dependencies[url.path] = []
+        case "dependsOn":
+            if let currentSource {
+                dependencies[currentSource]?.append(url)
+            }
+        default:
+            break
+        }
+    }
+
+    func parser(
+        _ parser: XMLParser,
+        didEndElement elementName: String,
+        namespaceURI: String?,
+        qualifiedName: String?
+    ) {
+        if elementName == "source" {
+            currentSource = nil
         }
     }
 }
