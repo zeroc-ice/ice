@@ -23,8 +23,7 @@ module Ice
         end
 
         def <=>(other)
-            other.is_a?(CompressBatch) or raise ArgumentError, "value must be a CompressBatch"
-            @value <=> other.to_i
+            @value <=> other.to_i if other.is_a?(CompressBatch)
         end
 
         def hash

@@ -89,6 +89,21 @@ def allTests(helper, communicator)
     test(Test::SimpleEnum::from_int(1) == Test::SimpleEnum::Green);
     test(Test::SimpleEnum::from_int(2) == Test::SimpleEnum::Blue);
 
+    #
+    # Standard Ruby semantics for a non-enumerator operand: == returns false, <=> returns nil.
+    #
+    test(Test::SimpleEnum::Red < Test::SimpleEnum::Green);
+    test(!(Test::SimpleEnum::Red == 0));
+    test(Test::SimpleEnum::Red != nil);
+    test((Test::SimpleEnum::Red <=> 0).nil?);
+    test((Test::SimpleEnum::Red <=> nil).nil?);
+    test(![Test::SimpleEnum::Red].include?(0));
+    begin
+        Test::SimpleEnum::Red < 0
+        test(false)
+    rescue ArgumentError
+    end
+
     puts "ok"
 
     print "testing enum operations... "

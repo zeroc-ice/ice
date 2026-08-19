@@ -67,8 +67,7 @@ module Ice
       end
 
       def <=>(other)
-          other.is_a?(FormatType) or raise ArgumentError, "value must be a FormatType"
-          @val <=> other.to_i
+          @val <=> other.to_i if other.is_a?(FormatType)
       end
 
       def hash

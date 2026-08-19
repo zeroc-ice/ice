@@ -23,8 +23,7 @@ module Ice
         end
 
         def <=>(other)
-            raise ArgumentError, "value must be a ToStringMode" unless other.is_a?(ToStringMode)
-            @value <=> other.to_i
+            @value <=> other.to_i if other.is_a?(ToStringMode)
         end
 
         def hash
