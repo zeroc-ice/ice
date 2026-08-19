@@ -444,6 +444,8 @@ StreamSocket::toString() const
 void
 StreamSocket::init(const TcpBufSize& bufSize)
 {
+    // Both calls close the fd before throwing a SocketException, so a failure cannot leak the fd — and since init
+    // is only called from constructors, the exception abandons the object and nothing uses the stale _fd afterward.
     setBlock(_fd, false);
     setTcpBufSize(_fd, bufSize.rcvSize(), bufSize.sndSize(), _instance);
 }
