@@ -394,6 +394,16 @@ def allTests(helper, communicator)
     ident2 = Ice::stringToIdentity(communicator.identityToString(ident))
     test(ident == ident2)
 
+    #
+    # Standard Ruby semantics for a non-Identity operand: == and eql? return false, <=> returns nil.
+    #
+    test((ident <=> Ice::Identity.new("test2", "\x7f\u20ac")) == -1)
+    test(!(ident == "not an identity"))
+    test(!ident.eql?("not an identity"))
+    test(ident != nil)
+    test((ident <=> "not an identity").nil?)
+    test((ident <=> nil).nil?)
+
     test(base.ice_facet("facet").ice_getFacet() == "facet")
     test(base.ice_adapterId("id").ice_getAdapterId() == "id")
     test(base.ice_twoway().ice_isTwoway())
