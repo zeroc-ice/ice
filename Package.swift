@@ -72,7 +72,6 @@ let package = Package(
         .binaryTarget(
             name: "IceDiscoveryCpp",
             path: "cpp/lib/XCFrameworks/IceDiscovery.xcframework"
-
         ),
         .binaryTarget(
             name: "IceLocatorDiscoveryCpp",
