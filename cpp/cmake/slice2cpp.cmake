@@ -14,7 +14,8 @@ cmake_policy(VERSION 3.21)
 # file(REAL_PATH) for a path that need not exist yet: canonicalizes the longest existing ancestor and
 # re-appends the components below it. The builtin warns for a path that is not on disk and returns it
 # wholly unresolved - symlinks in the components that do exist included - so its answer changes the
-# moment a generated file appears. This one answers the same before and after.
+# moment a generated file appears. This one resolves everything already on disk, so creating the
+# missing components as real files and directories cannot change its answer.
 function(_slice2cpp_real_path path out_var)
   set(suffix "")
   set(current "${path}")
@@ -225,19 +226,18 @@ function(slice2cpp_generate target)
     if(file MATCHES "\\.ice$")
 
       get_filename_component(slice_file_path ${file} ABSOLUTE)
-      get_filename_component(slice_file_dir ${slice_file_path} DIRECTORY)
 
-      # NAME_WLE: slice2cpp strips only the final extension, so Foo.v1.ice generates Foo.v1.h.
-      get_filename_component(slice_file_name ${slice_file_path} NAME_WLE)
-
-      # Canonical like the mirror roots, so a file addressed through a symlink still mirrors. Only
-      # the classification and the identity below use it: slice_file_path names a node in the build
-      # graph, and rewriting it would no longer match the rule that generates a build-time .ice.
+      # Canonical like the mirror roots, and like the path slice2cpp resolves before naming its
+      # output. slice_file_path itself stays as written: it names a node in the build graph, and
+      # rewriting it would no longer match the rule that generates a .ice produced at build time.
       set(slice_file_id "${slice_file_path}")
       if(NOT WIN32)
-        _slice2cpp_real_path("${slice_file_dir}" slice_file_dir)
         _slice2cpp_real_path("${slice_file_path}" slice_file_id)
       endif()
+      get_filename_component(slice_file_dir ${slice_file_id} DIRECTORY)
+
+      # NAME_WLE: slice2cpp strips only the final extension, so Foo.v1.ice generates Foo.v1.h.
+      get_filename_component(slice_file_name ${slice_file_id} NAME_WLE)
 
       # Mirror subdirectory; "." is the root. Only -I directories drive the layout, matching how
       # slice2cpp derives the #includes it emits: shortest relative path wins, an exact root scores
@@ -342,6 +342,8 @@ function(slice2cpp_generate target)
         COMMAND $<TARGET_FILE:Ice::slice2cpp> ${include_options} ${include_dir_options} ${arg_OPTIONS}
           ${slice_file_path} --output-dir ${file_output_dir}
         ${move_header_commands}
+        # As written, not canonical: CMake pairs this with the OUTPUT of the rule that generates it
+        # by matching the path text.
         DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp> ${arg_DEPENDS}
         DEPFILE ${depfile}
         VERBATIM
