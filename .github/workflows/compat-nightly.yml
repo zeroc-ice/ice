@@ -3,15 +3,20 @@ name: Binary Compatibility
 on:
   workflow_dispatch:
 
-# Builds tests from a stable tag and distribution libraries from the branch HEAD, then swaps the HEAD libraries into
-# the stable test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible with that stable
-# release.
+# Builds tests from a stable baseline and distribution libraries from the branch HEAD, then swaps the HEAD libraries
+# into the baseline test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible with that
+# stable release.
+#
+# STABLE_REF points at a baseline tag rather than the release tag itself: the release tree plus the test changes
+# forced by behavior we changed on purpose since that release. Only test and test-script files differ from the
+# release, so the tests still build against the release's headers and generated code. Cut a new baseline when a
+# release ships.
 #
 # Each stable branch (3.7, 3.8) maintains its own copy of this workflow with branch-specific configuration below.
 
 # Branch-specific configuration:
 env:
-  STABLE_TAG: "v3.8.1"
+  STABLE_REF: "v3.8.2-binary-compat"
 
 jobs:
   compat:
@@ -27,10 +32,10 @@ jobs:
         with:
           path: head
 
-      - name: Checkout stable (${{ env.STABLE_TAG }})
+      - name: Checkout stable (${{ env.STABLE_REF }})
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ env.STABLE_TAG }}
+          ref: ${{ env.STABLE_REF }}
           path: stable
 
       - name: macOS FQDN Fix
@@ -175,8 +180,8 @@ jobs:
         shell: bash
 
       # Run the stable test suite against the HEAD libraries.
-      # Exclude IceSSL/configuration because the 3.8.0 test connects to the decommissioned Glacier2 demo proxy on
-      # zeroc.com (removed from HEAD by #5047).
+      # Exclude IceSSL/configuration because its FindCerts cases need the test certificates imported into the OS
+      # certificate store, which this job never does.
       # Exclude Slice/macros because it compares compile-time and runtime Ice versions (Util.intVersion()), which
       # won't match when built and run with different patch versions.
       - name: Run compatibility tests
