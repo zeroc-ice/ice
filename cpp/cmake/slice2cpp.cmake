@@ -11,6 +11,36 @@ endif()
 # The function records the policies in force at definition; include() scopes this to the file.
 cmake_policy(VERSION 3.21)
 
+# file(REAL_PATH) for a path that need not exist yet: canonicalizes the longest existing ancestor and
+# re-appends the components below it. The builtin warns for a path that is not on disk and returns it
+# wholly unresolved - symlinks in the components that do exist included - so its answer changes the
+# moment a generated file appears. This one resolves everything already on disk, so creating the
+# missing components as real files and directories cannot change its answer.
+function(_slice2cpp_real_path path out_var)
+  set(suffix "")
+  set(current "${path}")
+  while(NOT EXISTS "${current}")
+    get_filename_component(name "${current}" NAME)
+    get_filename_component(parent "${current}" DIRECTORY)
+    if(name STREQUAL "" OR parent STREQUAL "" OR parent STREQUAL current)
+      set(${out_var} "${path}" PARENT_SCOPE)
+      return()
+    endif()
+    if(NOT suffix STREQUAL "")
+      set(suffix "${name}/${suffix}")
+    else()
+      set(suffix "${name}")
+    endif()
+    set(current "${parent}")
+  endwhile()
+  file(REAL_PATH "${current}" current)
+  if(NOT suffix STREQUAL "")
+    string(REGEX REPLACE "/+$" "" current "${current}")
+    set(current "${current}/${suffix}")
+  endif()
+  set(${out_var} "${current}" PARENT_SCOPE)
+endfunction()
+
 function(slice2cpp_generate target)
   cmake_parse_arguments(PARSE_ARGV 1 arg ""
     "INCLUDE_SCOPE;HEADER_OUTPUT_DIR;INCLUDE_DIR;GENERATED_HEADERS;GENERATED_SOURCES"
@@ -179,7 +209,7 @@ function(slice2cpp_generate target)
   foreach(dir IN LISTS Ice_SLICE_DIR arg_INCLUDE_DIRS)
     get_filename_component(dir "${dir}" ABSOLUTE)
     if(NOT WIN32)
-      file(REAL_PATH "${dir}" dir)
+      _slice2cpp_real_path("${dir}" dir)
     endif()
     list(APPEND include_dirs "${dir}")
   endforeach()
@@ -196,14 +226,18 @@ function(slice2cpp_generate target)
     if(file MATCHES "\\.ice$")
 
       get_filename_component(slice_file_path ${file} ABSOLUTE)
+
+      # Canonical like the mirror roots, and like the path slice2cpp resolves before naming its
+      # output. slice_file_path itself stays as written: it names a node in the build graph, and
+      # rewriting it would no longer match the rule that generates a .ice produced at build time.
+      set(slice_file_id "${slice_file_path}")
       if(NOT WIN32)
-        # Canonical like the mirror roots, so a file addressed through a symlink still mirrors.
-        file(REAL_PATH "${slice_file_path}" slice_file_path)
+        _slice2cpp_real_path("${slice_file_path}" slice_file_id)
       endif()
-      get_filename_component(slice_file_dir ${slice_file_path} DIRECTORY)
+      get_filename_component(slice_file_dir ${slice_file_id} DIRECTORY)
 
       # NAME_WLE: slice2cpp strips only the final extension, so Foo.v1.ice generates Foo.v1.h.
-      get_filename_component(slice_file_name ${slice_file_path} NAME_WLE)
+      get_filename_component(slice_file_name ${slice_file_id} NAME_WLE)
 
       # Mirror subdirectory; "." is the root. Only -I directories drive the layout, matching how
       # slice2cpp derives the #includes it emits: shortest relative path wins, an exact root scores
@@ -251,7 +285,7 @@ function(slice2cpp_generate target)
       set(owner_property "_slice2cpp_generate_owner_${header_key}")
       get_property(owner GLOBAL PROPERTY ${owner_property})
       if(owner)
-        if(owner STREQUAL "${target}|${slice_file_path}")
+        if(owner STREQUAL "${target}|${slice_file_id}")
           # The same .ice seen before: listed twice for this target, or a repeated call. The rule
           # already exists, possibly with different options, so this call neither recreates nor
           # reports it.
@@ -259,11 +293,11 @@ function(slice2cpp_generate target)
         endif()
         message(FATAL_ERROR
           "slice2cpp_generate: '${header_file}' would be generated twice: once for ${owner}, and "
-          "again for ${target}|${slice_file_path} (target|Slice file). Give the targets separate "
+          "again for ${target}|${slice_file_id} (target|Slice file). Give the targets separate "
           "HEADER_OUTPUT_DIR directories, or add an INCLUDE_DIRS directory that tells the two "
           "Slice files apart.")
       endif()
-      set_property(GLOBAL PROPERTY ${owner_property} "${target}|${slice_file_path}")
+      set_property(GLOBAL PROPERTY ${owner_property} "${target}|${slice_file_id}")
 
       # Prefix for the generated source's include of its own header; follows the mirrored layout.
       # Mirrored files get it unconditionally, because it also namespaces the include guard - two
@@ -308,6 +342,8 @@ function(slice2cpp_generate target)
         COMMAND $<TARGET_FILE:Ice::slice2cpp> ${include_options} ${include_dir_options} ${arg_OPTIONS}
           ${slice_file_path} --output-dir ${file_output_dir}
         ${move_header_commands}
+        # As written, not canonical: CMake pairs this with the OUTPUT of the rule that generates it
+        # by matching the path text.
         DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp> ${arg_DEPENDS}
         DEPFILE ${depfile}
         VERBATIM
