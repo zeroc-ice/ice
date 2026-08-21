@@ -2,9 +2,6 @@ name: Binary Compatibility
 
 on:
   workflow_dispatch:
-  # TODO: temporary, so the job can be exercised on the PR that changes it. Remove before merging.
-  pull_request:
-    branches: ["3.8"]
 
 # Builds tests from a stable baseline and distribution libraries from the branch HEAD, then swaps the HEAD libraries
 # into the baseline test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible with that
@@ -18,8 +15,7 @@ on:
 
 # Branch-specific configuration:
 env:
-  # TODO: temporary, pointed at the PR #6646 baseline for testing. Restore to "compat-3.8" before merging.
-  STABLE_REF: "compat-3.8-pr6646"
+  STABLE_REF: "compat-3.8"
 
 jobs:
   compat:
