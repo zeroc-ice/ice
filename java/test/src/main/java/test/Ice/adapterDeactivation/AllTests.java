@@ -393,7 +393,9 @@ public class AllTests {
 
         out.print("testing whether server is gone... ");
         out.flush();
-        if (obj.ice_getConnection() == null) { // collocated
+        // As of 3.8.3, ice_getConnection reconnects (and throws) when the close initiated by the
+        // deactivation has already been processed; the cached connection detects collocation without any I/O.
+        if (obj.ice_getCachedConnection() == null) { // collocated
             obj.ice_ping(); // works fine
             out.println("ok");
             out.flush();

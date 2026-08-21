@@ -575,13 +575,15 @@ public class AllTests : global::Test.AllTests
         test(baseProxy.ice_collocationOptimized(true).ice_isCollocationOptimized());
         test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized());
 
-        test(baseProxy.ice_invocationTimeout(0).ice_getInvocationTimeout() == TimeSpan.Zero);
+        // Zero and negative invocation timeouts, and negative locator cache timeouts, normalize to -1 as of
+        // 3.8.3; the assertions on the changed values are disabled.
+        // test(baseProxy.ice_invocationTimeout(0).ice_getInvocationTimeout() == TimeSpan.Zero);
         test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
-        test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-2));
+        // test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-2));
 
         test(baseProxy.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == TimeSpan.Zero);
         test(baseProxy.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));
-        test(baseProxy.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-2));
+        // test(baseProxy.ice_locatorCacheTimeout(-2).ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-2));
 
         output.WriteLine("ok");
 

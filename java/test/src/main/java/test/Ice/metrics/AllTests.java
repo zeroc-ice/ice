@@ -438,8 +438,10 @@ public class AllTests {
         String type = "";
         String isSecure = "";
         if (!collocated) {
+            // Use the cached connection: as of 3.8.3, ice_getConnection would re-establish a closed connection,
+            // which changes the connection metrics the test asserts on.
             EndpointInfo endpointInfo =
-                metrics.ice_getConnection().getEndpoint().getInfo();
+                metrics.ice_getCachedConnection().getEndpoint().getInfo();
             type = Short.toString(endpointInfo.type());
             isSecure = endpointInfo.secure() ? "true" : "false";
         }
@@ -565,7 +567,9 @@ public class AllTests {
             props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "none");
             updateProps(clientProps, serverProps, props, "Connection");
 
-            metrics.ice_getConnection().close();
+            // Use the cached connection: as of 3.8.3, ice_getConnection would re-establish a closed connection,
+            // which changes the connection metrics the test asserts on.
+            metrics.ice_getCachedConnection().close();
 
             MetricsPrx m = metrics.ice_connectionId("Con1");
             m.ice_ping();

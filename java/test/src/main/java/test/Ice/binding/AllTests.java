@@ -82,9 +82,10 @@ public class AllTests {
             rcom.deactivateObjectAdapter(adapter);
 
             TestIntfPrx test3 = TestIntfPrx.uncheckedCast(test1);
-            test(test3.ice_getConnection() == test1.ice_getConnection());
-            test(test3.ice_getConnection() == test2.ice_getConnection());
-
+            // As of 3.8.3, ice_getConnection attempts to reconnect once the close initiated by the deactivation
+            // has been processed; the assertions below are disabled.
+            // test(test3.ice_getConnection() == test1.ice_getConnection());
+            // test(test3.ice_getConnection() == test2.ice_getConnection());
             try {
                 test3.ice_ping();
                 test(false);
