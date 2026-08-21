@@ -90,6 +90,40 @@ namespace
         os << '"';
         return os.str();
     }
+
+    // Escapes a file name for use in a Makefile rule, following the escaping rules GCC uses in the dependency
+    // files it emits: '$' becomes '$$'; '#', space, and tab get a preceding backslash; and backslashes
+    // immediately preceding a space or tab are doubled.
+    string escapeMakefilePath(string_view name)
+    {
+        ostringstream os;
+        size_t backslashes = 0;
+        for (char c : name)
+        {
+            switch (c)
+            {
+                case ' ':
+                case '\t':
+                    for (size_t i = 0; i < backslashes; ++i)
+                    {
+                        os << '\\';
+                    }
+                    os << '\\';
+                    break;
+                case '#':
+                    os << '\\';
+                    break;
+                case '$':
+                    os << '$';
+                    break;
+                default:
+                    break;
+            }
+            backslashes = (c == '\\') ? backslashes + 1 : 0;
+            os << c;
+        }
+        return os.str();
+    }
 }
 
 string
@@ -726,30 +760,23 @@ Slice::DependencyGenerator::addDependenciesFor(const UnitPtr& unit)
 }
 
 void
-Slice::DependencyGenerator::writeMakefileDependencies(
-    const string& dependFile,
-    const string& source,
-    const string& target)
+Slice::DependencyGenerator::addMakefileRule(const string& source, const string& target)
+{
+    _makefileRules.emplace_back(source, target);
+}
+
+void
+Slice::DependencyGenerator::writeMakefileDependencies(const string& dependFile)
 {
     ostringstream os;
-    StringList dependencies = _dependencyMap[source];
-    // Write the target
-    if (dependencies.empty())
+    for (const auto& [source, target] : _makefileRules)
     {
-        os << target << ":" << std::endl;
-    }
-    else
-    {
-        os << target << ": \\" << std::endl;
-        for (const auto& dependency : dependencies)
+        os << escapeMakefilePath(target) << ":";
+        for (const auto& dependency : _dependencyMap[source])
         {
-            os << " " << dependency;
-            if (dependency != dependencies.back())
-            {
-                os << " \\";
-            }
-            os << std::endl;
+            os << " \\" << endl << " " << escapeMakefilePath(dependency);
         }
+        os << endl;
     }
     writeDependencies(os.str(), dependFile);
 }
