@@ -7,15 +7,16 @@ on:
 # into the baseline test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible with that
 # stable release.
 #
-# STABLE_REF points at a baseline branch rather than a release tag: the release tree plus the test changes forced by
-# behavior we changed on purpose since that release. Only test and test-script files differ from the release, so the
-# tests still build against the release's headers and generated code. Branch off the new release when one ships.
+# STABLE_REF points at a baseline tag rather than the release tag itself: the release tree plus the test changes
+# forced by behavior we changed on purpose since that release. Only test and test-script files differ from the
+# release, so the tests still build against the release's headers and generated code. Cut a new baseline when a
+# release ships.
 #
 # Each stable branch (3.7, 3.8) maintains its own copy of this workflow with branch-specific configuration below.
 
 # Branch-specific configuration:
 env:
-  STABLE_REF: "compat-3.8"
+  STABLE_REF: "v3.8.2-binary-compat"
 
 jobs:
   compat:
