@@ -10,6 +10,16 @@
 #   EXPECTED_HEADER    - header name declared to CMake, checked against what slice2cpp will write
 #   DEPFILE            - output path for the generated .d file
 
+# Escapes a path the way compiler depfiles do, so it can be compared or joined with the paths
+# slice2cpp writes: '$'->'$$', '#'->'\#', whitespace get a preceding backslash,
+# and a run of backslashes immediately before whitespace is doubled.
+function(escape_depfile_path out_var path)
+    string(REPLACE "$" "$$" path "${path}")
+    string(REPLACE "#" "\\#" path "${path}")
+    string(REGEX REPLACE "(\\\\*)([ \t])" "\\1\\1\\\\\\2" path "${path}")
+    set(${out_var} "${path}" PARENT_SCOPE)
+endfunction()
+
 set(include_options "")
 foreach(dir IN LISTS SLICE_INCLUDE_DIRS)
     list(APPEND include_options "-I${dir}")
@@ -39,9 +49,11 @@ if(NOT depend_output MATCHES "^([^:]+): \\\\")
 endif()
 set(actual_header "${CMAKE_MATCH_1}")
 
-# --depend names the header slice2cpp will actually write, cpp:header-ext metadata included. Report
-# a mismatch here rather than rerun forever a command whose declared output never appears.
-if(NOT actual_header STREQUAL EXPECTED_HEADER)
+# --depend names the header slice2cpp will actually write, cpp:header-ext metadata included, in
+# depfile-escaped form. Report a mismatch here rather than rerun forever a command whose declared
+# output never appears.
+escape_depfile_path(expected_header_escaped "${EXPECTED_HEADER}")
+if(NOT actual_header STREQUAL expected_header_escaped)
     message(FATAL_ERROR
         "slice2cpp generates '${actual_header}' for ${SLICE_FILE}, but slice2cpp_generate declared "
         "'${EXPECTED_HEADER}'. Set the extension with OPTIONS --header-ext; cpp:header-ext metadata "
@@ -49,11 +61,8 @@ if(NOT actual_header STREQUAL EXPECTED_HEADER)
 endif()
 
 # The prefix is a path slice2cpp never sees, so escape it here the way compiler depfiles escape
-# paths. The paths slice2cpp itself writes are its own to escape (zeroc-ice/ice#6329).
-set(header_dir_escaped "${HEADER_DIR}")
-string(REPLACE "$" "$$" header_dir_escaped "${header_dir_escaped}")
-string(REPLACE "#" "\\#" header_dir_escaped "${header_dir_escaped}")
-string(REPLACE " " "\\ " header_dir_escaped "${header_dir_escaped}")
+# paths. The paths slice2cpp itself writes arrive already escaped.
+escape_depfile_path(header_dir_escaped "${HEADER_DIR}")
 
 string(LENGTH "${actual_header}" target_length)
 string(SUBSTRING "${depend_output}" ${target_length} -1 depend_tail)

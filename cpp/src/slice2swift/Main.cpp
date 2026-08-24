@@ -195,9 +195,9 @@ compile(const vector<string>& argv)
                 if (depend)
                 {
                     string target = removeExtension(baseName(fileName)) + ".swift";
-                    dependencyGenerator.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                    dependencyGenerator.addMakefileRule(unit->topLevelFile(), target);
                 }
-                // Else XML dependencies are written below after all units have been processed.
+                // The dependencies are written below, after all units have been processed.
             }
             else
             {
@@ -243,7 +243,11 @@ compile(const vector<string>& argv)
         return status;
     }
 
-    if (dependXML)
+    if (depend)
+    {
+        dependencyGenerator.writeMakefileDependencies(dependFile);
+    }
+    else if (dependXML)
     {
         dependencyGenerator.writeXMLDependencies(dependFile);
     }

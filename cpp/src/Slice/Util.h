@@ -101,14 +101,20 @@ namespace Slice
     public:
         void addDependenciesFor(const UnitPtr& unit);
 
+        /// Records a Makefile rule for a file that is generated from the specified source. The rule's prerequisites
+        /// are the dependencies recorded for the source by addDependenciesFor.
+        ///
+        /// @param source The source file that the target is generated from.
+        /// @param target The generated file, used as the Makefile target.
+        void addMakefileRule(const std::string& source, const std::string& target);
+
         /// Writes the dependencies in Makefile format to the specified file. If 'dependFile' is empty, it writes the
         /// dependencies to standard output instead.
         ///
+        /// This method writes one rule for each target recorded with addMakefileRule.
+        ///
         /// @param dependFile The file to write the dependencies to or empty to write to standard output.
-        /// @param source The source file for which dependencies are being written.
-        /// @param target The target file that is generated from the source. This is used as the Makefile target.
-        void
-        writeMakefileDependencies(const std::string& dependFile, const std::string& source, const std::string& target);
+        void writeMakefileDependencies(const std::string& dependFile);
 
         /// Writes the dependencies in XML format to the specified file. If 'dependFile' is empty, it writes the
         /// dependencies to standard output instead.
@@ -128,6 +134,9 @@ namespace Slice
 
     private:
         std::map<std::string, StringList> _dependencyMap;
+
+        // The rules recorded by addMakefileRule: (source, target) pairs, in recording order.
+        std::vector<std::pair<std::string, std::string>> _makefileRules;
     };
 
     /// Helper method to create the directory structure for a package path.
