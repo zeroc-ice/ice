@@ -11,11 +11,12 @@
 #   DEPFILE            - output path for the generated .d file
 
 # Escapes a path the way compiler depfiles do, so it can be compared or joined with the paths
-# slice2cpp writes (zeroc-ice/ice#6329).
+# slice2cpp writes: '$'->'$$', '#'->'\#', whitespace get a preceding backslash,
+# and a run of backslashes immediately before whitespace is doubled.
 function(escape_depfile_path out_var path)
     string(REPLACE "$" "$$" path "${path}")
     string(REPLACE "#" "\\#" path "${path}")
-    string(REPLACE " " "\\ " path "${path}")
+    string(REGEX REPLACE "(\\\\*)([ \t])" "\\1\\1\\\\\\2" path "${path}")
     set(${out_var} "${path}" PARENT_SCOPE)
 endfunction()
 
