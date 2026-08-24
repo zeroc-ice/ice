@@ -168,8 +168,8 @@ The paths keep the mirrored layout, and a generated header includes its neighbor
 flat, so `install(FILES)` works; a mirrored header set has to keep its subdirectories, which `install(FILES)` cannot
 do — install the header root as a directory instead, as shown below.
 
-For example, the following defines a library whose Slice files include files from a shared directory, and publishes
-its generated headers to its own consumers under a `Demo/` prefix:
+For example, the following compiles a shared Slice file in a target of its own, defines a library whose Slice files
+include it, and publishes both targets' generated headers to the targets that link them under a `Demo/` prefix:
 
 ```cmake
 # The shared Slice file needs a target of its own; targets that link it pick up its generated headers.
