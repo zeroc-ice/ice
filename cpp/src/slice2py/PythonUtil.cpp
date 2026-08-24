@@ -3336,9 +3336,10 @@ Slice::Python::compile(const vector<string>& args)
         {
             for (const auto& file : files)
             {
-                dependencyGenerator->writeMakefileDependencies(dependFile, source, file);
+                dependencyGenerator->addMakefileRule(source, file);
             }
         }
+        dependencyGenerator->writeMakefileDependencies(dependFile);
     }
     else if (dependXML)
     {

@@ -235,9 +235,9 @@ compile(const vector<string>& argv)
                     assert(dc);
                     string target = removeExtension(baseName(fileName)) + "." +
                                     dc->getMetadataArgs("cpp:header-ext").value_or(headerExtension);
-                    dependencyGenerator.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                    dependencyGenerator.addMakefileRule(unit->topLevelFile(), target);
                 }
-                // else XML dependencies are written below after all units have been processed.
+                // The dependencies are written below, after all units have been processed.
             }
             else
             {
@@ -291,7 +291,11 @@ compile(const vector<string>& argv)
         return status;
     }
 
-    if (dependXML)
+    if (depend)
+    {
+        dependencyGenerator.writeMakefileDependencies(dependFile);
+    }
+    else if (dependXML)
     {
         dependencyGenerator.writeXMLDependencies(dependFile);
     }
