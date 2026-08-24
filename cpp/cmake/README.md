@@ -115,17 +115,17 @@ command re-runs when the compiler changes.
 
 ## Compiling Slice Files
 
-`slice2cpp_generate` compiles the `.ice` files already present in a target's sources and adds the generated C++ to the
-target. Call it from the directory that created the target, after all of the target's `.ice` sources have been added.
+`slice2cpp_generate` compiles the `.ice` files in a target's sources and adds the generated C++ to the target. Call
+it from the directory that created the target, after all of the target's `.ice` sources have been added.
 
 ```cmake
 slice2cpp_generate(<target>
-  [INCLUDE_DIRS <dir>...]     # extra -I directories; also drive the generated file layout (see below)
+  [INCLUDE_DIRS <dir>...]     # slice2cpp -I directories; also drive the generated file layout (see below)
   [OPTIONS <option>...]       # extra slice2cpp options, e.g. -DFOO or --header-ext hpp
   [HEADER_OUTPUT_DIR <dir>]   # put the headers here instead of with the sources
-  [INCLUDE_DIR <dir>]         # slice2cpp --include-dir
+  [INCLUDE_DIR <dir>]         # slice2cpp --include-dir: include prefix for the generated headers
   [INCLUDE_SCOPE <scope>]     # PRIVATE (default) or PUBLIC
-  [DEPENDS <dep>...]          # extra add_custom_command DEPENDS for the generation commands
+  [DEPENDS <dep>...]          # extra dependencies of the generation commands; changing one recompiles the Slice files
   [GENERATED_HEADERS <var>]   # out: absolute paths of the generated headers
   [GENERATED_SOURCES <var>]   # out: absolute paths of the generated sources
 )
@@ -134,9 +134,9 @@ slice2cpp_generate(<target>
 `slice2cpp_generate` always passes `Ice_SLICE_DIR` to slice2cpp, before the `INCLUDE_DIRS` directories, so
 `#include <Ice/...>` directives resolve without any configuration.
 
-Only the `.ice` files in the target's own sources are compiled. `INCLUDE_DIRS` merely resolves includes, so a Slice
-file included from a shared directory needs a target of its own that compiles it, which this target then links to pick
-up its headers.
+Only the `.ice` files in the target's own sources are compiled; `INCLUDE_DIRS` merely resolves includes. A Slice file
+included from a shared directory therefore needs a target of its own to compile it; the including target links against
+that target to pick up the generated headers.
 
 `--header-ext` and `--source-ext` in `OPTIONS` are honored; options that relocate the outputs or suppress generation
 are rejected. Contradicting `cpp:header-ext` metadata is a build-time error, and `cpp:source-ext` metadata is not
@@ -156,18 +156,18 @@ through `target_link_libraries`, they go on that target's include path as well, 
 generated headers. `PUBLIC` applies within the build tree only: these directories are omitted from the target's
 installed interface, and installing the generated headers is the caller's responsibility.
 
-`GENERATED_HEADERS` and `GENERATED_SOURCES` name variables that receive the generated files' absolute paths, for
-installing the headers or setting source properties. Both lists cover the files this call generated — empty when it
-generated none — are set in the caller's scope, and correspond by index:
+`GENERATED_HEADERS` and `GENERATED_SOURCES` name variables that receive the absolute paths of the files this call
+generated, for installing the headers or setting source properties. Both lists are set in the caller's scope and
+correspond by index:
 
 ```cmake
 slice2cpp_generate(weather_api INCLUDE_SCOPE PUBLIC GENERATED_HEADERS weather_api_headers)
 install(FILES ${weather_api_headers} DESTINATION include/Demo)
 ```
 
-The paths keep the mirrored layout, and a generated header includes its neighbors by that layout — so a mirrored
-header set has to be installed with its subdirectories; `install(FILES)` flattens them, leaving those includes
-unresolvable.
+The paths keep the mirrored layout, and a generated header includes its neighbors by that layout. The set above is
+flat, so `install(FILES)` works; a mirrored header set has to be installed with its subdirectories preserved, which
+`install(FILES)` cannot do — it flattens the list, leaving those includes unresolvable.
 
 For example, the following defines a library whose Slice files include files from a shared directory, and publishes
 its generated headers to its own consumers under a `Demo/` prefix:
