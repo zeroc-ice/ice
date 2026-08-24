@@ -135,8 +135,7 @@ slice2cpp_generate(<target>
 `#include <Ice/...>` directives resolve without any configuration.
 
 Only the `.ice` files in the target's own sources are compiled; `INCLUDE_DIRS` merely resolves includes. A Slice file
-included from a shared directory therefore needs a target of its own to compile it; the including target links against
-that target to pick up the generated headers.
+included from a shared directory therefore needs a target of its own to compile it, as shown below.
 
 `--header-ext` and `--source-ext` in `OPTIONS` are honored; options that relocate the outputs or suppress generation
 are rejected. Contradicting `cpp:header-ext` metadata is a build-time error, and `cpp:source-ext` metadata is not
@@ -166,13 +165,20 @@ install(FILES ${weather_api_headers} DESTINATION include/Demo)
 ```
 
 The paths keep the mirrored layout, and a generated header includes its neighbors by that layout. The set above is
-flat, so `install(FILES)` works; a mirrored header set has to be installed with its subdirectories preserved, which
-`install(FILES)` cannot do — it flattens the list, leaving those includes unresolvable.
+flat, so `install(FILES)` works; a mirrored header set has to keep its subdirectories, which `install(FILES)` cannot
+do — install the header root as a directory instead, as shown below.
 
 For example, the following defines a library whose Slice files include files from a shared directory, and publishes
 its generated headers to its own consumers under a `Demo/` prefix:
 
 ```cmake
+# The shared Slice file needs a target of its own; targets that link it pick up its generated headers.
+add_library(demo_common ../slice/Demo/Common.ice)
+slice2cpp_generate(demo_common
+  INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../slice
+  HEADER_OUTPUT_DIR ${CMAKE_BINARY_DIR}/include
+  INCLUDE_SCOPE PUBLIC)
+
 add_library(weather_api Weather.ice)
 slice2cpp_generate(weather_api
   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../slice
@@ -180,6 +186,14 @@ slice2cpp_generate(weather_api
   HEADER_OUTPUT_DIR ${CMAKE_BINARY_DIR}/include
   INCLUDE_DIR Demo
   INCLUDE_SCOPE PUBLIC)
+target_link_libraries(weather_api PUBLIC demo_common)
+```
+
+Both targets stage their headers under one root — `Demo/Common.h` from the mirrored layout, `Demo/Weather.h` from
+`INCLUDE_DIR` — so installing that root as a tree keeps the subdirectories the generated includes rely on:
+
+```cmake
+install(DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION include)
 ```
 
 [docs]: https://docs.zeroc.com/ice/latest/cpp
