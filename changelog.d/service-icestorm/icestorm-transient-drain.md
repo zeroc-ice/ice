@@ -1,1 +1,0 @@
-- Fixed a bug where a transient IceStorm service could drop queued events on shutdown instead of delivering them.
