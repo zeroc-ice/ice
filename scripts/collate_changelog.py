@@ -65,7 +65,9 @@ def read_fragments(changelog_d: Path) -> dict[str, list[str]]:
             die(f"unexpected file {path}: fragments belong in a section directory")
         if path.name not in known:
             die(f"unknown section directory {path}: add it to the taxonomy in {Path(__file__).name} first")
-        for fragment in sorted(path.glob("*.md")):
+        for fragment in sorted(path.iterdir()):
+            if not fragment.is_file() or fragment.suffix != ".md":
+                die(f"unexpected entry {fragment}: a section directory holds only .md fragments")
             text = fragment.read_text(encoding="utf-8").strip()
             if not text.startswith("- "):
                 die(f"{fragment} does not start with a '- ' bullet")
