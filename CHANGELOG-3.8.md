@@ -5,53 +5,1004 @@ entries reflect significant new additions, while others represent minor correcti
 comprehensive report of every change we made in a release, it does provide details on the changes we feel Ice users
 might need to be aware of.
 
-- [Changes in Ice 3.8.2](#changes-in-ice-382)
+- [Changes in Ice 3.8.3](#changes-in-ice-383)
   - [General Changes](#general-changes)
   - [Slice Language Changes](#slice-language-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
+  - [Java Changes](#java-changes)
+  - [JavaScript Changes](#javascript-changes)
+  - [MATLAB Changes](#matlab-changes)
+  - [PHP Changes](#php-changes)
+  - [Python Changes](#python-changes)
+  - [Ruby Changes](#ruby-changes)
   - [Swift Changes](#swift-changes)
   - [Ice Service Changes](#ice-service-changes)
-    - [IceGrid and Glacier2](#icegrid-and-glacier2)
     - [DataStorm](#datastorm)
-- [Changes in Ice 3.8.1](#changes-in-ice-381)
+    - [Glacier2](#glacier2)
+    - [Ice Service installed as a Windows Service](#ice-service-installed-as-a-windows-service)
+    - [IceGrid](#icegrid)
+    - [IceStorm](#icestorm)
+  - [Packaging Changes](#packaging-changes)
+- [Changes in Ice 3.8.2](#changes-in-ice-382)
   - [General Changes](#general-changes-1)
-  - [IceSSL Changes](#icessl-changes)
+  - [Slice Language Changes](#slice-language-changes-1)
   - [C++ Changes](#c-changes-2)
-  - [JavaScript Changes](#javascript-changes)
-  - [Python Changes](#python-changes)
+  - [C# Changes](#c-changes-3)
   - [Swift Changes](#swift-changes-1)
   - [Ice Service Changes](#ice-service-changes-1)
-    - [Glacier2](#glacier2)
-    - [IceDiscovery](#icediscovery)
-  - [Packaging Changes](#packaging-changes)
-- [Changes in Ice 3.8.0](#changes-in-ice-380)
+    - [IceGrid and Glacier2](#icegrid-and-glacier2)
+    - [DataStorm](#datastorm-1)
+- [Changes in Ice 3.8.1](#changes-in-ice-381)
   - [General Changes](#general-changes-2)
+  - [IceSSL Changes](#icessl-changes)
+  - [C++ Changes](#c-changes-4)
+  - [JavaScript Changes](#javascript-changes-1)
+  - [Python Changes](#python-changes-1)
+  - [Swift Changes](#swift-changes-2)
+  - [Ice Service Changes](#ice-service-changes-2)
+    - [Glacier2](#glacier2-1)
+    - [IceDiscovery](#icediscovery)
   - [Packaging Changes](#packaging-changes-1)
-  - [Slice Language Changes](#slice-language-changes-1)
+- [Changes in Ice 3.8.0](#changes-in-ice-380)
+  - [General Changes](#general-changes-3)
+  - [Packaging Changes](#packaging-changes-2)
+  - [Slice Language Changes](#slice-language-changes-2)
   - [IceSSL Changes](#icessl-changes-1)
     - [Integration with Platform SSL Engines](#integration-with-platform-ssl-engines)
     - [Removed Support for OpenSSL on Windows](#removed-support-for-openssl-on-windows)
     - [Removed IceSSL APIs](#removed-icessl-apis)
     - [Updated IceSSL Properties](#updated-icessl-properties)
     - [Removed IceSSL Properties](#removed-icessl-properties)
-  - [C++ Changes](#c-changes-3)
-  - [C# Changes](#c-changes-4)
-  - [Java Changes](#java-changes)
-  - [JavaScript Changes](#javascript-changes-1)
-  - [MATLAB Changes](#matlab-changes)
+  - [C++ Changes](#c-changes-5)
+  - [C# Changes](#c-changes-6)
+  - [Java Changes](#java-changes-1)
+  - [JavaScript Changes](#javascript-changes-2)
+  - [MATLAB Changes](#matlab-changes-1)
   - [Objective-C Changes](#objective-c-changes)
-  - [PHP Changes](#php-changes)
-  - [Python Changes](#python-changes-1)
-  - [Ruby Changes](#ruby-changes)
-  - [Swift Changes](#swift-changes-2)
-  - [Ice Service Changes](#ice-service-changes-2)
-    - [DataStorm](#datastorm-1)
-    - [Glacier2](#glacier2-1)
+  - [PHP Changes](#php-changes-1)
+  - [Python Changes](#python-changes-2)
+  - [Ruby Changes](#ruby-changes-1)
+  - [Swift Changes](#swift-changes-3)
+  - [Ice Service Changes](#ice-service-changes-3)
+    - [DataStorm](#datastorm-2)
+    - [Glacier2](#glacier2-2)
     - [IceBox](#icebox)
-    - [IceGrid](#icegrid)
+    - [IceGrid](#icegrid-1)
     - [IcePatch2](#icepatch2)
-    - [IceStorm](#icestorm)
+    - [IceStorm](#icestorm-1)
+
+## Changes in Ice 3.8.3
+
+These are the changes since the Ice 3.8.2 release.
+
+### General Changes
+
+- Improved the command-line parsing of the Slice compilers and the Ice command-line tools such as icegridadmin and
+  icegridregistry: a short option that requires an argument can now appear at the end of a group of short options.
+  For example, `slice2cpp -dI dir file.ice` is now equivalent to `slice2cpp -d -I dir file.ice`. Previously, the
+  `-I` option was silently ignored and `dir` was parsed as an extra Slice file.
+
+- The dependency information written by the Slice compilers is now always well-formed. `--depend-json` omitted the
+  commas between entries, and neither `--depend-json` nor `--depend-xml` escaped special characters in file names.
+
+- Fixed `ice_getConnection` and `ice_getConnectionAsync` on a non-fixed proxy whose cached connection is closed or
+  being closed: the proxy now establishes and returns a new connection instead of returning this connection.
+
+- Fixed a race during failed connection establishments: `ice_getCachedConnection`, called concurrently on a proxy
+  using this connection, could throw the connection-establishment exception instead of returning null.
+
+- Fixed the Slice compilers' include-path matching: an include directory that is a string prefix of a sibling
+  directory, such as `-I /a/b` with a Slice file under `/a/bc`, no longer produces a mangled `#include` or `require`
+  path in the generated code.
+
+- The Makefile dependency output of the Slice compilers (`--depend`) now escapes file names holding
+  Make-significant characters: spaces, `#`, and `$`.
+
+- `--depend --depend-file FILE` now writes a rule for every Slice file passed to the compiler; previously the
+  dependency file only kept the last Slice file's rule.
+
+- Fixed `ice_getConnection`, `ice_getConnectionAsync` and `ice_getCachedConnection` on a fixed proxy: these methods
+  now always return the connection the proxy is bound to. Previously, `ice_getConnection` could throw when this
+  connection was closed, and `ice_getCachedConnection` returned null until the proxy's first invocation.
+
+- Fixed the handling of an invalid response from an HTTP proxy (configured with `Ice.HTTPProxyHost`). Connection
+  establishment now fails promptly with a `ProtocolException`, instead of hanging until the connection times out.
+
+- The invocation timeout is now normalized consistently in all language mappings and at all configuration surfaces
+  (`ice_invocationTimeout`, the `InvocationTimeout` proxy property, and `Ice.Default.InvocationTimeout`): zero or
+  any negative value means infinite and is normalized to -1, and a positive duration is rounded up to the next
+  whole millisecond. Previously, C# kept a fractional timeout and `proxyToProperty` emitted it as-is
+  (`InvocationTimeout=30.5`) — a value that `propertyToProxy` rejects.
+
+- The locator cache timeout is now normalized consistently in all language mappings and at all configuration
+  surfaces (`ice_locatorCacheTimeout`, the `LocatorCacheTimeout` proxy property, and
+  `Ice.Default.LocatorCacheTimeout`): any negative value means infinite and is normalized to -1, 0 still means no
+  caching, and a positive duration is rounded up to the next whole second. Previously, C# kept a fractional timeout
+  and `proxyToProperty` emitted it as-is (`LocatorCacheTimeout=30.5`) — a value that `propertyToProxy` rejects.
+
+- Fixed the server-side WebSocket opening handshake to reject messages that are not `GET` requests, as required by
+  RFC 6455. A peer could previously trip an assertion by sending a response-shaped handshake.
+
+### Slice Language Changes
+
+- Fixed a bug that caused `@param` and `@throws` doc-comment tags to be incorrectly reported as "unknown tags".
+  This only affected tags whose descriptions didn't start until the following line.
+
+### C++ Changes
+
+- Fixed `IceSSL.Password` not being used when loading an encrypted PEM private key in the OpenSSL-based IceSSL
+  transport. Previously OpenSSL prompted for the password on the terminal or failed to load the key.
+
+- Fixed a deadlock in `Connection::setCloseCallback`. Setting or clearing a close callback destroyed the callback it
+  replaced while holding the connection's lock, so a callback whose destructor called back into the connection
+  deadlocked. This affected the language mappings that attach a finalizer to the callback, such as Ice for Python.
+
+- Fixed a crash in `slice2cpp` when compiling a doc comment containing a tag with no description, such as
+  `@param myParam` or `@throws MyException` with nothing after the name. The description is optional.
+
+- Ice now generates random bytes — including those behind `Ice::generateUUID` and `addWithUUID` — with the
+  operating system's CSPRNG instead of `std::random_device`.
+
+- Fixed the delivery of log messages to remote loggers attached to the Logger admin facet when
+  `Ice.Admin.Logger.KeepLogs` or `Ice.Admin.Logger.KeepTraces` is set to `0` (their default value is `100`). These
+  properties control only how many messages the facet retains for `getLog` and `RemoteLogger::init`; previously,
+  setting one of them to `0` also prevented the live delivery of messages of the corresponding category to attached
+  remote loggers.
+
+- Improved performance on Windows when thread pool serialization (`Serialize=1`) is enabled on a thread pool with a
+  single thread.
+
+- The Ice CMake package now specifies the CMake version it requires: 3.21 or later. Previously no minimum was
+  declared, and an older CMake failed with obscure errors instead of a clear message.
+
+- Fixed a crash in the IceBT transport. A Bluetooth connection attempt that failed after its connection was
+  closed — for example after a connect timeout — crashed the program.
+
+- Fixed a crash in the IceBT transport. An incoming Bluetooth connection delivered while its object adapter was
+  being deactivated — or the communicator destroyed — could crash the program.
+
+- The SSL transport on macOS now supports PKCS#12 certificate files with an empty password.
+
+- Fixed syslog logging (`Ice.UseSyslog=1`) with multiple communicators in the same process. Previously, each
+  communicator opened and closed the process-global syslog connection independently, corrupting the shared logging
+  state. All communicators now share a single syslog connection: the first communicator's program name provides the
+  syslog ident, and a communicator with a different program name logs it at the beginning of each message. In
+  particular, an IceBox server configured with `Ice.UseSyslog=1` and `IceBox.InheritProperties=1` now logs all its
+  services to syslog.
+
+- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread
+  flushed batch requests on a connection, proxy, or communicator while another thread was making batch invocations on
+  the same batch queue.
+
+- Fixed a bug in the iOS (CFStream) transport where a connection could intermittently stall.
+
+- Fixed the CMake `slice2cpp_generate` function to compile Slice files that live in subdirectories: generated
+  files now mirror the layout of the `.ice` files found through the new `INCLUDE_DIRS` argument.
+
+- `slice2cpp_generate` now accepts `INCLUDE_DIRS`, `OPTIONS`, `HEADER_OUTPUT_DIR`, `INCLUDE_DIR`,
+  `INCLUDE_SCOPE`, `DEPENDS`, `GENERATED_HEADERS` and `GENERATED_SOURCES`, to pass include directories and
+  options to `slice2cpp`, write the generated headers to their own directory, export them to the target's
+  consumers, add extra dependencies to the generation commands, and report the generated files' paths.
+
+- Fixed a hang in `Communicator::flushBatchRequests` and `flushBatchRequestsAsync`. When a connection was closed while
+  the communicator was flushing its batch requests, the returned future or completion callback could remain pending
+  forever.
+
+- Improved the handling of exceptions thrown by middleware factories. A middleware factory should never throw; if it
+  does throw during the creation of an object adapter's dispatch pipeline (at first dispatch), the program previously
+  terminated. Now, the object adapter logs an error and all dispatches on this object adapter fail with an
+  `UnknownException`.
+
+- Fixed a build failure of the OpenSSL-based IceSSL transport against OpenSSL 4.0, which makes `ASN1_STRING`
+  opaque. Subject Alternative Name parsing now uses the `ASN1_STRING_get0_data`, `ASN1_STRING_length`, and
+  `ASN1_STRING_type` accessors instead of direct struct member access.
+
+- Fixed certificate verification error reporting in the OpenSSL-based IceSSL transport. A rejected peer
+  certificate now reports the specific reason (such as "certificate has expired") instead of a generic
+  "rejected by the certificate validation callback" message.
+
+- Fixed a memory leak in the Schannel-based IceSSL transport (Windows) where each failed TLS handshake leaked the
+  security-token and alert buffers allocated by Schannel. On a server, a peer repeatedly failing handshakes could leak
+  memory over time.
+
+- Fixed a certificate context leak in the Schannel (Windows) SSL transport.
+
+- Fixed silent application-data loss in the Schannel-based IceSSL transport (Windows) when a TLS renegotiation (such as
+  a TLS 1.3 KeyUpdate or NewSessionTicket) is received in the same read as already-decrypted application data. The
+  plaintext extracted before the renegotiation request was dropped, breaking the affected connection.
+
+- Fixed a crash in the macOS (SecureTransport) SSL transport: configuring `IceSSL.CertFile` together with
+  `IceSSL.KeyFile` using a certificate that has no Subject Key Identifier extension aborted the process during
+  communicator initialization. Such certificates are now rejected with a `CertificateReadException`.
+
+- Fixed a crash in the iOS (SecureTransport) SSL transport: using `IceSSL.FindCert` to select a keychain
+  certificate that has no label attribute could abort the process during communicator initialization. Ice now reports
+  a clear error instead.
+
+- Fixed a `slice2cpp` bug where a `float` constant whose value is rendered in scientific notation (any magnitude
+  ≥ 1e6 or < 1e-4, e.g. `1e8`) generated an invalid C++ literal such as `1e+08.0F`, causing the generated header to
+  fail to compile.
+
+- Fixed a WebSocket bug where an Ice server echoed a received ping's payload in the pong without
+  unmasking it, so a non-Ice WebSocket peer that sends payload-bearing pings and validates the echoed
+  pong (e.g. an L7 load balancer or gateway health check) could drop the connection (RFC 6455 §5.5.3).
+  The common cases — browser/JS clients and empty keepalive pings — were unaffected.
+
+### C# Changes
+
+- Fixed a hang in C# IceLocatorDiscovery where a request could fail to complete when a failed locator
+  invocation was retried and locator rediscovery returned the same locator proxy.
+
+- `Ice.SliceInfo.typeId` is now empty for the slice of a class with a compact type ID, matching the C++, Java, and
+  Python mappings. Previously, `typeId` held the stringified compact ID. The compact ID itself remains available
+  through `Ice.SliceInfo.compactId`.
+
+- Fixed `ice_invocationTimeout(TimeSpan)`: setting an invocation timeout greater than `int.MaxValue` milliseconds
+  (about 24.9 days) could crash the process with an unhandled exception in the Ice timer thread. Such timeouts are
+  now rejected with an `ArgumentOutOfRangeException`.
+
+- Fixed a leak in asynchronous proxy invocations that supply a cancellation token: each invocation remained
+  registered with this token after completing, so a long-lived token retained the memory of all its completed
+  invocations.
+
+- Improved performance when thread pool serialization (`Serialize=1`) is enabled on a thread pool with a single
+  thread.
+
+- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread
+  flushed batch requests on a connection, proxy, or communicator while another thread was making batch invocations on
+  the same batch queue.
+
+- Fixed a bug where specifying the `--Ice.Config` command-line option more than once loaded the wrong configuration
+  file: Ice loaded the first file instead of the last.
+
+- Fixed the servant lookup for incoming requests: when the target identity is registered with a different facet, the
+  object adapter now dispatches the request to the default servant if one is registered, as documented, instead of
+  rejecting the request with `FacetNotExistException`.
+
+- Fixed a hang in `Communicator.flushBatchRequestsAsync`. When a connection was closed while the communicator was
+  flushing its batch requests, the returned task never completed.
+
+- Fixed `iceboxnet` rejecting valid per-service command-line options (`--<service>.*`) with "unknown option" and
+  failing to start: the option validation iterated the original arguments instead of the filtered list.
+
+- The per-thread `ImplicitContext.getContext` in C# now returns a snapshot of the context instead of the live
+  internal dictionary (matching the `Shared` implementation). Code that mutated the returned dictionary to
+  update the implicit context must now use `put` or `setContext`.
+
+- Fixed thread-safety bugs in the C# metrics (IceMX) implementation that could produce incorrect metrics or
+  throw under concurrent updates.
+
+- Improved the handling of exceptions thrown by middleware factories. A middleware factory should never throw; if it
+  does throw during the creation of an object adapter's dispatch pipeline (at first dispatch), the exception previously
+  resurfaced in Ice's internal request processing, which could leave client invocations unanswered. Now, the object
+  adapter logs an error and all dispatches on this object adapter fail with an `UnknownException`.
+
+- Fixed a bug in `slice2cs` handling of `cs:namespace`: a nested module received the namespace prefix twice
+  (e.g. `Foo.A.Foo.B` instead of `Foo.A.B`), producing C# that did not compile.
+
+- Fixed a bug in `slice2cs --icerpc` where the generated request decoder read in-parameters in declaration order
+  instead of the marshal order. As a result, an operation with an optional parameter declared before a required
+  parameter (or optional parameters declared out of tag order) could fail to decode or decode incorrect values.
+
+- Fixed a bug in `slice2cs --icerpc` where the generated proxy built the response tuple in marshal order while
+  declaring it in declaration order. As a result, an operation whose out-parameters were declared in an order
+  different from their marshal order could return values in the wrong tuple slots or fail to compile.
+
+- A `ThreadPriority` property set to an unrecognized value now throws `PropertyException` instead of being
+  silently ignored and falling back to the normal priority. This applies to `Ice.ThreadPriority` and to any
+  thread pool's `ThreadPriority` property, such as `Ice.ThreadPool.Server.ThreadPriority` or an object adapter's
+  `<adapter>.ThreadPool.ThreadPriority`.
+
+- Fixed a WebSocket bug where an Ice server echoed a received ping's payload in the pong without
+  unmasking it, so a non-Ice WebSocket peer that sends payload-bearing pings and validates the echoed
+  pong (e.g. an L7 load balancer or gateway health check) could drop the connection (RFC 6455 §5.5.3).
+  The common cases — browser/JS clients and empty keepalive pings — were unaffected.
+
+### Java Changes
+
+- Fixed a memory leak in Ice for Java. Outgoing connections were not released after they closed, so the
+  memory used by a long-running program grew over the lifetime of the communicator.
+
+- Fixed a bug in Java IceLocatorDiscovery where a request could fail to complete (worst case, overflow the
+  stack) when a failed locator invocation was retried and locator rediscovery returned the same locator proxy.
+
+- Fixed the eviction of old log messages by the Logger admin facet. Once the facet had accumulated
+  `Ice.Admin.Logger.KeepLogs` log messages and `Ice.Admin.Logger.KeepTraces` trace messages, the arrival of a new
+  message could evict a message of the wrong category — for example, a new trace message could evict a warning
+  message. As a result, `getLog` and attached remote loggers could receive fewer or older messages than expected.
+
+- Fixed a crash in `slice2java` when compiling a doc comment containing a `@throws` tag that names the exception
+  but has no description. The description is optional.
+
+- Fixed the delivery of log messages to remote loggers attached to the Logger admin facet when
+  `Ice.Admin.Logger.KeepLogs` or `Ice.Admin.Logger.KeepTraces` is set to `0` (their default value is `100`). These
+  properties control only how many messages the facet retains for `getLog` and `RemoteLogger.init`; previously,
+  setting one of them to `0` also prevented the live delivery of messages of the corresponding category to attached
+  remote loggers.
+
+- `Communicator.close` is no longer interruptible: it now always completes the destruction of the communicator and
+  preserves the calling thread's interrupt status. Previously, calling this method from an interrupted thread could
+  throw `OperationInterruptedException` and leave the communicator partially destroyed.
+
+- Fixed a race condition in `ObjectAdapter`: when `destroy` raced with another `destroy` or with `deactivate` on
+  the same object adapter, the destroyed adapter could be marked as merely deactivated, and a subsequent `destroy`
+  call would then fail with a `NullPointerException`.
+
+- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread
+  flushed batch requests on a connection, proxy, or communicator while another thread was making batch invocations on
+  the same batch queue.
+
+- Fixed a bug where specifying the `--Ice.Config` command-line option more than once loaded the wrong configuration
+  file: Ice loaded the first file instead of the last.
+
+- Fixed the servant lookup for incoming requests: when the target identity is registered with a different facet, the
+  object adapter now dispatches the request to the default servant if one is registered, as documented, instead of
+  rejecting the request with `FacetNotExistException`.
+
+- Fixed Ice for Java to no longer log a spurious `NullPointerException` (at error level, with a stack trace) when a
+  client resets a pending connection during `accept()`. The accept-path race is now handled like any other accept
+  failure: silent by default, or a one-line warning when `Ice.Warn.Connections` is set.
+
+- Fixed a bug in IceDiscovery where the replica-group endpoint aggregation window was about 10 times longer than
+  intended, due to an incorrect nanosecond-to-millisecond conversion. As a result, resolving an indirect proxy bound to
+  a replica group took noticeably longer than the configured `IceDiscovery.LatencyMultiplier` implies.
+
+- Fixed a data race in the Ice for Java metrics (IceMX) implementation. Reconfiguring the metrics views at
+  runtime while metrics were being collected could corrupt the internal metrics maps or throw a
+  `ConcurrentModificationException`.
+
+- Improved the handling of exceptions thrown by middleware factories. A middleware factory should never throw; if it
+  does throw during the creation of an object adapter's dispatch pipeline (at first dispatch), the object adapter
+  previously kept an incomplete dispatch pipeline that was missing one or more middleware. Now, the object adapter logs
+  an error and all dispatches on this object adapter fail with an `UnknownException`.
+
+- Fixed a bug on Windows where a plug-in or IceBox service configured with an unquoted UNC path (such as
+  `\\server\share\plugin.jar`) was loaded from the wrong location: the path was resolved relative to the current
+  directory instead of being recognized as absolute.
+
+- Fixed a bug in `slice2java` that emitted broken code for dictionaries using `java:type:<instance-type>:<formal-type>`
+  metadata to specify a formal type. This bug affected dictionaries used in classes or exceptions, or as the
+  return type of operations with `["marshaled-result"]`.
+
+- Fixed a `slice2java` bug with optional sequences. When a parameter, return value, or field applied `java:type`
+  metadata that overrode the sequence's default mapping, `slice2java` generated no marshaling code. As a result,
+  the generated Java did not compile (parameters and return values) or silently dropped the value on the wire (fields).
+
+- A `ThreadPriority` property set to an unrecognized value now throws `PropertyException` instead of being
+  silently ignored and falling back to the normal priority. This applies to `Ice.ThreadPriority` and to any
+  thread pool's `ThreadPriority` property, such as `Ice.ThreadPool.Server.ThreadPriority` or an object adapter's
+  `<adapter>.ThreadPool.ThreadPriority`. Integer values outside the allowed range (1-10) are also rejected.
+
+- A thread pool's `ThreadPriority` property (such as `Ice.ThreadPool.Server.ThreadPriority` or an object
+  adapter's `<adapter>.ThreadPool.ThreadPriority`) now also accepts the priority constant names `MIN_PRIORITY`,
+  `NORM_PRIORITY`, and `MAX_PRIORITY`, like `Ice.ThreadPriority` already did. Previously these properties accepted
+  only integer values.
+
+- Fixed a WebSocket bug where an Ice server echoed a received ping's payload in the pong without
+  unmasking it, so a non-Ice WebSocket peer that sends payload-bearing pings and validates the echoed
+  pong (e.g. an L7 load balancer or gateway health check) could drop the connection (RFC 6455 §5.5.3).
+  The common cases — browser/JS clients and empty keepalive pings — were unaffected.
+
+### JavaScript Changes
+
+- Fixed `Connection.close` to return a promise that settles even when the connection is already closed. Previously,
+  calling `close` on a connection that was already closed — for example after `abort` or after the peer closed the
+  connection — returned a promise that never settled.
+
+- Fixed the `InputStream` constructor's handling of buffer arguments. An `ArrayBuffer` argument previously produced
+  an empty stream, and a `Uint8Array` view that does not span its entire underlying buffer was read from the wrong
+  byte range.
+
+- Fixed the communicator to use the logger supplied in `InitializationData` even when `Ice.LogFile` is set. The
+  property previously replaced the supplied logger with a file logger, and in browsers caused communicator
+  initialization to fail.
+
+- `Ice.SliceInfo.typeId` is now empty for a value slice decoded via a compact type ID, matching the C++, Java, and
+  Python mappings; the compact ID remains available through `Ice.SliceInfo.compactId`. Previously `typeId` held the
+  stringified compact ID.
+
+- Fixed a bug where a connection no longer enforced the inactivity timeout after receiving a batch of more than one
+  request.
+
+- Fixed a bug where a batch auto-flush that could not be delivered terminated the process in Node.js with an
+  unhandled promise rejection. The auto-flush failure is now discarded, as in the other language mappings.
+
+- Fixed a bug where receiving a user exception of an unknown type (but a known base type) could fail with a
+  `TypeError`. This only affects the 1.0 encoding.
+
+- Fixed a bug where an invocation made with an invocation timeout released its memory, including the marshaled
+  request and reply, only when the timeout elapsed instead of when the invocation completed.
+
+- Fixed `slice2js` to rename the parameters it synthesizes for generated proxy and skeleton methods when an operation
+  already has an in-parameter with the same name. An operation with an in-parameter named `context` (proxy) or
+  `current` (skeleton) previously produced a TypeScript declaration with two parameters of that name, which failed to
+  compile.
+
+- Fixed the servant lookup for incoming requests: when the target identity is registered with a different facet, the
+  object adapter now dispatches the request to the default servant if one is registered, as documented, instead of
+  rejecting the request with `FacetNotExistException`.
+
+- Fixed `Connection.flushBatchRequests` and `Communicator.flushBatchRequests` to report a proper Ice local exception
+  when a connection is closed while its batch requests are being flushed, instead of leaking an internal exception.
+
+- Improved the handling of exceptions thrown by middleware factories. A middleware factory should never throw; if it
+  does throw during the creation of an object adapter's dispatch pipeline (at first dispatch), the exception previously
+  escaped into the connection's incoming message processing, which could leave client invocations unanswered. Now, the
+  object adapter logs an error and all dispatches on this object adapter fail with an `UnknownException`.
+
+- Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
+  `RangeError` instead of being silently ignored, matching the buffer-position behavior of the other language
+  mappings.
+
+### MATLAB Changes
+
+- Fixed `Communicator.getImplicitContext`, which crashed the MATLAB process under the default configuration
+  (`Ice.ImplicitContext=None`). It now returns an empty array, as documented, when no implicit context is configured.
+
+- `Ice.SliceInfo.typeId` is now empty for the slice of a class with a compact type ID, matching the C++, Java, and
+  Python mappings. Previously, `typeId` held the stringified compact ID. The compact ID itself remains available
+  through `Ice.SliceInfo.compactId`.
+
+- Fixed a memory leak in `Communicator.proxyToProperty`, `ImplicitContext.getContext`, `ObjectPrx.ice_getContext`,
+  `Properties.getPropertiesForPrefix`, and `Connection.getInfo` on a WebSocket connection. Each call leaked memory
+  proportional to the size of the dictionary it returned.
+
+- Fixed the unmarshaling of optional `Object*` parameters and fields. Reading such a proxy always failed with a MATLAB
+  error, whether or not the sender set the optional value.
+
+- Fixed `Ice.Future.wait('sent')`, which could block indefinitely or time out even after the request had been
+  sent. The wait now completes as soon as the invocation reaches or passes the requested state.
+
+- Fixed `ice_getCachedConnection` to return an empty `Ice.Connection` array, rather than an empty
+  `double` array, when the proxy has no cached connection.
+
+- Fixed the `ice_getConnectionAsync` proxy method. Retrieving the result of the returned future failed on every
+  successful call because the `Ice.Connection` was constructed without its communicator.
+
+- Fixed a memory leak that occurred each time a proxy was marshaled, unmarshaled, or had its
+  encoding version set with `ice_encodingVersion`. Each of these operations leaked a small amount
+  of memory that accumulated over the lifetime of a MATLAB session.
+
+- Fixed `slice2matlab` to map all `long` constants and default values to MATLAB `int64`. They were previously
+  emitted as bare numeric literals, which MATLAB interprets as `double`, silently losing precision for values
+  with magnitude greater than 2^53.
+
+- Fixed the unmarshaling of unknown optional values with tags greater than or equal to 30. These no
+  longer desynchronize the input stream causing spurious `MarshalException`.
+
+### PHP Changes
+
+- Fixed a crash that occurred when invoking an operation that combines a non-optional return value with an out
+  parameter declared as `optional(0)`, such as:
+
+  ```slice
+  string getName(out optional(0) int id);
+  ```
+
+- Fixed a leak: unregistering a communicator that was registered with an expiration time left this communicator
+  alive until the process exited, along with its connections and other resources.
+
+- Fixed a bug in Ice for PHP: a communicator registered with an expiration time was not destroyed during PHP
+  shutdown, and the Ice runtime reported the error "communicator not destroyed during global destruction".
+
+- Fixed a crash in Ice for PHP when unmarshaling a non-empty dictionary whose value type is a class (for example
+  `dictionary<string, SomeClass>`). The dictionary key could be freed before the deferred class value was inserted,
+  causing a use-after-free.
+
+- Fixed Ice for PHP mis-marshaling a non-empty optional `sequence<string>`.
+
+### Python Changes
+
+- Fixed `ice_id()` on Ice local exceptions, such as `CommunicatorDestroyedException`. It raised `AttributeError`
+  instead of returning the exception's Slice type ID, so generic error-handling and logging code that called it
+  crashed.
+
+- Fixed `ObjectPrx.ice_invoke` and `ObjectPrx.ice_invokeAsync` to accept the request context as a keyword argument, as
+  their signatures advertise. `ice_invokeAsync` previously sent the request without any context when `ctx` was passed by
+  keyword, and `ice_invoke` rejected the call with a `TypeError`.
+
+- Fixed `ice_getConnectionAsync` on a collocated proxy. It resolved with an unusable `Connection` object that crashed
+  the interpreter as soon as it was used, or never resolved at all, instead of resolving with `None` like the
+  synchronous `ice_getConnection`.
+
+- Fixed `ice_getConnectionAsync` to return a future created by the configured event loop adapter, like the other
+  asynchronous proxy operations. Awaiting it in an asyncio application no longer yields a non-asyncio future.
+
+- Fixed `Connection.setCloseCallback` to accept any callable. It previously rejected everything except plain functions
+  and lambdas, so passing a bound method, a `functools.partial`, a callable instance or a builtin function raised
+  `ValueError`. Passing a non-callable now raises `TypeError`, like the other Ice callback setters.
+
+- Fixed `ice_getConnection` on a proxy to release the global interpreter lock while it establishes the connection.
+  It previously stalled every other Python thread for the duration of the connection establishment, up to the connect
+  timeout when the peer was slow or unreachable.
+
+- Fixed the type annotations of `Communicator.removeAdminFacet`, `findAdminFacet` and `findAllAdminFacets`, and
+  documented that the Admin facets implemented by the Ice runtime have no Python servant: `Properties` is returned as
+  a `NativePropertiesAdmin`, and the others, such as `Process` and `Metrics`, are reported as `None`.
+
+- Fixed a hang in Ice for Python: when a keyboard interrupt (Ctrl-C) interrupted a call to
+  `Communicator.waitForShutdown`, the interpreter could later freeze — typically when the program exits.
+
+- Fixed a memory leak in Ice for Python: the object adapter leaked a reference to the servant on each request
+  dispatched through a servant locator, and a reference to each servant returned by `findAllFacets` and
+  `removeAllFacets`.
+
+- Fixed a bug where `slice2py` wouldn't correctly generate imports for sequences that were re-mapped with metadata,
+  when those sequences were used as the type of a field.
+
+- Fixed `ice_invokeAsync`: the returned future now completes with the documented `(True, b"")` result for oneway,
+  datagram, and batch proxies. Previously, it completed with `None`, unlike the synchronous `ice_invoke`.
+
+- Fixed a Python interpreter crash that could occur after the destruction of a communicator configured with
+  a custom logger, thread start/stop callbacks, or a batch request interceptor.
+
+- Fixed interpreter crashes in `ObjectAdapter.getCommunicator` and `ObjectPrx.ice_getCommunicator` when called
+  after the communicator was destroyed. These methods now raise `CommunicatorDestroyedException` in this situation;
+  previously, `ice_getCommunicator` could also return `None`.
+
+- Fixed the marshaling of `float` sequences: a finite element value outside the float range now raises `ValueError`,
+  same as the marshaling of an individual `float` value. Previously, such elements were silently marshaled as infinity.
+
+- Fixed `Ice.Future.add_done_callback` and `Ice.InvocationFuture.add_sent_callback` in Ice for Python: when the future
+  was already completed — or the request already sent — an exception raised by the callback propagated to the caller.
+  Such an exception is now caught and logged with Python's `logging` module.
+
+- Fixed the type hints generated by `slice2py` for optional parameters: metadata applied directly to the
+  parameter (such as `python:numpy.ndarray`) was ignored, so the hint omitted the mapped type.
+
+- `Ice.ConnectionInfo` now provides a `connectionId` attribute.
+  Previously, the connection ID was not available through `Connection.getInfo`.
+
+- Fixed a bug where `slice2py` wouldn't correctly generate imports for sequences that were nested inside another
+  collection type (another dictionary or sequence).
+
+- Fixed Ice for Python to reliably abort request marshaling when an invalid value is supplied for a sequence
+  parameter (such as a non-sequence argument), instead of continuing with a pending Python exception and sending a
+  corrupt or truncated request.
+
+- Fixed `slice2py` to escape doc-comment text when emitting Python docstrings, so that comments containing a
+  triple-quote sequence or a backslash escape (such as `\u`) no longer produce invalid generated Python.
+
+- Fixed `slice2py` to honor parameter metadata (such as `["python:numpy.ndarray"]`) in the type hints of generated
+  proxy methods, matching the servant side, instead of dropping the metadata and leaving the added import unused.
+
+### Ruby Changes
+
+- Fixed a crash in `Communicator#getImplicitContext`: with the default `Ice.ImplicitContext=None` configuration, this
+  method returned a broken `ImplicitContext` object whose methods crashed the Ruby interpreter. It now returns `nil`
+  when the communicator has no implicit context.
+
+- Fixed a hang at program exit when a communicator is created with a custom `sliceLoader` and destroyed through the
+  block form of `Ice::initialize`, or not destroyed at all.
+
+- Added a `hash` method to `Connection`, consistent with `eql?`. Previously, two `Connection` objects representing
+  the same connection could compare equal but hash differently, so connections could not be used reliably as `Hash`
+  keys or `Set` elements.
+
+- `ConnectionInfo#connectionId` now returns the ID of the connection. Previously, it was always `nil`.
+
+- Fixed the stringification of class instances (`inspect`): when GC compaction ran during the stringification, a
+  shared instance could be printed in full a second time instead of as a back reference.
+
+- `to_s` on a Slice class or struct instance now returns the same stringification as `inspect`.
+
+- Fixed the stringification of Slice user exceptions and structs: calling `inspect` on a Slice-generated exception or
+  struct instance returns a description, instead of raising `NameError`.
+
+- Fixed the stringification of non-nil proxy data members. Now proxies print correctly, instead of raising `TypeError`.
+
+- Fixed `Ice::createProperties` in Ice for Ruby to accept `nil` as the defaults argument (equivalent to omitting it).
+  A `nil` defaults previously bypassed the type check and crashed the interpreter.
+
+- Fixed Ice for Ruby to correctly marshal an empty `sequence<byte>` supplied as a string: it now writes a single size
+  byte instead of a raw 4-byte integer, which previously de-synchronized the rest of the message.
+
+- Fixed `Ice::Endpoint` comparison in Ice for Ruby. `<=>` compared an endpoint with itself, making `==`/`<=>`
+  asymmetric, and the class defined `eql?` without a matching `hash`; equal endpoints now compare consistently and
+  can be used as `Hash`/`Set` keys.
+
+- Fixed `slice2rb` to escape `#` in generated Ruby string literals (constants and deprecation reasons). A Slice string
+  containing Ruby interpolation syntax such as `#{...}`, `#@`, or `#$` previously produced a double-quoted Ruby literal
+  that was interpreted at module-load time, corrupting the value or executing code.
+
+- Fixed a bug where receiving a Slice user exception leaked memory. A program that received many user exceptions
+  became progressively slower and could eventually crash.
+
+- Fixed a bug where GC heap compaction (`GC.compact` or `GC.auto_compact = true`) broke the Ice extension: after a
+  compaction, the proxies, classes, exceptions, and enumerators returned by Ice invocations could be instances of
+  unrelated classes, and the Ruby interpreter could crash.
+
+- The comparison methods (`<=>`, `==`, `eql?`) of Ice types in Ruby (Slice-generated enums, `Ice::Identity`,
+  `Ice::ObjectPrx`, and `Ice::Endpoint`) now follow standard Ruby semantics for an operand of a different type: `==`
+  and `eql?` return `false` and `<=>` returns `nil`, instead of raising an exception. On enums, which are
+  `Comparable`, ordered comparisons such as `<` still raise `ArgumentError`.
+
+- Fixed Ice for Ruby to keep a custom `SliceLoader` alive for the communicator's lifetime. The wrapper previously
+  registered the wrong address with the garbage collector, leaving a dangling root and allowing the loader to be
+  collected while still in use.
+
+### Swift Changes
+
+- `Ice.SliceInfo.typeId` is now empty for the slice of a class with a compact type ID, matching the C++, Java, and
+  Python mappings. Previously, `typeId` held the stringified compact ID. The compact ID itself remains available
+  through `Ice.SliceInfo.compactId`.
+
+- The CompileSlice plugin now tracks Slice include dependencies: editing a Slice file included by other Slice files
+  regenerates the Swift code for those files as well. The plugin also regenerates the Swift code when `slice2swift`
+  itself changes.
+
+- Fixed communicator initialization to treat `Ice.ClassGraphDepthMax` values less than 1 as unlimited, matching the
+  other language mappings. Previously, setting this property to 0 or a negative value aborted the program.
+
+- Fixed the servant lookup for incoming requests: when the target identity is registered with a different facet, the
+  object adapter now dispatches the request to the default servant if one is registered, as documented, instead of
+  rejecting the request with `FacetNotExistException`.
+
+### Ice Service Changes
+
+#### DataStorm
+
+- Fixed a bug in DataStorm where destroying a topic before the readers and writers created from it, while a peer was
+  still attached to one of them, leaked the listeners and (in debug builds) tripped an assertion. This is uncommon,
+  since readers and writers are normally destroyed before their topic.
+
+- Fixed a bug in DataStorm where a reader connected to an any-key (filtered) writer could receive duplicate
+  samples after a session reconnect: the writer re-sent its entire retained history instead of resuming after
+  the samples the reader had already received.
+
+- Fixed a bug in DataStorm where a partial update for one key could be merged on top of a different key's most
+  recent sample, corrupting the fields the update does not set.
+
+- Fixed a bug in DataStorm where a partial update was not merged with the key's previous value when the receiver did
+  not already have that value: an element configured with `sampleCount = 0` (keep no history), a reader that joins
+  after the value was published to a writer that keeps no history or whose history has aged out (`sampleLifetime`),
+  or an any-key/filtered reader that receives history for only some of a writer's keys (for example with
+  `ClearHistory = OnAll`). The current per-key value is now bootstrapped for every such key. Applications using
+  class-typed values typically crashed; with other value types, the fields not carried by the update were silently
+  reset to their defaults.
+
+- Fixed a crash in DataStorm (a null-pointer dereference during session (re)attachment) that could occur after a
+  multi-key reader or writer was destroyed.
+
+- Fixed a bug in DataStorm where, when two or more readers (or writers) reached an endpoint-less peer through the
+  same relay node, the relay could fail to notify one of them when the peer disconnected, leaving it blocked
+  forever in `waitForNoWriters` (or `waitForNoReaders`). The relay keyed the relayed sessions by an identity that
+  is only unique within a node, so sessions from different nodes overwrote each other.
+
+- Fixed a memory leak in DataStorm where a node could fail to reclaim a session after losing its connection to a
+  peer. The most common trigger is a peer with no public endpoint that disconnects and does not reconnect, so a
+  long-running node leaked memory in proportion to the number of such peers seen over its lifetime.
+
+- Fixed a crash in DataStorm where a filtered or any-key reader configured with `DiscardPolicy::Priority` crashed
+  when it received samples from an any-key writer.
+
+- Fixed the initialization of late-joining readers. A reader of a writer that spans several keys — a multi-key,
+  any-key, or filtered reader — silently lost all but one key's initialization samples. Such a reader could also be
+  initialized with another reader's samples.
+
+- DataStorm nodes running this release no longer interoperate with nodes running Ice 3.8.0 through 3.8.2. Fixing the
+  reader-initialization bug above required a change to the DataStorm session protocol, and a node only establishes
+  sessions with peers running Ice 3.8.3 or later. Upgrade all the DataStorm nodes in a deployment together.
+
+- Fixed a bug in DataStorm where an any-key reader and a filtered reader created on the same topic could be assigned
+  the same element ID and merge into a single subscription on the writer: one of the readers silently missed the
+  samples rejected by the other reader's filter, and destroying either reader detached the other. Topic elements now
+  draw their IDs from a single counter.
+
+- Fixed a bug in DataStorm where destroying a topic while the connection to a peer was closing or being
+  re-established could leave the topic's readers or writers permanently attached to that peer:
+  `hasWriters()`/`hasReaders()` stayed true, `waitForNoWriters()`/`waitForNoReaders()` hung, and the disconnect
+  callbacks never fired.
+
+- Fixed a bug in DataStorm where, after a reconnection, a relay could permanently stop forwarding topic
+  announcements to a node without a public endpoint: readers and writers matched only through such announcements
+  never connected until the connection was re-established with a favorable timing.
+
+- Fixed a bug in DataStorm where a writer created for several keys sent every key's samples to all subscribed
+  sessions, including sessions whose readers subscribe to only some of the writer's keys: the unmatched samples
+  wasted bandwidth, and debug builds crashed on an assertion when receiving them.
+
+- Fixed a memory leak in DataStorm where the per-topic key, tag, and filter factories kept one expired map entry per
+  distinct value that was no longer used, growing without bound on long-lived nodes with a changing key set.
+
+- Fixed a bug in DataStorm where a subscriber that attached to a topic in the short window before the topic's
+  updaters were set with `setUpdaters` could silently apply partial updates as no-ops for the lifetime of the
+  session.
+
+- Fixed a race in DataStorm session establishment that could leave a reader permanently
+  disconnected from a writer after a connection loss.
+
+- Fixed a bug affecting nodes that create two or more `Topic` instances with the same name. When readers on these
+  topics read from the same remote writer, a reader could receive another key's samples instead of its own.
+
+- Fixed a bug where a full value that a custom `Encoder` encodes to an empty byte sequence was decoded as
+  value-less. Such a value could not serve as a base for a subsequent partial update, which was then silently
+  discarded. The value is now decoded through its `Decoder` like any other full value, and the `Decoder` defines
+  the meaning of empty input.
+
+- Fixed a bug where a partial update delivered to several readers of the same key on one node was resolved against
+  the current value of whichever reader was served first, instead of against each reader's own current value. Readers
+  that hold different values for a key, for example because only some of them use a discard policy, now each resolve
+  the update against their own value.
+
+- Fixed a node applying the samples of a session out of order when its communicator was configured to let
+  `Ice.ThreadPool.Client` grow beyond one thread — a partial update could resolve against the wrong base value. A
+  node now defaults `Ice.ThreadPool.Client.Serialize` to 1 on the communicators it creates. An application that
+  configures the property itself keeps its own value, and a communicator supplied to a node is left untouched and
+  must be configured for ordered dispatch before it is created.
+
+- Removing a data element no longer calls the application's `Encoder` with a default-constructed value the
+  application never published.
+
+- Fixed a bug where a DataStorm reader could receive samples it had already consumed. When a session reconnected
+  to its peer — typically through a DataStorm node — stale replies from an earlier connection attempt could
+  exhaust the session's reconnect retries and destroy it; the replacement session then received the writer's
+  retained samples from the beginning.
+
+- Fixed a bug where a node could fail to connect to a peer reached through a relay node when the relay lost its own
+  connection to that peer at the wrong moment. The writers and readers of the two nodes then never connected to each
+  other. The node now retries the connection.
+
+- Fixed a bug affecting nodes that create two or more `Topic` instances with the same name. A reader with a
+  sample filter on one of these topics received every sample that matched any such reader's filter, instead of
+  only the samples its own filter matched.
+
+- Fixed a bug where a reader with a sample filter received no updates when it read the writer through a relay
+  node. The reader was still initialized correctly, so it appeared to start normally and then never updated.
+
+- Fixed a bug where a reader without a sample filter received a duplicate of every sample that a sample-filtered
+  reader of the same key and writer matched. The duplicate was indistinguishable from a real sample and, for a
+  partial update, applied the update to the reader's value twice.
+
+- Fixed the handling of a key that a custom `Encoder` encodes to an empty byte sequence. An any-key or filtered
+  writer marshals such a key inline like any other, but a reader mistook it for a key sent by id: it discarded the
+  sample, or delivered it without checking the key against the reader's own subscription.
+
+- Fixed a bug where a `DataStorm::Node` constructor failure, such as an invalid `DataStorm.Node.ConnectTo`
+  endpoint, aborted the process instead of throwing an exception.
+
+- Fixed a bug where an invalid `DataStorm.Topic.*` property value aborted the process when a topic reader or writer
+  was first created. The topic default configurations are now parsed by the `Node` constructor, so an invalid value
+  surfaces there as an exception. Additionally, the `DataStorm.Topic.DiscardPolicy` property now accepts `None` as
+  an alias for `Never`, matching the `DiscardPolicy::None` enumerator.
+
+- Fixed a bug where `Node::getSessionConnection` aborted the process when the given session identity was malformed,
+  instead of returning null.
+
+- Fixed a bug where calling `shutdown`, `isShutdown`, or `waitForShutdown` on a moved-from `Node` crashed.
+
+- Fixed the handling of partial updates for keys with no value. A key has no value when it was removed, or when no
+  full value was written for it yet. Previously, such a partial update crashed applications using class-typed
+  values; with other value types, it silently resurrected removed keys. Now a writer throws `std::logic_error`
+  when publishing such an update, and a reader discards incoming ones.
+
+- Fixed a bug where calling `getValue()` on a `Remove` sample could return indeterminate data instead of the
+  documented default value.
+
+- Fixed a bug in DataStorm where a sample discarded by the reader's discard policy left later partial updates on
+  its key without a base value to resolve against.
+
+- A DataStorm partial update without a base value is now dropped with a trace, instead of being applied to a
+  default-constructed value — which typically crashed applications using class-typed values.
+
+- A DataStorm reader-side updater or decoder that throws now drops only that sample and logs a warning; previously
+  the exception could discard an entire batch of initialization samples.
+
+#### Glacier2
+
+- Fixed the Glacier2 address filters, `Glacier2.Filter.Address.Accept` and `Glacier2.Filter.Address.Reject`: a rule
+  that did not end with a wildcard matched hosts that it does not describe. A rule without any wildcard, such as
+  `api.example.com`, matched every host name ending with it, such as `notapi.example.com`, and a rule ending with a
+  numeric range, such as `192.168.[0-255]`, matched every host name starting with it. An address rule now matches the
+  host name in full. Review your address filters if a rule relied on the previous behavior: prepend `*` to restore a
+  suffix match (`*api.example.com` matches `notapi.example.com` again), and append `*` to restore a prefix match
+  (`192.168.[0-255]*` matches `192.168.5.5` again).
+
+- Fixed a bug in the Glacier2 address filters, `Glacier2.Filter.Address.Accept` and `Glacier2.Filter.Address.Reject`:
+  the filters compared host names case-sensitively. Host names now match regardless of case, like DNS names.
+
+- Fixed a bug in the Glacier2 address filters, `Glacier2.Filter.Address.Accept` and
+  `Glacier2.Filter.Address.Reject`: a rule that contains a numeric range preceded by a wildcard, such as
+  `*.[0-255]`, could send the router into an infinite loop while checking a proxy.
+
+- When address filters are configured (`Glacier2.Filter.Address.Accept` or `Glacier2.Filter.Address.Reject`), the
+  Glacier2 router now rejects a proxy when any of its endpoints has a host that writes an IPv4 address in a
+  non-canonical form: for example, `0x7f000001`, `2130706433`, and `127.1` are all non-canonical forms of
+  `127.0.0.1`. The filter rules match the host as a string, so previously a host in such a form matched neither
+  the Accept nor the Reject rules written for the usual dotted-quad form.
+
+- The Glacier2 address filters now ignore the trailing dot of a fully-qualified DNS name, in the endpoint host and
+  in the Accept and Reject rules alike: a rule written for `backend.example.com` matches the host
+  `backend.example.com.`, and vice versa. Previously, the host and the rule matched only when both spelled the
+  trailing dot the same way.
+
+- Fixed a bug in the `Glacier2.Filter.Address.Reject` address filter, which did not filter multi-endpoint proxies
+  correctly.
+
+- Improved the validation of the Glacier2 address filter rules: a rule with an inverted numeric range (such as
+  `[5-1]`) or with a stray `[` inside a group was accepted and then silently did not match the hosts it appears to
+  describe.
+
+- The Glacier2 Crypt permissions verifier now supports bcrypt password hashes (`$2a$`, `$2b$`, `$2y$`) on Linux.
+
+- Fixed a bug where a malformed `Glacier2.Filter.Identity.Accept` or `Glacier2.Filter.Category.AcceptUser` property
+  made every session creation hang instead of failing. The router now validates these properties at startup and
+  refuses to start when one of them is invalid.
+
+- The Glacier2 router now fails to start when the proxy configured by `Glacier2.PermissionsVerifier`,
+  `Glacier2.SessionManager`, `Glacier2.SSLPermissionsVerifier`, or `Glacier2.SSLSessionManager` cannot be parsed.
+  Previously, the router logged an "unable to contact" warning and started without the corresponding verifier or
+  session manager.
+
+- Fixed a bug in the Glacier2 Crypt permissions verifier: a password file with more than one entry for the same user
+  kept the first entry and silently ignored the others. A duplicate entry now fails startup, like a malformed entry.
+
+- The Glacier2 router now supports `createSessionFromSecureConnection` calls from clients connecting over secure
+  WebSocket (wss), and sets the `_con.peerCert` context entry for these connections when
+  `Glacier2.AddConnectionContext` is enabled.
+
+#### Ice Service installed as a Windows Service
+
+- Fixed a crash on shutdown. When an Ice service running as a Windows service was stopped using an Ice admin tool —
+  for example, an IceGrid node shut down with `icegridadmin` or the IceGrid GUI — instead of through the Windows
+  Service Control Manager, the process terminated abnormally rather than stopping cleanly (and never reported
+  `SERVICE_STOPPED`). This affected the IceGrid registry and node, the Glacier2 router, and IceBox.
+
+#### IceGrid
+
+- Fixed the IceGrid registry to reject a descriptor with a self-referential or cyclic variable definition by
+  raising a deployment error, instead of crashing from unbounded recursion.
+
+- Fixed an IceGrid node consistency check that could remove files belonging to a deployed server when the node
+  ran under a non-C locale, because directory entries were sorted inconsistently. The node now sorts them using
+  a locale-independent ordering.
+
+- Fixed a crash in IceGrid when parsing an application descriptor whose `<include>` elements reference
+  themselves directly or indirectly. The descriptor parser now reports a deployment error instead of crashing.
+
+- Fixed a bug where the IceGrid registry incorrectly rejected an application with a "circular dependency" error
+  when a property set was referenced by two other property sets.
+
+- Fixed a node-wide activation stall in the IceGrid node when running with a very large file descriptor limit
+  (such as `LimitNOFILE=infinity` under systemd).
+
+- Fixed a memory leak in the IceGrid registry: the resources associated with a client or admin session were sometimes
+  retained until registry shutdown.
+
+- Fixed a shutdown hang in the IceGrid node on Windows that could occur after a server activation failed.
+
+- Fixed a crash in the IceGrid registry that could occur when an application declared the same
+  allocatable object identity more than once (which IceGrid tolerates with a logged error) and that
+  application was later updated or removed.
+
+- Fixed a crash in `icegridadmin`: when started with `--host` and `--instanceName` and no registry could be contacted
+  on the specified host, `icegridadmin` crashed instead of reporting an error.
+
+- Fixed a bug in `icegridadmin`: after a `log --follow` command failed — for example because the target server was
+  not reachable — all subsequent `log --follow` commands in the same session failed as well.
+
+- Fixed a bug in `icegridadmin`: the `show` command with the `--head n` option printed the whole log file instead of
+  the first `n` lines.
+
+- Fixed the IceGrid GUI freezing when a log file window was closed or stopped while a read against an
+  unresponsive node was still in progress. Stopping or closing a log window no longer blocks the UI thread
+  waiting for the in-progress read to return.
+
+- Fixed a Swing threading violation in the IceGrid GUI: when refreshing a metrics view failed synchronously,
+  the error dialog was created off the UI thread, which could corrupt the display or deadlock. The dialog is
+  now shown on the UI thread.
+
+- Fixed `icegridnode` command-line parsing: an option following `--deploy` and its arguments, as in
+  `icegridnode --deploy app.xml --readonly`, was silently ignored.
+
+- Fixed an IceGrid registry issue: after an application update that did not restart a running server (no-restart
+  update), restarting the registry could leave this server stuck in a synchronizing state, causing administrative
+  operations on this server to hang until the server was stopped.
+
+- Fixed a slow memory accumulation in the IceGrid registry: a session destroyed by the client was retained by the
+  registry until the connection used to create this session closed. This affects only registries with no node (a
+  common setup when using dynamic registration) and no replica, with sessions created and destroyed through Glacier2,
+  as Glacier2 maintains a long-lived connection to the registry.
+
+- Fixed a registry-wide stall in IceGrid. Previously, when a client that allocated a server with the `session`
+  allocation mode suddenly disconnected, the registry could temporarily stop accepting all new sessions.
+
+- Fixed a potential crash at startup in an IceGrid slave registry. A master registry registering with a slave while
+  the slave was still initializing could crash the slave.
+
+- The IceGrid registry now supports `createSessionFromSecureConnection` and `createAdminSessionFromSecureConnection`
+  calls from clients connecting over secure WebSocket (wss).
+
+#### IceStorm
+
+- Fixed a hang that could prevent IceStorm from shutting down cleanly after a topic received messages whose
+  cost prevented their propagation on one of its links.
+
+- Fixed an election bug in replicated IceStorm deployments. When a replication failure was detected while a
+  replica was taking part in an election — for example during a master failover with updates in flight — the
+  replica could stop serving requests until it was restarted.
+
+- Fixed an availability issue in a replicated IceStorm deployment: when a replica stayed reachable but persistently
+  failed to apply the initial replica state (for example on a local database write error), every election failed and
+  the whole group kept cycling through recovery, so no replica served requests. The coordinator now evicts a replica
+  whose initialization fails and completes the election as long as a majority of the replicas succeeds, as it
+  already did for failures during replicated updates.
+
+- Fixed a replication bug: when a subscriber unsubscribed and re-subscribed with a different proxy or QoS while
+  a replica was out of sync, the replica kept the old subscription and could deliver events with it after
+  becoming the coordinator.
+
+- Fixed IceStorm metrics in transient mode. Transient topics now report the `published` and `forwarded` metrics,
+  and topic and subscriber observers are now refreshed when a metrics view changes. Previously transient topics
+  reported no topic metrics, and the subscriber metrics of transient deployments went stale after a metrics view
+  update.
+
+- Fixed the `forwarded` topic metric to count forwarded events. Previously the metric was incremented once per
+  forward call, and a topic link forwards events in batches, so it undercounted the number of events.
+
+- Fixed `icestormadmin` to report `no manager proxies configured` when it runs without any configuration.
+  Previously, it failed with a cryptic endpoint parse error.
+
+- Improved the `icestormadmin` error messages when `IceStormAdmin.Host` or `IceStormAdmin.Port` is set: a missing
+  port, an invalid host or port value, and an unreachable `IceStorm/Finder` object are now reported as distinct
+  errors.
+
+- Fixed the `icestormadmin` parser to accept `replica` and `subscribers` as topic-name arguments. All other
+  command words were already usable as topic names, but these two were rejected with a syntax error unless
+  quoted.
+
+- Restored IceStorm batch subscriber delivery, which had not worked since Ice 3.8.0. A batch oneway or batch datagram
+  subscriber's proxy was silently converted to a plain oneway or datagram proxy at subscription time, so its events
+  were delivered one at a time instead of being coalesced and flushed together every `IceStorm.Flush.Timeout`
+  milliseconds.
+
+- Fixed an election bug in replicated IceStorm deployments. After a restart of all the replicas, or after a
+  sequence of replica outages, the elected coordinator could adopt the state of a stale replica, silently
+  discarding previously created topics and subscriptions.
+
+- Fixed a deadlock in a replicated IceStorm deployment. A master replica that lost the majority of its replicas (for
+  example during a network partition) while a topic update — such as a subscribe or unsubscribe — was in progress
+  could hang, halting all further operations on that node until it was restarted.
+
+- Fixed an IceStorm bug where subscribing to a topic with an invalid (non-numeric) `retryCount` QoS value left that
+  subscriber unable to be subscribed to the topic until IceStorm was restarted. The value is now rejected with
+  `BadQoS`.
+
+- Fixed a hang that could prevent IceStorm from shutting down cleanly when a subscriber still had requests outstanding
+  to an unreachable endpoint.
+
+- Fixed a race in IceStorm where destroying a topic concurrently with a subscribe or link to the same topic could leave
+  an orphaned record in the database, causing the destroyed topic to reappear the next time IceStorm was restarted.
+
+- Fixed a bug where a transient IceStorm service could drop queued events on shutdown instead of delivering them.
+
+- Fixed a crash in `icestormadmin` when running the `replica` command against a non-replicated IceStorm instance.
+  The command now reports that the instance is not replicated instead of crashing.
+
+- Fixed `icestormdb` to open the subscribers database with the same key comparator as the IceStorm service.
+  Previously a database produced by `icestormdb --import` was ordered differently than the service expected, so
+  after restoring a backup the service could fail to find subscriber and topic records whose identities have
+  differing lengths.
+
+- Fixed a replication bug where a replica rejoining the group could reuse the in-memory remnant of a topic it
+  had destroyed locally. The rejoined replica then ignored a later replicated destroy of that topic, keeping the
+  topic's records in its database and resurrecting the destroyed topic on restart.
+
+- Fixed transient IceStorm (`IceStorm.Transient=1`) to reject `subscribeAndGetPublisher` and `link` calls on a
+  destroyed topic with `ObjectNotExistException`, matching the persistent implementation. Previously such a call
+  succeeded on a topic that could no longer deliver events and could permanently block re-subscribing that
+  subscriber.
+
+- Fixed transient IceStorm (`IceStorm.Transient=1`) to register the `IceStorm/Finder` object, as documented.
+
+### Packaging Changes
+
+- The Ice CMake package configuration files are now in the `libice-c++-devel` RPM instead of the C++ runtime
+  RPM. Building an Ice application on a host missing the devel RPM now fails with CMake's standard
+  "package not found" error, instead of a confusing error from inside the Ice package configuration.
+
+- Fixed RPM builds that rebrand the packages with the `nameprefix` macro: such builds previously failed during `%prep`.
 
 ## Changes in Ice 3.8.2
 

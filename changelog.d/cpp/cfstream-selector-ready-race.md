@@ -1,1 +1,0 @@
-- Fixed a bug in the iOS (CFStream) transport where a connection could intermittently stall.
