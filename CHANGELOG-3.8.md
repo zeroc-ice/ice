@@ -382,7 +382,6 @@ These changes apply to all Slice compilers.
 - Fixed `Connection.flushBatchRequests` and `Communicator.flushBatchRequests` to report a proper Ice local exception
   when a connection is closed while its batch requests are being flushed, instead of leaking an internal exception.
 
-
 ### MATLAB Changes
 
 - Fixed `Communicator.getImplicitContext`, which crashed the MATLAB process under the default configuration
