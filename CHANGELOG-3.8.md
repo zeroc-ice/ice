@@ -130,35 +130,26 @@ These changes apply to all Slice compilers.
 
 ### C++ Changes
 
-- Fixed `IceSSL.Password` not being used when loading an encrypted PEM private key in the OpenSSL-based IceSSL
-  transport. Previously OpenSSL prompted for the password on the terminal or failed to load the key.
-
 - Fixed a deadlock in `Connection::setCloseCallback`. Setting or clearing a close callback destroyed the callback it
   replaced while holding the connection's lock, so a callback whose destructor called back into the connection
   deadlocked. This affected the language mappings that attach a finalizer to the callback, such as Ice for Python.
 
-- Fixed a crash in `slice2cpp` when compiling a doc comment containing a tag with no description, such as
-  `@param myParam` or `@throws MyException` with nothing after the name. The description is optional.
+- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread
+  flushed batch requests on a connection, proxy, or communicator while another thread was making batch invocations on
+  the same batch queue.
 
-- Ice now generates random bytes — including those behind `Ice::generateUUID` and `addWithUUID` — with the
-  operating system's CSPRNG instead of `std::random_device`.
+- Fixed a hang in `Communicator::flushBatchRequests` and `flushBatchRequestsAsync`. When a connection was closed while
+  the communicator was flushing its batch requests, the returned future or completion callback could remain pending
+  forever.
+
+- Improved performance on Windows when thread pool serialization (`Serialize=1`) is enabled on a thread pool with a
+  single thread.
 
 - Fixed the delivery of log messages to remote loggers attached to the Logger admin facet when
   `Ice.Admin.Logger.KeepLogs` or `Ice.Admin.Logger.KeepTraces` is set to `0` (their default value is `100`). These
   properties control only how many messages the facet retains for `getLog` and `RemoteLogger::init`; previously,
   setting one of them to `0` also prevented the live delivery of messages of the corresponding category to attached
   remote loggers.
-
-- Improved performance on Windows when thread pool serialization (`Serialize=1`) is enabled on a thread pool with a
-  single thread.
-
-- Fixed a crash in the IceBT transport. A Bluetooth connection attempt that failed after its connection was
-  closed — for example after a connect timeout — crashed the program.
-
-- Fixed a crash in the IceBT transport. An incoming Bluetooth connection delivered while its object adapter was
-  being deactivated — or the communicator destroyed — could crash the program.
-
-- The SSL transport on macOS now supports PKCS#12 certificate files with an empty password.
 
 - Fixed syslog logging (`Ice.UseSyslog=1`) with multiple communicators in the same process. Previously, each
   communicator opened and closed the process-global syslog connection independently, corrupting the shared logging
@@ -167,65 +158,75 @@ These changes apply to all Slice compilers.
   particular, an IceBox server configured with `Ice.UseSyslog=1` and `IceBox.InheritProperties=1` now logs all its
   services to syslog.
 
-- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread
-  flushed batch requests on a connection, proxy, or communicator while another thread was making batch invocations on
-  the same batch queue.
+- Ice now generates random bytes — including those behind `Ice::generateUUID` and `addWithUUID` — with the
+  operating system's CSPRNG instead of `std::random_device`.
 
-- Fixed a bug in the iOS (CFStream) transport where a connection could intermittently stall.
+- Fixed several bugs in the OpenSSL-based IceSSL transport:
+  - `IceSSL.Password` was not used when loading an encrypted PEM private key: OpenSSL prompted for the password on
+    the terminal or failed to load the key.
+  - A rejected peer certificate reported a generic "rejected by the certificate validation callback" message
+    instead of the specific reason (such as "certificate has expired").
+  - The build failed against OpenSSL 4.0.
 
-- Fixed the CMake `slice2cpp_generate` function to compile Slice files that live in subdirectories: generated
-  files now mirror the layout of the `.ice` files found through the new `INCLUDE_DIRS` argument.
+- Fixed several bugs in the Schannel-based IceSSL transport (Windows):
+  - A TLS renegotiation (such as a TLS 1.3 KeyUpdate or NewSessionTicket) received in the same read as
+    already-decrypted application data silently dropped the plaintext extracted before the renegotiation request,
+    breaking the affected connection.
+  - Each failed TLS handshake leaked the security-token and alert buffers allocated by Schannel. On a server, a peer
+    repeatedly failing handshakes could leak memory over time.
+  - A certificate context was leaked.
 
-- `slice2cpp_generate` now accepts `INCLUDE_DIRS`, `OPTIONS`, `HEADER_OUTPUT_DIR`, `INCLUDE_DIR`,
-  `INCLUDE_SCOPE`, `DEPENDS`, `GENERATED_HEADERS` and `GENERATED_SOURCES`, to pass include directories and
-  options to `slice2cpp`, write the generated headers to their own directory, export them to the target's
-  consumers, add extra dependencies to the generation commands, and report the generated files' paths.
-
-- Fixed a hang in `Communicator::flushBatchRequests` and `flushBatchRequestsAsync`. When a connection was closed while
-  the communicator was flushing its batch requests, the returned future or completion callback could remain pending
-  forever.
-
-- Fixed a build failure of the OpenSSL-based IceSSL transport against OpenSSL 4.0.
-
-- Fixed certificate verification error reporting in the OpenSSL-based IceSSL transport. A rejected peer
-  certificate now reports the specific reason (such as "certificate has expired") instead of a generic
-  "rejected by the certificate validation callback" message.
-
-- Fixed a memory leak in the Schannel-based IceSSL transport (Windows) where each failed TLS handshake leaked the
-  security-token and alert buffers allocated by Schannel. On a server, a peer repeatedly failing handshakes could leak
-  memory over time.
-
-- Fixed a certificate context leak in the Schannel (Windows) SSL transport.
-
-- Fixed silent application-data loss in the Schannel-based IceSSL transport (Windows) when a TLS renegotiation (such as
-  a TLS 1.3 KeyUpdate or NewSessionTicket) is received in the same read as already-decrypted application data. The
-  plaintext extracted before the renegotiation request was dropped, breaking the affected connection.
-
-- Fixed a crash in the macOS (SecureTransport) SSL transport: configuring `IceSSL.CertFile` together with
-  `IceSSL.KeyFile` using a certificate that has no Subject Key Identifier extension aborted the process during
-  communicator initialization. Such certificates are now rejected with a `CertificateReadException`.
-
-- Fixed a crash in the iOS (SecureTransport) SSL transport: using `IceSSL.FindCert` to select a keychain
-  certificate that has no label attribute could abort the process during communicator initialization. Ice now reports
-  a clear error instead.
-
-- Fixed a `slice2cpp` bug where a `float` constant whose value is rendered in scientific notation (any magnitude
-  ≥ 1e6 or < 1e-4, e.g. `1e8`) generated an invalid C++ literal such as `1e+08.0F`, causing the generated header to
-  fail to compile.
+- Fixed several bugs in the SecureTransport-based SSL transport (macOS and iOS):
+  - On macOS, PKCS#12 certificate files with an empty password are now supported.
+  - On macOS, configuring `IceSSL.CertFile` together with `IceSSL.KeyFile` using a certificate that has no Subject
+    Key Identifier extension aborted the process during communicator initialization. Such certificates are now
+    rejected with a `CertificateReadException`.
+  - On iOS, using `IceSSL.FindCert` to select a keychain certificate that has no label attribute could abort the
+    process during communicator initialization. Ice now reports a clear error instead.
 
 - Fixed a WebSocket bug where an Ice server echoed a received ping's payload in the pong without
   unmasking it, so a non-Ice WebSocket peer that sends payload-bearing pings and validates the echoed
   pong (e.g. an L7 load balancer or gateway health check) could drop the connection (RFC 6455 §5.5.3).
   The common cases — browser/JS clients and empty keepalive pings — were unaffected.
 
+- Fixed a bug in the iOS (CFStream) transport where a connection could intermittently stall.
+
+- Fixed two crashes in the IceBT transport:
+  - A Bluetooth connection attempt that failed after its connection was closed — for example after a connect
+    timeout — could crash the program.
+  - An incoming Bluetooth connection delivered while its object adapter was being deactivated — or the communicator
+    destroyed — could crash the program.
+
+- Fixed a crash in `slice2cpp` when compiling a doc comment containing a tag with no description, such as
+  `@param myParam` or `@throws MyException` with nothing after the name. The description is optional.
+
+- Fixed a `slice2cpp` bug where a `float` constant whose value is rendered in scientific notation (any magnitude
+  ≥ 1e6 or < 1e-4, e.g. `1e8`) generated an invalid C++ literal such as `1e+08.0F`, causing the generated header to
+  fail to compile.
+
+- Improved the CMake `slice2cpp_generate` function:
+  - It now accepts `INCLUDE_DIRS`, `OPTIONS`, `HEADER_OUTPUT_DIR`, `INCLUDE_DIR`, `INCLUDE_SCOPE`, `DEPENDS`,
+    `GENERATED_HEADERS` and `GENERATED_SOURCES`, to pass include directories and options to `slice2cpp`, write the
+    generated headers to their own directory, export them to the target's consumers, add extra dependencies to the
+    generation commands, and report the generated files' paths.
+  - It now compiles Slice files that live in subdirectories: generated files mirror the layout of the `.ice` files
+    found through the new `INCLUDE_DIRS` argument.
+
 ### C# Changes
 
-- Fixed a hang in C# IceLocatorDiscovery where a request could fail to complete when a failed locator
-  invocation was retried and locator rediscovery returned the same locator proxy.
+- The per-thread `ImplicitContext.getContext` in C# now returns a snapshot of the context instead of the live
+  internal dictionary (matching the `Shared` implementation). Code that mutated the returned dictionary to
+  update the implicit context must now use `put` or `setContext`.
 
-- `Ice.SliceInfo.typeId` is now empty for the slice of a class with a compact type ID, matching the C++, Java, and
-  Python mappings. Previously, `typeId` held the stringified compact ID. The compact ID itself remains available
-  through `Ice.SliceInfo.compactId`.
+- Fixed a bug where specifying the `--Ice.Config` command-line option more than once loaded the wrong configuration
+  file: Ice loaded the first file instead of the last.
+
+- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread
+  flushed batch requests on a connection, proxy, or communicator while another thread was making batch invocations on
+  the same batch queue.
+
+- Fixed a hang in `Communicator.flushBatchRequestsAsync`. When a connection was closed while the communicator was
+  flushing its batch requests, the returned task never completed.
 
 - Fixed a leak in asynchronous proxy invocations that supply a cancellation token: each invocation remained
   registered with this token after completing, so a long-lived token retained the memory of all its completed
@@ -234,50 +235,38 @@ These changes apply to all Slice compilers.
 - Improved performance when thread pool serialization (`Serialize=1`) is enabled on a thread pool with a single
   thread.
 
-- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread
-  flushed batch requests on a connection, proxy, or communicator while another thread was making batch invocations on
-  the same batch queue.
-
-- Fixed a bug where specifying the `--Ice.Config` command-line option more than once loaded the wrong configuration
-  file: Ice loaded the first file instead of the last.
-
 - Fixed the servant lookup for incoming requests: when the target identity is registered with a different facet, the
   object adapter now dispatches the request to the default servant if one is registered, as documented, instead of
   rejecting the request with `FacetNotExistException`.
-
-- Fixed a hang in `Communicator.flushBatchRequestsAsync`. When a connection was closed while the communicator was
-  flushing its batch requests, the returned task never completed.
-
-- Fixed `iceboxnet` rejecting valid per-service command-line options (`--<service>.*`) with "unknown option" and
-  failing to start.
-
-- The per-thread `ImplicitContext.getContext` in C# now returns a snapshot of the context instead of the live
-  internal dictionary (matching the `Shared` implementation). Code that mutated the returned dictionary to
-  update the implicit context must now use `put` or `setContext`.
-
-- Fixed thread-safety bugs in the C# metrics (IceMX) implementation that could produce incorrect metrics or
-  throw under concurrent updates.
-
-- Fixed a bug in `slice2cs` handling of `cs:namespace`: a nested module received the namespace prefix twice
-  (e.g. `Foo.A.Foo.B` instead of `Foo.A.B`), producing C# that did not compile.
-
-- Fixed a bug in `slice2cs --icerpc` where the generated request decoder read in-parameters in declaration order
-  instead of the marshal order. As a result, an operation with an optional parameter declared before a required
-  parameter (or optional parameters declared out of tag order) could fail to decode or decode incorrect values.
-
-- Fixed a bug in `slice2cs --icerpc` where the generated proxy built the response tuple in marshal order while
-  declaring it in declaration order. As a result, an operation whose out-parameters were declared in an order
-  different from their marshal order could return values in the wrong tuple slots or fail to compile.
 
 - A `ThreadPriority` property set to an unrecognized value now throws `PropertyException` instead of being
   silently ignored and falling back to the normal priority. This applies to `Ice.ThreadPriority` and to any
   thread pool's `ThreadPriority` property, such as `Ice.ThreadPool.Server.ThreadPriority` or an object adapter's
   `<adapter>.ThreadPool.ThreadPriority`.
 
+- Fixed thread-safety bugs in the C# metrics (IceMX) implementation that could produce incorrect metrics or
+  throw under concurrent updates.
+
 - Fixed a WebSocket bug where an Ice server echoed a received ping's payload in the pong without
   unmasking it, so a non-Ice WebSocket peer that sends payload-bearing pings and validates the echoed
   pong (e.g. an L7 load balancer or gateway health check) could drop the connection (RFC 6455 §5.5.3).
   The common cases — browser/JS clients and empty keepalive pings — were unaffected.
+
+- Fixed a bug in `slice2cs` handling of `cs:namespace`: a nested module received the namespace prefix twice
+  (e.g. `Foo.A.Foo.B` instead of `Foo.A.B`), producing C# that did not compile.
+
+- Fixed two bugs in `slice2cs --icerpc`, both affecting operations whose parameters are declared in an order
+  different from their marshal order (such as an optional parameter declared before a required parameter):
+  - The generated request decoder read in-parameters in declaration order instead of the marshal order, and could
+    fail to decode or decode incorrect values.
+  - The generated proxy built the response tuple in marshal order while declaring it in declaration order, and
+    could return values in the wrong tuple slots or fail to compile.
+
+- Fixed `iceboxnet` rejecting valid per-service command-line options (`--<service>.*`) with "unknown option" and
+  failing to start.
+
+- Fixed a hang in C# IceLocatorDiscovery where a request could fail to complete when a failed locator
+  invocation was retried and locator rediscovery returned the same locator proxy.
 
 ### Java Changes
 
@@ -373,10 +362,6 @@ These changes apply to all Slice compilers.
   property previously replaced the supplied logger with a file logger, and in browsers caused communicator
   initialization to fail.
 
-- `Ice.SliceInfo.typeId` is now empty for a value slice decoded via a compact type ID, matching the C++, Java, and
-  Python mappings; the compact ID remains available through `Ice.SliceInfo.compactId`. Previously `typeId` held the
-  stringified compact ID.
-
 - Fixed a bug where a connection no longer enforced the inactivity timeout after receiving a batch of more than one
   request.
 
@@ -406,10 +391,6 @@ These changes apply to all Slice compilers.
 
 - Fixed `Communicator.getImplicitContext`, which crashed the MATLAB process under the default configuration
   (`Ice.ImplicitContext=None`). It now returns an empty array, as documented, when no implicit context is configured.
-
-- `Ice.SliceInfo.typeId` is now empty for the slice of a class with a compact type ID, matching the C++, Java, and
-  Python mappings. Previously, `typeId` held the stringified compact ID. The compact ID itself remains available
-  through `Ice.SliceInfo.compactId`.
 
 - Fixed a memory leak in `Communicator.proxyToProperty`, `ImplicitContext.getContext`, `ObjectPrx.ice_getContext`,
   `Properties.getPropertiesForPrefix`, and `Connection.getInfo` on a WebSocket connection. Each call leaked memory
@@ -586,10 +567,6 @@ These changes apply to all Slice compilers.
   collected while still in use.
 
 ### Swift Changes
-
-- `Ice.SliceInfo.typeId` is now empty for the slice of a class with a compact type ID, matching the C++, Java, and
-  Python mappings. Previously, `typeId` held the stringified compact ID. The compact ID itself remains available
-  through `Ice.SliceInfo.compactId`.
 
 - The CompileSlice plugin now tracks Slice include dependencies: editing a Slice file included by other Slice files
   regenerates the Swift code for those files as well. The plugin also regenerates the Swift code when `slice2swift`
