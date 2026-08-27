@@ -270,40 +270,23 @@ These changes apply to all Slice compilers.
 
 ### Java Changes
 
-- Fixed a memory leak in Ice for Java. Outgoing connections were not released after they closed, so the
-  memory used by a long-running program grew over the lifetime of the communicator.
-
-- Fixed a bug in Java IceLocatorDiscovery where a request could fail to complete (worst case, overflow the
-  stack) when a failed locator invocation was retried and locator rediscovery returned the same locator proxy.
-
-- Fixed the eviction of old log messages by the Logger admin facet. Once the facet had accumulated
-  `Ice.Admin.Logger.KeepLogs` log messages and `Ice.Admin.Logger.KeepTraces` trace messages, the arrival of a new
-  message could evict a message of the wrong category — for example, a new trace message could evict a warning
-  message. As a result, `getLog` and attached remote loggers could receive fewer or older messages than expected.
-
-- Fixed a crash in `slice2java` when compiling a doc comment containing a `@throws` tag that names the exception
-  but has no description. The description is optional.
-
-- Fixed the delivery of log messages to remote loggers attached to the Logger admin facet when
-  `Ice.Admin.Logger.KeepLogs` or `Ice.Admin.Logger.KeepTraces` is set to `0` (their default value is `100`). These
-  properties control only how many messages the facet retains for `getLog` and `RemoteLogger.init`; previously,
-  setting one of them to `0` also prevented the live delivery of messages of the corresponding category to attached
-  remote loggers.
-
 - `Communicator.close` is no longer interruptible: it now always completes the destruction of the communicator and
   preserves the calling thread's interrupt status. Previously, calling this method from an interrupted thread could
   throw `OperationInterruptedException` and leave the communicator partially destroyed.
 
-- Fixed a race condition in `ObjectAdapter`: when `destroy` raced with another `destroy` or with `deactivate` on
-  the same object adapter, the destroyed adapter could be marked as merely deactivated, and a subsequent `destroy`
-  call would then fail with a `NullPointerException`.
+- Fixed a bug where specifying the `--Ice.Config` command-line option more than once loaded the wrong configuration
+  file: Ice loaded the first file instead of the last.
+
+- Fixed a memory leak in Ice for Java. Outgoing connections were not released after they closed, so the
+  memory used by a long-running program grew over the lifetime of the communicator.
 
 - Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread
   flushed batch requests on a connection, proxy, or communicator while another thread was making batch invocations on
   the same batch queue.
 
-- Fixed a bug where specifying the `--Ice.Config` command-line option more than once loaded the wrong configuration
-  file: Ice loaded the first file instead of the last.
+- Fixed a race condition in `ObjectAdapter`: when `destroy` raced with another `destroy` or with `deactivate` on
+  the same object adapter, the destroyed adapter could be marked as merely deactivated, and a subsequent `destroy`
+  call would then fail with a `NullPointerException`.
 
 - Fixed the servant lookup for incoming requests: when the target identity is registered with a different facet, the
   object adapter now dispatches the request to the default servant if one is registered, as documented, instead of
@@ -313,25 +296,16 @@ These changes apply to all Slice compilers.
   client resets a pending connection during `accept()`. The accept-path race is now handled like any other accept
   failure: silent by default, or a one-line warning when `Ice.Warn.Connections` is set.
 
-- Fixed a bug in IceDiscovery where the replica-group endpoint aggregation window was about 10 times longer than
-  intended, due to an incorrect nanosecond-to-millisecond conversion. As a result, resolving an indirect proxy bound to
-  a replica group took noticeably longer than the configured `IceDiscovery.LatencyMultiplier` implies.
+- Fixed the eviction of old log messages by the Logger admin facet. Once the facet had accumulated
+  `Ice.Admin.Logger.KeepLogs` log messages and `Ice.Admin.Logger.KeepTraces` trace messages, the arrival of a new
+  message could evict a message of the wrong category — for example, a new trace message could evict a warning
+  message. As a result, `getLog` and attached remote loggers could receive fewer or older messages than expected.
 
-- Fixed a data race in the Ice for Java metrics (IceMX) implementation. Reconfiguring the metrics views at
-  runtime while metrics were being collected could corrupt the internal metrics maps or throw a
-  `ConcurrentModificationException`.
-
-- Fixed a bug on Windows where a plug-in or IceBox service configured with an unquoted UNC path (such as
-  `\\server\share\plugin.jar`) was loaded from the wrong location: the path was resolved relative to the current
-  directory instead of being recognized as absolute.
-
-- Fixed a bug in `slice2java` that emitted broken code for dictionaries using `java:type:<instance-type>:<formal-type>`
-  metadata to specify a formal type. This bug affected dictionaries used in classes or exceptions, or as the
-  return type of operations with `["marshaled-result"]`.
-
-- Fixed a `slice2java` bug with optional sequences. When a parameter, return value, or field applied `java:type`
-  metadata that overrode the sequence's default mapping, `slice2java` generated no marshaling code. As a result,
-  the generated Java did not compile (parameters and return values) or silently dropped the value on the wire (fields).
+- Fixed the delivery of log messages to remote loggers attached to the Logger admin facet when
+  `Ice.Admin.Logger.KeepLogs` or `Ice.Admin.Logger.KeepTraces` is set to `0` (their default value is `100`). These
+  properties control only how many messages the facet retains for `getLog` and `RemoteLogger.init`; previously,
+  setting one of them to `0` also prevented the live delivery of messages of the corresponding category to attached
+  remote loggers.
 
 - A `ThreadPriority` property set to an unrecognized value now throws `PropertyException` instead of being
   silently ignored and falling back to the normal priority. This applies to `Ice.ThreadPriority` and to any
@@ -343,10 +317,36 @@ These changes apply to all Slice compilers.
   `NORM_PRIORITY`, and `MAX_PRIORITY`, like `Ice.ThreadPriority` already did. Previously these properties accepted
   only integer values.
 
+- Fixed a data race in the Ice for Java metrics (IceMX) implementation. Reconfiguring the metrics views at
+  runtime while metrics were being collected could corrupt the internal metrics maps or throw a
+  `ConcurrentModificationException`.
+
 - Fixed a WebSocket bug where an Ice server echoed a received ping's payload in the pong without
   unmasking it, so a non-Ice WebSocket peer that sends payload-bearing pings and validates the echoed
   pong (e.g. an L7 load balancer or gateway health check) could drop the connection (RFC 6455 §5.5.3).
   The common cases — browser/JS clients and empty keepalive pings — were unaffected.
+
+- Fixed a bug on Windows where a plug-in or IceBox service configured with an unquoted UNC path (such as
+  `\\server\share\plugin.jar`) was loaded from the wrong location: the path was resolved relative to the current
+  directory instead of being recognized as absolute.
+
+- Fixed a crash in `slice2java` when compiling a doc comment containing a `@throws` tag that names the exception
+  but has no description. The description is optional.
+
+- Fixed a bug in `slice2java` that emitted broken code for dictionaries using `java:type:<instance-type>:<formal-type>`
+  metadata to specify a formal type. This bug affected dictionaries used in classes or exceptions, or as the
+  return type of operations with `["marshaled-result"]`.
+
+- Fixed a `slice2java` bug with optional sequences. When a parameter, return value, or field applied `java:type`
+  metadata that overrode the sequence's default mapping, `slice2java` generated no marshaling code. As a result,
+  the generated Java did not compile (parameters and return values) or silently dropped the value on the wire (fields).
+
+- Fixed a bug in IceDiscovery where the replica-group endpoint aggregation window was about 10 times longer than
+  intended, due to an incorrect nanosecond-to-millisecond conversion. As a result, resolving an indirect proxy bound to
+  a replica group took noticeably longer than the configured `IceDiscovery.LatencyMultiplier` implies.
+
+- Fixed a bug in Java IceLocatorDiscovery where a request could fail to complete (worst case, overflow the
+  stack) when a failed locator invocation was retried and locator rediscovery returned the same locator proxy.
 
 ### JavaScript Changes
 
