@@ -96,9 +96,6 @@ These are the changes since the Ice 3.8.2 release.
   directory, such as `-I /a/b` with a Slice file under `/a/bc`, no longer produces a mangled `#include` or `require`
   path in the generated code.
 
-- The Makefile dependency output of the Slice compilers (`--depend`) now escapes file names holding
-  Make-significant characters: spaces, `#`, and `$`.
-
 - `--depend --depend-file FILE` now writes a rule for every Slice file passed to the compiler; previously the
   dependency file only kept the last Slice file's rule.
 
@@ -120,9 +117,6 @@ These are the changes since the Ice 3.8.2 release.
   `Ice.Default.LocatorCacheTimeout`): any negative value means infinite and is normalized to -1, 0 still means no
   caching, and a positive duration is rounded up to the next whole second. Previously, C# kept a fractional timeout
   and `proxyToProperty` emitted it as-is (`LocatorCacheTimeout=30.5`) — a value that `propertyToProxy` rejects.
-
-- Fixed the server-side WebSocket opening handshake to reject messages that are not `GET` requests, as required by
-  RFC 6455. A peer could previously trip an assertion by sending a response-shaped handshake.
 
 ### Slice Language Changes
 
@@ -152,9 +146,6 @@ These are the changes since the Ice 3.8.2 release.
 
 - Improved performance on Windows when thread pool serialization (`Serialize=1`) is enabled on a thread pool with a
   single thread.
-
-- The Ice CMake package now specifies the CMake version it requires: 3.21 or later. Previously no minimum was
-  declared, and an older CMake failed with obscure errors instead of a clear message.
 
 - Fixed a crash in the IceBT transport. A Bluetooth connection attempt that failed after its connection was
   closed — for example after a connect timeout — crashed the program.
@@ -189,14 +180,7 @@ These are the changes since the Ice 3.8.2 release.
   the communicator was flushing its batch requests, the returned future or completion callback could remain pending
   forever.
 
-- Improved the handling of exceptions thrown by middleware factories. A middleware factory should never throw; if it
-  does throw during the creation of an object adapter's dispatch pipeline (at first dispatch), the program previously
-  terminated. Now, the object adapter logs an error and all dispatches on this object adapter fail with an
-  `UnknownException`.
-
-- Fixed a build failure of the OpenSSL-based IceSSL transport against OpenSSL 4.0, which makes `ASN1_STRING`
-  opaque. Subject Alternative Name parsing now uses the `ASN1_STRING_get0_data`, `ASN1_STRING_length`, and
-  `ASN1_STRING_type` accessors instead of direct struct member access.
+- Fixed a build failure of the OpenSSL-based IceSSL transport against OpenSSL 4.0.
 
 - Fixed certificate verification error reporting in the OpenSSL-based IceSSL transport. A rejected peer
   certificate now reports the specific reason (such as "certificate has expired") instead of a generic
@@ -238,10 +222,6 @@ These are the changes since the Ice 3.8.2 release.
   Python mappings. Previously, `typeId` held the stringified compact ID. The compact ID itself remains available
   through `Ice.SliceInfo.compactId`.
 
-- Fixed `ice_invocationTimeout(TimeSpan)`: setting an invocation timeout greater than `int.MaxValue` milliseconds
-  (about 24.9 days) could crash the process with an unhandled exception in the Ice timer thread. Such timeouts are
-  now rejected with an `ArgumentOutOfRangeException`.
-
 - Fixed a leak in asynchronous proxy invocations that supply a cancellation token: each invocation remained
   registered with this token after completing, so a long-lived token retained the memory of all its completed
   invocations.
@@ -264,7 +244,7 @@ These are the changes since the Ice 3.8.2 release.
   flushing its batch requests, the returned task never completed.
 
 - Fixed `iceboxnet` rejecting valid per-service command-line options (`--<service>.*`) with "unknown option" and
-  failing to start: the option validation iterated the original arguments instead of the filtered list.
+  failing to start.
 
 - The per-thread `ImplicitContext.getContext` in C# now returns a snapshot of the context instead of the live
   internal dictionary (matching the `Shared` implementation). Code that mutated the returned dictionary to
@@ -272,11 +252,6 @@ These are the changes since the Ice 3.8.2 release.
 
 - Fixed thread-safety bugs in the C# metrics (IceMX) implementation that could produce incorrect metrics or
   throw under concurrent updates.
-
-- Improved the handling of exceptions thrown by middleware factories. A middleware factory should never throw; if it
-  does throw during the creation of an object adapter's dispatch pipeline (at first dispatch), the exception previously
-  resurfaced in Ice's internal request processing, which could leave client invocations unanswered. Now, the object
-  adapter logs an error and all dispatches on this object adapter fail with an `UnknownException`.
 
 - Fixed a bug in `slice2cs` handling of `cs:namespace`: a nested module received the namespace prefix twice
   (e.g. `Foo.A.Foo.B` instead of `Foo.A.B`), producing C# that did not compile.
@@ -352,11 +327,6 @@ These are the changes since the Ice 3.8.2 release.
   runtime while metrics were being collected could corrupt the internal metrics maps or throw a
   `ConcurrentModificationException`.
 
-- Improved the handling of exceptions thrown by middleware factories. A middleware factory should never throw; if it
-  does throw during the creation of an object adapter's dispatch pipeline (at first dispatch), the object adapter
-  previously kept an incomplete dispatch pipeline that was missing one or more middleware. Now, the object adapter logs
-  an error and all dispatches on this object adapter fail with an `UnknownException`.
-
 - Fixed a bug on Windows where a plug-in or IceBox service configured with an unquoted UNC path (such as
   `\\server\share\plugin.jar`) was loaded from the wrong location: the path was resolved relative to the current
   directory instead of being recognized as absolute.
@@ -426,14 +396,6 @@ These are the changes since the Ice 3.8.2 release.
 - Fixed `Connection.flushBatchRequests` and `Communicator.flushBatchRequests` to report a proper Ice local exception
   when a connection is closed while its batch requests are being flushed, instead of leaking an internal exception.
 
-- Improved the handling of exceptions thrown by middleware factories. A middleware factory should never throw; if it
-  does throw during the creation of an object adapter's dispatch pipeline (at first dispatch), the exception previously
-  escaped into the connection's incoming message processing, which could leave client invocations unanswered. Now, the
-  object adapter logs an error and all dispatches on this object adapter fail with an `UnknownException`.
-
-- Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
-  `RangeError` instead of being silently ignored, matching the buffer-position behavior of the other language
-  mappings.
 
 ### MATLAB Changes
 
@@ -511,7 +473,7 @@ These are the changes since the Ice 3.8.2 release.
 
 - Fixed `Connection.setCloseCallback` to accept any callable. It previously rejected everything except plain functions
   and lambdas, so passing a bound method, a `functools.partial`, a callable instance or a builtin function raised
-  `ValueError`. Passing a non-callable now raises `TypeError`, like the other Ice callback setters.
+  `ValueError`.
 
 - Fixed `ice_getConnection` on a proxy to release the global interpreter lock while it establishes the connection.
   It previously stalled every other Python thread for the duration of the connection establishment, up to the connect
@@ -556,10 +518,6 @@ These are the changes since the Ice 3.8.2 release.
 
 - Fixed a bug where `slice2py` wouldn't correctly generate imports for sequences that were nested inside another
   collection type (another dictionary or sequence).
-
-- Fixed Ice for Python to reliably abort request marshaling when an invalid value is supplied for a sequence
-  parameter (such as a non-sequence argument), instead of continuing with a pending Python exception and sending a
-  corrupt or truncated request.
 
 - Fixed `slice2py` to escape doc-comment text when emitting Python docstrings, so that comments containing a
   triple-quote sequence or a backslash escape (such as `\u`) no longer produce invalid generated Python.
