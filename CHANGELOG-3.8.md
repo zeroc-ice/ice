@@ -8,6 +8,7 @@ might need to be aware of.
 - [Changes in Ice 3.8.3](#changes-in-ice-383)
   - [General Changes](#general-changes)
   - [Slice Language Changes](#slice-language-changes)
+  - [Slice Compiler Changes](#slice-compiler-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
@@ -78,33 +79,15 @@ These are the changes since the Ice 3.8.2 release.
 
 ### General Changes
 
-- Improved the command-line parsing of the Slice compilers and the Ice command-line tools such as icegridadmin and
-  icegridregistry: a short option that requires an argument can now appear at the end of a group of short options.
-  For example, `slice2cpp -dI dir file.ice` is now equivalent to `slice2cpp -d -I dir file.ice`. Previously, the
-  `-I` option was silently ignored and `dir` was parsed as an extra Slice file.
-
-- The dependency information written by the Slice compilers is now always well-formed. `--depend-json` omitted the
-  commas between entries, and neither `--depend-json` nor `--depend-xml` escaped special characters in file names.
-
-- Fixed `ice_getConnection` and `ice_getConnectionAsync` on a non-fixed proxy whose cached connection is closed or
-  being closed: the proxy now establishes and returns a new connection instead of returning this connection.
-
-- Fixed a race during failed connection establishments: `ice_getCachedConnection`, called concurrently on a proxy
-  using this connection, could throw the connection-establishment exception instead of returning null.
-
-- Fixed the Slice compilers' include-path matching: an include directory that is a string prefix of a sibling
-  directory, such as `-I /a/b` with a Slice file under `/a/bc`, no longer produces a mangled `#include` or `require`
-  path in the generated code.
-
-- `--depend --depend-file FILE` now writes a rule for every Slice file passed to the compiler; previously the
-  dependency file only kept the last Slice file's rule.
-
-- Fixed `ice_getConnection`, `ice_getConnectionAsync` and `ice_getCachedConnection` on a fixed proxy: these methods
-  now always return the connection the proxy is bound to. Previously, `ice_getConnection` could throw when this
-  connection was closed, and `ice_getCachedConnection` returned null until the proxy's first invocation.
-
-- Fixed the handling of an invalid response from an HTTP proxy (configured with `Ice.HTTPProxyHost`). Connection
-  establishment now fails promptly with a `ProtocolException`, instead of hanging until the connection times out.
+- Fixed the proxy methods that return a connection — `ice_getConnection`, `ice_getConnectionAsync`, and
+  `ice_getCachedConnection`:
+  - On a non-fixed proxy whose cached connection is closed or being closed, `ice_getConnection` and
+    `ice_getConnectionAsync` now establish and return a new connection instead of returning the current connection.
+  - On a fixed proxy, these methods now always return the connection the proxy is bound to. Previously,
+    `ice_getConnection` could throw when this connection was closed, and `ice_getCachedConnection` returned null
+    until the proxy's first invocation.
+  - Fixed a race during failed connection establishment: `ice_getCachedConnection`, called concurrently on a proxy
+    using this connection, could throw the connection-establishment exception instead of returning null.
 
 - The invocation timeout is now normalized consistently in all language mappings and at all configuration surfaces
   (`ice_invocationTimeout`, the `InvocationTimeout` proxy property, and `Ice.Default.InvocationTimeout`): zero or
@@ -118,10 +101,32 @@ These are the changes since the Ice 3.8.2 release.
   caching, and a positive duration is rounded up to the next whole second. Previously, C# kept a fractional timeout
   and `proxyToProperty` emitted it as-is (`LocatorCacheTimeout=30.5`) — a value that `propertyToProxy` rejects.
 
+- Fixed the handling of an invalid response from an HTTP proxy (configured with `Ice.HTTPProxyHost`). Connection
+  establishment now fails promptly with a `ProtocolException`, instead of hanging until the connection times out.
+
+- Improved the command-line parsing of the Slice compilers and the Ice command-line tools such as icegridadmin and
+  icegridregistry: a short option that requires an argument can now appear at the end of a group of short options.
+  For example, `slice2cpp -dI dir file.ice` is now equivalent to `slice2cpp -d -I dir file.ice`. Previously, the
+  `-I` option was silently ignored and `dir` was parsed as an extra Slice file.
+
 ### Slice Language Changes
 
 - Fixed a bug that caused `@param` and `@throws` doc-comment tags to be incorrectly reported as "unknown tags".
   This only affected tags whose descriptions didn't start until the following line.
+
+### Slice Compiler Changes
+
+These changes apply to all Slice compilers.
+
+- Fixed the include-path matching: an include directory that is a string prefix of a sibling directory, such as
+  `-I /a/b` with a Slice file under `/a/bc`, no longer produces a mangled `#include` or `require` path in the
+  generated code.
+
+- The `--depend-json` output is now well-formed JSON: it previously omitted the commas between entries and did not
+  escape the backslashes in Windows path names.
+
+- `--depend --depend-file FILE` now writes a rule for every Slice file passed to the compiler; previously the
+  dependency file only kept the last Slice file's rule.
 
 ### C++ Changes
 
