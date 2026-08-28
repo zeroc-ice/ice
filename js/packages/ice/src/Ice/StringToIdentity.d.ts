@@ -7,7 +7,7 @@ declare module "@zeroc/ice" {
          *
          * @param s - The string to convert.
          * @returns The converted object identity.
-         * @throws {@link ParseException} - Thrown if the string cannot be parsed.
+         * @throws {@link ParseException} - Thrown when the string cannot be parsed.
          */
         function stringToIdentity(s: string): Identity;
     }

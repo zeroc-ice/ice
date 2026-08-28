@@ -42,7 +42,7 @@ declare module "@zeroc/ice" {
              * creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
              * in the dispatch pipeline) and returns a new Object (the middleware you want to install in the pipeline).
              * @returns This object adapter.
-             * @throws `Error` Thrown if the object adapter's dispatch pipeline has already been
+             * @throws `Error` Thrown when the object adapter's dispatch pipeline has already been
              * created. This creation typically occurs the first time the object adapter dispatches an incoming request.
              */
             use(middlewareFactory: (next: Ice.Object) => Ice.Object): ObjectAdapter;
