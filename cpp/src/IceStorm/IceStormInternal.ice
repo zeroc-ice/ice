@@ -40,7 +40,7 @@ module IceStorm
         void forward(EventDataSeq events);
     }
 
-    /// Thrown if the {@link TopicInternal::reap} call would block.
+    /// The exception that is thrown when the {@link TopicInternal::reap} call would block.
     exception ReapWouldBlock
     {
     }

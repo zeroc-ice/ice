@@ -32,7 +32,7 @@ public class DispatchException : LocalException
     /// <param name="replyStatus">The reply status. It must be greater than <see cref="ReplyStatus.UserException" />.
     /// </param>
     /// <param name="message">The exception message.</param>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="replyStatus" /> is equal to <see
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="replyStatus" /> is equal to <see
     /// cref="ReplyStatus.Ok" /> or <see cref="ReplyStatus.UserException" />.</exception>
     public DispatchException(ReplyStatus replyStatus, string? message = null)
         : base(message ?? $"The dispatch failed with reply status {replyStatus}.") =>

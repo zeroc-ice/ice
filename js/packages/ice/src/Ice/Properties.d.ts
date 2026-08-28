@@ -103,7 +103,7 @@ declare module "@zeroc/ice" {
              *
              * @param key - The property key.
              * @returns The property value interpreted as a list of strings.
-             * @throws {@link PropertyException} - Thrown if the property is not a known Ice property.
+             * @throws {@link PropertyException} - Thrown when the property is not a known Ice property.
              *
              * @see {@link setProperty}
              */

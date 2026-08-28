@@ -406,7 +406,7 @@ public sealed class ObjectAdapter
     /// <returns>This object adapter.</returns>
     /// <remarks>All middleware must be installed before the first dispatch. The middleware are executed in the order
     /// they are installed.</remarks>
-    /// <exception cref="InvalidOperationException">Thrown if the object adapter's dispatch pipeline has already been
+    /// <exception cref="InvalidOperationException">Thrown when the object adapter's dispatch pipeline has already been
     /// created. This creation typically occurs the first time the object adapter dispatches an incoming request.
     /// </exception>
     public ObjectAdapter use(Func<Object, Object> middleware)
