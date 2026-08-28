@@ -11,7 +11,7 @@ declare module "@zeroc/ice" {
          *
          * @param initData The optional initialization data for the new communicator.
          * @returns The initialized communicator.
-         * @throws {@link InitializationException} If an error occurs during initialization.
+         * @throws {@link InitializationException} - Thrown when an error occurs during initialization.
          */
         function initialize(initData?: InitializationData): Communicator;
 
@@ -24,7 +24,7 @@ declare module "@zeroc/ice" {
          * @param args A command-line argument vector. Any Ice-related options in this vector are used to initialize
          * the communicator. This method modifies the argument vector by removing any Ice-related options.
          * @returns The initialized communicator.
-         * @throws {@link InitializationException} If an error occurs during initialization.
+         * @throws {@link InitializationException} - Thrown when an error occurs during initialization.
          */
         function initialize(args: string[]): Communicator;
 

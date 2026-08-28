@@ -499,7 +499,7 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     writeDocLine(
         _out,
         R"(exception cref="System.IO.InvalidDataException")",
-        "Thrown if the integer value does not correspond to any enumerator of " + escapedName + ".",
+        "Thrown when the integer value does not correspond to any enumerator of " + escapedName + ".",
         "exception");
     _out << nl << accessModifier(p) << " static " << escapedName << " As" << name << "(this int value) =>";
     _out.inc();

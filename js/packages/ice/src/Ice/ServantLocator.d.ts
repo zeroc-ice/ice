@@ -24,7 +24,7 @@ declare module "@zeroc/ice" {
              * @returns An array where:
              *  - [0]: The located servant, or `null` if no suitable servant was found.
              *  - [1]: A "cookie" that will be passed to {@link finished}.
-             * @throws {@link UserException} - The implementation can raise a `UserException`, and the runtime will
+             * @throws {@link UserException} - The implementation can throw a `UserException`, and the runtime will
              * marshal it as the result of the invocation.
              *
              * @see {@link ObjectAdapter}
@@ -43,8 +43,8 @@ declare module "@zeroc/ice" {
              * @param current - Information about the incoming request being dispatched.
              * @param servant - The servant that was returned by `locate`.
              * @param cookie - The cookie that was returned by `locate`.
-             * @throws {@link UserException} - The implementation can raise a `UserException`, and the runtime will marshal it as the
-             * result of the invocation.
+             * @throws {@link UserException} - The implementation can throw a `UserException`, and the runtime will
+             * marshal it as the result of the invocation.
              *
              * @see {@link ObjectAdapter}
              * @see {@link locate}

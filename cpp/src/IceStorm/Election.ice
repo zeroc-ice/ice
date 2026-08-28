@@ -23,7 +23,7 @@ module IceStormElection
     /// A sequence of topic content.
     sequence<TopicContent> TopicContentSeq;
 
-    /// Thrown if an observer detects an inconsistency.
+    /// The exception that is thrown when an observer detects an inconsistency.
     exception ObserverInconsistencyException
     {
         /// The reason for the inconsistency.

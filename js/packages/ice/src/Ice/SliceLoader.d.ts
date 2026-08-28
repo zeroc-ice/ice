@@ -13,7 +13,8 @@ declare module "@zeroc/ice" {
              *        representation).
              * @returns A new instance of the class or exception identified by `typeId`, or `null` if the
              *          implementation cannot find the corresponding class.
-             * @throws {@link MarshalException} If the corresponding class was found but its instantiation failed.
+             * @throws {@link MarshalException} - Thrown when the corresponding class was found but its instantiation
+             * failed.
              */
             newInstance(typeId: string): Ice.Value | Ice.UserException | null;
         }

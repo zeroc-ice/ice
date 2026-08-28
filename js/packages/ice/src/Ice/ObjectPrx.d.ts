@@ -12,7 +12,7 @@ declare module "@zeroc/ice" {
              * @param communicator - The communicator for the new proxy.
              * @param proxyString - The string representation of the proxy.
              * @returns The newly constructed proxy.
-             * @throws {@link ParseException} - Thrown if the proxyString is not a valid proxy string.
+             * @throws {@link ParseException} - Thrown when the proxyString is not a valid proxy string.
              */
             constructor(communicator: Communicator, proxyString: string);
 

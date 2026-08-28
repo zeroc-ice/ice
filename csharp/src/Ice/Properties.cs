@@ -94,7 +94,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value or the default value.</returns>
-    /// <exception cref="PropertyException">Thrown if the property is not a known Ice property.</exception>
+    /// <exception cref="PropertyException">Thrown when the property is not a known Ice property.</exception>
     public string getIceProperty(string key) => getPropertyWithDefault(key, getDefaultProperty(key));
 
     /// <summary>
@@ -124,7 +124,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as an integer.</returns>
-    /// <exception cref="PropertyException">Thrown if the property value is not a valid integer.</exception>
+    /// <exception cref="PropertyException">Thrown when the property value is not a valid integer.</exception>
     public int getPropertyAsInt(string key) => getPropertyAsIntWithDefault(key, 0);
 
     /// <summary>
@@ -133,7 +133,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as an integer, or the default value.</returns>
-    /// <exception cref="PropertyException">Thrown if the property is not a known Ice property or the value is not a
+    /// <exception cref="PropertyException">Thrown when the property is not a known Ice property or the value is not a
     /// valid integer.</exception>
     public int getIcePropertyAsInt(string key)
     {
@@ -154,7 +154,7 @@ public sealed class Properties
     /// <param name="key">The property key.</param>
     /// <param name="value">The default value to use if the property does not exist.</param>
     /// <returns>The property value interpreted as an integer, or the default value.</returns>
-    /// <exception cref="PropertyException">Thrown if the property value is not a valid integer.</exception>
+    /// <exception cref="PropertyException">Thrown when the property value is not a valid integer.</exception>
     public int getPropertyAsIntWithDefault(string key, int value)
     {
         lock (_mutex)
@@ -197,7 +197,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as list of strings, or the default value.</returns>
-    /// <exception cref="PropertyException">Thrown if the property is not a known Ice property.</exception>
+    /// <exception cref="PropertyException">Thrown when the property is not a known Ice property.</exception>
     public string[] getIcePropertyAsList(string key)
     {
         string[] defaultList = UtilInternal.StringUtil.splitString(getDefaultProperty(key), ", \t\r\n");
@@ -463,7 +463,7 @@ public sealed class Properties
     /// <param name="prefix">The property prefix to validate.</param>
     /// <param name="properties">The properties to consider. </param>
     /// <param name="propertyArray">The property array to search against.</param>
-    /// <exception cref="PropertyException"> Thrown if unknown properties are found.</exception>
+    /// <exception cref="PropertyException">Thrown when unknown properties are found.</exception>
     internal static void validatePropertiesWithPrefix(
         string prefix,
         Properties properties,
@@ -579,7 +579,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The Ice property key.</param>
     /// <returns>The default property value, or an empty string if the default is unspecified.</returns>
-    /// <exception cref="PropertyException">Thrown if the property is not a known Ice property.</exception>
+    /// <exception cref="PropertyException">Thrown when the property is not a known Ice property.</exception>
     private static string getDefaultProperty(string key)
     {
         // Find the property, don't log any warnings.

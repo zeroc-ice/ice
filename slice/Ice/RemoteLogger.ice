@@ -93,7 +93,7 @@ module Ice
         /// (send all trace categories).
         /// @param messageMax The maximum number of log messages (of all types) to be provided to
         /// {@link RemoteLogger::init}. A negative value requests all messages available.
-        /// @throws RemoteLoggerAlreadyAttachedException Thrown if this remote logger is already attached to this admin
+        /// @throws RemoteLoggerAlreadyAttachedException Thrown when this remote logger is already attached to this admin
         /// object.
         void attachRemoteLogger(
             RemoteLogger* prx,

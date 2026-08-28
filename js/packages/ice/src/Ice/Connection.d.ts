@@ -116,8 +116,8 @@ declare module "@zeroc/ice" {
 
             /**
              * Throw an exception indicating the reason for connection closure. For example,
-             * {@link CloseConnectionException} is raised if the connection was closed gracefully by the peer, whereas
-             * {@link ConnectionAbortedException}/{@link ConnectionClosedException} is raised if the connection was
+             * {@link CloseConnectionException} is thrown when the connection was closed gracefully by the peer, whereas
+             * {@link ConnectionAbortedException}/{@link ConnectionClosedException} is thrown when the connection was
              * manually closed by the application. This operation does nothing if the connection is not yet closing
              * or closed.
              */
