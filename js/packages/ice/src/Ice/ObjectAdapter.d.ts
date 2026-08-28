@@ -42,7 +42,7 @@ declare module "@zeroc/ice" {
              * creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
              * in the dispatch pipeline) and returns a new Object (the middleware you want to install in the pipeline).
              * @returns This object adapter.
-             * @throws `Error` Thrown when the object adapter's dispatch pipeline has already been
+             * @throws `Error` - Thrown when the object adapter's dispatch pipeline has already been
              * created. This creation typically occurs the first time the object adapter dispatches an incoming request.
              */
             use(middlewareFactory: (next: Ice.Object) => Ice.Object): ObjectAdapter;
@@ -54,7 +54,7 @@ declare module "@zeroc/ice" {
              * @param servant The servant to add.
              * @param id The identity of the Ice object that is implemented by the servant.
              * @returns A proxy with the given id, created by this object adapter.
-             * @throws {@link AlreadyRegisteredException} Thrown when a servant with the same identity is already
+             * @throws {@link AlreadyRegisteredException} - Thrown when a servant with the same identity is already
              * registered.
              *
              * @see {@link Identity}
@@ -75,7 +75,7 @@ declare module "@zeroc/ice" {
              * @param id The identity of the Ice object that is implemented by the servant.
              * @param facet The facet of the Ice object that is implemented by the servant.
              * @returns A proxy with the given id and facet, created by this object adapter.
-             * @throws {@link AlreadyRegisteredException} Thrown when a servant with the same identity and facet is
+             * @throws {@link AlreadyRegisteredException} - Thrown when a servant with the same identity and facet is
              * already registered.
              */
             addFacet(servant: Ice.Object, id: Identity, facet: string): Ice.ObjectPrx;
@@ -120,7 +120,7 @@ declare module "@zeroc/ice" {
              * @param servant The default servant to add.
              * @param category The category for which the default servant is registered. The empty category means it will
              * handle all categories.
-             * @throws {@link AlreadyRegisteredException} Thrown when a default servant with the same category is
+             * @throws {@link AlreadyRegisteredException} - Thrown when a default servant with the same category is
              * already registered.
              */
             addDefaultServant(servant: Ice.Object, category: string): void;
@@ -129,7 +129,7 @@ declare module "@zeroc/ice" {
              * Removes a servant from the object adapter's Active Servant Map.
              * @param id The identity of the Ice object that is implemented by the servant.
              * @returns The removed servant.
-             * @throws {@link NotRegisteredException} Thrown when no servant with the given identity is registered.
+             * @throws {@link NotRegisteredException} - Thrown when no servant with the given identity is registered.
              */
             remove(id: Identity): Ice.Object;
 
@@ -138,7 +138,7 @@ declare module "@zeroc/ice" {
              * @param id The identity of the Ice object that is implemented by the servant.
              * @param facet The facet. An empty facet means the default facet.
              * @returns The removed servant.
-             * @throws {@link NotRegisteredException} Thrown when no servant with the given identity and facet is
+             * @throws {@link NotRegisteredException} - Thrown when no servant with the given identity and facet is
              * registered.
              */
             removeFacet(id: Identity, facet: string): Ice.Object;
@@ -148,7 +148,7 @@ declare module "@zeroc/ice" {
              * the Ice object, including its default facet.
              * @param id The identity of the Ice object to be removed.
              * @returns A collection containing all the facet names and servants of the removed Ice object.
-             * @throws {@link NotRegisteredException} Thrown when no servant with the given identity is registered.
+             * @throws {@link NotRegisteredException} - Thrown when no servant with the given identity is registered.
              */
             removeAllFacets(id: Identity): Map<string, Ice.Object>;
 
@@ -156,7 +156,7 @@ declare module "@zeroc/ice" {
              * Removes the default servant for a specific category.
              * @param category The category of the default servant to remove.
              * @returns The default servant.
-             * @throws {@link NotRegisteredException} Thrown when no default servant is registered for the given
+             * @throws {@link NotRegisteredException} - Thrown when no default servant is registered for the given
              * category.
              */
             removeDefaultServant(category: string): Ice.Object;
@@ -208,7 +208,7 @@ declare module "@zeroc/ice" {
              *
              * @param locator The servant locator to add.
              * @param category The category. The empty category means the locator handles all categories.
-             * @throws {@link AlreadyRegisteredException} Thrown when a servant locator with the same category is
+             * @throws {@link AlreadyRegisteredException} - Thrown when a servant locator with the same category is
              * already registered.
              */
             addServantLocator(locator: Ice.ServantLocator, category: string): void;
@@ -218,7 +218,7 @@ declare module "@zeroc/ice" {
              *
              * @param category The category.
              * @returns The servant locator.
-             * @throws {@link NotRegisteredException} Thrown when no servant locator with the given category is
+             * @throws {@link NotRegisteredException} - Thrown when no servant locator with the given category is
              * registered.
              */
             removeServantLocator(category: string): Ice.ServantLocator;
@@ -279,7 +279,7 @@ declare module "@zeroc/ice" {
             /**
              * Sets the endpoints that proxies created by this object adapter will contain.
              * @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
-             * @throws `Error` Thrown when the `newEndpoints` is empty or this adapter is associated with a router.
+             * @throws `Error` - Thrown when the `newEndpoints` is empty or this adapter is associated with a router.
              */
             setPublishedEndpoints(newEndpoints: Ice.Endpoint[]): void;
         }
