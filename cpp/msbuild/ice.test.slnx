@@ -50,6 +50,10 @@
     <Project Path="../test/DataStorm/reliability/msbuild/reader/reader.vcxproj" />
     <Project Path="../test/DataStorm/reliability/msbuild/writer/writer.vcxproj" />
   </Folder>
+  <Folder Name="/DataStorm/sessionHandshake/">
+    <Project Path="../test/DataStorm/sessionHandshake/msbuild/client/client.vcxproj" />
+    <Project Path="../test/DataStorm/sessionHandshake/msbuild/writer/writer.vcxproj" />
+  </Folder>
   <Folder Name="/DataStorm/topicDestroy/">
     <Project Path="../test/DataStorm/topicDestroy/msbuild/reader/reader.vcxproj" />
     <Project Path="../test/DataStorm/topicDestroy/msbuild/writer/writer.vcxproj" />

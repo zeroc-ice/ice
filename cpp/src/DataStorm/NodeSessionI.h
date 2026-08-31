@@ -16,7 +16,11 @@ namespace DataStormI
 
         void init();
         void destroy();
-        void addSession(Ice::Identity nodeId, Ice::Identity sessionId, DataStormContract::SessionPrx session);
+        void addSession(
+            Ice::Identity nodeId,
+            Ice::Identity sessionId,
+            DataStormContract::SessionPrx session,
+            std::int64_t handshakeId);
 
         [[nodiscard]] DataStormContract::NodePrx getPublicNode() const
         {
@@ -73,7 +77,17 @@ namespace DataStormI
         //
         // We use a map keyed on this pair (rather than a vector or list) so that re-adding a session with an
         // existing key replaces its proxy in place via insert_or_assign, instead of leaving a stale entry behind.
-        std::map<std::pair<Ice::Identity, Ice::Identity>, DataStormContract::SessionPrx> _sessions;
+        //
+        // The handshake identifier is kept alongside the proxy so that the disconnect notification this session
+        // sends when it is destroyed names the handshake it forwarded, and a peer that has since moved to another
+        // route ignores it instead of tearing down a session this relay no longer carries.
+        struct ForwardedSession
+        {
+            DataStormContract::SessionPrx session;
+            std::int64_t handshakeId;
+        };
+
+        std::map<std::pair<Ice::Identity, Ice::Identity>, ForwardedSession> _sessions;
     };
 }
 #endif

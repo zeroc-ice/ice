@@ -36,6 +36,7 @@ namespace DataStormI
             std::optional<DataStormContract::NodePrx>,
             std::optional<DataStormContract::SubscriberSessionPrx>,
             bool,
+            std::int64_t,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
@@ -43,6 +44,7 @@ namespace DataStormI
         void confirmCreateSessionAsync(
             std::optional<DataStormContract::NodePrx>,
             std::optional<DataStormContract::PublisherSessionPrx>,
+            std::int64_t,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
@@ -57,21 +59,24 @@ namespace DataStormI
             const Ice::ConnectionPtr&,
             std::shared_ptr<SubscriberSessionI>);
 
-        /// Handles the failure of a session creation attempt. The last parameter is the value
-        /// SessionI::connectAttempt returned when the attempt was started; a reply from a superseded attempt is
-        /// discarded rather than charged against the current attempt's retry budget.
+        /// Handles the failure of a session creation attempt.
+        /// @param connectAttempt The value SessionI::connectAttempt returned when the attempt was started; a reply
+        /// from a superseded attempt is discarded rather than charged against the current attempt's retry budget.
+        /// @param handshakeId The handshake the attempt belongs to, when it had one.
         void retrySubscriberSessionCreation(
             const DataStormContract::NodePrx&,
             const std::shared_ptr<SubscriberSessionI>&,
             std::exception_ptr,
-            std::int64_t);
+            std::int64_t connectAttempt,
+            std::optional<std::int64_t> handshakeId = std::nullopt);
 
         /// @copydoc retrySubscriberSessionCreation
         void retryPublisherSessionCreation(
             const DataStormContract::NodePrx&,
             const std::shared_ptr<PublisherSessionI>&,
             std::exception_ptr,
-            std::int64_t);
+            std::int64_t,
+            std::optional<std::int64_t> = std::nullopt);
 
         void removeSubscriberSession(
             const DataStormContract::NodePrx&,
@@ -105,6 +110,9 @@ namespace DataStormI
         }
 
     private:
+        /// Allocates the identifier of a new session creation handshake. Called with the node mutex locked.
+        [[nodiscard]] std::int64_t nextHandshakeId();
+
         [[nodiscard]] std::shared_ptr<SubscriberSessionI>
         createSubscriberSessionServant(const DataStormContract::NodePrx&);
 
@@ -118,6 +126,10 @@ namespace DataStormI
         mutable std::mutex _mutex;
         std::int64_t _nextPublisherSessionId{0};
         std::int64_t _nextSubscriberSessionId{0};
+
+        // The last handshake identifier this node allocated as a subscriber. Identifiers must keep increasing for a
+        // given peer, so the sequence is node-wide: a session servant recreated for the same peer continues it.
+        std::int64_t _nextHandshakeId{0};
 
         // The proxy for this node.
         DataStormContract::NodePrx _proxy;

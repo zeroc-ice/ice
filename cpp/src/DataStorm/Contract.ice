@@ -33,7 +33,7 @@ module DataStormContract
 
     dictionary<long, long> LongLongDict;
 
-    /// Represents a data sample, the fundamental unit of data exchanged between DataStorm readers and writers.
+    /// Represents a data sample, the fundamental unit of data handshaked between DataStorm readers and writers.
     struct DataSample
     {
         /// The unique identifier for the sample.
@@ -384,7 +384,10 @@ module DataStormContract
         ///
         /// For sessions established through a relay node, this operation is invoked by the relay node if the connection
         /// between the relay node and the target node is lost.
-        void disconnected();
+        ///
+        /// @param handshakeId The identifier of the session creation handshake this notification applies to. The
+        /// receiver ignores a notification for a handshake other than the one that established its session.
+        void disconnected(long handshakeId);
     }
 
     /// The PublisherSession servant is hosted by the publisher node and is accessed by the subscriber node.
@@ -414,6 +417,9 @@ module DataStormContract
 
         /// A confirmation was received for a session that doesn't exist.
         SessionNotFound,
+
+        /// The session creation handshake was superseded by a more recent handshake, which determines the outcome.
+        Superseded,
 
         /// The session creation failed due to an internal error.
         Internal,
@@ -457,16 +463,22 @@ module DataStormContract
         /// @param subscriber The subscriber node initiating the session. This proxy is never null.
         /// @param session The subscriber session being created. This proxy is never null.
         /// @param fromRelay Indicates whether the session is being created from a relay node.
+        /// @param handshakeId The identifier of this session creation handshake, allocated by the subscriber. The
+        /// publisher echoes it in the matching {@link Node::confirmCreateSession}. Identifiers increase over time, and
+        /// a node acts only on the most recent handshake it has seen.
         /// @throws SessionCreationException Thrown when the session cannot be created.
-        void createSession(Node* subscriber, SubscriberSession* session, bool fromRelay)
+        void createSession(Node* subscriber, SubscriberSession* session, bool fromRelay, long handshakeId)
             throws SessionCreationException;
 
         /// Confirm the creation of a publisher session with a node.
         ///
         /// @param publisher The publisher node confirming the session. The proxy is never null.
         /// @param session The publisher session being confirmed. The proxy is never null.
+        /// @param handshakeId The identifier of the session creation handshake this confirmation belongs to, as
+        /// provided by the subscriber in {@link Node::createSession}.
         /// @throws SessionCreationException Thrown when the session cannot be created.
-        void confirmCreateSession(Node* publisher, PublisherSession* session) throws SessionCreationException;
+        void confirmCreateSession(Node* publisher, PublisherSession* session, long handshakeId)
+            throws SessionCreationException;
     }
 
     /// The lookup interface is used by DataStorm nodes to announce their topic readers and writers to other connected

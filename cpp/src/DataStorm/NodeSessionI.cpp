@@ -68,6 +68,7 @@ namespace
             optional<NodePrx> subscriber,
             optional<SubscriberSessionPrx> subscriberSession,
             bool /* fromRelay */,
+            int64_t handshakeId,
             function<void()> response,
             function<void(exception_ptr)> exception,
             const Current& current) final
@@ -90,10 +91,17 @@ namespace
                     nodeSession->addSession(
                         subscriber->ice_getIdentity(),
                         subscriberSession->ice_getIdentity(),
-                        subscriberIsHostedOnRelay ? subscriberSession->ice_fixed(current.con) : *subscriberSession);
+                        subscriberIsHostedOnRelay ? subscriberSession->ice_fixed(current.con) : *subscriberSession,
+                        handshakeId);
 
                     // Forward the call to the target Node.
-                    _node->createSessionAsync(subscriber, subscriberSessionForwarder, true, response, exception);
+                    _node->createSessionAsync(
+                        subscriber,
+                        subscriberSessionForwarder,
+                        true,
+                        handshakeId,
+                        response,
+                        exception);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
@@ -110,6 +118,7 @@ namespace
         void confirmCreateSessionAsync(
             optional<NodePrx> publisher,
             optional<PublisherSessionPrx> publisherSession,
+            int64_t handshakeId,
             function<void()> response,
             function<void(exception_ptr)> exception,
             const Current& current) final
@@ -131,9 +140,15 @@ namespace
                     nodeSession->addSession(
                         publisher->ice_getIdentity(),
                         publisherSession->ice_getIdentity(),
-                        publisherIsHostedOnRelay ? publisherSession->ice_fixed(current.con) : *publisherSession);
+                        publisherIsHostedOnRelay ? publisherSession->ice_fixed(current.con) : *publisherSession,
+                        handshakeId);
                     // Forward the request to the target subscriber.
-                    _node->confirmCreateSessionAsync(publisher, publisherSessionForwarder, response, exception);
+                    _node->confirmCreateSessionAsync(
+                        publisher,
+                        publisherSessionForwarder,
+                        handshakeId,
+                        response,
+                        exception);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
@@ -246,10 +261,12 @@ NodeSessionI::destroy()
             _instance->getObjectAdapter()->remove(_publicNode->ice_getIdentity());
         }
 
-        for (const auto& [_, session] : _sessions)
+        for (const auto& [_, forwarded] : _sessions)
         {
-            // Notify each session of the disconnection; we don't wait for the result.
-            session->disconnectedAsync(nullptr);
+            // Notify each session of the disconnection; we don't wait for the result. The notification names the
+            // handshake this relay forwarded, so a peer that has since established the session over another route
+            // ignores it.
+            forwarded.session->disconnectedAsync(forwarded.handshakeId, nullptr);
         }
     }
     catch (const ObjectAdapterDestroyedException&)
@@ -267,8 +284,18 @@ NodeSessionI::destroy()
 }
 
 void
-NodeSessionI::addSession(Identity nodeId, Identity sessionId, SessionPrx session)
+NodeSessionI::addSession(Identity nodeId, Identity sessionId, SessionPrx session, int64_t handshakeId)
 {
     lock_guard<mutex> lock(_mutex);
-    _sessions.insert_or_assign(std::pair{std::move(nodeId), std::move(sessionId)}, std::move(session));
+    auto key = std::pair{std::move(nodeId), std::move(sessionId)};
+    auto p = _sessions.find(key);
+    if (p != _sessions.end() && handshakeId < p->second.handshakeId)
+    {
+        // Requests for different handshakes arrive in any order. Recording an older one would make the disconnect
+        // notification sent when this node session is destroyed name a handshake the peer has moved past, and the
+        // peer would ignore it - never learning that the route through this relay is gone.
+        return;
+    }
+
+    _sessions.insert_or_assign(std::move(key), ForwardedSession{std::move(session), handshakeId});
 }

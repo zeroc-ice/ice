@@ -652,23 +652,115 @@ SessionI::initSamples(int64_t topicId, int64_t peerTopicId, DataSamplesSeq initi
 }
 
 void
-SessionI::disconnected(const Current& current)
+SessionI::disconnected(int64_t handshakeId, const Current& current)
 {
-    if (!handleDisconnected(current.con, nullptr))
+    if (!handleDisconnected(current.con, nullptr, handshakeId))
     {
         remove();
     }
 }
 
-void
-SessionI::connected(SessionPrx session, const ConnectionPtr& newConnection, const TopicInfoSeq& topics)
+SessionI::HandshakeDisposition
+SessionI::beginHandshake(int64_t handshakeId)
+{
+    lock_guard<mutex> lock(_mutex);
+    if (_destroyed)
+    {
+        // The session was removed from the node while this request was dispatched: it cannot carry a handshake.
+        // Reporting a failure has the peer start a fresh handshake, which creates a new session servant.
+        return HandshakeDisposition::Destroyed;
+    }
+    else if (handshakeId < _pendingHandshakeId)
+    {
+        // Handshake identifiers increase, and requests for different handshakes arrive in any order because each can
+        // take a different route. Adopting an older one here would leave this node waiting on a handshake the peer
+        // has already moved past, and reject the newer handshake's confirmation when it completes.
+        if (_traceLevels->session > 1)
+        {
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+            out << _id << ": ignoring session creation handshake " << handshakeId << ", the pending handshake is "
+                << _pendingHandshakeId;
+        }
+        return HandshakeDisposition::Stale;
+    }
+
+    if (checkSessionImpl())
+    {
+        if (handshakeId == _handshakeId)
+        {
+            return HandshakeDisposition::Duplicate;
+        }
+
+        // The peer is creating a session under a handshake other than the one this session is connected under, so
+        // it no longer has that session. Drop it here rather than rejecting the request: the handshake starting now
+        // takes over the reconnection, and refusing it would leave this node connected to a session that is gone
+        // while the peer retries forever.
+        if (_traceLevels->session > 1)
+        {
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+            out << _id << ": superseding session creation handshake " << _handshakeId << " with " << handshakeId;
+        }
+        static_cast<void>(disconnectedImpl(nullptr, nullptr));
+    }
+
+    _pendingHandshakeId = handshakeId;
+    return HandshakeDisposition::Proceed;
+}
+
+int64_t
+SessionI::beginOutgoingHandshake(int64_t candidate)
+{
+    lock_guard<mutex> lock(_mutex);
+    if (checkSessionImpl())
+    {
+        // Already connected: repeat the handshake this session is connected under instead of starting a new one. A
+        // retry task can fire just as the session connects, and naming a new handshake would tell the publisher that
+        // this node lost the session - which is how it reads a request for a different handshake - making it drop a
+        // session both nodes are using. Repeating the current one leaves the request to be recognized as the
+        // duplicate it is. The check and the choice are one step because the session can connect at any moment.
+        return _handshakeId;
+    }
+
+    _pendingHandshakeId = candidate;
+    return _pendingHandshakeId;
+}
+
+int64_t
+SessionI::handshakeId() const
+{
+    lock_guard<mutex> lock(_mutex);
+    return _handshakeId;
+}
+
+bool
+SessionI::connected(
+    SessionPrx session,
+    const ConnectionPtr& newConnection,
+    const TopicInfoSeq& topics,
+    int64_t handshakeId)
 {
     lock_guard<mutex> lock(_mutex);
     if (_destroyed || _session)
     {
         // Nothing to do, we are either destroyed or already connected.
-        return;
+        return false;
     }
+    else if (handshakeId != _pendingHandshakeId)
+    {
+        // A confirmation from a handshake that was superseded while it was in flight. Committing it would connect
+        // this session to a peer session the peer has already moved off, and every later attempt from that peer
+        // would then be rejected as already connected. The handshake that superseded this one decides the outcome,
+        // so there is nothing to retry here either.
+        if (_traceLevels->session > 1)
+        {
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+            out << _id << ": ignoring the confirmation of session creation handshake " << handshakeId
+                << ", the pending handshake is " << _pendingHandshakeId;
+        }
+        return false;
+    }
+
+    _handshakeId = handshakeId;
 
     _session = std::move(session);
     _connection = newConnection;
@@ -722,13 +814,14 @@ SessionI::connected(SessionPrx session, const ConnectionPtr& newConnection, cons
             // Ignore
         }
     }
+    return true;
 }
 
 bool
-SessionI::handleDisconnected(const ConnectionPtr& connection, exception_ptr ex)
+SessionI::handleDisconnected(const ConnectionPtr& connection, exception_ptr ex, optional<int64_t> handshakeId)
 {
     lock_guard<mutex> lock(_mutex);
-    if (!disconnectedImpl(connection, ex))
+    if (!disconnectedImpl(connection, ex, handshakeId))
     {
         // Nothing to do: the session is destroyed, already reconnected, or the disconnect was already handled.
         return true;
@@ -737,12 +830,19 @@ SessionI::handleDisconnected(const ConnectionPtr& connection, exception_ptr ex)
 }
 
 bool
-SessionI::disconnectedImpl(const ConnectionPtr& connection, exception_ptr ex)
+SessionI::disconnectedImpl(const ConnectionPtr& connection, exception_ptr ex, optional<int64_t> handshakeId)
 {
     // Called with the session mutex locked.
     if (_destroyed)
     {
         // Ignore already destroyed.
+        return false;
+    }
+    else if (handshakeId && *handshakeId < _pendingHandshakeId)
+    {
+        // A notification for a handshake this session has already moved past. It reports the loss of a route the
+        // session no longer uses, so it must be ignored whether or not the session is currently connected - while
+        // disconnected it would otherwise be taken for a fresh failure and consume a retry.
         return false;
     }
     else if (!_session)
@@ -757,6 +857,12 @@ SessionI::disconnectedImpl(const ConnectionPtr& connection, exception_ptr ex)
     else if (connection && _connection != connection)
     {
         // Ignore the session has already reconnected using a new connection.
+        return false;
+    }
+    else if (handshakeId && *handshakeId != _handshakeId)
+    {
+        // A notification for a handshake this session has already replaced. It reports the loss of a route the
+        // session no longer uses, so acting on it would tear down a healthy session.
         return false;
     }
 
@@ -813,7 +919,11 @@ SessionI::disconnectedImpl(const ConnectionPtr& connection, exception_ptr ex)
 }
 
 bool
-SessionI::sessionCreationFailed(NodePrx node, exception_ptr exception, int64_t connectAttempt)
+SessionI::sessionCreationFailed(
+    NodePrx node,
+    exception_ptr exception,
+    int64_t connectAttempt,
+    optional<int64_t> handshakeId)
 {
     lock_guard<mutex> lock(_mutex);
 
@@ -849,6 +959,34 @@ SessionI::sessionCreationFailed(NodePrx node, exception_ptr exception, int64_t c
                 // A concurrent session creation from the peer succeeded, no need to retry.
                 return true;
             }
+            else if (ex.error == SessionCreationError::Superseded && !allocatesHandshakes())
+            {
+                // The peer allocates the handshake identifiers for this session, so its word that a newer handshake
+                // replaced this one is authoritative: it allocated that handshake before reporting this one
+                // superseded, and it drives it from there. Charging a retry now would spend this session's budget
+                // on a handshake nobody is waiting for, and the retry would prompt yet another handshake whose
+                // predecessor is refused the same way, exhausting the budget on a session that is recovering
+                // normally.
+                //
+                // The peer's word covers the handshake it allocated, not its delivery: it can die immediately after
+                // reporting this one superseded, and nothing here would notice. Park the session so it is removed
+                // if the peer never does re-establish it, rather than lingering unusable until the node shuts
+                // down. A peer that does re-establish it cancels the timer by connecting.
+                parkForPeer();
+                return true;
+            }
+            else if (handshakeId && *handshakeId < _pendingHandshakeId)
+            {
+                // A failure of a handshake this node has already moved past, whatever the reason. The handshake
+                // that replaced it decides the outcome, so this one must not consume its retry budget.
+                //
+                // For a Superseded failure this is also the only evidence a node that allocates its own
+                // identifiers accepts: a peer ordering against an identifier from a previous incarnation of this
+                // node - one allocated before a restart across which the clock moved backwards - reports every
+                // fresh handshake as superseded, and believing that would leave the session with no handshake in
+                // flight, no retry, and nothing to recover it.
+                return true;
+            }
         }
         catch (const std::exception&)
         {
@@ -864,6 +1002,29 @@ SessionI::connectAttempt() const
 {
     lock_guard<mutex> lock(_mutex);
     return _connectAttempt;
+}
+
+void
+SessionI::parkForPeer()
+{
+    // Called with the session mutex locked.
+    if (_destroyed || _retryTask)
+    {
+        // Something is already watching this session.
+        return;
+    }
+
+    // The same wait retryImpl uses when it has no endpoints to retry to and can only wait for the peer.
+    auto delay = _instance->getRetryDelay(_instance->getRetryCount()) * 2;
+
+    if (_traceLevels->session > 0)
+    {
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": waiting " << delay.count() << " (ms) for the peer to re-establish the session";
+    }
+
+    _retryTask = make_shared<IceInternal::InlineTimerTask>([self = shared_from_this()] { self->remove(); });
+    _instance->scheduleTimerTask(_retryTask, delay);
 }
 
 bool

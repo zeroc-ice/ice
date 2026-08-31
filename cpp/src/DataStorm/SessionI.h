@@ -307,25 +307,76 @@ namespace DataStormI
 
         void initSamples(std::int64_t, std::int64_t, DataStormContract::DataSamplesSeq, const Ice::Current&) final;
 
-        void disconnected(const Ice::Current&) final;
+        void disconnected(std::int64_t handshakeId, const Ice::Current&) final;
 
-        void
-        connected(DataStormContract::SessionPrx, const Ice::ConnectionPtr&, const DataStormContract::TopicInfoSeq&);
+        /// The outcome of an incoming session creation request.
+        enum class HandshakeDisposition
+        {
+            /// Carry on with the handshake; it is now this session's pending one.
+            Proceed,
+
+            /// The peer is repeating the handshake this session is already connected under.
+            Duplicate,
+
+            /// The request belongs to a handshake older than the one this session is already working on.
+            Stale,
+
+            /// The session was destroyed while the request was being dispatched.
+            Destroyed
+        };
+
+        /// Registers an incoming session creation request as this session's pending handshake.
+        ///
+        /// A request naming a handshake other than the one this session is connected under is proof that the peer no
+        /// longer has that session, so the session is disconnected here and the new handshake takes over the
+        /// reconnection.
+        [[nodiscard]] HandshakeDisposition beginHandshake(std::int64_t handshakeId);
+
+        /// Records a handshake this node is starting as the pending one. Only the subscriber allocates handshake
+        /// identifiers; the publisher adopts the one it receives.
+        /// @param candidate The identifier allocated for a new handshake.
+        /// @return The identifier to send: @p candidate, or the handshake this session is already connected under.
+        /// The peer reads a request naming a different handshake as proof that this node lost the session, so a
+        /// connected session repeats its current handshake rather than announcing a new one.
+        [[nodiscard]] std::int64_t beginOutgoingHandshake(std::int64_t candidate);
+
+        /// The handshake this session is connected under. Only meaningful while the session is connected.
+        [[nodiscard]] std::int64_t handshakeId() const;
+
+        /// Connects the session, unless the handshake is no longer the pending one.
+        /// @return `false` when the handshake was superseded, or the session is destroyed or already connected.
+        [[nodiscard]] bool connected(
+            DataStormContract::SessionPrx session,
+            const Ice::ConnectionPtr& connection,
+            const DataStormContract::TopicInfoSeq& topics,
+            std::int64_t handshakeId);
 
         /// Handles a disconnect notification (the peer's disconnected() request or the connection closure) and,
         /// when the session was connected, schedules the reconnection retry. Handling both under a single lock
         /// acquisition keeps a concurrent duplicate notification for the same disconnect from consuming an
         /// additional retry attempt.
+        /// @param handshakeId When set, the handshake the notification refers to; a notification for a handshake this
+        /// session has already replaced is ignored.
         /// @return `false` when the retry limit was reached or no retry is possible: the caller must remove the
         /// session.
-        [[nodiscard]] bool handleDisconnected(const Ice::ConnectionPtr&, std::exception_ptr);
+        [[nodiscard]] bool handleDisconnected(
+            const Ice::ConnectionPtr&,
+            std::exception_ptr,
+            std::optional<std::int64_t> handshakeId = std::nullopt);
 
         void destroyImpl(const std::exception_ptr&);
 
         // The implementations of checkSession, disconnected and retry; called with the session mutex locked.
         [[nodiscard]] bool checkSessionImpl();
-        bool disconnectedImpl(const Ice::ConnectionPtr&, std::exception_ptr);
+        bool disconnectedImpl(
+            const Ice::ConnectionPtr&,
+            std::exception_ptr,
+            std::optional<std::int64_t> handshakeId = std::nullopt);
         [[nodiscard]] bool retryImpl(DataStormContract::NodePrx, std::exception_ptr);
+
+        /// Parks the session until the peer re-establishes it, scheduling its removal if the peer never does. Called
+        /// with the session mutex locked; does nothing when a retry or removal is already scheduled.
+        void parkForPeer();
 
         // Cancels and clears any pending retry task, breaking the _retryTask -> task -> lambda -> self reference
         // cycle so the session can be reclaimed. Used by NodeI::destroy, which drops sessions without calling
@@ -350,12 +401,15 @@ namespace DataStormI
         /// @param connectAttempt The value #connectAttempt returned when the attempt was started. A reply from an
         /// attempt that has since been superseded is ignored, so it cannot consume the current attempt's retry
         /// budget; without this a burst of late replies destroys a session that is reconnecting normally.
+        /// @param handshakeId The handshake the failed attempt belongs to, when it had one. A failure of a handshake
+        /// older than the pending one is ignored.
         /// @return `false` when the retry limit was reached or no retry is possible: the caller must remove the
         /// session.
         [[nodiscard]] bool sessionCreationFailed(
             DataStormContract::NodePrx node,
             std::exception_ptr exception,
-            std::int64_t connectAttempt);
+            std::int64_t connectAttempt,
+            std::optional<std::int64_t> handshakeId = std::nullopt);
 
         [[nodiscard]] DataStormContract::SessionPrx getProxy() const { return _proxy; }
 
@@ -489,6 +543,9 @@ namespace DataStormI
         /// @return A vector containing the topics that match the specified name.
         virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string& name) const = 0;
 
+        /// Whether this node allocates the handshake identifiers for this session. Only the subscriber does.
+        [[nodiscard]] virtual bool allocatesHandshakes() const = 0;
+
         virtual void remove() = 0;
 
         const std::shared_ptr<Instance> _instance;
@@ -523,6 +580,16 @@ namespace DataStormI
         // the session with no attempt, no retry task, and no removal.
         std::int64_t _connectAttempt{0};
 
+        // The invariant both nodes maintain: commit only the newest handshake seen, and never go back to an older
+        // one. "Seen" rather than "in flight" is what makes it work - a handshake that has been superseded must go on
+        // suppressing the ones before it, so _pendingHandshakeId is a high-water mark and is deliberately never
+        // reset, not on disconnect and not on destruction.
+        //
+        // _handshakeId is the handshake this session is connected under; it equals _pendingHandshakeId while the
+        // session is connected.
+        std::int64_t _handshakeId{0};
+        std::int64_t _pendingHandshakeId{0};
+
         // A retry task, scheduled if an attempt to reconnect the session is underway; nullptr if no retry is scheduled.
         IceInternal::TimerTaskPtr _retryTask;
 
@@ -541,6 +608,8 @@ namespace DataStormI
     class SubscriberSessionI : public SessionI, public DataStormContract::SubscriberSession
     {
     public:
+        [[nodiscard]] bool allocatesHandshakes() const final { return true; }
+
         SubscriberSessionI(
             std::shared_ptr<Instance>,
             std::shared_ptr<NodeI>,
@@ -558,6 +627,8 @@ namespace DataStormI
     class PublisherSessionI : public SessionI, public DataStormContract::PublisherSession
     {
     public:
+        [[nodiscard]] bool allocatesHandshakes() const final { return false; }
+
         PublisherSessionI(
             std::shared_ptr<Instance>,
             std::shared_ptr<NodeI>,

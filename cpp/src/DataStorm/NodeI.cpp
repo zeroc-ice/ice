@@ -103,7 +103,7 @@ NodeI::destroy(bool ownsCommunicator)
                 try
                 {
                     // Notify subscriber session of the disconnection, don't need to wait for the result.
-                    session->disconnectedAsync(nullptr);
+                    session->disconnectedAsync(subscriber->handshakeId(), nullptr);
                 }
                 catch (const LocalException&)
                 {
@@ -118,7 +118,7 @@ NodeI::destroy(bool ownsCommunicator)
                 try
                 {
                     // Notify publisher session of the disconnection, don't need to wait for the result.
-                    session->disconnectedAsync(nullptr);
+                    session->disconnectedAsync(publisher->handshakeId(), nullptr);
                 }
                 catch (const LocalException&)
                 {
@@ -182,6 +182,7 @@ NodeI::createSessionAsync(
     optional<NodePrx> subscriber,
     optional<SubscriberSessionPrx> subscriberSession,
     bool fromRelay,
+    int64_t handshakeId,
     function<void()> response,
     function<void(exception_ptr)> exception,
     const Current& current)
@@ -228,9 +229,17 @@ NodeI::createSessionAsync(
         s->ice_getConnectionAsync(
             [=, self = shared_from_this()](const auto& connection) mutable
             {
-                if (session->checkSession())
+                const auto disposition = session->beginHandshake(handshakeId);
+
+                // Re-read the attempt token now that this handshake is starting. It was first read when the
+                // request was dispatched, but acquiring the connection above is asynchronous and the session can
+                // have connected in the meantime, which advances the token. A failure of this handshake reported
+                // against the earlier value would be dismissed as belonging to an attempt that has since been
+                // superseded, leaving the session with neither a retry nor a removal.
+                connectAttempt = session->connectAttempt();
+                if (disposition == SessionI::HandshakeDisposition::Duplicate)
                 {
-                    // The session is already connected.
+                    // The subscriber is repeating the handshake this session is already connected under.
                     if (traceLevels->session > 2)
                     {
                         Trace out(traceLevels->logger, traceLevels->sessionCat);
@@ -240,6 +249,21 @@ NodeI::createSessionAsync(
                     }
                     exception(
                         std::make_exception_ptr(SessionCreationException{SessionCreationError::AlreadyConnected}));
+                    return;
+                }
+                else if (disposition == SessionI::HandshakeDisposition::Stale)
+                {
+                    // A more recent handshake from this subscriber is already under way and decides the outcome.
+                    exception(std::make_exception_ptr(SessionCreationException{SessionCreationError::Superseded}));
+                    return;
+                }
+                else if (disposition == SessionI::HandshakeDisposition::Destroyed)
+                {
+                    // This session was removed while the request was dispatched: acquiring the connection above
+                    // is asynchronous, and the callback keeps the servant alive past its removal from the node.
+                    // Report a plain failure so the subscriber retries and creates a session against a fresh
+                    // servant, rather than waiting on a handshake this node can no longer carry.
+                    exception(std::make_exception_ptr(SessionCreationException{SessionCreationError::Internal}));
                     return;
                 }
                 response();
@@ -267,17 +291,38 @@ NodeI::createSessionAsync(
                     s->confirmCreateSessionAsync(
                         self->_proxy,
                         uncheckedCast<PublisherSessionPrx>(session->getProxy()),
-                        [session, subscriberSession, connection, instance]
+                        handshakeId,
+                        [session, subscriberSession, connection, instance, handshakeId]
                         {
                             // Session::connected informs the subscriber session of all the topic writers in the
-                            // current node.
-                            session->connected(
-                                *subscriberSession,
-                                connection,
-                                instance->getTopicFactory()->getTopicWriters());
+                            // current node. It refuses a confirmation this session cannot commit: one from a
+                            // handshake superseded while it was in flight, or one that completed after the session
+                            // was destroyed or connected by another handshake.
+                            if (!session->connected(
+                                    *subscriberSession,
+                                    connection,
+                                    instance->getTopicFactory()->getTopicWriters(),
+                                    handshakeId))
+                            {
+                                // The subscriber connects its session before answering the confirmation, so a
+                                // refusal here leaves it connected to a session this node is not using, and it
+                                // would wait forever for samples that never come. Tell it to drop that handshake.
+                                // The notification names the handshake, so a subscriber that has already moved on
+                                // ignores it and only one that is still on this handshake acts on it.
+                                try
+                                {
+                                    subscriberSession->disconnectedAsync(handshakeId, nullptr);
+                                }
+                                catch (const LocalException&)
+                                {
+                                    // The subscriber is unreachable, so it will find out on its own.
+                                }
+                            }
                         },
-                        [self, subscriber, session, connectAttempt](auto ex)
-                        { self->retryPublisherSessionCreation(*subscriber, session, ex, connectAttempt); });
+                        [self, subscriber, session, connectAttempt, handshakeId](auto ex)
+                        {
+                            self->retryPublisherSessionCreation(*subscriber, session, ex, connectAttempt, handshakeId);
+                        });
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
@@ -289,12 +334,17 @@ NodeI::createSessionAsync(
                 }
                 catch (const LocalException&)
                 {
-                    self->retryPublisherSessionCreation(*subscriber, session, current_exception(), connectAttempt);
+                    self->retryPublisherSessionCreation(
+                        *subscriber,
+                        session,
+                        current_exception(),
+                        connectAttempt,
+                        handshakeId);
                 }
             },
-            [self = shared_from_this(), session, subscriber, exception, connectAttempt](exception_ptr ex)
+            [self = shared_from_this(), session, subscriber, exception, connectAttempt, handshakeId](exception_ptr ex)
             {
-                self->retryPublisherSessionCreation(*subscriber, session, ex, connectAttempt);
+                self->retryPublisherSessionCreation(*subscriber, session, ex, connectAttempt, handshakeId);
                 exception(make_exception_ptr(SessionCreationException{SessionCreationError::Internal}));
             });
     }
@@ -312,7 +362,7 @@ NodeI::createSessionAsync(
     {
         assert(session);
         exception(make_exception_ptr(SessionCreationException{SessionCreationError::Internal}));
-        retryPublisherSessionCreation(*subscriber, session, current_exception(), connectAttempt);
+        retryPublisherSessionCreation(*subscriber, session, current_exception(), connectAttempt, handshakeId);
     }
 }
 
@@ -320,6 +370,7 @@ void
 NodeI::confirmCreateSessionAsync(
     optional<NodePrx> publisher,
     optional<PublisherSessionPrx> publisherSession,
+    int64_t handshakeId,
     function<void()> response,
     function<void(exception_ptr)> exception,
     const Current& current)
@@ -375,12 +426,49 @@ NodeI::confirmCreateSessionAsync(
     // Session::connected informs the publisher session of all the topic readers in the current node. The publisher
     // session is not connected yet - it connects when the confirmation response arrives - so it drops this initial
     // announcement; the attachment is instead driven by the publisher's own topic announcement, sent once connected.
-    session->connected(*publisherSession, current.con, instance->getTopicFactory()->getTopicReaders());
+    if (!session
+             ->connected(*publisherSession, current.con, instance->getTopicFactory()->getTopicReaders(), handshakeId))
+    {
+        // This node started a more recent handshake while this confirmation was in flight. Reporting it as
+        // superseded rather than as a plain failure keeps the publisher from spending a retry on a handshake
+        // neither node is waiting for: the newer handshake decides the outcome for both.
+        if (traceLevels->session > 2)
+        {
+            Trace out(traceLevels->logger, traceLevels->sessionCat);
+            out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '" << publisher
+                << "' because session creation handshake " << handshakeId << " was superseded";
+        }
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::Superseded}));
+        return;
+    }
 
     // Send the response only after this session is connected: the response is the publisher's send barrier. The
     // publisher marks its session connected and starts announcing topics and forwarding samples only after this node
     // acknowledges the confirmation.
     response();
+}
+
+int64_t
+NodeI::nextHandshakeId()
+{
+    // Called with the node mutex locked.
+    //
+    // Peers order handshakes by this identifier, so it has to increase. The order is purely local: only a
+    // subscriber allocates identifiers, a session belongs to exactly one peer node, and a relay forwards the
+    // identifier unchanged - so every comparison is between two identifiers from this one sequence. Nothing here
+    // depends on clocks being synchronized between nodes. An opaque identifier such as a UUID cannot be used: it
+    // would give uniqueness but not the order the peer needs to reject a handshake older than one it has seen.
+    //
+    // The clock supplies the one thing a plain counter cannot - identifiers that outrank the previous incarnation
+    // of this node after a restart, which matters because a peer keeps a session for up to a minute after this
+    // node disappears and would otherwise reject every identifier the restarted node allocates. Taking the clock
+    // on each allocation rather than incrementing a seed keeps the sequence from drifting ahead of the clock and
+    // staying there; the floor keeps it increasing within a millisecond. The residual failure mode is this node's
+    // own clock stepping backwards across its own restart by more than the peer's session hold time.
+    const auto now =
+        chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+    _nextHandshakeId = std::max(now, _nextHandshakeId + 1);
+    return _nextHandshakeId;
 }
 
 void
@@ -445,6 +533,7 @@ NodeI::createPublisherSession(
     auto traceLevels = instance->getTraceLevels();
 
     int64_t connectAttempt = session ? session->connectAttempt() : 0;
+    optional<int64_t> handshakeId;
 
     try
     {
@@ -470,13 +559,24 @@ NodeI::createPublisherSession(
         }
 
         assert(session);
+
+        // The subscriber allocates the handshake identifier; the publisher echoes it in its confirmation so both
+        // nodes commit the same handshake even when several are in flight over different routes.
+        //
+        // A retry task can fire just as the session connects, so a connected session repeats the handshake it is
+        // connected under: starting a new one would tell the publisher that this node no longer has the session -
+        // which is how it reads a request naming a different handshake - and it would drop a session both nodes are
+        // happily using.
+        handshakeId = session->beginOutgoingHandshake(nextHandshakeId());
+
         p->createSessionAsync(
             _proxy,
             uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
             false,
+            *handshakeId,
             nullptr,
-            [self = shared_from_this(), publisher, session, connectAttempt](exception_ptr ex)
-            { self->retrySubscriberSessionCreation(publisher, session, ex, connectAttempt); });
+            [self = shared_from_this(), publisher, session, connectAttempt, handshakeId](exception_ptr ex)
+            { self->retrySubscriberSessionCreation(publisher, session, ex, connectAttempt, handshakeId); });
     }
     catch (const CommunicatorDestroyedException&)
     {
@@ -490,7 +590,7 @@ NodeI::createPublisherSession(
     }
     catch (const LocalException&)
     {
-        retrySubscriberSessionCreation(publisher, session, current_exception(), connectAttempt);
+        retrySubscriberSessionCreation(publisher, session, current_exception(), connectAttempt, handshakeId);
         throw SessionCreationException{SessionCreationError::Internal};
     }
 }
@@ -500,9 +600,10 @@ NodeI::retrySubscriberSessionCreation(
     const NodePrx& node,
     const shared_ptr<SubscriberSessionI>& session,
     exception_ptr ex,
-    std::int64_t connectAttempt)
+    std::int64_t connectAttempt,
+    optional<int64_t> handshakeId)
 {
-    if (!session->sessionCreationFailed(node, ex, connectAttempt))
+    if (!session->sessionCreationFailed(node, ex, connectAttempt, handshakeId))
     {
         removeSubscriberSession(node, session, ex);
     }
@@ -530,9 +631,10 @@ NodeI::retryPublisherSessionCreation(
     const NodePrx& node,
     const shared_ptr<PublisherSessionI>& session,
     exception_ptr ex,
-    std::int64_t connectAttempt)
+    std::int64_t connectAttempt,
+    optional<int64_t> handshakeId)
 {
-    if (!session->sessionCreationFailed(node, ex, connectAttempt))
+    if (!session->sessionCreationFailed(node, ex, connectAttempt, handshakeId))
     {
         removePublisherSession(node, session, ex);
     }
