@@ -1557,6 +1557,37 @@ KeyDataWriterI::getSamples(
     DataSamples initializationBatch;
     initializationBatch.id = _keys.empty() ? -_id : _id;
 
+    // Runs the peer reader's sample filter predicate, which is application code. Treating a throwing predicate as
+    // not matching skips this sample and lets the scan continue with the remaining samples, the way a predicate
+    // that returns false does.
+    auto matchSampleFilter = [&](const shared_ptr<Sample>& sample)
+    {
+        try
+        {
+            return sampleFilter->match(sample);
+        }
+        catch (const std::exception& ex)
+        {
+            // The element's toString runs the application's key formatter — more application code — so it can throw
+            // too; the placeholder keeps such a throw from escaping the guard.
+            string elementString;
+            try
+            {
+                elementString = toString();
+            }
+            catch (const std::exception&)
+            {
+                elementString = "<unavailable>";
+            }
+
+            Warning out(_traceLevels->logger);
+            out << elementString << ": did not send sample " << sample->id << " during initialization: the '"
+                << sampleFilter->getName() << "' sample filter failed:\n"
+                << ex.what();
+            return false;
+        }
+    };
+
     // Orders the source samples to deliver by id, caps them to the reader's history depth, and delivers them. A
     // partial base is sent as a full Update, and the earliest delivered sample of each key is likewise resolved to a
     // full value so the reader always has a base to merge later partial updates for that key onto.
@@ -1635,7 +1666,7 @@ KeyDataWriterI::getSamples(
         for (const auto& [baseKey, baseSample] : _lastByKey)
         {
             if (baseSample->id <= lastId || !baseSample->hasValue() || (key && key != baseSample->key) ||
-                (sampleFilter && !sampleFilter->match(baseSample)) || covered.count(baseSample->key))
+                covered.count(baseSample->key) || (sampleFilter && !matchSampleFilter(baseSample)))
             {
                 continue;
             }
@@ -1685,7 +1716,7 @@ KeyDataWriterI::getSamples(
             break;
         }
 
-        if ((!key || key == (*p)->key) && (!sampleFilter || sampleFilter->match(*p)))
+        if ((!key || key == (*p)->key) && (!sampleFilter || matchSampleFilter(*p)))
         {
             sources.push_back(*p);
             covered.insert((*p)->key);

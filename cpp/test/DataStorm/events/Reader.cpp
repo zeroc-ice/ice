@@ -510,6 +510,35 @@ void ::Reader::run(int argc, char* argv[])
         test(!filtered.hasUnread());
     }
 
+    // Create a sample-filtered reader after the writer queued three samples, one of which makes the
+    // filter predicate throw. The writer treats that sample as not matching, so the reader still
+    // attaches and is initialized with the other two samples. The reader matches any key, so the
+    // key the throwing sample was written for reaches the predicate too.
+    {
+        Topic<string, string> topic(node, "attachSampleFilterThrow");
+        Topic<string, int> barrier(node, "attachSampleFilterThrowBarrier");
+        Topic<string, int> done(node, "attachSampleFilterThrowDone");
+
+        // Wait until the writer queued all three samples.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(barrier, "barrier").getNextUnread();
+
+        auto reader = makeAnyKeyReader(topic, Filter<string>("throwOnValue", "boom"), "", config);
+        reader.waitForUnread(2);
+        auto samples = reader.getAllUnread();
+        test(samples.size() == 2);
+        test(samples[0].getKey() == "elem");
+        test(samples[0].getEvent() == SampleEvent::Add);
+        test(samples[0].getValue() == "value1");
+        test(samples[1].getKey() == "elem");
+        test(samples[1].getEvent() == SampleEvent::Update);
+        test(samples[1].getValue() == "value3");
+
+        // Signal the writer that the reader was initialized, so it can tear down.
+        auto doneWriter = makeSingleKeyWriter(done, "done");
+        doneWriter.waitForReaders();
+        doneWriter.update(0);
+    }
+
     // Coexisting any-key and filtered readers on the same topic: each keeps its own subscription. Both receive a
     // sample matching the filter, and destroying the filtered reader leaves the any-key reader subscribed.
     {
