@@ -43,7 +43,7 @@ flowchart LR
 
 ### Installing build dependencies
 
-Ice has dependencies on a number of third-party libraries ([bzip2], [expat], [libedit], LMDB, [mcpp] and [OpenSSL]).
+Ice has dependencies on a number of third-party libraries ([bzip2], [expat], [libedit], [LMDB], [mcpp] and [OpenSSL]).
 
 Bzip, Expat, Libedit and OpenSSL are included with most Linux distributions.
 
@@ -202,7 +202,7 @@ remove the generated files created by the Slice compilers.
 
 ### Installing build dependencies
 
-Ice has dependencies on a number of third-party libraries ([bzip2], [expat], [libedit], LMDB and [mcpp]).
+Ice has dependencies on a number of third-party libraries ([bzip2], [expat], [libedit], [LMDB] and [mcpp]).
 
 bzip, expat and libedit are included with your system.
 
@@ -393,7 +393,7 @@ remove the generated files created by the Slice compilers.
 
 ### Installing build dependencies
 
-Ice has dependencies on a number of third-party libraries ([bzip2], [expat], LMDB, [mcpp] and [OpenSSL]).
+Ice has dependencies on a number of third-party libraries ([bzip2], [expat], [LMDB], [mcpp] and [OpenSSL]).
 
 OpenSSL (openssl.base) is provided by AIX. bzip2 and bzip2-devel are included in the [IBM AIX Toolbox for Linux
 Applications].
@@ -674,6 +674,7 @@ compiler you are using.
 [Ice binary distributions]: https://zeroc.com/ice/downloads/3.7
 [Ice Builder for Xcode]: https://github.com/zeroc-ice/ice-builder-xcode
 [libedit]: https://thrysoee.dk/editline/
+[LMDB]: https://symas.com/lmdb.php
 [mcpp]: https://github.com/zeroc-ice/mcpp
 [OpenSSL]: https://www.openssl.org/
 [supported platforms]: https://archive.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-12
