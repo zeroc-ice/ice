@@ -600,7 +600,6 @@ DataElementI::queue(
     const shared_ptr<Sample>&,
     int,
     const shared_ptr<SessionI>&,
-    const string&,
     const chrono::time_point<chrono::system_clock>&,
     bool)
 {
@@ -1048,23 +1047,11 @@ DataReaderI::queue(
     const shared_ptr<Sample>& sample,
     int priority,
     const shared_ptr<SessionI>&,
-    const string& facet,
     const chrono::time_point<chrono::system_clock>& now,
     bool checkKey)
 {
-    // The writer forwards a sample once per destination facet, and this reader is attached to exactly one of them:
-    // the facet it configured for its sample filter, or the unfaceted destination when it has no sample filter.
-    // Accept only the copy addressed to this reader's destination.
-    if (_config->facet ? *_config->facet != facet : !facet.empty())
-    {
-        if (_traceLevels->data > 2)
-        {
-            Trace out(_traceLevels->logger, _traceLevels->dataCat);
-            out << this << ": skipped sample " << sample->id << " (facet doesn't match)";
-        }
-        return;
-    }
-    else if (checkKey)
+    // The session only queues the copy addressed to this reader's destination facet, so no facet check is needed here.
+    if (checkKey)
     {
         bool matched;
         try

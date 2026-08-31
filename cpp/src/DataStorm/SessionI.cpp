@@ -1817,6 +1817,21 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
 
                 for (auto& [element, elementSubscriber] : elementSubscribers->getSubscribers())
                 {
+                    // The writer forwards a sample once per destination facet, and each element subscribed to the
+                    // writer element is attached to exactly one of them. Skip the elements this copy isn't addressed
+                    // to: `lastId` is the resume point the peer replays from after a reconnect, so advancing it for a
+                    // copy the element discards can move it past a sample the element never received.
+                    if (!element->matchFacet(current.facet))
+                    {
+                        if (_traceLevels->session > 2)
+                        {
+                            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                            out << _id << ": skipping '" << element << "' for sample '" << dataSample.id
+                                << "': the sample is not addressed to its facet";
+                        }
+                        continue;
+                    }
+
                     if (elementSubscriber.initialized &&
                         (dataSample.keyId <= 0 || elementSubscriber.keys.find(key) != elementSubscriber.keys.end()))
                     {
@@ -1828,7 +1843,6 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                             elementSample,
                             elementSubscribers->priority,
                             shared_from_this(),
-                            current.facet,
                             now,
                             dataSample.keyId == 0);
                     }
