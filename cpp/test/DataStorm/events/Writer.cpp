@@ -494,9 +494,9 @@ void ::Writer::run(int argc, char* argv[])
 
     // A late-joining sample-filtered reader runs this writer's sample filter over the queued samples while it
     // attaches. The sample the predicate throws on is skipped like one the predicate rejects; the reader still
-    // attaches and is initialized with the samples the predicate accepts. The throwing sample is written last so
-    // it is both in the writer's queued history and the last value for its key; each attachment scan — over the
-    // queued samples and over the last value per key — then runs the predicate on it.
+    // attaches and is initialized with the samples the predicate accepts. The throwing sample is the only one
+    // written for its key, so the scan over the queued samples skips it without covering that key and the scan
+    // over the last value per key runs the predicate on it again; each attachment scan is therefore exercised.
     cout << "testing sample filter that throws while a peer attaches... " << flush;
     {
         Topic<string, string> topic(node, "attachSampleFilterThrow");
@@ -517,10 +517,10 @@ void ::Writer::run(int argc, char* argv[])
                 };
             });
 
-        auto writer = makeSingleKeyWriter(topic, "elem", "", config);
-        writer.add("value1");
-        writer.update("value3");
-        writer.update("boom");
+        auto writer = makeAnyKeyWriter(topic, "", config);
+        writer.add("elem", "value1");
+        writer.update("elem", "value3");
+        writer.update("boomElem", "boom");
 
         // The samples are queued; the reader may attach now.
         auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
