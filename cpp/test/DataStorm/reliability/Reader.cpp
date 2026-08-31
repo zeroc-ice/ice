@@ -203,6 +203,50 @@ void ::Reader::run(int argc, char* argv[])
         done.waitForReaders();
         done.update(0);
     }
+
+    {
+        Topic<string, int> topic(node, "facetResumePoint");
+        Topic<string, int> barrier(node, "facetResumePointBarrier");
+
+        // An unfiltered reader and a sample-filtered one on the same writer and key. The writer addresses the
+        // sample-filtered reader under a facet of its own, so a sample only one of them matches is forwarded once,
+        // to that reader's destination. A copy addressed to the other reader must not become this reader's resume
+        // point: the reader never receives it, and the reattach would then resume past it.
+        auto reader = makeSingleKeyReader(topic, "key", "", config);
+        auto filtered = makeSingleKeyReader(topic, "key", Filter<int>("armed", 0), "", config);
+
+        // Published while the writer's filter rejects it, so only the unfiltered reader receives it.
+        auto sample = reader.getNextUnread();
+        test(sample.getValue() == 1);
+
+        // Have the writer accept from now on, and wait for it to confirm before dropping the session, so the replay
+        // is evaluated with the filter accepting.
+        auto ready = makeSingleKeyWriter(barrier, "ready");
+        ready.waitForReaders();
+        ready.update(0);
+        [[maybe_unused]] auto armed = makeSingleKeyReader(barrier, "armed").getNextUnread();
+
+        auto connection = node.getSessionConnection(sample.getSession());
+        test(connection);
+        connection->close().get();
+
+        // The reattach replays what each reader has not seen. The filtered reader never received the first sample,
+        // so it must arrive now, ahead of the one the writer publishes after the reconnect.
+        sample = filtered.getNextUnread();
+        if (sample.getValue() != 1)
+        {
+            cerr << "filtered reader resumed past a sample it never received: " << sample.getValue() << " expected:1"
+                 << endl;
+            test(false);
+        }
+
+        sample = filtered.getNextUnread();
+        test(sample.getValue() == 2);
+
+        auto finished = makeSingleKeyWriter(barrier, "done");
+        finished.waitForReaders();
+        finished.update(0);
+    }
 }
 
 DEFINE_TEST(::Reader)
