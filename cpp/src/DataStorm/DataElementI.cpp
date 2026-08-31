@@ -729,13 +729,63 @@ DataElementI::disconnect()
     }
 }
 
+bool
+DataElementI::matchOne(const Listener& listener, const shared_ptr<Sample>& sample, bool matchKey) const
+{
+    // Runs a peer reader's key filter or sample filter predicate, which is application code. Treating a throwing
+    // predicate as not matching skips that subscriber and lets the scan continue with the listener's remaining
+    // subscribers, the way a predicate that returns false does. Letting it escape would abort the publication
+    // instead: the writer forwards a sample through a collocated twoway invocation, so the exception resurfaces
+    // from send() as an UnknownException, the listeners after the throwing one are never forwarded to, and the
+    // writer records neither the sample nor its per-key base. It would also reach the application out of remove,
+    // which is noexcept.
+    auto match = [this, &sample](const shared_ptr<Filter>& filter, const shared_ptr<Filterable>& value)
+    {
+        try
+        {
+            return filter->match(value);
+        }
+        catch (const std::exception& ex)
+        {
+            // The element's toString runs the application's key formatter — more application code — so it can throw
+            // too; the placeholder keeps such a throw from escaping the guard.
+            string elementString;
+            try
+            {
+                elementString = toString();
+            }
+            catch (const std::exception&)
+            {
+                elementString = "<unavailable>";
+            }
+
+            Warning out(_traceLevels->logger);
+            out << elementString << ": did not send sample " << sample->id << " to a subscriber: the '"
+                << filter->getName() << "' filter failed:\n"
+                << ex.what();
+            return false;
+        }
+    };
+
+    for (const auto& [_, subscriber] : listener.subscribers)
+    {
+        if ((!matchKey || subscriber->keys.empty() || subscriber->keys.find(sample->key) != subscriber->keys.end()) &&
+            (!subscriber->filter || match(subscriber->filter, sample->key)) &&
+            (!subscriber->sampleFilter || match(subscriber->sampleFilter, sample)))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void
 DataElementI::forward(const ByteSeq& inParams, const Current& current) const
 {
     for (const auto& [_, listener] : _listeners)
     {
         // If we are forwarding a sample, check whether at least one of the listeners is interested in it.
-        if (!_sample || listener.matchOne(_sample, false))
+        if (!_sample || matchOne(listener, _sample, false))
         {
             // Forward the call using the listener's session proxy. We don't need to wait for the result.
             listener.proxy
@@ -1753,7 +1803,22 @@ KeyDataWriterI::send(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     assert(key || _keys.size() == 1);
     _sample = sample;
     _sample->key = key ? key : _keys[0];
-    _subscribers->s(_parent->getId(), _keys.empty() ? -_id : _id, toSample(sample, getCommunicator(), _keys.empty()));
+    try
+    {
+        _subscribers->s(
+            _parent->getId(),
+            _keys.empty() ? -_id : _id,
+            toSample(sample, getCommunicator(), _keys.empty()));
+    }
+    catch (...)
+    {
+        // The forwarding runs collocated, so a failure in forward() resurfaces here. Clear the sample being
+        // forwarded on the way out: this element forwards again while it is torn down, and a stale _sample would be
+        // matched against the listeners then. With a filter predicate as the original cause, that second match
+        // throws again while the first exception unwinds, which terminates the process.
+        _sample = nullptr;
+        throw;
+    }
     _sample = nullptr;
 }
 
@@ -1765,7 +1830,7 @@ KeyDataWriterI::forward(const ByteSeq& inParams, const Current& current) const
         // Forward the sample if the listener has at least one subscriber interested in the update. The key is
         // always matched: a multi-key writer's sessions don't necessarily subscribe to every key of the writer,
         // and an unmatched key's sample would be wasted bandwidth at best (the receiver never subscribed its id).
-        if (!_sample || listener.matchOne(_sample, true))
+        if (!_sample || matchOne(listener, _sample, true))
         {
             // Forward the call using the listener's session proxy. We don't need to wait for the result.
             listener.proxy
