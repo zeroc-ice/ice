@@ -778,18 +778,6 @@ namespace
             keyProvInfo->dwProvType,
             (keyProvInfo->dwFlags & CRYPT_MACHINE_KEYSET) | CRYPT_DELETEKEYSET);
     }
-
-    // Deletes the key containers of every certificate in the store. PFXImportCertStore persists the private keys of
-    // the certificates it imports, so they must be deleted when the store is discarded before its certificates are
-    // registered for cleanup.
-    void deleteKeyContainers(HCERTSTORE store)
-    {
-        PCCERT_CONTEXT cert = nullptr;
-        while ((cert = CertEnumCertificatesInStore(store, cert)) != nullptr)
-        {
-            deleteKeyContainer(cert);
-        }
-    }
 }
 
 Schannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
@@ -1001,20 +989,11 @@ Schannel::SSLEngine::initialize()
             }
             if (!cert)
             {
-                // The store is discarded here, so its certificates never reach _importedCerts. Delete the key
-                // containers PFXImportCertStore created, otherwise they are left behind in the user or machine
-                // profile.
-                deleteKeyContainers(store);
+                // Read the error before closing the store, otherwise it reports the close instead of the lookup.
+                const string error = lastErrorToString();
                 CertCloseStore(store, 0);
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: certificate error:\n" + lastErrorToString());
+                throw InitializationException(__FILE__, __LINE__, "SSL transport: certificate error:\n" + error);
             }
-
-            // PFXImportCertStore persisted the private key in a key container; register the certificate so the
-            // destructor deletes that container.
-            _importedCerts.push_back(cert);
             _allCerts.push_back(cert);
             _stores.push_back(store);
         }
