@@ -750,6 +750,46 @@ namespace
             throw SecurityException(__FILE__, __LINE__, msg);
         }
     }
+
+    // Deletes the key container referenced by the certificate's CERT_KEY_PROV_INFO property, if it has one.
+    // With CRYPT_DELETEKEYSET, CryptAcquireContextW deletes the key container; the returned handle is undefined
+    // and must not be released. Machine key containers live in a separate store, so CRYPT_MACHINE_KEYSET must be
+    // carried over from the provider info or the container is not found.
+    void deleteKeyContainer(PCCERT_CONTEXT cert)
+    {
+        DWORD length = 0;
+        if (!CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, nullptr, &length))
+        {
+            return;
+        }
+
+        vector<char> buf(length);
+        if (!CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, buf.data(), &length))
+        {
+            return;
+        }
+
+        const CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<const CRYPT_KEY_PROV_INFO*>(buf.data());
+        HCRYPTPROV prov = 0;
+        CryptAcquireContextW(
+            &prov,
+            keyProvInfo->pwszContainerName,
+            keyProvInfo->pwszProvName,
+            keyProvInfo->dwProvType,
+            (keyProvInfo->dwFlags & CRYPT_MACHINE_KEYSET) | CRYPT_DELETEKEYSET);
+    }
+
+    // Deletes the key containers of every certificate in the store. PFXImportCertStore persists the private keys of
+    // the certificates it imports, so they must be deleted when the store is discarded before its certificates are
+    // registered for cleanup.
+    void deleteKeyContainers(HCERTSTORE store)
+    {
+        PCCERT_CONTEXT cert = nullptr;
+        while ((cert = CertEnumCertificatesInStore(store, cert)) != nullptr)
+        {
+            deleteKeyContainer(cert);
+        }
+    }
 }
 
 Schannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
@@ -775,23 +815,11 @@ Schannel::SSLEngine::~SSLEngine()
             CertCloseStore(_rootStore, 0);
         }
 
+        // Remove the key containers created for the certificates Ice imported. Certificates found in a system store
+        // are not listed in _importedCerts: their key containers belong to the user or the machine and must be kept.
         for (vector<PCCERT_CONTEXT>::const_iterator i = _importedCerts.begin(); i != _importedCerts.end(); ++i)
         {
-            // Retrieve the certificate CERT_KEY_PROV_INFO_PROP_ID property, we use the CRYPT_KEY_PROV_INFO data to
-            // remove the key set associated with the certificate.
-            DWORD length = 0;
-            if (!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, 0, &length))
-            {
-                continue;
-            }
-            vector<char> buf(length);
-            if (!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, buf.data(), &length))
-            {
-                continue;
-            }
-            CRYPT_KEY_PROV_INFO* key = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(buf.data());
-            HCRYPTPROV prov = 0;
-            CryptAcquireContextW(&prov, key->pwszContainerName, key->pwszProvName, key->dwProvType, CRYPT_DELETEKEYSET);
+            deleteKeyContainer(*i);
         }
 
         for (vector<PCCERT_CONTEXT>::const_iterator i = _allCerts.begin(); i != _allCerts.end(); ++i)
@@ -973,11 +1001,20 @@ Schannel::SSLEngine::initialize()
             }
             if (!cert)
             {
+                // The store is discarded here, so its certificates never reach _importedCerts. Delete the key
+                // containers PFXImportCertStore created, otherwise they are left behind in the user or machine
+                // profile.
+                deleteKeyContainers(store);
+                CertCloseStore(store, 0);
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
                     "SSL transport: certificate error:\n" + lastErrorToString());
             }
+
+            // PFXImportCertStore persisted the private key in a key container; register the certificate so the
+            // destructor deletes that container.
+            _importedCerts.push_back(cert);
             _allCerts.push_back(cert);
             _stores.push_back(store);
         }
@@ -1150,8 +1187,11 @@ Schannel::SSLEngine::initialize()
                 CRYPT_KEY_PROV_INFO keyProvInfo;
                 memset(&keyProvInfo, 0, sizeof(keyProvInfo));
                 keyProvInfo.pwszContainerName = const_cast<wchar_t*>(keySetName.c_str());
-                keyProvInfo.pwszProvName = const_cast<wchar_t*>(MS_DEF_PROV_W);
+                // The provider name and flags must match the ones the container was created with above, otherwise
+                // neither the private key nor the container can be found again.
+                keyProvInfo.pwszProvName = const_cast<wchar_t*>(MS_ENHANCED_PROV_W);
                 keyProvInfo.dwProvType = PROV_RSA_FULL;
+                keyProvInfo.dwFlags = contextFlags & CRYPT_MACHINE_KEYSET;
                 keyProvInfo.dwKeySpec = AT_KEYEXCHANGE;
                 if (!CertSetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, &keyProvInfo))
                 {
