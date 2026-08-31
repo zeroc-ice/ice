@@ -674,7 +674,7 @@ compiler you are using.
 [Ice binary distributions]: https://zeroc.com/ice/downloads/3.7
 [Ice Builder for Xcode]: https://github.com/zeroc-ice/ice-builder-xcode
 [libedit]: https://thrysoee.dk/editline/
-[LMDB]: https://www.symas.com/symas-embedded-database-lmdb
+[LMDB]: https://symas.com/lmdb.php
 [mcpp]: https://github.com/zeroc-ice/mcpp
 [OpenSSL]: https://www.openssl.org/
 [supported platforms]: https://archive.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-12
