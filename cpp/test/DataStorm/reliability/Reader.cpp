@@ -170,6 +170,51 @@ void ::Reader::run(int argc, char* argv[])
     }
 
     {
+        Topic<string, int> topic(node, "anyKeyReaderReconnect");
+        Topic<string, int> barrier(node, "anyKeyReaderReconnectBarrier");
+        // An any-key reader against the any-key writer. Both elements are filtered elements, so the topic has no key
+        // to pair them with, and the reader has to report its resume points from its filter subscriptions instead.
+        auto reader = makeAnyKeyReader<string, int>(topic, "", config);
+        auto writerB = makeSingleKeyWriter(barrier, "reader_barrier");
+
+        string session;
+        for (int i = 0; i < 100; ++i)
+        {
+            auto sample = reader.getNextUnread();
+            if (sample.getValue() != i)
+            {
+                cerr << "unexpected sample: " << sample.getValue() << " expected:" << i << endl;
+                test(false);
+            }
+            session = sample.getSession();
+        }
+
+        // Force a session reconnect while the writer retains its history.
+        auto connection = node.getSessionConnection(session);
+        test(connection);
+        connection->close().get();
+
+        // Tell the writer the connection closed (processed after reconnect); it then sends the second batch.
+        writerB.waitForReaders();
+        writerB.update(0);
+
+        // After the reconnect the reader must continue from 100: the writer resumes from the reader's last received
+        // sample rather than re-sending its whole retained queue (which would re-deliver 0..99).
+        for (int i = 0; i < 100; ++i)
+        {
+            auto sample = reader.getNextUnread();
+            if (sample.getValue() != i + 100)
+            {
+                cerr << "duplicate or rewound sample: " << sample.getValue() << " expected:" << (i + 100) << endl;
+                test(false);
+            }
+        }
+
+        writerB.waitForReaders();
+        writerB.update(0);
+    }
+
+    {
         Topic<string, string> topic(node, "partialUpdateReconnect");
         Topic<string, int> barrier(node, "partialUpdateReconnectBarrier");
         topic.setUpdater<string>("append", [](string& value, const string& suffix) { value += suffix; });

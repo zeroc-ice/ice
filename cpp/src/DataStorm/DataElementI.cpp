@@ -148,7 +148,11 @@ DataElementI::attach(
     {
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
-        LongLongDict lastIds = key ? session->getLastIds(topicId, id, shared_from_this()) : LongLongDict{};
+        // Report this element's resume points so the peer replays only what the element has not seen. `getLastIds`
+        // picks the key or filter branch from `id`, and reports the filter subscriptions without using the key, so
+        // this also covers a filtered element paired with a peer filtered element, where the topic has no key to
+        // pass (`id` is then always negative).
+        LongLongDict lastIds = session->getLastIds(topicId, id, shared_from_this());
         DataSamples initializationBatch = getSamples(key, sampleFilter, data.config, lastId, now);
 
         acks.push_back(ElementDataAck{
