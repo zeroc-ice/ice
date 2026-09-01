@@ -22,7 +22,7 @@ declare module "@zeroc/ice" {
             constructor(encoding?: EncodingVersion, format?: FormatType);
 
             /**
-             *  Releases any data retained by encapsulations.
+             * Releases any data retained by encapsulations.
              */
             clear(): void;
 
@@ -186,7 +186,7 @@ declare module "@zeroc/ice" {
              * Writes a byte sequence to the stream.
              *
              * @param v The byte sequence to write to the stream. Passing `null` causes an empty sequence to be written
-             *          to the stream.
+             * to the stream.
              */
             writeByteSeq(v?: Uint8Array): void;
 
@@ -236,7 +236,7 @@ declare module "@zeroc/ice" {
              * Writes a string to the stream.
              *
              * @param v The string to write to the stream. Passing `null` causes an empty string to be written to the
-             *          stream.
+             * stream.
              */
             writeString(v: string | null): void;
 
@@ -279,7 +279,7 @@ declare module "@zeroc/ice" {
             writeException(exception: UserException): void;
 
             /**
-             *  Returns whether the stream is empty.
+             * Returns whether the stream is empty.
              *
              * @returns True if no data has been written yet, false otherwise.
              */

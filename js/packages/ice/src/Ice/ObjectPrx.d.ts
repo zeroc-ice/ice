@@ -406,8 +406,8 @@ declare module "@zeroc/ice" {
              * @param prx - The source proxy.
              * @param facet - An optional facet name.
              * @param context - The request context.
-             * @returns A promise that resolves to a proxy with the requested type and facet, or `null` if the
-             *          target object does not support the requested type.
+             * @returns A promise that resolves to a proxy with the requested type and facet, or `null` if the target
+             * object does not support the requested type.
              */
             static checkedCast(
                 prx: ObjectPrx | null,

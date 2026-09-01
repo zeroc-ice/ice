@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 /**
- *  Base class providing access to the endpoint details.
+ * Base class providing access to the endpoint details.
  */
 export class EndpointInfo {
     constructor(underlying, timeout, compress) {
@@ -39,8 +39,8 @@ export class EndpointInfo {
 }
 
 /**
- *  Provides access to the address details of a IP endpoint.
- *  @see {@link Endpoint}
+ * Provides access to the address details of a IP endpoint.
+ * @see {@link Endpoint}
  */
 export class IPEndpointInfo extends EndpointInfo {
     constructor(timeout, compress, host, port, sourceAddress) {
@@ -64,8 +64,8 @@ export class IPEndpointInfo extends EndpointInfo {
 }
 
 /**
- *  Provides access to a TCP endpoint's information.
- *  @see {@link Endpoint}
+ * Provides access to a TCP endpoint's information.
+ * @see {@link Endpoint}
  */
 export class TCPEndpointInfo extends IPEndpointInfo {
     constructor(timeout, compress, host, port, sourceAddress, type, secure) {
@@ -84,7 +84,7 @@ export class TCPEndpointInfo extends IPEndpointInfo {
 }
 
 /**
- *  Provides access to a WebSocket endpoint's information.
+ * Provides access to a WebSocket endpoint's information.
  */
 export class WSEndpointInfo extends EndpointInfo {
     constructor(underlying, resource) {
@@ -98,8 +98,8 @@ export class WSEndpointInfo extends EndpointInfo {
 }
 
 /**
- *  Provides access to the details of an opaque endpoint.
- *  @see {@link Endpoint}
+ * Provides access to the details of an opaque endpoint.
+ * @see {@link Endpoint}
  */
 export class OpaqueEndpointInfo extends EndpointInfo {
     constructor(type, rawEncoding, rawBytes) {

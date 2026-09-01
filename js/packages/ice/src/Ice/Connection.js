@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 /**
- *  Base class providing access to the connection details.
+ * Base class providing access to the connection details.
  */
 export class ConnectionInfo {
     constructor(underlying, adapterName, connectionId) {
@@ -30,7 +30,7 @@ export class ConnectionInfo {
 }
 
 /**
- *  Provides access to the connection details of an IP connection
+ * Provides access to the connection details of an IP connection
  */
 export class IPConnectionInfo extends ConnectionInfo {
     constructor(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort) {
@@ -59,12 +59,12 @@ export class IPConnectionInfo extends ConnectionInfo {
 }
 
 /**
- *  Provides access to the connection details of a TCP connection
+ * Provides access to the connection details of a TCP connection
  */
 export class TCPConnectionInfo extends IPConnectionInfo {}
 
 /**
- *  Provides access to the connection details of a WebSocket connection
+ * Provides access to the connection details of a WebSocket connection
  */
 export class WSConnectionInfo extends ConnectionInfo {
     constructor(underlying, maxBufferedAmount) {

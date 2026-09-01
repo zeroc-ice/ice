@@ -195,7 +195,7 @@ declare module "@zeroc/ice" {
              * Retrieves the implicit context associated with this communicator.
              *
              * @returns The implicit context associated with this communicator, or `null` if the `Ice.ImplicitContext`
-             *          property is not set or is set to `None`.
+             * property is not set or is set to `None`.
              */
             getImplicitContext(): Ice.ImplicitContext | null;
 
@@ -231,8 +231,7 @@ declare module "@zeroc/ice" {
              *
              * You can also set a router for an individual proxy by calling {@link ObjectPrx#ice_router} on the proxy.
              *
-             * @param router - The default router to use for this communicator, or `null` to disable the default
-             *                 router.
+             * @param router - The default router to use for this communicator, or `null` to disable the default router.
              * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link getDefaultRouter}
@@ -259,7 +258,7 @@ declare module "@zeroc/ice" {
              * You can also set a locator for an individual proxy by calling {@link ObjectPrx#ice_locator} on the proxy.
              *
              * @param locator - The default locator to use for this communicator, or `null` to disable the default
-             *                  locator.
+             * locator.
              * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link getDefaultLocator}
