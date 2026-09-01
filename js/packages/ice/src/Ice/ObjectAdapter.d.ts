@@ -36,7 +36,7 @@ declare module "@zeroc/ice" {
             destroy(): void;
 
             /**
-             *  Adds a middleware to the dispatch pipeline of this object adapter.
+             * Adds a middleware to the dispatch pipeline of this object adapter.
              *
              * @param middlewareFactory The middleware factory that creates the new middleware when this object adapter
              * creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
@@ -105,17 +105,17 @@ declare module "@zeroc/ice" {
              * incoming request, it tries to find a servant for the identity and facet carried by the request in the
              * following order:
              *
-             *  - The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
-             *  - If this fails, the object adapter tries to find a default servant for the category component of the
-             *    identity.
-             *  - If this fails, the object adapter tries to find a default servant for the empty category, regardless of
-             *    the category contained in the identity.
-             *  - If this fails, the object adapter tries to find a servant locator for the category component of the
-             *    identity. If there is no such servant locator, the object adapter tries to find a servant locator for the
-             *    empty category.
-             *  - If a servant locator is found, the object adapter tries to find a servant using this servant locator.
-             *  - If all the previous steps fail, the object adapter gives up and the caller receives an
-             *    ObjectNotExistException or a FacetNotExistException.
+             * - The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
+             * - If this fails, the object adapter tries to find a default servant for the category component of the
+             *   identity.
+             * - If this fails, the object adapter tries to find a default servant for the empty category, regardless
+             *   of the category contained in the identity.
+             * - If this fails, the object adapter tries to find a servant locator for the category component of the
+             *   identity. If there is no such servant locator, the object adapter tries to find a servant locator for
+             *   the empty category.
+             * - If a servant locator is found, the object adapter tries to find a servant using this servant locator.
+             * - If all the previous steps fail, the object adapter gives up and the caller receives an
+             *   ObjectNotExistException or a FacetNotExistException.
              *
              * @param servant The default servant to add.
              * @param category The category for which the default servant is registered. The empty category means it will

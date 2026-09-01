@@ -22,8 +22,8 @@ declare module "@zeroc/ice" {
              *
              * @param current - Information about the incoming request being dispatched.
              * @returns An array where:
-             *  - [0]: The located servant, or `null` if no suitable servant was found.
-             *  - [1]: A "cookie" that will be passed to {@link finished}.
+             * - [0]: The located servant, or `null` if no suitable servant was found.
+             * - [1]: A "cookie" that will be passed to {@link finished}.
              * @throws {@link UserException} - The implementation can throw a `UserException`, and the runtime will
              * marshal it as the result of the invocation.
              *

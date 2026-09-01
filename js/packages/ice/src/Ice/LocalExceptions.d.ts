@@ -126,7 +126,7 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         *  The exception that is thrown when an error occurs during marshaling or unmarshaling.
+         * The exception that is thrown when an error occurs during marshaling or unmarshaling.
          */
         class MarshalException extends ProtocolException {}
 
