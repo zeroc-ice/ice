@@ -1566,6 +1566,14 @@ static PyMethodDef CommunicatorMethods[] = {
     {} /* sentinel */
 };
 
+namespace
+{
+    // The constructor signature: a C type documents __init__ on the class, because that is how it
+    // is called. checkIcePyStub.py holds the stub's own __init__ declaration to this line.
+    constexpr const char* IcePy_Communicator_doc =
+        R"(Communicator(initData: Ice.InitializationData | None, /) -> None)";
+}
+
 namespace IcePy
 {
     // clang-format off
@@ -1575,7 +1583,7 @@ namespace IcePy
         .tp_basicsize = sizeof(CommunicatorObject),
         .tp_dealloc = reinterpret_cast<destructor>(communicatorDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("IcePy.Communicator"),
+        .tp_doc = PyDoc_STR(IcePy_Communicator_doc),
         .tp_methods = CommunicatorMethods,
         .tp_init = reinterpret_cast<initproc>(communicatorInit),
         .tp_new = reinterpret_cast<newfunc>(communicatorNew)};

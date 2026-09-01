@@ -745,6 +745,14 @@ static PyMethodDef PropertyMethods[] = {
     {} /* sentinel */
 };
 
+namespace
+{
+    // The constructor signature: a C type documents __init__ on the class, because that is how it
+    // is called. checkIcePyStub.py holds the stub's own __init__ declaration to this line.
+    constexpr const char* IcePy_Properties_doc =
+        R"(Properties(args: list[str] | None = None, defaults: Ice.Properties | None = None, /) -> None)";
+}
+
 namespace IcePy
 {
     // clang-format off
@@ -755,7 +763,7 @@ namespace IcePy
         .tp_dealloc = reinterpret_cast<destructor>(propertiesDealloc),
         .tp_str = reinterpret_cast<reprfunc>(propertiesStr),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("IcePy.Properties"),
+        .tp_doc = PyDoc_STR(IcePy_Properties_doc),
         .tp_methods = PropertyMethods,
         .tp_init = reinterpret_cast<initproc>(propertiesInit),
         .tp_new = reinterpret_cast<newfunc>(propertiesNew),

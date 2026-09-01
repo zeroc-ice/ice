@@ -1434,6 +1434,14 @@ static PyMethodDef ProxyMethods[] = {
     {} /* sentinel */
 };
 
+namespace
+{
+    // The constructor signature: a C type documents __init__ on the class, because that is how it
+    // is called. checkIcePyStub.py holds the stub's own __init__ declaration to this line.
+    constexpr const char* IcePy_ObjectPrx_doc =
+        R"(ObjectPrx(communicator: Ice.Communicator, proxyString: str, /) -> None)";
+}
+
 namespace IcePy
 {
     // clang-format off
@@ -1445,7 +1453,7 @@ namespace IcePy
         .tp_repr = reinterpret_cast<reprfunc>(proxyRepr),
         .tp_hash = reinterpret_cast<hashfunc>(proxyHash),
         .tp_flags = Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("IcePy.ObjectPrx"),
+        .tp_doc = PyDoc_STR(IcePy_ObjectPrx_doc),
         .tp_richcompare = reinterpret_cast<richcmpfunc>(proxyCompare),
         .tp_methods = ProxyMethods,
         .tp_init = reinterpret_cast<initproc>(proxyInit),

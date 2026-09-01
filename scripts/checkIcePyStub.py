@@ -40,18 +40,28 @@ STUB = Path(__file__).parents[1] / "python" / "python" / "IcePy-stubs" / "__init
 # undeclared -- what a stub must declare is a slot object does not have, like ExecutorCall's __call__.
 TYPE_METADATA = {"__dict__", "__weakref__", "__module__", "__qualname__", "__new__", "__slots__"}
 LIST_ITEM = re.compile(r"(?:[-+*]|#\.|\d+[.)])\s")
+# A section underline, or any other adornment: reST spells one as a single punctuation character
+# repeated, so recognizing the shape beats naming the characters one by one and missing "::::::".
+ADORNMENT = re.compile(r"([!-/:-@\[-`{-~])\1+")
 FIELD_LIST_ITEM = re.compile(r":[^:\s][^:]*:\s")
 NUMPYDOC_FIELD = re.compile(r"[^:]+\s:\s\S")
+# A stub-only construct: it exists for the type checker and is not an attribute of the module.
+TYPING_HELPERS = {"TypeVar", "ParamSpec", "TypeVarTuple", "NewType", "TypeAliasType"}
 
 
-def signatureOf(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
-    """Render a stub def the way the first line of a C docstring spells it."""
+def signatureOf(node: ast.FunctionDef | ast.AsyncFunctionDef, name: str | None = None) -> str:
+    """
+    Render a stub def the way the first line of a C docstring spells it.
+
+    name replaces the def's own, which is what a constructor needs: a C type documents __init__ on
+    the class, spelled with the class's name, because that is how it is called.
+    """
     args = copy.deepcopy(node.args)
     if args.posonlyargs and args.posonlyargs[0].arg in ("self", "cls"):
         del args.posonlyargs[0]
     elif args.args and args.args[0].arg in ("self", "cls"):
         del args.args[0]
-    rendered = f"{node.name}({ast.unparse(args)})"
+    rendered = f"{name or node.name}({ast.unparse(args)})"
     return f"{rendered} -> {ast.unparse(node.returns)}" if node.returns else rendered
 
 
@@ -76,37 +86,48 @@ def attributeDoc(body: list[ast.stmt], index: int) -> str | None:
 
 
 def stubDeclarations() -> tuple[
-    dict[str, tuple[str | None, str | None, bool]], list[str], dict[str, set[str]], set[str]
+    dict[str, tuple[str | None, str | None, str | None]], list[str], dict[str, set[str]], set[str]
 ]:
     """
     Parse the stub into (entries, duplicates, classMembers, topLevel).
 
-    entries maps each documented name to its (docstring, signature, value). Classes, properties and
-    attributes carry no signature, and value marks the properties and attributes: IcePy must not
-    document those as callables either, or the stub promises an attribute for something the caller
-    has to call. duplicates lists the names entries could not keep apart: repeated defs -- an
-    @overload set, say -- silently overwrite each other, so they are reported instead of
-    half-compared.
+    entries maps each documented name to its (docstring, signature, type). Classes, properties and
+    attributes carry no signature, and type is the one a property or an attribute declares: IcePy
+    must not document those as callables, and its description opens by naming the same type.
+    Everything the stub declares at module scope goes in too, so that a name the stub invents is
+    caught. duplicates lists the names entries could not keep apart: repeated defs -- an @overload
+    set, say -- silently overwrite each other, so they are reported instead of half-compared.
     classMembers maps each class to every member it declares, its stub base classes included, and
     topLevel holds every name the stub declares at module scope; both exist for the reverse sweep.
     """
-    entries: dict[str, tuple[str | None, str | None, bool]] = {}
+    entries: dict[str, tuple[str | None, str | None, str | None]] = {}
     duplicates: list[str] = []
     ownMembers: dict[str, set[str]] = {}
     bases: dict[str, list[str]] = {}
     topLevel: set[str] = set()
 
-    def add(name: str, doc: str | None, signature: str | None, value: bool = False) -> None:
+    def add(name: str, doc: str | None, signature: str | None, declared: str | None = None) -> None:
         if name in entries:
             duplicates.append(name)
             del entries[name]
         elif name not in duplicates:
-            entries[name] = (doc, signature, value)
+            entries[name] = (doc, signature, declared)
 
     for node in ast.parse(STUB.read_text(encoding="utf-8")).body:
         if isinstance(node, ast.ClassDef):
             topLevel.add(node.name)
-            add(node.name, ast.get_docstring(node), None)
+            # __init__ itself is a slot, and the wrapper CPython puts there documents object's
+            # generic one. The signature the stub declares for it lives on the class, which is where
+            # a C type spells its constructor and the only place the module can be held to it.
+            initializer = next(
+                (m for m in node.body if isinstance(m, ast.FunctionDef) and m.name == "__init__"),
+                None,
+            )
+            add(
+                node.name,
+                ast.get_docstring(node),
+                signatureOf(initializer, node.name) if initializer else None,
+            )
             members = ownMembers[node.name] = set()
             bases[node.name] = [base.id for base in node.bases if isinstance(base, ast.Name)]
             for index, member in enumerate(node.body):
@@ -117,18 +138,32 @@ def stubDeclarations() -> tuple[
                         f"{node.name}.{member.name}",
                         ast.get_docstring(member),
                         None if declaresProperty else signatureOf(member),
-                        declaresProperty,
+                        ast.unparse(member.returns) if declaresProperty and member.returns else None,
                     )
                 elif isinstance(member, ast.AnnAssign) and isinstance(member.target, ast.Name):
                     members.add(member.target.id)
-                    add(f"{node.name}.{member.target.id}", attributeDoc(node.body, index), None, True)
+                    add(
+                        f"{node.name}.{member.target.id}",
+                        attributeDoc(node.body, index),
+                        None,
+                        ast.unparse(member.annotation),
+                    )
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             topLevel.add(node.name)
             add(node.name, ast.get_docstring(node), signatureOf(node))
         elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
             topLevel.add(node.target.id)
+            add(node.target.id, None, None, ast.unparse(node.annotation))
         elif isinstance(node, ast.Assign):
-            topLevel.update(target.id for target in node.targets if isinstance(target, ast.Name))
+            # A TypeVar and its kind exist for the type checker alone; every other module-scope name
+            # is one IcePy has to define, and going through add() is what gets that checked.
+            call = node.value if isinstance(node.value, ast.Call) else None
+            helper = call is not None and isinstance(call.func, ast.Name) and call.func.id in TYPING_HELPERS
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    topLevel.add(target.id)
+                    if not helper:
+                        add(target.id, None, None)
 
     def membersOf(className: str) -> set[str]:
         members = set(ownMembers.get(className, ()))
@@ -159,8 +194,14 @@ def shipped(name: str) -> tuple[bool, str | None, bool]:
         return False, None, False
     if not member:
         doc = obj.__doc__
-        if isinstance(obj, type) and doc == f"IcePy.{head}":
-            # The C sources set tp_doc to the type's own name as a placeholder for "undocumented".
+        if isinstance(obj, type):
+            if doc == f"IcePy.{head}":
+                # The C sources set tp_doc to the type's own name as a placeholder for "undocumented".
+                doc = None
+        elif doc is not None and doc == getattr(type(obj), "__doc__", None):
+            # A plain value carries no docstring of its own: __doc__ falls through to its class --
+            # a fresh string each time, for a C type -- and the class's description is not a
+            # description of this module attribute.
             doc = None
         return True, doc, False
     if not isinstance(obj, type):
@@ -200,6 +241,16 @@ def normalizeSignature(signature: str) -> str:
     return signature.replace(" = ", "=")
 
 
+def normalizeType(declared: str) -> str:
+    """
+    Ignore the module a type is named through, and the spacing inside it.
+
+    Ice re-exports IcePy's C types unchanged -- Ice.EndpointInfo is IcePy.EndpointInfo -- so the two
+    qualified spellings and the bare one all name the same class, and the C sources use both.
+    """
+    return re.sub(r"\b(?:Ice|IcePy)\.", "", declared).replace(" ", "")
+
+
 def normalizeProse(text: str) -> str:
     """
     Fold hard line wrapping so reflowing a paragraph does not read as drift.
@@ -213,9 +264,16 @@ def normalizeProse(text: str) -> str:
     wrapped line that merely opens with a marker -- "30901. For pre-releases..." -- is the paragraph
     continuing, not an enumerated item. A section underline is the exception: it attaches to the
     line right above it.
+
+    A list item's own wrapping folds too. Its text continues on the following lines, indented past
+    the marker, so the first of those opens a paragraph that the rest join -- rewrapping a bullet is
+    no more a change than rewrapping anything else. That first line is still read as a marker if it
+    is one, which is what a nested list looks like. A field list and a directive are left alone:
+    what follows them is an indented body, not the same sentence carrying on.
     """
     out: list[str] = []
     joinIndent = None  # indentation of the line out[-1] belongs to, when it can accept continuations
+    itemIndent = None  # indentation of a list item whose text may still continue, indented past it
     literalMarkerIndent = None
     preformattedIndent = None
     for line in text.split("\n"):
@@ -225,46 +283,48 @@ def normalizeProse(text: str) -> str:
         if preformattedIndent is not None:
             if not stripped or indent >= preformattedIndent:
                 out.append(line)
-                joinIndent = None
+                joinIndent = itemIndent = None
                 continue
             preformattedIndent = None
 
         if literalMarkerIndent is not None:
             if not stripped:
                 out.append(line)
-                joinIndent = None
+                joinIndent = itemIndent = None
                 continue
             if indent > literalMarkerIndent:
                 preformattedIndent = indent
                 out.append(line)
-                joinIndent = None
+                joinIndent = itemIndent = None
                 continue
             literalMarkerIndent = None
 
         if not stripped:
             out.append(line)
-            joinIndent = None
+            joinIndent = itemIndent = None
             continue
 
         continuation = indent == joinIndent
-        underline = not stripped.strip("-=~^\"'`#*+_")
+        listItem = LIST_ITEM.match(stripped) is not None
+        underline = ADORNMENT.fullmatch(stripped) is not None
         structural = underline or (
             not continuation
             and (
-                LIST_ITEM.match(stripped) is not None
+                listItem
                 or FIELD_LIST_ITEM.match(stripped) is not None
                 or NUMPYDOC_FIELD.match(stripped) is not None
                 or stripped.startswith((".. ", ">>>", "...", "```", "|"))
             )
         )
-        if not structural and continuation:
+        if not structural and (continuation or (itemIndent is not None and indent > itemIndent)):
             out[-1] = f"{out[-1]} {stripped}"
         else:
             out.append(line)
         joinIndent = None if structural else indent
+        itemIndent = indent if structural and listItem and not underline else None
         if stripped.endswith("::"):
             literalMarkerIndent = indent
-            joinIndent = None
+            joinIndent = itemIndent = None
     return "\n".join(out)
 
 
@@ -273,9 +333,15 @@ def reverseProblems(classMembers: dict[str, set[str]], topLevel: set[str]) -> li
     import IcePy
 
     problems: list[str] = []
-    for name in sorted(vars(IcePy)):
-        if not name.startswith("_") and name not in topLevel:
+    for name, value in sorted(vars(IcePy).items()):
+        if name.startswith("_"):
+            continue
+        if name not in topLevel:
             problems.append(f"{name}: IcePy defines it, but the stub does not declare it")
+        elif isinstance(value, type) and name not in classMembers:
+            # Declaring the name is not enough: `Logger: Any` in place of `class Logger:` type-checks
+            # anything, and takes every member of the class out of the comparison with it.
+            problems.append(f"{name}: IcePy defines a class, but the stub declares it as a value")
     for className, members in sorted(classMembers.items()):
         cls = vars(IcePy).get(className)
         if not isinstance(cls, type):
@@ -299,7 +365,7 @@ def main() -> int:
             " only, so teach it about @overload first"
         )
 
-    for name, (stubDoc, stubSignature, stubValue) in sorted(entries.items()):
+    for name, (stubDoc, stubSignature, stubType) in sorted(entries.items()):
         defined, shippedDoc, pythonSupplied = shipped(name)
         if not defined:
             # A private helper the stub declares for pyright need not be an attribute of the module,
@@ -332,10 +398,23 @@ def main() -> int:
                 )
                 problems.append(f"{name}: descriptions differ\n{diff}")
 
-        if stubValue and signature:
+        if stubType is not None and signature:
             problems.append(
                 f"{name}: the stub declares it as a value, but IcePy documents it as callable.\n    IcePy: {signature}"
             )
+        elif stubType is not None and prose:
+            # The C sources open a data member's description by naming its type -- "bool: Specifies
+            # whether ..." -- which is the only thing the annotation can be checked against.
+            documented, named, _ = prose.split("\n", maxsplit=1)[0].partition(": ")
+            if not named:
+                problems.append(
+                    f"{name}: IcePy's description does not open by naming the type, so the stub's is unchecked"
+                )
+            elif normalizeType(documented) != normalizeType(stubType):
+                problems.append(
+                    f"{name}: the stub's type and the one IcePy documents differ."
+                    f"\n    stub:  {stubType}\n    IcePy: {documented}"
+                )
         elif stubSignature and not signature:
             problems.append(
                 f"{name}: the stub gives a signature, but IcePy's docstring opens with no matching one."

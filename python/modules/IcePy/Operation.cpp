@@ -873,6 +873,16 @@ static PyMethodDef AsyncInvocationContextMethods[] = {
     {} /* sentinel */
 };
 
+namespace
+{
+    // The constructor signature: a C type documents __init__ on the class, because that is how it
+    // is called. checkIcePyStub.py holds the stub's own __init__ declaration to this line.
+    constexpr const char* IcePy_Operation_doc =
+        R"(Operation(sliceName: str, mappedName: str, mode: Ice.OperationMode, format: Ice.FormatType | None, )"
+        R"(metadata: tuple, inParams: tuple, outParams: tuple, returnType: object, exceptions: tuple, )"
+        R"(onewayOnly: bool, /) -> None)";
+}
+
 namespace IcePy
 {
     // clang-format off
@@ -882,7 +892,7 @@ namespace IcePy
         .tp_basicsize = sizeof(OperationObject),
         .tp_dealloc = reinterpret_cast<destructor>(operationDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("IcePy.Operation"),
+        .tp_doc = PyDoc_STR(IcePy_Operation_doc),
         .tp_methods = OperationMethods,
         .tp_init = reinterpret_cast<initproc>(operationInit),
         .tp_new = reinterpret_cast<newfunc>(operationNew),
