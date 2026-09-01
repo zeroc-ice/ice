@@ -1050,7 +1050,6 @@ DataReaderI::queue(
     const chrono::time_point<chrono::system_clock>& now,
     bool checkKey)
 {
-    // The session only queues the copy addressed to this reader's destination facet, so no facet check is needed here.
     if (checkKey)
     {
         bool matched;

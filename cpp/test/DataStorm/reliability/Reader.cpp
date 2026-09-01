@@ -210,8 +210,7 @@ void ::Reader::run(int argc, char* argv[])
 
         // An unfiltered reader and a sample-filtered one on the same writer and key. The writer addresses the
         // sample-filtered reader under a facet of its own, so a sample only one of them matches is forwarded once,
-        // to that reader's destination. A copy addressed to the other reader must not become this reader's resume
-        // point: the reader never receives it, and the reattach would then resume past it.
+        // to that reader's destination.
         auto reader = makeSingleKeyReader(topic, "key", "", config);
         auto filtered = makeSingleKeyReader(topic, "key", Filter<int>("armed", 0), "", config);
 
@@ -242,6 +241,11 @@ void ::Reader::run(int argc, char* argv[])
 
         sample = filtered.getNextUnread();
         test(sample.getValue() == 2);
+
+        // The unfiltered reader received the first sample before the reconnect, so the reattach must not replay it:
+        // the next sample it reads is the one published after the reconnect. This catches the mirror regression,
+        // where the empty-facet destination stops advancing its resume point.
+        test(reader.getNextUnread().getValue() == 2);
 
         auto finished = makeSingleKeyWriter(barrier, "done");
         finished.waitForReaders();

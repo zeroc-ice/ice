@@ -1734,19 +1734,22 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                     {
                         out << " facet=" << current.facet;
                     }
+                    // Only the elements attached to this copy's destination facet, which are the ones that
+                    // process it below.
                     out << " to [";
                     bool first = true;
                     for (const auto& [element, elementSubscriber] : elementSubscribers->getSubscribers())
                     {
+                        if (!element->matchFacet(current.facet))
+                        {
+                            continue;
+                        }
+
                         if (!first)
                         {
                             out << ", ";
                         }
                         out << element;
-                        if (!elementSubscriber.facet.empty())
-                        {
-                            out << ":" << elementSubscriber.facet;
-                        }
                         first = false;
                     }
                     out << "]";
@@ -1818,17 +1821,9 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                 for (auto& [element, elementSubscriber] : elementSubscribers->getSubscribers())
                 {
                     // The writer forwards a sample once per destination facet, and each element subscribed to the
-                    // writer element is attached to exactly one of them. Skip the elements this copy isn't addressed
-                    // to: `lastId` is the resume point the peer replays from after a reconnect, so advancing it for a
-                    // copy the element discards can move it past a sample the element never received.
+                    // writer element is attached to exactly one. Skip the elements this copy isn't addressed to.
                     if (!element->matchFacet(current.facet))
                     {
-                        if (_traceLevels->session > 2)
-                        {
-                            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-                            out << _id << ": skipping '" << element << "' for sample '" << dataSample.id
-                                << "': the sample is not addressed to its facet";
-                        }
                         continue;
                     }
 
