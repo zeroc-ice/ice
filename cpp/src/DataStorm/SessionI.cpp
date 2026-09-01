@@ -1734,19 +1734,22 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                     {
                         out << " facet=" << current.facet;
                     }
+                    // Only the elements attached to this copy's destination facet, which are the ones that
+                    // process it below.
                     out << " to [";
                     bool first = true;
                     for (const auto& [element, elementSubscriber] : elementSubscribers->getSubscribers())
                     {
+                        if (!element->matchFacet(current.facet))
+                        {
+                            continue;
+                        }
+
                         if (!first)
                         {
                             out << ", ";
                         }
                         out << element;
-                        if (!elementSubscriber.facet.empty())
-                        {
-                            out << ":" << elementSubscriber.facet;
-                        }
                         first = false;
                     }
                     out << "]";
@@ -1817,6 +1820,13 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
 
                 for (auto& [element, elementSubscriber] : elementSubscribers->getSubscribers())
                 {
+                    // The writer forwards a sample once per destination facet, and each element subscribed to the
+                    // writer element is attached to exactly one. Skip the elements this copy isn't addressed to.
+                    if (!element->matchFacet(current.facet))
+                    {
+                        continue;
+                    }
+
                     if (elementSubscriber.initialized &&
                         (dataSample.keyId <= 0 || elementSubscriber.keys.find(key) != elementSubscriber.keys.end()))
                     {
@@ -1828,7 +1838,6 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                             elementSample,
                             elementSubscribers->priority,
                             shared_from_this(),
-                            current.facet,
                             now,
                             dataSample.keyId == 0);
                     }
