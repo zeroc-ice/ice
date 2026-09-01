@@ -538,8 +538,7 @@ void ::Writer::run(int argc, char* argv[])
 
     // The sample filter also runs on this writer while it selects the destinations of a live publication, once per
     // sample per destination facet. A predicate that throws there must not abort the publication: the unfiltered
-    // reader still receives the sample, the writer still records it, and the remove — whose caller is noexcept —
-    // must not terminate the process.
+    // reader still receives the sample, and the writer still records it.
     cout << "testing sample filter that throws during a live publish... " << flush;
     {
         Topic<string, string> topic(node, "liveSampleFilterThrow");

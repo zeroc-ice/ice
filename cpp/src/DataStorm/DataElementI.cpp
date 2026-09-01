@@ -732,13 +732,9 @@ DataElementI::disconnect()
 bool
 DataElementI::matchOne(const Listener& listener, const shared_ptr<Sample>& sample, bool matchKey) const
 {
-    // Runs a peer reader's key filter or sample filter predicate, which is application code. Treating a throwing
-    // predicate as not matching skips that subscriber and lets the scan continue with the listener's remaining
-    // subscribers, the way a predicate that returns false does. Letting it escape would abort the publication
-    // instead: the writer forwards a sample through a collocated twoway invocation, so the exception resurfaces
-    // from send() as an UnknownException, the listeners after the throwing one are never forwarded to, and the
-    // writer records neither the sample nor its per-key base. It would also reach the application out of remove,
-    // which is noexcept.
+    // Runs a peer reader's key filter or sample filter predicate, which is application code. We treat a throwing
+    // predicate as not matching: the subscriber is skipped and the scan continues with the listener's remaining
+    // subscribers, the way a predicate that returns false does.
     auto match = [this, &sample](const shared_ptr<Filter>& filter, const shared_ptr<Filterable>& value)
     {
         try
@@ -747,21 +743,12 @@ DataElementI::matchOne(const Listener& listener, const shared_ptr<Sample>& sampl
         }
         catch (const std::exception& ex)
         {
-            // The element's toString runs the application's key formatter — more application code — so it can throw
-            // too; the placeholder keeps such a throw from escaping the guard.
-            string elementString;
-            try
-            {
-                elementString = toString();
-            }
-            catch (const std::exception&)
-            {
-                elementString = "<unavailable>";
-            }
-
+            // Streaming the element would run the application's key formatter inside this very catch, so print the
+            // element id instead. The sample can still reach this listener through another of its subscribers, so
+            // report the skipped subscriber rather than the sample not being sent.
             Warning out(_traceLevels->logger);
-            out << elementString << ": did not send sample " << sample->id << " to a subscriber: the '"
-                << filter->getName() << "' filter failed:\n"
+            out << 'e' << _id << ": skipped a reader for sample " << sample->id << ": the '" << filter->getName()
+                << "' filter failed:\n"
                 << ex.what();
             return false;
         }
