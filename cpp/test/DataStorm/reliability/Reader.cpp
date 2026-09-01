@@ -127,8 +127,7 @@ void ::Reader::run(int argc, char* argv[])
     {
         Topic<string, int> topic(node, "anyKeyReconnect");
         Topic<string, int> barrier(node, "anyKeyReconnectBarrier");
-        // A plain single-key reader against the any-key (filtered) writer: reconnect resumption is driven by the
-        // writer being filtered, so a reader of any kind connected to it must resume rather than re-read history.
+        // A plain single-key reader against the any-key (filtered) writer; the any-key reader case is below.
         auto reader = makeSingleKeyReader(topic, "k", "", config);
         auto writerB = makeSingleKeyWriter(barrier, "reader_barrier");
 
@@ -174,7 +173,11 @@ void ::Reader::run(int argc, char* argv[])
         Topic<string, int> barrier(node, "anyKeyReaderReconnectBarrier");
         // An any-key reader against the any-key writer. Both elements are filtered elements, so the topic has no key
         // to pair them with, and the reader has to report its resume points from its filter subscriptions instead.
-        auto reader = makeAnyKeyReader<string, int>(topic, "", config);
+        // A sample-filtered any-key reader sits alongside it, so the writer addresses the two under different
+        // facets and each has to resume from its own point.
+        auto reader = makeAnyKeyReader(topic, "", config);
+        auto filtered =
+            makeAnyKeyReader(topic, Filter<SampleEventSeq>("_event", SampleEventSeq{SampleEvent::Update}), "", config);
         auto writerB = makeSingleKeyWriter(barrier, "reader_barrier");
 
         string session;
@@ -187,6 +190,14 @@ void ::Reader::run(int argc, char* argv[])
                 test(false);
             }
             session = sample.getSession();
+
+            auto filteredSample = filtered.getNextUnread();
+            if (filteredSample.getValue() != i)
+            {
+                cerr << "unexpected sample on the filtered reader: " << filteredSample.getValue() << " expected:" << i
+                     << endl;
+                test(false);
+            }
         }
 
         // Force a session reconnect while the writer retains its history.
@@ -206,6 +217,14 @@ void ::Reader::run(int argc, char* argv[])
             if (sample.getValue() != i + 100)
             {
                 cerr << "duplicate or rewound sample: " << sample.getValue() << " expected:" << (i + 100) << endl;
+                test(false);
+            }
+
+            auto filteredSample = filtered.getNextUnread();
+            if (filteredSample.getValue() != i + 100)
+            {
+                cerr << "duplicate or rewound sample on the filtered reader: " << filteredSample.getValue()
+                     << " expected:" << (i + 100) << endl;
                 test(false);
             }
         }
