@@ -26,7 +26,7 @@ declare module "@zeroc/ice" {
             constructor(communicator: Communicator, encoding: EncodingVersion, buffer: Uint8Array | ArrayBuffer);
 
             /**
-             *  Releases any data retained by encapsulations.
+             * Releases any data retained by encapsulations.
              */
             clear(): void;
 
@@ -298,7 +298,7 @@ declare module "@zeroc/ice" {
             skipSize(): void;
 
             /**
-             *  Returns whether the stream is empty.
+             * Returns whether the stream is empty.
              *
              * @returns True if the internal buffer has no data, false otherwise.
              */

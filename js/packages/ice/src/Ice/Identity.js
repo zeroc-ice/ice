@@ -3,11 +3,11 @@
 export const Ice = {};
 
 /**
- *  The identity of an Ice object. In a proxy, an empty {@link Identity#name} denotes a nil proxy. An identity with
- *  an empty {@link Identity#name} and a non-empty {@link Identity#category} is illegal. You cannot add a servant
- *  with an empty name to the Active Servant Map.
- *  @see ServantLocator
- *  @see ObjectAdapter#addServantLocator
+ * The identity of an Ice object. In a proxy, an empty {@link Identity#name} denotes a nil proxy. An identity with
+ * an empty {@link Identity#name} and a non-empty {@link Identity#category} is illegal. You cannot add a servant
+ * with an empty name to the Active Servant Map.
+ * @see ServantLocator
+ * @see ObjectAdapter#addServantLocator
  */
 Ice.Identity = class {
     constructor(name = "", category = "") {

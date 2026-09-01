@@ -3,7 +3,7 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         *  This enumeration describes the possible formats for classes.
+         * This enumeration describes the possible formats for classes.
          */
         class FormatType extends Ice.EnumBase {
             /**
