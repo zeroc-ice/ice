@@ -12,10 +12,6 @@ public class Collocated : TestHelper
 
         properties.setProperty("Ice.Warn.AMICallback", "0");
 
-        // Limit the send buffer size, this test relies on the socket send() blocking after sending a given
-        // amount of data.
-        properties.setProperty("Ice.TCP.SndSize", "50000");
-
         // We use a client thread pool with more than one thread to test that task inlining works.
         properties.setProperty("Ice.ThreadPool.Client.Size", "5");
         await using Communicator communicator = initialize(properties);
