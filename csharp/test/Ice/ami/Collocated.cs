@@ -12,10 +12,6 @@ public class Collocated : TestHelper
 
         properties.setProperty("Ice.Warn.AMICallback", "0");
 
-        // Limit the send buffer size, this test relies on the socket send() blocking after sending a given
-        // amount of data.
-        properties.setProperty("Ice.TCP.SndSize", "50000");
-
         // We use a client thread pool with more than one thread to test that task inlining works.
         properties.setProperty("Ice.ThreadPool.Client.Size", "5");
         await using Communicator communicator = initialize(properties);
@@ -26,10 +22,11 @@ public class Collocated : TestHelper
         ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-        adapter.add(new TestI(), Util.stringToIdentity("test"));
+        var test = new TestI();
+        adapter.add(test, Util.stringToIdentity("test"));
         adapter.add(new TestII(), Util.stringToIdentity("test2"));
         // Collocated test doesn't need to activate the OA
-        adapter2.add(new TestControllerI(adapter), Util.stringToIdentity("testController"));
+        adapter2.add(new TestControllerI(adapter, test), Util.stringToIdentity("testController"));
         // Collocated test doesn't need to activate the OA
 
         await AllTests.allTestsAsync(this, true);

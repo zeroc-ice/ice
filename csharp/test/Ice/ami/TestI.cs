@@ -82,7 +82,38 @@ public class TestI : Test.TestIntfDisp_
     public override void abortConnection(Ice.Current current) => current.con.abort();
 
     public override void
-    sleep(int ms, Ice.Current current) => Thread.Sleep(ms);
+    sleep(int ms, Ice.Current current)
+    {
+        lock (_mutex)
+        {
+            ++_activeSleepCalls;
+            Monitor.PulseAll(_mutex);
+        }
+
+        try
+        {
+            Thread.Sleep(ms);
+        }
+        finally
+        {
+            lock (_mutex)
+            {
+                --_activeSleepCalls;
+            }
+        }
+    }
+
+    internal void
+    waitForActiveSleepCalls(int count)
+    {
+        lock (_mutex)
+        {
+            while (_activeSleepCalls < count)
+            {
+                test(Monitor.Wait(_mutex, 10000));
+            }
+        }
+    }
 
     public override void
     shutdown(Ice.Current current)
@@ -181,6 +212,7 @@ public class TestI : Test.TestIntfDisp_
     }
 
     private int _batchCount;
+    private int _activeSleepCalls;
     private bool _shutdown;
     private TaskCompletionSource<object> _pending;
     private readonly object _mutex = new();
@@ -204,8 +236,16 @@ public class TestControllerI : Test.TestIntfControllerDisp_
     public override void
     resumeAdapter(Ice.Current current) => _adapter.activate();
 
+    public override void
+    waitForActiveSleepCalls(int count, Ice.Current current) => _test.waitForActiveSleepCalls(count);
+
     public
-    TestControllerI(Ice.ObjectAdapter adapter) => _adapter = adapter;
+    TestControllerI(Ice.ObjectAdapter adapter, TestI test)
+    {
+        _adapter = adapter;
+        _test = test;
+    }
 
     private readonly Ice.ObjectAdapter _adapter;
+    private readonly TestI _test;
 }

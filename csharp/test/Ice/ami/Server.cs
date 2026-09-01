@@ -29,10 +29,11 @@ public class Server : TestHelper
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-        adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+        var test = new TestI();
+        adapter.add(test, Ice.Util.stringToIdentity("test"));
         adapter.add(new TestII(), Ice.Util.stringToIdentity("test2"));
         adapter.activate();
-        adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+        adapter2.add(new TestControllerI(adapter, test), Ice.Util.stringToIdentity("testController"));
         adapter2.activate();
         serverReady();
         communicator.waitForShutdown();

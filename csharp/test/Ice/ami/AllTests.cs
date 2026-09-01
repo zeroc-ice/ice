@@ -933,7 +933,7 @@ public class AllTests : global::Test.AllTests
         }
         output.WriteLine("ok");
 
-        if (p.supportsBackPressureTests())
+        if (p.ice_getConnection() is not null && p.supportsBackPressureTests())
         {
             output.Write("testing back pressure... ");
             output.Flush();
@@ -945,6 +945,10 @@ public class AllTests : global::Test.AllTests
                 Task sleep1Task = p.sleepAsync(1500);
                 Task sleep2Task = p.sleepAsync(1500);
                 Task sleep3Task = p.sleepAsync(1500);
+
+                // Wait until all three server thread pool threads are dispatching sleep before sending the payloads.
+                await testController.waitForActiveSleepCallsAsync(3);
+
                 bool canceled = false;
                 try
                 {
