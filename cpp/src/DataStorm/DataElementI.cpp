@@ -148,7 +148,8 @@ DataElementI::attach(
     {
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
-        LongLongDict lastIds = key ? session->getLastIds(topicId, id, shared_from_this()) : LongLongDict{};
+        // Report this element's resume points so the peer replays only what the element has not seen.
+        LongLongDict lastIds = session->getLastIds(topicId, id, shared_from_this());
         DataSamples initializationBatch = getSamples(key, sampleFilter, data.config, lastId, now);
 
         acks.push_back(ElementDataAck{
