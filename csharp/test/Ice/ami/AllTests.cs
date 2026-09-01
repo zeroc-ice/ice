@@ -933,7 +933,7 @@ public class AllTests : global::Test.AllTests
         }
         output.WriteLine("ok");
 
-        if (p.supportsBackPressureTests())
+        if (p.ice_getConnection() is not null && p.supportsBackPressureTests())
         {
             output.Write("testing back pressure... ");
             output.Flush();
