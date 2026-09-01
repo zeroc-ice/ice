@@ -92,17 +92,25 @@ These are the changes since the Ice 3.8.2 release.
 - The invocation timeout is now normalized consistently in all language mappings and at all configuration surfaces
   (`ice_invocationTimeout`, the `InvocationTimeout` proxy property, and `Ice.Default.InvocationTimeout`): zero or any
   negative value means infinite and is normalized to -1, and a positive duration is rounded up to the next whole
-  millisecond. Previously, C# kept a fractional timeout and `proxyToProperty` emitted it as-is
-  (`InvocationTimeout=30.5`) — a value that `propertyToProxy` rejects.
+  millisecond.
 
 - The locator cache timeout is now normalized consistently in all language mappings and at all configuration surfaces
   (`ice_locatorCacheTimeout`, the `LocatorCacheTimeout` proxy property, and `Ice.Default.LocatorCacheTimeout`): any
   negative value means infinite and is normalized to -1, 0 still means no caching, and a positive duration is rounded up
-  to the next whole second. Previously, C# kept a fractional timeout and `proxyToProperty` emitted it as-is
-  (`LocatorCacheTimeout=30.5`) — a value that `propertyToProxy` rejects.
+  to the next whole second.
+
+- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread flushed
+  batch requests on a connection, proxy, or communicator while another thread was making batch invocations on the same
+  batch queue. This race could only occur in the multi-threaded mappings: C++, C#, Java, and Python (which uses the C++
+  runtime).
 
 - Fixed the handling of an invalid response from an HTTP proxy (configured with `Ice.HTTPProxyHost`). Connection
   establishment now fails promptly with a `ProtocolException`, instead of hanging until the connection times out.
+
+- Fixed a WebSocket bug where an Ice server echoed a received ping's payload in the pong without unmasking it, so a
+  non-Ice WebSocket peer that sends payload-bearing pings and validates the echoed pong (e.g. an L7 load balancer or
+  gateway health check) could drop the connection (RFC 6455 §5.5.3). The common cases — browser/JS clients and empty
+  keepalive pings — were unaffected.
 
 - Improved the command-line parsing of the Slice compilers and the Ice command-line tools such as icegridadmin and
   icegridregistry: a short option that requires an argument can now appear at the end of a group of short options. For
@@ -116,17 +124,21 @@ These are the changes since the Ice 3.8.2 release.
 
 ### Slice Compiler Changes
 
-These changes apply to all Slice compilers.
+Unless indicated otherwise, these changes apply to all Slice compilers.
 
 - Fixed the include-path matching: an include directory that is a string prefix of a sibling directory, such as
   `-I /a/b` with a Slice file under `/a/bc`, no longer produces a mangled `#include` or `require` path in the generated
   code.
 
-- The `--depend-json` output is now well-formed JSON: it previously omitted the commas between entries and did not
-  escape the backslashes in Windows path names.
+- The dependency output (`--depend`, `--depend-json`, and `--depend-xml`) is now always well-formed. In particular,
+  `--depend-json` previously omitted the commas between entries and did not escape the backslashes in Windows path
+  names.
 
 - `--depend --depend-file FILE` now writes a rule for every Slice file passed to the compiler; previously the dependency
   file only kept the last Slice file's rule.
+
+- Fixed crashes in `slice2cpp` and `slice2java` when compiling a doc comment containing a tag with no description, such
+  as `@param myParam` or `@throws MyException` with nothing after the name. The description is optional.
 
 ### C++ Changes
 
@@ -134,16 +146,9 @@ These changes apply to all Slice compilers.
   replaced while holding the connection's lock, so a callback whose destructor called back into the connection
   deadlocked. This affected the language mappings that attach a finalizer to the callback, such as Ice for Python.
 
-- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread flushed
-  batch requests on a connection, proxy, or communicator while another thread was making batch invocations on the same
-  batch queue.
-
 - Fixed a hang in `Communicator::flushBatchRequests` and `flushBatchRequestsAsync`. When a connection was closed while
   the communicator was flushing its batch requests, the returned future or completion callback could remain pending
   forever.
-
-- Improved performance on Windows when thread pool serialization (`Serialize=1`) is enabled on a thread pool with a
-  single thread.
 
 - Fixed the delivery of log messages to remote loggers attached to the Logger admin facet when
   `Ice.Admin.Logger.KeepLogs` or `Ice.Admin.Logger.KeepTraces` is set to `0` (their default value is `100`). These
@@ -161,20 +166,20 @@ These changes apply to all Slice compilers.
 - Ice now generates random bytes — including those behind `Ice::generateUUID` and `addWithUUID` — with the operating
   system's CSPRNG instead of `std::random_device`.
 
-- Fixed several bugs in the OpenSSL-based IceSSL transport:
+- Fixed two bugs in the OpenSSL-based IceSSL transport:
   - `IceSSL.Password` was not used when loading an encrypted PEM private key: OpenSSL prompted for the password on the
     terminal or failed to load the key.
   - A rejected peer certificate reported a generic "rejected by the certificate validation callback" message instead of
     the specific reason (such as "certificate has expired").
-  - The build failed against OpenSSL 4.0.
 
-- Fixed several bugs in the Schannel-based IceSSL transport (Windows):
+- The OpenSSL-based IceSSL transport now supports OpenSSL 4.0.
+
+- Fixed two bugs in the Schannel-based IceSSL transport (Windows):
   - A TLS renegotiation (such as a TLS 1.3 KeyUpdate or NewSessionTicket) received in the same read as already-decrypted
     application data silently dropped the plaintext extracted before the renegotiation request, breaking the affected
     connection.
   - Each failed TLS handshake leaked the security-token and alert buffers allocated by Schannel. On a server, a peer
     repeatedly failing handshakes could leak memory over time.
-  - A certificate context was leaked.
 
 - Fixed several bugs in the SecureTransport-based SSL transport (macOS and iOS):
   - On macOS, PKCS#12 certificate files with an empty password are now supported.
@@ -184,11 +189,6 @@ These changes apply to all Slice compilers.
   - On iOS, using `IceSSL.FindCert` to select a keychain certificate that has no label attribute could abort the process
     during communicator initialization. Ice now reports a clear error instead.
 
-- Fixed a WebSocket bug where an Ice server echoed a received ping's payload in the pong without unmasking it, so a
-  non-Ice WebSocket peer that sends payload-bearing pings and validates the echoed pong (e.g. an L7 load balancer or
-  gateway health check) could drop the connection (RFC 6455 §5.5.3). The common cases — browser/JS clients and empty
-  keepalive pings — were unaffected.
-
 - Fixed a bug in the iOS (CFStream) transport where a connection could intermittently stall.
 
 - Fixed two crashes in the IceBT transport:
@@ -196,9 +196,6 @@ These changes apply to all Slice compilers.
     could crash the program.
   - An incoming Bluetooth connection delivered while its object adapter was being deactivated — or the communicator
     destroyed — could crash the program.
-
-- Fixed a crash in `slice2cpp` when compiling a doc comment containing a tag with no description, such as
-  `@param myParam` or `@throws MyException` with nothing after the name. The description is optional.
 
 - Fixed a `slice2cpp` bug where a `float` constant whose value is rendered in scientific notation (any magnitude ≥ 1e6
   or < 1e-4, e.g. `1e8`) generated an invalid C++ literal such as `1e+08.0F`, causing the generated header to fail to
@@ -221,17 +218,11 @@ These changes apply to all Slice compilers.
 - Fixed a bug where specifying the `--Ice.Config` command-line option more than once loaded the wrong configuration
   file: Ice loaded the first file instead of the last.
 
-- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread flushed
-  batch requests on a connection, proxy, or communicator while another thread was making batch invocations on the same
-  batch queue.
-
 - Fixed a hang in `Communicator.flushBatchRequestsAsync`. When a connection was closed while the communicator was
   flushing its batch requests, the returned task never completed.
 
 - Fixed a leak in asynchronous proxy invocations that supply a cancellation token: each invocation remained registered
   with this token after completing, so a long-lived token retained the memory of all its completed invocations.
-
-- Improved performance when thread pool serialization (`Serialize=1`) is enabled on a thread pool with a single thread.
 
 - Fixed the servant lookup for incoming requests: when the target identity is registered with a different facet, the
   object adapter now dispatches the request to the default servant if one is registered, as documented, instead of
@@ -244,11 +235,6 @@ These changes apply to all Slice compilers.
 
 - Fixed thread-safety bugs in the C# metrics (IceMX) implementation that could produce incorrect metrics or throw under
   concurrent updates.
-
-- Fixed a WebSocket bug where an Ice server echoed a received ping's payload in the pong without unmasking it, so a
-  non-Ice WebSocket peer that sends payload-bearing pings and validates the echoed pong (e.g. an L7 load balancer or
-  gateway health check) could drop the connection (RFC 6455 §5.5.3). The common cases — browser/JS clients and empty
-  keepalive pings — were unaffected.
 
 - Fixed a bug in `slice2cs` handling of `cs:namespace`: a nested module received the namespace prefix twice (e.g.
   `Foo.A.Foo.B` instead of `Foo.A.B`), producing C# that did not compile.
@@ -277,10 +263,6 @@ These changes apply to all Slice compilers.
 
 - Fixed a memory leak in Ice for Java. Outgoing connections were not released after they closed, so the memory used by a
   long-running program grew over the lifetime of the communicator.
-
-- Fixed a data race in batch request queuing that could corrupt batch-message framing (or crash) when one thread flushed
-  batch requests on a connection, proxy, or communicator while another thread was making batch invocations on the same
-  batch queue.
 
 - Fixed a race condition in `ObjectAdapter`: when `destroy` raced with another `destroy` or with `deactivate` on the
   same object adapter, the destroyed adapter could be marked as merely deactivated, and a subsequent `destroy` call
@@ -317,17 +299,9 @@ These changes apply to all Slice compilers.
 - Fixed a data race in the Ice for Java metrics (IceMX) implementation. Reconfiguring the metrics views at runtime while
   metrics were being collected could corrupt the internal metrics maps or throw a `ConcurrentModificationException`.
 
-- Fixed a WebSocket bug where an Ice server echoed a received ping's payload in the pong without unmasking it, so a
-  non-Ice WebSocket peer that sends payload-bearing pings and validates the echoed pong (e.g. an L7 load balancer or
-  gateway health check) could drop the connection (RFC 6455 §5.5.3). The common cases — browser/JS clients and empty
-  keepalive pings — were unaffected.
-
 - Fixed a bug on Windows where a plug-in or IceBox service configured with an unquoted UNC path (such as
   `\\server\share\plugin.jar`) was loaded from the wrong location: the path was resolved relative to the current
   directory instead of being recognized as absolute.
-
-- Fixed a crash in `slice2java` when compiling a doc comment containing a `@throws` tag that names the exception but has
-  no description. The description is optional.
 
 - Fixed a bug in `slice2java` that emitted broken code for dictionaries using `java:type:<instance-type>:<formal-type>`
   metadata to specify a formal type. This bug affected dictionaries used in classes or exceptions, or as the return type
