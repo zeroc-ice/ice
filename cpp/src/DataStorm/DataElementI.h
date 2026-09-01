@@ -82,27 +82,6 @@ namespace DataStormI
             {
             }
 
-            /// Determines if any subscriber matches the given sample.
-            ///
-            /// @param sample The sample to evaluate against the subscribers.
-            /// @param matchKey If true, the sample's key is matched against subscriber keys.
-            ///                 If false, the key match is skipped.
-            /// @return `true` if at least one subscriber matches the sample, otherwise false.
-            [[nodiscard]] bool matchOne(const std::shared_ptr<Sample>& sample, bool matchKey) const
-            {
-                for (const auto& [_, subscriber] : subscribers)
-                {
-                    if ((!matchKey || subscriber->keys.empty() ||
-                         subscriber->keys.find(sample->key) != subscriber->keys.end()) &&
-                        (!subscriber->filter || subscriber->filter->match(sample->key)) &&
-                        (!subscriber->sampleFilter || subscriber->sampleFilter->match(sample)))
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }
-
             [[nodiscard]] std::shared_ptr<Subscriber> addOrGet(
                 std::int64_t topicId,
                 std::int64_t elementId,
@@ -327,6 +306,15 @@ namespace DataStormI
         // A map containing the element listeners, indexed by the session servant and the target facet. The
         // implementation of forward utilizes the listener map to forward calls to the peer sessions.
         std::map<ListenerKey, Listener> _listeners;
+
+        /// Determines whether any of a listener's subscribers matches the given sample.
+        /// @param listener The listener whose subscribers are evaluated.
+        /// @param sample The sample to evaluate against the subscribers.
+        /// @param matchKey If true, the sample's key is matched against the subscriber keys. If false, the key match
+        /// is skipped.
+        /// @return `true` if at least one subscriber matches the sample, `false` otherwise.
+        [[nodiscard]] bool
+        matchOne(const Listener& listener, const std::shared_ptr<Sample>& sample, bool matchKey) const;
 
     private:
         virtual void forward(const Ice::ByteSeq&, const Ice::Current&) const;

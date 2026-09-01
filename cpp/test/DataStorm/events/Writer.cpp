@@ -536,6 +536,43 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // The sample filter also runs on this writer while it selects the destinations of a live publication, once per
+    // sample per destination facet. A predicate that throws there must not abort the publication: the unfiltered
+    // reader still receives the sample, and the writer still records it.
+    cout << "testing sample filter that throws during a live publish... " << flush;
+    {
+        Topic<string, string> topic(node, "liveSampleFilterThrow");
+        Topic<string, int> done(node, "liveSampleFilterThrowDone");
+
+        topic.setSampleFilter<string>(
+            "throwOnValue",
+            [](const string& boom)
+            {
+                return [boom](const Sample<string, string>& sample)
+                {
+                    // A remove carries no value, so check the event first.
+                    if (sample.getEvent() == SampleEvent::Remove || sample.getValue() == boom)
+                    {
+                        throw runtime_error("the sample filter failed");
+                    }
+                    return true;
+                };
+            });
+
+        auto writer = makeSingleKeyWriter(topic, "elem", "", config);
+
+        // The unfiltered reader and the sample-filtered one, each addressed under its own destination facet.
+        writer.waitForReaders(2);
+
+        writer.add("value1");
+        writer.update("boom"); // The predicate throws for the filtered reader's facet.
+        writer.update("value2");
+        writer.remove(); // The predicate throws again, from a noexcept caller.
+
+        [[maybe_unused]] auto _ = makeSingleKeyReader(done, "done").getNextUnread();
+    }
+    cout << "ok" << endl;
+
     // An any-key reader and a filtered reader coexisting on the same topic must each keep their own subscription:
     // both receive matching samples, and destroying one must not detach the other.
     cout << "testing coexisting any-key and filtered readers... " << flush;
