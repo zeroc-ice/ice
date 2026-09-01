@@ -75,28 +75,33 @@ def attributeDoc(body: list[ast.stmt], index: int) -> str | None:
     return None
 
 
-def stubDeclarations() -> tuple[dict[str, tuple[str | None, str | None]], list[str], dict[str, set[str]], set[str]]:
+def stubDeclarations() -> tuple[
+    dict[str, tuple[str | None, str | None, bool]], list[str], dict[str, set[str]], set[str]
+]:
     """
     Parse the stub into (entries, duplicates, classMembers, topLevel).
 
-    entries maps each documented name to its (docstring, signature); classes and attributes have no
-    signature. duplicates lists the names entries could not keep apart: repeated defs -- an @overload
-    set, say -- silently overwrite each other, so they are reported instead of half-compared.
+    entries maps each documented name to its (docstring, signature, value). Classes, properties and
+    attributes carry no signature, and value marks the properties and attributes: IcePy must not
+    document those as callables either, or the stub promises an attribute for something the caller
+    has to call. duplicates lists the names entries could not keep apart: repeated defs -- an
+    @overload set, say -- silently overwrite each other, so they are reported instead of
+    half-compared.
     classMembers maps each class to every member it declares, its stub base classes included, and
     topLevel holds every name the stub declares at module scope; both exist for the reverse sweep.
     """
-    entries: dict[str, tuple[str | None, str | None]] = {}
+    entries: dict[str, tuple[str | None, str | None, bool]] = {}
     duplicates: list[str] = []
     ownMembers: dict[str, set[str]] = {}
     bases: dict[str, list[str]] = {}
     topLevel: set[str] = set()
 
-    def add(name: str, doc: str | None, signature: str | None) -> None:
+    def add(name: str, doc: str | None, signature: str | None, value: bool = False) -> None:
         if name in entries:
             duplicates.append(name)
             del entries[name]
         elif name not in duplicates:
-            entries[name] = (doc, signature)
+            entries[name] = (doc, signature, value)
 
     for node in ast.parse(STUB.read_text(encoding="utf-8")).body:
         if isinstance(node, ast.ClassDef):
@@ -107,14 +112,16 @@ def stubDeclarations() -> tuple[dict[str, tuple[str | None, str | None]], list[s
             for index, member in enumerate(node.body):
                 if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     members.add(member.name)
+                    declaresProperty = isProperty(member)
                     add(
                         f"{node.name}.{member.name}",
                         ast.get_docstring(member),
-                        None if isProperty(member) else signatureOf(member),
+                        None if declaresProperty else signatureOf(member),
+                        declaresProperty,
                     )
                 elif isinstance(member, ast.AnnAssign) and isinstance(member.target, ast.Name):
                     members.add(member.target.id)
-                    add(f"{node.name}.{member.target.id}", attributeDoc(node.body, index), None)
+                    add(f"{node.name}.{member.target.id}", attributeDoc(node.body, index), None, True)
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             topLevel.add(node.name)
             add(node.name, ast.get_docstring(node), signatureOf(node))
@@ -200,6 +207,12 @@ def normalizeProse(text: str) -> str:
     Consecutive prose lines with the same indentation join into one. Structural lines such as list
     items, fields, directives, and section underlines remain separate, as do indented literal and
     preformatted blocks.
+
+    A marker only makes a line structural where reST would begin a block: after a blank line, or at
+    a new indentation. reST wants that blank line before a list, a field list, or a directive, so a
+    wrapped line that merely opens with a marker -- "30901. For pre-releases..." -- is the paragraph
+    continuing, not an enumerated item. A section underline is the exception: it attaches to the
+    line right above it.
     """
     out: list[str] = []
     joinIndent = None  # indentation of the line out[-1] belongs to, when it can accept continuations
@@ -233,15 +246,18 @@ def normalizeProse(text: str) -> str:
             joinIndent = None
             continue
 
+        continuation = indent == joinIndent
         underline = not stripped.strip("-=~^\"'`#*+_")
-        structural = (
-            underline
-            or LIST_ITEM.match(stripped) is not None
-            or FIELD_LIST_ITEM.match(stripped) is not None
-            or NUMPYDOC_FIELD.match(stripped) is not None
-            or stripped.startswith((".. ", ">>>", "...", "```", "|"))
+        structural = underline or (
+            not continuation
+            and (
+                LIST_ITEM.match(stripped) is not None
+                or FIELD_LIST_ITEM.match(stripped) is not None
+                or NUMPYDOC_FIELD.match(stripped) is not None
+                or stripped.startswith((".. ", ">>>", "...", "```", "|"))
+            )
         )
-        if not structural and indent == joinIndent:
+        if not structural and continuation:
             out[-1] = f"{out[-1]} {stripped}"
         else:
             out.append(line)
@@ -283,7 +299,7 @@ def main() -> int:
             " only, so teach it about @overload first"
         )
 
-    for name, (stubDoc, stubSignature) in sorted(entries.items()):
+    for name, (stubDoc, stubSignature, stubValue) in sorted(entries.items()):
         defined, shippedDoc, pythonSupplied = shipped(name)
         if not defined:
             # A private helper the stub declares for pyright need not be an attribute of the module,
@@ -316,7 +332,11 @@ def main() -> int:
                 )
                 problems.append(f"{name}: descriptions differ\n{diff}")
 
-        if stubSignature and not signature:
+        if stubValue and signature:
+            problems.append(
+                f"{name}: the stub declares it as a value, but IcePy documents it as callable.\n    IcePy: {signature}"
+            )
+        elif stubSignature and not signature:
             problems.append(
                 f"{name}: the stub gives a signature, but IcePy's docstring opens with no matching one."
                 "\n    Sphinx reads the signature from that line, so it has to be there."
