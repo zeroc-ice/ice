@@ -231,8 +231,7 @@ declare module "@zeroc/ice" {
              *
              * You can also set a router for an individual proxy by calling {@link ObjectPrx#ice_router} on the proxy.
              *
-             * @param router - The default router to use for this communicator, or `null` to disable the default
-             * router.
+             * @param router - The default router to use for this communicator, or `null` to disable the default router.
              * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link getDefaultRouter}

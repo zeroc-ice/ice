@@ -10,8 +10,8 @@ declare module "@zeroc/ice" {
             /**
              * Constructs a new promise.
              *
-             * @param executor - The executor function that is called immediately when the promise is constructed. It
-             * is passed two functions, `resolve` and `reject`, that can be called to resolve or reject the promise
+             * @param executor - The executor function that is called immediately when the promise is constructed. It is
+             * passed two functions, `resolve` and `reject`, that can be called to resolve or reject the promise
              * respectively.
              */
             constructor(

@@ -11,8 +11,8 @@ declare module "@zeroc/ice" {
              *
              * @param typeId The Slice type ID or compact type ID (a compact type ID is passed as its decimal string
              * representation).
-             * @returns A new instance of the class or exception identified by `typeId`, or `null` if the
-             * implementation cannot find the corresponding class.
+             * @returns A new instance of the class or exception identified by `typeId`, or `null` if the implementation
+             * cannot find the corresponding class.
              * @throws {@link MarshalException} - Thrown when the corresponding class was found but its instantiation
              * failed.
              */

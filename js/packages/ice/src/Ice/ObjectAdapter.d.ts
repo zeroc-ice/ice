@@ -108,8 +108,8 @@ declare module "@zeroc/ice" {
              * - The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
              * - If this fails, the object adapter tries to find a default servant for the category component of the
              *   identity.
-             * - If this fails, the object adapter tries to find a default servant for the empty category, regardless
-             *   of the category contained in the identity.
+             * - If this fails, the object adapter tries to find a default servant for the empty category, regardless of
+             *   the category contained in the identity.
              * - If this fails, the object adapter tries to find a servant locator for the category component of the
              *   identity. If there is no such servant locator, the object adapter tries to find a servant locator for
              *   the empty category.
