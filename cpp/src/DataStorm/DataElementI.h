@@ -276,7 +276,6 @@ namespace DataStormI
             const std::shared_ptr<Sample>&,
             int,
             const std::shared_ptr<SessionI>&,
-            const std::string&,
             const std::chrono::time_point<std::chrono::system_clock>&,
             bool);
 
@@ -287,6 +286,17 @@ namespace DataStormI
         [[nodiscard]] std::int64_t getId() const { return _id; }
 
         [[nodiscard]] std::shared_ptr<DataStormContract::ElementConfig> getConfig() const;
+
+        /// Determines whether a sample forwarded to the given session facet is addressed to this element.
+        /// The writer forwards a sample once per destination facet, and this element is attached to exactly one of
+        /// them: the facet it configured for its sample filter, or the unfaceted destination when it has no sample
+        /// filter.
+        /// @param facet The facet the sample was forwarded to.
+        /// @return `true` if the sample is addressed to this element, `false` otherwise.
+        [[nodiscard]] bool matchFacet(const std::string& facet) const
+        {
+            return _config->facet ? *_config->facet == facet : facet.empty();
+        }
 
         void waitForListeners(int count) const;
         [[nodiscard]] bool hasListeners() const;
@@ -358,7 +368,6 @@ namespace DataStormI
             const std::shared_ptr<Sample>&,
             int,
             const std::shared_ptr<SessionI>&,
-            const std::string&,
             const std::chrono::time_point<std::chrono::system_clock>&,
             bool) override;
 
