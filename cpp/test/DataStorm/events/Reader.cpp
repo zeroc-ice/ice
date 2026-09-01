@@ -539,6 +539,43 @@ void ::Reader::run(int argc, char* argv[])
         doneWriter.update(0);
     }
 
+    // An unfiltered reader and a sample-filtered one on the same writer and key. The writer runs the sample filter
+    // while it selects the live destinations, and the predicate throws for one update and for the remove. Those
+    // samples are skipped for the filtered reader only; the unfiltered reader receives all of them.
+    {
+        Topic<string, string> topic(node, "liveSampleFilterThrow");
+        Topic<string, int> done(node, "liveSampleFilterThrowDone");
+
+        auto reader = makeSingleKeyReader(topic, "elem", "", config);
+        auto filtered = makeSingleKeyReader(topic, "elem", Filter<string>("throwOnValue", "boom"), "", config);
+
+        auto sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Add);
+        test(sample.getValue() == "value1");
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Update);
+        test(sample.getValue() == "boom");
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Update);
+        test(sample.getValue() == "value2");
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Remove);
+
+        // The filtered reader skips the two samples whose predicate threw, and nothing else: had "boom" been
+        // delivered, it would be this sample instead of "value2".
+        sample = filtered.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Add);
+        test(sample.getValue() == "value1");
+        sample = filtered.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Update);
+        test(sample.getValue() == "value2");
+        test(!filtered.hasUnread());
+
+        auto doneWriter = makeSingleKeyWriter(done, "done");
+        doneWriter.waitForReaders();
+        doneWriter.update(0);
+    }
+
     // Coexisting any-key and filtered readers on the same topic: each keeps its own subscription. Both receive a
     // sample matching the filter, and destroying the filtered reader leaves the any-key reader subscribed.
     {
