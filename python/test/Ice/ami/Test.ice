@@ -44,6 +44,7 @@ module Test
     {
         void holdAdapter();
         void resumeAdapter();
+        void waitForActiveSleepCalls(int count);
     }
 
     module Outer::Inner

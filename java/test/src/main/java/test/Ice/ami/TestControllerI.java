@@ -18,9 +18,16 @@ class TestControllerI implements TestIntfController {
         _adapter.activate();
     }
 
-    public TestControllerI(ObjectAdapter adapter) {
+    @Override
+    public void waitForActiveSleepCalls(int count, Current current) {
+        _test.waitForActiveSleepCalls(count);
+    }
+
+    public TestControllerI(ObjectAdapter adapter, TestI test) {
         _adapter = adapter;
+        _test = test;
     }
 
     private final ObjectAdapter _adapter;
+    private final TestI _test;
 }

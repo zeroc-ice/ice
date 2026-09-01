@@ -37,6 +37,7 @@ public:
     void closeConnection(const Ice::Current&) final;
     void abortConnection(const Ice::Current&) final;
     void sleep(std::int32_t, const Ice::Current&) final;
+    void waitForActiveSleepCalls(std::int32_t);
     void startDispatchAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
     void finishDispatch(const Ice::Current&) final;
     void shutdown(const Ice::Current&) final;
@@ -52,6 +53,7 @@ public:
 
 private:
     int _batchCount{0};
+    int _activeSleepCalls{0};
     bool _shutdown{false};
     std::function<void()> _pending;
     std::mutex _mutex;
@@ -63,11 +65,13 @@ class TestIntfControllerI : public Test::TestIntfController
 public:
     void holdAdapter(const Ice::Current&) final;
     void resumeAdapter(const Ice::Current&) final;
+    void waitForActiveSleepCalls(std::int32_t, const Ice::Current&) final;
 
-    TestIntfControllerI(Ice::ObjectAdapterPtr);
+    TestIntfControllerI(Ice::ObjectAdapterPtr, std::shared_ptr<TestIntfI>);
 
 private:
     Ice::ObjectAdapterPtr _adapter;
+    std::shared_ptr<TestIntfI> _test;
     std::mutex _mutex;
 };
 

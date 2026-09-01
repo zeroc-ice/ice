@@ -28,9 +28,10 @@ class Collocated(TestHelper):
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter2 = communicator.createObjectAdapter("ControllerAdapter")
 
-            testController = TestI.TestIntfControllerI(adapter)
+            test = TestI.TestIntfI()
+            testController = TestI.TestIntfControllerI(adapter, test)
 
-            adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
+            adapter.add(test, Ice.stringToIdentity("test"))
             adapter.add(TestI.TestIntfII(), Ice.stringToIdentity("test2"))
             # adapter.activate() # Collocated test doesn't need to active the OA
 

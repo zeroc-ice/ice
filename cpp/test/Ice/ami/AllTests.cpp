@@ -1468,6 +1468,9 @@ allTests(TestHelper* helper, bool collocated)
                 auto sleep2Future = p->sleepAsync(1500);
                 auto sleep3Future = p->sleepAsync(1500);
 
+                // Wait until all three server thread pool threads are dispatching sleep before sending the payloads.
+                testController->waitForActiveSleepCalls(3);
+
                 auto onewayProxy = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_oneway());
 
                 // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.

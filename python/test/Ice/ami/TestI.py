@@ -14,6 +14,7 @@ class TestIntfI(Test.TestIntf):
     def __init__(self):
         self._cond = threading.Condition()
         self._batchCount = 0
+        self._activeSleepCalls = 0
         self._pending = None
         self._shutdown = False
 
@@ -72,7 +73,19 @@ class TestIntfI(Test.TestIntf):
 
     @override
     def sleep(self, ms: int, current: Ice.Current):
-        time.sleep(ms / 1000.0)
+        with self._cond:
+            self._activeSleepCalls += 1
+            self._cond.notify_all()
+
+        try:
+            time.sleep(ms / 1000.0)
+        finally:
+            with self._cond:
+                self._activeSleepCalls -= 1
+
+    def waitForActiveSleepCalls(self, count: int):
+        with self._cond:
+            assert self._cond.wait_for(lambda: self._activeSleepCalls >= count, timeout=10)
 
     @override
     def startDispatch(self, current: Ice.Current):
@@ -135,11 +148,15 @@ class TestIntfII(Inner_TestIntf):
 
 
 class TestIntfControllerI(Test.TestIntfController):
-    def __init__(self, adapter: Ice.ObjectAdapter):
+    def __init__(self, adapter: Ice.ObjectAdapter, test: TestIntfI):
         self._adapter = adapter
+        self._test = test
 
     def holdAdapter(self, current: Ice.Current):
         self._adapter.hold()
 
     def resumeAdapter(self, current: Ice.Current):
         self._adapter.activate()
+
+    def waitForActiveSleepCalls(self, count: int, current: Ice.Current):
+        self._test.waitForActiveSleepCalls(count)

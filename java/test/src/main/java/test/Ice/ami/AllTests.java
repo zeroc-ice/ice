@@ -1165,6 +1165,10 @@ public class AllTests {
                 CompletableFuture<Void> sleep1Future = p.sleepAsync(1500);
                 CompletableFuture<Void> sleep2Future = p.sleepAsync(1500);
                 CompletableFuture<Void> sleep3Future = p.sleepAsync(1500);
+
+                // Wait until all three server thread pool threads are dispatching sleep before sending the payloads.
+                testController.waitForActiveSleepCalls(3);
+
                 TestIntfPrx onewayProxy = p.ice_oneway();
 
                 // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.

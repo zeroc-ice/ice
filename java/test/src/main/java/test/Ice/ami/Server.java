@@ -32,11 +32,12 @@ public class Server extends TestHelper {
             ObjectAdapter adapter2 =
                 communicator.createObjectAdapter("ControllerAdapter");
 
-            adapter.add(new TestI(), new Identity("test", ""));
+            var test = new TestI();
+            adapter.add(test, new Identity("test", ""));
             adapter.add(new TestII(), new Identity("test2", ""));
             adapter.activate();
             adapter2.add(
-                new TestControllerI(adapter),
+                new TestControllerI(adapter, test),
                 new Identity("testController", ""));
             adapter2.activate();
             serverReady();

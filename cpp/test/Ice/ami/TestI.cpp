@@ -4,6 +4,8 @@
 #include "Ice/Ice.h"
 #include "TestHelper.h"
 
+#include <thread>
+
 using namespace std;
 using namespace Ice;
 
@@ -121,8 +123,26 @@ TestIntfI::abortConnection(const Ice::Current& current)
 void
 TestIntfI::sleep(int32_t ms, const Ice::Current&)
 {
+    {
+        lock_guard lock(_mutex);
+        ++_activeSleepCalls;
+        _condition.notify_all();
+    }
+
+    this_thread::sleep_for(chrono::milliseconds(ms));
+
+    lock_guard lock(_mutex);
+    --_activeSleepCalls;
+}
+
+void
+TestIntfI::waitForActiveSleepCalls(int32_t count)
+{
     unique_lock lock(_mutex);
-    _condition.wait_for(lock, chrono::milliseconds(ms));
+    while (_activeSleepCalls < count)
+    {
+        test(_condition.wait_for(lock, chrono::seconds(10)) != cv_status::timeout);
+    }
 }
 
 void
@@ -238,7 +258,17 @@ TestIntfControllerI::resumeAdapter(const Ice::Current&)
     _adapter->activate();
 }
 
-TestIntfControllerI::TestIntfControllerI(Ice::ObjectAdapterPtr adapter) : _adapter(std::move(adapter)) {}
+void
+TestIntfControllerI::waitForActiveSleepCalls(int32_t count, const Ice::Current&)
+{
+    _test->waitForActiveSleepCalls(count);
+}
+
+TestIntfControllerI::TestIntfControllerI(Ice::ObjectAdapterPtr adapter, shared_ptr<TestIntfI> test)
+    : _adapter(std::move(adapter)),
+      _test(std::move(test))
+{
+}
 
 int32_t
 TestIntfII::op(int32_t i, int32_t& j, const Ice::Current&)

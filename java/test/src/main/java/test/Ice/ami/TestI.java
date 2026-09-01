@@ -148,9 +148,27 @@ public class TestI implements TestIntf {
 
     @Override
     public void sleep(int ms, Current current) {
+        synchronized (this) {
+            ++_activeSleepCalls;
+            notifyAll();
+        }
+
         try {
             Thread.sleep(ms);
-        } catch (InterruptedException ex) {}
+        } catch (InterruptedException ex) {
+        } finally {
+            synchronized (this) {
+                --_activeSleepCalls;
+            }
+        }
+    }
+
+    public synchronized void waitForActiveSleepCalls(int count) {
+        while (_activeSleepCalls < count) {
+            try {
+                wait(10000);
+            } catch (InterruptedException ex) {}
+        }
     }
 
     @Override
@@ -190,6 +208,7 @@ public class TestI implements TestIntf {
     }
 
     private int _batchCount;
+    private int _activeSleepCalls;
     private boolean _shutdown;
     private CompletableFuture<Void> _pending;
 }
