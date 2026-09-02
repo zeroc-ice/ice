@@ -30,6 +30,11 @@ Server::run(int argc, char** argv)
     //
     properties->setProperty("Ice.TCP.RcvSize", "50000");
 
+    //
+    // The back pressure test sends a 4MB payload, above the default message size limit.
+    //
+    properties->setProperty("Ice.MessageSizeMax", "8192");
+
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

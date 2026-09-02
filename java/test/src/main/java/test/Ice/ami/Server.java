@@ -20,6 +20,8 @@ public class Server extends TestHelper {
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+        // The back pressure test sends a 4MB payload, above the default message size limit.
+        initData.properties.setProperty("Ice.MessageSizeMax", "8192");
 
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
