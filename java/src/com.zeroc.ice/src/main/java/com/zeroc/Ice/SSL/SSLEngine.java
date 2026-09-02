@@ -152,10 +152,11 @@ public class SSLEngine {
                             }
                         }
                     } else {
-                        // If the user selected a specific alias, ensure it correspond with a key entry.
-                        if (!keys.isKeyEntry(alias)) {
+                        // If the user selected a specific alias, ensure it corresponds to a private key entry.
+                        if (!keys.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class)) {
                             throw new InitializationException(
-                                "SSL transport: keystore does not contain an entry with alias `" + alias + "'");
+                                "SSL transport: keystore does not contain a private key entry with alias `" + alias
+                                    + "'");
                         }
                     }
 

@@ -718,13 +718,20 @@ public class AllTests {
                 testStoreLoads(initData);
 
                 // A key store can hold a secret key ahead of the key pair. The secret key is not usable for TLS, so
-                // IceSSL must select the key pair instead of rejecting the store.
-                initData = createClientProps(defaultProperties);
+                // IceSSL must select the key pair and authenticate the client with it.
+                initData = createClientProps(defaultProperties, "", "ca1/ca1", keystoreType);
                 initData.properties.setProperty("IceSSL.Keystore", createMixedKeystore(defaultDir));
                 initData.properties.setProperty("IceSSL.KeystoreType", "PKCS12");
                 initData.properties.setProperty("IceSSL.KeystorePassword", "password");
-                initData.properties.setProperty("IceSSL.Password", "password");
-                testStoreLoads(initData);
+                try (Communicator comm = new Communicator(initData)) {
+                    ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1", keystoreType);
+                    d.put("IceSSL.VerifyPeer", "2");
+                    ServerPrx server = fact.createServer(d);
+                    server.ice_ping();
+                    fact.destroyServer(server);
+                }
             }
         }
         out.println("ok");
