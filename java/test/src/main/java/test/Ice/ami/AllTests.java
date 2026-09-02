@@ -1168,10 +1168,11 @@ public class AllTests {
                 TestIntfPrx onewayProxy = p.ice_oneway();
 
                 // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
-                // On Windows, the kernel can absorb several whole sends into its own buffering (auto-tuning
-                // appears to ignore the configured send buffer size) before a send blocks: 4 x 768KB, about 3MB,
-                // were absorbed on windows-2025. We send a 4MB payload, larger than any buffering observed so
-                // far, and the servers raise Ice.MessageSizeMax to accept it.
+                // Winsock completes the first two sends on a socket whatever their size (KB214397), but the JDK
+                // splits each write into WSASend calls of at most 128KB, so a large message stays pending once
+                // its third chunk would block. Still, each message must be too large for the peer's kernel to
+                // absorb: on windows-2025, four 768KB sends all completed in C#. We send a 4MB payload; the
+                // servers raise Ice.MessageSizeMax to accept it.
                 CompletableFuture<Void> future = onewayProxy.opWithPayloadAsync(new byte[4 * 1024 * 1024]);
                 boolean timeout = false;
                 try {

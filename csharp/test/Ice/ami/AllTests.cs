@@ -953,11 +953,14 @@ public class AllTests : global::Test.AllTests
                     // Sending should be canceled because the TCP send/receive buffer size on the server is set
                     // to 50KB. Note: we don't use the cancel parameter of the operation here because the
                     // cancellation doesn't cancel the operation whose payload is being sent.
-                    // On Windows, the kernel can absorb several whole sends into its own buffering (auto-tuning
-                    // appears to ignore the configured send buffer size) before a send blocks: 4 x 768KB, about
-                    // 3MB, were absorbed on windows-2025. We send a 4MB payload, larger than any buffering observed
-                    // so far, and the servers raise Ice.MessageSizeMax to accept it. We still loop a few times as a
-                    // safety net in case a send is absorbed anyway.
+                    // Winsock completes the first two sends on a socket whatever their size: a send made while
+                    // the socket is within its SO_SNDBUF quota completes, and so does one more send while only
+                    // one earlier send is still buffered. From the third send on, the data is still copied but
+                    // the completion is deferred until the earlier sends drain (KB214397, "Winsock uses the
+                    // following rules to indicate a send completion"). So at least 3 sends are needed for one to
+                    // block, and each one must be too large for the peer's kernel to absorb the earlier ones:
+                    // on windows-2025, four 768KB sends all completed. We loop 4 times with a 4MB payload; the
+                    // servers raise Ice.MessageSizeMax to accept it.
                     for (int i = 0; i < 4; ++i)
                     {
                         using var cts = new CancellationTokenSource(200);
