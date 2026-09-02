@@ -28,6 +28,11 @@ class Server(TestHelper):
         #
         properties.setProperty("Ice.TCP.RcvSize", "50000")
 
+        #
+        # The back pressure test sends a 4MB payload, above the default message size limit.
+        #
+        properties.setProperty("Ice.MessageSizeMax", "8192")
+
         with self.initialize(properties=properties) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.getTestEndpoint(num=1))

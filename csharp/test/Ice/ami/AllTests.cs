@@ -953,12 +953,15 @@ public class AllTests : global::Test.AllTests
                     // Sending should be canceled because the TCP send/receive buffer size on the server is set
                     // to 50KB. Note: we don't use the cancel parameter of the operation here because the
                     // cancellation doesn't cancel the operation whose payload is being sent.
-                    // We loop up to 4 times because on Windows with TCP, the Socket.Send call appears to always succeed
-                    // twice before blocking.
+                    // On Windows, the kernel can absorb several whole sends into its own buffering (auto-tuning
+                    // appears to ignore the configured send buffer size) before a send blocks: 4 x 768KB, about
+                    // 3MB, were absorbed on windows-2025. We send a 4MB payload, larger than any buffering observed
+                    // so far, and the servers raise Ice.MessageSizeMax to accept it. We still loop a few times as a
+                    // safety net in case a send is absorbed anyway.
                     for (int i = 0; i < 4; ++i)
                     {
                         using var cts = new CancellationTokenSource(200);
-                        await onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).WaitAsync(cts.Token);
+                        await onewayProxy.opWithPayloadAsync(new byte[4 * 1024 * 1024]).WaitAsync(cts.Token);
                     }
                 }
                 catch (OperationCanceledException)

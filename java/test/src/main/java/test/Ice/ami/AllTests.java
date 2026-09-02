@@ -1168,7 +1168,11 @@ public class AllTests {
                 TestIntfPrx onewayProxy = p.ice_oneway();
 
                 // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
-                CompletableFuture<Void> future = onewayProxy.opWithPayloadAsync(new byte[768 * 1024]);
+                // On Windows, the kernel can absorb several whole sends into its own buffering (auto-tuning
+                // appears to ignore the configured send buffer size) before a send blocks: 4 x 768KB, about 3MB,
+                // were absorbed on windows-2025. We send a 4MB payload, larger than any buffering observed so
+                // far, and the servers raise Ice.MessageSizeMax to accept it.
+                CompletableFuture<Void> future = onewayProxy.opWithPayloadAsync(new byte[4 * 1024 * 1024]);
                 boolean timeout = false;
                 try {
                     future.get(200, TimeUnit.MILLISECONDS);

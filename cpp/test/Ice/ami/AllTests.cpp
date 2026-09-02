@@ -1471,10 +1471,13 @@ allTests(TestHelper* helper, bool collocated)
                 auto onewayProxy = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_oneway());
 
                 // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
-                // We loop up to 4 times because on Windows with TCP, the Socket.Send call appears to always succeed
-                // twice before blocking.
+                // On Windows, the kernel can absorb several whole sends into its own buffering (auto-tuning appears
+                // to ignore the configured send buffer size) before a send blocks: 4 x 768KB, about 3MB, were
+                // absorbed on windows-2025. We send a 4MB payload, larger than any buffering observed so far, and
+                // the servers raise Ice.MessageSizeMax to accept it. We still loop a few times as a safety net in
+                // case a send is absorbed anyway.
                 Ice::ByteSeq seq;
-                seq.resize(768 * 1024);
+                seq.resize(4 * 1024 * 1024);
 
                 bool timedOut = false;
                 for (int i = 0; i < 4; ++i)
