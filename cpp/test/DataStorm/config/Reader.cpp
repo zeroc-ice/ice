@@ -105,7 +105,9 @@ void ::Reader::run(int argc, char* argv[])
         while (!writers.getNextUnread().getValue())
             ; // Wait for writer to write the samples before reading
 
-        // Writer keeps 20ms worth of samples
+        // The writer publishes value1, value2 and a Remove, then waits past its 20 ms sample lifetime before
+        // signaling readiness. These samples are stale when this reader attaches, so the reader receives only the
+        // samples the writer publishes after the reader attaches.
         readers.update(false);
         ReaderConfig config;
         config.clearHistory = ClearHistoryPolicy::Never;
