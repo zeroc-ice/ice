@@ -136,6 +136,15 @@ public class SSLEngine {
                         }
                     }
 
+                    String algorithm = KeyManagerFactory.getDefaultAlgorithm();
+                    KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+                    // This password cannot be null.
+                    char[] passwordChars = password.isEmpty() ? new char[0] : password.toCharArray();
+                    kmf.init(keys, passwordChars);
+                    Arrays.fill(passwordChars, '\0');
+                    password = null;
+                    keyManagers = kmf.getKeyManagers();
+
                     // If no alias is specified, we look for the first key entry in the key store.
                     //
                     // This is required to force the key manager to always choose a certificate even if there's no
@@ -155,7 +164,7 @@ public class SSLEngine {
                         // If the user selected a specific alias, ensure it corresponds to a private key entry.
                         if (!keys.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class)) {
                             throw new InitializationException(
-                                "SSL transport: keystore does not contain a private key entry with alias `" + alias
+                                "SSL transport: keystore does not contain a private key entry with alias '" + alias
                                     + "'");
                         }
                     }
@@ -166,22 +175,11 @@ public class SSLEngine {
                         Certificate[] chain = keys.getCertificateChain(alias);
                         if (chain == null || chain.length == 0) {
                             throw new InitializationException(
-                                "SSL transport: keystore entry with alias `" + alias
-                                    + "` does not contain a certificate chain; check IceSSL.KeystorePassword or,"
+                                "SSL transport: keystore entry with alias '" + alias
+                                    + "' does not contain a certificate chain; check IceSSL.KeystorePassword or,"
                                     + " for a password-less PKCS12 store, set IceSSL.KeystoreType=PKCS12");
                         }
-                    }
 
-                    String algorithm = KeyManagerFactory.getDefaultAlgorithm();
-                    KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-                    // This password cannot be null.
-                    char[] passwordChars = password.isEmpty() ? new char[0] : password.toCharArray();
-                    kmf.init(keys, passwordChars);
-                    Arrays.fill(passwordChars, '\0');
-                    password = null;
-                    keyManagers = kmf.getKeyManagers();
-
-                    if (!alias.isEmpty()) {
                         // wrap the key managers in order to return the desired alias.
                         for (int i = 0; i < keyManagers.length; i++) {
                             keyManagers[i] =
@@ -249,13 +247,8 @@ public class SSLEngine {
                         TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
                         // Attempting to establish an outgoing connection with an empty truststore can cause hangs that
                         // eventually result in an exception such as: `InvalidAlgorithmParameterException` the
-                        // trustAnchors parameter must be non-empty.
-                        if (truststore.size() == 0) {
-                            throw new InitializationException(
-                                "SSL transport: truststore is empty; check IceSSL.TruststorePassword or, for a"
-                                    + " password-less PKCS12 store, set IceSSL.TruststoreType=PKCS12");
-                        }
-
+                        // trustAnchors parameter must be non-empty. A PKCS12 store loaded with a null password can also
+                        // contain key entries without their encrypted certificates.
                         boolean containsCertificate = false;
                         for (Enumeration<String> e = truststore.aliases(); e.hasMoreElements(); ) {
                             if (truststore.getCertificate(e.nextElement()) != null) {
@@ -264,8 +257,6 @@ public class SSLEngine {
                             }
                         }
                         if (!containsCertificate) {
-                            // A PKCS12 store loaded with a null password can contain key entries without their
-                            // encrypted certificates.
                             throw new InitializationException(
                                 "SSL transport: truststore does not contain any certificates; check"
                                     + " IceSSL.TruststorePassword or, for a password-less PKCS12 store, set"
