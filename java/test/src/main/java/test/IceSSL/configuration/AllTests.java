@@ -16,12 +16,17 @@ import test.IceSSL.configuration.Test.ServerFactoryPrx;
 import test.IceSSL.configuration.Test.ServerPrx;
 import test.TestHelper;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.KeyGenerator;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -40,6 +45,48 @@ public class AllTests {
 
     private static void testStoreLoads(InitializationData initData) {
         try (Communicator communicator = new Communicator(initData)) {}
+    }
+
+    // Creates a PKCS12 key store holding an AES secret key ahead of the ca1 client key pair, and returns its path.
+    private static String createMixedKeystore(String defaultDir) {
+        try {
+            char[] password = "password".toCharArray();
+            KeyStore.PasswordProtection protection = new KeyStore.PasswordProtection(password);
+
+            KeyStore client = KeyStore.getInstance("PKCS12");
+            try (FileInputStream in = new FileInputStream(defaultDir + "/ca1/client.p12")) {
+                client.load(in, password);
+            }
+
+            KeyStore mixed = KeyStore.getInstance("PKCS12");
+            mixed.load(null, null);
+            mixed.setEntry(
+                "aes", new KeyStore.SecretKeyEntry(KeyGenerator.getInstance("AES").generateKey()), protection);
+            for (Enumeration<String> e = client.aliases(); e.hasMoreElements(); ) {
+                String alias = e.nextElement();
+                if (client.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class)) {
+                    mixed.setEntry(alias, client.getEntry(alias, protection), protection);
+                }
+            }
+
+            File file = File.createTempFile("mixed", ".p12");
+            file.deleteOnExit();
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                mixed.store(out, password);
+            }
+
+            // The test relies on the secret key being enumerated first.
+            KeyStore reloaded = KeyStore.getInstance("PKCS12");
+            try (FileInputStream in = new FileInputStream(file)) {
+                reloaded.load(in, password);
+            }
+            test("aes".equals(reloaded.aliases().nextElement()));
+            return file.getAbsolutePath();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            test(false);
+            return null;
+        }
     }
 
     private static X509Certificate loadCertificate(String path, String alias) {
@@ -625,8 +672,9 @@ public class AllTests {
             }
 
             if ("PKCS12".equals(keystoreType)) {
-                // Key store type names are case-insensitive. Verify that IceSSL detects when a null password causes a
-                // PKCS12 store to load without its encrypted certificates.
+                // KeyStore.getInstance accepts the type name in any case, but only the exact spelling "PKCS12" selects
+                // an empty store password: with "pkcs12" the store loads with a null password, so IceSSL must detect
+                // that the encrypted certificates were skipped.
                 initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("IceSSL.Keystore", "ca1/client.p12");
                 initData.properties.setProperty("IceSSL.KeystoreType", "pkcs12");
@@ -638,8 +686,8 @@ public class AllTests {
                 initData.properties.setProperty("IceSSL.TruststoreType", "pkcs12");
                 testStorePasswordFailure(initData, "IceSSL.TruststorePassword");
 
-                if ("PKCS12".equalsIgnoreCase(KeyStore.getDefaultType())) {
-                    // KeyStore.getDefaultType() normally returns the lower-case value "pkcs12" on standard JDKs.
+                if ("pkcs12".equals(KeyStore.getDefaultType())) {
+                    // Standard JDKs report the default type as "pkcs12", which takes the null-password path above.
                     initData = createClientProps(defaultProperties);
                     initData.properties.setProperty("IceSSL.Keystore", "ca1/client.p12");
                     initData.properties.setProperty("IceSSL.Password", "password");
@@ -667,6 +715,15 @@ public class AllTests {
                 initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("IceSSL.Truststore", "ca1/client_password_less.p12");
                 initData.properties.setProperty("IceSSL.TruststoreType", "PKCS12");
+                testStoreLoads(initData);
+
+                // A key store can hold a secret key ahead of the key pair. The secret key is not usable for TLS, so
+                // IceSSL must select the key pair instead of rejecting the store.
+                initData = createClientProps(defaultProperties);
+                initData.properties.setProperty("IceSSL.Keystore", createMixedKeystore(defaultDir));
+                initData.properties.setProperty("IceSSL.KeystoreType", "PKCS12");
+                initData.properties.setProperty("IceSSL.KeystorePassword", "password");
+                initData.properties.setProperty("IceSSL.Password", "password");
                 testStoreLoads(initData);
             }
         }

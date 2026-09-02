@@ -144,7 +144,9 @@ public class SSLEngine {
                     if (alias.isEmpty()) {
                         for (Enumeration<String> e = keys.aliases(); e.hasMoreElements(); ) {
                             String a = e.nextElement();
-                            if (keys.isKeyEntry(a)) {
+                            // Skip secret-key entries, which isKeyEntry also matches. A PKCS12 private key loaded with
+                            // a null password is still a private key entry, without its chain; it is reported below.
+                            if (keys.entryInstanceOf(a, KeyStore.PrivateKeyEntry.class)) {
                                 alias = a;
                                 break;
                             }
@@ -164,7 +166,8 @@ public class SSLEngine {
                         if (chain == null || chain.length == 0) {
                             throw new InitializationException(
                                 "SSL transport: keystore entry with alias `" + alias
-                                    + "` does not contain a certificate chain; check IceSSL.KeystorePassword");
+                                    + "` does not contain a certificate chain; check IceSSL.KeystorePassword or,"
+                                    + " for a password-less PKCS12 store, set IceSSL.KeystoreType=PKCS12");
                         }
                     }
 
@@ -248,7 +251,8 @@ public class SSLEngine {
                         // trustAnchors parameter must be non-empty.
                         if (truststore.size() == 0) {
                             throw new InitializationException(
-                                "SSL transport: truststore is empty; check IceSSL.TruststorePassword");
+                                "SSL transport: truststore is empty; check IceSSL.TruststorePassword or, for a"
+                                    + " password-less PKCS12 store, set IceSSL.TruststoreType=PKCS12");
                         }
 
                         boolean containsCertificate = false;
@@ -262,8 +266,9 @@ public class SSLEngine {
                             // A PKCS12 store loaded with a null password can contain key entries without their
                             // encrypted certificates.
                             throw new InitializationException(
-                                "SSL transport: truststore does not contain any certificates; check "
-                                    + "IceSSL.TruststorePassword");
+                                "SSL transport: truststore does not contain any certificates; check"
+                                    + " IceSSL.TruststorePassword or, for a password-less PKCS12 store, set"
+                                    + " IceSSL.TruststoreType=PKCS12");
                         }
                         tmf.init(truststore);
                         trustManagers = tmf.getTrustManagers();
