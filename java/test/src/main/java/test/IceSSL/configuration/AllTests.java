@@ -30,12 +30,16 @@ public class AllTests {
         }
     }
 
-    private static void testStorePasswordFailure(InitializationData initData, String store) {
+    private static void testStorePasswordFailure(InitializationData initData, String passwordProperty) {
         try (Communicator communicator = new Communicator(initData)) {
             test(false);
         } catch (InitializationException ex) {
-            test(ex.getMessage().contains("unable to load " + store));
+            test(ex.getMessage().contains(passwordProperty));
         }
+    }
+
+    private static void testStoreLoads(InitializationData initData) {
+        try (Communicator communicator = new Communicator(initData)) {}
     }
 
     private static X509Certificate loadCertificate(String path, String alias) {
@@ -621,26 +625,49 @@ public class AllTests {
             }
 
             if ("PKCS12".equals(keystoreType)) {
-                // Key store type names are case-insensitive. Verify lowercase PKCS12 names don't cause IceSSL to use
-                // a null password and silently load stores without their encrypted certificates.
+                // Key store type names are case-insensitive. Verify that IceSSL detects when a null password causes a
+                // PKCS12 store to load without its encrypted certificates.
                 initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("IceSSL.Keystore", "ca1/client.p12");
                 initData.properties.setProperty("IceSSL.KeystoreType", "pkcs12");
                 initData.properties.setProperty("IceSSL.Password", "password");
-                testStorePasswordFailure(initData, "keystore");
+                testStorePasswordFailure(initData, "IceSSL.KeystorePassword");
 
                 initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("IceSSL.Truststore", "ca1/ca1.p12");
                 initData.properties.setProperty("IceSSL.TruststoreType", "pkcs12");
-                testStorePasswordFailure(initData, "truststore");
+                testStorePasswordFailure(initData, "IceSSL.TruststorePassword");
 
                 if ("PKCS12".equalsIgnoreCase(KeyStore.getDefaultType())) {
                     // KeyStore.getDefaultType() normally returns the lower-case value "pkcs12" on standard JDKs.
                     initData = createClientProps(defaultProperties);
                     initData.properties.setProperty("IceSSL.Keystore", "ca1/client.p12");
                     initData.properties.setProperty("IceSSL.Password", "password");
-                    testStorePasswordFailure(initData, "keystore");
+                    testStorePasswordFailure(initData, "IceSSL.KeystorePassword");
+
+                    // The default PKCS12 implementation can also load JKS stores. A null password must be preserved
+                    // in this case so JKS can skip its integrity check.
+                    initData = createClientProps(defaultProperties);
+                    initData.properties.setProperty("IceSSL.Keystore", "ca1/client.jks");
+                    initData.properties.setProperty("IceSSL.Password", "password");
+                    testStoreLoads(initData);
+
+                    initData = createClientProps(defaultProperties);
+                    initData.properties.setProperty("IceSSL.Truststore", "ca1/ca1.jks");
+                    testStoreLoads(initData);
                 }
+
+                // A passwordless PKCS12 store still contains a usable certificate chain when loaded with an empty
+                // password.
+                initData = createClientProps(defaultProperties);
+                initData.properties.setProperty("IceSSL.Keystore", "ca1/client_password_less.p12");
+                initData.properties.setProperty("IceSSL.KeystoreType", "PKCS12");
+                testStoreLoads(initData);
+
+                initData = createClientProps(defaultProperties);
+                initData.properties.setProperty("IceSSL.Truststore", "ca1/client_password_less.p12");
+                initData.properties.setProperty("IceSSL.TruststoreType", "PKCS12");
+                testStoreLoads(initData);
             }
         }
         out.println("ok");

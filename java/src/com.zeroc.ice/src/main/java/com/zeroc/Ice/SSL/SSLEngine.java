@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -111,10 +112,8 @@ public class SSLEngine {
                         char[] passwordChars = null;
                         if (!keystorePassword.isEmpty()) {
                             passwordChars = keystorePassword.toCharArray();
-                        } else if ("BKS".equalsIgnoreCase(keystoreType)
-                            || "PKCS12".equalsIgnoreCase(keystoreType)) {
-                            // Use an empty password for store types where a null password has special semantics.
-                            // In particular, PKCS12 providers can skip encrypted certificates with a null password.
+                        } else if ("BKS".equals(keystoreType) || "PKCS12".equals(keystoreType)) {
+                            // BKS requires a non-null password. PKCS12 distinguishes an empty password from null.
                             passwordChars = new char[0];
                         }
 
@@ -137,15 +136,6 @@ public class SSLEngine {
                         }
                     }
 
-                    String algorithm = KeyManagerFactory.getDefaultAlgorithm();
-                    KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-                    // This password cannot be null.
-                    char[] passwordChars = password.isEmpty() ? new char[0] : password.toCharArray();
-                    kmf.init(keys, passwordChars);
-                    Arrays.fill(passwordChars, '\0');
-                    password = null;
-                    keyManagers = kmf.getKeyManagers();
-
                     // If no alias is specified, we look for the first key entry in the key store.
                     //
                     // This is required to force the key manager to always choose a certificate even if there's no
@@ -166,6 +156,26 @@ public class SSLEngine {
                                 "SSL transport: keystore does not contain an entry with alias `" + alias + "'");
                         }
                     }
+
+                    if (!alias.isEmpty()) {
+                        // A PKCS12 store loaded with a null password can contain a key entry without its encrypted
+                        // certificate chain.
+                        Certificate[] chain = keys.getCertificateChain(alias);
+                        if (chain == null || chain.length == 0) {
+                            throw new InitializationException(
+                                "SSL transport: keystore entry with alias `" + alias
+                                    + "` does not contain a certificate chain; check IceSSL.KeystorePassword");
+                        }
+                    }
+
+                    String algorithm = KeyManagerFactory.getDefaultAlgorithm();
+                    KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+                    // This password cannot be null.
+                    char[] passwordChars = password.isEmpty() ? new char[0] : password.toCharArray();
+                    kmf.init(keys, passwordChars);
+                    Arrays.fill(passwordChars, '\0');
+                    password = null;
+                    keyManagers = kmf.getKeyManagers();
 
                     if (!alias.isEmpty()) {
                         // wrap the key managers in order to return the desired alias.
@@ -197,10 +207,9 @@ public class SSLEngine {
                             char[] passwordChars = null;
                             if (!truststorePassword.isEmpty()) {
                                 passwordChars = truststorePassword.toCharArray();
-                            } else if ("BKS".equalsIgnoreCase(truststoreType)
-                                || "PKCS12".equalsIgnoreCase(truststoreType)) {
-                                // Use an empty password for store types where a null password has special semantics.
-                                // In particular, PKCS12 providers can skip encrypted certificates with a null password.
+                            } else if ("BKS".equals(truststoreType) || "PKCS12".equals(truststoreType)) {
+                                // BKS requires a non-null password. PKCS12 distinguishes an empty password from
+                                // null.
                                 passwordChars = new char[0];
                             }
 
@@ -238,7 +247,23 @@ public class SSLEngine {
                         // eventually result in an exception such as: `InvalidAlgorithmParameterException` the
                         // trustAnchors parameter must be non-empty.
                         if (truststore.size() == 0) {
-                            throw new InitializationException("SSL transport: truststore is empty");
+                            throw new InitializationException(
+                                "SSL transport: truststore is empty; check IceSSL.TruststorePassword");
+                        }
+
+                        boolean containsCertificate = false;
+                        for (Enumeration<String> e = truststore.aliases(); e.hasMoreElements(); ) {
+                            if (truststore.getCertificate(e.nextElement()) != null) {
+                                containsCertificate = true;
+                                break;
+                            }
+                        }
+                        if (!containsCertificate) {
+                            // A PKCS12 store loaded with a null password can contain key entries without their
+                            // encrypted certificates.
+                            throw new InitializationException(
+                                "SSL transport: truststore does not contain any certificates; check "
+                                    + "IceSSL.TruststorePassword");
                         }
                         tmf.init(truststore);
                         trustManagers = tmf.getTrustManagers();
