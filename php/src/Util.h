@@ -28,7 +28,7 @@ namespace IcePHP
             zend_object_std_init(&w->zobj, ce);
             object_properties_init(&w->zobj, ce);
 
-            w->ptr = 0;
+            w->ptr = nullptr;
             return w;
         }
 
@@ -43,7 +43,20 @@ namespace IcePHP
             return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char*>(object) - XtOffsetOf(Wrapper<T>, zobj));
         }
 
-        static T value(zval* zv) { return *extract(zv)->ptr; }
+        static T value(zval* zv)
+        {
+            Wrapper<T>* w = extract(zv);
+            if (!w->ptr)
+            {
+                // The underlying pointer is null, which means the PHP object was constructed outside the extension.
+                // We return a non-returning error to the PHP interpreter, to avoid hitting the dereference below here.
+                zend_error_noreturn(
+                    E_ERROR,
+                    "%s(): the object was not created by the Ice extension",
+                    get_active_function_name());
+            }
+            return *w->ptr;
+        }
 
         // This must be last element in the struct
         zend_object zobj;
