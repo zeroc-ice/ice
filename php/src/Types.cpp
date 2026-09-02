@@ -3647,11 +3647,17 @@ ZEND_FUNCTION(IcePHP_stringifyException)
     RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
 }
 
+ZEND_METHOD(Ice_TypeInfo, __construct) { runtimeError("IcePHP_TypeInfo cannot be instantiated"); }
+
+ZEND_METHOD(Ice_ExceptionInfo, __construct) { runtimeError("IcePHP_ExceptionInfo cannot be instantiated"); }
+
 // Predefined methods for IcePHP_TypeInfo.
-static zend_function_entry _typeInfoMethods[] = {{0, 0, 0}};
+static zend_function_entry _typeInfoMethods[] = {
+    ZEND_ME(Ice_TypeInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR){0, 0, 0}};
 
 // Predefined methods for IcePHP_ExceptionInfo.
-static zend_function_entry _exceptionInfoMethods[] = {{0, 0, 0}};
+static zend_function_entry _exceptionInfoMethods[] = {
+    ZEND_ME(Ice_ExceptionInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR){0, 0, 0}};
 
 bool
 IcePHP::isUnset(zval* zv)
