@@ -80,8 +80,7 @@ public class SSLEngine {
                 // The password for the keystore.
                 String keystorePassword = properties.getIceProperty("IceSSL.KeystorePassword");
 
-                // The default keystore type is usually "JKS", but the legal values are determined by the JVM
-                // implementation. Other possibilities include "PKCS12" and "BKS".
+                // The default and supported keystore types are determined by the installed security providers.
                 final String defaultType = KeyStore.getDefaultType();
                 final String keystoreType = properties.getPropertyWithDefault("IceSSL.KeystoreType", defaultType);
 
@@ -95,8 +94,6 @@ public class SSLEngine {
                 // The password for the truststore.
                 String truststorePassword = properties.getIceProperty("IceSSL.TruststorePassword");
 
-                // The default truststore type is usually "JKS", but the legal values are determined by the JVM
-                // implementation. Other possibilities include "PKCS12" and "BKS".
                 final String truststoreType = properties.getPropertyWithDefault("IceSSL.TruststoreType", defaultType);
 
                 // Collect the key managers.
@@ -114,8 +111,10 @@ public class SSLEngine {
                         char[] passwordChars = null;
                         if (!keystorePassword.isEmpty()) {
                             passwordChars = keystorePassword.toCharArray();
-                        } else if ("BKS".equals(keystoreType) || "PKCS12".equals(keystoreType)) {
-                            // Bouncy Castle or PKCS12 does not permit null passwords.
+                        } else if ("BKS".equalsIgnoreCase(keystoreType)
+                            || "PKCS12".equalsIgnoreCase(keystoreType)) {
+                            // Use an empty password for store types where a null password has special semantics.
+                            // In particular, PKCS12 providers can skip encrypted certificates with a null password.
                             passwordChars = new char[0];
                         }
 
@@ -198,8 +197,10 @@ public class SSLEngine {
                             char[] passwordChars = null;
                             if (!truststorePassword.isEmpty()) {
                                 passwordChars = truststorePassword.toCharArray();
-                            } else if ("BKS".equals(truststoreType) || "PKCS12".equals(truststoreType)) {
-                                // Bouncy Castle or PKCS12 does not permit null passwords.
+                            } else if ("BKS".equalsIgnoreCase(truststoreType)
+                                || "PKCS12".equalsIgnoreCase(truststoreType)) {
+                                // Use an empty password for store types where a null password has special semantics.
+                                // In particular, PKCS12 providers can skip encrypted certificates with a null password.
                                 passwordChars = new char[0];
                             }
 

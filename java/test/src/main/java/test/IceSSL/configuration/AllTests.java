@@ -30,6 +30,14 @@ public class AllTests {
         }
     }
 
+    private static void testStorePasswordFailure(InitializationData initData, String store) {
+        try (Communicator communicator = new Communicator(initData)) {
+            test(false);
+        } catch (InitializationException ex) {
+            test(ex.getMessage().contains("unable to load " + store));
+        }
+    }
+
     private static X509Certificate loadCertificate(String path, String alias) {
         try {
             KeyStore keystore = KeyStore.getInstance("JKS");
@@ -610,6 +618,29 @@ public class AllTests {
             } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
+            }
+
+            if ("PKCS12".equals(keystoreType)) {
+                // Key store type names are case-insensitive. Verify lowercase PKCS12 names don't cause IceSSL to use
+                // a null password and silently load stores without their encrypted certificates.
+                initData = createClientProps(defaultProperties);
+                initData.properties.setProperty("IceSSL.Keystore", "ca1/client.p12");
+                initData.properties.setProperty("IceSSL.KeystoreType", "pkcs12");
+                initData.properties.setProperty("IceSSL.Password", "password");
+                testStorePasswordFailure(initData, "keystore");
+
+                initData = createClientProps(defaultProperties);
+                initData.properties.setProperty("IceSSL.Truststore", "ca1/ca1.p12");
+                initData.properties.setProperty("IceSSL.TruststoreType", "pkcs12");
+                testStorePasswordFailure(initData, "truststore");
+
+                if ("PKCS12".equalsIgnoreCase(KeyStore.getDefaultType())) {
+                    // KeyStore.getDefaultType() normally returns the lower-case value "pkcs12" on standard JDKs.
+                    initData = createClientProps(defaultProperties);
+                    initData.properties.setProperty("IceSSL.Keystore", "ca1/client.p12");
+                    initData.properties.setProperty("IceSSL.Password", "password");
+                    testStorePasswordFailure(initData, "keystore");
+                }
             }
         }
         out.println("ok");
