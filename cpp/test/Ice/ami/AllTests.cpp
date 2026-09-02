@@ -1471,13 +1471,9 @@ allTests(TestHelper* helper, bool collocated)
                 auto onewayProxy = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_oneway());
 
                 // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
-                // Winsock completes the first two sends on a socket whatever their size: a send made while the
-                // socket is within its SO_SNDBUF quota completes, and so does one more send while only one earlier
-                // send is still buffered. From the third send on, the data is still copied but the completion is
-                // deferred until the earlier sends drain (KB214397, "Winsock uses the following rules to indicate
-                // a send completion"). So at least 3 sends are needed for one to block, and each one must be too
-                // large for the peer's kernel to absorb the earlier ones: on windows-2025, four 768KB sends all
-                // completed. We loop 4 times with a 4MB payload; the servers raise Ice.MessageSizeMax to accept it.
+                // On Windows, Winsock completes the first two sends on a socket regardless of their size and only
+                // defers completion from the third send on (KB214397), so we loop 4 times with a payload too large
+                // for the peer's kernel to absorb.
                 Ice::ByteSeq seq;
                 seq.resize(4 * 1024 * 1024);
 
