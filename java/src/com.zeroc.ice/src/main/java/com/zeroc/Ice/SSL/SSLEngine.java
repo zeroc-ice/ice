@@ -145,27 +145,35 @@ public class SSLEngine {
                     password = null;
                     keyManagers = kmf.getKeyManagers();
 
-                    // If no alias is specified, we look for the first key entry in the key store.
+                    // If no alias is specified, we look for the first key entry with a certificate chain in the key
+                    // store, and fall back to the first key entry so that a missing chain is reported below.
                     //
                     // This is required to force the key manager to always choose a certificate even if there's no
                     // certificate signed by any of the CA names sent by the server. Ice servers might indeed not
                     // always send the CA names of their trusted roots.
                     if (alias.isEmpty()) {
+                        String firstKeyEntry = "";
                         for (Enumeration<String> e = keys.aliases(); e.hasMoreElements(); ) {
                             String a = e.nextElement();
-                            // Skip secret-key entries, which isKeyEntry also matches. A PKCS12 private key loaded with
-                            // a null password is still a private key entry, without its chain; it is reported below.
-                            if (keys.entryInstanceOf(a, KeyStore.PrivateKeyEntry.class)) {
-                                alias = a;
-                                break;
+                            if (keys.isKeyEntry(a)) {
+                                Certificate[] chain = keys.getCertificateChain(a);
+                                if (chain != null && chain.length > 0) {
+                                    alias = a;
+                                    break;
+                                }
+                                if (firstKeyEntry.isEmpty()) {
+                                    firstKeyEntry = a;
+                                }
                             }
                         }
+                        if (alias.isEmpty()) {
+                            alias = firstKeyEntry;
+                        }
                     } else {
-                        // If the user selected a specific alias, ensure it corresponds to a private key entry.
-                        if (!keys.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class)) {
+                        // If the user selected a specific alias, ensure it correspond with a key entry.
+                        if (!keys.isKeyEntry(alias)) {
                             throw new InitializationException(
-                                "SSL transport: keystore does not contain a private key entry with alias '" + alias
-                                    + "'");
+                                "SSL transport: keystore does not contain an entry with alias '" + alias + "'");
                         }
                     }
 
