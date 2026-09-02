@@ -49,7 +49,7 @@ namespace IcePHP
             if (!w->ptr)
             {
                 // The underlying pointer is null, which means the PHP object was constructed outside the extension.
-                // We return a non-returning error to the PHP interpreter, to avoid hitting the dereference below here.
+                // We emit a non-returning error to the PHP interpreter, to avoid hitting the dereference below here.
                 zend_error_noreturn(
                     E_ERROR,
                     "%s(): the object was not created by the Ice extension",
