@@ -21,6 +21,11 @@ public class Server : TestHelper
         //
         properties.setProperty("Ice.TCP.RcvSize", "50000");
 
+        //
+        // The back pressure test sends a 4MB payload, above the default message size limit.
+        //
+        properties.setProperty("Ice.MessageSizeMax", "8192");
+
         using Communicator communicator = initialize(properties);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));

@@ -1471,10 +1471,11 @@ allTests(TestHelper* helper, bool collocated)
                 auto onewayProxy = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_oneway());
 
                 // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
-                // We loop up to 4 times because on Windows with TCP, the Socket.Send call appears to always succeed
-                // twice before blocking.
+                // On Windows, Winsock completes the first two sends on a socket regardless of their size and only
+                // defers completion from the third send on (KB214397), so we loop 4 times with a payload too large
+                // for the peer's kernel to absorb.
                 Ice::ByteSeq seq;
-                seq.resize(768 * 1024);
+                seq.resize(4 * 1024 * 1024);
 
                 bool timedOut = false;
                 for (int i = 0; i < 4; ++i)

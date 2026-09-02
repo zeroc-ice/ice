@@ -1168,7 +1168,10 @@ public class AllTests {
                 TestIntfPrx onewayProxy = p.ice_oneway();
 
                 // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
-                CompletableFuture<Void> future = onewayProxy.opWithPayloadAsync(new byte[768 * 1024]);
+                // On Windows, Winsock completes the first two sends on a socket regardless of their size
+                // (KB214397), but the JDK splits each write into WSASend calls of at most 128KB, so a single
+                // send of a payload too large for the peer's kernel to absorb is enough.
+                CompletableFuture<Void> future = onewayProxy.opWithPayloadAsync(new byte[4 * 1024 * 1024]);
                 boolean timeout = false;
                 try {
                     future.get(200, TimeUnit.MILLISECONDS);

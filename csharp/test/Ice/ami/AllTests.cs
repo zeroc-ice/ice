@@ -953,12 +953,13 @@ public class AllTests : global::Test.AllTests
                     // Sending should be canceled because the TCP send/receive buffer size on the server is set
                     // to 50KB. Note: we don't use the cancel parameter of the operation here because the
                     // cancellation doesn't cancel the operation whose payload is being sent.
-                    // We loop up to 4 times because on Windows with TCP, the Socket.Send call appears to always succeed
-                    // twice before blocking.
+                    // On Windows, Winsock completes the first two sends on a socket regardless of their size and
+                    // only defers completion from the third send on (KB214397), so we loop 4 times with a payload
+                    // too large for the peer's kernel to absorb.
                     for (int i = 0; i < 4; ++i)
                     {
                         using var cts = new CancellationTokenSource(200);
-                        await onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).WaitAsync(cts.Token);
+                        await onewayProxy.opWithPayloadAsync(new byte[4 * 1024 * 1024]).WaitAsync(cts.Token);
                     }
                 }
                 catch (OperationCanceledException)
