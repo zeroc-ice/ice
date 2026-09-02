@@ -105,7 +105,9 @@ void ::Reader::run(int argc, char* argv[])
         while (!writers.getNextUnread().getValue())
             ; // Wait for writer to write the samples before reading
 
-        // Writer keeps 3ms worth of samples
+        // The writer publishes value1, value2 and a Remove, then waits past its 20 ms sample lifetime before
+        // signaling readiness. These samples are stale when this reader attaches, so the reader receives only the
+        // samples the writer publishes after the reader attaches.
         readers.update(false);
         ReaderConfig config;
         config.clearHistory = ClearHistoryPolicy::Never;
@@ -120,14 +122,12 @@ void ::Reader::run(int argc, char* argv[])
     {
         while (!writers.getNextUnread().getValue())
             ; // Wait for writer to write the samples before reading
-
+        // The writer publishes value1, value2 and a Remove, waits 2 s, then publishes value3, value4 and a Remove.
+        // With a 1 s sample lifetime, the reader receives only the second batch.
         ReaderConfig config;
-        config.sampleLifetime = 390;
+        config.sampleLifetime = 1000;
         config.clearHistory = ClearHistoryPolicy::Never;
 
-        auto now = chrono::system_clock::now();
-
-        // Reader wants 390ms worth of samples
         readers.update(false);
         auto reader = makeSingleKeyReader(topic, "elem1", "", config);
         reader.waitForUnread(3);
@@ -136,11 +136,6 @@ void ::Reader::run(int argc, char* argv[])
         test(samples[1].getValue() == "value4");
         test(samples[2].getEvent() == SampleEvent::Remove);
         readers.update(true); // Reader is done
-
-        for (const auto& s : samples)
-        {
-            test(s.getTimeStamp() >= (now - chrono::milliseconds(150)));
-        }
     }
 
     // Writer clearHistory

@@ -136,7 +136,7 @@ void ::Writer::run(int argc, char* argv[])
     {
         writers.update(false); // Not ready
 
-        // Keep 3ms worth of samples in the history
+        // Keep 20ms worth of samples in the history
         WriterConfig config;
         config.sampleLifetime = 20;
         auto writer = makeSingleKeyWriter(topic, "elem1", "", config);
@@ -162,7 +162,9 @@ void ::Writer::run(int argc, char* argv[])
         writer.add("value1");
         writer.update("value2");
         writer.remove();
-        this_thread::sleep_for(chrono::milliseconds(400));
+        // Age these samples well past the reader's 1s sample lifetime so that only the samples published below are
+        // delivered to the reader.
+        this_thread::sleep_for(chrono::milliseconds(2000));
         writer.add("value3");
         writer.update("value4");
         writer.remove();
