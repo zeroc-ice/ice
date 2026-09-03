@@ -27,6 +27,46 @@ function allTests($helper)
 {
     $communicator = $helper->communicator();
 
+    echo "testing that internal classes cannot be created outside the extension... ";
+    flush(); {
+        // These classes wrap native C++ state that only the extension's factory functions populate. An instance
+        // created any other way would carry a null native pointer and crash the first time it was used, so both
+        // direct construction (private constructor) and unserialization (ZEND_ACC_NOT_SERIALIZABLE) are rejected.
+        foreach (
+            [
+                "IcePHP_Communicator",
+                "IcePHP_Connection",
+                "IcePHP_Endpoint",
+                "IcePHP_Properties",
+                "IcePHP_Logger",
+                "IcePHP_TypeInfo",
+                "IcePHP_ExceptionInfo",
+                "Ice\\ObjectPrx",
+                "Ice\\EndpointInfo",
+                "Ice\\IPEndpointInfo",
+                "Ice\\TCPEndpointInfo",
+                "Ice\\UDPEndpointInfo",
+                "Ice\\WSEndpointInfo",
+                "Ice\\OpaqueEndpointInfo",
+                "Ice\\SSLEndpointInfo",
+            ] as $className
+        ) {
+            // Direct construction is blocked by the class's private constructor (throws Error).
+            try {
+                new $className();
+                test(false);
+            } catch (Error $ex) {
+            }
+            // Unserialization is blocked by ZEND_ACC_NOT_SERIALIZABLE (throws Exception).
+            try {
+                $o = unserialize('O:' . strlen($className) . ':"' . $className . '":0:{}');
+                test(false);
+            } catch (Exception $ex) {
+            }
+        }
+    }
+    echo "ok\n";
+
     echo "testing proxy endpoint information... ";
     flush(); {
         $p1 = $communicator->stringToProxy(
