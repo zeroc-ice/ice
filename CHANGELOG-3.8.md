@@ -392,8 +392,8 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
 - Fixed two bugs affecting communicators registered with an expiration time (`Ice\register`):
   - Unregistering such a communicator left it alive until the process exited, along with its connections and other
     resources.
-  - A communicator registered with an expiration time was not destroyed during PHP shutdown, and the Ice runtime
-    reported the error "communicator not destroyed during global destruction".
+  - Such a communicator was not destroyed during PHP shutdown, and the Ice runtime reported the error
+    "communicator not destroyed during global destruction".
 
 - Fixed a crash that occurred when invoking an operation that combines a non-optional return value with an out parameter
   declared as `optional(0)`, such as:
@@ -462,7 +462,7 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
 
 - Fixed two bugs in the type hints that `slice2py` generates for parameters with metadata such as
   `["python:numpy.ndarray"]`:
-  - The metadata was honored in the servant type hints but ignored in the proxy method type hints.
+  - The metadata is now honored in proxy method type hints, like it already was in servant type hints.
   - Metadata applied directly to an optional parameter was ignored, so the hint omitted the mapped type.
 
 ### Ruby Changes
