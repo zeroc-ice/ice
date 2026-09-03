@@ -121,6 +121,8 @@ public class Client extends TestHelper {
 
             String stringValue = properties.getIceProperty("Ice.Default.Host");
             test(stringValue.isEmpty());
+            test(properties.getIceProperty("IceSSL.KeystoreType").isEmpty());
+            test(properties.getIceProperty("IceSSL.TruststoreType").isEmpty());
 
             int intValue = properties.getIcePropertyAsInt("Ice.Default.Host");
             test(intValue == 0);
