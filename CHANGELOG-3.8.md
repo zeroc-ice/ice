@@ -249,7 +249,7 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
 - Fixed `iceboxnet` rejecting valid per-service command-line options (`--<service>.*`) with "unknown option" and failing
   to start.
 
-- Fixed a hang in C# IceLocatorDiscovery where a request could fail to complete when a failed locator invocation was
+- Fixed a hang in IceLocatorDiscovery where a request could fail to complete when a failed locator invocation was
   retried and locator rediscovery returned the same locator proxy.
 
 ### Java Changes
@@ -261,7 +261,7 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
 - Fixed a bug where specifying the `--Ice.Config` command-line option more than once loaded the wrong configuration
   file: Ice loaded the first file instead of the last.
 
-- Fixed a memory leak in Ice for Java. Outgoing connections were not released after they closed, so the memory used by a
+- Fixed a memory leak: outgoing connections were not released after they closed, so the memory used by a
   long-running program grew over the lifetime of the communicator.
 
 - Fixed a race condition in `ObjectAdapter`: when `destroy` raced with another `destroy` or with `deactivate` on the
@@ -272,7 +272,7 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
   object adapter now dispatches the request to the default servant if one is registered, as documented, instead of
   rejecting the request with `FacetNotExistException`.
 
-- Fixed Ice for Java to no longer log a spurious `NullPointerException` (at error level, with a stack trace) when a
+- Fixed a bug where a spurious `NullPointerException` was logged (at error level, with a stack trace) when a
   client resets a pending connection during `accept()`. The accept-path race is now handled like any other accept
   failure: silent by default, or a one-line warning when `Ice.Warn.Connections` is set.
 
@@ -296,7 +296,7 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
   `<adapter>.ThreadPool.ThreadPriority`) now also accepts the priority constant names `MIN_PRIORITY`, `NORM_PRIORITY`,
   and `MAX_PRIORITY`, like `Ice.ThreadPriority` already did. Previously these properties accepted only integer values.
 
-- Fixed a data race in the Ice for Java metrics (IceMX) implementation. Reconfiguring the metrics views at runtime while
+- Fixed a data race in the metrics (IceMX) implementation. Reconfiguring the metrics views at runtime while
   metrics were being collected could corrupt the internal metrics maps or throw a `ConcurrentModificationException`.
 
 - Fixed a bug on Windows where a plug-in or IceBox service configured with an unquoted UNC path (such as
@@ -315,7 +315,7 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
   intended, due to an incorrect nanosecond-to-millisecond conversion. As a result, resolving an indirect proxy bound to
   a replica group took noticeably longer than the configured `IceDiscovery.LatencyMultiplier` implies.
 
-- Fixed a bug in Java IceLocatorDiscovery where a request could fail to complete (worst case, overflow the stack) when a
+- Fixed a bug in IceLocatorDiscovery where a request could fail to complete (worst case, overflow the stack) when a
   failed locator invocation was retried and locator rediscovery returned the same locator proxy.
 
 ### JavaScript Changes
@@ -324,42 +324,50 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
   calling `close` on a connection that was already closed — for example after `abort` or after the peer closed the
   connection — returned a promise that never settled.
 
-- Fixed the `InputStream` constructor's handling of buffer arguments. An `ArrayBuffer` argument previously produced
-  an empty stream, and a `Uint8Array` view that does not span its entire underlying buffer was read from the wrong
-  byte range.
-
-- Fixed the communicator to use the logger supplied in `InitializationData` even when `Ice.LogFile` is set. The
-  property previously replaced the supplied logger with a file logger, and in browsers caused communicator
-  initialization to fail.
-
 - Fixed a bug where a connection no longer enforced the inactivity timeout after receiving a batch of more than one
   request.
 
-- Fixed a bug where a batch auto-flush that could not be delivered terminated the process in Node.js with an
-  unhandled promise rejection. The auto-flush failure is now discarded, as in the other language mappings.
+- Fixed a bug where a batch auto-flush that could not be delivered terminated the process in Node.js with an unhandled
+  promise rejection. The auto-flush failure is now discarded, as in the other language mappings.
 
-- Fixed a bug where receiving a user exception of an unknown type (but a known base type) could fail with a
-  `TypeError`. This only affects the 1.0 encoding.
+- Fixed `Connection.flushBatchRequests` and `Communicator.flushBatchRequests` to report a proper Ice local exception
+  when a connection is closed while its batch requests are being flushed, instead of failing with an internal Ice
+  exception.
 
-- Fixed a bug where an invocation made with an invocation timeout released its memory, including the marshaled
-  request and reply, only when the timeout elapsed instead of when the invocation completed.
-
-- Fixed `slice2js` to rename the parameters it synthesizes for generated proxy and skeleton methods when an operation
-  already has an in-parameter with the same name. An operation with an in-parameter named `context` (proxy) or
-  `current` (skeleton) previously produced a TypeScript declaration with two parameters of that name, which failed to
-  compile.
+- Fixed a bug where an invocation made with an invocation timeout released its memory, including the marshaled request
+  and reply, only when the timeout elapsed instead of when the invocation completed.
 
 - Fixed the servant lookup for incoming requests: when the target identity is registered with a different facet, the
   object adapter now dispatches the request to the default servant if one is registered, as documented, instead of
   rejecting the request with `FacetNotExistException`.
 
-- Fixed `Connection.flushBatchRequests` and `Communicator.flushBatchRequests` to report a proper Ice local exception
-  when a connection is closed while its batch requests are being flushed, instead of leaking an internal exception.
+- Fixed a bug where receiving a user exception of an unknown type (but a known base type) could fail with a `TypeError`.
+  This only affected the 1.0 encoding.
+
+- Fixed the `InputStream` constructor's handling of buffer arguments. An `ArrayBuffer` argument previously produced an
+  empty stream, and a `Uint8Array` view that does not span its entire underlying buffer was read from the wrong byte
+  range.
+
+- Fixed the communicator to use the logger supplied in `InitializationData` even when `Ice.LogFile` is set. The property
+  previously replaced the supplied logger with a file logger, and in browsers caused communicator initialization to
+  fail.
+
+- Fixed `slice2js` handling of operations with an in-parameter named `context` or `current`: `slice2js` now renames the
+  parameter it adds to the generated proxy or skeleton method, instead of generating TypeScript that does not compile.
 
 ### MATLAB Changes
 
 - Fixed `Communicator.getImplicitContext`, which crashed the MATLAB process under the default configuration
   (`Ice.ImplicitContext=None`). It now returns an empty array, as documented, when no implicit context is configured.
+
+- Fixed `Ice.Future.wait('sent')`, which could block indefinitely or time out even after the request had been sent. The
+  wait now completes as soon as the invocation reaches or passes the requested state.
+
+- Fixed the `ice_getConnectionAsync` proxy method: retrieving the result of the returned future always failed, even when
+  the connection was successfully established.
+
+- Fixed `ice_getCachedConnection` to return an empty `Ice.Connection` array, rather than an empty `double` array, when
+  the proxy has no cached connection.
 
 - Fixed a memory leak in `Communicator.proxyToProperty`, `ImplicitContext.getContext`, `ObjectPrx.ice_getContext`,
   `Properties.getPropertiesForPrefix`, and `Connection.getInfo` on a WebSocket connection. Each call leaked memory
@@ -368,117 +376,94 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
 - Fixed the unmarshaling of optional `Object*` parameters and fields. Reading such a proxy always failed with a MATLAB
   error, whether or not the sender set the optional value.
 
-- Fixed `Ice.Future.wait('sent')`, which could block indefinitely or time out even after the request had been
-  sent. The wait now completes as soon as the invocation reaches or passes the requested state.
+- Fixed the unmarshaling of unknown optional values with tags greater than or equal to 30: such a value desynchronized
+  the input stream, causing a spurious `MarshalException`.
 
-- Fixed `ice_getCachedConnection` to return an empty `Ice.Connection` array, rather than an empty
-  `double` array, when the proxy has no cached connection.
+- Fixed a memory leak that occurred each time a proxy was marshaled, unmarshaled, or had its encoding version set with
+  `ice_encodingVersion`. Each of these operations leaked a small amount of memory that accumulated over the lifetime of
+  a MATLAB session.
 
-- Fixed the `ice_getConnectionAsync` proxy method. Retrieving the result of the returned future failed on every
-  successful call because the `Ice.Connection` was constructed without its communicator.
-
-- Fixed a memory leak that occurred each time a proxy was marshaled, unmarshaled, or had its
-  encoding version set with `ice_encodingVersion`. Each of these operations leaked a small amount
-  of memory that accumulated over the lifetime of a MATLAB session.
-
-- Fixed `slice2matlab` to map all `long` constants and default values to MATLAB `int64`. They were previously
-  emitted as bare numeric literals, which MATLAB interprets as `double`, silently losing precision for values
-  with magnitude greater than 2^53.
-
-- Fixed the unmarshaling of unknown optional values with tags greater than or equal to 30. These no
-  longer desynchronize the input stream causing spurious `MarshalException`.
+- Fixed `slice2matlab` to map all `long` constants and default values to MATLAB `int64`. They were previously emitted as
+  bare numeric literals, which MATLAB interprets as `double`, silently losing precision for values with magnitude
+  greater than 2^53.
 
 ### PHP Changes
 
-- Fixed a crash that occurred when invoking an operation that combines a non-optional return value with an out
-  parameter declared as `optional(0)`, such as:
+- Fixed two bugs affecting communicators registered with an expiration time (`Ice\register`):
+  - Unregistering such a communicator left it alive until the process exited, along with its connections and other
+    resources.
+  - Such a communicator was not destroyed during PHP shutdown, and the Ice runtime reported the error
+    "communicator not destroyed during global destruction".
+
+- Fixed a crash that occurred when invoking an operation that combines a non-optional return value with an out parameter
+  declared as `optional(0)`, such as:
 
   ```slice
   string getName(out optional(0) int id);
   ```
 
-- Fixed a leak: unregistering a communicator that was registered with an expiration time left this communicator
-  alive until the process exited, along with its connections and other resources.
+- Fixed a crash when unmarshaling a non-empty dictionary whose value type is a class (for example
+  `dictionary<string, SomeClass>`).
 
-- Fixed a bug in Ice for PHP: a communicator registered with an expiration time was not destroyed during PHP
-  shutdown, and the Ice runtime reported the error "communicator not destroyed during global destruction".
-
-- Fixed a crash in Ice for PHP when unmarshaling a non-empty dictionary whose value type is a class (for example
-  `dictionary<string, SomeClass>`). The dictionary key could be freed before the deferred class value was inserted,
-  causing a use-after-free.
-
-- Fixed Ice for PHP mis-marshaling a non-empty optional `sequence<string>`.
+- Fixed a bug where a non-empty optional `sequence<string>` was marshaled incorrectly.
 
 ### Python Changes
 
-- Fixed `ice_id()` on Ice local exceptions, such as `CommunicatorDestroyedException`. It raised `AttributeError`
-  instead of returning the exception's Slice type ID, so generic error-handling and logging code that called it
-  crashed.
+- Fixed `ice_id()` on Ice local exceptions, such as `CommunicatorDestroyedException`. Previously, it raised
+  `AttributeError` instead of returning the exception's Slice type ID.
 
 - Fixed `ObjectPrx.ice_invoke` and `ObjectPrx.ice_invokeAsync` to accept the request context as a keyword argument, as
   their signatures advertise. `ice_invokeAsync` previously sent the request without any context when `ctx` was passed by
   keyword, and `ice_invoke` rejected the call with a `TypeError`.
 
-- Fixed `ice_getConnectionAsync` on a collocated proxy. It resolved with an unusable `Connection` object that crashed
-  the interpreter as soon as it was used, or never resolved at all, instead of resolving with `None` like the
-  synchronous `ice_getConnection`.
+- Fixed `ObjectPrx.ice_invokeAsync`: the returned future now completes with the documented `(True, b"")` result for
+  oneway, datagram, and batch proxies. Previously, it completed with `None`, unlike the synchronous `ice_invoke`.
 
-- Fixed `ice_getConnectionAsync` to return a future created by the configured event loop adapter, like the other
-  asynchronous proxy operations. Awaiting it in an asyncio application no longer yields a non-asyncio future.
+- Fixed two bugs in the `ice_getConnectionAsync` proxy method:
+  - It now returns a future created by the configured event loop adapter, like the other asynchronous proxy operations.
+    Awaiting it in an asyncio application no longer yields a non-asyncio future.
+  - On a collocated proxy, it now resolves with `None`, like the synchronous `ice_getConnection`.
+
+- Fixed `ice_getConnection` on a proxy to release the global interpreter lock while it establishes the connection. It
+  previously stalled every other Python thread for the duration of the connection establishment, up to the connect
+  timeout when the peer was slow or unreachable.
+
+- `Ice.ConnectionInfo`, returned by `Connection.getInfo`, now provides a `connectionId` attribute.
 
 - Fixed `Connection.setCloseCallback` to accept any callable. It previously rejected everything except plain functions
   and lambdas, so passing a bound method, a `functools.partial`, a callable instance or a builtin function raised
   `ValueError`.
 
-- Fixed `ice_getConnection` on a proxy to release the global interpreter lock while it establishes the connection.
-  It previously stalled every other Python thread for the duration of the connection establishment, up to the connect
-  timeout when the peer was slow or unreachable.
+- Fixed `Ice.Future.add_done_callback` and `Ice.InvocationFuture.add_sent_callback`: when the future was already
+  completed — or the request already sent — an exception raised by the callback propagated to the caller. Such an
+  exception is now caught and logged with Python's `logging` module.
 
-- Fixed the type annotations of `Communicator.removeAdminFacet`, `findAdminFacet` and `findAllAdminFacets`, and
-  documented that the Admin facets implemented by the Ice runtime have no Python servant: `Properties` is returned as
-  a `NativePropertiesAdmin`, and the others, such as `Process` and `Metrics`, are reported as `None`.
+- Fixed a hang: when a keyboard interrupt (Ctrl-C) interrupted a call to `Communicator.waitForShutdown`, the interpreter
+  could later freeze, typically at program exit.
 
-- Fixed a hang in Ice for Python: when a keyboard interrupt (Ctrl-C) interrupted a call to
-  `Communicator.waitForShutdown`, the interpreter could later freeze — typically when the program exits.
+- Fixed interpreter crashes in `ObjectAdapter.getCommunicator` and `ObjectPrx.ice_getCommunicator` when called after the
+  communicator was destroyed. These methods now raise `CommunicatorDestroyedException` in this situation; previously,
+  `ice_getCommunicator` could also return `None`.
 
-- Fixed a memory leak in Ice for Python: the object adapter leaked a reference to the servant on each request
-  dispatched through a servant locator, and a reference to each servant returned by `findAllFacets` and
-  `removeAllFacets`.
+- Fixed a Python interpreter crash that could occur after the destruction of a communicator configured with a custom
+  logger, thread start/stop callbacks, or a batch request interceptor.
 
-- Fixed a bug where `slice2py` wouldn't correctly generate imports for sequences that were re-mapped with metadata,
-  when those sequences were used as the type of a field.
+- Fixed a memory leak: a servant returned by a servant locator was never released, and neither were the servants
+  returned by `findAllFacets` and `removeAllFacets`.
 
-- Fixed `ice_invokeAsync`: the returned future now completes with the documented `(True, b"")` result for oneway,
-  datagram, and batch proxies. Previously, it completed with `None`, unlike the synchronous `ice_invoke`.
+- Fixed the marshaling of `float` sequences: a finite element value outside the float range now raises `ValueError`, as
+  when marshaling an individual `float`. Previously, such an element was silently marshaled as infinity.
 
-- Fixed a Python interpreter crash that could occur after the destruction of a communicator configured with
-  a custom logger, thread start/stop callbacks, or a batch request interceptor.
-
-- Fixed interpreter crashes in `ObjectAdapter.getCommunicator` and `ObjectPrx.ice_getCommunicator` when called
-  after the communicator was destroyed. These methods now raise `CommunicatorDestroyedException` in this situation;
-  previously, `ice_getCommunicator` could also return `None`.
-
-- Fixed the marshaling of `float` sequences: a finite element value outside the float range now raises `ValueError`,
-  same as the marshaling of an individual `float` value. Previously, such elements were silently marshaled as infinity.
-
-- Fixed `Ice.Future.add_done_callback` and `Ice.InvocationFuture.add_sent_callback` in Ice for Python: when the future
-  was already completed — or the request already sent — an exception raised by the callback propagated to the caller.
-  Such an exception is now caught and logged with Python's `logging` module.
-
-- Fixed the type hints generated by `slice2py` for optional parameters: metadata applied directly to the
-  parameter (such as `python:numpy.ndarray`) was ignored, so the hint omitted the mapped type.
-
-- `Ice.ConnectionInfo` now provides a `connectionId` attribute.
-  Previously, the connection ID was not available through `Connection.getInfo`.
-
-- Fixed a bug where `slice2py` wouldn't correctly generate imports for sequences that were nested inside another
-  collection type (another dictionary or sequence).
+- Fixed `slice2py` to generate correct imports for a sequence re-mapped with metadata and used as the type of a field,
+  and for a sequence nested inside another collection type (another dictionary or sequence).
 
 - Fixed `slice2py` to escape doc-comment text when emitting Python docstrings, so that comments containing a
   triple-quote sequence or a backslash escape (such as `\u`) no longer produce invalid generated Python.
 
-- Fixed `slice2py` to honor parameter metadata (such as `["python:numpy.ndarray"]`) in the type hints of generated
-  proxy methods, matching the servant side, instead of dropping the metadata and leaving the added import unused.
+- Fixed two bugs in the type hints that `slice2py` generates for parameters with metadata such as
+  `["python:numpy.ndarray"]`:
+  - The metadata is now honored in proxy method type hints, like it already was in servant type hints.
+  - Metadata applied directly to an optional parameter was ignored, so the hint omitted the mapped type.
 
 ### Ruby Changes
 
@@ -486,67 +471,57 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
   method returned a broken `ImplicitContext` object whose methods crashed the Ruby interpreter. It now returns `nil`
   when the communicator has no implicit context.
 
+- Fixed `Ice::createProperties` to accept `nil` as the defaults argument (equivalent to omitting it). Passing `nil`
+  previously crashed the interpreter.
+
 - Fixed a hang at program exit when a communicator is created with a custom `sliceLoader` and destroyed through the
   block form of `Ice::initialize`, or not destroyed at all.
 
-- Added a `hash` method to `Connection`, consistent with `eql?`. Previously, two `Connection` objects representing
-  the same connection could compare equal but hash differently, so connections could not be used reliably as `Hash`
-  keys or `Set` elements.
+- Fixed a bug where the custom `SliceLoader` supplied to a communicator could be collected by the garbage collector
+  while still in use.
+
+- Fixed a bug where GC heap compaction (`GC.compact` or `GC.auto_compact = true`) broke Ice: after a compaction, the
+  proxies, classes, exceptions, and enumerators returned by Ice invocations could be instances of unrelated classes, and
+  the Ruby interpreter could crash.
 
 - `ConnectionInfo#connectionId` now returns the ID of the connection. Previously, it was always `nil`.
 
-- Fixed the stringification of class instances (`inspect`): when GC compaction ran during the stringification, a
-  shared instance could be printed in full a second time instead of as a back reference.
+- Added a `hash` method to `Connection`, consistent with `eql?`. Previously, two `Connection` objects representing the
+  same connection could compare equal but hash differently, so connections could not be used reliably as `Hash` keys or
+  `Set` elements.
 
-- `to_s` on a Slice class or struct instance now returns the same stringification as `inspect`.
+- The comparison methods (`<=>`, `==`, `eql?`) of Ice types in Ruby (Slice-generated enums, `Ice::Identity`,
+  `Ice::ObjectPrx`, and `Ice::Endpoint`) now follow standard Ruby semantics for an operand of a different type: `==` and
+  `eql?` return `false` and `<=>` returns `nil`, instead of raising an exception. On enums, which are `Comparable`,
+  ordered comparisons such as `<` still raise `ArgumentError`.
+
+- Fixed a bug where receiving a Slice user exception leaked memory.
+
+- Fixed the marshaling of an empty `sequence<byte>` supplied as a string, which corrupted the rest of the message.
 
 - Fixed the stringification of Slice user exceptions and structs: calling `inspect` on a Slice-generated exception or
   struct instance returns a description, instead of raising `NameError`.
 
-- Fixed the stringification of non-nil proxy data members. Now proxies print correctly, instead of raising `TypeError`.
+- Fixed the stringification of non-nil proxy fields. Proxies now print correctly, instead of raising `TypeError`.
 
-- Fixed `Ice::createProperties` in Ice for Ruby to accept `nil` as the defaults argument (equivalent to omitting it).
-  A `nil` defaults previously bypassed the type check and crashed the interpreter.
+- Fixed the stringification of class instances (`inspect`): when GC compaction ran during the stringification, a shared
+  instance could be printed in full a second time instead of as a back reference.
 
-- Fixed Ice for Ruby to correctly marshal an empty `sequence<byte>` supplied as a string: it now writes a single size
-  byte instead of a raw 4-byte integer, which previously de-synchronized the rest of the message.
-
-- Fixed `Ice::Endpoint` comparison in Ice for Ruby. `<=>` compared an endpoint with itself, making `==`/`<=>`
-  asymmetric, and the class defined `eql?` without a matching `hash`; equal endpoints now compare consistently and
-  can be used as `Hash`/`Set` keys.
+- `to_s` on a Slice class or struct instance now returns the same stringification as `inspect`.
 
 - Fixed `slice2rb` to escape `#` in generated Ruby string literals (constants and deprecation reasons). A Slice string
   containing Ruby interpolation syntax such as `#{...}`, `#@`, or `#$` previously produced a double-quoted Ruby literal
   that was interpreted at module-load time, corrupting the value or executing code.
 
-- Fixed a bug where receiving a Slice user exception leaked memory. A program that received many user exceptions
-  became progressively slower and could eventually crash.
-
-- Fixed a bug where GC heap compaction (`GC.compact` or `GC.auto_compact = true`) broke the Ice extension: after a
-  compaction, the proxies, classes, exceptions, and enumerators returned by Ice invocations could be instances of
-  unrelated classes, and the Ruby interpreter could crash.
-
-- The comparison methods (`<=>`, `==`, `eql?`) of Ice types in Ruby (Slice-generated enums, `Ice::Identity`,
-  `Ice::ObjectPrx`, and `Ice::Endpoint`) now follow standard Ruby semantics for an operand of a different type: `==`
-  and `eql?` return `false` and `<=>` returns `nil`, instead of raising an exception. On enums, which are
-  `Comparable`, ordered comparisons such as `<` still raise `ArgumentError`.
-
-- Fixed Ice for Ruby to keep a custom `SliceLoader` alive for the communicator's lifetime. The wrapper previously
-  registered the wrong address with the garbage collector, leaving a dangling root and allowing the loader to be
-  collected while still in use.
-
 ### Swift Changes
-
-- The CompileSlice plugin now tracks Slice include dependencies: editing a Slice file included by other Slice files
-  regenerates the Swift code for those files as well. The plugin also regenerates the Swift code when `slice2swift`
-  itself changes.
-
-- Fixed communicator initialization to treat `Ice.ClassGraphDepthMax` values less than 1 as unlimited, matching the
-  other language mappings. Previously, setting this property to 0 or a negative value aborted the program.
 
 - Fixed the servant lookup for incoming requests: when the target identity is registered with a different facet, the
   object adapter now dispatches the request to the default servant if one is registered, as documented, instead of
   rejecting the request with `FacetNotExistException`.
+
+- The CompileSlice plugin now tracks Slice include dependencies: editing a Slice file included by other Slice files
+  regenerates the Swift code for those files as well. The plugin also regenerates the Swift code when `slice2swift`
+  itself changes.
 
 ### Ice Service Changes
 
