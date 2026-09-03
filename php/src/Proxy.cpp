@@ -1501,7 +1501,7 @@ static zend_object*
 handleClone(zend_object* zobj)
 {
     // Create a new object that shares a C++ proxy instance with this object.
-    ProxyPtr obj = *Wrapper<ProxyPtr>::fetch(zobj)->ptr;
+    ProxyPtr obj = Wrapper<ProxyPtr>::value(zobj);
     assert(obj);
     zval clone;
     if (!obj->clone(&clone, obj->proxy))
@@ -1520,9 +1520,8 @@ handleGetMethod(zend_object** object, zend_string* name, const zval* key)
     result = zend_get_std_object_handlers()->get_method(object, name, key);
     if (!result)
     {
-        Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::fetch(*object);
-        assert(obj->ptr);
-        ProxyPtr _this = *obj->ptr;
+        ProxyPtr _this = Wrapper<ProxyPtr>::value(*object);
+        assert(_this);
 
         ProxyInfoPtr info = _this->info;
         assert(info);
@@ -1543,16 +1542,12 @@ handleGetMethod(zend_object** object, zend_string* name, const zval* key)
 static int
 handleCompare(zval* zobj1, zval* zobj2)
 {
-    // PHP guarantees that the objects have the same class.
-    Wrapper<ProxyPtr>* obj1 = Wrapper<ProxyPtr>::extract(zobj1);
-    assert(obj1->ptr);
-    ProxyPtr _this1 = *obj1->ptr;
-    Ice::ObjectPrx prx1 = _this1->proxy;
+    // PHP will call this fallback handler if either operand is not a proxy.
+    // If both operands are proxies, this is no-op and the rest of this function will be executed.
+    ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
 
-    Wrapper<ProxyPtr>* obj2 = Wrapper<ProxyPtr>::extract(zobj2);
-    assert(obj2->ptr);
-    ProxyPtr _this2 = *obj2->ptr;
-    Ice::ObjectPrx prx2 = _this2->proxy;
+    Ice::ObjectPrx prx1 = Wrapper<ProxyPtr>::value(zobj1)->proxy;
+    Ice::ObjectPrx prx2 = Wrapper<ProxyPtr>::value(zobj2)->proxy;
 
     if (prx1 == prx2)
     {
@@ -1718,16 +1713,10 @@ IcePHP::fetchProxy(zval* zv, optional<Ice::ObjectPrx>& prx, ProxyInfoPtr& info, 
             invalidArgument("value is not a proxy");
             return false;
         }
-        Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::extract(zv);
-        if (!obj)
-        {
-            runtimeError("unable to retrieve proxy object from object store");
-            return false;
-        }
-        assert(obj->ptr);
-        prx = (*obj->ptr)->proxy;
-        info = (*obj->ptr)->info;
-        comm = (*obj->ptr)->communicator;
+        ProxyPtr obj = Wrapper<ProxyPtr>::value(zv);
+        prx = obj->proxy;
+        info = obj->info;
+        comm = obj->communicator;
     }
     return true;
 }

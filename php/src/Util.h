@@ -43,9 +43,11 @@ namespace IcePHP
             return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char*>(object) - XtOffsetOf(Wrapper<T>, zobj));
         }
 
-        static T value(zval* zv)
+        static T value(zval* zv) { return value(extract(zv)); }
+        static T value(zend_object* object) { return value(fetch(object)); }
+
+        static T value(Wrapper<T>* w)
         {
-            Wrapper<T>* w = extract(zv);
             if (!w->ptr)
             {
                 // The underlying pointer is null, which means the PHP object was constructed outside the extension.

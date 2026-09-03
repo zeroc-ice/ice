@@ -284,7 +284,10 @@ handleConnectionFreeStorage(zend_object* object)
 static int
 handleConnectionCompare(zval* zobj1, zval* zobj2)
 {
-    // PHP guarantees that the objects have the same class.
+    // PHP will call this fallback handler if either operand is not a connection.
+    // If both operands are connections, this is no-op and the rest of this function will be executed.
+    ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
+
     Ice::ConnectionPtr con1 = Wrapper<Ice::ConnectionPtr>::value(zobj1);
     assert(con1);
     Ice::ConnectionPtr con2 = Wrapper<Ice::ConnectionPtr>::value(zobj2);
@@ -462,12 +465,7 @@ IcePHP::fetchConnection(zval* zv, Ice::ConnectionPtr& connection)
             invalidArgument("value is not a connection");
             return false;
         }
-        Wrapper<Ice::ConnectionPtr>* obj = Wrapper<Ice::ConnectionPtr>::extract(zv);
-        if (!obj)
-        {
-            return false;
-        }
-        connection = *obj->ptr;
+        connection = Wrapper<Ice::ConnectionPtr>::value(zv);
     }
     return true;
 }

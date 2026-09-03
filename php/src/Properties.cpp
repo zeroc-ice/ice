@@ -624,7 +624,7 @@ handleFreeStorage(zend_object* object)
 static zend_object*
 handleClone(zend_object* zobj)
 {
-    Ice::PropertiesPtr p = *Wrapper<Ice::PropertiesPtr>::fetch(zobj)->ptr;
+    Ice::PropertiesPtr p = Wrapper<Ice::PropertiesPtr>::value(zobj);
     assert(p);
     zval clone;
     if (!IcePHP::createProperties(&clone, p->clone()))
