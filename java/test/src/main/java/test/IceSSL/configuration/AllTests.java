@@ -672,26 +672,17 @@ public class AllTests {
             }
 
             if ("PKCS12".equals(keystoreType)) {
-                // KeyStore.getInstance accepts the type name in any case, but only the exact spelling "PKCS12" selects
-                // an empty store password: with "pkcs12" the store loads with a null password, so IceSSL must detect
-                // that the encrypted certificates were skipped.
-                initData = createClientProps(defaultProperties);
-                initData.properties.setProperty("IceSSL.Keystore", "ca1/client.p12");
-                initData.properties.setProperty("IceSSL.KeystoreType", "pkcs12");
-                initData.properties.setProperty("IceSSL.Password", "password");
-                testStorePasswordFailure(initData, "IceSSL.KeystorePassword");
-
-                initData = createClientProps(defaultProperties);
-                initData.properties.setProperty("IceSSL.Truststore", "ca1/ca1.p12");
-                initData.properties.setProperty("IceSSL.TruststoreType", "pkcs12");
-                testStorePasswordFailure(initData, "IceSSL.TruststorePassword");
-
                 if ("pkcs12".equals(KeyStore.getDefaultType())) {
-                    // Standard JDKs report the default type as "pkcs12", which takes the null-password path above.
+                    // With the store type omitted, standard JDKs load the store with a null password. A PKCS12 store
+                    // then loads without its encrypted certificates, and IceSSL must detect it.
                     initData = createClientProps(defaultProperties);
                     initData.properties.setProperty("IceSSL.Keystore", "ca1/client.p12");
                     initData.properties.setProperty("IceSSL.Password", "password");
                     testStorePasswordFailure(initData, "IceSSL.KeystorePassword");
+
+                    initData = createClientProps(defaultProperties);
+                    initData.properties.setProperty("IceSSL.Truststore", "ca1/ca1.p12");
+                    testStorePasswordFailure(initData, "IceSSL.TruststorePassword");
 
                     // The default PKCS12 implementation can also load JKS stores. A null password must be preserved
                     // in this case so JKS can skip its integrity check.
