@@ -280,7 +280,7 @@ final class PropertyNames {
             new Property("TrustOnly\\.Server\\.[^\\s]+", true, "", false, null),
             new Property("Truststore", false, "", false, null),
             new Property("TruststorePassword", false, "", false, null),
-            new Property("TruststoreType", false, "JKS", false, null),
+            new Property("TruststoreType", false, "", false, null),
             new Property("UsePlatformCAs", false, "0", false, null),
             new Property("VerifyPeer", false, "2", false, null)
         });

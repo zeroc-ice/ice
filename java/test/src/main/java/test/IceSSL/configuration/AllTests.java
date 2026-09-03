@@ -16,17 +16,76 @@ import test.IceSSL.configuration.Test.ServerFactoryPrx;
 import test.IceSSL.configuration.Test.ServerPrx;
 import test.TestHelper;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.KeyGenerator;
 
 public class AllTests {
     private static void test(boolean b) {
         if (!b) {
             throw new RuntimeException();
+        }
+    }
+
+    private static void testStorePasswordFailure(InitializationData initData, String passwordProperty) {
+        try (Communicator communicator = new Communicator(initData)) {
+            test(false);
+        } catch (InitializationException ex) {
+            test(ex.getMessage().contains(passwordProperty));
+        }
+    }
+
+    private static void testStoreLoads(InitializationData initData) {
+        try (Communicator communicator = new Communicator(initData)) {}
+    }
+
+    // Creates a PKCS12 key store holding an AES secret key ahead of the ca1 client key pair, and returns its path.
+    private static String createMixedKeystore(String defaultDir) {
+        try {
+            char[] password = "password".toCharArray();
+            KeyStore.PasswordProtection protection = new KeyStore.PasswordProtection(password);
+
+            KeyStore client = KeyStore.getInstance("PKCS12");
+            try (FileInputStream in = new FileInputStream(defaultDir + "/ca1/client.p12")) {
+                client.load(in, password);
+            }
+
+            KeyStore mixed = KeyStore.getInstance("PKCS12");
+            mixed.load(null, null);
+            mixed.setEntry(
+                "aes", new KeyStore.SecretKeyEntry(KeyGenerator.getInstance("AES").generateKey()), protection);
+            for (Enumeration<String> e = client.aliases(); e.hasMoreElements(); ) {
+                String alias = e.nextElement();
+                if (client.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class)) {
+                    mixed.setEntry(alias, client.getEntry(alias, protection), protection);
+                }
+            }
+
+            File file = File.createTempFile("mixed", ".p12");
+            file.deleteOnExit();
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                mixed.store(out, password);
+            }
+
+            // The test relies on the secret key being enumerated first.
+            KeyStore reloaded = KeyStore.getInstance("PKCS12");
+            try (FileInputStream in = new FileInputStream(file)) {
+                reloaded.load(in, password);
+            }
+            test("aes".equals(reloaded.aliases().nextElement()));
+            return file.getAbsolutePath();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            test(false);
+            return null;
         }
     }
 
@@ -610,6 +669,60 @@ public class AllTests {
             } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
+            }
+
+            if ("PKCS12".equals(keystoreType)) {
+                if ("pkcs12".equals(KeyStore.getDefaultType())) {
+                    // With the store type omitted, standard JDKs load the store with a null password. A PKCS12 store
+                    // then loads without its encrypted certificates, and IceSSL must detect it.
+                    initData = createClientProps(defaultProperties);
+                    initData.properties.setProperty("IceSSL.Keystore", "ca1/client.p12");
+                    initData.properties.setProperty("IceSSL.Password", "password");
+                    testStorePasswordFailure(initData, "IceSSL.KeystorePassword");
+
+                    initData = createClientProps(defaultProperties);
+                    initData.properties.setProperty("IceSSL.Truststore", "ca1/ca1.p12");
+                    testStorePasswordFailure(initData, "IceSSL.TruststorePassword");
+
+                    // The default PKCS12 implementation can also load JKS stores. A null password must be preserved
+                    // in this case so JKS can skip its integrity check.
+                    initData = createClientProps(defaultProperties);
+                    initData.properties.setProperty("IceSSL.Keystore", "ca1/client.jks");
+                    initData.properties.setProperty("IceSSL.Password", "password");
+                    testStoreLoads(initData);
+
+                    initData = createClientProps(defaultProperties);
+                    initData.properties.setProperty("IceSSL.Truststore", "ca1/ca1.jks");
+                    testStoreLoads(initData);
+                }
+
+                // A passwordless PKCS12 store still contains a usable certificate chain when loaded with an empty
+                // password.
+                initData = createClientProps(defaultProperties);
+                initData.properties.setProperty("IceSSL.Keystore", "ca1/client_password_less.p12");
+                initData.properties.setProperty("IceSSL.KeystoreType", "PKCS12");
+                testStoreLoads(initData);
+
+                initData = createClientProps(defaultProperties);
+                initData.properties.setProperty("IceSSL.Truststore", "ca1/client_password_less.p12");
+                initData.properties.setProperty("IceSSL.TruststoreType", "PKCS12");
+                testStoreLoads(initData);
+
+                // A key store can hold a secret key ahead of the key pair. The secret key is not usable for TLS, so
+                // IceSSL must select the key pair and authenticate the client with it.
+                initData = createClientProps(defaultProperties, "", "ca1/ca1", keystoreType);
+                initData.properties.setProperty("IceSSL.Keystore", createMixedKeystore(defaultDir));
+                initData.properties.setProperty("IceSSL.KeystoreType", "PKCS12");
+                initData.properties.setProperty("IceSSL.KeystorePassword", "password");
+                try (Communicator comm = new Communicator(initData)) {
+                    ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1", keystoreType);
+                    d.put("IceSSL.VerifyPeer", "2");
+                    ServerPrx server = fact.createServer(d);
+                    server.ice_ping();
+                    fact.destroyServer(server);
+                }
             }
         }
         out.println("ok");

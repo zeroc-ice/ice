@@ -326,7 +326,7 @@
         <property name="TrustOnly.Server.[any]" languages="cpp,csharp,java" />
         <property name="Truststore" languages="java" />
         <property name="TruststorePassword" languages="java" />
-        <property name="TruststoreType" languages="java" default="JKS" />
+        <property name="TruststoreType" languages="java" />
         <property name="UsePlatformCAs" languages="cpp,csharp,java" default="0" />
         <property name="VerifyPeer" languages="cpp,csharp,java" default="2" />
     </section>

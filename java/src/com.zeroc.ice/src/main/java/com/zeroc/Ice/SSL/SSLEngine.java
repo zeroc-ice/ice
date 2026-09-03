@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -80,8 +81,7 @@ public class SSLEngine {
                 // The password for the keystore.
                 String keystorePassword = properties.getIceProperty("IceSSL.KeystorePassword");
 
-                // The default keystore type is usually "JKS", but the legal values are determined by the JVM
-                // implementation. Other possibilities include "PKCS12" and "BKS".
+                // The default and supported keystore types are determined by the installed security providers.
                 final String defaultType = KeyStore.getDefaultType();
                 final String keystoreType = properties.getPropertyWithDefault("IceSSL.KeystoreType", defaultType);
 
@@ -95,8 +95,6 @@ public class SSLEngine {
                 // The password for the truststore.
                 String truststorePassword = properties.getIceProperty("IceSSL.TruststorePassword");
 
-                // The default truststore type is usually "JKS", but the legal values are determined by the JVM
-                // implementation. Other possibilities include "PKCS12" and "BKS".
                 final String truststoreType = properties.getPropertyWithDefault("IceSSL.TruststoreType", defaultType);
 
                 // Collect the key managers.
@@ -115,7 +113,7 @@ public class SSLEngine {
                         if (!keystorePassword.isEmpty()) {
                             passwordChars = keystorePassword.toCharArray();
                         } else if ("BKS".equals(keystoreType) || "PKCS12".equals(keystoreType)) {
-                            // Bouncy Castle or PKCS12 does not permit null passwords.
+                            // BKS requires a non-null password. PKCS12 distinguishes an empty password from null.
                             passwordChars = new char[0];
                         }
 
@@ -147,28 +145,49 @@ public class SSLEngine {
                     password = null;
                     keyManagers = kmf.getKeyManagers();
 
-                    // If no alias is specified, we look for the first key entry in the key store.
+                    // If no alias is specified, we look for the first key entry with a certificate chain in the key
+                    // store, and fall back to the first key entry so that a missing chain is reported below.
                     //
                     // This is required to force the key manager to always choose a certificate even if there's no
                     // certificate signed by any of the CA names sent by the server. Ice servers might indeed not
                     // always send the CA names of their trusted roots.
                     if (alias.isEmpty()) {
+                        String firstKeyEntry = "";
                         for (Enumeration<String> e = keys.aliases(); e.hasMoreElements(); ) {
                             String a = e.nextElement();
                             if (keys.isKeyEntry(a)) {
-                                alias = a;
-                                break;
+                                Certificate[] chain = keys.getCertificateChain(a);
+                                if (chain != null && chain.length > 0) {
+                                    alias = a;
+                                    break;
+                                }
+                                if (firstKeyEntry.isEmpty()) {
+                                    firstKeyEntry = a;
+                                }
                             }
+                        }
+                        if (alias.isEmpty()) {
+                            alias = firstKeyEntry;
                         }
                     } else {
                         // If the user selected a specific alias, ensure it correspond with a key entry.
                         if (!keys.isKeyEntry(alias)) {
                             throw new InitializationException(
-                                "SSL transport: keystore does not contain an entry with alias `" + alias + "'");
+                                "SSL transport: keystore does not contain an entry with alias '" + alias + "'");
                         }
                     }
 
                     if (!alias.isEmpty()) {
+                        // A PKCS12 store loaded with a null password can contain a key entry without its encrypted
+                        // certificate chain.
+                        Certificate[] chain = keys.getCertificateChain(alias);
+                        if (chain == null || chain.length == 0) {
+                            throw new InitializationException(
+                                "SSL transport: keystore entry with alias '" + alias
+                                    + "' does not contain a certificate chain; check IceSSL.KeystorePassword or,"
+                                    + " for a password-less PKCS12 store, set IceSSL.KeystoreType=PKCS12");
+                        }
+
                         // wrap the key managers in order to return the desired alias.
                         for (int i = 0; i < keyManagers.length; i++) {
                             keyManagers[i] =
@@ -199,7 +218,8 @@ public class SSLEngine {
                             if (!truststorePassword.isEmpty()) {
                                 passwordChars = truststorePassword.toCharArray();
                             } else if ("BKS".equals(truststoreType) || "PKCS12".equals(truststoreType)) {
-                                // Bouncy Castle or PKCS12 does not permit null passwords.
+                                // BKS requires a non-null password. PKCS12 distinguishes an empty password from
+                                // null.
                                 passwordChars = new char[0];
                             }
 
@@ -235,9 +255,20 @@ public class SSLEngine {
                         TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
                         // Attempting to establish an outgoing connection with an empty truststore can cause hangs that
                         // eventually result in an exception such as: `InvalidAlgorithmParameterException` the
-                        // trustAnchors parameter must be non-empty.
-                        if (truststore.size() == 0) {
-                            throw new InitializationException("SSL transport: truststore is empty");
+                        // trustAnchors parameter must be non-empty. A PKCS12 store loaded with a null password can also
+                        // contain key entries without their encrypted certificates.
+                        boolean containsCertificate = false;
+                        for (Enumeration<String> e = truststore.aliases(); e.hasMoreElements(); ) {
+                            if (truststore.getCertificate(e.nextElement()) != null) {
+                                containsCertificate = true;
+                                break;
+                            }
+                        }
+                        if (!containsCertificate) {
+                            throw new InitializationException(
+                                "SSL transport: truststore does not contain any certificates; check"
+                                    + " IceSSL.TruststorePassword or, for a password-less PKCS12 store, set"
+                                    + " IceSSL.TruststoreType=PKCS12");
                         }
                         tmf.init(truststore);
                         trustManagers = tmf.getTrustManagers();
