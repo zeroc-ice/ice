@@ -21,9 +21,9 @@ might need to be aware of.
   - [Ice Service Changes](#ice-service-changes)
     - [DataStorm](#datastorm)
     - [Glacier2](#glacier2)
-    - [Ice Service installed as a Windows Service](#ice-service-installed-as-a-windows-service)
     - [IceGrid](#icegrid)
     - [IceStorm](#icestorm)
+    - [Ice Service installed as a Windows Service](#ice-service-installed-as-a-windows-service)
   - [Packaging Changes](#packaging-changes)
 - [Changes in Ice 3.8.2](#changes-in-ice-382)
   - [General Changes](#general-changes-1)
@@ -166,11 +166,8 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
 - Ice now generates random bytes — including those behind `Ice::generateUUID` and `addWithUUID` — with the operating
   system's CSPRNG instead of `std::random_device`.
 
-- Fixed two bugs in the OpenSSL-based IceSSL transport:
-  - `IceSSL.Password` was not used when loading an encrypted PEM private key: OpenSSL prompted for the password on the
-    terminal or failed to load the key.
-  - A rejected peer certificate reported a generic "rejected by the certificate validation callback" message instead of
-    the specific reason (such as "certificate has expired").
+- Fixed a bug in the OpenSSL-based IceSSL transport: `IceSSL.Password` was not used when loading an encrypted PEM
+  private key, so OpenSSL prompted for the password on the terminal or failed to load the key.
 
 - The OpenSSL-based IceSSL transport now supports OpenSSL 4.0.
 
@@ -675,210 +672,164 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
 
 #### Glacier2
 
-- Fixed the Glacier2 address filters, `Glacier2.Filter.Address.Accept` and `Glacier2.Filter.Address.Reject`: a rule
-  that did not end with a wildcard matched hosts that it does not describe. A rule without any wildcard, such as
+- The Glacier2 router now supports `createSessionFromSecureConnection` calls from clients connecting over secure
+  WebSocket (wss), and sets the `_con.peerCert` context entry for these connections when `Glacier2.AddConnectionContext`
+  is enabled.
+
+- Fixed the Glacier2 address filters, `Glacier2.Filter.Address.Accept` and `Glacier2.Filter.Address.Reject`: a rule that
+  did not end with a wildcard matched hosts that it does not describe. A rule without any wildcard, such as
   `api.example.com`, matched every host name ending with it, such as `notapi.example.com`, and a rule ending with a
   numeric range, such as `192.168.[0-255]`, matched every host name starting with it. An address rule now matches the
   host name in full. Review your address filters if a rule relied on the previous behavior: prepend `*` to restore a
   suffix match (`*api.example.com` matches `notapi.example.com` again), and append `*` to restore a prefix match
   (`192.168.[0-255]*` matches `192.168.5.5` again).
 
-- Fixed a bug in the Glacier2 address filters, `Glacier2.Filter.Address.Accept` and `Glacier2.Filter.Address.Reject`:
-  the filters compared host names case-sensitively. Host names now match regardless of case, like DNS names.
+- Additional fixes and improvements to the address filters:
+  - Host names now match regardless of case, like DNS names.
+  - The filters now ignore the trailing dot of a fully-qualified DNS name, in the endpoint host and in the Accept and
+    Reject rules alike: a rule written for `backend.example.com` matches the host `backend.example.com.`, and vice
+    versa.
+  - When address filters are configured, the router now rejects a proxy when any of its endpoints has a host that writes
+    an IPv4 address in a non-canonical form: for example, `0x7f000001`, `2130706433`, and `127.1` are all non-canonical
+    forms of `127.0.0.1`. Previously, such a host matched neither the Accept nor the Reject rules written for the usual
+    dotted-quad form.
+  - The `Glacier2.Filter.Address.Reject` filter now filters multi-endpoint proxies correctly.
+  - A rule that contains a numeric range preceded by a wildcard, such as `*.[0-255]`, no longer sends the router into an
+    infinite loop while checking a proxy.
+  - A rule with an inverted numeric range (such as `[5-1]`) or with a stray `[` inside a group was accepted and then
+    silently did not match the hosts it appears to describe. The router now rejects such a rule at startup.
 
-- Fixed a bug in the Glacier2 address filters, `Glacier2.Filter.Address.Accept` and
-  `Glacier2.Filter.Address.Reject`: a rule that contains a numeric range preceded by a wildcard, such as
-  `*.[0-255]`, could send the router into an infinite loop while checking a proxy.
-
-- When address filters are configured (`Glacier2.Filter.Address.Accept` or `Glacier2.Filter.Address.Reject`), the
-  Glacier2 router now rejects a proxy when any of its endpoints has a host that writes an IPv4 address in a
-  non-canonical form: for example, `0x7f000001`, `2130706433`, and `127.1` are all non-canonical forms of
-  `127.0.0.1`. The filter rules match the host as a string, so previously a host in such a form matched neither
-  the Accept nor the Reject rules written for the usual dotted-quad form.
-
-- The Glacier2 address filters now ignore the trailing dot of a fully-qualified DNS name, in the endpoint host and
-  in the Accept and Reject rules alike: a rule written for `backend.example.com` matches the host
-  `backend.example.com.`, and vice versa. Previously, the host and the rule matched only when both spelled the
-  trailing dot the same way.
-
-- Fixed a bug in the `Glacier2.Filter.Address.Reject` address filter, which did not filter multi-endpoint proxies
-  correctly.
-
-- Improved the validation of the Glacier2 address filter rules: a rule with an inverted numeric range (such as
-  `[5-1]`) or with a stray `[` inside a group was accepted and then silently did not match the hosts it appears to
-  describe.
-
-- The Glacier2 Crypt permissions verifier now supports bcrypt password hashes (`$2a$`, `$2b$`, `$2y$`) on Linux.
-
-- Fixed a bug where a malformed `Glacier2.Filter.Identity.Accept` or `Glacier2.Filter.Category.AcceptUser` property
-  made every session creation hang instead of failing. The router now validates these properties at startup and
-  refuses to start when one of them is invalid.
+- Fixed a bug where a malformed `Glacier2.Filter.Identity.Accept` or `Glacier2.Filter.Category.AcceptUser` property made
+  every session creation hang instead of failing. The router now validates these properties at startup and refuses to
+  start when one of them is invalid.
 
 - The Glacier2 router now fails to start when the proxy configured by `Glacier2.PermissionsVerifier`,
   `Glacier2.SessionManager`, `Glacier2.SSLPermissionsVerifier`, or `Glacier2.SSLSessionManager` cannot be parsed.
-  Previously, the router logged an "unable to contact" warning and started without the corresponding verifier or
-  session manager.
+  Previously, the router logged an "unable to contact" warning and started without the corresponding verifier or session
+  manager.
+
+- The Glacier2 Crypt permissions verifier now supports bcrypt password hashes (`$2a$`, `$2b$`, `$2y$`) on Linux.
 
 - Fixed a bug in the Glacier2 Crypt permissions verifier: a password file with more than one entry for the same user
   kept the first entry and silently ignored the others. A duplicate entry now fails startup, like a malformed entry.
 
-- The Glacier2 router now supports `createSessionFromSecureConnection` calls from clients connecting over secure
-  WebSocket (wss), and sets the `_con.peerCert` context entry for these connections when
-  `Glacier2.AddConnectionContext` is enabled.
-
-#### Ice Service installed as a Windows Service
-
-- Fixed a crash on shutdown. When an Ice service running as a Windows service was stopped using an Ice admin tool —
-  for example, an IceGrid node shut down with `icegridadmin` or the IceGrid GUI — instead of through the Windows
-  Service Control Manager, the process terminated abnormally rather than stopping cleanly (and never reported
-  `SERVICE_STOPPED`). This affected the IceGrid registry and node, the Glacier2 router, and IceBox.
-
 #### IceGrid
-
-- Fixed the IceGrid registry to reject a descriptor with a self-referential or cyclic variable definition by
-  raising a deployment error, instead of crashing from unbounded recursion.
-
-- Fixed an IceGrid node consistency check that could remove files belonging to a deployed server when the node
-  ran under a non-C locale, because directory entries were sorted inconsistently. The node now sorts them using
-  a locale-independent ordering.
-
-- Fixed a crash in IceGrid when parsing an application descriptor whose `<include>` elements reference
-  themselves directly or indirectly. The descriptor parser now reports a deployment error instead of crashing.
-
-- Fixed a bug where the IceGrid registry incorrectly rejected an application with a "circular dependency" error
-  when a property set was referenced by two other property sets.
-
-- Fixed a node-wide activation stall in the IceGrid node when running with a very large file descriptor limit
-  (such as `LimitNOFILE=infinity` under systemd).
-
-- Fixed a memory leak in the IceGrid registry: the resources associated with a client or admin session were sometimes
-  retained until registry shutdown.
-
-- Fixed a shutdown hang in the IceGrid node on Windows that could occur after a server activation failed.
-
-- Fixed a crash in the IceGrid registry that could occur when an application declared the same
-  allocatable object identity more than once (which IceGrid tolerates with a logged error) and that
-  application was later updated or removed.
-
-- Fixed a crash in `icegridadmin`: when started with `--host` and `--instanceName` and no registry could be contacted
-  on the specified host, `icegridadmin` crashed instead of reporting an error.
-
-- Fixed a bug in `icegridadmin`: after a `log --follow` command failed — for example because the target server was
-  not reachable — all subsequent `log --follow` commands in the same session failed as well.
-
-- Fixed a bug in `icegridadmin`: the `show` command with the `--head n` option printed the whole log file instead of
-  the first `n` lines.
-
-- Fixed the IceGrid GUI freezing when a log file window was closed or stopped while a read against an
-  unresponsive node was still in progress. Stopping or closing a log window no longer blocks the UI thread
-  waiting for the in-progress read to return.
-
-- Fixed a Swing threading violation in the IceGrid GUI: when refreshing a metrics view failed synchronously,
-  the error dialog was created off the UI thread, which could corrupt the display or deadlock. The dialog is
-  now shown on the UI thread.
-
-- Fixed `icegridnode` command-line parsing: an option following `--deploy` and its arguments, as in
-  `icegridnode --deploy app.xml --readonly`, was silently ignored.
-
-- Fixed an IceGrid registry issue: after an application update that did not restart a running server (no-restart
-  update), restarting the registry could leave this server stuck in a synchronizing state, causing administrative
-  operations on this server to hang until the server was stopped.
-
-- Fixed a slow memory accumulation in the IceGrid registry: a session destroyed by the client was retained by the
-  registry until the connection used to create this session closed. This affects only registries with no node (a
-  common setup when using dynamic registration) and no replica, with sessions created and destroyed through Glacier2,
-  as Glacier2 maintains a long-lived connection to the registry.
-
-- Fixed a registry-wide stall in IceGrid. Previously, when a client that allocated a server with the `session`
-  allocation mode suddenly disconnected, the registry could temporarily stop accepting all new sessions.
-
-- Fixed a potential crash at startup in an IceGrid slave registry. A master registry registering with a slave while
-  the slave was still initializing could crash the slave.
 
 - The IceGrid registry now supports `createSessionFromSecureConnection` and `createAdminSessionFromSecureConnection`
   calls from clients connecting over secure WebSocket (wss).
 
+- Fixed two bugs in the IceGrid registry that delayed the release of client and admin session resources:
+  - The resources of a session whose connection closed were sometimes retained until registry shutdown.
+  - A session destroyed by the client was retained until the connection used to create this session closed. This affects
+    only registries with no node (a common setup when using dynamic registration) and no replica, with sessions created
+    and destroyed through Glacier2, as Glacier2 maintains a long-lived connection to the registry.
+
+- Fixed a crash in the IceGrid registry that could occur when an application declared the same allocatable object
+  identity more than once (which IceGrid tolerates with a logged error) and that application was later updated or
+  removed.
+
+- Fixed a registry-wide stall in IceGrid. Previously, when a client that allocated a server with the `session`
+  allocation mode suddenly disconnected, the registry could temporarily stop accepting all new sessions.
+
+- Fixed a potential crash at startup in an IceGrid slave registry. A master registry registering with a slave while the
+  slave was still initializing could crash the slave.
+
+- Fixed a bug where a running server updated by a no-restart application update could get stuck in a synchronizing state
+  after a registry restart, causing administrative operations on this server to hang until the server was stopped.
+
+- Deploying an application in which a property set is referenced by two other property sets no longer fails with a
+  spurious "circular dependency" error.
+
+- Deploying an application whose descriptor contains a self-referential or cyclic variable definition now fails with a
+  deployment error. Previously, such a descriptor crashed the IceGrid registry.
+
+- Deploying an application whose descriptor's `<include>` elements reference themselves directly or indirectly now fails
+  with a deployment error. Previously, `icegridadmin` and `icegridnode --deploy` crashed.
+
+- Fixed an IceGrid node consistency check: when the node ran under a non-C locale, the check could destroy a deployed
+  server and delete this server's directory on the node, including any data stored under `${server.data}`.
+
+- Fixed a node-wide activation stall in the IceGrid node when running with a very large file descriptor limit (such as
+  `LimitNOFILE=infinity` under systemd).
+
+- Fixed a shutdown hang in the IceGrid node on Windows that could occur after a server activation failed.
+
+- Fixed `icegridnode` command-line parsing: an option following `--deploy` and its arguments, as in
+  `icegridnode --deploy app.xml --readonly`, was silently ignored.
+
+- Fixed three bugs in `icegridadmin`:
+  - When started with `--host` and `--instanceName` and no registry could be contacted on the specified host,
+    `icegridadmin` crashed instead of reporting an error.
+  - After a `log --follow` command failed — for example because the target server was not reachable — all subsequent
+    `log --follow` commands in the same session failed as well.
+  - The `show` command with the `--head n` option printed the whole log file instead of the first `n` lines.
+
+- Fixed two bugs in the IceGrid GUI:
+  - The GUI froze when a log file window was closed or stopped while a read against an unresponsive node was still in
+    progress.
+  - When refreshing a metrics view failed synchronously, the error dialog could corrupt the display or deadlock the GUI.
+    The dialog is now shown on the UI thread.
+
 #### IceStorm
 
-- Fixed a hang that could prevent IceStorm from shutting down cleanly after a topic received messages whose
-  cost prevented their propagation on one of its links.
-
-- Fixed an election bug in replicated IceStorm deployments. When a replication failure was detected while a
-  replica was taking part in an election — for example during a master failover with updates in flight — the
-  replica could stop serving requests until it was restarted.
-
-- Fixed an availability issue in a replicated IceStorm deployment: when a replica stayed reachable but persistently
-  failed to apply the initial replica state (for example on a local database write error), every election failed and
-  the whole group kept cycling through recovery, so no replica served requests. The coordinator now evicts a replica
-  whose initialization fails and completes the election as long as a majority of the replicas succeeds, as it
-  already did for failures during replicated updates.
-
-- Fixed a replication bug: when a subscriber unsubscribed and re-subscribed with a different proxy or QoS while
-  a replica was out of sync, the replica kept the old subscription and could deliver events with it after
-  becoming the coordinator.
-
-- Fixed IceStorm metrics in transient mode. Transient topics now report the `published` and `forwarded` metrics,
-  and topic and subscriber observers are now refreshed when a metrics view changes. Previously transient topics
-  reported no topic metrics, and the subscriber metrics of transient deployments went stale after a metrics view
-  update.
-
-- Fixed the `forwarded` topic metric to count forwarded events. Previously the metric was incremented once per
-  forward call, and a topic link forwards events in batches, so it undercounted the number of events.
-
-- Fixed `icestormadmin` to report `no manager proxies configured` when it runs without any configuration.
-  Previously, it failed with a cryptic endpoint parse error.
-
-- Improved the `icestormadmin` error messages when `IceStormAdmin.Host` or `IceStormAdmin.Port` is set: a missing
-  port, an invalid host or port value, and an unreachable `IceStorm/Finder` object are now reported as distinct
-  errors.
-
-- Fixed the `icestormadmin` parser to accept `replica` and `subscribers` as topic-name arguments. All other
-  command words were already usable as topic names, but these two were rejected with a syntax error unless
-  quoted.
-
 - Restored IceStorm batch subscriber delivery, which had not worked since Ice 3.8.0. A batch oneway or batch datagram
-  subscriber's proxy was silently converted to a plain oneway or datagram proxy at subscription time, so its events
-  were delivered one at a time instead of being coalesced and flushed together every `IceStorm.Flush.Timeout`
-  milliseconds.
+  subscriber's proxy was silently converted to a plain oneway or datagram proxy at subscription time, so its events were
+  delivered one at a time instead of being coalesced and flushed together every `IceStorm.Flush.Timeout` milliseconds.
 
-- Fixed an election bug in replicated IceStorm deployments. After a restart of all the replicas, or after a
-  sequence of replica outages, the elected coordinator could adopt the state of a stale replica, silently
-  discarding previously created topics and subscriptions.
-
-- Fixed a deadlock in a replicated IceStorm deployment. A master replica that lost the majority of its replicas (for
-  example during a network partition) while a topic update — such as a subscribe or unsubscribe — was in progress
-  could hang, halting all further operations on that node until it was restarted.
-
-- Fixed an IceStorm bug where subscribing to a topic with an invalid (non-numeric) `retryCount` QoS value left that
-  subscriber unable to be subscribed to the topic until IceStorm was restarted. The value is now rejected with
-  `BadQoS`.
-
-- Fixed a hang that could prevent IceStorm from shutting down cleanly when a subscriber still had requests outstanding
-  to an unreachable endpoint.
+- Fixed two hangs that could prevent IceStorm from shutting down cleanly:
+  - when a subscriber still had requests outstanding to an unreachable endpoint;
+  - after a topic received messages whose cost prevented their propagation on one of its links.
 
 - Fixed a race in IceStorm where destroying a topic concurrently with a subscribe or link to the same topic could leave
   an orphaned record in the database, causing the destroyed topic to reappear the next time IceStorm was restarted.
 
-- Fixed a bug where a transient IceStorm service could drop queued events on shutdown instead of delivering them.
+- Fixed several bugs in replicated IceStorm deployments:
+  - When a replication failure was detected while a replica was taking part in an election — for example during a master
+    failover with updates in flight — the replica could stop serving requests until it was restarted.
+  - When a replica stayed reachable but persistently failed to apply the initial replica state (for example on a local
+    database write error), every election failed and the whole group kept cycling through recovery, so no replica served
+    requests. The coordinator now evicts a replica whose initialization fails and completes the election as long as a
+    majority of the replicas succeeds, as it already did for failures during replicated updates.
+  - After a restart of all the replicas, or after a sequence of replica outages, the elected coordinator could adopt the
+    state of a stale replica, silently discarding previously created topics and subscriptions.
+  - A master replica that lost the majority of its replicas (for example during a network partition) while a topic
+    update — such as a subscribe or unsubscribe — was in progress could hang, halting all further operations on that
+    node until it was restarted.
+  - When a subscriber unsubscribed and re-subscribed with a different proxy or QoS while a replica was out of sync, the
+    replica kept the old subscription and could deliver events with it after becoming the coordinator.
+  - A replica rejoining the group could reuse the in-memory remnant of a topic it had destroyed locally. The rejoined
+    replica then ignored a later replicated destroy of that topic, keeping the topic's records in its database and
+    resurrecting the destroyed topic on restart.
 
-- Fixed a crash in `icestormadmin` when running the `replica` command against a non-replicated IceStorm instance.
-  The command now reports that the instance is not replicated instead of crashing.
+- Fixed several bugs in transient IceStorm (`IceStorm.Transient=1`):
+  - The service could drop queued events on shutdown instead of delivering them.
+  - `subscribeAndGetPublisher` and `link` calls on a destroyed topic are now rejected with `ObjectNotExistException`,
+    matching the persistent implementation. Previously such a call succeeded on a topic that could no longer deliver
+    events and could permanently block re-subscribing that subscriber.
+  - The `IceStorm/Finder` object is now registered, as documented.
+  - Transient topics now report the `published` and `forwarded` metrics, and topic and subscriber observers are now
+    refreshed when a metrics view changes. Previously transient topics reported no topic metrics, and their subscriber
+    metrics went stale after a metrics view update.
 
-- Fixed `icestormdb` to open the subscribers database with the same key comparator as the IceStorm service.
-  Previously a database produced by `icestormdb --import` was ordered differently than the service expected, so
-  after restoring a backup the service could fail to find subscriber and topic records whose identities have
-  differing lengths.
+- Fixed the `forwarded` topic metric to count forwarded events. Previously the metric was incremented once per forward
+  call, and a topic link forwards events in batches, so it undercounted the number of events.
 
-- Fixed a replication bug where a replica rejoining the group could reuse the in-memory remnant of a topic it
-  had destroyed locally. The rejoined replica then ignored a later replicated destroy of that topic, keeping the
-  topic's records in its database and resurrecting the destroyed topic on restart.
+- Fixed two bugs in `icestormadmin`:
+  - The parser now accepts `replica` and `subscribers` as topic-name arguments. All other command words were already
+    usable as topic names, but these two were rejected with a syntax error unless quoted.
+  - The `replica` command now reports that the instance is not replicated when running against a non-replicated IceStorm
+    instance, instead of crashing.
 
-- Fixed transient IceStorm (`IceStorm.Transient=1`) to reject `subscribeAndGetPublisher` and `link` calls on a
-  destroyed topic with `ObjectNotExistException`, matching the persistent implementation. Previously such a call
-  succeeded on a topic that could no longer deliver events and could permanently block re-subscribing that
-  subscriber.
+- Fixed `icestormdb --import`: after restoring a backup with this command, the IceStorm service could fail to find some
+  subscriber and topic records. Backups produced by `icestormdb --export` are not affected: you can restore an existing
+  backup with the fixed `icestormdb --import` to produce a correct database.
 
-- Fixed transient IceStorm (`IceStorm.Transient=1`) to register the `IceStorm/Finder` object, as documented.
+#### Ice Service installed as a Windows Service
+
+- Fixed a crash on shutdown. When an Ice service running as a Windows service was stopped using an Ice admin tool — for
+  example, an IceGrid node shut down with `icegridadmin` or the IceGrid GUI — the process terminated abnormally and
+  never reported `SERVICE_STOPPED`. Stopping the service through the Windows Service Control Manager worked fine. This
+  affected the IceGrid registry and node, the Glacier2 router, and IceBox.
 
 ### Packaging Changes
 
