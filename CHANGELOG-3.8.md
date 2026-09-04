@@ -808,7 +808,7 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
     events and could permanently block re-subscribing that subscriber.
   - The `IceStorm/Finder` object is now registered, as documented.
   - Transient topics now report the `published` and `forwarded` metrics, and topic and subscriber observers are now
-    refreshed when a metrics view changes. Previously transient topics reported no topic metrics, and the subscriber
+    refreshed when a metrics view changes. Previously transient topics reported no topic metrics, and their subscriber
     metrics went stale after a metrics view update.
 
 - Fixed the `forwarded` topic metric to count forwarded events. Previously the metric was incremented once per forward
