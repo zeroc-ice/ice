@@ -299,6 +299,8 @@ Summary: PHP extension for Ice.
 Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 Requires: %{phpcommon}
+Requires: php(zend-abi) = %{php_zend_api}
+Requires: php(api) = %{php_core_api}
 
 %description -n %{phpname}-%{?nameprefix}ice
 This package contains a PHP extension for communicating with Ice.
