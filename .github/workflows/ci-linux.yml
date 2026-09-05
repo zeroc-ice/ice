@@ -60,12 +60,15 @@ jobs:
             arch: arm64
             image_type: deb
 
+          # Debian 12 ships Python 3.11; Ice for Python requires 3.12, so only PHP is built there.
           - distribution: debian12
             arch: amd64
             image_type: deb
+            languages: php
           - distribution: debian12
             arch: arm64
             image_type: deb
+            languages: php
 
           - distribution: debian13
             arch: amd64
@@ -100,30 +103,57 @@ jobs:
           username: zeroc-ice
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and test C++
+      - name: Build and test
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/ice" \
-            -w /ice/cpp \
+            -w /ice \
             ghcr.io/zeroc-ice/ice-${{ matrix.image_type }}-builder-${{ matrix.distribution }}:${CHANNEL} \
             bash -c "
               set -ex
-              make -j\$(nproc) srcs
-              make -j\$(nproc) tests
+              python=${{ matrix.python || 'python3' }}
+
+              # The native language mappings built and tested in addition to C++. Each one is compiled
+              # against the interpreter the distribution ships, which is what the distribution packages
+              # target. Ruby is not included: Ice for Ruby requires Ruby 3.4, which none of these
+              # distributions ship.
+              languages='${{ matrix.languages || 'python php' }}'
+
+              make -j\$(nproc) -C cpp srcs
+              make -j\$(nproc) -C cpp tests
+              for lang in \$languages; do
+                make -j\$(nproc) -C \$lang PYTHON=\$python
+              done
 
               # The --rfilter option excludes tests matching the regex. These tests are excluded because
               # they require dependencies or permissions not available in the Docker builder images:
               # - IceUtil/priority, Ice/threadPoolPriority: require CAP_SYS_NICE for thread priorities
               # - Glacier2/*: require the passlib Python module
               # - IceSSL/configuration: requires the openssl CLI tool
-              ${{ matrix.python || 'python3' }} allTests.py --workers=4 --debug --continue \
-                --rfilter='IceUtil/priority|Ice/threadPoolPriority|Glacier2/|IceSSL/configuration'
+              # - python/Ice/info: requires the cryptography Python module
+              rfilter='IceUtil/priority|Ice/threadPoolPriority|Glacier2/|IceSSL/configuration'
+              python_rfilter=\$rfilter'|Ice/info'
+
+              # Every test suite runs even if an earlier one fails, so that a C++ failure does not hide the
+              # results of the other mappings; the step fails at the end if any suite failed.
+              status=0
+              for lang in cpp \$languages; do
+                case \$lang in
+                  python) filter=\$python_rfilter ;;
+                  *) filter=\$rfilter ;;
+                esac
+                (cd \$lang && \$python allTests.py --workers=4 --debug --continue --rfilter=\$filter) || status=1
+              done
+              exit \$status
             "
 
       - name: Upload test logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: test-logs-${{ matrix.distribution }}-${{ matrix.arch }}
-          path: cpp/**/*.log
+          path: |
+            cpp/**/*.log
+            python/**/*.log
+            php/**/*.log
           if-no-files-found: ignore
         if: always()
