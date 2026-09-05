@@ -5,6 +5,7 @@
 #   <prefix>/cmake/IceConfig.cmake                              (Windows NuGet package)
 #   <prefix>/lib*/cmake/Ice-<mmversion>/IceConfig.cmake         (macOS, RHEL, single-arch Linux)
 #   <prefix>/lib*/<arch>/cmake/Ice-<mmversion>/IceConfig.cmake  (Debian/Ubuntu multiarch)
+#   <prefix>/share/Ice-<mmversion>/IceConfig.cmake              (vcpkg)
 #
 # The layout decides where the prefix is, and the headers are then required exactly there: a broken
 # installation reports not found rather than adopting an enclosing one that happens to have headers,
@@ -30,6 +31,8 @@ elseif(_ice_up1_name STREQUAL "cmake" AND _ice_up2_name MATCHES "^lib")
   set(_ice_prefix "${_ice_up3}")
 elseif(_ice_up1_name STREQUAL "cmake" AND _ice_up3_name MATCHES "^lib")
   get_filename_component(_ice_prefix "${_ice_up3}" DIRECTORY)
+elseif(_ice_up1_name MATCHES "^share")
+  get_filename_component(_ice_prefix "${_ice_up1}" DIRECTORY)
 else()
   set(_ice_prefix "")
 endif()
