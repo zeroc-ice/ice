@@ -51,9 +51,6 @@ namespace IceInternal
         [[nodiscard]] std::size_t hash() const noexcept final;
 
         [[nodiscard]] UdpEndpointIPtr endpoint(const UdpTransceiverPtr&) const;
-#if defined(ICE_USE_NETWORK_FRAMEWORK)
-        [[nodiscard]] UdpEndpointIPtr endpoint(int port) const;
-#endif
 
         using IPEndpointI::connectionId;
 
