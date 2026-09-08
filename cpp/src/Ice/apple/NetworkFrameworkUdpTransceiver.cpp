@@ -74,15 +74,19 @@ namespace
                     return true;
                 });
 
-                // Queue the datagram.
+                // Queue the datagram, unless the receive buffer is full.
                 {
                     lock_guard lock(serverState->mutex);
-                    nw_retain(connection);
-                    serverState->received.push_back({std::move(data), connection});
-                    if (serverState->readWaiting)
+                    if (serverState->queuedBytes + data.size() <= serverState->maxQueuedBytes)
                     {
-                        serverState->readWaiting = false;
-                        nativeInfo->completed(SocketOperationRead);
+                        nw_retain(connection);
+                        serverState->queuedBytes += data.size();
+                        serverState->received.push_back({std::move(data), connection});
+                        if (serverState->readWaiting)
+                        {
+                            serverState->readWaiting = false;
+                            nativeInfo->completed(SocketOperationRead);
+                        }
                     }
                 }
 
@@ -421,6 +425,10 @@ IceInternal::NetworkFrameworkUdpTransceiver::bind()
 
     auto serverState = _serverState;
     NativeInfoPtr nativeInfo = _nativeInfo;
+    {
+        lock_guard lock(serverState->mutex);
+        serverState->maxQueuedBytes = static_cast<size_t>(_rcvSize);
+    }
 
     if (multicast)
     {
@@ -474,12 +482,17 @@ IceInternal::NetworkFrameworkUdpTransceiver::bind()
                 }
                 data.resize(static_cast<size_t>(ret));
 
+                // Queue the datagram, unless the receive buffer is full.
                 lock_guard lock(serverState->mutex);
-                serverState->received.push_back({std::move(data), nullptr});
-                if (serverState->readWaiting)
+                if (serverState->queuedBytes + data.size() <= serverState->maxQueuedBytes)
                 {
-                    serverState->readWaiting = false;
-                    nativeInfo->completed(SocketOperationRead);
+                    serverState->queuedBytes += data.size();
+                    serverState->received.push_back({std::move(data), nullptr});
+                    if (serverState->readWaiting)
+                    {
+                        serverState->readWaiting = false;
+                        nativeInfo->completed(SocketOperationRead);
+                    }
                 }
             }
         });
@@ -839,6 +852,7 @@ IceInternal::NetworkFrameworkUdpTransceiver::finishRead(Buffer& buf)
 
         auto datagram = std::move(_serverState->received.front());
         _serverState->received.pop_front();
+        _serverState->queuedBytes -= datagram.data.size();
 
         // Store the source peer for reply writes (may be nullptr for multicast).
         if (_currentPeer)
@@ -993,6 +1007,11 @@ IceInternal::NetworkFrameworkUdpTransceiver::setBufferSize(int rcvSize, int sndS
     if (rcvSize > 0)
     {
         _rcvSize = rcvSize;
+        if (_serverState)
+        {
+            lock_guard lock(_serverState->mutex);
+            _serverState->maxQueuedBytes = static_cast<size_t>(_rcvSize);
+        }
     }
     if (sndSize > 0)
     {

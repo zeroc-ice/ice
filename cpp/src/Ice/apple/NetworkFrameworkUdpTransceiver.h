@@ -74,6 +74,11 @@ namespace IceInternal
                 nw_connection_t source; // May be nullptr for multicast datagrams.
             };
             std::deque<Datagram> received;
+            // Bytes queued in received, capped at maxQueuedBytes (the receive buffer size): datagrams that don't
+            // fit are dropped, as a kernel socket buffer would drop them. Without a bound, a server that stops
+            // reading (for example a held adapter) would accumulate datagrams without limit.
+            size_t queuedBytes{0};
+            size_t maxQueuedBytes{0};
             bool readWaiting{false};
             // Active peer connections
             std::vector<nw_connection_t> connections;
