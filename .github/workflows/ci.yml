@@ -24,88 +24,90 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Release builds
-          - os: macos-26
-            config: "release"
-            # We want to test C++ and Swift only (in each direction)
-            cross_test_flags: "--all-cross --filter cpp --filter swift"
-            python_tests: true
-          - os: ubuntu-24.04
-            config: "release"
-            cross_test_flags: "--all-cross"
-          - os: ubuntu-24.04-arm
-            config: "release"
-            build_flags: "SKIP=csharp" # Skip C# on ARM as .NET compiler keeps crashing
-            test_flags: "--rfilter=csharp"
-            python_tests: true
-          - os: windows-2022
-            config: "release"
-            build_flags: "/p:Platform=x64"
-            test_flags: "--platform=x64"
-            python_tests: true
-          - os: windows-2022
-            config: "cpp-win32-release"
-            working_directory: "cpp"
-            build_flags: "/p:Platform=Win32"
-            msbuild_project: "msbuild/ice.proj"
-            test_flags: "--platform=Win32"
-            python_tests: true
-          - os: windows-2025
-            config: "release"
-            build_flags: "/p:Platform=x64"
-            test_flags: "--platform=x64"
-            python_tests: true
+          # TEMPORARY: every non-Android row below is commented out while the Android 17 jobs
+          # are being debugged, so that runners go to them. Revert this commit before merging.
+          # # Release builds
+          # - os: macos-26
+            # config: "release"
+            # # We want to test C++ and Swift only (in each direction)
+            # cross_test_flags: "--all-cross --filter cpp --filter swift"
+            # python_tests: true
+          # - os: ubuntu-24.04
+            # config: "release"
+            # cross_test_flags: "--all-cross"
+          # - os: ubuntu-24.04-arm
+            # config: "release"
+            # build_flags: "SKIP=csharp" # Skip C# on ARM as .NET compiler keeps crashing
+            # test_flags: "--rfilter=csharp"
+            # python_tests: true
+          # - os: windows-2022
+            # config: "release"
+            # build_flags: "/p:Platform=x64"
+            # test_flags: "--platform=x64"
+            # python_tests: true
+          # - os: windows-2022
+            # config: "cpp-win32-release"
+            # working_directory: "cpp"
+            # build_flags: "/p:Platform=Win32"
+            # msbuild_project: "msbuild/ice.proj"
+            # test_flags: "--platform=Win32"
+            # python_tests: true
+          # - os: windows-2025
+            # config: "release"
+            # build_flags: "/p:Platform=x64"
+            # test_flags: "--platform=x64"
+            # python_tests: true
 
-          # Debug builds
-          - os: macos-26
-            config: "debug"
-            build_flags: "OPTIMIZE=no"
-            test_flags: "--swift-config=debug --csharp-config=Debug"
-            python_tests: true
-            enable_csharp_analysis: true
-          - os: ubuntu-24.04
-            config: "debug"
-            build_flags: "OPTIMIZE=no"
-            test_flags: "--csharp-config=Debug"
-            python_tests: true
-            enable_csharp_analysis: true
+          # # Debug builds
+          # - os: macos-26
+            # config: "debug"
+            # build_flags: "OPTIMIZE=no"
+            # test_flags: "--swift-config=debug --csharp-config=Debug"
+            # python_tests: true
+            # enable_csharp_analysis: true
+          # - os: ubuntu-24.04
+            # config: "debug"
+            # build_flags: "OPTIMIZE=no"
+            # test_flags: "--csharp-config=Debug"
+            # python_tests: true
+            # enable_csharp_analysis: true
 
-          # TODO - figure out how to properly install debug Python
-          - os: windows-2022
-            config: "debug"
-            working_directory: "cpp"
-            build_flags: "/p:Platform=x64 /p:Configuration=Debug"
-            test_flags: "--platform=x64 --config=Debug"
-            msbuild_project: "msbuild/ice.proj"
-            python_tests: true
-            enable_csharp_analysis: true
+          # # TODO - figure out how to properly install debug Python
+          # - os: windows-2022
+            # config: "debug"
+            # working_directory: "cpp"
+            # build_flags: "/p:Platform=x64 /p:Configuration=Debug"
+            # test_flags: "--platform=x64 --config=Debug"
+            # msbuild_project: "msbuild/ice.proj"
+            # python_tests: true
+            # enable_csharp_analysis: true
 
-          # iOS
-          - os: macos-26
-            config: "ios"
-            build_flags: "OPTIMIZE=no PLATFORMS='macosx iphonesimulator' CONFIGS='static shared' LANGUAGES='cpp swift'"
-            test_flags: "--languages='cpp,swift' --config=debug --platform=iphonesimulator --controller-app"
-            build_cpp_and_python: true
+          # # iOS
+          # - os: macos-26
+            # config: "ios"
+            # build_flags: "OPTIMIZE=no PLATFORMS='macosx iphonesimulator' CONFIGS='static shared' LANGUAGES='cpp swift'"
+            # test_flags: "--languages='cpp,swift' --config=debug --platform=iphonesimulator --controller-app"
+            # build_cpp_and_python: true
 
-          # Static builds
-          - os: ubuntu-24.04
-            config: "static"
-            build_flags: "CONFIGS=static"
-            test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
-            working_directory: "cpp"
+          # # Static builds
+          # - os: ubuntu-24.04
+            # config: "static"
+            # build_flags: "CONFIGS=static"
+            # test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
+            # working_directory: "cpp"
 
-          # MATLAB
-          - os: ubuntu-24.04
-            config: "matlab"
-            working_directory: "matlab"
-            build_cpp_and_python: true
-          - os: windows-2022
-            config: "matlab"
-            working_directory: "matlab"
-            build_flags: "/p:Platform=x64"
-            msbuild_project: "msbuild/ice.proj"
-            test_flags: "--platform=x64"
-            build_cpp_and_python: true
+          # # MATLAB
+          # - os: ubuntu-24.04
+            # config: "matlab"
+            # working_directory: "matlab"
+            # build_cpp_and_python: true
+          # - os: windows-2022
+            # config: "matlab"
+            # working_directory: "matlab"
+            # build_flags: "/p:Platform=x64"
+            # msbuild_project: "msbuild/ice.proj"
+            # test_flags: "--platform=x64"
+            # build_cpp_and_python: true
 
           # Android. android_platform is the SDK platform whose google_apis system image the
           # emulators boot, in sdkmanager's naming: android-36 is Android 16, android-37.0 is
@@ -185,57 +187,57 @@ jobs:
               --device=$BT_CLIENT --host-bt=$BT_ADDR
               Ice/operations Ice/ami
 
-          # .NET 10.0
-          - os: ubuntu-24.04
-            config: ".NET10"
-            working_directory: "csharp"
-            net_target_framework: "net10.0"
-            test_flags: "--target-framework=net10.0"
-            build_cpp_and_python: true
+          # # .NET 10.0
+          # - os: ubuntu-24.04
+            # config: ".NET10"
+            # working_directory: "csharp"
+            # net_target_framework: "net10.0"
+            # test_flags: "--target-framework=net10.0"
+            # build_cpp_and_python: true
 
-          - os: windows-2025
-            config: ".NET10"
-            working_directory: "csharp"
-            msbuild_command: "dotnet msbuild"
-            build_flags: "/p:Platform=x64"
-            msbuild_project: "msbuild/ice.proj"
-            net_target_framework: "net10.0"
-            test_flags: "--target-framework=net10.0"
-            build_cpp_and_python: true
+          # - os: windows-2025
+            # config: ".NET10"
+            # working_directory: "csharp"
+            # msbuild_command: "dotnet msbuild"
+            # build_flags: "/p:Platform=x64"
+            # msbuild_project: "msbuild/ice.proj"
+            # net_target_framework: "net10.0"
+            # test_flags: "--target-framework=net10.0"
+            # build_cpp_and_python: true
 
-          - os: macos-26
-            config: ".NET10"
-            working_directory: "csharp"
-            net_target_framework: "net10.0"
-            test_flags: "--target-framework=net10.0"
-            build_cpp_and_python: true
+          # - os: macos-26
+            # config: ".NET10"
+            # working_directory: "csharp"
+            # net_target_framework: "net10.0"
+            # test_flags: "--target-framework=net10.0"
+            # build_cpp_and_python: true
 
-          # C++ IceBT over a pair of virtual Bluetooth controllers. arm64 only: the runners' azure
-          # kernel ships the Bluetooth modules in linux-modules-extra for arm64 but not for amd64.
-          #
-          # Its own job rather than steps bolted onto `release on ubuntu-24.04-arm`, which already
-          # builds the same thing on the same OS and arch. That duplicated build is most of the
-          # runtime -- ~20 min of a ~23 min job, for ~50 s of Bluetooth testing -- so folding it in
-          # is worth revisiting; what keeps it separate now is only that a broken Bluetooth stack
-          # cannot take the arm64 release job down with it.
-          - os: ubuntu-24.04-arm
-            config: "cpp-bt"
-            working_directory: "cpp"
-            build_cpp_and_python: true
-            test_workers: 1
-            skip_all_configs: true
-            job_timeout: 45 # ~2x the observed runtime, to bound a wedged setup
-            # --cross=cpp skips the collocated case, which has no server side and so leaves
-            # Ice.Default.Host as an IP address IceBT rejects. The suites are Component.isCross in
-            # full, matching android-bt, so both transports cover the same ground.
-            test_flags: >-
-              --server=server --protocol=bt --cross=cpp --host-bt=$BT_ADDR
-              Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
-              Ice/inheritance Ice/invoke Ice/objects Ice/optional Ice/proxy
-              Ice/slicing/exceptions Ice/slicing/objects
-            bts_test_flags: >-
-              --server=server --protocol=bts --cross=cpp --host-bt=$BT_ADDR
-              Ice/operations Ice/ami
+          # # C++ IceBT over a pair of virtual Bluetooth controllers. arm64 only: the runners' azure
+          # # kernel ships the Bluetooth modules in linux-modules-extra for arm64 but not for amd64.
+          # #
+          # # Its own job rather than steps bolted onto `release on ubuntu-24.04-arm`, which already
+          # # builds the same thing on the same OS and arch. That duplicated build is most of the
+          # # runtime -- ~20 min of a ~23 min job, for ~50 s of Bluetooth testing -- so folding it in
+          # # is worth revisiting; what keeps it separate now is only that a broken Bluetooth stack
+          # # cannot take the arm64 release job down with it.
+          # - os: ubuntu-24.04-arm
+            # config: "cpp-bt"
+            # working_directory: "cpp"
+            # build_cpp_and_python: true
+            # test_workers: 1
+            # skip_all_configs: true
+            # job_timeout: 45 # ~2x the observed runtime, to bound a wedged setup
+            # # --cross=cpp skips the collocated case, which has no server side and so leaves
+            # # Ice.Default.Host as an IP address IceBT rejects. The suites are Component.isCross in
+            # # full, matching android-bt, so both transports cover the same ground.
+            # test_flags: >-
+              # --server=server --protocol=bt --cross=cpp --host-bt=$BT_ADDR
+              # Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
+              # Ice/inheritance Ice/invoke Ice/objects Ice/optional Ice/proxy
+              # Ice/slicing/exceptions Ice/slicing/objects
+            # bts_test_flags: >-
+              # --server=server --protocol=bts --cross=cpp --host-bt=$BT_ADDR
+              # Ice/operations Ice/ami
 
     runs-on: ${{ matrix.os }}
     # Only the Bluetooth jobs set job_timeout; everything else keeps GitHub's default. These sit
