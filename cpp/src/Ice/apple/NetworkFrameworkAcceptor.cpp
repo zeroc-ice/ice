@@ -22,6 +22,45 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace
+{
+    // Creates the sec_identity_t for a certificate chain returned by a certificate selection callback: the
+    // identity is the first element, followed by the intermediate certificates Network.framework sends during
+    // the TLS handshake so that clients can verify chains with intermediate CAs. Returns null when the chain is
+    // empty. The chain is released.
+    sec_identity_t createIdentity(CFArrayRef certs)
+    {
+        if (!certs)
+        {
+            return nullptr;
+        }
+
+        sec_identity_t secIdentity = nullptr;
+        CFIndex count = CFArrayGetCount(certs);
+        if (count > 0)
+        {
+            SecIdentityRef identity = (SecIdentityRef)CFArrayGetValueAtIndex(certs, 0);
+            if (count > 1)
+            {
+                CFMutableArrayRef intermediateCerts =
+                    CFArrayCreateMutable(kCFAllocatorDefault, count - 1, &kCFTypeArrayCallBacks);
+                for (CFIndex i = 1; i < count; ++i)
+                {
+                    CFArrayAppendValue(intermediateCerts, CFArrayGetValueAtIndex(certs, i));
+                }
+                secIdentity = sec_identity_create_with_certificates(identity, intermediateCerts);
+                CFRelease(intermediateCerts);
+            }
+            else
+            {
+                secIdentity = sec_identity_create(identity);
+            }
+        }
+        CFRelease(certs);
+        return secIdentity;
+    }
+}
+
 NativeInfoPtr
 IceInternal::NetworkFrameworkAcceptor::getNativeInfo()
 {
@@ -249,49 +288,32 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
     if (serverAuthenticationOptions)
     {
         auto authOptions = *serverAuthenticationOptions;
+        // The blocks below outlive this constructor: capture a copy of the adapter name, not the reference.
+        const string name = adapterName;
         parameters = nw_parameters_create_secure_tcp(
             ^(nw_protocol_options_t tlsOptions) {
                 sec_protocol_options_t secOptions = nw_tls_copy_sec_protocol_options(tlsOptions);
 
-                // Set server certificate identity per-connection. The configure_tls block
-                // is called for each incoming connection on a listener, allowing hot cert reload.
+                // The TLS options are configured once, when the listener is created, and shared by all the
+                // connections it accepts. Select the server identity from a challenge block instead of setting
+                // it here: the block runs for each TLS handshake, so the certificate selection callback is
+                // invoked per connection and the server picks up a new certificate without recreating the
+                // listener (hot reload).
                 if (authOptions.serverCertificateSelectionCallback)
                 {
                     auto certCallback = authOptions.serverCertificateSelectionCallback;
-                    CFArrayRef certs = certCallback(adapterName);
-                    if (certs && CFArrayGetCount(certs) > 0)
-                    {
-                        SecIdentityRef identity = (SecIdentityRef)CFArrayGetValueAtIndex(certs, 0);
-                        sec_identity_t secIdentity = nullptr;
-
-                        // If the callback returned intermediate certificates (items after the
-                        // identity), include them so NF sends the full chain during the TLS
-                        // handshake. Without this, clients cannot verify certificate chains
-                        // that have intermediate CAs.
-                        CFIndex count = CFArrayGetCount(certs);
-                        if (count > 1)
-                        {
-                            CFMutableArrayRef intermediateCerts =
-                                CFArrayCreateMutable(kCFAllocatorDefault, count - 1, &kCFTypeArrayCallBacks);
-                            for (CFIndex i = 1; i < count; ++i)
+                    dispatch_queue_t challengeQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+                    sec_protocol_options_set_challenge_block(
+                        secOptions,
+                        ^(sec_protocol_metadata_t, sec_protocol_challenge_complete_t complete) {
+                            sec_identity_t secIdentity = createIdentity(certCallback(name));
+                            complete(secIdentity);
+                            if (secIdentity)
                             {
-                                CFArrayAppendValue(intermediateCerts, CFArrayGetValueAtIndex(certs, i));
+                                sec_release(secIdentity);
                             }
-                            secIdentity = sec_identity_create_with_certificates(identity, intermediateCerts);
-                            CFRelease(intermediateCerts);
-                        }
-                        else
-                        {
-                            secIdentity = sec_identity_create(identity);
-                        }
-
-                        if (secIdentity)
-                        {
-                            sec_protocol_options_set_local_identity(secOptions, secIdentity);
-                            sec_release(secIdentity);
-                        }
-                        CFRelease(certs);
-                    }
+                        },
+                        challengeQueue);
                 }
 
                 // Configure client certificate authentication.
@@ -366,7 +388,7 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
                                         }
                                     }
                                     auto underlying = make_shared<Ice::TCPConnectionInfo>(
-                                        true, adapterName, "", "", 0, "", 0, 0, 0);
+                                        true, name, "", "", 0, "", 0, 0, 0);
                                     auto info = make_shared<Ice::SSL::AppleConnectionInfo>(
                                         underlying, peerCert);
                                     bool valid = validationCallback(trust, info);
@@ -401,7 +423,7 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
                 // configuration above.
                 if (authOptions.sslNewSessionCallback)
                 {
-                    authOptions.sslNewSessionCallback(secOptions, adapterName);
+                    authOptions.sslNewSessionCallback(secOptions, name);
                 }
 
                 nw_release(secOptions); // nw_tls_copy_sec_protocol_options returns a retained object.
