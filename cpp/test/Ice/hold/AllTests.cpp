@@ -91,7 +91,7 @@ allTests(Test::TestHelper* helper)
             ++value;
             if (value % 100 == 0)
             {
-                sent->get_future().wait();
+                [[maybe_unused]] auto _ = sent->get_future().get();
             }
 
             if (value > 1000000)
@@ -133,7 +133,7 @@ allTests(Test::TestHelper* helper)
             ++value;
             if (value % 100 == 0)
             {
-                sent->get_future().wait();
+                [[maybe_unused]] auto _ = sent->get_future().get();
             }
         }
         test(cond->value());
