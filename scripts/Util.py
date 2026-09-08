@@ -3132,7 +3132,9 @@ class AndroidProcessController(RemoteProcessController):
         keep = re.compile(
             "testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc|BTBOND"
         )
-        lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
+        # Skip adbd's echo of the harness's own "logcat -d -s BTBOND" polling: it matches BTBOND and,
+        # at one line per poll, filled the 80 slots by itself.
+        lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln) and not self._adbEcho(ln)]
         print("\n".join(lines[-80:]))
         # A relaunch emits no new "START u0" and its main-buffer logs are compiled out, so the events
         # buffer is the only durable record that a second onCreate ran. bond() clears this buffer
@@ -3144,6 +3146,60 @@ class AndroidProcessController(RemoteProcessController):
         )
         lines = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if events.search(ln)]
         print("\n".join(lines[-40:]) or "<none>")
+        print("-- system health --")
+        print(self.systemHealth())
+
+    # Lines that say why a guest stopped answering: system_server's Watchdog, Java crash headers
+    # (FATAL EXCEPTION, including IN SYSTEM PROCESS), native crashes (Fatal signal; DEBUG is the
+    # tombstone summary), SurfaceFlinger, whose crash restarts zygote by design, zygote starts
+    # themselves (one per system restart), and the low-memory killer. Kept narrow so a healthy
+    # device prints little.
+    _crashLine = re.compile(
+        r"Watchdog|WATCHDOG|FATAL EXCEPTION|Fatal signal|\bDEBUG\s*:|SurfaceFlinger.*(crash|died|abort|fatal)"
+        r"|START com\.android\.internal\.os\.ZygoteInit|lowmemorykiller"
+    )
+
+    @staticmethod
+    def _adbEcho(line: str) -> bool:
+        # adbd logs every shell request it serves, so the harness's own polling lands in the log
+        # carrying the very words the filters here look for.
+        return "adbd service requested" in line
+
+    def systemHealth(self) -> str:
+        # What the guest says about its own stability, for the failure paths: boot state, uptime,
+        # how many times system_server has booted, and the crash and watchdog lines. Tolerant
+        # throughout -- an unbootable or restarting device is exactly when this runs. The API 37
+        # emulators failed once with both zygotes restarting every 65s and nothing here to say why.
+        boots = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if "boot_progress_start" in ln]
+        main = [ln for ln in self._adbTolerant("logcat -d").splitlines() if not self._adbEcho(ln)]
+        crashes = [ln for ln in main if self._crashLine.search(ln)]
+        crashBuffer = [ln for ln in self._adbTolerant("logcat -d -b crash").splitlines() if not self._adbEcho(ln)]
+        return "\n".join(
+            [
+                f"boot_completed={self._adbTolerant('shell getprop sys.boot_completed').strip() or '?'}",
+                f"uptime: {self._adbTolerant('shell uptime').strip() or '?'}",
+                f"system boots recorded in the events buffer: {len(boots)}",
+                "-- crash and watchdog lines (last 40) --",
+                "\n".join(crashes[-40:]) or "<none>",
+                "-- crash buffer (last 40) --",
+                "\n".join(crashBuffer[-40:]) or "<none>",
+            ]
+        )
+
+    def killEmulator(self) -> None:
+        # Stop the emulator this controller started, falling back to killing the process when the
+        # console command does not end it. Bounded: the caller is already on a failure path.
+        if self.emulator is None:
+            return
+        self._adbTolerant("emu kill")
+        try:
+            self.emulator.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            self.emulator.kill()
+            try:
+                self.emulator.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                pass
 
     # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
     # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
@@ -3172,7 +3228,7 @@ class AndroidProcessController(RemoteProcessController):
             run(f"avdmanager -v delete avd -n {avd}")
         except RuntimeError:
             pass  # no existing AVD to delete
-        run(f'echo no | avdmanager -v create avd -k "{image}" -d "Nexus 6" -n {avd}')
+        run(f'echo no | avdmanager -v create avd --force -k "{image}" -d "Nexus 6" -n {avd}')
         print(f"starting emulator '{avd}' on port {port} (log: {logFile})")
         with open(logFile, "wb") as log:
             emulator = subprocess.Popen(
@@ -3211,7 +3267,13 @@ class AndroidProcessController(RemoteProcessController):
         if port == -1:
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
-        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
+        # -gpu swiftshader rather than auto: on a runner without a GPU, auto logs "Your GPU drivers
+        # may have a bug. Switching to software rendering" and picks swangle for GLES with lavapipe
+        # for Vulkan, and under that pair the API 37 image never reached sys.boot_completed in 300s.
+        # The Bluetooth harness boots the same image in under two minutes on SwiftShader (see
+        # bluetoothEmulatorFlags); swiftshader is the non-deprecated name for that backend and
+        # covers both GLES and Vulkan.
+        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu swiftshader -accel on -no-boot-anim -no-window".format(
             avd, port
         )
 
@@ -3230,14 +3292,22 @@ class AndroidProcessController(RemoteProcessController):
         # Wait for the device to be ready
         print("waiting for the emulator to boot")
         t = time.time()
-        # Wait for up to 5 minutes (300 seconds)
-        while (time.time() - t) <= 300:
+        # 10 minutes: a first boot of the API 37 image, which the emulator forces to 4 GB of RAM,
+        # takes around two minutes on SwiftShader on a CI runner, and 300s left little room for a
+        # slow one.
+        bootTimeout = 600
+        while (time.time() - t) <= bootTimeout:
             if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
                 break
             time.sleep(2)
         else:
-            # This runs if the while loop completes without breaking
-            raise RuntimeError(f"emulator '{avd}' not booted after 300s")
+            # This runs if the while loop completes without breaking. Say what the guest was doing
+            # first -- the emulator's own stdout only covers the host side -- and stop the emulator
+            # so it does not linger into the next test's attempt.
+            print(f"emulator '{avd}' not booted after {bootTimeout}s; guest state:")
+            print(self.systemHealth())
+            self.killEmulator()
+            raise RuntimeError(f"emulator '{avd}' not booted after {bootTimeout}s")
 
     def startControllerApp(self, current: Driver.Current, ident: Any) -> None:
         mapping = current.getTestCase().getMapping()
@@ -3252,7 +3322,9 @@ class AndroidProcessController(RemoteProcessController):
                 run("avdmanager -v delete avd -n IceTests")  # Delete the created device
             except Exception:
                 pass
-            run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
+            # --force: a boot that failed left the AVD directory behind after the delete above, and
+            # every later test in that run then failed with "AVD not created".
+            run('avdmanager -v create avd --force -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
             self.createdAvd = True
             self.startEmulator("IceTests")
         elif current.config.device != "usb" and not current.config.device.startswith("emulator-"):

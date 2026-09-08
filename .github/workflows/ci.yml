@@ -406,11 +406,27 @@ jobs:
           # null != false as 0 != 0, silently dropping --all from every job in the matrix.
           all: ${{ matrix.skip_all_configs != true }}
 
+      # The non-Bluetooth Android jobs have no diagnostics of their own: the harness prints the
+      # guest's state when a boot fails, and this adds the host's.
+      - name: Android host diagnostics
+        if: always() && startsWith(matrix.config, 'android') && matrix.android_bt != true
+        timeout-minutes: 2
+        run: |
+          free -m; uptime; nproc; adb devices -l
+          sudo dmesg 2>/dev/null | grep -i -E "out of memory|oom-kill|killed process" | tail -20
+          true
+        shell: bash
+
       - name: Bluetooth diagnostics
         if: always() && matrix.android_bt == true
         timeout-minutes: 5
         run: |
           set +e
+          # Host side first: two AVDs that the API 37 image forces to 4 GB each share a 16 GB runner
+          # with whatever the build left behind, so memory pressure is a candidate for any guest
+          # that stops answering. dmesg needs root on the runner.
+          echo "=== host ==="; free -m; uptime; nproc
+          echo "=== host oom ==="; sudo dmesg 2>/dev/null | grep -i -E "out of memory|oom-kill|killed process" | tail -20
           echo "=== controller.log ==="; tail -40 controller.log
           echo "=== emu_client.log ==="; tail -20 emu_client.log
           echo "=== emu_server.log ==="; tail -20 emu_server.log

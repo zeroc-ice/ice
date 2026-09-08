@@ -49,6 +49,9 @@ runs:
         cd test/android/controller
         ./gradlew build checkstyle
         ./gradlew rewriteDryRun --no-parallel --no-configuration-cache
+        # Nothing later in the job needs Gradle, and the emulator the test step boots does need
+        # the daemon's memory: the API 37 image is forced to 4 GB.
+        ./gradlew --stop
       shell: bash
       if: inputs.build_android_controller == 'true'
 

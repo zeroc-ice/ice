@@ -62,6 +62,8 @@ runs:
           cd java/test/android/btbond
           ../../../gradlew assembleDebug lintDebug checkstyle
           ../../../gradlew rewriteDryRun --no-parallel --no-configuration-cache
+          # Free the daemon's heap before booting two emulators the API 37 image forces to 4 GB each.
+          ../../../gradlew --stop
         )
         # Name the debug APK explicitly rather than globbing: `build` also produces an unsigned
         # release APK, and a glob could hand the installer that one instead.
