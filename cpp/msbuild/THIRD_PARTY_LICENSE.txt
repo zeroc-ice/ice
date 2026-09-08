@@ -39,7 +39,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Julian Seward, jseward@bzip.org
-bzip2/libbzip2 version 1.0.6 of 6 September 2010
+bzip2/libbzip2 version 1.0.8 of 13 July 2019
 
 --------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ License agreement for Expat:
 -----------------------------
 
 Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper
-Copyright (c) 2001-2017 Expat maintainers
+Copyright (c) 2001-2025 Expat maintainers
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
