@@ -244,6 +244,8 @@ Ice::SSL::ConnectorI::connect()
         nw_release(connection);
         throw;
     }
+#else
+    return make_shared<TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);
 #endif
 }
 
