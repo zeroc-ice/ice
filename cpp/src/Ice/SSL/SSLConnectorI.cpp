@@ -238,6 +238,11 @@ Ice::SSL::ConnectorI::connect()
         auto transceiver = make_shared<IceInternal::NetworkFrameworkTransceiver>(
             protocolInstance, connection, true /* secure */);
         transceiver->setLocalVerifyRejected(localVerifyRejected);
+        SSLEnginePtr engine = _instance->engine();
+        transceiver->setPeerVerifier(
+            [engine](const ConnectionInfoPtr& info) { engine->verifyPeer(info); },
+            false,
+            "");
         nw_release(connection);
         return transceiver;
     }
