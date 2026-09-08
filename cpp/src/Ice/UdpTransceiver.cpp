@@ -36,6 +36,20 @@ using namespace IceInternal;
 //
 struct IceInternal::UdpAsyncState
 {
+    UdpAsyncState(SOCKET socket, NativeInfoPtr info)
+        : fd(socket),
+          nativeInfo(std::move(info)),
+          queue(dispatch_queue_create("com.zeroc.ice.udp", DISPATCH_QUEUE_SERIAL))
+    {
+    }
+
+    // The sources retain the queue while they are alive. The state owns the queue so that it is released even when
+    // the transceiver constructor throws after creating the state.
+    ~UdpAsyncState() { dispatch_release(queue); }
+
+    UdpAsyncState(const UdpAsyncState&) = delete;
+    UdpAsyncState& operator=(const UdpAsyncState&) = delete;
+
     std::mutex mutex;
     SOCKET fd;
     NativeInfoPtr nativeInfo;
@@ -194,7 +208,7 @@ namespace
     // Suspends a source from its own event handler; the suspension takes effect once the handler returns.
     void disarm(dispatch_source_t source, bool& armed)
     {
-        if (armed)
+        if (source && armed)
         {
             dispatch_suspend(source);
             armed = false;
@@ -224,6 +238,12 @@ namespace
             ++state->activeSources;
             dispatch_source_set_event_handler(state->readSource, ^{
               lock_guard lock(state->mutex);
+              if (state->closed)
+              {
+                  // Cancellation lets a handler that already started finish: close() completed the operations and
+                  // released the sources, nothing is left to do.
+                  return;
+              }
               if (tryRead(*state))
               {
                   disarm(state->readSource, state->readArmed);
@@ -251,6 +271,10 @@ namespace
             ++state->activeSources;
             dispatch_source_set_event_handler(state->writeSource, ^{
               lock_guard lock(state->mutex);
+              if (state->closed)
+              {
+                  return; // See the read event handler.
+              }
               completeConnect(*state);
               if (tryWrite(*state))
               {
@@ -282,6 +306,54 @@ namespace
             dispatch_release(source);
             source = nullptr;
         }
+    }
+
+    // Completes the outstanding operations (the thread pool waits for their completions before it finishes the
+    // connection) and closes the socket: through the cancellation handler of the last source once the event
+    // handlers can no longer run, or directly when there is no source. Idempotent.
+    void closeState(const shared_ptr<UdpAsyncState>& state)
+    {
+        lock_guard lock(state->mutex);
+        if (state->closed)
+        {
+            return;
+        }
+        state->closed = true;
+
+        completeConnect(*state);
+        tryRead(*state);
+        tryWrite(*state);
+
+        if (state->activeSources > 0)
+        {
+            cancelSource(state->readSource, state->readArmed);
+            cancelSource(state->writeSource, state->writeArmed);
+        }
+        else if (state->fd != INVALID_SOCKET)
+        {
+            closeSocketNoThrow(state->fd);
+            state->fd = INVALID_SOCKET;
+        }
+    }
+
+    // Unlike the Network.cpp helpers, these do not close the socket when the option cannot be set or read: the
+    // socket may have dispatch sources and its closure belongs to closeState.
+    void setSocketBufferSize(SOCKET fd, int option, int size)
+    {
+        if (setsockopt(fd, SOL_SOCKET, option, &size, static_cast<socklen_t>(sizeof(int))) == SOCKET_ERROR)
+        {
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
+        }
+    }
+
+    int getSocketBufferSize(SOCKET fd, int option)
+    {
+        int size = option == SO_RCVBUF ? getRecvBufferSizeNoThrow(fd) : getSendBufferSizeNoThrow(fd);
+        if (size == 0)
+        {
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
+        }
+        return size;
     }
 
     socklen_t addressLength(const Address& addr)
@@ -372,27 +444,7 @@ IceInternal::UdpTransceiver::close()
     if (_fd != INVALID_SOCKET)
     {
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
-        lock_guard lock(_async->mutex);
-        _async->closed = true;
-
-        // Complete the outstanding operations: the thread pool waits for their completions before it finishes
-        // the connection.
-        completeConnect(*_async);
-        tryRead(*_async);
-        tryWrite(*_async);
-
-        // Cancel the sources; the last cancellation handler closes the socket once the event handlers can no
-        // longer run. Without sources, close the socket now.
-        if (_async->activeSources > 0)
-        {
-            cancelSource(_async->readSource, _async->readArmed);
-            cancelSource(_async->writeSource, _async->writeArmed);
-        }
-        else
-        {
-            closeSocketNoThrow(_fd);
-            _async->fd = INVALID_SOCKET;
-        }
+        closeState(_async);
 #else
         closeSocketNoThrow(_fd);
 #endif
@@ -1031,6 +1083,14 @@ IceInternal::UdpTransceiver::setBufferSize(int rcvSize, int sndSize)
 {
     assert(_fd != INVALID_SOCKET);
 
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    // The socket may have dispatch sources: the helpers must not close it on failure (see setSocketBufferSize).
+    auto getRecvBufferSize = [](SOCKET fd) { return getSocketBufferSize(fd, SO_RCVBUF); };
+    auto setRecvBufferSize = [](SOCKET fd, int size) { setSocketBufferSize(fd, SO_RCVBUF, size); };
+    auto getSendBufferSize = [](SOCKET fd) { return getSocketBufferSize(fd, SO_SNDBUF); };
+    auto setSendBufferSize = [](SOCKET fd, int size) { setSocketBufferSize(fd, SO_SNDBUF, size); };
+#endif
+
     try
     {
         // The default size is the size currently configured on the socket. We don't set the buffer size when the
@@ -1086,8 +1146,15 @@ IceInternal::UdpTransceiver::setBufferSize(int rcvSize, int sndSize)
     }
     catch (const SocketException&)
     {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+        // The socket is still open: complete the outstanding operations for the thread pool and close the socket
+        // through its sources, if any. The connection is closed by the caller with this exception.
+        closeState(_async);
+        _fd = INVALID_SOCKET;
+#else
         // The failing call closed the fd.
         clearFd();
+#endif
         throw;
     }
 }
@@ -1118,6 +1185,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     int rcvSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.RcvSize");
     int sndSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.SndSize");
     _fd = createSocket(true, _addr);
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    _nativeInfo = make_shared<NativeInfo>(INVALID_SOCKET);
+    _async = make_shared<UdpAsyncState>(_fd, _nativeInfo);
+#endif
 
     // Sets _rcvSize and _sndSize:
     setBufferSize(rcvSize, sndSize);
@@ -1125,14 +1196,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     assert(_sndSize >= _udpOverhead + headerSize);
 
     setBlock(_fd, false);
-
-#if defined(ICE_USE_NETWORK_FRAMEWORK)
-    _nativeInfo = make_shared<NativeInfo>(INVALID_SOCKET);
-    _async = make_shared<UdpAsyncState>();
-    _async->fd = _fd;
-    _async->nativeInfo = _nativeInfo;
-    _async->queue = dispatch_queue_create("com.zeroc.ice.udp", DISPATCH_QUEUE_SERIAL);
-#endif
 
     _mcastAddr.saStorage.ss_family = AF_UNSPEC;
     _peerAddr.saStorage.ss_family = AF_UNSPEC; // Not initialized yet.
@@ -1201,6 +1264,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     int rcvSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.RcvSize");
     int sndSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.SndSize");
     _fd = createServerSocket(true, _addr, instance->protocolSupport());
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    _nativeInfo = make_shared<NativeInfo>(INVALID_SOCKET);
+    _async = make_shared<UdpAsyncState>(_fd, _nativeInfo);
+#endif
 
     // Sets _rcvSize and _sndSize:
     setBufferSize(rcvSize, sndSize);
@@ -1209,30 +1276,13 @@ IceInternal::UdpTransceiver::UdpTransceiver(
 
     setBlock(_fd, false);
 
-#if defined(ICE_USE_NETWORK_FRAMEWORK)
-    _nativeInfo = make_shared<NativeInfo>(INVALID_SOCKET);
-    _async = make_shared<UdpAsyncState>();
-    _async->fd = _fd;
-    _async->nativeInfo = _nativeInfo;
-    _async->queue = dispatch_queue_create("com.zeroc.ice.udp", DISPATCH_QUEUE_SERIAL);
-#endif
-
     memset(&_mcastAddr.saStorage, 0, sizeof(sockaddr_storage));
     memset(&_peerAddr.saStorage, 0, sizeof(sockaddr_storage));
     _peerAddr.saStorage.ss_family = AF_UNSPEC;
     _mcastAddr.saStorage.ss_family = AF_UNSPEC;
 }
 
-IceInternal::UdpTransceiver::~UdpTransceiver()
-{
-    assert(_fd == INVALID_SOCKET);
-#if defined(ICE_USE_NETWORK_FRAMEWORK)
-    if (_async)
-    {
-        dispatch_release(_async->queue); // The sources retain the queue while they are alive.
-    }
-#endif
-}
+IceInternal::UdpTransceiver::~UdpTransceiver() { assert(_fd == INVALID_SOCKET); }
 
 int
 IceInternal::UdpTransceiver::adjustBufferSize(int sizeRequested, int defaultSize, string_view prop)
