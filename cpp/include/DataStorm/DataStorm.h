@@ -72,6 +72,9 @@ namespace DataStorm
         [[nodiscard]] const std::string& getOrigin() const noexcept;
 
         /// @private
+        /// Gets the session identifier of the session that received this sample.
+        /// This session identifier can be used to retrieve the Ice connection with the node.
+        /// @return The session identifier.
         [[nodiscard]] const std::string& getSession() const noexcept;
 
         /// @private

@@ -104,6 +104,11 @@ namespace DataStorm
         [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const noexcept;
 
         /// @private
+        /// Returns the Ice connection associated with a session given a session identifier. Session identifiers are
+        /// returned by DataStorm::Sample::getSession.
+        /// @param ident The session identifier.
+        /// @return The connection associated with the given session
+        /// @see DataStorm::Sample::getSession
         [[nodiscard]] Ice::ConnectionPtr getSessionConnection(std::string_view ident) const noexcept;
 
     private:
