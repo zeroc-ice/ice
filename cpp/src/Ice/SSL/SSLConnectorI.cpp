@@ -230,6 +230,21 @@ Ice::SSL::ConnectorI::connect()
         throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
     }
 
+    // Bind the connection to the source address configured on the endpoint (--sourceAddress), if any.
+    const IceInternal::Address& sourceAddr = nfConnector->sourceAddress();
+    if (IceInternal::isAddressValid(sourceAddr))
+    {
+        nw_endpoint_t localEndpoint = nw_endpoint_create_address(&sourceAddr.sa);
+        if (!localEndpoint)
+        {
+            nw_release(parameters);
+            nw_release(endpoint);
+            throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
+        }
+        nw_parameters_set_local_endpoint(parameters, localEndpoint);
+        nw_release(localEndpoint);
+    }
+
     nw_connection_t connection = nw_connection_create(endpoint, parameters);
     nw_release(endpoint);
     nw_release(parameters);

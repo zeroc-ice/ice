@@ -71,6 +71,20 @@ IceInternal::NetworkFrameworkUdpConnector::connect()
 
     nw_parameters_set_reuse_local_address(parameters, true);
 
+    // Bind the connection to the source address configured on the endpoint (--sourceAddress), if any.
+    if (isAddressValid(_sourceAddr))
+    {
+        nw_endpoint_t localEndpoint = nw_endpoint_create_address(&_sourceAddr.sa);
+        if (!localEndpoint)
+        {
+            nw_release(parameters);
+            nw_release(endpoint);
+            throw ConnectFailedException(__FILE__, __LINE__, 0);
+        }
+        nw_parameters_set_local_endpoint(parameters, localEndpoint);
+        nw_release(localEndpoint);
+    }
+
     nw_connection_t connection = nw_connection_create(endpoint, parameters);
     nw_release(endpoint);
     nw_release(parameters);
