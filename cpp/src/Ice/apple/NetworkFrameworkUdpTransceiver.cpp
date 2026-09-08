@@ -238,9 +238,12 @@ IceInternal::NetworkFrameworkUdpTransceiver::~NetworkFrameworkUdpTransceiver()
     }
     if (_mcastReadSource)
     {
+        // The source owns the multicast socket: its cancellation handler closes the socket once the event handler
+        // can no longer run (see bind()). Cancelling is idempotent, close() normally did it already.
+        dispatch_source_cancel(_mcastReadSource);
         dispatch_release(_mcastReadSource);
     }
-    if (_mcastFd != INVALID_SOCKET)
+    else if (_mcastFd != INVALID_SOCKET)
     {
         closeSocketNoThrow(_mcastFd);
     }
@@ -453,12 +456,18 @@ IceInternal::NetworkFrameworkUdpTransceiver::bind()
             0,
             _dispatchQueue);
 
+        // The handlers must not touch this transceiver: they can run after close() cancelled the source, while the
+        // transceiver is being destroyed. They only use state they own or share (the socket, the server state and
+        // the native info), and the socket is closed from the cancellation handler, which runs once the event
+        // handler can no longer be invoked, as required by dispatch_source_set_cancel_handler.
+        const SOCKET fd = _mcastFd;
+        const int maxPacketSize = _maxPacketSize;
         dispatch_source_set_event_handler(_mcastReadSource, ^{
             // Read all available datagrams.
             while (true)
             {
-                vector<byte> data(static_cast<size_t>(_maxPacketSize));
-                ssize_t ret = ::recvfrom(_mcastFd, data.data(), data.size(), 0, nullptr, nullptr);
+                vector<byte> data(static_cast<size_t>(maxPacketSize));
+                ssize_t ret = ::recvfrom(fd, data.data(), data.size(), 0, nullptr, nullptr);
                 if (ret <= 0)
                 {
                     break;
@@ -474,6 +483,7 @@ IceInternal::NetworkFrameworkUdpTransceiver::bind()
                 }
             }
         });
+        dispatch_source_set_cancel_handler(_mcastReadSource, ^{ closeSocketNoThrow(fd); });
 
         dispatch_resume(_mcastReadSource);
 
