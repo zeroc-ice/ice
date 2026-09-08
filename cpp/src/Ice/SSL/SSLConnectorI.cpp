@@ -212,6 +212,8 @@ Ice::SSL::ConnectorI::connect()
                     CFRelease(trust);
                 },
                 verifyQueue);
+
+            nw_release(secOptions); // nw_tls_copy_sec_protocol_options returns a retained object.
         },
         NW_PARAMETERS_DEFAULT_CONFIGURATION);
 

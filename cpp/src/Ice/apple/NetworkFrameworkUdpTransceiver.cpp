@@ -258,7 +258,10 @@ IceInternal::NetworkFrameworkUdpTransceiver::~NetworkFrameworkUdpTransceiver()
         _serverState->connections.clear();
         for (auto& dg : _serverState->received)
         {
-            nw_release(dg.source);
+            if (dg.source) // Null for multicast datagrams.
+            {
+                nw_release(dg.source);
+            }
         }
         _serverState->received.clear();
     }
@@ -550,8 +553,6 @@ IceInternal::NetworkFrameworkUdpTransceiver::bind()
         // Set new connection handler for incoming UDP peers.
         dispatch_queue_t dispatchQueue = _dispatchQueue;
         nw_listener_set_new_connection_handler(_listener, ^(nw_connection_t peerConnection) {
-            nw_retain(peerConnection);
-
             nw_connection_set_state_changed_handler(peerConnection, ^(nw_connection_state_t state, nw_error_t) {
                 if (state == nw_connection_state_failed || state == nw_connection_state_cancelled)
                 {
@@ -570,6 +571,8 @@ IceInternal::NetworkFrameworkUdpTransceiver::bind()
             nw_connection_start(peerConnection);
 
             {
+                // The connections vector owns one reference to each peer, released when the peer fails or is
+                // cancelled (see the state changed handler above).
                 lock_guard lock(serverState->mutex);
                 serverState->connections.push_back(peerConnection);
                 nw_retain(peerConnection);
