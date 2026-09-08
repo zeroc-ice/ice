@@ -4,72 +4,19 @@
 
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
 
-#    include "Ice/Connection.h"
 #    include "Ice/LocalExceptions.h"
-#    include "Ice/LoggerUtil.h"
 #    include "Ice/Properties.h"
-#    include "Ice/SSL/ConnectionInfo.h"
 #    include "../ProtocolInstance.h"
 #    include "../TcpEndpointI.h"
 #    include "NetworkFrameworkAcceptor.h"
+#    include "NetworkFrameworkTLS.h"
 #    include "NetworkFrameworkTransceiver.h"
-
-#    include <Security/Security.h>
 
 #    include <utility>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-
-namespace
-{
-    // Creates the sec_identity_t for a certificate chain returned by a certificate selection callback: the
-    // identity is the first element, followed by the intermediate certificates Network.framework sends during
-    // the TLS handshake so that clients can verify chains with intermediate CAs. Returns null when the chain is
-    // empty and throws when its first element is not an identity: passing a certificate as the identity crashes
-    // Network.framework when it looks up the private key. The chain is released.
-    sec_identity_t createIdentity(CFArrayRef certs)
-    {
-        if (!certs)
-        {
-            return nullptr;
-        }
-
-        sec_identity_t secIdentity = nullptr;
-        CFIndex count = CFArrayGetCount(certs);
-        if (count > 0)
-        {
-            if (CFGetTypeID(CFArrayGetValueAtIndex(certs, 0)) != SecIdentityGetTypeID())
-            {
-                CFRelease(certs);
-                throw Ice::SecurityException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: the server certificate selection callback returned a certificate chain whose "
-                    "first element is not an identity (SecIdentityRef)");
-            }
-            SecIdentityRef identity = (SecIdentityRef)CFArrayGetValueAtIndex(certs, 0);
-            if (count > 1)
-            {
-                CFMutableArrayRef intermediateCerts =
-                    CFArrayCreateMutable(kCFAllocatorDefault, count - 1, &kCFTypeArrayCallBacks);
-                for (CFIndex i = 1; i < count; ++i)
-                {
-                    CFArrayAppendValue(intermediateCerts, CFArrayGetValueAtIndex(certs, i));
-                }
-                secIdentity = sec_identity_create_with_certificates(identity, intermediateCerts);
-                CFRelease(intermediateCerts);
-            }
-            else
-            {
-                secIdentity = sec_identity_create(identity);
-            }
-        }
-        CFRelease(certs);
-        return secIdentity;
-    }
-}
 
 NativeInfoPtr
 IceInternal::NetworkFrameworkAcceptor::getNativeInfo()
@@ -297,167 +244,21 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
     nw_parameters_t parameters;
     if (serverAuthenticationOptions)
     {
-        auto authOptions = *serverAuthenticationOptions;
-        // The blocks below outlive this constructor: capture a copy of the adapter name, not the reference.
-        const string name = adapterName;
-        const Ice::LoggerPtr logger = instance->logger();
+        // The configuration is shared with the blocks Network.framework invokes during the handshakes.
+        auto configuration = make_shared<NetworkFrameworkTLS::ServerConfiguration>(
+            *serverAuthenticationOptions,
+            adapterName,
+            instance->logger());
         parameters = nw_parameters_create_secure_tcp(
-            ^(nw_protocol_options_t tlsOptions) {
-                sec_protocol_options_t secOptions = nw_tls_copy_sec_protocol_options(tlsOptions);
-
-                // The TLS options are configured once, when the listener is created, and shared by all the
-                // connections it accepts. Select the server identity from a challenge block instead of setting
-                // it here: the block runs for each TLS handshake, so the certificate selection callback is
-                // invoked per connection and the server picks up a new certificate without recreating the
-                // listener (hot reload).
-                if (authOptions.serverCertificateSelectionCallback)
-                {
-                    auto certCallback = authOptions.serverCertificateSelectionCallback;
-                    dispatch_queue_t challengeQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-                    sec_protocol_options_set_challenge_block(
-                        secOptions,
-                        ^(sec_protocol_metadata_t, sec_protocol_challenge_complete_t complete) {
-                            // The block runs on a dispatch thread, where an escaping exception terminates the
-                            // process. A failing certificate selection (for example a reload that cannot read
-                            // the new certificate) fails this handshake instead.
-                            sec_identity_t secIdentity = nullptr;
-                            try
-                            {
-                                secIdentity = createIdentity(certCallback(name));
-                            }
-                            catch (const std::exception& ex)
-                            {
-                                Ice::Warning out(logger);
-                                out << "SSL transport: the server certificate selection callback failed:\n"
-                                    << ex.what();
-                            }
-                            catch (...)
-                            {
-                                Ice::Warning out(logger);
-                                out << "SSL transport: the server certificate selection callback failed";
-                            }
-                            complete(secIdentity);
-                            if (secIdentity)
-                            {
-                                sec_release(secIdentity);
-                            }
-                        },
-                        challengeQueue);
-                }
-
-                // Configure client certificate authentication.
-                //
-                // Network.framework only supports binary peer authentication: required or not
-                // requested. The sec_protocol_options_set_peer_authentication_optional() API exists
-                // in headers but is API_UNAVAILABLE on all platforms. When peer_authentication_required
-                // is true, NF enforces the requirement at the TLS protocol level (before the verify
-                // block fires), so clients without certificates are rejected immediately.
-                //
-                // As a result, IceSSL.VerifyPeer=1 (try authenticate) cannot be faithfully
-                // implemented. We treat it as "not required": the server does not request a
-                // client certificate. This preserves the primary behavior of allowing clients
-                // without certificates to connect, but means client certificates are not verified
-                // even when the client has one (since the server never requests it).
-                bool clientCertRequired = authOptions.clientCertificateRequired;
-                if (clientCertRequired)
-                {
-                    CFArrayRef trustedRoots = authOptions.trustedRootCertificates;
-                    auto validationCallback = authOptions.clientCertificateValidationCallback;
-
-                    sec_protocol_options_set_peer_authentication_required(secOptions, true);
-
-                    dispatch_queue_t verifyQueue =
-                        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-                    sec_protocol_options_set_verify_block(
-                        secOptions,
-                        ^(sec_protocol_metadata_t metadata, sec_trust_t trustRef, sec_protocol_verify_complete_t complete) {
-                            // NF's sec_trust_copy_ref only provides the leaf certificate. Extract
-                            // the full peer certificate chain from the protocol metadata.
-                            CFMutableArrayRef peerCerts =
-                                CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
-                            sec_protocol_metadata_access_peer_certificate_chain(
-                                metadata,
-                                ^(sec_certificate_t cert) {
-                                    SecCertificateRef secCert = sec_certificate_copy_ref(cert);
-                                    CFArrayAppendValue(peerCerts, secCert);
-                                    CFRelease(secCert);
-                                });
-
-                            SecPolicyRef policy = SecPolicyCreateBasicX509();
-                            SecTrustRef trust;
-                            OSStatus status = SecTrustCreateWithCertificates(peerCerts, policy, &trust);
-                            CFRelease(policy);
-                            CFRelease(peerCerts);
-
-                            if (status != errSecSuccess || !trust)
-                            {
-                                complete(false);
-                                return;
-                            }
-
-                            if (trustedRoots)
-                            {
-                                SecTrustSetAnchorCertificates(trust, trustedRoots);
-                                SecTrustSetAnchorCertificatesOnly(trust, true);
-                            }
-
-                            if (validationCallback)
-                            {
-                                try
-                                {
-                                    // Construct a minimal ConnectionInfo with the peer certificate
-                                    // for TrustOnly and other DN-based checks. Server-side: incoming=true.
-                                    SecCertificateRef peerCert = nullptr;
-                                    if (SecTrustGetCertificateCount(trust) > 0)
-                                    {
-                                        peerCert = SecTrustGetCertificateAtIndex(trust, 0);
-                                        if (peerCert)
-                                        {
-                                            CFRetain(peerCert); // AppleConnectionInfo releases it.
-                                        }
-                                    }
-                                    auto underlying = make_shared<Ice::TCPConnectionInfo>(
-                                        true, name, "", "", 0, "", 0, 0, 0);
-                                    auto info = make_shared<Ice::SSL::AppleConnectionInfo>(
-                                        underlying, peerCert);
-                                    bool valid = validationCallback(trust, info);
-                                    complete(valid);
-                                }
-                                catch (...)
-                                {
-                                    complete(false);
-                                }
-                            }
-                            else
-                            {
-                                CFErrorRef error = nullptr;
-                                bool valid = SecTrustEvaluateWithError(trust, &error);
-                                if (error)
-                                {
-                                    CFRelease(error);
-                                }
-                                complete(valid);
-                            }
-                            CFRelease(trust);
-                        },
-                        verifyQueue);
-                }
-                else
-                {
-                    // Client certificate not required — do not request one.
-                    sec_protocol_options_set_peer_authentication_required(secOptions, false);
-                }
-
-                // Invoke the application's callback last so that the settings it applies take precedence over the
-                // configuration above.
-                if (authOptions.sslNewSessionCallback)
-                {
-                    authOptions.sslNewSessionCallback(secOptions, name);
-                }
-
-                nw_release(secOptions); // nw_tls_copy_sec_protocol_options returns a retained object.
-            },
+            ^(nw_protocol_options_t tlsOptions) { NetworkFrameworkTLS::configureServerTLS(tlsOptions, configuration); },
             NW_PARAMETERS_DEFAULT_CONFIGURATION);
+
+        if (parameters && configuration->error)
+        {
+            // Set by the configure block, which nw_parameters_create_secure_tcp invoked synchronously.
+            nw_release(parameters);
+            rethrow_exception(configuration->error);
+        }
     }
     else
     {
