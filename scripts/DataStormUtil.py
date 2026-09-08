@@ -109,13 +109,9 @@ class Reader(Server, DataStormProcess):
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
             props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {port}"
-            # Send the announcements over the loopback interface. The tests run on 127.0.0.1, and without an explicit
-            # interface the announcements go out the host's default multicast interface, which isn't necessarily able
-            # to route the group. When that send fails the peers never discover each other and the test hangs.
-            #
-            # Not on Linux though: the loopback interface has no IFF_MULTICAST flag there, so the receiving side
-            # (which joins the group on every multicast-capable interface) never joins it on the loopback interface and
-            # announcements sent over 127.0.0.1 are dropped.
+            # Pin the announcements to the loopback interface: the default multicast interface can't always route the
+            # group, and a failed send hangs the test as the peers never discover each other. We can't do this on
+            # Linux, where the loopback interface isn't multicast-capable: the receiver never joins the group on it.
             if isinstance(platform, Linux):
                 props["DataStorm.Node.Multicast.Proxy"] = f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port}"
             else:
