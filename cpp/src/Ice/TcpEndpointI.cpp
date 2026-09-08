@@ -170,16 +170,18 @@ IceInternal::TcpEndpointI::transceiver() const
 AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(
     const string& adapterName,
-    const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
+    [[maybe_unused]] const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
 {
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
+    // A plain TCP listener: the object adapter's server authentication options only apply to its SSL endpoints,
+    // which use secureAcceptor.
     return make_shared<NetworkFrameworkAcceptor>(
-        dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
+        static_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
         _instance,
         _host,
         _port,
         adapterName,
-        serverAuthenticationOptions);
+        nullopt);
 #else
     return make_shared<TcpAcceptor>(
         static_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
@@ -188,6 +190,22 @@ IceInternal::TcpEndpointI::acceptor(
         _port);
 #endif
 }
+
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+AcceptorPtr
+IceInternal::TcpEndpointI::secureAcceptor(
+    const string& adapterName,
+    const Ice::SSL::ServerAuthenticationOptions& serverAuthenticationOptions) const
+{
+    return make_shared<NetworkFrameworkAcceptor>(
+        static_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
+        _instance,
+        _host,
+        _port,
+        adapterName,
+        serverAuthenticationOptions);
+}
+#endif
 
 #if !defined(ICE_USE_NETWORK_FRAMEWORK)
 TcpEndpointIPtr

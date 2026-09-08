@@ -1030,6 +1030,56 @@ trustedRootCertificatesAreRetained(Test::TestHelper* helper, const string& certi
 }
 
 void
+plainEndpointsWithServerAuthenticationOptions(Test::TestHelper* helper, const string& certificatesPath)
+{
+    cout << "plain endpoints of an object adapter with server authentication options... " << flush;
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
+        certificatesPath + "/ca1/server.p12",
+        "",
+        getKeyChainPath(certificatesPath),
+        keychainPassword,
+        password);
+    try
+    {
+        // The options only apply to the adapter's SSL endpoints: its tcp and ws endpoints accept plain connections.
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
+            .serverCertificateSelectionCallback = [serverCertificateChain](const string&)
+            {
+                CFRetain(serverCertificateChain);
+                return serverCertificateChain;
+            }};
+        Ice::InitializationData initData;
+        if (IceInternal::isMinBuild())
+        {
+            initData.pluginFactories = {Ice::wsPluginFactory()};
+        }
+        Ice::CommunicatorHolder serverCommunicator(initialize(std::move(initData)));
+        ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapterWithEndpoints(
+            "PlainAdapter",
+            helper->getTestEndpoint(12, "tcp") + ":" + helper->getTestEndpoint(13, "ws"),
+            serverAuthenticationOptions);
+        adapter->add(make_shared<ServerI>(serverCommunicator.communicator()), Identity{.name = "server"});
+        adapter->activate();
+
+        Ice::CommunicatorHolder clientCommunicator(createClient());
+        for (const string& protocol : {"tcp", "ws"})
+        {
+            ServerPrx obj(
+                clientCommunicator.communicator(),
+                "server:" + helper->getTestEndpoint(protocol == "tcp" ? 12 : 13, protocol));
+            obj->ice_ping();
+        }
+    }
+    catch (...)
+    {
+        CFRelease(serverCertificateChain);
+        throw;
+    }
+    CFRelease(serverCertificateChain);
+    cout << "ok" << endl;
+}
+
+void
 serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server hot certificate reload... " << flush;
@@ -1182,5 +1232,6 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& defaultDir
     certificateSelectionCallbackReturnsCertificateOnly(helper, certificatesPath);
     configurationExceptionsArePreserved(helper, certificatesPath);
     trustedRootCertificatesAreRetained(helper, certificatesPath);
+    plainEndpointsWithServerAuthenticationOptions(helper, certificatesPath);
 }
 #endif
