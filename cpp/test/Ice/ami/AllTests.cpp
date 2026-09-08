@@ -652,8 +652,8 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
-            [[maybe_unused]] auto sentAsync = sent.get_future().get();
-            [[maybe_unused]] auto value = response.get_future().get();
+            sent.get_future().wait();
+            [[maybe_unused]] auto _ = response.get_future().get();
         }
 
         {
@@ -665,7 +665,7 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
-            [[maybe_unused]] auto sentAsync = sent.get_future().get();
+            sent.get_future().wait();
             response.get_future().get();
         }
 
@@ -678,8 +678,8 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
-            [[maybe_unused]] auto sentAsync = sent.get_future().get();
-            [[maybe_unused]] auto value = response.get_future().get();
+            sent.get_future().wait();
+            [[maybe_unused]] auto _ = response.get_future().get();
         }
 
         {
@@ -691,8 +691,8 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
-            [[maybe_unused]] auto sentAsync = sent.get_future().get();
-            [[maybe_unused]] auto value = response.get_future().get();
+            sent.get_future().wait();
+            [[maybe_unused]] auto _ = response.get_future().get();
         }
 
         {
@@ -704,7 +704,7 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
-            [[maybe_unused]] auto sentAsync = sent.get_future().get();
+            sent.get_future().wait();
             response.get_future().get();
         }
 

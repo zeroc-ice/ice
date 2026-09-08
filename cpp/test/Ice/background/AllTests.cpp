@@ -1168,8 +1168,8 @@ readWriteTests(
 
     ctl->resumeAdapter();
 
-    [[maybe_unused]] auto sent1 = fs1.get();
-    [[maybe_unused]] auto sent2 = fs2.get();
+    fs1.wait();
+    fs2.wait();
 
     fc1.get();
     fc2.get();
