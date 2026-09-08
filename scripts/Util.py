@@ -3159,32 +3159,61 @@ class AndroidProcessController(RemoteProcessController):
         r"|START com\.android\.internal\.os\.ZygoteInit|lowmemorykiller"
     )
 
+    # The bulk of a crash report: native frames and register dumps (tombstone lines indented four
+    # or more spaces after the DEBUG tag), Java frames, and the tombstone boilerplate. Dropping them
+    # keeps the lines that name the process, the signal, and the abort message or exception, so a
+    # window of a few dozen lines spans several crashes instead of one backtrace. The first API 37
+    # dump lost the reason system_server died to the 45 lines of the zygote tombstone that followed.
+    _crashNoise = re.compile(r"DEBUG\s*:\s{4,}|total frames|backtrace:|To display stack pointer")
+
     @staticmethod
     def _adbEcho(line: str) -> bool:
         # adbd logs every shell request it serves, so the harness's own polling lands in the log
         # carrying the very words the filters here look for.
         return "adbd service requested" in line
 
+    @classmethod
+    def _condensed(cls, lines: list[str]) -> list[str]:
+        return [ln for ln in lines if "\tat " not in ln and not cls._crashNoise.search(ln) and not cls._adbEcho(ln)]
+
     def systemHealth(self) -> str:
         # What the guest says about its own stability, for the failure paths: boot state, uptime,
-        # how many times system_server has booted, and the crash and watchdog lines. Tolerant
-        # throughout -- an unbootable or restarting device is exactly when this runs. The API 37
-        # emulators failed once with both zygotes restarting every 65s and nothing here to say why.
+        # how many times system_server has booted, the crash and watchdog lines, and the persisted
+        # crash reports. Tolerant throughout -- an unbootable or restarting device is exactly when
+        # this runs. The API 37 emulators failed once with both zygotes restarting every 65s and
+        # nothing here to say why.
         boots = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if "boot_progress_start" in ln]
-        main = [ln for ln in self._adbTolerant("logcat -d").splitlines() if not self._adbEcho(ln)]
-        crashes = [ln for ln in main if self._crashLine.search(ln)]
-        crashBuffer = [ln for ln in self._adbTolerant("logcat -d -b crash").splitlines() if not self._adbEcho(ln)]
-        return "\n".join(
-            [
-                f"boot_completed={self._adbTolerant('shell getprop sys.boot_completed').strip() or '?'}",
-                f"uptime: {self._adbTolerant('shell uptime').strip() or '?'}",
-                f"system boots recorded in the events buffer: {len(boots)}",
-                "-- crash and watchdog lines (last 40) --",
-                "\n".join(crashes[-40:]) or "<none>",
-                "-- crash buffer (last 40) --",
-                "\n".join(crashBuffer[-40:]) or "<none>",
-            ]
-        )
+        main = self._adbTolerant("logcat -d").splitlines()
+        crashes = self._condensed([ln for ln in main if self._crashLine.search(ln)])
+        crashBuffer = self._condensed(self._adbTolerant("logcat -d -b crash").splitlines())
+        out = [
+            f"boot_completed={self._adbTolerant('shell getprop sys.boot_completed').strip() or '?'}",
+            f"uptime: {self._adbTolerant('shell uptime').strip() or '?'}",
+            f"system boots recorded in the events buffer: {len(boots)}",
+            "-- crash and watchdog lines (last 60, frames dropped) --",
+            "\n".join(crashes[-60:]) or "<none>",
+            "-- crash buffer (last 120, frames dropped) --",
+            "\n".join(crashBuffer[-120:]) or "<none>",
+        ]
+        # Root-only, through su rather than `adb root` (which restarts adbd and would need a wait
+        # this path cannot afford); google_apis images allow it, playstore ones make these print
+        # nothing. dmesg has the kernel's own OOM kills. The dropbox files keep the head of every
+        # system_server crash, watchdog kill and tombstone across restarts, unlike the logcat crash
+        # buffer, which a restart loop overwrites within minutes.
+        oom = [
+            ln
+            for ln in self._adbTolerant("shell su 0 dmesg").splitlines()
+            if re.search(r"(?i)out of memory|oom-kill|killed process", ln)
+        ]
+        out += ["-- kernel oom (last 20) --", "\n".join(oom[-20:]) or "<none>"]
+        names = self._adbTolerant("shell su 0 ls -t /data/system/dropbox").split()
+        reports = [n for n in names if re.match(r"(system_server_\w+|SYSTEM_TOMBSTONE)@", n)][:3]
+        out += [f"-- dropbox reports (newest 3 of {len(names)}) --", " ".join(reports) or "<none>"]
+        for name in reports:
+            cat = "gzip -dc" if name.endswith(".gz") else "cat"
+            text = self._condensed(self._adbTolerant(f"shell su 0 {cat} /data/system/dropbox/{name}").splitlines())
+            out += [f"-- {name} (first 30 lines, frames dropped) --", "\n".join(text[:30]) or "<empty>"]
+        return "\n".join(out)
 
     # Set once the harness's own emulator has failed to boot, so the tests that follow fail at once
     # instead of each recreating the AVD and waiting out the boot timeout again: with --all that is
