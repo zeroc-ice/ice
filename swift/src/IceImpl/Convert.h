@@ -1,10 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 #import "LocalObject.h"
 
-#include <exception>
-#include <map>
-#include <string>
-#include <vector>
+#ifdef __cplusplus
+
+#    include <exception>
+#    include <map>
+#    include <string>
+#    include <vector>
 
 NSError* convertException(std::exception_ptr);
 
@@ -106,3 +108,5 @@ fromNSDictionary(NSDictionary* dictionary, std::map<K, V, Compare>& dict)
     }
     return dict;
 }
+
+#endif
