@@ -1,2 +1,2 @@
-# PHP extension module is statically linked with mcpp
+# slice2php is statically linked with mcpp
 php-zeroc-ice: statically-linked-binary
