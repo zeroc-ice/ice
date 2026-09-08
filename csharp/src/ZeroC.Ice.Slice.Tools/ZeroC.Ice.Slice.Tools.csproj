@@ -33,6 +33,7 @@
       <Content Include="ZeroC.Ice.Slice.Tools.targets" Pack="true" PackagePath="build/" />
       <None Include="$(OutputPath)/$(AssemblyName).dll" Pack="true" PackagePath="tasks/" Visible="false" />
       <Content Include="README.md" Pack="true" PackagePath="/" />
+      <Content Include="$(MSBuildThisFileDirectory)../../msbuild/THIRD_PARTY_LICENSE.txt" Pack="true" PackagePath="/" />
       <Content Include="$(MSBuildThisFileDirectory)../../../assets/slice-logo-128x128.png" Pack="true" PackagePath="/" />
     </ItemGroup>
 
