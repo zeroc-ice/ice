@@ -333,6 +333,11 @@ compiler takes effect only after you recompile your Slice files with the new com
   `\\server\share\plugin.jar`) was loaded from the wrong location: the path was resolved relative to the current
   directory instead of being recognized as absolute.
 
+- Fixed a silent misconfiguration with PKCS12 key and trust stores: when the store was loaded without the password
+  that protects its certificates (typically because `IceSSL.KeystorePassword` or `IceSSL.TruststorePassword` was
+  omitted), the certificates were skipped and TLS handshakes failed with an unrelated error. Communicator
+  initialization now fails with an `InitializationException` that names the setting to check.
+
 - Fixed a bug in IceDiscovery where the replica-group endpoint aggregation window was about 10 times longer than
   intended, due to an incorrect nanosecond-to-millisecond conversion. As a result, resolving an indirect proxy bound to
   a replica group took noticeably longer than the configured `IceDiscovery.LatencyMultiplier` implies.
@@ -801,6 +806,10 @@ compiler takes effect only after you recompile your Slice files with the new com
   "package not found" error, instead of a confusing error from inside the Ice package configuration.
 
 - Fixed RPM builds that rebrand the packages with the `nameprefix` macro: such builds previously failed during `%prep`.
+
+- The `php-ice` RPM now requires the PHP API and Zend ABI versions it was built against. Installing it on a host
+  running a different PHP version (for example, after switching to the `php:8.2` module stream on RHEL 9) now fails
+  with a clear dependency error from `dnf`, instead of succeeding and leaving PHP unable to load the extension.
 
 ## Changes in Ice 3.8.2
 
