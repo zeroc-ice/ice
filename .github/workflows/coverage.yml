@@ -7,6 +7,7 @@ on:
 
 jobs:
   generate-cpp-coverage-report:
+    if: github.repository == 'zeroc-ice/ice'
     runs-on: macos-26
     steps:
       - name: Checkout repository
@@ -58,9 +59,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        if: github.ref == 'refs/heads/main' && github.repository == 'zeroc-ice/ice'
+        if: github.ref == 'refs/heads/main'
 
   generate-csharp-coverage-report:
+    if: github.repository == 'zeroc-ice/ice'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
@@ -108,9 +110,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        if: github.ref == 'refs/heads/main' && github.repository == 'zeroc-ice/ice'
+        if: github.ref == 'refs/heads/main'
 
   generate-java-coverage-report:
+    if: github.repository == 'zeroc-ice/ice'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
@@ -142,9 +145,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        if: github.ref == 'refs/heads/main' && github.repository == 'zeroc-ice/ice'
+        if: github.ref == 'refs/heads/main'
 
   generate-js-coverage-report:
+    if: github.repository == 'zeroc-ice/ice'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
@@ -181,4 +185,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        if: github.ref == 'refs/heads/main' && github.repository == 'zeroc-ice/ice'
+        if: github.ref == 'refs/heads/main'
