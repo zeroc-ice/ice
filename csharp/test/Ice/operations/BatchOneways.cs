@@ -142,6 +142,10 @@ internal class BatchOneways
 
         p.ice_ping();
 
+        // The Ice runtime loads bzip2 at run time and silently sends uncompressed messages when it cannot. The test
+        // environment must provide bzip2, otherwise the compression checks below exercise nothing.
+        test(Ice.Internal.BZip2.isLoaded(p.ice_getCommunicator().getLogger()));
+
         bool supportsCompress = true;
         try
         {
