@@ -4414,7 +4414,7 @@ class CSharpMapping(Mapping):
             with open(packagesConfig, "r") as config:
                 m = re.search(r'id="ZeroC\.Bzip2" version="([^"]+)"', config.read())
             if not m:
-                raise RuntimeError("couldn't find the ZeroC.Bzip2 package version in `{0}'".format(packagesConfig))
+                raise RuntimeError("couldn't find the ZeroC.Bzip2 package version in '{0}'".format(packagesConfig))
             env["PATH"] = os.path.join(
                 self.component.getSourceDir(),
                 "cpp",
