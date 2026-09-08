@@ -992,28 +992,43 @@ trustedRootCertificatesAreRetained(Test::TestHelper* helper, const string& certi
             .trustedRootCertificates = trustedRootCertificates};
 
         {
-            // The listener's TLS configuration retains the roots for the blocks Network.framework invokes during
-            // the handshakes, and releases them with the listener.
-            Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
-            test(CFGetRetainCount(trustedRootCertificates) > baseline);
-        }
-        test(waitForRetainCount([baseline](CFIndex count) { return count == baseline; }, chrono::seconds(5)));
+            Ice::CommunicatorHolder serverCommunicator(initialize());
 
-        {
-            Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+            // An object adapter retains the roots of its authentication options; measure that reference with an
+            // adapter that has no SSL endpoint, and therefore no TLS listener.
+            serverCommunicator->createObjectAdapterWithEndpoints(
+                "TcpAdapter",
+                helper->getTestEndpoint(11, "tcp"),
+                serverAuthenticationOptions);
+            const CFIndex adapterReference = CFGetRetainCount(trustedRootCertificates) - baseline;
+
+            // The SSL adapter's listener configures TLS with blocks Network.framework invokes during the
+            // handshakes: its TLS configuration retains the roots for them, on top of the adapter's reference.
+            ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapterWithEndpoints(
+                "ServerAdapter",
+                helper->getTestEndpoint(10, "ssl"),
+                serverAuthenticationOptions);
+            adapter->add(make_shared<ServerI>(serverCommunicator.communicator()), Identity{.name = "server"});
+            adapter->activate();
+            test(CFGetRetainCount(trustedRootCertificates) > baseline + 2 * adapterReference);
             const CFIndex serverCount = CFGetRetainCount(trustedRootCertificates);
+
             {
-                // The connection's TLS configuration retains the roots as well, and releases them with the
-                // connection.
+                // The communicator retains the roots of its client authentication options; the connection's TLS
+                // configuration retains them as well once the connection is established.
                 Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+                const CFIndex clientCount = CFGetRetainCount(trustedRootCertificates);
+
                 ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
                 obj->ice_ping();
-                test(CFGetRetainCount(trustedRootCertificates) > serverCount);
+                test(CFGetRetainCount(trustedRootCertificates) > clientCount);
             }
-            test(waitForRetainCount([serverCount](CFIndex count) { return count <= serverCount; }, chrono::seconds(5)));
+            // The connection's TLS configuration is released with the connection. Network.framework tears the
+            // TLS state of the closed connections down some seconds after they are released.
+            test(
+                waitForRetainCount([serverCount](CFIndex count) { return count == serverCount; }, chrono::seconds(60)));
         }
-        // Network.framework tears the accepted connection's TLS state down some seconds after the listener and
-        // connection are released; the configuration is released with it.
+        // The adapters' references and the listener's TLS configuration are released with the communicator.
         test(waitForRetainCount([baseline](CFIndex count) { return count == baseline; }, chrono::seconds(60)));
     }
     catch (...)
