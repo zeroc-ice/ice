@@ -524,151 +524,112 @@ Unless indicated otherwise, these changes apply to all Slice compilers.
 
 #### DataStorm
 
-- Fixed a bug in DataStorm where destroying a topic before the readers and writers created from it, while a peer was
-  still attached to one of them, leaked the listeners and (in debug builds) tripped an assertion. This is uncommon,
-  since readers and writers are normally destroyed before their topic.
+- DataStorm nodes running this release no longer interoperate with nodes running Ice 3.8.0 through 3.8.2: a node only
+  connects to peers running Ice 3.8.3 or later. Upgrade all the DataStorm nodes in a deployment together.
 
-- Fixed a bug in DataStorm where a reader connected to an any-key (filtered) writer could receive duplicate
-  samples after a session reconnect: the writer re-sent its entire retained history instead of resuming after
-  the samples the reader had already received.
+- A node now reads the `DataStorm.Topic.*` properties when it is constructed, instead of when its first reader or
+  writer is created: set these properties before constructing the node, as a value set afterwards is ignored. The
+  `DataStorm.Topic.DiscardPolicy` property also accepts `None` as an alias for `Never`, matching the
+  `DiscardPolicy::None` enumerator.
 
-- Fixed a bug in DataStorm where a partial update for one key could be merged on top of a different key's most
-  recent sample, corrupting the fields the update does not set.
+- Fixed a node applying received samples out of order when its communicator was configured to let
+  `Ice.ThreadPool.Client` grow beyond one thread — a partial update could resolve against the wrong base value. A node
+  now defaults `Ice.ThreadPool.Client.Serialize` to 1 on the communicators it creates. An application that configures
+  the property itself keeps its own value, and a communicator supplied to a node is left untouched and must be
+  configured for ordered dispatch before it is created. As part of this change, a node constructed from `argc`/`argv`
+  no longer sets `Ice.ProgramName` from `argv[0]`: the property, which the default logger uses as its prefix, now
+  defaults to the executable's file name, so a node started as `./writer` reports `writer` instead of `./writer`.
 
-- Fixed a bug in DataStorm where a partial update was not merged with the key's previous value when the receiver did
-  not already have that value: an element configured with `sampleCount = 0` (keep no history), a reader that joins
-  after the value was published to a writer that keeps no history or whose history has aged out (`sampleLifetime`),
-  or an any-key/filtered reader that receives history for only some of a writer's keys (for example with
-  `ClearHistory = OnAll`). The current per-key value is now bootstrapped for every such key. Applications using
-  class-typed values typically crashed; with other value types, the fields not carried by the update were silently
-  reset to their defaults.
+- Fixed several bugs in the handling of partial updates:
+  - A partial update for one key could be merged on top of a different key's most recent value, corrupting the fields
+    the update does not set.
+  - A key's current value is now retained and delivered to late-joining readers independently of the history
+    configuration, so a partial update has a value to merge with. Previously the value could be missing — for example
+    with `sampleCount = 0`, or when the reader joined after the value aged out of the history.
+  - Likewise, a sample discarded by a reader's discard policy is now still retained as the key's current value when the
+    reader has none yet, so a later partial update on that key has a value to merge with. Previously it was merged into
+    a default-constructed value, which typically crashed applications using class-typed values.
+  - When a topic's updaters were set with `setUpdater` before the topic's first writer was created, a peer that
+    connected to the topic while that writer was being created silently applied the partial updates published by the
+    topic's writers as no-ops until it disconnected and reconnected.
+  - A partial update delivered to several readers of the same key on one node was resolved against the current value of
+    one arbitrary reader, instead of against each reader's own current value. Readers that hold different values for a
+    key, for example because only some of them use a discard policy, now each resolve the update against their own
+    value.
+  - A partial update for a key with no value — a key that was removed, or for which no full value was written yet —
+    crashed applications using class-typed values; with other value types, it silently resurrected removed keys. Now a
+    writer throws `std::logic_error` when publishing such an update, and a reader drops incoming ones with a trace
+    instead of applying them to a default-constructed value.
 
-- Fixed a crash in DataStorm (a null-pointer dereference during session (re)attachment) that could occur after a
-  multi-key reader or writer was destroyed.
+- Fixed two bugs where a reader could receive duplicate samples after a reconnection:
+  - A reader connected to an any-key writer received the writer's entire retained history again, instead of resuming
+    after the samples it had already received.
+  - When reconnecting to a peer — typically through a relay node — stale replies from an earlier connection attempt
+    could exhaust the reconnection retries; instead of resuming, the reader then reconnected from scratch and received
+    the writer's retained samples from the beginning.
 
-- Fixed a bug in DataStorm where, when two or more readers (or writers) reached an endpoint-less peer through the
-  same relay node, the relay could fail to notify one of them when the peer disconnected, leaving it blocked
-  forever in `waitForNoWriters` (or `waitForNoReaders`). The relay keyed the relayed sessions by an identity that
-  is only unique within a node, so sessions from different nodes overwrote each other.
+- Fixed a race that could leave a reader permanently disconnected from a writer after a connection loss.
 
-- Fixed a memory leak in DataStorm where a node could fail to reclaim a session after losing its connection to a
-  peer. The most common trigger is a peer with no public endpoint that disconnects and does not reconnect, so a
-  long-running node leaked memory in proportion to the number of such peers seen over its lifetime.
+- Fixed a bug where destroying a topic before the readers and writers created from it, while they were still connected
+  to a peer, left them permanently attached to that peer: `hasWriters()`/`hasReaders()` stayed true,
+  `waitForNoWriters()`/`waitForNoReaders()` hung, and the `onConnectedKeys`, `onConnectedWriters`, and
+  `onConnectedReaders` callbacks never reported the disconnection.
 
-- Fixed a crash in DataStorm where a filtered or any-key reader configured with `DiscardPolicy::Priority` crashed
-  when it received samples from an any-key writer.
+- Fixed a memory leak where a node could fail to clean up after losing its connection to a peer. The most common trigger
+  is a peer with no public endpoint that disconnects and does not reconnect, so a long-running node leaked memory in
+  proportion to the number of such peers seen over its lifetime.
 
-- Fixed the initialization of late-joining readers. A reader of a writer that spans several keys — a multi-key,
-  any-key, or filtered reader — silently lost all but one key's initialization samples. Such a reader could also be
-  initialized with another reader's samples.
+- Fixed a memory leak where a topic retained a small amount of memory for every distinct key, tag, and filter value it
+  had seen, growing without bound on long-lived nodes with a changing key set.
 
-- DataStorm nodes running this release no longer interoperate with nodes running Ice 3.8.0 through 3.8.2. Fixing the
-  reader-initialization bug above required a change to the DataStorm session protocol, and a node only establishes
-  sessions with peers running Ice 3.8.3 or later. Upgrade all the DataStorm nodes in a deployment together.
+- Fixed the initialization of late-joining readers. A reader of a writer that spans several keys — a multi-key, any-key,
+  or filtered reader — silently lost all but one key's initialization samples. Such a reader could also be initialized
+  with another reader's samples.
 
-- Fixed a bug in DataStorm where an any-key reader and a filtered reader created on the same topic could be assigned
-  the same element ID and merge into a single subscription on the writer: one of the readers silently missed the
-  samples rejected by the other reader's filter, and destroying either reader detached the other. Topic elements now
-  draw their IDs from a single counter.
+- Fixed a crash in a node with a multi-key reader or writer: once a peer reader or writer matching several of its keys
+  was destroyed, the next peer reader or writer to connect could crash the node with a null-pointer dereference.
 
-- Fixed a bug in DataStorm where destroying a topic while the connection to a peer was closing or being
-  re-established could leave the topic's readers or writers permanently attached to that peer:
-  `hasWriters()`/`hasReaders()` stayed true, `waitForNoWriters()`/`waitForNoReaders()` hung, and the disconnect
-  callbacks never fired.
+- Fixed a bug where the writer could treat an any-key reader and a filtered reader created on the same topic as a single
+  reader: one of the readers silently missed the samples rejected by the other reader's filter, and destroying either
+  reader silently detached the other: it stopped receiving samples while still reporting the writer as connected.
 
-- Fixed a bug in DataStorm where, after a reconnection, a relay could permanently stop forwarding topic
-  announcements to a node without a public endpoint: readers and writers matched only through such announcements
-  never connected until the connection was re-established with a favorable timing.
+- A filtered or any-key reader configured with `DiscardPolicy::Priority` no longer crashes when it receives samples from
+  an any-key writer.
 
-- Fixed a bug in DataStorm where a writer created for several keys sent every key's samples to all subscribed
-  sessions, including sessions whose readers subscribe to only some of the writer's keys: the unmatched samples
-  wasted bandwidth, and debug builds crashed on an assertion when receiving them.
+- Fixed two bugs affecting a node with both a reader with a sample filter and a reader without one on the same writer
+  and key:
+  - The reader without a sample filter received a duplicate of every sample that the sample-filtered reader matched:
+    the application saw each such sample twice, and a partial update was applied to the reader's value twice.
+  - After a reconnection, a reader could permanently miss a sample: a sample delivered to one reader was marked as
+    received by the other, and the writer therefore never resent it.
 
-- Fixed a memory leak in DataStorm where the per-topic key, tag, and filter factories kept one expired map entry per
-  distinct value that was no longer used, growing without bound on long-lived nodes with a changing key set.
+- Fixed a bug where calling `getValue()` on a `Remove` sample could return indeterminate data instead of the documented
+  default value.
 
-- Fixed a bug in DataStorm where a subscriber that attached to a topic in the short window before the topic's
-  updaters were set with `setUpdaters` could silently apply partial updates as no-ops for the lifetime of the
-  session.
+- Fixed several bugs affecting readers and writers connected through a relay node:
+  - The relay did not forward updates to a reader with a sample filter: the reader was initialized correctly, so it
+    appeared to start normally and then never updated.
+  - When readers (or writers) on two or more nodes without a public endpoint reached the same endpoint-less peer through
+    one relay, the relay could fail to notify one of them when the peer disconnected, leaving it blocked forever in
+    `waitForNoWriters` (or `waitForNoReaders`).
+  - After a reconnection, a relay could permanently stop telling a node without a public endpoint about the readers and
+    writers on other nodes: the node's readers and writers never connected to peers on nodes it was not already
+    connected to.
+  - A node could fail to connect to a peer when the relay lost its own connection to that peer at the wrong moment; the
+    writers and readers of the two nodes then never connected to each other. The node now retries the connection.
 
-- Fixed a race in DataStorm session establishment that could leave a reader permanently
-  disconnected from a writer after a connection loss.
+- Fixed two bugs affecting nodes that create two or more `Topic` instances with the same name:
+  - When readers on these topics read from the same writer, a reader could receive another key's samples instead of its
+    own.
+  - A reader with a sample filter on one of these topics received every sample that matched any such reader's filter,
+    instead of only the samples its own filter matched.
 
-- Fixed a bug affecting nodes that create two or more `Topic` instances with the same name. When readers on these
-  topics read from the same remote writer, a reader could receive another key's samples instead of its own.
-
-- Fixed a bug where a full value that a custom `Encoder` encodes to an empty byte sequence was decoded as
-  value-less. Such a value could not serve as a base for a subsequent partial update, which was then silently
-  discarded. The value is now decoded through its `Decoder` like any other full value, and the `Decoder` defines
-  the meaning of empty input.
-
-- Fixed a bug where a partial update delivered to several readers of the same key on one node was resolved against
-  the current value of whichever reader was served first, instead of against each reader's own current value. Readers
-  that hold different values for a key, for example because only some of them use a discard policy, now each resolve
-  the update against their own value.
-
-- Fixed a node applying the samples of a session out of order when its communicator was configured to let
-  `Ice.ThreadPool.Client` grow beyond one thread — a partial update could resolve against the wrong base value. A
-  node now defaults `Ice.ThreadPool.Client.Serialize` to 1 on the communicators it creates. An application that
-  configures the property itself keeps its own value, and a communicator supplied to a node is left untouched and
-  must be configured for ordered dispatch before it is created.
-
-- Removing a data element no longer calls the application's `Encoder` with a default-constructed value the
-  application never published.
-
-- Fixed a bug where a DataStorm reader could receive samples it had already consumed. When a session reconnected
-  to its peer — typically through a DataStorm node — stale replies from an earlier connection attempt could
-  exhaust the session's reconnect retries and destroy it; the replacement session then received the writer's
-  retained samples from the beginning.
-
-- Fixed a bug where a node could fail to connect to a peer reached through a relay node when the relay lost its own
-  connection to that peer at the wrong moment. The writers and readers of the two nodes then never connected to each
-  other. The node now retries the connection.
-
-- Fixed a bug affecting nodes that create two or more `Topic` instances with the same name. A reader with a
-  sample filter on one of these topics received every sample that matched any such reader's filter, instead of
-  only the samples its own filter matched.
-
-- Fixed a bug where a reader with a sample filter received no updates when it read the writer through a relay
-  node. The reader was still initialized correctly, so it appeared to start normally and then never updated.
-
-- Fixed a bug where a reader without a sample filter received a duplicate of every sample that a sample-filtered
-  reader of the same key and writer matched. The duplicate was indistinguishable from a real sample and, for a
-  partial update, applied the update to the reader's value twice.
-
-- Fixed the handling of a key that a custom `Encoder` encodes to an empty byte sequence. An any-key or filtered
-  writer marshals such a key inline like any other, but a reader mistook it for a key sent by id: it discarded the
-  sample, or delivered it without checking the key against the reader's own subscription.
-
-- Fixed a bug where a `DataStorm::Node` constructor failure, such as an invalid `DataStorm.Node.ConnectTo`
-  endpoint, aborted the process instead of throwing an exception.
-
-- Fixed a bug where an invalid `DataStorm.Topic.*` property value aborted the process when a topic reader or writer
-  was first created. The topic default configurations are now parsed by the `Node` constructor, so an invalid value
-  surfaces there as an exception. Additionally, the `DataStorm.Topic.DiscardPolicy` property now accepts `None` as
-  an alias for `Never`, matching the `DiscardPolicy::None` enumerator.
-
-- Fixed a bug where `Node::getSessionConnection` aborted the process when the given session identity was malformed,
-  instead of returning null.
-
-- Fixed a bug where calling `shutdown`, `isShutdown`, or `waitForShutdown` on a moved-from `Node` crashed.
-
-- Fixed the handling of partial updates for keys with no value. A key has no value when it was removed, or when no
-  full value was written for it yet. Previously, such a partial update crashed applications using class-typed
-  values; with other value types, it silently resurrected removed keys. Now a writer throws `std::logic_error`
-  when publishing such an update, and a reader discards incoming ones.
-
-- Fixed a bug where calling `getValue()` on a `Remove` sample could return indeterminate data instead of the
-  documented default value.
-
-- Fixed a bug in DataStorm where a sample discarded by the reader's discard policy left later partial updates on
-  its key without a base value to resolve against.
-
-- A DataStorm partial update without a base value is now dropped with a trace, instead of being applied to a
-  default-constructed value — which typically crashed applications using class-typed values.
-
-- A DataStorm reader-side updater or decoder that throws now drops only that sample and logs a warning; previously
-  the exception could discard an entire batch of initialization samples.
+- Fixed the handling of keys and values that a custom `Encoder` encodes to an empty byte sequence:
+  - A full value encoded to an empty byte sequence was decoded as value-less. Such a value could not serve as a base for
+    a subsequent partial update, which was then silently discarded. The value is now decoded through its `Decoder` like
+    any other full value, and the `Decoder` defines the meaning of empty input.
+  - A sample published for such a key by an any-key writer could be silently discarded, or delivered to a reader whose
+    keys or filter did not match it.
 
 #### Glacier2
 
