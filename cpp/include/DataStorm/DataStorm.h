@@ -71,9 +71,7 @@ namespace DataStorm
         /// @return The origin of the sample.
         [[nodiscard]] const std::string& getOrigin() const noexcept;
 
-        /// Gets the session identifier of the session that received this sample.
-        /// This session identifier can be used to retrieve the Ice connection with the node.
-        /// @return The session identifier.
+        /// @private
         [[nodiscard]] const std::string& getSession() const noexcept;
 
         /// @private
@@ -380,8 +378,6 @@ namespace DataStorm
         /// Sets an updater function for the given update tag. The function is called when a partial update is
         /// received or sent to compute the new value. The function is provided the latest value and the partial
         /// update. It should return the new value.
-        /// An updater that throws when applying a received partial update causes the sample to be dropped: a
-        /// warning is logged and the following samples are delivered normally.
         /// @param tag The update tag.
         /// @param updater The updater function.
         template<typename UpdateValue>
