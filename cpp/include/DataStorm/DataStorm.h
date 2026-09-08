@@ -379,8 +379,8 @@ namespace DataStorm
         void setReaderDefaultConfig(const ReaderConfig& config) noexcept;
 
         /// Sets an updater function for the given update tag. The function is called when a partial update is
-        /// received or sent to compute the new value. The function is provided the latest value and the partial
-        /// update. It should return the new value.
+        /// received or sent to compute the new value. The function is provided a copy of the latest value and the
+        /// partial update, and it updates this value in place.
         /// @param tag The update tag.
         /// @param updater The updater function.
         template<typename UpdateValue>
