@@ -2,24 +2,22 @@
 
 #include "Ice/Config.h"
 
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+#include "HashUtil.h"
+#include "Ice/InputStream.h"
+#include "Ice/LocalExceptions.h"
+#include "Ice/OutputStream.h"
+#include "Network.h"
+#include "ProtocolInstance.h"
+#include "TcpAcceptor.h"
+#include "TcpConnector.h"
+#include "TcpEndpointI.h"
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include "apple/NetworkFrameworkAcceptor.h"
+#    include "apple/NetworkFrameworkConnector.h"
+#endif
 
-#    include "HashUtil.h"
-#    include "Ice/InputStream.h"
-#    include "Ice/LocalExceptions.h"
-#    include "Ice/OutputStream.h"
-#    include "Network.h"
-#    include "ProtocolInstance.h"
-#    include "TcpAcceptor.h"
-#    include "TcpConnector.h"
-#    include "TcpEndpointI.h"
-#    if defined(ICE_USE_NETWORK_FRAMEWORK)
-#        include "apple/NetworkFrameworkAcceptor.h"
-#        include "apple/NetworkFrameworkConnector.h"
-#    endif
-
-#    include "TcpTransceiver.h"
-#    include <utility>
+#include "TcpTransceiver.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -446,4 +444,3 @@ IceInternal::TcpEndpointFactory::clone(const ProtocolInstancePtr& instance) cons
 {
     return make_shared<TcpEndpointFactory>(instance);
 }
-#endif

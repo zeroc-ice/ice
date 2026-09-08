@@ -106,7 +106,7 @@ Ice_system_libs := -ldl
 Ice[macosx]_system_libs := -framework Security -framework CoreFoundation -framework Network
 
 # Frameworks requires for iphoneos
-Ice[iphoneos]_system_libs := -framework CFNetwork -framework UIKit -framework Foundation -framework Security
+Ice[iphoneos]_system_libs := -framework CFNetwork -framework UIKit -framework Foundation -framework Security -framework Network
 IceIAP[iphoneos]_system_libs := -framework ExternalAccessory
 
 # Same frameworks as iphoneos for iphonesimulator

@@ -30,8 +30,7 @@ ios_excludes := $(wildcard $(addprefix $(currentdir)/,\
     OutputUtil.cpp \
     Service.cpp \
     SysLoggerI.cpp \
-    SystemdJournalI.cpp \
-    Tcp*.cpp))
+    SystemdJournalI.cpp))
 
 Ice[iphoneos]_excludes                  = $(ios_excludes)
 Ice[iphoneos]_extra_sources             = $(ios_extrasources)
