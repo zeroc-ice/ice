@@ -7,6 +7,7 @@
 #    include "Ice/LocalExceptions.h"
 #    include "Ice/LoggerUtil.h"
 #    include "../Network.h"
+#    include "../NetworkProxy.h"
 #    include "../ProtocolInstance.h"
 #    include "NetworkFrameworkConnector.h"
 #    include "NetworkFrameworkTransceiver.h"
@@ -22,9 +23,16 @@ TransceiverPtr
 IceInternal::NetworkFrameworkConnector::connect()
 {
     //
-    // Create the Network.framework endpoint from host and port.
+    // Create the Network.framework endpoint. With a network proxy, connect to the proxy: the transceiver performs
+    // the proxy handshake (SOCKS4 or HTTP CONNECT) with the destination address before Ice uses the connection.
     //
-    nw_endpoint_t endpoint = nw_endpoint_create_host(_host.c_str(), to_string(_port).c_str());
+    string host = _host;
+    int port = _port;
+    if (_proxy)
+    {
+        addrToAddressAndPort(_proxy->getAddress(), host, port);
+    }
+    nw_endpoint_t endpoint = nw_endpoint_create_host(host.c_str(), to_string(port).c_str());
     if (!endpoint)
     {
         throw ConnectFailedException(__FILE__, __LINE__, 0);
@@ -74,7 +82,7 @@ IceInternal::NetworkFrameworkConnector::connect()
 
     try
     {
-        auto transceiver = make_shared<NetworkFrameworkTransceiver>(_instance, connection);
+        auto transceiver = make_shared<NetworkFrameworkTransceiver>(_instance, connection, false, _proxy, _addr);
         nw_release(connection); // The transceiver retains its own reference.
         return transceiver;
     }
@@ -185,18 +193,20 @@ IceInternal::NetworkFrameworkConnector::operator<(const Connector& r) const
 
 IceInternal::NetworkFrameworkConnector::NetworkFrameworkConnector(
     ProtocolInstancePtr instance,
-    const string& host,
-    int32_t port,
+    const Address& addr,
+    NetworkProxyPtr proxy,
     const Address& sourceAddr,
     int32_t timeout,
     string connectionId)
     : _instance(std::move(instance)),
-      _host(host),
-      _port(port),
+      _addr(addr),
+      _proxy(std::move(proxy)),
+      _port(0),
       _sourceAddr(sourceAddr),
       _timeout(timeout),
       _connectionId(std::move(connectionId))
 {
+    addrToAddressAndPort(_addr, _host, _port);
 }
 
 IceInternal::NetworkFrameworkConnector::~NetworkFrameworkConnector() = default;
