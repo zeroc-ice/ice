@@ -4303,8 +4303,13 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self) -> str:
-        return "system-images;android-36;google_apis;{}".format(
-            "arm64-v8a" if platform_machine() == "arm64" else "x86_64"
+        # The system image the harness creates its AVD from when neither --avd nor --device is given.
+        # ANDROID_PLATFORM names the SDK platform in sdkmanager's terms (android-36 for Android 16,
+        # android-37.0 for Android 17); CI's setup-android exports it per matrix row so the same
+        # harness runs the suite on more than one Android release.
+        sdkPlatform = os.environ.get("ANDROID_PLATFORM", "android-36")
+        return "system-images;{};google_apis;{}".format(
+            sdkPlatform, "arm64-v8a" if platform_machine() == "arm64" else "x86_64"
         )
 
     def getApk(self, current: Driver.Current) -> str:

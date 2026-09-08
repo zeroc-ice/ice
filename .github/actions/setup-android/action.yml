@@ -1,6 +1,14 @@
 name: Setup Android
 description: Setup Android SDK and Emulator
 
+inputs:
+  platform:
+    description: >
+      Android SDK platform whose google_apis system image the emulators boot, in sdkmanager's naming
+      (android-36 for Android 16, android-37.0 for Android 17). Exported as $ANDROID_PLATFORM for
+      setup-android-bt and the test harness, so one matrix value drives every emulator in the job.
+    default: "android-36"
+
 runs:
   using: "composite"
   steps:
@@ -14,21 +22,28 @@ runs:
 
     - name: Android SDK and PATH
       shell: bash
+      env:
+        PLATFORM: ${{ inputs.platform }}
       run: |
         echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
         echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
         # For some reason avdmanager is placing the avd into $HOME/.config/.android/avd instead of $HOME/.android/avd
         echo "ANDROID_AVD_HOME=$HOME/.config/.android" >> $GITHUB_ENV
+        # Read by the step below, by setup-android-bt (--bt-image) and by scripts/Util.py
+        # (JavaMapping.getSDKPackage), so every emulator in the job boots the same release.
+        echo "ANDROID_PLATFORM=$PLATFORM" >> $GITHUB_ENV
 
     - name: Configure Android SDK
       shell: bash
       run: |
         # platform-tools, build-tools, and platforms are pre-installed on GitHub runners
-        # We only need to install the system image for the emulator
+        # We only need to install the system image for the emulator, plus the emulator itself:
+        # API 37 images need emulator 36.6.11 or newer, which the runner's copy may predate.
+        # sdkmanager is a no-op for a package that is already current.
         if [ "$(uname -m)" = "aarch64" ]; then
           ARCH="arm64-v8a"
         else
           ARCH="x86_64"
         fi
-        sdkmanager "system-images;android-36;google_apis;$ARCH"
+        sdkmanager "emulator" "system-images;$ANDROID_PLATFORM;google_apis;$ARCH"
