@@ -396,6 +396,8 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
                     // Client certificate not required — do not request one.
                     sec_protocol_options_set_peer_authentication_required(secOptions, false);
                 }
+
+                nw_release(secOptions); // nw_tls_copy_sec_protocol_options returns a retained object.
             },
             NW_PARAMETERS_DEFAULT_CONFIGURATION);
     }
