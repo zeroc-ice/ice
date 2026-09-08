@@ -10,7 +10,6 @@ from typing import Any
 from Util import (
     Client,
     ClientServerTestCase,
-    Darwin,
     Driver,
     Mapping,
     Process,
@@ -18,7 +17,6 @@ from Util import (
     Props,
     Server,
     TestSuite,
-    platform,
 )
 
 # Regex pattern to match placeholders like {port1}, {port2}, ..., {portXX}
@@ -75,13 +73,12 @@ class Writer(Client, DataStormProcess):
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
             props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {port}"
-            # Need to use --interface 127.0.0.1 for the macOS GitHub runners.
-            if isinstance(platform, Darwin):
-                props["DataStorm.Node.Multicast.Proxy"] = (
-                    f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port} --interface 127.0.0.1"
-                )
-            else:
-                props["DataStorm.Node.Multicast.Proxy"] = f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port}"
+            # Send the announcements over the loopback interface. The tests run on 127.0.0.1, and without an explicit
+            # interface the announcements go out the host's default multicast interface, which isn't necessarily able
+            # to route the group. When that send fails the peers never discover each other and the test hangs.
+            props["DataStorm.Node.Multicast.Proxy"] = (
+                f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port} --interface 127.0.0.1"
+            )
         elif not any(key.startswith("DataStorm.Node.") for key in props):
             # Default properties for tests that don't specify any DataStorm.Node.* properties
             props.update(
@@ -107,13 +104,12 @@ class Reader(Server, DataStormProcess):
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
             props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {port}"
-            # Need to use --interface 127.0.0.1 for the macOS GitHub runners.
-            if isinstance(platform, Darwin):
-                props["DataStorm.Node.Multicast.Proxy"] = (
-                    f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port} --interface 127.0.0.1"
-                )
-            else:
-                props["DataStorm.Node.Multicast.Proxy"] = f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port}"
+            # Send the announcements over the loopback interface. The tests run on 127.0.0.1, and without an explicit
+            # interface the announcements go out the host's default multicast interface, which isn't necessarily able
+            # to route the group. When that send fails the peers never discover each other and the test hangs.
+            props["DataStorm.Node.Multicast.Proxy"] = (
+                f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port} --interface 127.0.0.1"
+            )
         elif not any(key.startswith("DataStorm.Node.") for key in props):
             # Default properties for tests that don't specify any DataStorm.Node.* properties
             props.update(
