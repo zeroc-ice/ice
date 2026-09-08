@@ -8,6 +8,7 @@
 #include "TestHelper.h"
 #include "TestI.h"
 
+#include <atomic>
 #include <memory>
 #include <string>
 
@@ -680,6 +681,77 @@ newSessionCallbacksAreInvoked(Test::TestHelper* helper, const string& certificat
 }
 
 void
+serverCertificateSelectionCallbackFailure(Test::TestHelper* helper, const string& certificatesPath)
+{
+    cout << "server certificate selection callback failure... " << flush;
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
+        certificatesPath + "/ca1/server.p12",
+        "",
+        getKeyChainPath(certificatesPath),
+        keychainPassword,
+        password);
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    try
+    {
+        // The callback runs per handshake, from a dispatch thread: an exception must fail the handshake, not
+        // the server.
+        atomic<bool> fail{true};
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
+            .serverCertificateSelectionCallback = [&fail, serverCertificateChain](const string&)
+            {
+                if (fail)
+                {
+                    throw Ice::SecurityException(__FILE__, __LINE__, "certificate reload failed");
+                }
+                CFRetain(serverCertificateChain);
+                return serverCertificateChain;
+            }};
+        Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+
+        {
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .trustedRootCertificates = trustedRootCertificates};
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
+            try
+            {
+                obj->ice_ping();
+                test(false);
+            }
+            catch (const Ice::ConnectionLostException&)
+            {
+                // Expected: the server has no certificate for the handshake.
+            }
+            catch (const Ice::SecurityException&)
+            {
+                // Also acceptable, depending on how the failed handshake is reported.
+            }
+        }
+
+        // The server is still running and serves connections once the callback provides the certificate.
+        fail = false;
+        {
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .trustedRootCertificates = trustedRootCertificates};
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
+            obj->ice_ping();
+        }
+    }
+    catch (...)
+    {
+        CFRelease(serverCertificateChain);
+        CFRelease(trustedRootCertificates);
+        throw;
+    }
+    CFRelease(serverCertificateChain);
+    CFRelease(trustedRootCertificates);
+    cout << "ok" << endl;
+}
+
+void
 serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server hot certificate reload... " << flush;
@@ -828,5 +900,6 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& defaultDir
     newSessionCallbacksAreInvoked(helper, certificatesPath);
 
     serverHotCertificateReload(helper, certificatesPath);
+    serverCertificateSelectionCallbackFailure(helper, certificatesPath);
 }
 #endif
