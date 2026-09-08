@@ -4406,12 +4406,21 @@ class CSharpMapping(Mapping):
     def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         env = {}
         if isinstance(platform, Windows):
+            # The C# tests load bzip2.dll from the ZeroC.Bzip2 NuGet package restored for the C++ build. Read the
+            # package version from the Ice C++ project's packages.config so that upgrading the package there is enough.
+            packagesConfig = os.path.join(
+                self.component.getSourceDir(), "cpp", "src", "Ice", "msbuild", "ice", "packages.config"
+            )
+            with open(packagesConfig, "r") as config:
+                m = re.search(r'id="ZeroC\.Bzip2" version="([^"]+)"', config.read())
+            if not m:
+                raise RuntimeError("couldn't find the ZeroC.Bzip2 package version in `{0}'".format(packagesConfig))
             env["PATH"] = os.path.join(
                 self.component.getSourceDir(),
                 "cpp",
                 "msbuild",
                 "packages",
-                "bzip2.{0}.1.0.6.10".format(platform.getPlatformToolset()),
+                "ZeroC.Bzip2.{0}".format(m.group(1)),
                 "build",
                 "native",
                 "bin",
