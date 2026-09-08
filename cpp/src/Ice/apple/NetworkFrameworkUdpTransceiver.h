@@ -74,15 +74,19 @@ namespace IceInternal
                 nw_connection_t source; // May be nullptr for multicast datagrams.
             };
             std::deque<Datagram> received;
-            // Bytes queued in received, capped at maxQueuedBytes (the receive buffer size): datagrams that don't
-            // fit are dropped, as a kernel socket buffer would drop them. Without a bound, a server that stops
-            // reading (for example a held adapter) would accumulate datagrams without limit.
+            // Memory retained by the datagrams in received, capped at maxQueuedBytes (the receive buffer size):
+            // datagrams that don't fit are dropped, as a kernel socket buffer would drop them. Without a bound, a
+            // server that stops reading (for example a held adapter) would accumulate datagrams without limit.
             size_t queuedBytes{0};
             size_t maxQueuedBytes{0};
+
+            // The memory retained by a queued datagram: the entry and the heap buffer of its payload.
+            static size_t datagramSize(const Datagram& datagram) { return sizeof(Datagram) + datagram.data.capacity(); }
             bool readWaiting{false};
             // Active peer connections
             std::vector<nw_connection_t> connections;
         };
+
     private:
         enum State
         {
@@ -96,10 +100,10 @@ namespace IceInternal
         const ProtocolInstancePtr _instance;
         NativeInfoPtr _nativeInfo;
 
-        nw_connection_t _connection;               // Client only
-        nw_listener_t _listener;                   // Server only (unicast)
-        SOCKET _mcastFd{INVALID_SOCKET};           // Server only (multicast) — BSD socket
-        dispatch_source_t _mcastReadSource;        // Server only (multicast) — dispatch source for read
+        nw_connection_t _connection;        // Client only
+        nw_listener_t _listener;            // Server only (unicast)
+        SOCKET _mcastFd{INVALID_SOCKET};    // Server only (multicast) — BSD socket
+        dispatch_source_t _mcastReadSource; // Server only (multicast) — dispatch source for read
         dispatch_queue_t _dispatchQueue;
 
         const bool _incoming;

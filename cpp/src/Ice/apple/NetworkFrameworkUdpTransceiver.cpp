@@ -66,8 +66,10 @@ namespace
                     return;
                 }
 
-                // Extract the datagram data.
+                // Extract the datagram data into a buffer of exactly its size: the queue accounting relies on the
+                // buffer capacity.
                 __block vector<byte> data;
+                data.reserve(dispatch_data_get_size(content));
                 dispatch_data_apply(content, ^bool(dispatch_data_t, size_t, const void* buffer, size_t size) {
                     auto* bytes = static_cast<const byte*>(buffer);
                     data.insert(data.end(), bytes, bytes + size);
@@ -76,12 +78,15 @@ namespace
 
                 // Queue the datagram, unless the receive buffer is full.
                 {
+                    using ServerState = NetworkFrameworkUdpTransceiver::ServerState;
+                    ServerState::Datagram datagram{std::move(data), connection};
+                    const size_t size = ServerState::datagramSize(datagram);
                     lock_guard lock(serverState->mutex);
-                    if (serverState->queuedBytes + data.size() <= serverState->maxQueuedBytes)
+                    if (serverState->queuedBytes + size <= serverState->maxQueuedBytes)
                     {
                         nw_retain(connection);
-                        serverState->queuedBytes += data.size();
-                        serverState->received.push_back({std::move(data), connection});
+                        serverState->queuedBytes += size;
+                        serverState->received.push_back(std::move(datagram));
                         if (serverState->readWaiting)
                         {
                             serverState->readWaiting = false;
@@ -469,25 +474,29 @@ IceInternal::NetworkFrameworkUdpTransceiver::bind()
         // the native info), and the socket is closed from the cancellation handler, which runs once the event
         // handler can no longer be invoked, as required by dispatch_source_set_cancel_handler.
         const SOCKET fd = _mcastFd;
-        const int maxPacketSize = _maxPacketSize;
+        // Datagrams are received into this reusable buffer and the accepted ones copied into a queue entry of
+        // exactly their size: queuing the receive buffer itself would retain its full capacity for each datagram.
+        auto buffer = make_shared<vector<byte>>(static_cast<size_t>(_maxPacketSize));
         dispatch_source_set_event_handler(_mcastReadSource, ^{
             // Read all available datagrams.
             while (true)
             {
-                vector<byte> data(static_cast<size_t>(maxPacketSize));
-                ssize_t ret = ::recvfrom(fd, data.data(), data.size(), 0, nullptr, nullptr);
+                ssize_t ret = ::recvfrom(fd, buffer->data(), buffer->size(), 0, nullptr, nullptr);
                 if (ret <= 0)
                 {
                     break;
                 }
-                data.resize(static_cast<size_t>(ret));
 
                 // Queue the datagram, unless the receive buffer is full.
+                ServerState::Datagram datagram{
+                    vector<byte>(buffer->begin(), buffer->begin() + ret),
+                    nullptr};
+                const size_t size = ServerState::datagramSize(datagram);
                 lock_guard lock(serverState->mutex);
-                if (serverState->queuedBytes + data.size() <= serverState->maxQueuedBytes)
+                if (serverState->queuedBytes + size <= serverState->maxQueuedBytes)
                 {
-                    serverState->queuedBytes += data.size();
-                    serverState->received.push_back({std::move(data), nullptr});
+                    serverState->queuedBytes += size;
+                    serverState->received.push_back(std::move(datagram));
                     if (serverState->readWaiting)
                     {
                         serverState->readWaiting = false;
@@ -852,7 +861,7 @@ IceInternal::NetworkFrameworkUdpTransceiver::finishRead(Buffer& buf)
 
         auto datagram = std::move(_serverState->received.front());
         _serverState->received.pop_front();
-        _serverState->queuedBytes -= datagram.data.size();
+        _serverState->queuedBytes -= ServerState::datagramSize(datagram);
 
         // Store the source peer for reply writes (may be nullptr for multicast).
         if (_currentPeer)
