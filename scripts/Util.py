@@ -3186,6 +3186,12 @@ class AndroidProcessController(RemoteProcessController):
             ]
         )
 
+    # Set once the harness's own emulator has failed to boot, so the tests that follow fail at once
+    # instead of each recreating the AVD and waiting out the boot timeout again: with --all that is
+    # 41 suites, and 41 boot attempts would outlast the job. Process-wide on purpose -- every test
+    # in the run shares the one image.
+    bootFailed = False
+
     def killEmulator(self) -> None:
         # Stop the emulator this controller started, falling back to killing the process when the
         # console command does not end it. Bounded: the caller is already on a failure path.
@@ -3307,6 +3313,7 @@ class AndroidProcessController(RemoteProcessController):
             print(f"emulator '{avd}' not booted after {bootTimeout}s; guest state:")
             print(self.systemHealth())
             self.killEmulator()
+            AndroidProcessController.bootFailed = True
             raise RuntimeError(f"emulator '{avd}' not booted after {bootTimeout}s")
 
     def startControllerApp(self, current: Driver.Current, ident: Any) -> None:
@@ -3315,6 +3322,8 @@ class AndroidProcessController(RemoteProcessController):
         if current.config.avd:
             self.startEmulator(current.config.avd)
         elif not current.config.device:
+            if AndroidProcessController.bootFailed:
+                raise RuntimeError("not retrying: the emulator failed to boot earlier in this run")
             # Create Android Virtual Device
             sdk = mapping.getSDKPackage()
             print("creating AVD ({0})".format(sdk))
