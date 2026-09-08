@@ -399,14 +399,7 @@ ConnectorPtr
 IceInternal::TcpEndpointI::createConnector(const Address& address, const NetworkProxyPtr& proxy) const
 {
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
-    //
-    // Network.framework handles connections directly — no need for NetworkProxy or source address
-    // at the connector level. Network.framework uses system proxy settings automatically.
-    //
-    string host;
-    int port;
-    addrToAddressAndPort(address, host, port);
-    return make_shared<NetworkFrameworkConnector>(_instance, host, port, _sourceAddr, _timeout, _connectionId);
+    return make_shared<NetworkFrameworkConnector>(_instance, address, proxy, _sourceAddr, _timeout, _connectionId);
 #else
     return make_shared<TcpConnector>(_instance, address, proxy, _sourceAddr, _timeout, _connectionId);
 #endif

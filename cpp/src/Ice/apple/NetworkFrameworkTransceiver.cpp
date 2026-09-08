@@ -9,6 +9,7 @@
 #    include "Ice/LocalExceptions.h"
 #    include "Ice/LoggerUtil.h"
 #    include "Ice/SSL/ConnectionInfo.h"
+#    include "../NetworkProxy.h"
 #    include "../ProtocolInstance.h"
 #    include "NetworkFrameworkTransceiver.h"
 
@@ -38,8 +39,12 @@ namespace
 IceInternal::NetworkFrameworkTransceiver::NetworkFrameworkTransceiver(
     ProtocolInstancePtr instance,
     nw_connection_t connection,
-    bool secure)
+    bool secure,
+    NetworkProxyPtr proxy,
+    const Address& addr)
     : _instance(std::move(instance)),
+      _proxy(std::move(proxy)),
+      _addr(addr),
       _nativeInfo(make_shared<NativeInfo>(INVALID_SOCKET)),
       _connection(connection),
       _state(StateNeedsConnect),
@@ -73,7 +78,7 @@ IceInternal::NetworkFrameworkTransceiver::getNativeInfo()
 }
 
 SocketOperation
-IceInternal::NetworkFrameworkTransceiver::initialize(Buffer&, Buffer&)
+IceInternal::NetworkFrameworkTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 {
     if (_state == StateNeedsConnect)
     {
@@ -191,39 +196,14 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer&, Buffer&)
             throw ConnectFailedException(__FILE__, __LINE__, 0);
         }
 
-        _state = StateConnected;
-
-        // Build a description from the connection path endpoints.
-        nw_path_t path = nw_connection_copy_current_path(_connection);
-        if (path)
-        {
-            nw_endpoint_t localEndpoint = nw_path_copy_effective_local_endpoint(path);
-            nw_endpoint_t remoteEndpoint = nw_path_copy_effective_remote_endpoint(path);
-            if (localEndpoint && remoteEndpoint)
-            {
-                _desc = "local address = " + nwEndpointToString(localEndpoint) +
-                        " remote address = " + nwEndpointToString(remoteEndpoint);
-            }
-            if (localEndpoint)
-            {
-                nw_release(localEndpoint);
-            }
-            if (remoteEndpoint)
-            {
-                nw_release(remoteEndpoint);
-            }
-            nw_release(path);
-        }
-        if (_desc.empty())
-        {
-            _desc = "<nw connection>";
-        }
+        _state = (_proxy && !_secure) ? StateProxyWrite : StateConnected;
+        _desc = describe();
 
         if (_secure && _peerVerifier)
         {
             // TLS validated the certificate the peer presented, if any. When the peer presented none (for example a
             // server that does not require client certificates), the engine's trust rules still have to run; they
-            // reject the connection by throwing.
+            // reject the connection by throwing. Secure connections never use the in-band proxy handshake below.
             auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(getInfo(_incoming, _adapterName, ""));
             assert(info);
             if (!info->peerCertificate)
@@ -231,10 +211,37 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer&, Buffer&)
                 _peerVerifier(info);
             }
         }
-
-        return SocketOperationNone;
     }
 
+    //
+    // Proxy handshake, driven by the connection's read and write buffers like StreamSocket::connect: the connection
+    // request is written, the response read (finishWrite/finishRead advance the state), and the proxy finally
+    // consumes any extra data before Ice starts using the connection.
+    //
+    if (_state == StateProxyWrite)
+    {
+        _proxy->beginWrite(_addr, writeBuffer);
+        return SocketOperationWrite;
+    }
+    else if (_state == StateProxyRead)
+    {
+        _proxy->beginRead(readBuffer);
+        return SocketOperationRead;
+    }
+    else if (_state == StateProxyConnected)
+    {
+        _proxy->finish(readBuffer, writeBuffer);
+
+        readBuffer.b.clear();
+        readBuffer.i = readBuffer.b.end();
+
+        writeBuffer.b.clear();
+        writeBuffer.i = writeBuffer.b.end();
+
+        _state = StateConnected;
+    }
+
+    assert(_state == StateConnected);
     return SocketOperationNone;
 }
 
@@ -296,7 +303,7 @@ IceInternal::NetworkFrameworkTransceiver::startWrite(Buffer& buf)
         return false;
     }
 
-    assert(_state == StateConnected);
+    assert(_state == StateProxyWrite || _state == StateConnected);
 
     assert(buf.b.end() - buf.i > 0);
     size_t length = static_cast<size_t>(buf.b.end() - buf.i);
@@ -341,7 +348,7 @@ IceInternal::NetworkFrameworkTransceiver::startWrite(Buffer& buf)
 void
 IceInternal::NetworkFrameworkTransceiver::finishWrite(Buffer& buf)
 {
-    if (_state < StateConnected)
+    if (_state < StateProxyWrite)
     {
         return;
     }
@@ -354,12 +361,17 @@ IceInternal::NetworkFrameworkTransceiver::finishWrite(Buffer& buf)
     }
 
     buf.i += _writeState->count;
+
+    if (_state == StateProxyWrite)
+    {
+        _state = toState(_proxy->endWrite(buf));
+    }
 }
 
 void
 IceInternal::NetworkFrameworkTransceiver::startRead(Buffer& buf)
 {
-    assert(_state == StateConnected);
+    assert(_state == StateProxyRead || _state == StateConnected);
     assert(buf.b.end() - buf.i > 0);
     size_t length = static_cast<size_t>(buf.b.end() - buf.i);
 
@@ -422,6 +434,11 @@ IceInternal::NetworkFrameworkTransceiver::finishRead(Buffer& buf)
 
     memcpy(&*buf.i, _readState->data.data(), count);
     buf.i += count;
+
+    if (_state == StateProxyRead)
+    {
+        _state = toState(_proxy->endRead(buf));
+    }
 }
 
 string
@@ -470,6 +487,14 @@ IceInternal::NetworkFrameworkTransceiver::getInfo(bool incoming, string adapterN
             nw_release(remoteEndpoint);
         }
         nw_release(path);
+    }
+
+    if (_proxy)
+    {
+        // Like the socket transports, report the proxy as the remote peer: it is the peer of the transport
+        // connection. For secure connections Network.framework reports the destination as the effective remote
+        // endpoint even though the connection goes through the proxy.
+        addrToAddressAndPort(_proxy->getAddress(), remoteAddress, remotePort);
     }
 
     auto tcpInfo = make_shared<TCPConnectionInfo>(
@@ -523,6 +548,59 @@ IceInternal::NetworkFrameworkTransceiver::getInfo(bool incoming, string adapterN
 void
 IceInternal::NetworkFrameworkTransceiver::checkSendSize(const Buffer&)
 {
+}
+
+string
+IceInternal::NetworkFrameworkTransceiver::describe() const
+{
+    // Same format as fdToString for the BSD socket transports: with a proxy, the effective remote endpoint is
+    // the proxy and the destination address is listed separately.
+    string localAddress = "<not available>";
+    string remoteAddress = "<not available>";
+    nw_path_t path = nw_connection_copy_current_path(_connection);
+    if (path)
+    {
+        nw_endpoint_t localEndpoint = nw_path_copy_effective_local_endpoint(path);
+        if (localEndpoint)
+        {
+            localAddress = nwEndpointToString(localEndpoint);
+            nw_release(localEndpoint);
+        }
+        nw_endpoint_t remoteEndpoint = nw_path_copy_effective_remote_endpoint(path);
+        if (remoteEndpoint)
+        {
+            remoteAddress = nwEndpointToString(remoteEndpoint);
+            nw_release(remoteEndpoint);
+        }
+        nw_release(path);
+    }
+
+    ostringstream os;
+    os << "local address = " << localAddress;
+    if (_proxy)
+    {
+        os << "\n" << _proxy->getName() << " proxy address = " << addrToString(_proxy->getAddress());
+        os << "\nremote address = " << addrToString(_addr);
+    }
+    else
+    {
+        os << " remote address = " << remoteAddress;
+    }
+    return os.str();
+}
+
+IceInternal::NetworkFrameworkTransceiver::State
+IceInternal::NetworkFrameworkTransceiver::toState(SocketOperation operation)
+{
+    switch (operation)
+    {
+        case SocketOperationRead:
+            return StateProxyRead;
+        case SocketOperationWrite:
+            return StateProxyWrite;
+        default:
+            return StateProxyConnected;
+    }
 }
 
 void

@@ -11,6 +11,7 @@
 #    include "SchannelTransceiverI.h"
 using namespace Ice::SSL::Schannel;
 #elif defined(ICE_USE_APPLE_SSL)
+#    include "../NetworkProxy.h"
 #    include "../apple/NetworkFrameworkConnector.h"
 #    include "../apple/NetworkFrameworkTransceiver.h"
 #    include "Ice/Connection.h"
@@ -230,6 +231,41 @@ Ice::SSL::ConnectorI::connect()
         throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
     }
 
+    // Ice performs the SOCKS or HTTP CONNECT proxy handshake in-band on plain TCP connections, before it starts
+    // using the connection. This is not possible with a Network.framework TLS connection, whose handshake starts as
+    // soon as the transport connection is established. Use Network.framework's own proxy support instead; its SOCKS
+    // client also interoperates with the SOCKS4 proxy of the Ice test suite.
+    if (const IceInternal::NetworkProxyPtr& proxy = nfConnector->proxy())
+    {
+        if (__builtin_available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *))
+        {
+            string proxyHost;
+            int proxyPort;
+            IceInternal::addrToAddressAndPort(proxy->getAddress(), proxyHost, proxyPort);
+            nw_endpoint_t proxyEndpoint = nw_endpoint_create_host(proxyHost.c_str(), to_string(proxyPort).c_str());
+            nw_proxy_config_t proxyConfig = proxy->getName() == "HTTP"
+                                                ? nw_proxy_config_create_http_connect(proxyEndpoint, nullptr)
+                                                : nw_proxy_config_create_socksv5(proxyEndpoint);
+            nw_release(proxyEndpoint);
+            // The proxy is explicitly configured: never fall back to a direct connection when it cannot be used.
+            nw_proxy_config_set_failover_allowed(proxyConfig, false);
+            nw_privacy_context_t privacyContext = nw_privacy_context_create("com.zeroc.ice.ssl-proxy");
+            nw_privacy_context_add_proxy(privacyContext, proxyConfig);
+            nw_parameters_set_privacy_context(parameters, privacyContext);
+            nw_release(privacyContext);
+            nw_release(proxyConfig);
+        }
+        else
+        {
+            nw_release(parameters);
+            nw_release(endpoint);
+            throw Ice::FeatureNotSupportedException(
+                __FILE__,
+                __LINE__,
+                "SSL connections through a network proxy require macOS 14 or iOS 17");
+        }
+    }
+
     // Bind the connection to the source address configured on the endpoint (--sourceAddress), if any.
     const IceInternal::Address& sourceAddr = nfConnector->sourceAddress();
     if (IceInternal::isAddressValid(sourceAddr))
@@ -258,7 +294,11 @@ Ice::SSL::ConnectorI::connect()
     {
         IceInternal::ProtocolInstancePtr protocolInstance = _instance;
         auto transceiver = make_shared<IceInternal::NetworkFrameworkTransceiver>(
-            protocolInstance, connection, true /* secure */);
+            protocolInstance,
+            connection,
+            true /* secure */,
+            nfConnector->proxy(),
+            nfConnector->address());
         transceiver->setLocalVerifyRejected(localVerifyRejected);
         SSLEnginePtr engine = _instance->engine();
         transceiver->setPeerVerifier(

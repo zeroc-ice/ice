@@ -4,6 +4,7 @@
 #define ICE_NETWORK_FRAMEWORK_TRANSCEIVER_H
 
 #include "../Network.h"
+#include "../NetworkProxyF.h"
 #include "../ProtocolInstanceF.h"
 #include "../Transceiver.h"
 #include "Ice/SSL/ConnectionInfoF.h"
@@ -48,7 +49,16 @@ namespace IceInternal
     class NetworkFrameworkTransceiver final : public Transceiver
     {
     public:
-        NetworkFrameworkTransceiver(ProtocolInstancePtr, nw_connection_t, bool secure = false);
+        // With a network proxy, the connection is established with the proxy and, for plain TCP connections, the
+        // transceiver performs the proxy handshake for the destination address (addr) during initialize(). For
+        // secure connections Network.framework performs the proxy handshake itself; the proxy is only used to
+        // describe the connection.
+        NetworkFrameworkTransceiver(
+            ProtocolInstancePtr,
+            nw_connection_t,
+            bool secure = false,
+            NetworkProxyPtr proxy = nullptr,
+            const Address& addr = Address());
         ~NetworkFrameworkTransceiver();
 
         NativeInfoPtr getNativeInfo() final;
@@ -95,10 +105,18 @@ namespace IceInternal
         {
             StateNeedsConnect,
             StateConnectPending,
+            StateProxyWrite,     // Sending the proxy connection request.
+            StateProxyRead,      // Reading the proxy response.
+            StateProxyConnected, // The proxy accepted the request.
             StateConnected
         };
 
+        [[nodiscard]] std::string describe() const;
+        [[nodiscard]] static State toState(SocketOperation);
+
         const ProtocolInstancePtr _instance;
+        const NetworkProxyPtr _proxy;
+        const Address _addr; // The destination address, only used with a network proxy.
         NativeInfoPtr _nativeInfo;
 
         nw_connection_t _connection;
