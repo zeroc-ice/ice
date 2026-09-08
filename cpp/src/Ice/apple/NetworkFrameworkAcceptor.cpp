@@ -290,6 +290,7 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
         auto authOptions = *serverAuthenticationOptions;
         // The blocks below outlive this constructor: capture a copy of the adapter name, not the reference.
         const string name = adapterName;
+        const Ice::LoggerPtr logger = instance->logger();
         parameters = nw_parameters_create_secure_tcp(
             ^(nw_protocol_options_t tlsOptions) {
                 sec_protocol_options_t secOptions = nw_tls_copy_sec_protocol_options(tlsOptions);
@@ -306,7 +307,25 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
                     sec_protocol_options_set_challenge_block(
                         secOptions,
                         ^(sec_protocol_metadata_t, sec_protocol_challenge_complete_t complete) {
-                            sec_identity_t secIdentity = createIdentity(certCallback(name));
+                            // The block runs on a dispatch thread, where an escaping exception terminates the
+                            // process. A failing certificate selection (for example a reload that cannot read
+                            // the new certificate) fails this handshake instead.
+                            sec_identity_t secIdentity = nullptr;
+                            try
+                            {
+                                secIdentity = createIdentity(certCallback(name));
+                            }
+                            catch (const std::exception& ex)
+                            {
+                                Ice::Warning out(logger);
+                                out << "SSL transport: the server certificate selection callback failed:\n"
+                                    << ex.what();
+                            }
+                            catch (...)
+                            {
+                                Ice::Warning out(logger);
+                                out << "SSL transport: the server certificate selection callback failed";
+                            }
                             complete(secIdentity);
                             if (secIdentity)
                             {
