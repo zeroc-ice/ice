@@ -752,6 +752,105 @@ serverCertificateSelectionCallbackFailure(Test::TestHelper* helper, const string
 }
 
 void
+certificateSelectionCallbackReturnsCertificateOnly(Test::TestHelper* helper, const string& certificatesPath)
+{
+    cout << "certificate selection callback returning a certificate instead of an identity... " << flush;
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
+        certificatesPath + "/ca1/server.p12",
+        "",
+        getKeyChainPath(certificatesPath),
+        keychainPassword,
+        password);
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    // A chain without an identity: certificates only, as SecItemImport returns for a certificate whose key is
+    // already in the keychain. It must be rejected, never passed to Network.framework as the identity.
+    CFArrayRef certificateOnlyChain = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    test(CFGetTypeID(CFArrayGetValueAtIndex(certificateOnlyChain, 0)) == SecCertificateGetTypeID());
+    try
+    {
+        // Server side: the handshake fails and the server keeps running.
+        atomic<bool> certificateOnly{true};
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
+            .serverCertificateSelectionCallback =
+                [&certificateOnly, serverCertificateChain, certificateOnlyChain](const string&)
+            {
+                CFArrayRef chain = certificateOnly ? certificateOnlyChain : serverCertificateChain;
+                CFRetain(chain);
+                return chain;
+            }};
+        Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+
+        {
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .trustedRootCertificates = trustedRootCertificates};
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
+            try
+            {
+                obj->ice_ping();
+                test(false);
+            }
+            catch (const Ice::ConnectionLostException&)
+            {
+                // Expected: the server has no identity for the handshake.
+            }
+            catch (const Ice::SecurityException&)
+            {
+                // Also acceptable, depending on how the failed handshake is reported.
+            }
+        }
+
+        certificateOnly = false;
+
+        // Client side: the connection fails with SecurityException.
+        {
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .clientCertificateSelectionCallback =
+                    [certificateOnlyChain](const string&)
+                {
+                    CFRetain(certificateOnlyChain);
+                    return certificateOnlyChain;
+                },
+                .trustedRootCertificates = trustedRootCertificates};
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
+            try
+            {
+                obj->ice_ping();
+                test(false);
+            }
+            catch (const Ice::SecurityException&)
+            {
+                // Expected
+            }
+        }
+
+        // The server serves connections once its callback returns an identity.
+        {
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .trustedRootCertificates = trustedRootCertificates};
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
+            obj->ice_ping();
+        }
+    }
+    catch (...)
+    {
+        CFRelease(serverCertificateChain);
+        CFRelease(trustedRootCertificates);
+        CFRelease(certificateOnlyChain);
+        throw;
+    }
+    CFRelease(serverCertificateChain);
+    CFRelease(trustedRootCertificates);
+    CFRelease(certificateOnlyChain);
+    cout << "ok" << endl;
+}
+
+void
 serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server hot certificate reload... " << flush;
@@ -901,5 +1000,6 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& defaultDir
 
     serverHotCertificateReload(helper, certificatesPath);
     serverCertificateSelectionCallbackFailure(helper, certificatesPath);
+    certificateSelectionCallbackReturnsCertificateOnly(helper, certificatesPath);
 }
 #endif

@@ -564,6 +564,68 @@ namespace
         return identity.release();
     }
 
+    //
+    // SecItemImport returns the imported items as a heterogeneous array, and when the certificate and its private
+    // key are already in the keychain it can return only the certificates, without a SecIdentityRef. Returns the
+    // chain the SSL transport expects, the identity followed by the other certificates, resolving the identity
+    // from the keychain when the import did not return one.
+    //
+    CFArrayRef createIdentityChain(CFArrayRef items, SecKeychainRef keychain, const string& file)
+    {
+        UniqueRef<SecIdentityRef> identity;
+        UniqueRef<CFMutableArrayRef> certificates(
+            CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
+        CFIndex count = CFArrayGetCount(items);
+        for (CFIndex i = 0; i < count; ++i)
+        {
+            CFTypeRef item = CFArrayGetValueAtIndex(items, i);
+            if (!identity && CFGetTypeID(item) == SecIdentityGetTypeID())
+            {
+                identity.retain(static_cast<SecIdentityRef>(const_cast<void*>(item)));
+            }
+            else if (CFGetTypeID(item) == SecCertificateGetTypeID())
+            {
+                CFArrayAppendValue(certificates.get(), item);
+            }
+            // Keys and other items are not part of the chain.
+        }
+
+        if (!identity)
+        {
+            // The identity is the certificate whose private key is in the keychain.
+            OSStatus err = errSecItemNotFound;
+            for (CFIndex i = 0; i < CFArrayGetCount(certificates.get()); ++i)
+            {
+                auto cert = static_cast<SecCertificateRef>(
+                    const_cast<void*>(CFArrayGetValueAtIndex(certificates.get(), i)));
+                err = SecIdentityCreateWithCertificate(keychain, cert, &identity.get());
+                if (err == noErr && identity)
+                {
+                    CFArrayRemoveValueAtIndex(certificates.get(), i);
+                    break;
+                }
+                identity.reset();
+            }
+
+            if (!identity)
+            {
+                ostringstream os;
+                os << "SSL transport: could not find the identity for the certificate in '" << file
+                   << "': the keychain has no private key for it";
+                if (err != noErr && err != errSecItemNotFound)
+                {
+                    os << ":\n" << sslErrorToString(err);
+                }
+                throw CertificateReadException(__FILE__, __LINE__, os.str());
+            }
+        }
+
+        UniqueRef<CFMutableArrayRef> chain(CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
+        CFArrayAppendValue(chain.get(), identity.get());
+        CFArrayAppendArray(chain.get(), certificates.get(), CFRangeMake(0, CFArrayGetCount(certificates.get())));
+        return chain.release();
+    }
+
 } // anonymous namespace end
 
 #else
@@ -712,7 +774,8 @@ Ice::SSL::Apple::loadCertificateChain(
     UniqueRef<SecKeychainRef> keychain(openKeychain(keychainPath, keychainPassword));
     if (keyFile.empty())
     {
-        chain.reset(loadKeychainItems(file, kSecItemTypeUnknown, keychain.get(), password));
+        UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeUnknown, keychain.get(), password));
+        chain.reset(createIdentityChain(items.get(), keychain.get(), file));
     }
     else
     {

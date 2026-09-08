@@ -60,6 +60,11 @@ Ice::SSL::ConnectorI::connect()
     // from "the peer rejected us" (ConnectionLostException).
     auto localVerifyRejected = make_shared<atomic<bool>>(false);
 
+    // Set by the configure block when the certificate selection callback returns a chain whose first element is
+    // not an identity. nw_parameters_create_secure_tcp invokes the block synchronously, so the flag is checked
+    // once it returns.
+    __block bool invalidChain = false;
+
     nw_parameters_t parameters = nw_parameters_create_secure_tcp(
         ^(nw_protocol_options_t tlsOptions) {
             sec_protocol_options_t secOptions = nw_tls_copy_sec_protocol_options(tlsOptions);
@@ -74,7 +79,15 @@ Ice::SSL::ConnectorI::connect()
             if (authOptions.clientCertificateSelectionCallback)
             {
                 CFArrayRef certs = authOptions.clientCertificateSelectionCallback(host);
-                if (certs && CFArrayGetCount(certs) > 0)
+                if (certs && CFArrayGetCount(certs) > 0 &&
+                    CFGetTypeID(CFArrayGetValueAtIndex(certs, 0)) != SecIdentityGetTypeID())
+                {
+                    // Passing a certificate as the identity crashes Network.framework when it looks up the
+                    // private key.
+                    invalidChain = true;
+                    CFRelease(certs);
+                }
+                else if (certs && CFArrayGetCount(certs) > 0)
                 {
                     SecIdentityRef identity = (SecIdentityRef)CFArrayGetValueAtIndex(certs, 0);
                     sec_identity_t secIdentity = nullptr;
@@ -229,6 +242,17 @@ Ice::SSL::ConnectorI::connect()
     {
         nw_release(endpoint);
         throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
+    }
+
+    if (invalidChain)
+    {
+        nw_release(parameters);
+        nw_release(endpoint);
+        throw Ice::SecurityException(
+            __FILE__,
+            __LINE__,
+            "SSL transport: the client certificate selection callback returned a certificate chain whose first "
+            "element is not an identity (SecIdentityRef)");
     }
 
     // Ice performs the SOCKS or HTTP CONNECT proxy handshake in-band on plain TCP connections, before it starts

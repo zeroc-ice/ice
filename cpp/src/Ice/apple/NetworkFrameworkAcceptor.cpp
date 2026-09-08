@@ -27,7 +27,8 @@ namespace
     // Creates the sec_identity_t for a certificate chain returned by a certificate selection callback: the
     // identity is the first element, followed by the intermediate certificates Network.framework sends during
     // the TLS handshake so that clients can verify chains with intermediate CAs. Returns null when the chain is
-    // empty. The chain is released.
+    // empty and throws when its first element is not an identity: passing a certificate as the identity crashes
+    // Network.framework when it looks up the private key. The chain is released.
     sec_identity_t createIdentity(CFArrayRef certs)
     {
         if (!certs)
@@ -39,6 +40,15 @@ namespace
         CFIndex count = CFArrayGetCount(certs);
         if (count > 0)
         {
+            if (CFGetTypeID(CFArrayGetValueAtIndex(certs, 0)) != SecIdentityGetTypeID())
+            {
+                CFRelease(certs);
+                throw Ice::SecurityException(
+                    __FILE__,
+                    __LINE__,
+                    "SSL transport: the server certificate selection callback returned a certificate chain whose "
+                    "first element is not an identity (SecIdentityRef)");
+            }
             SecIdentityRef identity = (SecIdentityRef)CFArrayGetValueAtIndex(certs, 0);
             if (count > 1)
             {
