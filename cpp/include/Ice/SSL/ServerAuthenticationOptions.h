@@ -132,6 +132,11 @@ namespace Ice::SSL
         /// A callback invoked before initiating a new SSL handshake, providing an opportunity to customize the SSL
         /// parameters for the session based on specific server settings or requirements.
         ///
+        /// Ice invokes this callback after it configured the local identity and the client certificate
+        /// verification on `secOptions`, so the settings applied by the callback take precedence over the Ice
+        /// defaults. Network.framework configures TLS when the object adapter creates its listener, so the callback
+        /// is invoked once per listening endpoint rather than once per accepted connection.
+        ///
         /// @param secOptions The `sec_protocol_options_t` object for the new TLS session.
         /// @param adapterName The name of the object adapter that accepted the connection.
         ///

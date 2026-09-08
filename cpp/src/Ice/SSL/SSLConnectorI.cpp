@@ -213,6 +213,13 @@ Ice::SSL::ConnectorI::connect()
                 },
                 verifyQueue);
 
+            // Invoke the application's callback last so that the settings it applies take precedence over the
+            // configuration above.
+            if (authOptions.sslNewSessionCallback)
+            {
+                authOptions.sslNewSessionCallback(secOptions, host);
+            }
+
             nw_release(secOptions); // nw_tls_copy_sec_protocol_options returns a retained object.
         },
         NW_PARAMETERS_DEFAULT_CONFIGURATION);

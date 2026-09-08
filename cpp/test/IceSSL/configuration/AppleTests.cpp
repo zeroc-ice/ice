@@ -619,6 +619,67 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
 }
 
 void
+newSessionCallbacksAreInvoked(Test::TestHelper* helper, const string& certificatesPath)
+{
+    cout << "client and server new session callbacks are invoked... " << flush;
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
+        certificatesPath + "/ca1/server.p12",
+        "",
+        getKeyChainPath(certificatesPath),
+        keychainPassword,
+        password);
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    try
+    {
+        int serverCalls = 0;
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
+            .serverCertificateSelectionCallback =
+                [serverCertificateChain](const string&)
+            {
+                CFRetain(serverCertificateChain);
+                return serverCertificateChain;
+            },
+            .sslNewSessionCallback =
+                [&serverCalls](sec_protocol_options_t secOptions, const string& adapterName)
+            {
+                test(secOptions);
+                test(adapterName == "ServerAdapter");
+                sec_protocol_options_set_min_tls_protocol_version(secOptions, tls_protocol_version_TLSv12);
+                ++serverCalls;
+            }};
+        Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+
+        int clientCalls = 0;
+        Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+            .sslNewSessionCallback =
+                [&clientCalls](sec_protocol_options_t secOptions, const string&)
+            {
+                test(secOptions);
+                sec_protocol_options_set_min_tls_protocol_version(secOptions, tls_protocol_version_TLSv12);
+                ++clientCalls;
+            },
+            .trustedRootCertificates = trustedRootCertificates};
+        Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+        ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
+        obj->ice_ping();
+
+        // The server callback runs when the listener is created, the client callback once per connection.
+        test(serverCalls == 1);
+        test(clientCalls == 1);
+    }
+    catch (...)
+    {
+        CFRelease(serverCertificateChain);
+        CFRelease(trustedRootCertificates);
+        throw;
+    }
+    CFRelease(serverCertificateChain);
+    CFRelease(trustedRootCertificates);
+    cout << "ok" << endl;
+}
+
+void
 serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server hot certificate reload... " << flush;
@@ -763,6 +824,8 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& defaultDir
     serverRejectsClientSettingTrustedRootCertificates(helper, certificatesPath);
     serverRejectsClientUsingDefaultTrustedRootCertificates(helper, certificatesPath);
     serverRejectsClientUsingValidationCallback(helper, certificatesPath);
+
+    newSessionCallbacksAreInvoked(helper, certificatesPath);
 
     // TODO: Network.framework configures TLS at the protocol level when the listener is created, so the server identity
     // is fixed for the listener's lifetime. Hot certificate reload would require recreating the listener.
