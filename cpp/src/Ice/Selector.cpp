@@ -780,12 +780,11 @@ Selector::updateSelectorForEventHandler(
 // dispatch blocks call completed() to post completions to the queue.
 //
 
-Selector::Selector(const InstancePtr& instance) : _instance(instance), _queue(nullptr), _semaphore(nullptr) {}
+Selector::Selector(const InstancePtr& instance) : _instance(instance), _semaphore(nullptr) {}
 
 void
 Selector::setup(int)
 {
-    _queue = dispatch_queue_create("com.zeroc.ice.network-framework", DISPATCH_QUEUE_CONCURRENT);
     _semaphore = dispatch_semaphore_create(0);
     _completionToken = make_shared<SelectorCompletionToken>();
 }
@@ -801,11 +800,6 @@ Selector::destroy()
         _completionToken->valid = false;
     }
 
-    if (_queue)
-    {
-        dispatch_release(_queue);
-        _queue = nullptr;
-    }
     if (_semaphore)
     {
         dispatch_release(_semaphore);

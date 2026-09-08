@@ -141,7 +141,6 @@ namespace IceInternal
 
     private:
         const InstancePtr _instance;
-        dispatch_queue_t _queue;
         dispatch_semaphore_t _semaphore;
 
         struct CompletionEntry
