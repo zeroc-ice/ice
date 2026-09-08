@@ -3279,7 +3279,13 @@ class AndroidProcessController(RemoteProcessController):
         # The Bluetooth harness boots the same image in under two minutes on SwiftShader (see
         # bluetoothEmulatorFlags); swiftshader is the non-deprecated name for that backend and
         # covers both GLES and Vulkan.
-        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu swiftshader -accel on -no-boot-anim -no-window".format(
+        #
+        # -partition-size 2048, matching bluetoothEmulatorFlags as well: with SwiftShader selected
+        # the API 37 image still did not boot here, and the data partition was the last difference
+        # from the Bluetooth emulators that do boot it (besides -writable-system and the Netsim
+        # endpoint). A first boot writes APEX and dexopt output into /data, Android Studio's default
+        # for this image family is 6 GB, and 768 MB was a plausible place for it to stall.
+        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 2048 -no-snapshot -gpu swiftshader -accel on -no-boot-anim -no-window".format(
             avd, port
         )
 
