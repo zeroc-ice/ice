@@ -60,6 +60,7 @@ let package = Package(
                 "IceLocatorDiscoveryCpp",
             ],
             path: "swift/src/IceImpl",
+            exclude: ["Convert.h", "LoggerWrapperI.h"],
             linkerSettings: [
                 .linkedLibrary("bz2"),
                 .linkedFramework("ExternalAccessory"),
