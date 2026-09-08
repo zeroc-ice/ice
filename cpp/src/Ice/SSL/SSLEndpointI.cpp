@@ -2,6 +2,9 @@
 
 #include "SSLEndpointI.h"
 #include "../TargetCompare.h"
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include "../TcpEndpointI.h"
+#endif
 #include "SSLAcceptorI.h"
 #include "SSLConnectorI.h"
 #include "SSLEngine.h"
@@ -229,10 +232,12 @@ Ice::SSL::EndpointI::acceptor(
     {
         authOptions = _instance->engine()->createServerAuthenticationOptions();
     }
+    auto tcpEndpoint = dynamic_pointer_cast<IceInternal::TcpEndpointI>(_delegate);
+    assert(tcpEndpoint);
     return make_shared<AcceptorI>(
         const_cast<EndpointI*>(this)->shared_from_this(),
         _instance,
-        _delegate->acceptor(adapterName, authOptions),
+        tcpEndpoint->secureAcceptor(adapterName, *authOptions),
         adapterName,
         authOptions);
 #else
