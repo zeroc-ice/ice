@@ -1168,8 +1168,8 @@ readWriteTests(
 
     ctl->resumeAdapter();
 
-    (void)fs1.get();
-    (void)fs2.get();
+    fs1.wait();
+    fs2.wait();
 
     fc1.get();
     fc2.get();

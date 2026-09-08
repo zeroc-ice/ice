@@ -1037,7 +1037,7 @@ allTests(Test::TestHelper* helper)
                 test(r2.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
                 session1->releaseObject(allocatable3);
-                (void)r2.get();
+                [[maybe_unused]] auto _ = r2.get();
                 session2->releaseObject(allocatable4);
 
                 serverAllocUpdate->allocatable = true;
@@ -1052,7 +1052,7 @@ allTests(Test::TestHelper* helper)
                 admin->updateApplication(appUpdate);
 
                 session1->releaseObject(allocatable);
-                (void)r2.get();
+                [[maybe_unused]] auto _ = r2.get();
                 session2->releaseObject(allocatable);
             }
 
@@ -1066,7 +1066,7 @@ allTests(Test::TestHelper* helper)
 
                 try
                 {
-                    (void)r2.get();
+                    [[maybe_unused]] auto _ = r2.get();
                     test(false);
                 }
                 catch (const ObjectNotRegisteredException&)

@@ -859,37 +859,37 @@ allTests(Test::TestHelper* helper)
     {
         promise<bool> sent;
         thrower->throwAasAAsync(1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
-        (void)sent.get_future().get(); // Wait for sent
+        sent.get_future().wait();
     }
 
     {
         promise<bool> sent;
         thrower->throwAorDasAorDAsync(1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
-        (void)sent.get_future().get(); // Wait for sent
+        sent.get_future().wait();
     }
 
     {
         promise<bool> sent;
         thrower->throwAorDasAorDAsync(-1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
-        (void)sent.get_future().get(); // Wait for sent
+        sent.get_future().wait();
     }
 
     {
         promise<bool> sent;
         thrower->throwBasBAsync(1, 2, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
-        (void)sent.get_future().get(); // Wait for sent
+        sent.get_future().wait();
     }
 
     {
         promise<bool> sent;
         thrower->throwCasCAsync(1, 2, 3, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
-        (void)sent.get_future().get(); // Wait for sent
+        sent.get_future().wait();
     }
 
     {
         promise<bool> sent;
         thrower->throwModAAsync(1, 2, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
-        (void)sent.get_future().get(); // Wait for sent
+        sent.get_future().wait();
     }
     cout << "ok" << endl;
 

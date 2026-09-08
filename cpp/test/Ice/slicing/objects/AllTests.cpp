@@ -830,7 +830,7 @@ allTests(Test::TestHelper* helper)
         auto f = testPrx->SBSUnknownDerivedAsSBaseCompactAsync();
         try
         {
-            (void)f.get();
+            [[maybe_unused]] auto _ = f.get();
             test(false);
         }
         catch (const Ice::MarshalException&)
@@ -858,7 +858,7 @@ allTests(Test::TestHelper* helper)
                 auto f = testPrx->SUnknownAsObjectAsync();
                 try
                 {
-                    (void)f.get();
+                    [[maybe_unused]] auto _ = f.get();
                     test(false);
                 }
                 catch (const Ice::MarshalException&)
