@@ -23,7 +23,11 @@ Once installed, you can start the IceBox server with:
 dotnet iceboxnet --Ice.Config=icebox.config
 ```
 
+To use protocol compression, the native bzip2 library must be loadable by the `dotnet` process; see the
+[ZeroC.Ice package README][ZeroC.Ice] for details.
+
 [docs]:https://docs.zeroc.com/ice/3.8/csharp/
+[ZeroC.Ice]: https://www.nuget.org/packages/ZeroC.Ice
 [examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/csharp
 [package]: https://www.nuget.org/packages/iceboxnet
 [IceBox services]: https://www.nuget.org/packages/ZeroC.IceBox

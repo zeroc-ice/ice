@@ -82,7 +82,20 @@ internal class Chatbot : GreeterDisp_
 }
 ```
 
+## Protocol Compression
+
+Ice for C# implements protocol compression with the native bzip2 library: `bzip2.dll` on Windows, `libbz2.so.1` on
+Linux, and `libbz2.dylib` on macOS. Ice loads this library dynamically at run time, so it must be next to your
+application or in a directory on the system library path (`PATH` on Windows). The ZeroC.Ice package does not bundle
+it. When Ice cannot load it, Ice sends all messages uncompressed and throws an exception when it receives a compressed
+message.
+
+Linux distributions and macOS provide this library. On Windows, `bzip2.dll` is available from the
+[ZeroC.Bzip2 NuGet package][bzip2-package], the [Ice for C++ NuGet package][cpp-package], and the Windows installer.
+
 [api]: https://code.zeroc.com/ice/3.8/api/csharp/api/Ice.html
+[bzip2-package]: https://www.nuget.org/packages/ZeroC.Bzip2
+[cpp-package]: https://www.nuget.org/packages/ZeroC.Ice.Cpp
 [docs]: https://docs.zeroc.com/ice/latest/csharp/
 [examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/csharp
 [package]: https://www.nuget.org/packages/ZeroC.Ice
