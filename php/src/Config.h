@@ -69,6 +69,7 @@ ZEND_END_MODULE_GLOBALS(ice)
 ZEND_BEGIN_ARG_INFO(ice_void_arginfo, 0)
 ZEND_END_ARG_INFO()
 
+// An arginfo used for __toString() methods.
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO(ice_to_string_arginfo, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
