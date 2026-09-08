@@ -4,7 +4,10 @@
 
 #if TARGET_OS_IPHONE != 0
 
+#    include "../../src/Ice/EventHandler.h"
+#    include "../../src/Ice/Instance.h"
 #    include "../../src/Ice/ProtocolInstance.h"
+#    include "../../src/Ice/Selector.h"
 #    include "../../src/Ice/ios/iAPTransceiver.h"
 #    include "Ice/Buffer.h"
 #    include "Ice/EndpointTypes.h"
@@ -13,8 +16,10 @@
 #    include "TestHelper.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
+#    include <chrono>
 #    include <fcntl.h>
 #    include <sys/socket.h>
+#    include <thread>
 #    include <unistd.h>
 
 using namespace std;
@@ -50,11 +55,8 @@ namespace
         }
     };
 
-    // Spins the run loop briefly so CFStream can service the underlying socket.
-    void pump(CFTimeInterval seconds = 0.02) { CFRunLoopRunInMode(kCFRunLoopDefaultMode, seconds, false); }
-
     // Builds a connected socket pair: the local end is wrapped in a CFStream pair (returned as the
-    // NSStreams the transceiver uses), the peer end is a raw non-blocking fd the test drives directly.
+    // NSStreams the transceiver opens and uses), the peer end is a raw non-blocking fd the test drives directly.
     void makeFakePeer(FakePeer& peer, NSInputStream*& in, NSOutputStream*& out)
     {
         int fds[2];
@@ -71,35 +73,104 @@ namespace
         out = (NSOutputStream*)peer.writeStream;
     }
 
-    void openAndScheduleStreams(NSInputStream* in, NSOutputStream* out)
-    {
-        [in scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-        [out scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-        [in open];
-        [out open];
-        for (int i = 0; i < 200 && ([in streamStatus] < NSStreamStatusOpen || [out streamStatus] < NSStreamStatusOpen);
-             ++i)
-        {
-            pump();
-        }
-        test([in streamStatus] == NSStreamStatusOpen);
-        test([out streamStatus] == NSStreamStatusOpen);
-    }
-
     Buffer makeBuffer(const string& data)
     {
         const auto* p = reinterpret_cast<const byte*>(data.data());
         return Buffer{p, p + data.size()};
     }
 
-    // Reads from the peer fd until 'expected' bytes have arrived, pumping the run loop so the transceiver's
-    // queued writes reach the socket.
+    // The event handler the transceiver's native info is registered with: it only carries the native info, the
+    // completions are consumed by the test through the selector.
+    class TestHandler final : public EventHandler
+    {
+    public:
+        TestHandler(NativeInfoPtr nativeInfo) : _nativeInfo(std::move(nativeInfo)) {}
+
+        bool startAsync(SocketOperation) final { return false; }
+        bool finishAsync(SocketOperation) final { return false; }
+        void message(ThreadPoolCurrent&) final {}
+        void finished(ThreadPoolCurrent&, bool) final {}
+        [[nodiscard]] string toString() const final { return "iAP test handler"; }
+        NativeInfoPtr getNativeInfo() final { return _nativeInfo; }
+
+    private:
+        const NativeInfoPtr _nativeInfo;
+    };
+
+    // Collects the completions posted by the transceiver, the way the thread pool does with the selector.
+    class Completions
+    {
+    public:
+        Completions(const CommunicatorPtr& communicator, const shared_ptr<IceObjC::iAPTransceiver>& transceiver)
+            : _selector(getInstance(communicator)),
+              _handler(make_shared<TestHandler>(transceiver->getNativeInfo()))
+        {
+            _selector.setup(1);
+            _selector.initialize(_handler.get());
+        }
+
+        ~Completions() { _selector.destroy(); }
+
+        // Waits for the next completion and returns the completed operation.
+        SocketOperation wait()
+        {
+            SocketOperation status = SocketOperationNone;
+            size_t count = 0;
+            int error = 0;
+            EventHandler* handler = _selector.getNextHandler(status, count, error, 5); // 5 seconds timeout
+            test(handler == _handler.get());
+            return status;
+        }
+
+    private:
+        Selector _selector;
+        shared_ptr<TestHandler> _handler;
+    };
+
+    // Drives initialize() to StateConnected: the connect completes once both streams are open.
+    void connect(const shared_ptr<IceObjC::iAPTransceiver>& transceiver, Completions& completions)
+    {
+        Buffer rb, wb;
+        test(transceiver->initialize(rb, wb) == SocketOperationConnect);
+        test(completions.wait() == SocketOperationConnect);
+        test(transceiver->initialize(rb, wb) == SocketOperationNone);
+    }
+
+    // Writes the whole buffer with the asynchronous write operations, like the connection does. Returns the
+    // number of operations it took.
+    int writeAll(const shared_ptr<IceObjC::iAPTransceiver>& transceiver, Completions& completions, Buffer& buf)
+    {
+        int operations = 0;
+        while (transceiver->write(buf) == SocketOperationWrite)
+        {
+            test(transceiver->startWrite(buf));
+            test(completions.wait() == SocketOperationWrite);
+            transceiver->finishWrite(buf);
+            ++operations;
+        }
+        return operations;
+    }
+
+    int readAll(const shared_ptr<IceObjC::iAPTransceiver>& transceiver, Completions& completions, Buffer& buf)
+    {
+        int operations = 0;
+        while (transceiver->read(buf) == SocketOperationRead)
+        {
+            transceiver->startRead(buf);
+            test(completions.wait() == SocketOperationRead);
+            transceiver->finishRead(buf);
+            ++operations;
+        }
+        return operations;
+    }
+
+    // Reads from the peer fd until 'expected' bytes have arrived.
     string drainPeer(FakePeer& peer, size_t expected)
     {
         string received;
-        for (int i = 0; i < 500 && received.size() < expected; ++i)
+        for (int i = 0; i < 5000 && received.size() < expected; ++i)
         {
-            char tmp[256];
+            char tmp[64 * 1024];
             ssize_t n = ::read(peer.peerFd, tmp, sizeof(tmp));
             if (n > 0)
             {
@@ -107,13 +178,32 @@ namespace
             }
             else
             {
-                pump();
+                this_thread::sleep_for(chrono::milliseconds(1));
             }
         }
         return received;
     }
 
-    void testReadWrite(const ProtocolInstancePtr& instance)
+    // Writes 'data' to the (non-blocking) peer fd.
+    void feedPeer(FakePeer& peer, const string& data)
+    {
+        size_t sent = 0;
+        for (int i = 0; i < 5000 && sent < data.size(); ++i)
+        {
+            ssize_t n = ::write(peer.peerFd, data.data() + sent, data.size() - sent);
+            if (n > 0)
+            {
+                sent += static_cast<size_t>(n);
+            }
+            else
+            {
+                this_thread::sleep_for(chrono::milliseconds(1));
+            }
+        }
+        test(sent == data.size());
+    }
+
+    void testReadWrite(const CommunicatorPtr& communicator, const ProtocolInstancePtr& instance)
     {
         cout << "testing iAP transceiver read/write... " << flush;
         FakePeer peer;
@@ -122,53 +212,31 @@ namespace
         makeFakePeer(peer, in, out);
 
         auto transceiver = make_shared<IceObjC::iAPTransceiver>(instance, in, out, "test");
-        openAndScheduleStreams(in, out);
-
-        // Drive initialize() to StateConnected (the transceiver is not registered, so this is immediate).
-        Buffer rb, wb;
-        SocketOperation op = SocketOperationConnect;
-        for (int i = 0; i < 100 && op != SocketOperationNone; ++i)
-        {
-            op = transceiver->initialize(rb, wb);
-        }
-        test(op == SocketOperationNone);
+        Completions completions(communicator, transceiver);
+        connect(transceiver, completions);
 
         // Write a payload through the transceiver and read it back from the peer.
         const string payload = "hello iap";
         Buffer wbuf = makeBuffer(payload);
-        for (int i = 0; i < 500 && wbuf.i != wbuf.b.end(); ++i)
-        {
-            if (transceiver->write(wbuf) == SocketOperationNone)
-            {
-                break;
-            }
-            pump();
-        }
+        writeAll(transceiver, completions, wbuf);
         test(wbuf.i == wbuf.b.end());
         test(drainPeer(peer, payload.size()) == payload);
 
         // Write from the peer and read it back through the transceiver.
         const string reply = "from accessory";
-        test(::write(peer.peerFd, reply.data(), reply.size()) == static_cast<ssize_t>(reply.size()));
+        feedPeer(peer, reply);
 
         vector<byte> readData(reply.size());
         Buffer rbuf{readData.data(), readData.data() + readData.size()};
-        for (int i = 0; i < 500 && rbuf.i != rbuf.b.end(); ++i)
-        {
-            if (transceiver->read(rbuf) == SocketOperationNone)
-            {
-                break;
-            }
-            pump();
-        }
+        readAll(transceiver, completions, rbuf);
         test(rbuf.i == rbuf.b.end());
         test(string(reinterpret_cast<const char*>(readData.data()), readData.size()) == reply);
 
-        transceiver->closeStreams();
+        transceiver->close();
         cout << "ok" << endl;
     }
 
-    void testPartialIO(const ProtocolInstancePtr& instance)
+    void testPartialIO(const CommunicatorPtr& communicator, const ProtocolInstancePtr& instance)
     {
         cout << "testing iAP transceiver partial I/O... " << flush;
         FakePeer peer;
@@ -177,16 +245,12 @@ namespace
         makeFakePeer(peer, in, out);
 
         auto transceiver = make_shared<IceObjC::iAPTransceiver>(instance, in, out, "test");
-        openAndScheduleStreams(in, out);
+        Completions completions(communicator, transceiver);
+        connect(transceiver, completions);
 
-        Buffer rb, wb;
-        for (int i = 0; i < 100 && transceiver->initialize(rb, wb) != SocketOperationNone; ++i)
-        {
-        }
-
-        // A payload much larger than the socket buffers, so a single write()/read() cannot transfer it in
-        // one pass and must defer (SocketOperationWrite/Read). Content varies per byte to catch corruption
-        // across the partial transfers.
+        // A payload much larger than the socket buffers, so a single operation cannot transfer it and the
+        // connection has to start several. Content varies per byte to catch corruption across the partial
+        // transfers.
         const size_t size = 512 * 1024;
         string payload(size, '\0');
         for (size_t i = 0; i < size; ++i)
@@ -194,56 +258,33 @@ namespace
             payload[i] = static_cast<char>('a' + (i % 26));
         }
 
-        // Write direction: interleave writing through the transceiver with draining the peer.
-        Buffer wbuf = makeBuffer(payload);
-        string received;
-        bool writeDeferred = false;
-        while (wbuf.i != wbuf.b.end() || received.size() < size)
+        // Write direction: the peer drains concurrently, otherwise the socket buffers fill up.
         {
-            if (wbuf.i != wbuf.b.end() && transceiver->write(wbuf) == SocketOperationWrite)
-            {
-                writeDeferred = true;
-            }
-            char tmp[256 * 1024];
-            ssize_t n = ::read(peer.peerFd, tmp, sizeof(tmp));
-            if (n > 0)
-            {
-                received.append(tmp, static_cast<size_t>(n));
-            }
-            pump();
+            string received;
+            thread drainer([&] { received = drainPeer(peer, size); });
+            Buffer wbuf = makeBuffer(payload);
+            int operations = writeAll(transceiver, completions, wbuf);
+            drainer.join();
+            test(operations > 1);
+            test(received == payload);
         }
-        test(writeDeferred);
-        test(received == payload);
 
         // Read direction: the peer sends the payload while the transceiver reads it into one buffer.
-        vector<byte> readData(size);
-        Buffer rbuf{readData.data(), readData.data() + readData.size()};
-        size_t sent = 0;
-        bool readDeferred = false;
-        while (rbuf.i != rbuf.b.end())
         {
-            if (sent < size)
-            {
-                ssize_t n = ::write(peer.peerFd, payload.data() + sent, size - sent);
-                if (n > 0)
-                {
-                    sent += static_cast<size_t>(n);
-                }
-            }
-            if (transceiver->read(rbuf) == SocketOperationRead)
-            {
-                readDeferred = true;
-            }
-            pump();
+            thread feeder([&] { feedPeer(peer, payload); });
+            vector<byte> readData(size);
+            Buffer rbuf{readData.data(), readData.data() + readData.size()};
+            int operations = readAll(transceiver, completions, rbuf);
+            feeder.join();
+            test(operations > 1);
+            test(string(reinterpret_cast<const char*>(readData.data()), readData.size()) == payload);
         }
-        test(readDeferred);
-        test(string(reinterpret_cast<const char*>(readData.data()), readData.size()) == payload);
 
-        transceiver->closeStreams();
+        transceiver->close();
         cout << "ok" << endl;
     }
 
-    void testConnectionLost(const ProtocolInstancePtr& instance)
+    void testConnectionLost(const CommunicatorPtr& communicator, const ProtocolInstancePtr& instance)
     {
         cout << "testing iAP transceiver connection loss... " << flush;
         FakePeer peer;
@@ -252,111 +293,58 @@ namespace
         makeFakePeer(peer, in, out);
 
         auto transceiver = make_shared<IceObjC::iAPTransceiver>(instance, in, out, "test");
-        openAndScheduleStreams(in, out);
+        Completions completions(communicator, transceiver);
+        connect(transceiver, completions);
 
-        Buffer rb, wb;
-        SocketOperation op = SocketOperationConnect;
-        for (int i = 0; i < 100 && op != SocketOperationNone; ++i)
-        {
-            op = transceiver->initialize(rb, wb);
-        }
-        test(op == SocketOperationNone);
-
-        // Close the peer end; a subsequent read must surface ConnectionLostException.
+        // Close the peer end; the read operation must complete with ConnectionLostException.
         ::close(peer.peerFd);
         peer.peerFd = -1;
 
         vector<byte> readData(16);
         Buffer rbuf{readData.data(), readData.data() + readData.size()};
-        bool lost = false;
-        for (int i = 0; i < 500 && !lost; ++i)
+        transceiver->startRead(rbuf);
+        test(completions.wait() == SocketOperationRead);
+        try
         {
-            try
-            {
-                transceiver->read(rbuf);
-                pump();
-            }
-            catch (const Ice::ConnectionLostException&)
-            {
-                lost = true;
-            }
+            transceiver->finishRead(rbuf);
+            test(false);
         }
-        test(lost);
+        catch (const Ice::ConnectionLostException&)
+        {
+            // Expected
+        }
 
-        transceiver->closeStreams();
+        transceiver->close();
         cout << "ok" << endl;
     }
 
-    // Selector-callback stub that mirrors what Ice's selector does on iOS: it feeds each readiness
-    // notification straight back into unregisterFromRunLoop (see EventHandlerWrapper::ready in
-    // Selector.cpp), which is what finishes the transceiver's opening phase. Once that call returns
-    // SocketOperationConnect, the connect is complete.
-    class TestReadyCallback final : public SelectorReadyCallback
+    void testCloseWithPendingRead(const CommunicatorPtr& communicator, const ProtocolInstancePtr& instance)
     {
-    public:
-        TestReadyCallback(IceObjC::iAPTransceiver* transceiver) : _transceiver(transceiver) {}
-
-        void readyCallback(SocketOperation op, int error = 0) final
-        {
-            SocketOperation result = _transceiver->unregisterFromRunLoop(op, error != 0);
-            lock_guard lock(_mutex);
-            _ops = static_cast<SocketOperation>(_ops | op);
-            if (result & SocketOperationConnect)
-            {
-                _openingComplete = true;
-            }
-        }
-
-        SocketOperation ops()
-        {
-            lock_guard lock(_mutex);
-            return _ops;
-        }
-
-        bool openingComplete()
-        {
-            lock_guard lock(_mutex);
-            return _openingComplete;
-        }
-
-    private:
-        IceObjC::iAPTransceiver* _transceiver;
-        mutex _mutex;
-        SocketOperation _ops{SocketOperationNone};
-        bool _openingComplete{false};
-    };
-
-    void testRunLoopRegistration(const ProtocolInstancePtr& instance)
-    {
-        cout << "testing iAP transceiver run-loop registration... " << flush;
+        cout << "testing iAP transceiver close with a pending read... " << flush;
         FakePeer peer;
         NSInputStream* in;
         NSOutputStream* out;
         makeFakePeer(peer, in, out);
 
         auto transceiver = make_shared<IceObjC::iAPTransceiver>(instance, in, out, "test");
+        Completions completions(communicator, transceiver);
+        connect(transceiver, completions);
 
-        // initialize() begins the connect: StateNeedConnect -> StateConnectPending, requesting Connect.
-        Buffer rb, wb;
-        test(transceiver->initialize(rb, wb) == SocketOperationConnect);
-
-        // Register with the run loop and drive the open completion through the delegate callback, which
-        // (like the real selector) feeds each notification back into unregisterFromRunLoop.
-        TestReadyCallback callback{transceiver.get()};
-        transceiver->initStreams(&callback);
-        transceiver->registerWithRunLoop(SocketOperationConnect);
-
-        for (int i = 0; i < 200 && !callback.openingComplete(); ++i)
+        // Start a read the peer never satisfies; close() must complete it, the thread pool waits for it.
+        vector<byte> readData(16);
+        Buffer rbuf{readData.data(), readData.data() + readData.size()};
+        transceiver->startRead(rbuf);
+        transceiver->close();
+        test(completions.wait() == SocketOperationRead);
+        try
         {
-            pump();
+            transceiver->finishRead(rbuf);
+            test(false);
         }
-        test(callback.ops() & SocketOperationConnect);
-        test(callback.openingComplete());
-
-        // With the opening phase complete, initialize() advances StateConnectPending -> StateConnected.
-        test(transceiver->initialize(rb, wb) == SocketOperationNone);
-
-        transceiver->closeStreams();
+        catch (const Ice::ConnectionLostException&)
+        {
+            // Expected
+        }
         cout << "ok" << endl;
     }
 }
@@ -365,10 +353,10 @@ void
 allTestsTransceiver(const Ice::CommunicatorPtr& communicator)
 {
     auto instance = make_shared<ProtocolInstance>(communicator, iAPEndpointType, "iap", false);
-    testReadWrite(instance);
-    testPartialIO(instance);
-    testConnectionLost(instance);
-    testRunLoopRegistration(instance);
+    testReadWrite(communicator, instance);
+    testPartialIO(communicator, instance);
+    testConnectionLost(communicator, instance);
+    testCloseWithPendingRead(communicator, instance);
 }
 
 #endif
