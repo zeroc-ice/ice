@@ -219,6 +219,19 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer&, Buffer&)
             _desc = "<nw connection>";
         }
 
+        if (_secure && _peerVerifier)
+        {
+            // TLS validated the certificate the peer presented, if any. When the peer presented none (for example a
+            // server that does not require client certificates), the engine's trust rules still have to run; they
+            // reject the connection by throwing.
+            auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(getInfo(_incoming, _adapterName, ""));
+            assert(info);
+            if (!info->peerCertificate)
+            {
+                _peerVerifier(info);
+            }
+        }
+
         return SocketOperationNone;
     }
 

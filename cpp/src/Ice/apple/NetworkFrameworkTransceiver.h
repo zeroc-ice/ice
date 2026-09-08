@@ -6,12 +6,15 @@
 #include "../Network.h"
 #include "../ProtocolInstanceF.h"
 #include "../Transceiver.h"
+#include "Ice/SSL/ConnectionInfoF.h"
 
 #include <Network/Network.h>
 #include <dispatch/dispatch.h>
 
 #include <atomic>
+#include <functional>
 #include <mutex>
+#include <string>
 #include <vector>
 
 namespace IceInternal
@@ -72,6 +75,21 @@ namespace IceInternal
 
         void setLocalVerifyRejected(std::shared_ptr<std::atomic<bool>> flag) { _localVerifyRejected = std::move(flag); }
 
+        // Sets the function that verifies the peer of a TLS connection once the handshake completed and the peer did
+        // not present a certificate. TLS only validates the certificate the peer presents; the SSL engine's trust
+        // rules (IceSSL.TrustOnly and friends) must also run when there is no certificate, otherwise a rule that
+        // requires a specific client would let an anonymous client through. When the peer presents a certificate,
+        // the TLS verify block already runs these rules. The function throws to reject the connection.
+        void setPeerVerifier(
+            std::function<void(const Ice::SSL::ConnectionInfoPtr&)> verifier,
+            bool incoming,
+            std::string adapterName)
+        {
+            _peerVerifier = std::move(verifier);
+            _incoming = incoming;
+            _adapterName = std::move(adapterName);
+        }
+
     private:
         enum State
         {
@@ -103,6 +121,11 @@ namespace IceInternal
         // distinguish "we rejected the peer" (SecurityException) from "the peer
         // rejected us" (ConnectionLostException).
         std::shared_ptr<std::atomic<bool>> _localVerifyRejected;
+
+        // See setPeerVerifier.
+        std::function<void(const Ice::SSL::ConnectionInfoPtr&)> _peerVerifier;
+        bool _incoming{false};
+        std::string _adapterName;
     };
 }
 
