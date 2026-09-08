@@ -9,8 +9,10 @@
 #include "TestI.h"
 
 #include <atomic>
+#include <chrono>
 #include <memory>
 #include <string>
+#include <thread>
 
 using namespace std;
 using namespace Ice;
@@ -851,6 +853,183 @@ certificateSelectionCallbackReturnsCertificateOnly(Test::TestHelper* helper, con
 }
 
 void
+configurationExceptionsArePreserved(Test::TestHelper* helper, const string& certificatesPath)
+{
+    cout << "client and server TLS configuration exceptions are preserved... " << flush;
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
+        certificatesPath + "/ca1/server.p12",
+        "",
+        getKeyChainPath(certificatesPath),
+        keychainPassword,
+        password);
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    try
+    {
+        // Network.framework invokes the TLS configuration synchronously when the listener or connection parameters
+        // are created: an exception thrown by an application callback there must not escape through
+        // Network.framework, it is preserved and rethrown by the object adapter creation (server) or the
+        // connection establishment (client).
+        {
+            Ice::CommunicatorHolder serverCommunicator(initialize());
+            Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
+                .serverCertificateSelectionCallback =
+                    [serverCertificateChain](const string&)
+                {
+                    CFRetain(serverCertificateChain);
+                    return serverCertificateChain;
+                },
+                .sslNewSessionCallback = [](sec_protocol_options_t, const string&)
+                { throw Ice::SecurityException(__FILE__, __LINE__, "server configuration failure"); }};
+            try
+            {
+                serverCommunicator->createObjectAdapterWithEndpoints(
+                    "ServerAdapter",
+                    helper->getTestEndpoint(10, "ssl"),
+                    serverAuthenticationOptions);
+                test(false);
+            }
+            catch (const Ice::SecurityException& ex)
+            {
+                test(string(ex.what()).find("server configuration failure") != string::npos);
+            }
+        }
+
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
+            .serverCertificateSelectionCallback = [serverCertificateChain](const string&)
+            {
+                CFRetain(serverCertificateChain);
+                return serverCertificateChain;
+            }};
+        Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+
+        for (const string& failure : {"client identity selection failure", "client configuration failure"})
+        {
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .trustedRootCertificates = trustedRootCertificates};
+            if (failure == "client identity selection failure")
+            {
+                clientAuthenticationOptions.clientCertificateSelectionCallback = [failure](const string&) -> CFArrayRef
+                { throw Ice::SecurityException(__FILE__, __LINE__, failure); };
+            }
+            else
+            {
+                clientAuthenticationOptions.sslNewSessionCallback = [failure](sec_protocol_options_t, const string&)
+                { throw Ice::SecurityException(__FILE__, __LINE__, failure); };
+            }
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
+            try
+            {
+                obj->ice_ping();
+                test(false);
+            }
+            catch (const Ice::SecurityException& ex)
+            {
+                test(string(ex.what()).find(failure) != string::npos);
+            }
+        }
+    }
+    catch (...)
+    {
+        CFRelease(serverCertificateChain);
+        CFRelease(trustedRootCertificates);
+        throw;
+    }
+    CFRelease(serverCertificateChain);
+    CFRelease(trustedRootCertificates);
+    cout << "ok" << endl;
+}
+
+void
+trustedRootCertificatesAreRetained(Test::TestHelper* helper, const string& certificatesPath)
+{
+    cout << "trusted root certificates are retained by the TLS configuration... " << flush;
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
+        certificatesPath + "/ca1/server.p12",
+        "",
+        getKeyChainPath(certificatesPath),
+        keychainPassword,
+        password);
+    CFArrayRef clientCertificateChain = Apple::loadCertificateChain(
+        certificatesPath + "/ca1/client.p12",
+        "",
+        getKeyChainPath(certificatesPath),
+        keychainPassword,
+        password);
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    const CFIndex baseline = CFGetRetainCount(trustedRootCertificates);
+
+    // Waits until the retain count of the roots satisfies the predicate, for at most the given duration.
+    auto waitForRetainCount = [trustedRootCertificates](auto predicate, chrono::seconds timeout)
+    {
+        auto deadline = chrono::steady_clock::now() + timeout;
+        while (!predicate(CFGetRetainCount(trustedRootCertificates)) && chrono::steady_clock::now() < deadline)
+        {
+            this_thread::sleep_for(chrono::milliseconds(25));
+        }
+        return predicate(CFGetRetainCount(trustedRootCertificates));
+    };
+
+    try
+    {
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
+            .serverCertificateSelectionCallback =
+                [serverCertificateChain](const string&)
+            {
+                CFRetain(serverCertificateChain);
+                return serverCertificateChain;
+            },
+            .clientCertificateRequired = true,
+            .trustedRootCertificates = trustedRootCertificates};
+        Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+            .clientCertificateSelectionCallback =
+                [clientCertificateChain](const string&)
+            {
+                CFRetain(clientCertificateChain);
+                return clientCertificateChain;
+            },
+            .trustedRootCertificates = trustedRootCertificates};
+
+        {
+            // The listener's TLS configuration retains the roots for the blocks Network.framework invokes during
+            // the handshakes, and releases them with the listener.
+            Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+            test(CFGetRetainCount(trustedRootCertificates) > baseline);
+        }
+        test(waitForRetainCount([baseline](CFIndex count) { return count == baseline; }, chrono::seconds(5)));
+
+        {
+            Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+            const CFIndex serverCount = CFGetRetainCount(trustedRootCertificates);
+            {
+                // The connection's TLS configuration retains the roots as well, and releases them with the
+                // connection.
+                Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+                ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
+                obj->ice_ping();
+                test(CFGetRetainCount(trustedRootCertificates) > serverCount);
+            }
+            test(waitForRetainCount([serverCount](CFIndex count) { return count <= serverCount; }, chrono::seconds(5)));
+        }
+        // Network.framework tears the accepted connection's TLS state down some seconds after the listener and
+        // connection are released; the configuration is released with it.
+        test(waitForRetainCount([baseline](CFIndex count) { return count == baseline; }, chrono::seconds(60)));
+    }
+    catch (...)
+    {
+        CFRelease(serverCertificateChain);
+        CFRelease(clientCertificateChain);
+        CFRelease(trustedRootCertificates);
+        throw;
+    }
+    CFRelease(serverCertificateChain);
+    CFRelease(clientCertificateChain);
+    CFRelease(trustedRootCertificates);
+    cout << "ok" << endl;
+}
+
+void
 serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server hot certificate reload... " << flush;
@@ -1001,5 +1180,7 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& defaultDir
     serverHotCertificateReload(helper, certificatesPath);
     serverCertificateSelectionCallbackFailure(helper, certificatesPath);
     certificateSelectionCallbackReturnsCertificateOnly(helper, certificatesPath);
+    configurationExceptionsArePreserved(helper, certificatesPath);
+    trustedRootCertificatesAreRetained(helper, certificatesPath);
 }
 #endif
