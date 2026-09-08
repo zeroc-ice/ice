@@ -402,7 +402,7 @@ allTests(TestHelper* helper, bool collocated)
 
         try
         {
-            p->opWithResultAndUEAsync().get();
+            (void)p->opWithResultAndUEAsync().get();
             test(false);
         }
         catch (const TestIntfException&)
@@ -414,7 +414,7 @@ allTests(TestHelper* helper, bool collocated)
 
         try
         {
-            p->opWithResultAndUEAsync(ctx).get();
+            (void)p->opWithResultAndUEAsync(ctx).get();
             test(false);
         }
         catch (const TestIntfException&)
@@ -450,7 +450,7 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { promise.set_exception(ex); });
             try
             {
-                promise.get_future().get();
+                (void)promise.get_future().get();
                 test(false);
             }
             catch (const NoEndpointException&)
@@ -513,7 +513,7 @@ allTests(TestHelper* helper, bool collocated)
 
         try
         {
-            p->ice_oneway()->opWithResultAsync().get();
+            (void)p->ice_oneway()->opWithResultAsync().get();
             test(false);
         }
         catch (const TwowayOnlyException&)
@@ -557,7 +557,7 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { promise.set_exception(ex); });
             try
             {
-                promise.get_future().get();
+                (void)promise.get_future().get();
                 test(false);
             }
             catch (const NoEndpointException&)
@@ -652,8 +652,8 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
-            sent.get_future().get();
-            response.get_future().get();
+            (void)sent.get_future().get();
+            (void)response.get_future().get();
         }
 
         {
@@ -665,7 +665,7 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
-            sent.get_future().get();
+            (void)sent.get_future().get();
             response.get_future().get();
         }
 
@@ -678,8 +678,8 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
-            sent.get_future().get();
-            response.get_future().get();
+            (void)sent.get_future().get();
+            (void)response.get_future().get();
         }
 
         {
@@ -691,8 +691,8 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
-            sent.get_future().get();
-            response.get_future().get();
+            (void)sent.get_future().get();
+            (void)response.get_future().get();
         }
 
         {
@@ -704,7 +704,7 @@ allTests(TestHelper* helper, bool collocated)
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
-            sent.get_future().get();
+            (void)sent.get_future().get();
             response.get_future().get();
         }
 
