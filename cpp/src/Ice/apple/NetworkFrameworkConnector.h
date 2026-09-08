@@ -32,6 +32,7 @@ namespace IceInternal
 
         [[nodiscard]] const std::string& host() const { return _host; }
         [[nodiscard]] std::int32_t port() const { return _port; }
+        [[nodiscard]] const Address& sourceAddress() const { return _sourceAddr; }
 
     private:
         const ProtocolInstancePtr _instance;
