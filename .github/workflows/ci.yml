@@ -25,7 +25,7 @@ jobs:
       matrix:
         include:
           # Release builds
-          - os: xcode-27
+          - os: macos-26
             config: "release"
             # We want to test C++ and Swift only (in each direction)
             cross_test_flags: "--all-cross --filter cpp --filter swift"
@@ -57,7 +57,7 @@ jobs:
             python_tests: true
 
           # Debug builds
-          - os: xcode-27
+          - os: macos-26
             config: "debug"
             build_flags: "OPTIMIZE=no"
             test_flags: "--swift-config=debug --csharp-config=Debug"
@@ -81,7 +81,7 @@ jobs:
             enable_csharp_analysis: true
 
           # iOS
-          - os: xcode-27
+          - os: macos-26
             config: "ios"
             build_flags: "OPTIMIZE=no PLATFORMS='macosx iphonesimulator' CONFIGS='static shared' LANGUAGES='cpp swift'"
             test_flags: "--languages='cpp,swift' --config=debug --platform=iphonesimulator --controller-app"
@@ -162,7 +162,7 @@ jobs:
             test_flags: "--target-framework=net10.0"
             build_cpp_and_python: true
 
-          - os: xcode-27
+          - os: macos-26
             config: ".NET10"
             working_directory: "csharp"
             net_target_framework: "net10.0"
