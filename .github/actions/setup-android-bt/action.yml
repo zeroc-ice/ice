@@ -60,8 +60,8 @@ runs:
         # runs lint successfully in the same job -- invokes gradle without it. Matching that.
         (
           cd java/test/android/btbond
-          ../../../gradlew assembleDebug lintDebug checkstyle
-          ../../../gradlew rewriteDryRun --no-parallel --no-configuration-cache
+          ../../../gradlew --stacktrace assembleDebug lintDebug checkstyle
+          ../../../gradlew --stacktrace rewriteDryRun --no-parallel --no-configuration-cache
           # Free the daemon's heap before booting two emulators the API 37 image forces to 4 GB each.
           ../../../gradlew --stop
         )
