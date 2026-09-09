@@ -426,6 +426,13 @@ function allTests($helper)
     test($derived == $base);
     test($cl == $derived);
 
+    // Comparing a proxy with an object of another class or with a value of another type must not crash: PHP's
+    // standard object comparison applies instead.
+    test($cl != new stdClass());
+    test(new stdClass() != $cl);
+    test($cl != $communicator);
+    test($cl == $cl->ice_toString());
+
     try {
         Test\MyInterfacePrxHelper::checkedCast($base, "facet");
         test(false);
@@ -467,6 +474,10 @@ function allTests($helper)
         test($cl->ice_fixed($connection)->ice_fixed($connection)->ice_getConnection() == $connection);
         $fixedConnection = $cl->ice_connectionId("ice_fixed")->ice_getConnection();
         test($cl->ice_fixed($connection)->ice_fixed($fixedConnection)->ice_getConnection() == $fixedConnection);
+        // Comparing a connection with an object of another class or with a value of another type must not crash.
+        test($connection != new stdClass());
+        test($connection != $cl);
+        test($connection == $connection->toString());
         try {
             $cl->ice_datagram()->ice_fixed($connection)->ice_ping();
         } catch (Exception $ex) {
