@@ -112,13 +112,12 @@ namespace
         // The callback receives a minimal connection info with the peer certificate so that the trust manager
         // rules (IceSSL.TrustOnly and friends) apply during the handshake, before the connection exists.
         SecCertificateRef peerCertificate = nullptr;
-        if (SecTrustGetCertificateCount(trust) > 0)
+        UniqueRef<CFArrayRef> chain(SecTrustCopyCertificateChain(trust));
+        if (chain && CFArrayGetCount(chain.get()) > 0)
         {
-            peerCertificate = SecTrustGetCertificateAtIndex(trust, 0); // Unretained, valid while the trust is alive.
-            if (peerCertificate)
-            {
-                CFRetain(peerCertificate); // AppleConnectionInfo releases it.
-            }
+            // The leaf comes first. Retained: AppleConnectionInfo releases it.
+            peerCertificate =
+                static_cast<SecCertificateRef>(const_cast<void*>(CFRetain(CFArrayGetValueAtIndex(chain.get(), 0))));
         }
         auto underlying = make_shared<TCPConnectionInfo>(
             verification.incoming,

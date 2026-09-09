@@ -642,14 +642,14 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 }
                 else if (_inUse < static_cast<int>(_threads.size() - 1)) // If not the last idle thread, we can exit.
                 {
-#if defined(ICE_USE_IOCP)
+#    if defined(ICE_USE_IOCP)
                     BOOL hasIO = false;
                     GetThreadIOPendingFlag(GetCurrentThread(), &hasIO);
                     if (hasIO)
                     {
                         continue;
                     }
-#endif
+#    endif
 
                     if (_instance->traceLevels()->threadPool >= 1)
                     {
@@ -816,11 +816,11 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         current._handler->_completed = static_cast<SocketOperation>(current._handler->_completed | current.operation);
         current._handler->_started = static_cast<SocketOperation>(current._handler->_started & ~current.operation);
 
-#if defined(ICE_USE_IOCP)
+#    if defined(ICE_USE_IOCP)
         AsyncInfo* info = current._handler->getNativeInfo()->getAsyncInfo(current.operation);
         info->count = current._count;
         info->error = current._error;
-#endif
+#    endif
 
         if (!current._handler->finishAsync(current.operation)) // Returns false if the handler is finished.
         {

@@ -8,15 +8,16 @@
 #include "Ice/OutputStream.h"
 #include "Network.h"
 #include "ProtocolInstance.h"
-#include "TcpAcceptor.h"
 #include "TcpConnector.h"
 #include "TcpEndpointI.h"
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
 #    include "apple/NetworkFrameworkAcceptor.h"
 #    include "apple/NetworkFrameworkConnector.h"
+#else
+#    include "TcpAcceptor.h"
+#    include "TcpTransceiver.h"
 #endif
 
-#include "TcpTransceiver.h"
 #include <utility>
 
 using namespace std;
@@ -169,7 +170,7 @@ IceInternal::TcpEndpointI::transceiver() const
 
 AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(
-    const string& adapterName,
+    [[maybe_unused]] const string& adapterName,
     [[maybe_unused]] const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
 {
 #if defined(ICE_USE_NETWORK_FRAMEWORK)

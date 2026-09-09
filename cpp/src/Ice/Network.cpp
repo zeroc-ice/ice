@@ -504,7 +504,10 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
 #elif defined(ICE_USE_NETWORK_FRAMEWORK)
 
 void
-IceInternal::NativeInfo::initialize(Selector* selector, EventHandler* handler, shared_ptr<SelectorCompletionToken> token)
+IceInternal::NativeInfo::initialize(
+    Selector* selector,
+    EventHandler* handler,
+    shared_ptr<SelectorCompletionToken> token)
 {
     _selector = selector;
     _eventHandler = handler;

@@ -122,9 +122,9 @@ namespace IceInternal
         int _inUseIO{0}; // Number of threads that are currently performing IO.
         std::vector<std::pair<EventHandler*, SocketOperation>> _handlers;
         std::vector<std::pair<EventHandler*, SocketOperation>>::const_iterator _nextHandler;
+        bool _promote{true};
 #endif
 
-        bool _promote{true};
         std::mutex _mutex;
         std::condition_variable _conditionVariable;
     };
