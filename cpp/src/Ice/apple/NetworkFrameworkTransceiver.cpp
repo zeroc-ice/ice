@@ -15,6 +15,7 @@
 
 #    include <Security/Security.h>
 
+#    include <cerrno>
 #    include <utility>
 
 using namespace std;
@@ -169,6 +170,14 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer& readBuffer, Buffer&
                         __LINE__,
                         "connection lost (TLS error " + to_string(result.error) + ")");
                 }
+            }
+            // A reset by the peer (for example a server that accepts then closes an over-limit connection)
+            // reaches Network.framework as a failed connection rather than a lost one. Classify it the way the
+            // BSD-socket transports do, so that it reports ConnectionLostException rather than ConnectFailedException.
+            errno = result.error;
+            if (connectionLost())
+            {
+                throw ConnectionLostException(__FILE__, __LINE__, result.error);
             }
             throw ConnectFailedException(__FILE__, __LINE__, result.error);
         }
