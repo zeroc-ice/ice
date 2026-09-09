@@ -16,7 +16,7 @@ mcpp_url = f"https://github.com/zeroc-ice/mcpp/archive/refs/tags/v{mcpp_version}
 mcpp_local_filename = f"dist/mcpp-{mcpp_version}.tar.gz"
 
 bzip2_version = "1.0.8"
-bzip2_url = f"https://sourceware.org/pub/bzip2/bzip2-{bzip2_version}.tar.gz"
+bzip2_url = f"https://download.zeroc.com/bzip2/bzip2-{bzip2_version}.tar.gz"
 bzip2_local_filename = f"dist/bzip2-{bzip2_version}.tar.gz"
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
