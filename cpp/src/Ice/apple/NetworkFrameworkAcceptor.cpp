@@ -252,6 +252,11 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
         throw SocketException(__FILE__, __LINE__, 0);
     }
 
+    // Allow the listener to bind a port that is still in the TIME_WAIT state, as the BSD acceptor does with
+    // SO_REUSEADDR: an adapter that is destroyed and recreated, or the test suite reusing a fixed port, would
+    // otherwise fail to bind with "address already in use".
+    nw_parameters_set_reuse_local_address(parameters.get(), true);
+
     //
     // If a specific local address is requested, set it on the parameters.
     // Use port "0" here — the actual listen port is specified separately
