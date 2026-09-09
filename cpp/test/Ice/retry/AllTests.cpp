@@ -240,7 +240,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
         {
             // No more than 2 retries before timeout kicks-in
             RetryPrx prx = retry2->ice_invocationTimeout(500);
-            prx->opIdempotentAsync(4).get();
+            [[maybe_unused]] auto _ = prx->opIdempotentAsync(4).get();
             test(false);
         }
         catch (const Ice::InvocationTimeoutException&)
