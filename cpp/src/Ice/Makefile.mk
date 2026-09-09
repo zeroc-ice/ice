@@ -9,9 +9,10 @@ Ice_sliceflags          := --include-dir Ice
 Ice_libs                := bz2
 
 ifeq ($(os),Darwin)
-Ice_extra_sources       := $(filter-out src/Ice/SSL/OpenSSL%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
+Ice_extra_sources       := $(filter-out src/Ice/SSL/OpenSSL%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp)) \
+                           $(wildcard src/Ice/apple/*.cpp)
 else
-Ice_extra_sources       := $(filter-out src/Ice/SSL/SecureTransport%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
+Ice_extra_sources       := $(filter-out src/Ice/SSL/Apple%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
 endif
 
 Ice[shared]_excludes    = src/Ice/AddDefaultPluginFactories_min.cpp
@@ -29,8 +30,7 @@ ios_excludes := $(wildcard $(addprefix $(currentdir)/,\
     OutputUtil.cpp \
     Service.cpp \
     SysLoggerI.cpp \
-    SystemdJournalI.cpp \
-    Tcp*.cpp))
+    SystemdJournalI.cpp))
 
 Ice[iphoneos]_excludes                  = $(ios_excludes)
 Ice[iphoneos]_extra_sources             = $(ios_extrasources)

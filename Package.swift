@@ -63,6 +63,9 @@ let package = Package(
             linkerSettings: [
                 .linkedLibrary("bz2"),
                 .linkedFramework("ExternalAccessory"),
+                // The Network.framework transport of the C++ library (libIce.a) links against Network; a static
+                // library carries no autolink hints, so the Swift targets that link libIce must name it explicitly.
+                .linkedFramework("Network"),
             ]
         ),
         .binaryTarget(

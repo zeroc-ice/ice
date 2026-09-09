@@ -26,7 +26,7 @@ namespace Ice::SSL
     /// Provides access to the connection details of an SSL connection.
     ///
     /// The SchannelConnectionInfo class is only available when the Ice library is built on Windows. For Linux,
-    /// refer to OpenSSLConnectionInfo, and for macOS and iOS, refer to SecureTransportConnectionInfo.
+    /// refer to OpenSSLConnectionInfo, and for macOS and iOS, refer to AppleConnectionInfo.
     /// @see ::Ice::SSL::ConnectionInfo
     class ICE_API SchannelConnectionInfo final : public Ice::ConnectionInfo
     {
@@ -47,24 +47,24 @@ namespace Ice::SSL
     };
 #endif
 
-#if defined(ICE_USE_SECURE_TRANSPORT) || defined(ICE_DOXYGEN)
+#if defined(ICE_USE_APPLE_SSL) || defined(ICE_DOXYGEN)
     /// Provides access to the connection details of an SSL connection.
     ///
-    /// The SecureTransportConnectionInfo class is only available when the Ice library is built on macOS or iOS. For
+    /// The AppleConnectionInfo class is only available when the Ice library is built on macOS or iOS. For
     /// Linux, refer to OpenSSLConnectionInfo, and for Windows, refer to SchannelConnectionInfo.
     /// @see ::Ice::SSL::ConnectionInfo
-    class ICE_API SecureTransportConnectionInfo final : public Ice::ConnectionInfo
+    class ICE_API AppleConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
-        ~SecureTransportConnectionInfo() final;
-        SecureTransportConnectionInfo(const SecureTransportConnectionInfo&) = delete;
-        SecureTransportConnectionInfo& operator=(const SecureTransportConnectionInfo&) = delete;
+        ~AppleConnectionInfo() final;
+        AppleConnectionInfo(const AppleConnectionInfo&) = delete;
+        AppleConnectionInfo& operator=(const AppleConnectionInfo&) = delete;
 
         /// The peer certificate.
         const SecCertificateRef peerCertificate;
 
         /// @private
-        SecureTransportConnectionInfo(Ice::ConnectionInfoPtr underlying, SecCertificateRef peerCertificate)
+        AppleConnectionInfo(Ice::ConnectionInfoPtr underlying, SecCertificateRef peerCertificate)
             : ConnectionInfo{std::move(underlying)},
               peerCertificate{peerCertificate}
         {
@@ -76,7 +76,7 @@ namespace Ice::SSL
     /// Provides access to the connection details of an SSL connection.
     ///
     /// The OpenSSLConnectionInfo class is only available when the Ice library is built on Linux. For Windows,
-    /// refer to SchannelConnectionInfo, and for macOS and iOS, refer to SecureTransportConnectionInfo.
+    /// refer to SchannelConnectionInfo, and for macOS and iOS, refer to AppleConnectionInfo.
     /// @see ::Ice::SSL::ConnectionInfo
     class ICE_API OpenSSLConnectionInfo final : public Ice::ConnectionInfo
     {

@@ -12,6 +12,11 @@ namespace IceInternal
 
     class TcpAcceptor;
     using TcpAcceptorPtr = std::shared_ptr<TcpAcceptor>;
+
+#if defined(__APPLE__)
+    class NetworkFrameworkAcceptor;
+    using NetworkFrameworkAcceptorPtr = std::shared_ptr<NetworkFrameworkAcceptor>;
+#endif
 }
 
 #endif
