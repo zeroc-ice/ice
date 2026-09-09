@@ -4,13 +4,13 @@
 
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
 
+#    include "../NetworkProxy.h"
+#    include "../ProtocolInstance.h"
 #    include "Ice/Buffer.h"
 #    include "Ice/Connection.h"
 #    include "Ice/LocalExceptions.h"
 #    include "Ice/LoggerUtil.h"
 #    include "Ice/SSL/ConnectionInfo.h"
-#    include "../NetworkProxy.h"
-#    include "../ProtocolInstance.h"
 #    include "NetworkFrameworkTransceiver.h"
 
 #    include <Security/Security.h>
@@ -23,8 +23,7 @@ using namespace IceInternal;
 
 namespace
 {
-    string
-    nwEndpointToString(nw_endpoint_t endpoint)
+    string nwEndpointToString(nw_endpoint_t endpoint)
     {
         if (!endpoint)
         {
@@ -38,7 +37,7 @@ namespace
 
 IceInternal::NetworkFrameworkTransceiver::NetworkFrameworkTransceiver(
     ProtocolInstancePtr instance,
-    nw_connection_t connection,
+    NetworkRef<nw_connection_t> connection,
     bool secure,
     NetworkProxyPtr proxy,
     const Address& addr)
@@ -46,7 +45,9 @@ IceInternal::NetworkFrameworkTransceiver::NetworkFrameworkTransceiver(
       _proxy(std::move(proxy)),
       _addr(addr),
       _nativeInfo(make_shared<NativeInfo>(INVALID_SOCKET)),
-      _connection(connection),
+      _connection(std::move(connection)),
+      _dispatchQueue(DispatchRef<dispatch_queue_t>::adopt(
+          dispatch_queue_create("com.zeroc.ice.nw-connection", DISPATCH_QUEUE_SERIAL))),
       _state(StateNeedsConnect),
       _connectState(make_shared<ConnectState>()),
       _readState(make_shared<ReadState>()),
@@ -54,21 +55,6 @@ IceInternal::NetworkFrameworkTransceiver::NetworkFrameworkTransceiver(
       _secure(secure)
 {
     assert(_connection);
-    nw_retain(_connection);
-
-    _dispatchQueue = dispatch_queue_create("com.zeroc.ice.nw-connection", DISPATCH_QUEUE_SERIAL);
-}
-
-IceInternal::NetworkFrameworkTransceiver::~NetworkFrameworkTransceiver()
-{
-    if (_connection)
-    {
-        nw_release(_connection);
-    }
-    if (_dispatchQueue)
-    {
-        dispatch_release(_dispatchQueue);
-    }
 }
 
 NativeInfoPtr
@@ -91,69 +77,69 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer& readBuffer, Buffer&
         auto connectState = _connectState;
         NativeInfoPtr nativeInfo = _nativeInfo;
         bool secure = _secure;
-        nw_connection_set_state_changed_handler(_connection, ^(nw_connection_state_t state, nw_error_t error) {
-            switch (state)
-            {
-                case nw_connection_state_ready:
-                {
-                    connectState->connected.store(true);
-                    nativeInfo->completed(SocketOperationConnect);
-                    break;
-                }
-                case nw_connection_state_failed:
-                {
-                    // Only signal connect completion if the connection hasn't been established yet.
-                    // An already-connected connection can transition to failed (e.g., peer reset),
-                    // but the read/write callbacks handle that — a spurious Connect completion here
-                    // would be processed after the handler is destroyed, causing bad_weak_ptr.
-                    if (!connectState->connected.load())
-                    {
-                        if (error && nw_error_get_error_domain(error) == nw_error_domain_tls)
-                        {
-                            connectState->tlsError.store(true);
-                        }
-                        connectState->error.store(error ? nw_error_get_error_code(error) : ECONNREFUSED);
-                        nativeInfo->completed(SocketOperationConnect);
-                    }
-                    break;
-                }
-                case nw_connection_state_waiting:
-                {
-                    // The connection is waiting for network conditions to change. Treat this as a
-                    // connection failure — Ice has its own retry logic and should not rely on NF's
-                    // built-in reconnection behavior. Only signal if not yet connected.
-                    if (!connectState->connected.load())
-                    {
-                        if (error && nw_error_get_error_domain(error) == nw_error_domain_tls)
-                        {
-                            connectState->tlsError.store(true);
-                        }
-                        connectState->error.store(error ? nw_error_get_error_code(error) : ECONNREFUSED);
-                        nativeInfo->completed(SocketOperationConnect);
-                    }
-                    break;
-                }
-                case nw_connection_state_cancelled:
-                {
-                    // Signal connect completion if the connection was cancelled before it
-                    // was established. This ensures the thread pool can process the pending
-                    // connect operation and clean up.
-                    if (!connectState->connected.load() && connectState->error.load() == 0)
-                    {
-                        connectState->error.store(ECANCELED);
-                        nativeInfo->completed(SocketOperationConnect);
-                    }
-                    break;
-                }
-                case nw_connection_state_preparing:
-                    break;
-                case nw_connection_state_invalid:
-                    break;
-            }
+        nw_connection_set_state_changed_handler(_connection.get(), ^(nw_connection_state_t state, nw_error_t error) {
+          switch (state)
+          {
+              case nw_connection_state_ready:
+              {
+                  connectState->connected.store(true);
+                  nativeInfo->completed(SocketOperationConnect);
+                  break;
+              }
+              case nw_connection_state_failed:
+              {
+                  // Only signal connect completion if the connection hasn't been established yet.
+                  // An already-connected connection can transition to failed (e.g., peer reset),
+                  // but the read/write callbacks handle that — a spurious Connect completion here
+                  // would be processed after the handler is destroyed, causing bad_weak_ptr.
+                  if (!connectState->connected.load())
+                  {
+                      if (error && nw_error_get_error_domain(error) == nw_error_domain_tls)
+                      {
+                          connectState->tlsError.store(true);
+                      }
+                      connectState->error.store(error ? nw_error_get_error_code(error) : ECONNREFUSED);
+                      nativeInfo->completed(SocketOperationConnect);
+                  }
+                  break;
+              }
+              case nw_connection_state_waiting:
+              {
+                  // The connection is waiting for network conditions to change. Treat this as a
+                  // connection failure — Ice has its own retry logic and should not rely on NF's
+                  // built-in reconnection behavior. Only signal if not yet connected.
+                  if (!connectState->connected.load())
+                  {
+                      if (error && nw_error_get_error_domain(error) == nw_error_domain_tls)
+                      {
+                          connectState->tlsError.store(true);
+                      }
+                      connectState->error.store(error ? nw_error_get_error_code(error) : ECONNREFUSED);
+                      nativeInfo->completed(SocketOperationConnect);
+                  }
+                  break;
+              }
+              case nw_connection_state_cancelled:
+              {
+                  // Signal connect completion if the connection was cancelled before it
+                  // was established. This ensures the thread pool can process the pending
+                  // connect operation and clean up.
+                  if (!connectState->connected.load() && connectState->error.load() == 0)
+                  {
+                      connectState->error.store(ECANCELED);
+                      nativeInfo->completed(SocketOperationConnect);
+                  }
+                  break;
+              }
+              case nw_connection_state_preparing:
+                  break;
+              case nw_connection_state_invalid:
+                  break;
+          }
         });
 
-        nw_connection_set_queue(_connection, _dispatchQueue);
-        nw_connection_start(_connection);
+        nw_connection_set_queue(_connection.get(), _dispatchQueue.get());
+        nw_connection_start(_connection.get());
         return SocketOperationConnect;
     }
     else if (_state == StateConnectPending)
@@ -262,10 +248,8 @@ IceInternal::NetworkFrameworkTransceiver::closing(bool initiator, exception_ptr)
 void
 IceInternal::NetworkFrameworkTransceiver::close()
 {
-    if (_connection)
-    {
-        nw_connection_cancel(_connection);
-    }
+    // Cancelling is distinct from releasing the connection, which the transceiver does when it is destroyed.
+    nw_connection_cancel(_connection.get());
 }
 
 SocketOperation
@@ -312,7 +296,8 @@ IceInternal::NetworkFrameworkTransceiver::startWrite(Buffer& buf)
     // Create dispatch_data_t from the buffer. dispatch_data_create with
     // DISPATCH_DATA_DESTRUCTOR_DEFAULT copies the data.
     //
-    dispatch_data_t data = dispatch_data_create(&*buf.i, length, _dispatchQueue, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+    DispatchRef<dispatch_data_t> data = DispatchRef<dispatch_data_t>::adopt(
+        dispatch_data_create(&*buf.i, length, _dispatchQueue.get(), DISPATCH_DATA_DESTRUCTOR_DEFAULT));
 
     // Reset write state before starting the operation.
     {
@@ -325,22 +310,20 @@ IceInternal::NetworkFrameworkTransceiver::startWrite(Buffer& buf)
     NativeInfoPtr nativeInfo = _nativeInfo;
 
     nw_connection_send(
-        _connection,
-        data,
+        _connection.get(),
+        data.get(),
         NW_CONNECTION_DEFAULT_MESSAGE_CONTEXT,
         true, // is_complete — this completes the "message" (just means send all data)
         ^(nw_error_t error) {
-            lock_guard lock(writeState->mutex);
-            if (error)
-            {
-                writeState->error = nw_error_get_error_code(error);
-                writeState->count = 0;
-            }
-            // On success, count remains set to length (all data was sent).
-            nativeInfo->completed(SocketOperationWrite);
+          lock_guard lock(writeState->mutex);
+          if (error)
+          {
+              writeState->error = nw_error_get_error_code(error);
+              writeState->count = 0;
+          }
+          // On success, count remains set to length (all data was sent).
+          nativeInfo->completed(SocketOperationWrite);
         });
-
-    dispatch_release(data);
 
     return true;
 }
@@ -386,30 +369,30 @@ IceInternal::NetworkFrameworkTransceiver::startRead(Buffer& buf)
     NativeInfoPtr nativeInfo = _nativeInfo;
 
     nw_connection_receive(
-        _connection,
-        1,                                  // minimum bytes
-        static_cast<uint32_t>(length),      // maximum bytes
+        _connection.get(),
+        1,                             // minimum bytes
+        static_cast<uint32_t>(length), // maximum bytes
         ^(dispatch_data_t content, nw_content_context_t, bool, nw_error_t error) {
-            lock_guard lock(readState->mutex);
-            if (error)
-            {
-                readState->error = nw_error_get_error_code(error);
-            }
-            else if (content)
-            {
-                // Extract the received data from dispatch_data_t.
-                dispatch_data_apply(content, ^bool(dispatch_data_t, size_t, const void* buffer, size_t size) {
-                    auto* bytes = static_cast<const std::byte*>(buffer);
-                    readState->data.insert(readState->data.end(), bytes, bytes + size);
-                    return true;
-                });
-            }
-            else
-            {
-                // No content and no error means EOF — the peer closed the connection.
-                readState->error = ECONNRESET;
-            }
-            nativeInfo->completed(SocketOperationRead);
+          lock_guard lock(readState->mutex);
+          if (error)
+          {
+              readState->error = nw_error_get_error_code(error);
+          }
+          else if (content)
+          {
+              // Extract the received data from dispatch_data_t.
+              dispatch_data_apply(content, ^bool(dispatch_data_t, size_t, const void* buffer, size_t size) {
+                auto* bytes = static_cast<const std::byte*>(buffer);
+                readState->data.insert(readState->data.end(), bytes, bytes + size);
+                return true;
+              });
+          }
+          else
+          {
+              // No content and no error means EOF — the peer closed the connection.
+              readState->error = ECONNRESET;
+          }
+          nativeInfo->completed(SocketOperationRead);
         });
 }
 
@@ -469,24 +452,21 @@ IceInternal::NetworkFrameworkTransceiver::getInfo(bool incoming, string adapterN
     string remoteAddress;
     int remotePort = -1;
 
-    nw_path_t path = nw_connection_copy_current_path(_connection);
+    auto path = NetworkRef<nw_path_t>::adopt(nw_connection_copy_current_path(_connection.get()));
     if (path)
     {
-        nw_endpoint_t localEndpoint = nw_path_copy_effective_local_endpoint(path);
+        auto localEndpoint = NetworkRef<nw_endpoint_t>::adopt(nw_path_copy_effective_local_endpoint(path.get()));
         if (localEndpoint)
         {
-            localAddress = nw_endpoint_get_hostname(localEndpoint);
-            localPort = nw_endpoint_get_port(localEndpoint);
-            nw_release(localEndpoint);
+            localAddress = nw_endpoint_get_hostname(localEndpoint.get());
+            localPort = nw_endpoint_get_port(localEndpoint.get());
         }
-        nw_endpoint_t remoteEndpoint = nw_path_copy_effective_remote_endpoint(path);
+        auto remoteEndpoint = NetworkRef<nw_endpoint_t>::adopt(nw_path_copy_effective_remote_endpoint(path.get()));
         if (remoteEndpoint)
         {
-            remoteAddress = nw_endpoint_get_hostname(remoteEndpoint);
-            remotePort = nw_endpoint_get_port(remoteEndpoint);
-            nw_release(remoteEndpoint);
+            remoteAddress = nw_endpoint_get_hostname(remoteEndpoint.get());
+            remotePort = nw_endpoint_get_port(remoteEndpoint.get());
         }
-        nw_release(path);
     }
 
     if (_proxy)
@@ -513,30 +493,22 @@ IceInternal::NetworkFrameworkTransceiver::getInfo(bool incoming, string adapterN
         // Extract the peer certificate from the TLS protocol metadata.
         __block SecCertificateRef peerCertificate = nullptr;
 
-        nw_protocol_definition_t tlsDefinition = nw_protocol_copy_tls_definition();
-        nw_protocol_metadata_t tlsMetadata = nw_connection_copy_protocol_metadata(_connection, tlsDefinition);
-        nw_release(tlsDefinition);
-
+        auto tlsDefinition = NetworkRef<nw_protocol_definition_t>::adopt(nw_protocol_copy_tls_definition());
+        auto tlsMetadata = NetworkRef<nw_protocol_metadata_t>::adopt(
+            nw_connection_copy_protocol_metadata(_connection.get(), tlsDefinition.get()));
         if (tlsMetadata)
         {
-            sec_protocol_metadata_t secMetadata = nw_tls_copy_sec_protocol_metadata(tlsMetadata);
+            auto secMetadata =
+                SecRef<sec_protocol_metadata_t>::adopt(nw_tls_copy_sec_protocol_metadata(tlsMetadata.get()));
             if (secMetadata)
             {
-                sec_protocol_metadata_access_peer_certificate_chain(
-                    secMetadata,
-                    ^(sec_certificate_t cert) {
-                        if (!peerCertificate)
-                        {
-                            SecCertificateRef secCert = sec_certificate_copy_ref(cert);
-                            if (secCert)
-                            {
-                                peerCertificate = secCert; // Retained — ownership transferred to ConnectionInfo
-                            }
-                        }
-                    });
-                sec_release(secMetadata);
+                sec_protocol_metadata_access_peer_certificate_chain(secMetadata.get(), ^(sec_certificate_t cert) {
+                  if (!peerCertificate)
+                  {
+                      peerCertificate = sec_certificate_copy_ref(cert); // Owned by the connection info.
+                  }
+                });
             }
-            nw_release(tlsMetadata);
         }
 
         return make_shared<Ice::SSL::ConnectionInfo>(tcpInfo, peerCertificate);
@@ -557,22 +529,19 @@ IceInternal::NetworkFrameworkTransceiver::describe() const
     // the proxy and the destination address is listed separately.
     string localAddress = "<not available>";
     string remoteAddress = "<not available>";
-    nw_path_t path = nw_connection_copy_current_path(_connection);
+    auto path = NetworkRef<nw_path_t>::adopt(nw_connection_copy_current_path(_connection.get()));
     if (path)
     {
-        nw_endpoint_t localEndpoint = nw_path_copy_effective_local_endpoint(path);
+        auto localEndpoint = NetworkRef<nw_endpoint_t>::adopt(nw_path_copy_effective_local_endpoint(path.get()));
         if (localEndpoint)
         {
-            localAddress = nwEndpointToString(localEndpoint);
-            nw_release(localEndpoint);
+            localAddress = nwEndpointToString(localEndpoint.get());
         }
-        nw_endpoint_t remoteEndpoint = nw_path_copy_effective_remote_endpoint(path);
+        auto remoteEndpoint = NetworkRef<nw_endpoint_t>::adopt(nw_path_copy_effective_remote_endpoint(path.get()));
         if (remoteEndpoint)
         {
-            remoteAddress = nwEndpointToString(remoteEndpoint);
-            nw_release(remoteEndpoint);
+            remoteAddress = nwEndpointToString(remoteEndpoint.get());
         }
-        nw_release(path);
     }
 
     ostringstream os;

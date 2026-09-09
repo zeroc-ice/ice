@@ -9,6 +9,7 @@
 #    include "Ice/LocalExceptions.h"
 #    include "Ice/LoggerUtil.h"
 #    include "Ice/SSL/ConnectionInfo.h"
+#    include "ObjectRef.h"
 
 #    include <Security/Security.h>
 
@@ -24,12 +25,12 @@ namespace
     // can verify chains with intermediate CAs. Returns null for an empty chain and throws when the first element is
     // not an identity: passing a certificate as the identity crashes Network.framework when it looks up the private
     // key. The chain is released. This conversion disappears with the identity selection callbacks of #6720.
-    sec_identity_t createIdentity(CFArrayRef chain, const char* callbackName)
+    SecRef<sec_identity_t> createIdentity(CFArrayRef chain, const char* callbackName)
     {
         UniqueRef<CFArrayRef> holder(chain);
         if (!chain || CFArrayGetCount(chain) == 0)
         {
-            return nullptr;
+            return {};
         }
 
         if (CFGetTypeID(CFArrayGetValueAtIndex(chain, 0)) != SecIdentityGetTypeID())
@@ -45,7 +46,7 @@ namespace
         CFIndex count = CFArrayGetCount(chain);
         if (count == 1)
         {
-            return sec_identity_create(identity);
+            return SecRef<sec_identity_t>::adopt(sec_identity_create(identity));
         }
 
         UniqueRef<CFMutableArrayRef> intermediates(
@@ -54,7 +55,7 @@ namespace
         {
             CFArrayAppendValue(intermediates.get(), CFArrayGetValueAtIndex(chain, i));
         }
-        return sec_identity_create_with_certificates(identity, intermediates.get());
+        return SecRef<sec_identity_t>::adopt(sec_identity_create_with_certificates(identity, intermediates.get()));
     }
 
     // The certificate chain the peer presented, from the handshake metadata: sec_trust_copy_ref only provides the
@@ -104,13 +105,8 @@ namespace
     {
         if (!verification.callback)
         {
-            CFErrorRef error = nullptr;
-            bool valid = SecTrustEvaluateWithError(trust, &error);
-            if (error)
-            {
-                CFRelease(error);
-            }
-            return valid;
+            UniqueRef<CFErrorRef> error;
+            return SecTrustEvaluateWithError(trust, &error.get());
         }
 
         // The callback receives a minimal connection info with the peer certificate so that the trust manager
@@ -141,6 +137,7 @@ namespace
     // trust rejects the peer, and a rejection is recorded in localVerifyRejected when set.
     void verifyPeer(
         const PeerVerification& verification,
+        const shared_ptr<atomic<bool>>& localVerifyRejected,
         sec_protocol_metadata_t metadata,
         sec_protocol_verify_complete_t complete)
     {
@@ -150,7 +147,7 @@ namespace
             UniqueRef<CFArrayRef> certificates(copyPeerCertificates(metadata));
             UniqueRef<SecPolicyRef> policy(createPolicy(verification));
             UniqueRef<SecTrustRef> trust(
-                createPeerTrust(certificates.get(), policy.get(), verification.trustedRootCertificates));
+                createPeerTrust(certificates.get(), policy.get(), verification.trustedRootCertificates.get()));
             if (trust)
             {
                 valid = validatePeer(trust.get(), verification);
@@ -161,23 +158,26 @@ namespace
             valid = false;
         }
 
-        if (!valid && verification.localVerifyRejected)
+        if (!valid && localVerifyRejected)
         {
-            verification.localVerifyRejected->store(true);
+            localVerifyRejected->store(true);
         }
         complete(valid);
     }
 
-    // Blocks capture a reference parameter as a reference, not a copy: the blocks below capture a local copy of
-    // the configuration, which retains the verification and the objects it uses for as long as they run.
+    // Blocks capture a reference parameter as a reference, not a copy: the configuration and the flag are taken by
+    // value so that the block captures copies of them, which retain the verification and the objects it uses for as
+    // long as the block can run.
     template<typename Configuration>
-    void setVerifyBlock(sec_protocol_options_t options, const shared_ptr<Configuration>& configuration)
+    void setVerifyBlock(
+        sec_protocol_options_t options,
+        shared_ptr<const Configuration> configuration, // NOLINT(performance-unnecessary-value-param)
+        shared_ptr<atomic<bool>> localVerifyRejected)  // NOLINT(performance-unnecessary-value-param)
     {
-        shared_ptr<Configuration> retained = configuration;
         sec_protocol_options_set_verify_block(
             options,
             ^(sec_protocol_metadata_t metadata, sec_trust_t, sec_protocol_verify_complete_t complete) {
-              verifyPeer(retained->verification, metadata, complete);
+              verifyPeer(configuration->verification, localVerifyRejected, metadata, complete);
             },
             dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
     }
@@ -190,14 +190,6 @@ namespace
         }
         return array;
     }
-
-    void release(CFArrayRef array)
-    {
-        if (array)
-        {
-            CFRelease(array);
-        }
-    }
 }
 
 IceInternal::NetworkFrameworkTLS::ClientConfiguration::ClientConfiguration(
@@ -208,15 +200,9 @@ IceInternal::NetworkFrameworkTLS::ClientConfiguration::ClientConfiguration(
       verification{
           false,
           host,
-          retain(options.trustedRootCertificates),
-          options.serverCertificateValidationCallback,
-          make_shared<atomic<bool>>(false)}
+          UniqueRef<CFArrayRef>(retain(options.trustedRootCertificates)),
+          options.serverCertificateValidationCallback}
 {
-}
-
-IceInternal::NetworkFrameworkTLS::ClientConfiguration::~ClientConfiguration()
-{
-    release(verification.trustedRootCertificates);
 }
 
 IceInternal::NetworkFrameworkTLS::ServerConfiguration::ServerConfiguration(
@@ -229,23 +215,18 @@ IceInternal::NetworkFrameworkTLS::ServerConfiguration::ServerConfiguration(
       verification{
           true,
           adapterName,
-          retain(options.trustedRootCertificates),
-          options.clientCertificateValidationCallback,
-          nullptr}
+          UniqueRef<CFArrayRef>(retain(options.trustedRootCertificates)),
+          options.clientCertificateValidationCallback}
 {
 }
 
-IceInternal::NetworkFrameworkTLS::ServerConfiguration::~ServerConfiguration()
-{
-    release(verification.trustedRootCertificates);
-}
-
-void
+exception_ptr
 IceInternal::NetworkFrameworkTLS::configureClientTLS(
     nw_protocol_options_t tlsOptions,
-    const shared_ptr<ClientConfiguration>& configuration)
+    shared_ptr<const ClientConfiguration> configuration, // NOLINT(performance-unnecessary-value-param)
+    shared_ptr<atomic<bool>> localVerifyRejected)        // NOLINT(performance-unnecessary-value-param)
 {
-    sec_protocol_options_t options = nw_tls_copy_sec_protocol_options(tlsOptions);
+    auto options = SecRef<sec_protocol_options_t>::adopt(nw_tls_copy_sec_protocol_options(tlsOptions));
     const SSL::ClientAuthenticationOptions& authOptions = configuration->options;
     const string& host = configuration->host;
 
@@ -254,44 +235,42 @@ IceInternal::NetworkFrameworkTLS::configureClientTLS(
         // The server name, for SNI.
         if (!host.empty())
         {
-            sec_protocol_options_set_tls_server_name(options, host.c_str());
+            sec_protocol_options_set_tls_server_name(options.get(), host.c_str());
         }
 
         // The client identity, selected now: the parameters are created for this connection.
         if (authOptions.clientCertificateSelectionCallback)
         {
-            sec_identity_t identity = createIdentity(
+            SecRef<sec_identity_t> identity = createIdentity(
                 authOptions.clientCertificateSelectionCallback(host),
                 "client certificate selection callback");
             if (identity)
             {
-                sec_protocol_options_set_local_identity(options, identity);
-                sec_release(identity);
+                sec_protocol_options_set_local_identity(options.get(), identity.get());
             }
         }
 
-        setVerifyBlock(options, configuration);
+        setVerifyBlock(options.get(), configuration, localVerifyRejected);
 
         // The application's callback comes last so that the settings it applies take precedence.
         if (authOptions.sslNewSessionCallback)
         {
-            authOptions.sslNewSessionCallback(options, host);
+            authOptions.sslNewSessionCallback(options.get(), host);
         }
     }
     catch (...)
     {
-        configuration->error = current_exception();
+        return current_exception();
     }
-
-    nw_release(options); // nw_tls_copy_sec_protocol_options returns a retained object.
+    return nullptr;
 }
 
-void
+exception_ptr
 IceInternal::NetworkFrameworkTLS::configureServerTLS(
     nw_protocol_options_t tlsOptions,
-    const shared_ptr<ServerConfiguration>& configuration)
+    shared_ptr<const ServerConfiguration> configuration) // NOLINT(performance-unnecessary-value-param)
 {
-    sec_protocol_options_t options = nw_tls_copy_sec_protocol_options(tlsOptions);
+    auto options = SecRef<sec_protocol_options_t>::adopt(nw_tls_copy_sec_protocol_options(tlsOptions));
     const SSL::ServerAuthenticationOptions& authOptions = configuration->options;
 
     try
@@ -302,35 +281,30 @@ IceInternal::NetworkFrameworkTLS::configureServerTLS(
         // listener.
         if (authOptions.serverCertificateSelectionCallback)
         {
-            shared_ptr<ServerConfiguration> retained = configuration; // See setVerifyBlock.
             sec_protocol_options_set_challenge_block(
-                options,
+                options.get(),
                 ^(sec_protocol_metadata_t, sec_protocol_challenge_complete_t complete) {
                   // The block runs on a dispatch thread, where an escaping exception terminates the process: a
                   // failing certificate selection (for example a reload that cannot read the new certificate)
                   // fails this handshake instead.
-                  sec_identity_t identity = nullptr;
+                  SecRef<sec_identity_t> identity;
                   try
                   {
                       identity = createIdentity(
-                          retained->options.serverCertificateSelectionCallback(retained->adapterName),
+                          configuration->options.serverCertificateSelectionCallback(configuration->adapterName),
                           "server certificate selection callback");
                   }
                   catch (const std::exception& ex)
                   {
-                      Warning out(retained->logger);
+                      Warning out(configuration->logger);
                       out << "SSL transport: the server certificate selection callback failed:\n" << ex.what();
                   }
                   catch (...)
                   {
-                      Warning out(retained->logger);
+                      Warning out(configuration->logger);
                       out << "SSL transport: the server certificate selection callback failed";
                   }
-                  complete(identity);
-                  if (identity)
-                  {
-                      sec_release(identity);
-                  }
+                  complete(identity.get());
                 },
                 dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
         }
@@ -345,26 +319,26 @@ IceInternal::NetworkFrameworkTLS::configureServerTLS(
         // once the handshake completed, see NetworkFrameworkTransceiver::setPeerVerifier.
         if (authOptions.clientCertificateRequired)
         {
-            sec_protocol_options_set_peer_authentication_required(options, true);
-            setVerifyBlock(options, configuration);
+            sec_protocol_options_set_peer_authentication_required(options.get(), true);
+            // The listener configuration is shared by its connections: there is no per-connection rejection flag.
+            setVerifyBlock(options.get(), configuration, nullptr);
         }
         else
         {
-            sec_protocol_options_set_peer_authentication_required(options, false);
+            sec_protocol_options_set_peer_authentication_required(options.get(), false);
         }
 
         // The application's callback comes last so that the settings it applies take precedence.
         if (authOptions.sslNewSessionCallback)
         {
-            authOptions.sslNewSessionCallback(options, configuration->adapterName);
+            authOptions.sslNewSessionCallback(options.get(), configuration->adapterName);
         }
     }
     catch (...)
     {
-        configuration->error = current_exception();
+        return current_exception();
     }
-
-    nw_release(options); // nw_tls_copy_sec_protocol_options returns a retained object.
+    return nullptr;
 }
 
 #endif

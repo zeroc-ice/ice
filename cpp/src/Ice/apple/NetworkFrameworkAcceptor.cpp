@@ -4,10 +4,10 @@
 
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
 
-#    include "Ice/LocalExceptions.h"
-#    include "Ice/Properties.h"
 #    include "../ProtocolInstance.h"
 #    include "../TcpEndpointI.h"
+#    include "Ice/LocalExceptions.h"
+#    include "Ice/Properties.h"
 #    include "NetworkFrameworkAcceptor.h"
 #    include "NetworkFrameworkTLS.h"
 #    include "NetworkFrameworkTransceiver.h"
@@ -27,31 +27,22 @@ IceInternal::NetworkFrameworkAcceptor::getNativeInfo()
 void
 IceInternal::NetworkFrameworkAcceptor::close()
 {
-    if (_listener)
-    {
-        // Cancel the listener and wait for it to reach the cancelled state. This ensures the
-        // listening port is fully released before close() returns, preventing "Address already
-        // in use" errors when the same port is reused immediately (e.g., adapter destroy/recreate).
-        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-        nw_listener_set_state_changed_handler(
-            _listener,
-            ^(nw_listener_state_t state, [[maybe_unused]] nw_error_t error) {
-                if (state == nw_listener_state_cancelled)
-                {
-                    dispatch_semaphore_signal(sem);
-                }
-            });
-        nw_listener_cancel(_listener);
-        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-        dispatch_release(sem);
-    }
+    // Cancel the listener and wait for it to reach the cancelled state, its terminal state: the listening port is
+    // released before close() returns, so that it can be reused right away (for example when an adapter is destroyed
+    // and recreated). Cancelling is distinct from releasing the listener, which the acceptor does when destroyed.
+    auto semaphore = DispatchRef<dispatch_semaphore_t>::adopt(dispatch_semaphore_create(0));
+    dispatch_semaphore_t cancelled = semaphore.get(); // Signaled before the wait below returns.
+    nw_listener_set_state_changed_handler(_listener.get(), ^(nw_listener_state_t state, nw_error_t) {
+      if (state == nw_listener_state_cancelled)
+      {
+          dispatch_semaphore_signal(cancelled);
+      }
+    });
+    nw_listener_cancel(_listener.get());
+    dispatch_semaphore_wait(semaphore.get(), DISPATCH_TIME_FOREVER);
 
-    // Release any queued connections that haven't been accepted.
+    // Release the queued connections no transceiver adopted.
     lock_guard lock(_acceptState->mutex);
-    for (auto& conn : _acceptState->connections)
-    {
-        nw_release(conn);
-    }
     _acceptState->connections.clear();
 
     // If startAccept() is waiting for a connection, signal the completion so the thread pool
@@ -81,17 +72,17 @@ IceInternal::NetworkFrameworkAcceptor::listen()
     //
     // Set state changed handler to detect when the listener is ready.
     //
-    nw_listener_set_state_changed_handler(_listener, ^(nw_listener_state_t state, nw_error_t error) {
-        if (state == nw_listener_state_ready || state == nw_listener_state_failed)
-        {
-            lock_guard lock(listenState->mutex);
-            listenState->signaled = true;
-            if (state == nw_listener_state_failed)
-            {
-                listenState->error = error ? nw_error_get_error_code(error) : EADDRINUSE;
-            }
-            listenState->cv.notify_one();
-        }
+    nw_listener_set_state_changed_handler(_listener.get(), ^(nw_listener_state_t state, nw_error_t error) {
+      if (state == nw_listener_state_ready || state == nw_listener_state_failed)
+      {
+          lock_guard lock(listenState->mutex);
+          listenState->signaled = true;
+          if (state == nw_listener_state_failed)
+          {
+              listenState->error = error ? nw_error_get_error_code(error) : EADDRINUSE;
+          }
+          listenState->cv.notify_one();
+      }
     });
 
     //
@@ -101,22 +92,22 @@ IceInternal::NetworkFrameworkAcceptor::listen()
     //
     auto acceptState = _acceptState;
     NativeInfoPtr nativeInfo = _nativeInfo;
-    nw_listener_set_new_connection_handler(_listener, ^(nw_connection_t connection) {
-        nw_retain(connection);
-        lock_guard lock(acceptState->mutex);
-        acceptState->connections.push_back(connection);
-        if (acceptState->waiting)
-        {
-            acceptState->waiting = false;
-            nativeInfo->completed(SocketOperationRead);
-        }
+    nw_listener_set_new_connection_handler(_listener.get(), ^(nw_connection_t connection) {
+      // The connection is borrowed from Network.framework: retain it until a transceiver adopts it.
+      lock_guard lock(acceptState->mutex);
+      acceptState->connections.push_back(NetworkRef<nw_connection_t>::retain(connection));
+      if (acceptState->waiting)
+      {
+          acceptState->waiting = false;
+          nativeInfo->completed(SocketOperationRead);
+      }
     });
 
     //
     // Start the listener and wait for it to become ready.
     //
-    nw_listener_set_queue(_listener, _dispatchQueue);
-    nw_listener_start(_listener);
+    nw_listener_set_queue(_listener.get(), _dispatchQueue.get());
+    nw_listener_start(_listener.get());
 
     {
         unique_lock lock(listenState->mutex);
@@ -131,12 +122,12 @@ IceInternal::NetworkFrameworkAcceptor::listen()
     //
     // Clear the state changed handler — we no longer need it for the listen flow.
     //
-    nw_listener_set_state_changed_handler(_listener, nullptr);
+    nw_listener_set_state_changed_handler(_listener.get(), nullptr);
 
     //
     // Retrieve the actual port assigned by the OS (important for port 0).
     //
-    _port = nw_listener_get_port(_listener);
+    _port = nw_listener_get_port(_listener.get());
 
     _endpoint = _endpoint->endpoint(shared_from_this());
     return _endpoint;
@@ -174,28 +165,17 @@ IceInternal::NetworkFrameworkAcceptor::finishAccept()
 TransceiverPtr
 IceInternal::NetworkFrameworkAcceptor::accept()
 {
-    nw_connection_t connection;
+    NetworkRef<nw_connection_t> connection;
     {
         lock_guard lock(_acceptState->mutex);
         if (_acceptState->connections.empty())
         {
             throw SocketException(__FILE__, __LINE__, 0);
         }
-        connection = _acceptState->connections.front();
+        connection = std::move(_acceptState->connections.front());
         _acceptState->connections.pop_front();
     }
-
-    try
-    {
-        auto transceiver = make_shared<NetworkFrameworkTransceiver>(_instance, connection, _secure);
-        nw_release(connection); // The transceiver retains its own reference.
-        return transceiver;
-    }
-    catch (...)
-    {
-        nw_release(connection);
-        throw;
-    }
+    return make_shared<NetworkFrameworkTransceiver>(_instance, std::move(connection), _secure);
 }
 
 string
@@ -232,8 +212,6 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
     : _endpoint(std::move(endpoint)),
       _instance(instance),
       _nativeInfo(make_shared<NativeInfo>(INVALID_SOCKET)),
-      _listener(nullptr),
-      _dispatchQueue(nullptr),
       _host(host),
       _port(static_cast<uint16_t>(port)),
       _secure(serverAuthenticationOptions.has_value())
@@ -241,30 +219,32 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
     //
     // Create TCP parameters — with or without TLS.
     //
-    nw_parameters_t parameters;
+    NetworkRef<nw_parameters_t> parameters;
     if (serverAuthenticationOptions)
     {
-        // The configuration is shared with the blocks Network.framework invokes during the handshakes.
-        auto configuration = make_shared<NetworkFrameworkTLS::ServerConfiguration>(
+        // The immutable configuration is owned by the blocks Network.framework invokes during the handshakes of the
+        // accepted connections; the configuration result is a separate, per-listener value.
+        auto configuration = make_shared<const NetworkFrameworkTLS::ServerConfiguration>(
             *serverAuthenticationOptions,
             adapterName,
             instance->logger());
-        parameters = nw_parameters_create_secure_tcp(
-            ^(nw_protocol_options_t tlsOptions) { NetworkFrameworkTLS::configureServerTLS(tlsOptions, configuration); },
-            NW_PARAMETERS_DEFAULT_CONFIGURATION);
+        __block exception_ptr error;
+        parameters = NetworkRef<nw_parameters_t>::adopt(nw_parameters_create_secure_tcp(
+            ^(nw_protocol_options_t tlsOptions) {
+              error = NetworkFrameworkTLS::configureServerTLS(tlsOptions, configuration);
+            },
+            NW_PARAMETERS_DEFAULT_CONFIGURATION));
 
-        if (parameters && configuration->error)
+        if (error)
         {
             // Set by the configure block, which nw_parameters_create_secure_tcp invoked synchronously.
-            nw_release(parameters);
-            rethrow_exception(configuration->error);
+            rethrow_exception(error);
         }
     }
     else
     {
-        parameters = nw_parameters_create_secure_tcp(
-            NW_PARAMETERS_DISABLE_PROTOCOL,
-            NW_PARAMETERS_DEFAULT_CONFIGURATION);
+        parameters = NetworkRef<nw_parameters_t>::adopt(
+            nw_parameters_create_secure_tcp(NW_PARAMETERS_DISABLE_PROTOCOL, NW_PARAMETERS_DEFAULT_CONFIGURATION));
     }
 
     if (!parameters)
@@ -279,46 +259,27 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
     //
     if (!host.empty() && host != "0.0.0.0" && host != "::" && host != "*")
     {
-        nw_endpoint_t localEndpoint = nw_endpoint_create_host(host.c_str(), "0");
+        auto localEndpoint = NetworkRef<nw_endpoint_t>::adopt(nw_endpoint_create_host(host.c_str(), "0"));
         if (localEndpoint)
         {
-            nw_parameters_set_local_endpoint(parameters, localEndpoint);
-            nw_release(localEndpoint);
+            nw_parameters_set_local_endpoint(parameters.get(), localEndpoint.get());
         }
     }
 
     //
     // Create the listener — with a specific port or an OS-assigned port.
     //
-    if (port > 0)
-    {
-        _listener = nw_listener_create_with_port(to_string(port).c_str(), parameters);
-    }
-    else
-    {
-        _listener = nw_listener_create(parameters);
-    }
-    nw_release(parameters);
-
+    _listener = NetworkRef<nw_listener_t>::adopt(
+        port > 0 ? nw_listener_create_with_port(to_string(port).c_str(), parameters.get())
+                 : nw_listener_create(parameters.get()));
     if (!_listener)
     {
         throw SocketException(__FILE__, __LINE__, 0);
     }
 
-    _dispatchQueue = dispatch_queue_create("com.zeroc.ice.nw-listener", DISPATCH_QUEUE_SERIAL);
+    _dispatchQueue =
+        DispatchRef<dispatch_queue_t>::adopt(dispatch_queue_create("com.zeroc.ice.nw-listener", DISPATCH_QUEUE_SERIAL));
     _acceptState = make_shared<AcceptState>();
-}
-
-IceInternal::NetworkFrameworkAcceptor::~NetworkFrameworkAcceptor()
-{
-    if (_listener)
-    {
-        nw_release(_listener);
-    }
-    if (_dispatchQueue)
-    {
-        dispatch_release(_dispatchQueue);
-    }
 }
 
 #endif

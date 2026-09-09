@@ -229,8 +229,8 @@ IceObjC::iAPTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffe
         // Open the streams on the stream queue, which also delivers their events (no run loop is involved).
         auto state = _streamState;
         iAPTransceiverCallback* callback = _callback;
-        dispatch_queue_t queue = _queue;
-        dispatch_async(_queue, ^{
+        dispatch_queue_t queue = _queue.get();
+        dispatch_async(queue, ^{
           NSInputStream* readStream;
           NSOutputStream* writeStream;
           {
@@ -281,7 +281,7 @@ IceObjC::iAPTransceiver::close()
     // Close the streams on the stream queue, so that no event is delivered while closing, and complete the
     // pending operations: the thread pool waits for them.
     auto state = _streamState;
-    dispatch_sync(_queue, ^{
+    dispatch_sync(_queue.get(), ^{
       lock_guard lock(state->mutex);
       if (!state->error)
       {
@@ -331,7 +331,7 @@ IceObjC::iAPTransceiver::startWrite(Buffer& buf)
     }
 
     auto state = _streamState;
-    dispatch_async(_queue, ^{
+    dispatch_async(_queue.get(), ^{
       lock_guard lock(state->mutex);
       doWrite(*state);
     });
@@ -369,7 +369,7 @@ IceObjC::iAPTransceiver::startRead(Buffer& buf)
     }
 
     auto state = _streamState;
-    dispatch_async(_queue, ^{
+    dispatch_async(_queue.get(), ^{
       lock_guard lock(state->mutex);
       doRead(*state);
     });
@@ -447,7 +447,8 @@ IceObjC::iAPTransceiver::iAPTransceiver(const ProtocolInstancePtr& instance, EAS
       _readStream([session inputStream]),
       _writeStream([session outputStream]),
       _callback(nil),
-      _queue(dispatch_queue_create("com.zeroc.ice.iap", DISPATCH_QUEUE_SERIAL)),
+      _queue(IceInternal::DispatchRef<dispatch_queue_t>::adopt(
+          dispatch_queue_create("com.zeroc.ice.iap", DISPATCH_QUEUE_SERIAL))),
       _nativeInfo(make_shared<NativeInfo>(INVALID_SOCKET)),
       _streamState(make_shared<StreamState>()),
       _state(StateNeedConnect)
@@ -473,7 +474,8 @@ IceObjC::iAPTransceiver::iAPTransceiver(
       _readStream(readStream),
       _writeStream(writeStream),
       _callback(nil),
-      _queue(dispatch_queue_create("com.zeroc.ice.iap", DISPATCH_QUEUE_SERIAL)),
+      _queue(IceInternal::DispatchRef<dispatch_queue_t>::adopt(
+          dispatch_queue_create("com.zeroc.ice.iap", DISPATCH_QUEUE_SERIAL))),
       _nativeInfo(make_shared<NativeInfo>(INVALID_SOCKET)),
       _streamState(make_shared<StreamState>()),
       _state(StateNeedConnect),
@@ -491,7 +493,6 @@ IceObjC::iAPTransceiver::~iAPTransceiver()
     [_callback release];
     [_session release];
 #    endif
-    dispatch_release(_queue);
 }
 
 #endif

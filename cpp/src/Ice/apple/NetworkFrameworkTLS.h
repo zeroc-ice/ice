@@ -7,6 +7,7 @@
 
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
 
+#    include "../UniqueRef.h"
 #    include "Ice/Logger.h"
 #    include "Ice/SSL/ClientAuthenticationOptions.h"
 #    include "Ice/SSL/ConnectionInfoF.h"
@@ -26,6 +27,11 @@
 // verification, which owns these invariants: everything a block invoked asynchronously by Network.framework uses is
 // retained through the configuration, the verification completion is invoked exactly once, an application exception
 // fails the handshake, and a rejection by the local verification is distinguished from the other failures.
+//
+// The configurations are immutable and owned by the blocks that capture them: a client configuration lives as long
+// as the handshake of its connection, a server configuration as long as the listener and the handshakes of the
+// connections it accepted. The results of a configuration or of a handshake are per connection and live in separate
+// state: the exception the configure functions return, and the flag recording a rejection by the local verification.
 namespace IceInternal::NetworkFrameworkTLS
 {
     // The verification of the certificate chain the peer presents, performed by the TLS verify block.
@@ -35,61 +41,53 @@ namespace IceInternal::NetworkFrameworkTLS
         // The target host for an outgoing connection (the host name policy applies when set), the adapter name for
         // an incoming connection.
         const std::string name;
-        // Anchors the trust evaluation when set; retained by the configuration that owns this verification.
-        CFArrayRef trustedRootCertificates;
+        // Anchors the trust evaluation when set. Retained: the application may release its own reference.
+        const UniqueRef<CFArrayRef> trustedRootCertificates;
         // The application's validation callback; SecTrustEvaluateWithError when not set.
         const std::function<bool(SecTrustRef, const Ice::SSL::ConnectionInfoPtr&)> callback;
-        // Set when this verification rejects the peer, so that the connection reports a SecurityException rather
-        // than a ConnectionLostException. Optional.
-        const std::shared_ptr<std::atomic<bool>> localVerifyRejected;
     };
 
     // The TLS configuration of an outgoing connection.
     struct ClientConfiguration
     {
         ClientConfiguration(Ice::SSL::ClientAuthenticationOptions options, std::string host);
-        ~ClientConfiguration();
-        ClientConfiguration(const ClientConfiguration&) = delete;
-        ClientConfiguration& operator=(const ClientConfiguration&) = delete;
 
         const Ice::SSL::ClientAuthenticationOptions options;
         const std::string host;
         const PeerVerification verification;
-
-        // Set by configureClientTLS when the configuration failed, for example when the certificate selection
-        // callback returned an invalid chain or threw. nw_parameters_create_secure_tcp invokes its configure block
-        // synchronously: the connector rethrows this exception once the parameters are created, an exception must
-        // not escape through Network.framework.
-        std::exception_ptr error;
     };
 
     // The TLS configuration of a listener, shared by the connections it accepts.
     struct ServerConfiguration
     {
         ServerConfiguration(Ice::SSL::ServerAuthenticationOptions options, std::string adapterName, Ice::LoggerPtr);
-        ~ServerConfiguration();
-        ServerConfiguration(const ServerConfiguration&) = delete;
-        ServerConfiguration& operator=(const ServerConfiguration&) = delete;
 
         const Ice::SSL::ServerAuthenticationOptions options;
         const std::string adapterName;
         const Ice::LoggerPtr logger;
         const PeerVerification verification;
-
-        // See ClientConfiguration::error; the acceptor rethrows it once the listener parameters are created.
-        std::exception_ptr error;
     };
 
     // Configures the TLS options of an outgoing connection: the server name, the client identity, the server
     // certificate verification, then the application's sslNewSessionCallback. Called from the configure block of
-    // nw_parameters_create_secure_tcp.
-    void configureClientTLS(nw_protocol_options_t tlsOptions, const std::shared_ptr<ClientConfiguration>&);
+    // nw_parameters_create_secure_tcp, which invokes it synchronously. localVerifyRejected is set when the
+    // verification of this connection rejects the server, so that the connection reports a SecurityException rather
+    // than a ConnectionLostException.
+    //
+    // Returns the exception the configuration failed with, for example when the certificate selection callback
+    // returned an invalid chain or threw: an exception must not escape through Network.framework, the connector
+    // throws it once the parameters are created.
+    std::exception_ptr configureClientTLS(
+        nw_protocol_options_t tlsOptions,
+        std::shared_ptr<const ClientConfiguration>,
+        std::shared_ptr<std::atomic<bool>> localVerifyRejected);
 
     // Configures the TLS options of a listener: the server identity, selected for each handshake by a challenge
     // block so that a reloaded certificate is picked up without recreating the listener, the client certificate
     // requirement and verification, then the application's sslNewSessionCallback. Called from the configure block
-    // of nw_parameters_create_secure_tcp.
-    void configureServerTLS(nw_protocol_options_t tlsOptions, const std::shared_ptr<ServerConfiguration>&);
+    // of nw_parameters_create_secure_tcp, which invokes it synchronously. Returns the exception the configuration
+    // failed with, see configureClientTLS.
+    std::exception_ptr configureServerTLS(nw_protocol_options_t tlsOptions, std::shared_ptr<const ServerConfiguration>);
 }
 
 #endif

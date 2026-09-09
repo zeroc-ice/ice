@@ -8,6 +8,7 @@
 #include "../ProtocolInstanceF.h"
 #include "../Transceiver.h"
 #include "Ice/SSL/ConnectionInfoF.h"
+#include "ObjectRef.h"
 
 #include <Network/Network.h>
 #include <dispatch/dispatch.h>
@@ -53,13 +54,14 @@ namespace IceInternal
         // transceiver performs the proxy handshake for the destination address (addr) during initialize(). For
         // secure connections Network.framework performs the proxy handshake itself; the proxy is only used to
         // describe the connection.
+        // The transceiver owns the connection it is given.
         NetworkFrameworkTransceiver(
             ProtocolInstancePtr,
-            nw_connection_t,
+            NetworkRef<nw_connection_t>,
             bool secure = false,
             NetworkProxyPtr proxy = nullptr,
             const Address& addr = Address());
-        ~NetworkFrameworkTransceiver();
+        ~NetworkFrameworkTransceiver() = default;
 
         NativeInfoPtr getNativeInfo() final;
 
@@ -119,8 +121,8 @@ namespace IceInternal
         const Address _addr; // The destination address, only used with a network proxy.
         NativeInfoPtr _nativeInfo;
 
-        nw_connection_t _connection;
-        dispatch_queue_t _dispatchQueue;
+        const NetworkRef<nw_connection_t> _connection;
+        const DispatchRef<dispatch_queue_t> _dispatchQueue;
         State _state{StateNeedsConnect};
 
         // Shared async state — captured by completion blocks via shared_ptr.

@@ -8,6 +8,7 @@
 #include "../ProtocolInstanceF.h"
 #include "../TransceiverF.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
+#include "ObjectRef.h"
 
 #include <Network/Network.h>
 #include <dispatch/dispatch.h>
@@ -19,7 +20,8 @@
 
 namespace IceInternal
 {
-    class NetworkFrameworkAcceptor final : public Acceptor, public std::enable_shared_from_this<NetworkFrameworkAcceptor>
+    class NetworkFrameworkAcceptor final : public Acceptor,
+                                           public std::enable_shared_from_this<NetworkFrameworkAcceptor>
     {
     public:
         NetworkFrameworkAcceptor(
@@ -29,7 +31,7 @@ namespace IceInternal
             int port,
             const std::string& adapterName = "",
             const std::optional<Ice::SSL::ServerAuthenticationOptions>& = std::nullopt);
-        ~NetworkFrameworkAcceptor() override;
+        ~NetworkFrameworkAcceptor() override = default;
 
         NativeInfoPtr getNativeInfo() final;
 
@@ -52,8 +54,8 @@ namespace IceInternal
         const ProtocolInstancePtr _instance;
         NativeInfoPtr _nativeInfo;
 
-        nw_listener_t _listener;
-        dispatch_queue_t _dispatchQueue;
+        NetworkRef<nw_listener_t> _listener;
+        DispatchRef<dispatch_queue_t> _dispatchQueue;
 
         std::string _host;
         uint16_t _port;
@@ -66,7 +68,7 @@ namespace IceInternal
         struct AcceptState
         {
             std::mutex mutex;
-            std::deque<nw_connection_t> connections;
+            std::deque<NetworkRef<nw_connection_t>> connections; // Owned until a transceiver adopts them.
             bool waiting{false};
         };
         std::shared_ptr<AcceptState> _acceptState;

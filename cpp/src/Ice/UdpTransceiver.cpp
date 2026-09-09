@@ -11,6 +11,8 @@
 #include "UdpEndpointI.h"
 
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include "apple/ObjectRef.h"
+
 #    include <dispatch/dispatch.h>
 #    include <mutex>
 #endif
@@ -39,13 +41,9 @@ struct IceInternal::UdpAsyncState
     UdpAsyncState(SOCKET socket, NativeInfoPtr info)
         : fd(socket),
           nativeInfo(std::move(info)),
-          queue(dispatch_queue_create("com.zeroc.ice.udp", DISPATCH_QUEUE_SERIAL))
+          queue(DispatchRef<dispatch_queue_t>::adopt(dispatch_queue_create("com.zeroc.ice.udp", DISPATCH_QUEUE_SERIAL)))
     {
     }
-
-    // The sources retain the queue while they are alive. The state owns the queue so that it is released even when
-    // the transceiver constructor throws after creating the state.
-    ~UdpAsyncState() { dispatch_release(queue); }
 
     UdpAsyncState(const UdpAsyncState&) = delete;
     UdpAsyncState& operator=(const UdpAsyncState&) = delete;
@@ -53,11 +51,16 @@ struct IceInternal::UdpAsyncState
     std::mutex mutex;
     SOCKET fd;
     NativeInfoPtr nativeInfo;
-    dispatch_queue_t queue;
 
-    dispatch_source_t readSource{nullptr};
+    // The sources retain the queue while they are alive. The state owns the queue so that it is released even when
+    // the transceiver constructor throws after creating the state.
+    const DispatchRef<dispatch_queue_t> queue;
+
+    // The wrappers only release the sources: cancelSource resumes and cancels a source first, and the cancellation
+    // handler of the last source closes the socket.
+    DispatchRef<dispatch_source_t> readSource;
     bool readArmed{false};
-    dispatch_source_t writeSource{nullptr};
+    DispatchRef<dispatch_source_t> writeSource;
     bool writeArmed{false};
     int activeSources{0};
     bool closed{false};
@@ -233,10 +236,13 @@ namespace
     {
         if (!state->readSource)
         {
-            state->readSource =
-                dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, static_cast<uintptr_t>(state->fd), 0, state->queue);
+            state->readSource = DispatchRef<dispatch_source_t>::adopt(dispatch_source_create(
+                DISPATCH_SOURCE_TYPE_READ,
+                static_cast<uintptr_t>(state->fd),
+                0,
+                state->queue.get()));
             ++state->activeSources;
-            dispatch_source_set_event_handler(state->readSource, ^{
+            dispatch_source_set_event_handler(state->readSource.get(), ^{
               lock_guard lock(state->mutex);
               if (state->closed)
               {
@@ -246,16 +252,16 @@ namespace
               }
               if (tryRead(*state))
               {
-                  disarm(state->readSource, state->readArmed);
+                  disarm(state->readSource.get(), state->readArmed);
               }
             });
-            dispatch_source_set_cancel_handler(state->readSource, ^{
+            dispatch_source_set_cancel_handler(state->readSource.get(), ^{
               cancelHandler(state);
             });
         }
         if (!state->readArmed)
         {
-            dispatch_resume(state->readSource);
+            dispatch_resume(state->readSource.get());
             state->readArmed = true;
         }
     }
@@ -266,10 +272,13 @@ namespace
     {
         if (!state->writeSource)
         {
-            state->writeSource =
-                dispatch_source_create(DISPATCH_SOURCE_TYPE_WRITE, static_cast<uintptr_t>(state->fd), 0, state->queue);
+            state->writeSource = DispatchRef<dispatch_source_t>::adopt(dispatch_source_create(
+                DISPATCH_SOURCE_TYPE_WRITE,
+                static_cast<uintptr_t>(state->fd),
+                0,
+                state->queue.get()));
             ++state->activeSources;
-            dispatch_source_set_event_handler(state->writeSource, ^{
+            dispatch_source_set_event_handler(state->writeSource.get(), ^{
               lock_guard lock(state->mutex);
               if (state->closed)
               {
@@ -278,33 +287,33 @@ namespace
               completeConnect(*state);
               if (tryWrite(*state))
               {
-                  disarm(state->writeSource, state->writeArmed);
+                  disarm(state->writeSource.get(), state->writeArmed);
               }
             });
-            dispatch_source_set_cancel_handler(state->writeSource, ^{
+            dispatch_source_set_cancel_handler(state->writeSource.get(), ^{
               cancelHandler(state);
             });
         }
         if (!state->writeArmed)
         {
-            dispatch_resume(state->writeSource);
+            dispatch_resume(state->writeSource.get());
             state->writeArmed = true;
         }
     }
 
-    // Cancels a source; a suspended source must be resumed first, dispatch cannot cancel or release it otherwise.
-    void cancelSource(dispatch_source_t& source, bool& armed)
+    // Cancels a source, then releases it; a suspended source must be resumed first, dispatch cannot cancel or
+    // release it otherwise. Releasing alone would not stop the source: its cancellation is a separate operation.
+    void cancelSource(DispatchRef<dispatch_source_t>& source, bool& armed)
     {
         if (source)
         {
             if (!armed)
             {
-                dispatch_resume(source);
+                dispatch_resume(source.get());
                 armed = true;
             }
-            dispatch_source_cancel(source);
-            dispatch_release(source);
-            source = nullptr;
+            dispatch_source_cancel(source.get());
+            source.reset();
         }
     }
 

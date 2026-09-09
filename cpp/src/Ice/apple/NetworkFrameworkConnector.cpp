@@ -4,11 +4,11 @@
 
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
 
-#    include "Ice/LocalExceptions.h"
-#    include "Ice/LoggerUtil.h"
 #    include "../Network.h"
 #    include "../NetworkProxy.h"
 #    include "../ProtocolInstance.h"
+#    include "Ice/LocalExceptions.h"
+#    include "Ice/LoggerUtil.h"
 #    include "NetworkFrameworkConnector.h"
 #    include "NetworkFrameworkTransceiver.h"
 
@@ -32,7 +32,7 @@ IceInternal::NetworkFrameworkConnector::connect()
     {
         addrToAddressAndPort(_proxy->getAddress(), host, port);
     }
-    nw_endpoint_t endpoint = nw_endpoint_create_host(host.c_str(), to_string(port).c_str());
+    auto endpoint = NetworkRef<nw_endpoint_t>::adopt(nw_endpoint_create_host(host.c_str(), to_string(port).c_str()));
     if (!endpoint)
     {
         throw ConnectFailedException(__FILE__, __LINE__, 0);
@@ -42,13 +42,12 @@ IceInternal::NetworkFrameworkConnector::connect()
     // Create TCP parameters. TLS is disabled (plaintext TCP).
     // For SSL/TLS, a separate connector will configure tls_options.
     //
-    nw_parameters_t parameters = nw_parameters_create_secure_tcp(
+    auto parameters = NetworkRef<nw_parameters_t>::adopt(nw_parameters_create_secure_tcp(
         NW_PARAMETERS_DISABLE_PROTOCOL, // No TLS for plain TCP.
-        NW_PARAMETERS_DEFAULT_CONFIGURATION);
+        NW_PARAMETERS_DEFAULT_CONFIGURATION));
 
     if (!parameters)
     {
-        nw_release(endpoint);
         throw ConnectFailedException(__FILE__, __LINE__, 0);
     }
 
@@ -57,40 +56,24 @@ IceInternal::NetworkFrameworkConnector::connect()
     //
     if (isAddressValid(_sourceAddr))
     {
-        nw_endpoint_t localEndpoint = nw_endpoint_create_address(&_sourceAddr.sa);
+        auto localEndpoint = NetworkRef<nw_endpoint_t>::adopt(nw_endpoint_create_address(&_sourceAddr.sa));
         if (!localEndpoint)
         {
-            nw_release(parameters);
-            nw_release(endpoint);
             throw ConnectFailedException(__FILE__, __LINE__, 0);
         }
-        nw_parameters_set_local_endpoint(parameters, localEndpoint);
-        nw_release(localEndpoint);
+        nw_parameters_set_local_endpoint(parameters.get(), localEndpoint.get());
     }
 
     //
-    // Create the Network.framework connection.
+    // Create the Network.framework connection; the transceiver owns it.
     //
-    nw_connection_t connection = nw_connection_create(endpoint, parameters);
-    nw_release(endpoint);
-    nw_release(parameters);
-
+    auto connection = NetworkRef<nw_connection_t>::adopt(nw_connection_create(endpoint.get(), parameters.get()));
     if (!connection)
     {
         throw ConnectFailedException(__FILE__, __LINE__, 0);
     }
 
-    try
-    {
-        auto transceiver = make_shared<NetworkFrameworkTransceiver>(_instance, connection, false, _proxy, _addr);
-        nw_release(connection); // The transceiver retains its own reference.
-        return transceiver;
-    }
-    catch (...)
-    {
-        nw_release(connection);
-        throw;
-    }
+    return make_shared<NetworkFrameworkTransceiver>(_instance, std::move(connection), false, _proxy, _addr);
 }
 
 int16_t

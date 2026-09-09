@@ -45,34 +45,36 @@ Ice::SSL::ConnectorI::connect()
     auto* nfConnector = dynamic_cast<const IceInternal::NetworkFrameworkConnector*>(_delegate.get());
     assert(nfConnector);
 
-    nw_endpoint_t endpoint = nw_endpoint_create_host(nfConnector->host().c_str(), to_string(nfConnector->port()).c_str());
+    using IceInternal::NetworkRef;
+
+    auto endpoint = NetworkRef<nw_endpoint_t>::adopt(
+        nw_endpoint_create_host(nfConnector->host().c_str(), to_string(nfConnector->port()).c_str()));
     if (!endpoint)
     {
         throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
     }
 
-    // The configuration is shared with the blocks Network.framework invokes during the handshake.
+    // The immutable configuration is owned by the blocks Network.framework invokes during the handshake; the
+    // results are per connection: the configuration error, and the flag the verification of this connection sets.
     auto configuration =
-        make_shared<IceInternal::NetworkFrameworkTLS::ClientConfiguration>(*clientAuthenticationOptions, _host);
+        make_shared<const IceInternal::NetworkFrameworkTLS::ClientConfiguration>(*clientAuthenticationOptions, _host);
+    auto localVerifyRejected = make_shared<atomic<bool>>(false);
+    __block exception_ptr error;
 
-    nw_parameters_t parameters = nw_parameters_create_secure_tcp(
+    auto parameters = NetworkRef<nw_parameters_t>::adopt(nw_parameters_create_secure_tcp(
         ^(nw_protocol_options_t tlsOptions) {
-          IceInternal::NetworkFrameworkTLS::configureClientTLS(tlsOptions, configuration);
+          error = IceInternal::NetworkFrameworkTLS::configureClientTLS(tlsOptions, configuration, localVerifyRejected);
         },
-        NW_PARAMETERS_DEFAULT_CONFIGURATION);
+        NW_PARAMETERS_DEFAULT_CONFIGURATION));
 
-    if (!parameters)
-    {
-        nw_release(endpoint);
-        throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
-    }
-
-    if (configuration->error)
+    if (error)
     {
         // Set by the configure block, which nw_parameters_create_secure_tcp invoked synchronously.
-        nw_release(parameters);
-        nw_release(endpoint);
-        rethrow_exception(configuration->error);
+        rethrow_exception(error);
+    }
+    if (!parameters)
+    {
+        throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
     }
 
     // Ice performs the SOCKS or HTTP CONNECT proxy handshake in-band on plain TCP connections, before it starts
@@ -86,23 +88,20 @@ Ice::SSL::ConnectorI::connect()
             string proxyHost;
             int proxyPort;
             IceInternal::addrToAddressAndPort(proxy->getAddress(), proxyHost, proxyPort);
-            nw_endpoint_t proxyEndpoint = nw_endpoint_create_host(proxyHost.c_str(), to_string(proxyPort).c_str());
-            nw_proxy_config_t proxyConfig = proxy->getName() == "HTTP"
-                                                ? nw_proxy_config_create_http_connect(proxyEndpoint, nullptr)
-                                                : nw_proxy_config_create_socksv5(proxyEndpoint);
-            nw_release(proxyEndpoint);
+            auto proxyEndpoint = NetworkRef<nw_endpoint_t>::adopt(
+                nw_endpoint_create_host(proxyHost.c_str(), to_string(proxyPort).c_str()));
+            auto proxyConfig = NetworkRef<nw_proxy_config_t>::adopt(
+                proxy->getName() == "HTTP" ? nw_proxy_config_create_http_connect(proxyEndpoint.get(), nullptr)
+                                           : nw_proxy_config_create_socksv5(proxyEndpoint.get()));
             // The proxy is explicitly configured: never fall back to a direct connection when it cannot be used.
-            nw_proxy_config_set_failover_allowed(proxyConfig, false);
-            nw_privacy_context_t privacyContext = nw_privacy_context_create("com.zeroc.ice.ssl-proxy");
-            nw_privacy_context_add_proxy(privacyContext, proxyConfig);
-            nw_parameters_set_privacy_context(parameters, privacyContext);
-            nw_release(privacyContext);
-            nw_release(proxyConfig);
+            nw_proxy_config_set_failover_allowed(proxyConfig.get(), false);
+            auto privacyContext =
+                NetworkRef<nw_privacy_context_t>::adopt(nw_privacy_context_create("com.zeroc.ice.ssl-proxy"));
+            nw_privacy_context_add_proxy(privacyContext.get(), proxyConfig.get());
+            nw_parameters_set_privacy_context(parameters.get(), privacyContext.get());
         }
         else
         {
-            nw_release(parameters);
-            nw_release(endpoint);
             throw Ice::FeatureNotSupportedException(
                 __FILE__,
                 __LINE__,
@@ -114,49 +113,32 @@ Ice::SSL::ConnectorI::connect()
     const IceInternal::Address& sourceAddr = nfConnector->sourceAddress();
     if (IceInternal::isAddressValid(sourceAddr))
     {
-        nw_endpoint_t localEndpoint = nw_endpoint_create_address(&sourceAddr.sa);
+        auto localEndpoint = NetworkRef<nw_endpoint_t>::adopt(nw_endpoint_create_address(&sourceAddr.sa));
         if (!localEndpoint)
         {
-            nw_release(parameters);
-            nw_release(endpoint);
             throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
         }
-        nw_parameters_set_local_endpoint(parameters, localEndpoint);
-        nw_release(localEndpoint);
+        nw_parameters_set_local_endpoint(parameters.get(), localEndpoint.get());
     }
 
-    nw_connection_t connection = nw_connection_create(endpoint, parameters);
-    nw_release(endpoint);
-    nw_release(parameters);
-
+    // The transceiver owns the connection.
+    auto connection = NetworkRef<nw_connection_t>::adopt(nw_connection_create(endpoint.get(), parameters.get()));
     if (!connection)
     {
         throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
     }
 
-    try
-    {
-        IceInternal::ProtocolInstancePtr protocolInstance = _instance;
-        auto transceiver = make_shared<IceInternal::NetworkFrameworkTransceiver>(
-            protocolInstance,
-            connection,
-            true /* secure */,
-            nfConnector->proxy(),
-            nfConnector->address());
-        transceiver->setLocalVerifyRejected(configuration->verification.localVerifyRejected);
-        SSLEnginePtr engine = _instance->engine();
-        transceiver->setPeerVerifier(
-            [engine](const ConnectionInfoPtr& info) { engine->verifyPeer(info); },
-            false,
-            "");
-        nw_release(connection);
-        return transceiver;
-    }
-    catch (...)
-    {
-        nw_release(connection);
-        throw;
-    }
+    IceInternal::ProtocolInstancePtr protocolInstance = _instance;
+    auto transceiver = make_shared<IceInternal::NetworkFrameworkTransceiver>(
+        protocolInstance,
+        std::move(connection),
+        true /* secure */,
+        nfConnector->proxy(),
+        nfConnector->address());
+    transceiver->setLocalVerifyRejected(std::move(localVerifyRejected));
+    SSLEnginePtr engine = _instance->engine();
+    transceiver->setPeerVerifier([engine](const ConnectionInfoPtr& info) { engine->verifyPeer(info); }, false, "");
+    return transceiver;
 #else
     return make_shared<TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);
 #endif
