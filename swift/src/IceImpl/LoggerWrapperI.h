@@ -1,6 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 #import "Convert.h"
 
+#ifdef __cplusplus
+
 class LoggerWrapperI final : public Ice::Logger
 {
 public:
@@ -29,3 +31,5 @@ public:
 private:
     id<ICELoggerProtocol> _logger;
 };
+
+#endif
