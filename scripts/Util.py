@@ -3251,6 +3251,8 @@ class AndroidProcessController(RemoteProcessController):
         "on",
         "-no-boot-anim",
         "-no-window",
+        "-feature",
+        "-ReadColorBufferDma",
         "-packet-streamer-endpoint",
         "default",
     ]
@@ -3314,7 +3316,7 @@ class AndroidProcessController(RemoteProcessController):
         # from the Bluetooth emulators that do boot it (besides -writable-system and the Netsim
         # endpoint). A first boot writes APEX and dexopt output into /data, Android Studio's default
         # for this image family is 6 GB, and 768 MB was a plausible place for it to stall.
-        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 2048 -no-snapshot -gpu swiftshader -accel on -no-boot-anim -no-window".format(
+        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 2048 -no-snapshot -gpu swiftshader -accel on -no-boot-anim -no-window -feature -ReadColorBufferDma".format(
             avd, port
         )
 
