@@ -10,8 +10,8 @@ from typing import Any
 from Util import (
     Client,
     ClientServerTestCase,
-    Darwin,
     Driver,
+    Linux,
     Mapping,
     Process,
     ProcessFromBinDir,
@@ -75,8 +75,10 @@ class Writer(Client, DataStormProcess):
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
             props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {port}"
-            # Need to use --interface 127.0.0.1 for the macOS GitHub runners.
-            if isinstance(platform, Darwin):
+            # Send the announcements over the loopback interface: the default multicast interface can't always route
+            # the group, and a failed send hangs the test as the peers never discover each other. Not on Linux, where
+            # the loopback interface isn't multicast-capable: the receiver never joins the group on it.
+            if not isinstance(platform, Linux):
                 props["DataStorm.Node.Multicast.Proxy"] = (
                     f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port} --interface 127.0.0.1"
                 )
@@ -107,8 +109,10 @@ class Reader(Server, DataStormProcess):
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
             props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {port}"
-            # Need to use --interface 127.0.0.1 for the macOS GitHub runners.
-            if isinstance(platform, Darwin):
+            # Send the announcements over the loopback interface: the default multicast interface can't always route
+            # the group, and a failed send hangs the test as the peers never discover each other. Not on Linux, where
+            # the loopback interface isn't multicast-capable: the receiver never joins the group on it.
+            if not isinstance(platform, Linux):
                 props["DataStorm.Node.Multicast.Proxy"] = (
                     f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port} --interface 127.0.0.1"
                 )
