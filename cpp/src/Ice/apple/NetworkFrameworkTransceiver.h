@@ -7,6 +7,7 @@
 #include "../NetworkProxyF.h"
 #include "../ProtocolInstanceF.h"
 #include "../Transceiver.h"
+#include "AsyncOperation.h"
 #include "Ice/SSL/ConnectionInfoF.h"
 #include "ObjectRef.h"
 
@@ -14,42 +15,57 @@
 #include <dispatch/dispatch.h>
 
 #include <atomic>
+#include <cstddef>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
 
 namespace IceInternal
 {
-    //
-    // Shared async I/O state for Network.framework completion blocks.
-    // These structs are held by shared_ptr to ensure they outlive the transceiver
-    // if a completion block fires after the transceiver is destroyed.
-    //
-    struct ReadState
-    {
-        std::mutex mutex;
-        std::vector<std::byte> data;
-        int error{0};
-    };
-
-    struct WriteState
-    {
-        std::mutex mutex;
-        size_t count{0};
-        int error{0};
-    };
-
-    struct ConnectState
-    {
-        std::atomic<bool> connected{false};
-        std::atomic<int> error{0};
-        std::atomic<bool> tlsError{false};
-    };
-
+    // Completion-based transceiver for the TCP and TLS connections of Network.framework. The thread pool starts an
+    // asynchronous connect, read or write operation; the transceiver starts the corresponding Network.framework
+    // operation, whose completion block records the result and posts one completion through the NativeInfo; the
+    // thread pool then finishes the operation and the transceiver consumes the result.
     class NetworkFrameworkTransceiver final : public Transceiver
     {
     public:
+        // The outstanding operations and their results, shared between the transceiver and the blocks
+        // Network.framework invokes on the connection's dispatch queue. The blocks only use this state, never the
+        // transceiver, so they can run after the transceiver is destroyed. The read and write operations are
+        // independent: both can be pending at the same time.
+        struct AsyncState
+        {
+            struct ConnectResult
+            {
+                int error{0};         // 0 when the connection is established.
+                bool tlsError{false}; // The error is a TLS handshake failure.
+            };
+
+            struct ReadResult
+            {
+                std::vector<std::byte> data; // Empty on error.
+                int error{0};
+            };
+
+            struct WriteResult
+            {
+                size_t count{0}; // The number of bytes sent, 0 on error.
+                int error{0};
+            };
+
+            explicit AsyncState(NativeInfoPtr);
+            AsyncState(const AsyncState&) = delete;
+            AsyncState& operator=(const AsyncState&) = delete;
+
+            std::mutex mutex; // Protects the operations.
+            const NativeInfoPtr nativeInfo;
+            AsyncOperation<ConnectResult> connect;
+            AsyncOperation<ReadResult> read;
+            AsyncOperation<WriteResult> write;
+        };
+
         // With a network proxy, the connection is established with the proxy and, for plain TCP connections, the
         // transceiver performs the proxy handshake for the destination address (addr) during initialize(). For
         // secure connections Network.framework performs the proxy handshake itself; the proxy is only used to
@@ -123,12 +139,8 @@ namespace IceInternal
 
         const NetworkRef<nw_connection_t> _connection;
         const DispatchRef<dispatch_queue_t> _dispatchQueue;
+        const std::shared_ptr<AsyncState> _async;
         State _state{StateNeedsConnect};
-
-        // Shared async state — captured by completion blocks via shared_ptr.
-        std::shared_ptr<ConnectState> _connectState;
-        std::shared_ptr<ReadState> _readState;
-        std::shared_ptr<WriteState> _writeState;
 
         std::string _desc;
         bool _secure;
