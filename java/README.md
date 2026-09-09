@@ -95,8 +95,9 @@ dependencies {
 }
 ```
 
-When Ice cannot find these classes, it sends all messages uncompressed and throws an exception when it receives a
-compressed message.
+When Ice cannot find these classes, it sends all messages uncompressed. If Ice receives a compressed message, it aborts
+the connection: the sender gets a `ConnectionLostException`, and the receiver logs a warning when `Ice.Warn.Connections`
+is enabled.
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/java
 [Documentation]: https://docs.zeroc.com/ice/latest/java
