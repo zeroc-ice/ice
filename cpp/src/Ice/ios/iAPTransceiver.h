@@ -6,6 +6,7 @@
 #include "../Network.h"
 #include "../ProtocolInstanceF.h"
 #include "../Transceiver.h"
+#include "../apple/ObjectRef.h"
 
 #import <ExternalAccessory/ExternalAccessory.h>
 #import <Foundation/Foundation.h>
@@ -103,7 +104,7 @@ namespace IceObjC
         NSInputStream* _readStream;
         NSOutputStream* _writeStream;
         iAPTransceiverCallback* _callback;
-        dispatch_queue_t _queue;
+        const IceInternal::DispatchRef<dispatch_queue_t> _queue;
         IceInternal::NativeInfoPtr _nativeInfo;
         std::shared_ptr<StreamState> _streamState;
 

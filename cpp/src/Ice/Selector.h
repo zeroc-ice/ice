@@ -17,6 +17,8 @@
 #elif defined(ICE_USE_KQUEUE)
 #    include <sys/event.h>
 #elif defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include "apple/ObjectRef.h"
+
 #    include <deque>
 #    include <dispatch/dispatch.h>
 #    include <mutex>
@@ -141,7 +143,7 @@ namespace IceInternal
 
     private:
         const InstancePtr _instance;
-        dispatch_semaphore_t _semaphore;
+        DispatchRef<dispatch_semaphore_t> _semaphore;
 
         struct CompletionEntry
         {

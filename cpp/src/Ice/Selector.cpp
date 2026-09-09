@@ -780,12 +780,12 @@ Selector::updateSelectorForEventHandler(
 // dispatch blocks call completed() to post completions to the queue.
 //
 
-Selector::Selector(const InstancePtr& instance) : _instance(instance), _semaphore(nullptr) {}
+Selector::Selector(const InstancePtr& instance) : _instance(instance) {}
 
 void
 Selector::setup(int)
 {
-    _semaphore = dispatch_semaphore_create(0);
+    _semaphore = DispatchRef<dispatch_semaphore_t>::adopt(dispatch_semaphore_create(0));
     _completionToken = make_shared<SelectorCompletionToken>();
 }
 
@@ -800,11 +800,7 @@ Selector::destroy()
         _completionToken->valid = false;
     }
 
-    if (_semaphore)
-    {
-        dispatch_release(_semaphore);
-        _semaphore = nullptr;
-    }
+    _semaphore.reset();
 }
 
 void
@@ -872,12 +868,12 @@ Selector::getNextHandler(SocketOperation& status, size_t& count, int& error, int
     if (timeout > 0)
     {
         result = dispatch_semaphore_wait(
-            _semaphore,
+            _semaphore.get(),
             dispatch_time(DISPATCH_TIME_NOW, static_cast<int64_t>(timeout) * static_cast<int64_t>(NSEC_PER_SEC)));
     }
     else
     {
-        result = dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+        result = dispatch_semaphore_wait(_semaphore.get(), DISPATCH_TIME_FOREVER);
     }
 
     if (result != 0)
@@ -903,7 +899,7 @@ Selector::completed(EventHandler* handler, SocketOperation op)
         lock_guard lock(_mutex);
         _completionQueue.push_back({handler, op});
     }
-    dispatch_semaphore_signal(_semaphore);
+    dispatch_semaphore_signal(_semaphore.get());
 }
 
 #endif
