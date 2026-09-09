@@ -30,7 +30,7 @@ dependencies {
 
 if(!gradle.startParameter.isOffline()) {
     dependencies {
-        runtimeOnly "org.apache.commons:commons-compress:1.20"
+        runtimeOnly "org.apache.commons:commons-compress:1.28.0"
     }
 }
 

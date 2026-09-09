@@ -82,8 +82,25 @@ class Chatbot implements Greeter {
 }
 ```
 
+## Protocol Compression
+
+Ice for Java implements protocol compression with the bzip2 classes of [Apache Commons Compress][commons-compress].
+Ice loads these classes reflectively at run time, and the Ice JAR does not declare a dependency on this library. To
+enable compression, add `org.apache.commons:commons-compress` to your application's runtime class path, for example
+with Gradle:
+
+```groovy
+dependencies {
+    runtimeOnly "org.apache.commons:commons-compress:1.28.0"
+}
+```
+
+When Ice cannot find these classes, it sends all messages uncompressed and throws an exception when it receives a
+compressed message.
+
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/java
 [Documentation]: https://docs.zeroc.com/ice/latest/java
 [API Reference]: https://code.zeroc.com/ice/main/api/java/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
+[commons-compress]: https://commons.apache.org/proper/commons-compress/
