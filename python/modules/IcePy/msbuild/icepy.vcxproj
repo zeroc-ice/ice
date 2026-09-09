@@ -63,6 +63,7 @@
     <ClInclude Include="..\ConnectionInfo.h" />
     <ClInclude Include="..\Current.h" />
     <ClInclude Include="..\DefaultSliceLoader.h" />
+    <ClInclude Include="..\DocStrings.h" />
     <ClInclude Include="..\Executor.h" />
     <ClInclude Include="..\Endpoint.h" />
     <ClInclude Include="..\EndpointInfo.h" />

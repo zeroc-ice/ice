@@ -50,6 +50,11 @@ jobs:
         working-directory: python
         run: uv sync --group dev
 
+      - name: Check the generated IcePy docstring header
+        working-directory: python
+        run: |
+          uv run python ../scripts/generateIcePyDocs.py --check
+
       - name: Build Ice for Python
         run: |
           make -C cpp srcs
@@ -61,8 +66,3 @@ jobs:
         working-directory: python
         run: |
           uv run pyright --project ..
-
-      - name: Check the IcePy stub against the IcePy module
-        working-directory: python
-        run: |
-          PYTHONPATH=python uv run python ../scripts/checkIcePyStub.py

@@ -1,37 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Endpoint.h"
+#include "DocStrings.h"
 #include "EndpointInfo.h"
 #include "Ice/TargetCompare.h"
 #include "Util.h"
 
 using namespace std;
 using namespace IcePy;
-
-namespace
-{
-    constexpr const char* endpointToString_doc = R"(toString() -> str
-
-Returns a string representation of this endpoint.
-
-Returns
--------
-str
-    The string representation of this endpoint.)";
-
-    constexpr const char* endpointGetInfo_doc = R"(getInfo() -> EndpointInfo
-
-Returns this endpoint's information.
-
-Returns
--------
-EndpointInfo
-    This endpoint's information class.)";
-
-    constexpr const char* EndpointType_doc =
-        R"(An endpoint specifies the address of the server-end of an Ice connection.
-An object adapter listens on one or more endpoints and a client establishes a connection to an endpoint.)";
-}
 
 namespace IcePy
 {
@@ -143,8 +119,8 @@ endpointGetInfo(EndpointObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef EndpointMethods[] = {
-    {"toString", reinterpret_cast<PyCFunction>(endpointToString), METH_NOARGS, PyDoc_STR(endpointToString_doc)},
-    {"getInfo", reinterpret_cast<PyCFunction>(endpointGetInfo), METH_NOARGS, PyDoc_STR(endpointGetInfo_doc)},
+    {"toString", reinterpret_cast<PyCFunction>(endpointToString), METH_NOARGS, PyDoc_STR(IcePy_DOC_Endpoint_toString)},
+    {"getInfo", reinterpret_cast<PyCFunction>(endpointGetInfo), METH_NOARGS, PyDoc_STR(IcePy_DOC_Endpoint_getInfo)},
     {} /* sentinel */
 };
 
@@ -158,7 +134,7 @@ namespace IcePy
         .tp_dealloc = reinterpret_cast<destructor>(endpointDealloc),
         .tp_repr = reinterpret_cast<reprfunc>(endpointRepr),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR(EndpointType_doc),
+        .tp_doc = PyDoc_STR(IcePy_DOC_Endpoint),
         .tp_richcompare = reinterpret_cast<richcmpfunc>(endpointCompare),
         .tp_methods = EndpointMethods,
         .tp_new = reinterpret_cast<newfunc>(endpointNew),
