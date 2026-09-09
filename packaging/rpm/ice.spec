@@ -664,7 +664,7 @@ exit 0
 %{_mandir}/man1/slice2py.1*
 
 %changelog
-* Wed Jul 1 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.8.3
+* Wed Sep 9 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.8.3
 - The 3.8.3 release
 
 * Tue Jun 2 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.8.2
