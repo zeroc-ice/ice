@@ -414,6 +414,7 @@ jobs:
         if: always() && startsWith(matrix.config, 'android') && matrix.android_bt != true
         timeout-minutes: 2
         run: |
+          set +e
           free -m; uptime; nproc; adb devices -l
           sudo dmesg 2>/dev/null | grep -i -E "out of memory|oom-kill|killed process" | tail -20
           true
