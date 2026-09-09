@@ -146,10 +146,10 @@ Transceiver::startRead(IceInternal::Buffer& buf)
     _configuration->checkReadException();
     if (_buffered && _initialized)
     {
-        size_t available = _readBuffer.i - _readBufferPos;
+        auto available = static_cast<size_t>(_readBuffer.i - _readBufferPos);
         if (available > 0)
         {
-            size_t requested = buf.b.end() - buf.i;
+            auto requested = static_cast<size_t>(buf.b.end() - buf.i);
             assert(available > 0);
             if (available >= requested)
             {
@@ -188,8 +188,8 @@ Transceiver::finishRead(IceInternal::Buffer& buf)
         {
             _transceiver->finishRead(_readBuffer);
 
-            size_t requested = buf.b.end() - buf.i;
-            size_t available = _readBuffer.i - _readBufferPos;
+            auto requested = static_cast<size_t>(buf.b.end() - buf.i);
+            auto available = static_cast<size_t>(_readBuffer.i - _readBufferPos);
             if (available > 0)
             {
                 if (available >= requested)
