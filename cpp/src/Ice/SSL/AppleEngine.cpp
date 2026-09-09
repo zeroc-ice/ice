@@ -4,6 +4,7 @@
 #include "../FileUtil.h"
 #include "../Instance.h"
 #include "../TraceLevels.h"
+#include "AppleSSLUtil.h"
 #include "Ice/Config.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
@@ -12,7 +13,6 @@
 #include "Ice/UUID.h"
 #include "SSLEngine.h"
 #include "SSLUtil.h"
-#include "AppleSSLUtil.h"
 
 #include <cerrno>
 #include <climits>
@@ -365,8 +365,7 @@ Apple::SSLEngine::createServerAuthenticationOptions() const
 }
 
 bool
-Apple::SSLEngine::validationCallback(SecTrustRef trust, const ConnectionInfoPtr& info, const string& host)
-    const
+Apple::SSLEngine::validationCallback(SecTrustRef trust, const ConnectionInfoPtr& info, const string& host) const
 {
     OSStatus err = noErr;
     UniqueRef<CFErrorRef> trustErr;

@@ -770,11 +770,11 @@ IceInternal::WSTransceiver::startRead(Buffer& buf)
             // no more than the payload length. The remaining of the buffer will be
             // sent over in another frame.
             //
-            size_t readSz = _readPayloadLength - (buf.i - _readStart);
+            size_t readSz = _readPayloadLength - static_cast<size_t>(buf.i - _readStart);
             if (static_cast<size_t>(buf.b.end() - buf.i) > readSz)
             {
                 size_t size = buf.b.size();
-                buf.b.resize(buf.i - buf.b.begin() + readSz);
+                buf.b.resize(static_cast<size_t>(buf.i - buf.b.begin()) + readSz);
                 _delegate->startRead(buf);
                 buf.b.resize(size);
             }

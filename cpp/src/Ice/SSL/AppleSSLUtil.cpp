@@ -573,8 +573,7 @@ namespace
     CFArrayRef createIdentityChain(CFArrayRef items, SecKeychainRef keychain, const string& file)
     {
         UniqueRef<SecIdentityRef> identity;
-        UniqueRef<CFMutableArrayRef> certificates(
-            CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
+        UniqueRef<CFMutableArrayRef> certificates(CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
         CFIndex count = CFArrayGetCount(items);
         for (CFIndex i = 0; i < count; ++i)
         {
@@ -596,8 +595,8 @@ namespace
             OSStatus err = errSecItemNotFound;
             for (CFIndex i = 0; i < CFArrayGetCount(certificates.get()); ++i)
             {
-                auto cert = static_cast<SecCertificateRef>(
-                    const_cast<void*>(CFArrayGetValueAtIndex(certificates.get(), i)));
+                auto cert =
+                    static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(certificates.get(), i)));
                 err = SecIdentityCreateWithCertificate(keychain, cert, &identity.get());
                 if (err == noErr && identity)
                 {
@@ -828,10 +827,7 @@ CFArrayRef
 #if defined(ICE_USE_APPLE_SSL_IOS)
 Ice::SSL::Apple::findCertificateChain(const string&, const string&, const string& value)
 #else
-Ice::SSL::Apple::findCertificateChain(
-    const string& keychainPath,
-    const string& keychainPassword,
-    const string& value)
+Ice::SSL::Apple::findCertificateChain(const string& keychainPath, const string& keychainPassword, const string& value)
 #endif
 {
     //

@@ -49,9 +49,12 @@ clientSetNewSessionCallbackExample()
     //! [sslNewSessionCallback]
     auto initData = Ice::InitializationData{
         .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
-            .sslNewSessionCallback = [](sec_protocol_options_t secOptions, const std::string&)
+            .sslNewSessionCallback =
+                [](sec_protocol_options_t secOptions, const std::string&)
             {
-                sec_protocol_options_set_min_tls_protocol_version(secOptions, tls_protocol_version_TLSv13);
+                sec_protocol_options_set_min_tls_protocol_version(
+                    secOptions,
+                    tls_protocol_version_TLSv13);
             }}};
     //! [sslNewSessionCallback]
 }
