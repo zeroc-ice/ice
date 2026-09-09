@@ -75,15 +75,15 @@ class Writer(Client, DataStormProcess):
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
             props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {port}"
-            # Pin the announcements to the loopback interface: the default multicast interface can't always route the
-            # group, and a failed send hangs the test as the peers never discover each other. We can't do this on
-            # Linux, where the loopback interface isn't multicast-capable: the receiver never joins the group on it.
-            if isinstance(platform, Linux):
-                props["DataStorm.Node.Multicast.Proxy"] = f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port}"
-            else:
+            # Send the announcements over the loopback interface: the default multicast interface can't always route
+            # the group, and a failed send hangs the test as the peers never discover each other. Not on Linux, where
+            # the loopback interface isn't multicast-capable: the receiver never joins the group on it.
+            if not isinstance(platform, Linux):
                 props["DataStorm.Node.Multicast.Proxy"] = (
                     f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port} --interface 127.0.0.1"
                 )
+            else:
+                props["DataStorm.Node.Multicast.Proxy"] = f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port}"
         elif not any(key.startswith("DataStorm.Node.") for key in props):
             # Default properties for tests that don't specify any DataStorm.Node.* properties
             props.update(
@@ -109,15 +109,15 @@ class Reader(Server, DataStormProcess):
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
             props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {port}"
-            # Pin the announcements to the loopback interface: the default multicast interface can't always route the
-            # group, and a failed send hangs the test as the peers never discover each other. We can't do this on
-            # Linux, where the loopback interface isn't multicast-capable: the receiver never joins the group on it.
-            if isinstance(platform, Linux):
-                props["DataStorm.Node.Multicast.Proxy"] = f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port}"
-            else:
+            # Send the announcements over the loopback interface: the default multicast interface can't always route
+            # the group, and a failed send hangs the test as the peers never discover each other. Not on Linux, where
+            # the loopback interface isn't multicast-capable: the receiver never joins the group on it.
+            if not isinstance(platform, Linux):
                 props["DataStorm.Node.Multicast.Proxy"] = (
                     f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port} --interface 127.0.0.1"
                 )
+            else:
+                props["DataStorm.Node.Multicast.Proxy"] = f"DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p {port}"
         elif not any(key.startswith("DataStorm.Node.") for key in props):
             # Default properties for tests that don't specify any DataStorm.Node.* properties
             props.update(
