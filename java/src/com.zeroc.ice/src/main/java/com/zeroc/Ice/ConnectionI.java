@@ -1704,7 +1704,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 } else {
                     throw new FeatureNotSupportedException(
                         "Cannot uncompress compressed message: "
-                            + "org.apache.tools.bzip2.CBZip2OutputStream was not found");
+                            + "org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream was not found");
                 }
             }
             info.stream.pos(Protocol.headerSize);
