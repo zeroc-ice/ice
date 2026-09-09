@@ -115,8 +115,9 @@ To build the Android test controller from the command line:
   ```
 
   This creates and boots an Android 16 (API 36) emulator. To run on another release, set `ANDROID_PLATFORM` to the
-  SDK platform whose `google_apis` system image you have installed, for example `android-37.0` for Android 17, or
-  pass `--avd=<name>` to use an existing virtual device.
+  SDK platform whose system image you have installed, and `ANDROID_IMAGE_TAG` to that image's tag when it is not
+  `google_apis`: for example `android-37.1` and `google_apis_ps16k` for Android 17. Or pass `--avd=<name>` to use an
+  existing virtual device.
 
 ### Using Android Studio
 

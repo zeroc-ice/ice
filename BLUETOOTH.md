@@ -61,7 +61,7 @@ Run from the repository root, with:
 ```bash
 export PYTHONPATH="$PWD/python/python"
 UUID=8ce255c0-200a-11e0-ac64-0800200c9a66
-# Android 16; substitute android-37.0 for Android 17.
+# Android 16; for Android 17 use system-images;android-37.1;google_apis_ps16k;x86_64.
 IMG="system-images;android-36;google_apis;x86_64"  # arm64-v8a on Apple silicon
 CLIENT=emulator-5554
 SERVER=emulator-5556

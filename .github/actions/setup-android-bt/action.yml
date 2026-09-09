@@ -6,8 +6,8 @@ description: >
   stack -- see setup-vhci -- which needs modules only the arm64 image has.) This boots two
   emulators, bonds them, and starts the server-side process controller, leaving the client for
   allTests.py.
-  Requires setup-android (SDK, KVM, PATH, $ANDROID_PLATFORM) and a build that produced Python Ice
-  and the Java tests.
+  Requires setup-android (SDK, KVM, PATH, $ANDROID_PLATFORM, $ANDROID_IMAGE_TAG) and a build that
+  produced Python Ice and the Java tests.
 
 inputs:
   client:
@@ -76,12 +76,12 @@ runs:
       run: |
         export PYTHONPATH="$GITHUB_WORKSPACE/python/python"
         mkdir -p "$ANDROID_AVD_HOME"
-        # Match the system image setup-android installed: its platform input ($ANDROID_PLATFORM)
-        # and this runner's architecture.
+        # Match the system image setup-android installed: its platform and tag inputs
+        # ($ANDROID_PLATFORM, $ANDROID_IMAGE_TAG) and this runner's architecture.
         if [ "$(uname -m)" = "aarch64" ]; then ARCH="arm64-v8a"; else ARCH="x86_64"; fi
         python3 scripts/Controller.py --android --bt-emulators \
           --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
-          --bt-image="system-images;$ANDROID_PLATFORM;google_apis;$ARCH"
+          --bt-image="system-images;$ANDROID_PLATFORM;$ANDROID_IMAGE_TAG;$ARCH"
 
     - name: Prepare and bond the two emulators
       shell: bash
