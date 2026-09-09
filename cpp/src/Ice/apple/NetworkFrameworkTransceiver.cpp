@@ -21,6 +21,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+using AsyncState = IceInternal::NetworkFrameworkTransceiver::AsyncState;
+
 namespace
 {
     string nwEndpointToString(nw_endpoint_t endpoint)
@@ -33,7 +35,41 @@ namespace
         uint16_t port = nw_endpoint_get_port(endpoint);
         return host + ":" + to_string(port);
     }
+
+    // The functions below are called with the state mutex held.
+
+    // Completes the operation with its result and posts its completion to the selector, unless the operation was
+    // already completed: the selector receives exactly one completion per started operation.
+    template<typename Result>
+    void complete(AsyncState& state, AsyncOperation<Result>& operation, SocketOperation kind, Result result)
+    {
+        if (operation.complete(std::move(result)))
+        {
+            state.nativeInfo->completed(kind);
+        }
+    }
+
+    // Cancellation is the terminal result of the pending operations: the thread pool waits for their completions
+    // before it finishes the connection. The blocks Network.framework invokes for these operations afterwards
+    // complete nothing.
+    void cancel(AsyncState& state)
+    {
+        complete(state, state.connect, SocketOperationConnect, AsyncState::ConnectResult{ECANCELED, false});
+        complete(state, state.read, SocketOperationRead, AsyncState::ReadResult{{}, ECANCELED});
+        complete(state, state.write, SocketOperationWrite, AsyncState::WriteResult{0, ECANCELED});
+    }
+
+    AsyncState::ConnectResult connectFailure(nw_error_t error)
+    {
+        if (!error)
+        {
+            return {ECONNREFUSED, false};
+        }
+        return {nw_error_get_error_code(error), nw_error_get_error_domain(error) == nw_error_domain_tls};
+    }
 }
+
+IceInternal::NetworkFrameworkTransceiver::AsyncState::AsyncState(NativeInfoPtr info) : nativeInfo(std::move(info)) {}
 
 IceInternal::NetworkFrameworkTransceiver::NetworkFrameworkTransceiver(
     ProtocolInstancePtr instance,
@@ -48,10 +84,8 @@ IceInternal::NetworkFrameworkTransceiver::NetworkFrameworkTransceiver(
       _connection(std::move(connection)),
       _dispatchQueue(DispatchRef<dispatch_queue_t>::adopt(
           dispatch_queue_create("com.zeroc.ice.nw-connection", DISPATCH_QUEUE_SERIAL))),
+      _async(make_shared<AsyncState>(_nativeInfo)),
       _state(StateNeedsConnect),
-      _connectState(make_shared<ConnectState>()),
-      _readState(make_shared<ReadState>()),
-      _writeState(make_shared<WriteState>()),
       _secure(secure)
 {
     assert(_connection);
@@ -70,69 +104,34 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer& readBuffer, Buffer&
     {
         _state = StateConnectPending;
 
-        //
-        // Set up the state change handler. Capture shared state and NativeInfo by shared_ptr
-        // so the block is safe even if the transceiver is destroyed before it fires.
-        //
-        auto connectState = _connectState;
-        NativeInfoPtr nativeInfo = _nativeInfo;
-        bool secure = _secure;
+        // The connection reports several state transitions, of which the first terminal one completes the connect
+        // operation: ready, or the failure. Later transitions leave the completed operation unchanged, for example
+        // a connection that fails or is cancelled once established (the read and write operations report that), or
+        // a connection that becomes ready after it reported that it was waiting.
+        {
+            lock_guard lock(_async->mutex);
+            _async->connect.start();
+        }
+        auto async = _async; // The block captures a copy: it can run after the transceiver is destroyed.
         nw_connection_set_state_changed_handler(_connection.get(), ^(nw_connection_state_t state, nw_error_t error) {
+          lock_guard lock(async->mutex);
           switch (state)
           {
               case nw_connection_state_ready:
-              {
-                  connectState->connected.store(true);
-                  nativeInfo->completed(SocketOperationConnect);
+                  complete(*async, async->connect, SocketOperationConnect, AsyncState::ConnectResult{});
                   break;
-              }
-              case nw_connection_state_failed:
-              {
-                  // Only signal connect completion if the connection hasn't been established yet.
-                  // An already-connected connection can transition to failed (e.g., peer reset),
-                  // but the read/write callbacks handle that — a spurious Connect completion here
-                  // would be processed after the handler is destroyed, causing bad_weak_ptr.
-                  if (!connectState->connected.load())
-                  {
-                      if (error && nw_error_get_error_domain(error) == nw_error_domain_tls)
-                      {
-                          connectState->tlsError.store(true);
-                      }
-                      connectState->error.store(error ? nw_error_get_error_code(error) : ECONNREFUSED);
-                      nativeInfo->completed(SocketOperationConnect);
-                  }
-                  break;
-              }
               case nw_connection_state_waiting:
-              {
-                  // The connection is waiting for network conditions to change. Treat this as a
-                  // connection failure — Ice has its own retry logic and should not rely on NF's
-                  // built-in reconnection behavior. Only signal if not yet connected.
-                  if (!connectState->connected.load())
-                  {
-                      if (error && nw_error_get_error_domain(error) == nw_error_domain_tls)
-                      {
-                          connectState->tlsError.store(true);
-                      }
-                      connectState->error.store(error ? nw_error_get_error_code(error) : ECONNREFUSED);
-                      nativeInfo->completed(SocketOperationConnect);
-                  }
+                  // Waiting for the network conditions to change: the connect fails instead, Ice has its own retry
+                  // logic and does not rely on Network.framework's.
+                  [[fallthrough]];
+              case nw_connection_state_failed:
+                  complete(*async, async->connect, SocketOperationConnect, connectFailure(error));
                   break;
-              }
               case nw_connection_state_cancelled:
-              {
-                  // Signal connect completion if the connection was cancelled before it
-                  // was established. This ensures the thread pool can process the pending
-                  // connect operation and clean up.
-                  if (!connectState->connected.load() && connectState->error.load() == 0)
-                  {
-                      connectState->error.store(ECANCELED);
-                      nativeInfo->completed(SocketOperationConnect);
-                  }
+                  // close() completed the pending operations already; the transition completes nothing then.
+                  complete(*async, async->connect, SocketOperationConnect, AsyncState::ConnectResult{ECANCELED, false});
                   break;
-              }
               case nw_connection_state_preparing:
-                  break;
               case nw_connection_state_invalid:
                   break;
           }
@@ -144,42 +143,34 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer& readBuffer, Buffer&
     }
     else if (_state == StateConnectPending)
     {
-        //
-        // Check if the connection succeeded or failed. The state handler has already
-        // fired and set the shared connect state atomics.
-        //
-        int error = _connectState->error.load();
-        if (error != 0)
+        AsyncState::ConnectResult result;
         {
-            if (_connectState->tlsError.load())
+            lock_guard lock(_async->mutex);
+            result = _async->connect.consume();
+        }
+
+        if (result.error != 0)
+        {
+            if (result.tlsError)
             {
-                // If _localVerifyRejected is set, our local verify block called complete(false),
-                // meaning we rejected the peer's certificate → SecurityException.
-                // If _localVerifyRejected is not set or is false, the peer rejected us (e.g.,
-                // server rejected our client cert) → ConnectionLostException.
+                // The verification of this connection rejected the peer (SecurityException), or the peer rejected
+                // this connection, for example a server that rejected the client certificate (ConnectionLost).
                 if (!_localVerifyRejected || _localVerifyRejected->load())
                 {
                     throw Ice::SecurityException(
                         __FILE__,
                         __LINE__,
-                        "SSL transport: TLS handshake failed with error " + to_string(error));
+                        "SSL transport: TLS handshake failed with error " + to_string(result.error));
                 }
                 else
                 {
                     throw ConnectionLostException(
                         __FILE__,
                         __LINE__,
-                        "connection lost (TLS error " + to_string(error) + ")");
+                        "connection lost (TLS error " + to_string(result.error) + ")");
                 }
             }
-            throw ConnectFailedException(__FILE__, __LINE__, error);
-        }
-
-        if (!_connectState->connected.load())
-        {
-            // State handler hasn't fired yet — shouldn't normally happen
-            // since we only get here via a completion.
-            throw ConnectFailedException(__FILE__, __LINE__, 0);
+            throw ConnectFailedException(__FILE__, __LINE__, result.error);
         }
 
         _state = (_proxy && !_secure) ? StateProxyWrite : StateConnected;
@@ -250,6 +241,9 @@ IceInternal::NetworkFrameworkTransceiver::close()
 {
     // Cancelling is distinct from releasing the connection, which the transceiver does when it is destroyed.
     nw_connection_cancel(_connection.get());
+
+    lock_guard lock(_async->mutex);
+    cancel(*_async);
 }
 
 SocketOperation
@@ -279,16 +273,7 @@ IceInternal::NetworkFrameworkTransceiver::read(Buffer& buf)
 bool
 IceInternal::NetworkFrameworkTransceiver::startWrite(Buffer& buf)
 {
-    if (_state == StateConnectPending)
-    {
-        // The connection is being established by Network.framework.
-        // startAsync is called with SocketOperationConnect but the connect
-        // is already in progress — nothing to do.
-        return false;
-    }
-
     assert(_state == StateProxyWrite || _state == StateConnected);
-
     assert(buf.b.end() - buf.i > 0);
     size_t length = static_cast<size_t>(buf.b.end() - buf.i);
 
@@ -299,30 +284,23 @@ IceInternal::NetworkFrameworkTransceiver::startWrite(Buffer& buf)
     DispatchRef<dispatch_data_t> data = DispatchRef<dispatch_data_t>::adopt(
         dispatch_data_create(&*buf.i, length, _dispatchQueue.get(), DISPATCH_DATA_DESTRUCTOR_DEFAULT));
 
-    // Reset write state before starting the operation.
     {
-        lock_guard lock(_writeState->mutex);
-        _writeState->count = length;
-        _writeState->error = 0;
+        lock_guard lock(_async->mutex);
+        _async->write.start();
     }
-
-    auto writeState = _writeState;
-    NativeInfoPtr nativeInfo = _nativeInfo;
-
+    auto async = _async; // See initialize.
     nw_connection_send(
         _connection.get(),
         data.get(),
         NW_CONNECTION_DEFAULT_MESSAGE_CONTEXT,
-        true, // is_complete — this completes the "message" (just means send all data)
+        true, // The message is complete: all the data is sent.
         ^(nw_error_t error) {
-          lock_guard lock(writeState->mutex);
-          if (error)
-          {
-              writeState->error = nw_error_get_error_code(error);
-              writeState->count = 0;
-          }
-          // On success, count remains set to length (all data was sent).
-          nativeInfo->completed(SocketOperationWrite);
+          lock_guard lock(async->mutex);
+          complete(
+              *async,
+              async->write,
+              SocketOperationWrite,
+              error ? AsyncState::WriteResult{0, nw_error_get_error_code(error)} : AsyncState::WriteResult{length, 0});
         });
 
     return true;
@@ -331,19 +309,20 @@ IceInternal::NetworkFrameworkTransceiver::startWrite(Buffer& buf)
 void
 IceInternal::NetworkFrameworkTransceiver::finishWrite(Buffer& buf)
 {
-    if (_state < StateProxyWrite)
+    assert(_state == StateProxyWrite || _state == StateConnected);
+
+    AsyncState::WriteResult result;
     {
-        return;
+        lock_guard lock(_async->mutex);
+        result = _async->write.consume();
     }
 
-    lock_guard lock(_writeState->mutex);
-
-    if (_writeState->error != 0)
+    if (result.error != 0)
     {
-        throw ConnectionLostException(__FILE__, __LINE__, _writeState->error);
+        throw ConnectionLostException(__FILE__, __LINE__, result.error);
     }
 
-    buf.i += _writeState->count;
+    buf.i += result.count;
 
     if (_state == StateProxyWrite)
     {
@@ -358,64 +337,65 @@ IceInternal::NetworkFrameworkTransceiver::startRead(Buffer& buf)
     assert(buf.b.end() - buf.i > 0);
     size_t length = static_cast<size_t>(buf.b.end() - buf.i);
 
-    // Reset read state before starting the operation.
     {
-        lock_guard lock(_readState->mutex);
-        _readState->data.clear();
-        _readState->error = 0;
+        lock_guard lock(_async->mutex);
+        _async->read.start();
     }
-
-    auto readState = _readState;
-    NativeInfoPtr nativeInfo = _nativeInfo;
-
+    auto async = _async; // See initialize.
     nw_connection_receive(
         _connection.get(),
         1,                             // minimum bytes
         static_cast<uint32_t>(length), // maximum bytes
         ^(dispatch_data_t content, nw_content_context_t, bool, nw_error_t error) {
-          lock_guard lock(readState->mutex);
+          // The result is built before the state is locked.
+          __block AsyncState::ReadResult result;
           if (error)
           {
-              readState->error = nw_error_get_error_code(error);
+              result.error = nw_error_get_error_code(error);
           }
           else if (content)
           {
-              // Extract the received data from dispatch_data_t.
               dispatch_data_apply(content, ^bool(dispatch_data_t, size_t, const void* buffer, size_t size) {
                 auto* bytes = static_cast<const std::byte*>(buffer);
-                readState->data.insert(readState->data.end(), bytes, bytes + size);
+                result.data.insert(result.data.end(), bytes, bytes + size);
                 return true;
               });
           }
           else
           {
-              // No content and no error means EOF — the peer closed the connection.
-              readState->error = ECONNRESET;
+              result.error = ECONNRESET; // No content and no error: the peer closed the connection.
           }
-          nativeInfo->completed(SocketOperationRead);
+
+          lock_guard lock(async->mutex);
+          complete(*async, async->read, SocketOperationRead, std::move(result));
         });
 }
 
 void
 IceInternal::NetworkFrameworkTransceiver::finishRead(Buffer& buf)
 {
-    lock_guard lock(_readState->mutex);
+    assert(_state == StateProxyRead || _state == StateConnected);
 
-    if (_readState->error != 0)
+    AsyncState::ReadResult result;
     {
-        throw ConnectionLostException(__FILE__, __LINE__, _readState->error);
+        lock_guard lock(_async->mutex);
+        result = _async->read.consume();
     }
 
-    if (_readState->data.empty())
+    if (result.error != 0)
+    {
+        throw ConnectionLostException(__FILE__, __LINE__, result.error);
+    }
+
+    if (result.data.empty())
     {
         throw ConnectionLostException(__FILE__, __LINE__);
     }
 
-    size_t available = _readState->data.size();
     size_t remaining = static_cast<size_t>(buf.b.end() - buf.i);
-    size_t count = min(available, remaining);
+    size_t count = min(result.data.size(), remaining); // Never more than requested.
 
-    memcpy(&*buf.i, _readState->data.data(), count);
+    memcpy(&*buf.i, result.data.data(), count);
     buf.i += count;
 
     if (_state == StateProxyRead)

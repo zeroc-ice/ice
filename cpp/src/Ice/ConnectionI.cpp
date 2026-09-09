@@ -1068,6 +1068,16 @@ Ice::ConnectionI::setAdapterFromAdapter(const ObjectAdapterIPtr& adapter)
 bool
 Ice::ConnectionI::startAsync(SocketOperation operation)
 {
+#    if defined(ICE_USE_NETWORK_FRAMEWORK)
+    if (operation == SocketOperationConnect)
+    {
+        // The transceiver started the connect operation when initialize() returned it, and its completion follows
+        // even once the connection is closed: close() completes the pending operation. Returning false here would
+        // drop the operation and leave its completion without an owner.
+        return true;
+    }
+#    endif
+
     if (_state >= StateClosed)
     {
         return false;
