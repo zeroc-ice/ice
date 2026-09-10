@@ -2960,6 +2960,20 @@ class AndroidProcessController(RemoteProcessController):
             "shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.threebutton"
         )
 
+    def keepScreenOn(self) -> None:
+        # The emulator raises screen_off_timeout to its maximum itself after every boot, but that adb
+        # call races the reboots the Bluetooth setup performs and failed on every boot of the pair
+        # ("device offline", "not found"), leaving the default timeout in place. With gesture
+        # navigation out of the way, the API 37 pair then lost system_server to a SIGABRT in
+        # TaskSnapshotPersister -- WindowManager reading a task screenshot back for Recents, the same
+        # GPU-buffer readback SurfaceFlinger's region sampling dies in -- on both devices within 0.3s
+        # of each other, about two minutes after their near-simultaneous final boots. The screen
+        # turning off is what snapshots the visible task on that schedule. Both settings persist
+        # across reboots, so setting them after the first boot covers the ones that follow. Harmless
+        # on the API 36 images, which the emulator's own attempt already covers.
+        self._adbTolerant("shell settings put system screen_off_timeout 2147483647")
+        self._adbTolerant("shell settings put global stay_on_while_plugged_in 7")
+
     def enableBluetooth(self) -> None:
         # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
         # sleep is enough, as rootRemount does. Under --bt-prepare two of these run in parallel
@@ -3172,6 +3186,9 @@ class AndroidProcessController(RemoteProcessController):
     _crashLine = re.compile(
         r"Watchdog|WATCHDOG|FATAL EXCEPTION|Fatal signal|\bDEBUG\s*:|SurfaceFlinger.*(crash|died|abort|fatal)"
         r"|START com\.android\.internal\.os\.ZygoteInit|lowmemorykiller"
+        # Any fatal-priority line (logcat's "PID TID F TAG:" column): assertion messages and ART's
+        # abort reason live there, under tags the words above do not cover.
+        r"|\s\d+\s+\d+\s+F\s+\S"
     )
 
     # The bulk of a crash report: native frames and register dumps (tombstone lines indented four
@@ -3179,7 +3196,11 @@ class AndroidProcessController(RemoteProcessController):
     # keeps the lines that name the process, the signal, and the abort message or exception, so a
     # window of a few dozen lines spans several crashes instead of one backtrace. The first API 37
     # dump lost the reason system_server died to the 45 lines of the zygote tombstone that followed.
-    _crashNoise = re.compile(r"DEBUG\s*:\s{4,}|total frames|backtrace:|To display stack pointer")
+    _crashNoise = re.compile(
+        r"DEBUG\s*:\s{4,}|total frames|backtrace:|To display stack pointer"
+        # ART's abort dumps every thread: header lines ('"name" prio=...') and indented frames.
+        r'|runtime\.cc:\d+\]\s+"|runtime\.cc:\d+\]\s{2,}'
+    )
 
     @staticmethod
     def _adbEcho(line: str) -> bool:
@@ -3364,6 +3385,7 @@ class AndroidProcessController(RemoteProcessController):
         while (time.time() - t) <= bootTimeout:
             if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
                 self.useThreeButtonNavigation()
+                self.keepScreenOn()
                 break
             time.sleep(2)
         else:

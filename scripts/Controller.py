@@ -379,6 +379,7 @@ class ControllerDriver(Driver):
         if self.btSetup:
             controller.waitForBoot()
             controller.useThreeButtonNavigation()
+            controller.keepScreenOn()
             controller.installSystemApp(
                 self.btSetup, "btbond", "com.zeroc.btbond", ["android.permission.BLUETOOTH_PRIVILEGED"]
             )
