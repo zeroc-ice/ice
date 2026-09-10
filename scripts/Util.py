@@ -3384,18 +3384,28 @@ class AndroidProcessController(RemoteProcessController):
         elif not current.config.device:
             if AndroidProcessController.bootFailed:
                 raise RuntimeError("not retrying: the emulator failed to boot earlier in this run")
-            # Create Android Virtual Device
-            sdk = mapping.getSDKPackage()
-            print("creating AVD ({0})".format(sdk))
-            try:
-                run("avdmanager -v delete avd -n IceTests")  # Delete the created device
-            except Exception:
-                pass
-            # --force: a boot that failed left the AVD directory behind after the delete above, and
-            # every later test in that run then failed with "AVD not created".
-            run('avdmanager -v create avd --force -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
-            self.createdAvd = True
-            self.startEmulator("IceTests")
+            if self.emulator is not None and self.emulator.poll() is None:
+                # A restart after the controller app died: getController pings it before every test
+                # and comes back here when the ping fails. Keep the emulator that is already running.
+                # Recreating the AVD under it deletes the disk images out from under qemu -- the
+                # first API 37 run left a core dump that way and booted a fresh emulator per test,
+                # 41 boots in 31 minutes -- and nothing about the app dying calls for a new device.
+                # Only make sure it still answers; the app is reinstalled below either way.
+                print("controller app restart: reusing the running emulator")
+                self.waitForBoot()
+            else:
+                # Create Android Virtual Device
+                sdk = mapping.getSDKPackage()
+                print("creating AVD ({0})".format(sdk))
+                try:
+                    run("avdmanager -v delete avd -n IceTests")  # Delete the created device
+                except Exception:
+                    pass
+                # --force: a boot that failed left the AVD directory behind after the delete above,
+                # and every later test in that run then failed with "AVD not created".
+                run('avdmanager -v create avd --force -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
+                self.createdAvd = True
+                self.startEmulator("IceTests")
         elif current.config.device != "usb" and not current.config.device.startswith("emulator-"):
             # Local emulator serials aren't network targets: `adb connect emulator-5554` just prints
             # "failed to resolve host" (and exits 0, so it was harmless -- only noisy).
