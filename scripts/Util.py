@@ -2945,6 +2945,21 @@ class AndroidProcessController(RemoteProcessController):
             time.sleep(2)
         raise RuntimeError(f"could not read the Bluetooth address of '{self.device}': {reason}")
 
+    def useThreeButtonNavigation(self) -> None:
+        # Gesture navigation is what registers SurfaceFlinger's region-sampling listener: the
+        # navigation handle samples the pixels under it to pick its color (SystemUI's
+        # RegionSamplingHelper only samples in gesture mode, and the launcher's handle code is the
+        # other client). On the API 37 images -- 37.0 and 37.1 alike -- that sampling path aborts
+        # SurfaceFlinger ("Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma"), and
+        # SurfaceFlinger's restart takes zygote and every app down with it about a minute after each
+        # boot. Three-button navigation has no handle and never samples. The overlay choice is
+        # persisted in /data, so later boots of the same AVD start out safe; only the first boot can
+        # race the first sample. Harmless on the API 36 images. Tolerant: an image without the
+        # overlay is not worth failing over.
+        self._adbTolerant(
+            "shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.threebutton"
+        )
+
     def enableBluetooth(self) -> None:
         # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
         # sleep is enough, as rootRemount does. Under --bt-prepare two of these run in parallel
@@ -3190,6 +3205,15 @@ class AndroidProcessController(RemoteProcessController):
             f"boot_completed={self._adbTolerant('shell getprop sys.boot_completed').strip() or '?'}",
             f"uptime: {self._adbTolerant('shell uptime').strip() or '?'}",
             f"system boots recorded in the events buffer: {len(boots)}",
+            "navigation overlays: "
+            + (
+                " ".join(
+                    ln.strip()
+                    for ln in self._adbTolerant("shell cmd overlay list").splitlines()
+                    if "systemui.navbar" in ln and ln.strip().startswith("[x]")
+                )
+                or "?"
+            ),
             "-- crash and watchdog lines (last 60, frames dropped) --",
             "\n".join(crashes[-60:]) or "<none>",
             "-- crash buffer (last 120, frames dropped) --",
@@ -3339,6 +3363,7 @@ class AndroidProcessController(RemoteProcessController):
         bootTimeout = 600
         while (time.time() - t) <= bootTimeout:
             if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
+                self.useThreeButtonNavigation()
                 break
             time.sleep(2)
         else:

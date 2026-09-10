@@ -110,14 +110,16 @@ jobs:
             # build_cpp_and_python: true
 
           # Android. android_platform is the SDK platform whose system image the emulators boot, in
-          # sdkmanager's naming, and android_image_tag the image's tag: android-36 with google_apis
-          # is Android 16; android-37.1 with google_apis_ps16k (the only google_apis image that
-          # platform ships) is Android 17 QPR1. Not android-37.0: its google_apis image (rev 6, an
-          # April build) asserts in SurfaceFlinger under the current emulator ("Assertion failed:
-          # !rcEnc->featureInfo()->hasReadColorBufferDma"), and SurfaceFlinger's restart takes
-          # zygote and every app with it about a minute after each boot. The controller and btbond
-          # APKs build against SDK 36 in every row, so the Android 17 rows check that Ice runs on
-          # that release, not that the test apps target it.
+          # sdkmanager's naming (android-36 is Android 16, android-37.0 is Android 17), and
+          # android_image_tag the image's tag when it is not google_apis (android-37.1, Android 17
+          # QPR1, ships google_apis_ps16k only). The API 37 images, 37.0 and 37.1 alike, abort
+          # SurfaceFlinger under gesture navigation ("Assertion failed:
+          # !rcEnc->featureInfo()->hasReadColorBufferDma"), which restarts zygote and every app
+          # about a minute after each boot; the harness switches every emulator it boots to
+          # three-button navigation, which never samples (see
+          # AndroidProcessController.useThreeButtonNavigation). The controller and btbond APKs
+          # build against SDK 36 in every row, so the Android 17 rows check that Ice runs on that
+          # release, not that the test apps target it.
           - os: ubuntu-24.04
             config: "android"
             android_platform: "android-36"
@@ -128,8 +130,7 @@ jobs:
 
           - os: ubuntu-24.04
             config: "android-17"
-            android_platform: "android-37.1"
-            android_image_tag: "google_apis_ps16k"
+            android_platform: "android-37.0"
             working_directory: "java"
             test_flags: "--android --controller-app"
             build_cpp_and_python: true
@@ -174,8 +175,7 @@ jobs:
           # failure here that android-bt does not share is the first thing to check for memory.
           - os: ubuntu-24.04
             config: "android-17-bt"
-            android_platform: "android-37.1"
-            android_image_tag: "google_apis_ps16k"
+            android_platform: "android-37.0"
             android_bt: true
             working_directory: "java"
             build_cpp_and_python: true

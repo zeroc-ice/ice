@@ -5,7 +5,7 @@ inputs:
   platform:
     description: >
       Android SDK platform whose system image the emulators boot, in sdkmanager's naming (android-36
-      for Android 16, android-37.1 for Android 17). Exported as $ANDROID_PLATFORM for setup-android-bt
+      for Android 16, android-37.0 for Android 17). Exported as $ANDROID_PLATFORM for setup-android-bt
       and the test harness, so one matrix value drives every emulator in the job.
     default: "android-36"
   image_tag:
