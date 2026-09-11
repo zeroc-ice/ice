@@ -118,10 +118,10 @@ jobs:
           # about a minute after each boot, and the same readback aborts system_server when it
           # writes out a task snapshot; the harness switches every emulator it boots to
           # three-button navigation, which never samples, and keeps its screen on (see
-          # AndroidProcessController.configureBootedDevice), and the controller app keeps its
-          # screen on too and opts out of real screenshots of its task. The controller and btbond
-          # APKs build against SDK 36 in every row, so the Android 17 rows check that Ice runs on
-          # that release, not that the test apps target it.
+          # AndroidProcessController.configureBootedDevice), and the test apps opt out of real
+          # screenshots of their tasks, btbond also keeping the Settings pairing dialog from
+          # opening one. The controller and btbond APKs build against SDK 36 in every row, so the
+          # Android 17 rows check that Ice runs on that release, not that the test apps target it.
           - os: ubuntu-24.04
             config: "android"
             android_platform: "android-36"

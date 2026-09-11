@@ -2857,23 +2857,54 @@ class AndroidProcessController(RemoteProcessController):
             print(f"  (ignored) {ex}", file=sys.stderr)
             return ""
 
+    def _serviceUp(self, service: str) -> bool:
+        # Whether one of the framework's binder services answers: `cmd` fails with "Can't find
+        # service" for as long as system_server is down, or not yet that far into its start. Quiet
+        # on purpose, this is polled from the boot wait.
+        probe = {"overlay": "cmd overlay list", "settings": "settings get global device_provisioned"}[service]
+        try:
+            return "Can't find service" not in run(f"{self.adb()} shell {probe}")
+        except RuntimeError:
+            return False
+
     def waitForBoot(self, timeout: float = 300) -> None:
         # Wait for the device to reconnect to adb and finish booting, then apply the per-boot
         # configuration (configureBootedDevice). Tolerant of the transient adb errors seen while a
         # device is mid-reboot. One deadline covers both phases -- otherwise wait-for-device could
         # consume the whole budget and the poll loop would start a fresh one, doubling the
         # advertised timeout.
+        #
+        # Booted means more than sys.boot_completed. The property is set once and stays set while
+        # system_server restarts, and on the API 37 images the framework has been lost at the very
+        # moment a first boot completed: every command that followed, the emulator's own included,
+        # failed with "Can't find service", and the controller app could not be installed. So the
+        # settings service has to answer as well; when it does not, the guest's state is dumped
+        # once and the wait goes on, since the restart takes half a minute and the run is fine
+        # after it. The navigation overlay goes in as soon as the overlay service answers, ahead of
+        # boot completion, so the gesture handle's sampling has as little of a first boot as
+        # possible to run in.
         deadline = time.time() + timeout
         try:
             subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=timeout, check=False)
         except subprocess.TimeoutExpired:
             pass
         name = self.device or self.avd or "device"
+        navigationSet = False
+        frameworkLost = False
         while time.time() <= deadline:
             try:
+                if not navigationSet and self._serviceUp("overlay"):
+                    self.useThreeButtonNavigation()
+                    navigationSet = True
                 if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
-                    self.configureBootedDevice()
-                    return
+                    if self._serviceUp("settings"):
+                        self.configureBootedDevice()
+                        return
+                    if not frameworkLost:
+                        frameworkLost = True
+                        print(f"'{name}' reports its boot complete but the framework does not answer; guest state:")
+                        print(self.systemHealth())
+                        print("waiting for the framework to come back")
             except RuntimeError:
                 pass  # device offline mid-reboot
             time.sleep(3)
@@ -2955,9 +2986,11 @@ class AndroidProcessController(RemoteProcessController):
         # SurfaceFlinger ("Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma"), and
         # SurfaceFlinger's restart takes zygote and every app down with it about a minute after each
         # boot. Three-button navigation has no handle and never samples. The overlay choice is
-        # persisted in /data, so later boots of the same AVD start out safe; only the first boot can
-        # race the first sample. Harmless on the API 36 images. Tolerant: an image without the
-        # overlay is not worth failing over.
+        # persisted in /data, so later boots of the same AVD start out safe; a first boot races the
+        # first sample, which is why waitForBoot applies this as soon as the overlay service answers
+        # rather than at boot completion -- applied at completion, one first boot lost the race and
+        # the framework was gone the moment the boot completed. Harmless on the API 36 images.
+        # Tolerant: an image without the overlay is not worth failing over.
         self._adbTolerant(
             "shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.threebutton"
         )
@@ -2974,9 +3007,11 @@ class AndroidProcessController(RemoteProcessController):
         # (configureBootedDevice). Harmless on the API 36 images, which the emulator's own attempt
         # already covers. The controller app holds a keep-screen-on flag on its window as well.
         # This closes one door only: the API 37 pair still lost system_server to that abort with
-        # the screen on and stay-on in effect, 16s after the launcher was stopped behind the
-        # controller app, so the app also opts out of real screenshots of its task
-        # (ControllerActivity.onCreate).
+        # the screen on and stay-on in effect, the persister writing the snapshot of btbond's task
+        # a few seconds after it closed on both devices (the gralloc mapper's assertion; ART's
+        # abort dump follows it a minute later and is not the crash's time). So the test apps also
+        # opt out of real screenshots of their tasks, and btbond keeps the Settings pairing dialog
+        # from opening a task of its own (see their onCreate methods and btbond's receiver).
         self._adbTolerant("shell settings put system screen_off_timeout 2147483647")
         self._adbTolerant("shell settings put global stay_on_while_plugged_in 7")
         self._adbTolerant("shell settings put secure screensaver_enabled 0")
@@ -3240,8 +3275,9 @@ class AndroidProcessController(RemoteProcessController):
         r'|runtime\.cc:\d+\]\s+"|runtime\.cc:\d+\]\s{2,}|runtime\.cc:\d+\]\s*$'
     )
 
-    # The first line a process logs on its way out: ART's abort dump, or the fatal signal itself.
-    _abortLine = re.compile(r"runtime\.cc:\d+\]|Fatal signal")
+    # The first line a process logs on its way out: the assertion (system_server's came a full
+    # minute before ART's abort dump, which is not the crash's time), the dump, or the signal.
+    _abortLine = re.compile(r"Assertion failed|runtime\.cc:\d+\]|Fatal signal")
 
     @staticmethod
     def _adbEcho(line: str) -> bool:
@@ -3360,7 +3396,11 @@ class AndroidProcessController(RemoteProcessController):
         # The snapshot files themselves. The persister writes <task id>.proto and then the image,
         # and the image is the write system_server aborts in, so a .proto without its image names
         # the task whose snapshot was being written (wm_create_task in the events above maps ids).
-        snapshots = self._adbTolerant("shell su 0 ls -la /data/system_ce/0/snapshots").strip()
+        # Recursive: on the API 37 images the files sit in a subdirectory named by a UUID.
+        snapshotsDir = "/data/system_ce/0/snapshots"
+        snapshots = self._adbTolerant(f"shell su 0 ls -laR --full-time {snapshotsDir}").strip()
+        if not snapshots:  # a toybox without --full-time
+            snapshots = self._adbTolerant(f"shell su 0 ls -laR {snapshotsDir}").strip()
         out += ["-- task snapshot files --", snapshots or "<none>"]
         names = self._adbTolerant("shell su 0 ls -t /data/system/dropbox").split()
         reports = [n for n in names if re.match(r"(system_server_\w+|SYSTEM_TOMBSTONE)@", n)][:3]
@@ -3490,25 +3530,19 @@ class AndroidProcessController(RemoteProcessController):
 
         # Wait for the device to be ready
         print("waiting for the emulator to boot")
-        t = time.time()
         # 10 minutes: a first boot of the API 37 image, which the emulator forces to 4 GB of RAM,
         # takes around two minutes on SwiftShader on a CI runner, and 300s left little room for a
-        # slow one.
-        bootTimeout = 600
-        while (time.time() - t) <= bootTimeout:
-            if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
-                self.configureBootedDevice()
-                break
-            time.sleep(2)
-        else:
-            # This runs if the while loop completes without breaking. Say what the guest was doing
-            # first -- the emulator's own stdout only covers the host side -- and stop the emulator
-            # so it does not linger into the next test's attempt.
-            print(f"emulator '{avd}' not booted after {bootTimeout}s; guest state:")
+        # slow one. waitForBoot also rides out a framework restart at boot completion.
+        try:
+            self.waitForBoot(600)
+        except RuntimeError as ex:
+            # Say what the guest was doing first -- the emulator's own stdout only covers the host
+            # side -- and stop the emulator so it does not linger into the next test's attempt.
+            print(f"{ex}; guest state:")
             print(self.systemHealth())
             self.killEmulator()
             AndroidProcessController.bootFailed = True
-            raise RuntimeError(f"emulator '{avd}' not booted after {bootTimeout}s")
+            raise
 
     def startControllerApp(self, current: Driver.Current, ident: Any) -> None:
         mapping = current.getTestCase().getMapping()

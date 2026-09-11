@@ -84,6 +84,16 @@ public class MainActivity extends Activity {
                 // both need to reach the setPin fallback below, which handles the variants it can't.
                 if (dev.setPairingConfirmation(true)) {
                     Log.i(TAG, "setPairingConfirmation(true) accepted");
+                    // Confirmed, so Settings need not ask: its receiver is next in line for this
+                    // ordered broadcast and would put up the pairing dialog on the initiating
+                    // side (a notification on the other). Nobody answers dialogs in CI, and on
+                    // the API 37 emulator images the dialog's task is one more whose snapshot
+                    // WindowManager writes when it closes -- the write that aborts system_server
+                    // there (see onCreate). Left alone when the confirmation fails, so that
+                    // failure still shows.
+                    if (isOrderedBroadcast()) {
+                        abortBroadcast();
+                    }
                     return;
                 }
                 Log.w(TAG, "setPairingConfirmation(true) returned false");
@@ -102,12 +112,17 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        // On the API 37 emulator images, WindowManager writing out a real screenshot of a task
+        // that closed aborts system_server (a GPU readback the guest's gralloc mapper asserts
+        // in), and this activity's task was the one being written when the Bluetooth CI job lost
+        // both its emulators. With this the snapshot is a drawing of the theme colors instead.
+        setRecentsScreenshotEnabled(false);
         // Before the guard below: a relaunch destroys the old instance (and its receiver) first,
-        // so returning earlier would leave the surviving worker with no pairing receiver.
-        registerReceiver(
-            pairingReceiver,
-            new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST),
-            Context.RECEIVER_EXPORTED);
+        // so returning earlier would leave the surviving worker with no pairing receiver. Ahead
+        // of Settings' own receiver for this ordered broadcast (see pairingReceiver).
+        IntentFilter pairing = new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST);
+        pairing.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY - 1);
+        registerReceiver(pairingReceiver, pairing, Context.RECEIVER_EXPORTED);
         Intent it = getIntent();
         final String mode = it.getStringExtra("mode");
         final String peer = it.getStringExtra("peer");
