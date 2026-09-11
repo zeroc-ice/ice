@@ -2965,17 +2965,18 @@ class AndroidProcessController(RemoteProcessController):
     def keepScreenOn(self) -> None:
         # The emulator raises screen_off_timeout to its maximum itself after every boot, but that adb
         # call races the reboots the Bluetooth setup performs and failed on every boot of the pair
-        # ("device offline", "not found"), leaving the default timeout in place. With gesture
-        # navigation out of the way, the API 37 pair then lost system_server to a SIGABRT in
-        # TaskSnapshotPersister -- WindowManager writing out a task screenshot, the same GPU-buffer
-        # readback SurfaceFlinger's region sampling dies in -- on both devices at the same interval
-        # after each one's final boot, run after run. The screen turning off is what snapshots the
-        # showing task on a schedule like that; a screensaver starting would do the same (dreams run
-        # as an activity of their own since Android 13), so that is off too. The settings persist in
-        # /data; they are reapplied after every boot regardless (configureBootedDevice). Harmless on
-        # the API 36 images, which the emulator's own attempt already covers. The controller app
-        # also holds a keep-screen-on flag on its window, which covers the time it is showing
-        # without depending on any of this.
+        # ("device offline", "not found"), leaving the default timeout in place. Going to sleep
+        # snapshots the showing task, and on the API 37 images WindowManager writing a task snapshot
+        # out aborts system_server (the GPU-buffer readback SurfaceFlinger's region sampling dies
+        # in), so the screen stays on: timeout at its maximum, stay-on while powered, no screensaver
+        # (dreams run as an activity of their own since Android 13, so one starting would snapshot
+        # too). The settings persist in /data; they are reapplied after every boot regardless
+        # (configureBootedDevice). Harmless on the API 36 images, which the emulator's own attempt
+        # already covers. The controller app holds a keep-screen-on flag on its window as well.
+        # This closes one door only: the API 37 pair still lost system_server to that abort with
+        # the screen on and stay-on in effect, 16s after the launcher was stopped behind the
+        # controller app, so the app also opts out of real screenshots of its task
+        # (ControllerActivity.onCreate).
         self._adbTolerant("shell settings put system screen_off_timeout 2147483647")
         self._adbTolerant("shell settings put global stay_on_while_plugged_in 7")
         self._adbTolerant("shell settings put secure screensaver_enabled 0")
@@ -3234,9 +3235,13 @@ class AndroidProcessController(RemoteProcessController):
     # dump lost the reason system_server died to the 45 lines of the zygote tombstone that followed.
     _crashNoise = re.compile(
         r"DEBUG\s*:\s{4,}|total frames|backtrace:|To display stack pointer"
-        # ART's abort dumps every thread: header lines ('"name" prio=...') and indented frames.
-        r'|runtime\.cc:\d+\]\s+"|runtime\.cc:\d+\]\s{2,}'
+        # ART's abort dumps every thread: header lines ('"name" prio=...'), indented frames, and
+        # the blank line between threads -- system_server's 300 of those filled a window alone.
+        r'|runtime\.cc:\d+\]\s+"|runtime\.cc:\d+\]\s{2,}|runtime\.cc:\d+\]\s*$'
     )
+
+    # The first line a process logs on its way out: ART's abort dump, or the fatal signal itself.
+    _abortLine = re.compile(r"runtime\.cc:\d+\]|Fatal signal")
 
     @staticmethod
     def _adbEcho(line: str) -> bool:
@@ -3329,13 +3334,18 @@ class AndroidProcessController(RemoteProcessController):
         # The crash buffer records only the signal. What the process logged just before it -- an
         # assertion, the abort reason, what it was doing -- is in main and system under its pid,
         # where the keyword filters above do not reach. Once per dead pid; a restarted process has a
-        # new one, so the pid filter returns the dead instance's lines only.
+        # new one, so the pid filter returns the dead instance's lines only. Cut at the abort: the
+        # process lives on for the half minute the tombstone takes, still logging, and the first
+        # version of this printed those lines instead. ART's dump of the aborting thread itself is
+        # then kept in full -- its native frames name the library that asserted.
         for pid, name in self._fatalPids(crashBuffer):
-            tail = self._condensed(self._adbTolerant(f"logcat -d -b main -b system --pid={pid}").splitlines())
-            out += [
-                f"-- pid {pid} ({name}): last 60 lines before its fatal signal (thread dump dropped) --",
-                "\n".join(tail[-60:]) or "<none>",
-            ]
+            lines = self._adbTolerant(f"logcat -d -b main -b system --pid={pid}").splitlines()
+            abort = next((i for i, ln in enumerate(lines) if self._abortLine.search(ln)), len(lines))
+            before = self._condensed(lines[:abort])
+            out += [f"-- pid {pid} ({name}): last 40 lines before its abort --", "\n".join(before[-40:]) or "<none>"]
+            aborting = next((i for i, ln in enumerate(lines) if "Aborting thread:" in ln), None)
+            if aborting is not None:
+                out += [f"-- pid {pid} ({name}): the aborting thread --", "\n".join(lines[aborting : aborting + 45])]
         # Root-only, through su rather than `adb root` (which restarts adbd and would need a wait
         # this path cannot afford); google_apis images allow it, playstore ones make these print
         # nothing. dmesg has the kernel's own OOM kills. The dropbox files keep the head of every
@@ -3347,6 +3357,11 @@ class AndroidProcessController(RemoteProcessController):
             if re.search(r"(?i)out of memory|oom-kill|killed process", ln)
         ]
         out += ["-- kernel oom (last 20) --", "\n".join(oom[-20:]) or "<none>"]
+        # The snapshot files themselves. The persister writes <task id>.proto and then the image,
+        # and the image is the write system_server aborts in, so a .proto without its image names
+        # the task whose snapshot was being written (wm_create_task in the events above maps ids).
+        snapshots = self._adbTolerant("shell su 0 ls -la /data/system_ce/0/snapshots").strip()
+        out += ["-- task snapshot files --", snapshots or "<none>"]
         names = self._adbTolerant("shell su 0 ls -t /data/system/dropbox").split()
         reports = [n for n in names if re.match(r"(system_server_\w+|SYSTEM_TOMBSTONE)@", n)][:3]
         out += [f"-- dropbox reports (newest 3 of {len(names)}) --", " ".join(reports) or "<none>"]

@@ -42,12 +42,18 @@ public class ControllerActivity extends Activity {
         setContentView(R.layout.main);
 
         // Hold the screen on while the controller is showing. A run is long, and on the API 37
-        // emulator images the task snapshot WindowManager takes when the screen turns off aborts
-        // system_server -- the same GPU readback SurfaceFlinger's region sampling dies in; see
-        // AndroidProcessController.keepScreenOn in scripts/Util.py. The flag is a screen wake lock
-        // held for as long as this window is visible, independent of the screen-timeout settings
-        // the harness also writes.
+        // emulator images WindowManager writing out a task snapshot -- which going to sleep
+        // triggers -- aborts system_server in the same GPU readback SurfaceFlinger's region
+        // sampling dies in; see AndroidProcessController.keepScreenOn in scripts/Util.py. The flag
+        // is a screen wake lock held for as long as this window is visible, independent of the
+        // screen-timeout settings the harness also writes.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        // And opt out of real screenshots of this task. Sleep is not the only trigger: with the
+        // screen on, those images still wrote a snapshot of this task 16 s after the launcher was
+        // stopped behind it, on both emulators of a run, for a reason not yet pinned down. With
+        // this the snapshot WindowManager writes is a flat drawing of the theme colors that it
+        // renders itself, rather than a capture of SurfaceFlinger's output.
+        setRecentsScreenshotEnabled(false);
 
         _outputListView = findViewById(R.id.outputList);
         if (_outputListView == null) {
