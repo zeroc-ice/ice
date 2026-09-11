@@ -16,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -39,6 +40,14 @@ public class ControllerActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        // Hold the screen on while the controller is showing. A run is long, and on the API 37
+        // emulator images the task snapshot WindowManager takes when the screen turns off aborts
+        // system_server -- the same GPU readback SurfaceFlinger's region sampling dies in; see
+        // AndroidProcessController.keepScreenOn in scripts/Util.py. The flag is a screen wake lock
+        // held for as long as this window is visible, independent of the screen-timeout settings
+        // the harness also writes.
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         _outputListView = findViewById(R.id.outputList);
         if (_outputListView == null) {

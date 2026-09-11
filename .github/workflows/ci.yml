@@ -118,9 +118,10 @@ jobs:
           # about a minute after each boot, and the same readback aborts system_server when the
           # device sleeps and snapshots its tasks; the harness switches every emulator it boots to
           # three-button navigation, which never samples, and keeps its screen on (see
-          # AndroidProcessController.useThreeButtonNavigation and keepScreenOn). The controller and
-          # btbond APKs build against SDK 36 in every row, so the Android 17 rows check that Ice
-          # runs on that release, not that the test apps target it.
+          # AndroidProcessController.configureBootedDevice), and the controller app holds a
+          # keep-screen-on flag on its window as well. The controller and btbond APKs build against
+          # SDK 36 in every row, so the Android 17 rows check that Ice runs on that release, not
+          # that the test apps target it.
           - os: ubuntu-24.04
             config: "android"
             android_platform: "android-36"

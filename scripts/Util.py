@@ -2858,10 +2858,11 @@ class AndroidProcessController(RemoteProcessController):
             return ""
 
     def waitForBoot(self, timeout: float = 300) -> None:
-        # Wait for the device to reconnect to adb and finish booting. Tolerant of the transient adb
-        # errors seen while a device is mid-reboot. One deadline covers both phases -- otherwise
-        # wait-for-device could consume the whole budget and the poll loop would start a fresh one,
-        # doubling the advertised timeout.
+        # Wait for the device to reconnect to adb and finish booting, then apply the per-boot
+        # configuration (configureBootedDevice). Tolerant of the transient adb errors seen while a
+        # device is mid-reboot. One deadline covers both phases -- otherwise wait-for-device could
+        # consume the whole budget and the poll loop would start a fresh one, doubling the
+        # advertised timeout.
         deadline = time.time() + timeout
         try:
             subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=timeout, check=False)
@@ -2871,6 +2872,7 @@ class AndroidProcessController(RemoteProcessController):
         while time.time() <= deadline:
             try:
                 if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
+                    self.configureBootedDevice()
                     return
             except RuntimeError:
                 pass  # device offline mid-reboot
@@ -2965,14 +2967,36 @@ class AndroidProcessController(RemoteProcessController):
         # call races the reboots the Bluetooth setup performs and failed on every boot of the pair
         # ("device offline", "not found"), leaving the default timeout in place. With gesture
         # navigation out of the way, the API 37 pair then lost system_server to a SIGABRT in
-        # TaskSnapshotPersister -- WindowManager reading a task screenshot back for Recents, the same
-        # GPU-buffer readback SurfaceFlinger's region sampling dies in -- on both devices within 0.3s
-        # of each other, about two minutes after their near-simultaneous final boots. The screen
-        # turning off is what snapshots the visible task on that schedule. Both settings persist
-        # across reboots, so setting them after the first boot covers the ones that follow. Harmless
-        # on the API 36 images, which the emulator's own attempt already covers.
+        # TaskSnapshotPersister -- WindowManager writing out a task screenshot, the same GPU-buffer
+        # readback SurfaceFlinger's region sampling dies in -- on both devices at the same interval
+        # after each one's final boot, run after run. The screen turning off is what snapshots the
+        # showing task on a schedule like that; a screensaver starting would do the same (dreams run
+        # as an activity of their own since Android 13), so that is off too. The settings persist in
+        # /data; they are reapplied after every boot regardless (configureBootedDevice). Harmless on
+        # the API 36 images, which the emulator's own attempt already covers. The controller app
+        # also holds a keep-screen-on flag on its window, which covers the time it is showing
+        # without depending on any of this.
         self._adbTolerant("shell settings put system screen_off_timeout 2147483647")
         self._adbTolerant("shell settings put global stay_on_while_plugged_in 7")
+        self._adbTolerant("shell settings put secure screensaver_enabled 0")
+
+    def growLogBuffers(self) -> None:
+        # 4 MB per buffer, from logd's default of a few hundred KB. A system_server death is
+        # followed by a full framework restart that logs thousands of lines before the diagnostics
+        # get to run, and at the default size the lines the dead process logged just before its
+        # fatal signal -- which systemHealth prints as the abort's context -- can be gone by then.
+        # The emulator's own `logcat -G 2M` failed on every boot of the Bluetooth pair for the same
+        # adb races that lost its screen-timeout call. Not persisted, hence per boot.
+        self._adbTolerant("logcat -b main -b system -b crash -b events -G 4M")
+
+    def configureBootedDevice(self) -> None:
+        # Per-boot configuration, applied by waitForBoot (and startEmulator's own boot loop) as soon
+        # as sys.boot_completed is set: after the first boot and again after every reboot, since the
+        # log buffer sizes do not persist and the Bluetooth setup reboots its emulators twice after
+        # configuring them the first time. Everything here is idempotent and tolerant of failure.
+        self.useThreeButtonNavigation()
+        self.keepScreenOn()
+        self.growLogBuffers()
 
     def enableBluetooth(self) -> None:
         # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
@@ -3163,7 +3187,13 @@ class AndroidProcessController(RemoteProcessController):
         )
         # Skip adbd's echo of the harness's own "logcat -d -s BTBOND" polling: it matches BTBOND and,
         # at one line per poll, filled the 80 slots by itself.
-        lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln) and not self._adbEcho(ln)]
+        # And ART's abort dump of system_server: its native frames name AndroidRuntime, and one such
+        # dump filled the 80 slots with the same javaThreadShell frame over and over.
+        lines = [
+            ln
+            for ln in self._adbTolerant("logcat -d").splitlines()
+            if keep.search(ln) and not self._adbEcho(ln) and not self._crashNoise.search(ln)
+        ]
         print("\n".join(lines[-80:]))
         # A relaunch emits no new "START u0" and its main-buffer logs are compiled out, so the events
         # buffer is the only durable record that a second onCreate ran. bond() clears this buffer
@@ -3184,8 +3214,14 @@ class AndroidProcessController(RemoteProcessController):
     # themselves (one per system restart), and the low-memory killer. Kept narrow so a healthy
     # device prints little.
     _crashLine = re.compile(
-        r"Watchdog|WATCHDOG|FATAL EXCEPTION|Fatal signal|\bDEBUG\s*:|SurfaceFlinger.*(crash|died|abort|fatal)"
-        r"|START com\.android\.internal\.os\.ZygoteInit|lowmemorykiller"
+        # Watchdog by its own lines only: the mixed-case word also names WifiLastResortWatchdog,
+        # PackageWatchdog and keystore's watchdog reports, which between them once filled a window.
+        r"WATCHDOG|Watchdog: Blocked|FATAL EXCEPTION|Fatal signal|\bDEBUG\s*:|Abort message|Runtime aborting"
+        r"|Assertion failed|SurfaceFlinger.*(crash|died|abort|fatal)"
+        r"|START com\.android\.internal\.os\.ZygoteInit|lowmemorykiller: Kill "
+        # Sleep and wake, and a screensaver starting or stopping: a task snapshot is written when the
+        # device goes to sleep with an app task showing.
+        r"|PowerManagerService: (Going to sleep|Waking up)|DreamManagerService: (Entering|Leaving)"
         # Any fatal-priority line (logcat's "PID TID F TAG:" column): assertion messages and ART's
         # abort reason live there, under tags the words above do not cover.
         r"|\s\d+\s+\d+\s+F\s+\S"
@@ -3212,16 +3248,62 @@ class AndroidProcessController(RemoteProcessController):
     def _condensed(cls, lines: list[str]) -> list[str]:
         return [ln for ln in lines if "\tat " not in ln and not cls._crashNoise.search(ln) and not cls._adbEcho(ln)]
 
+    # Events-buffer records that place a system_server death in time: screen and sleep state
+    # (power_screen_state carries off/on and the reason), keyguard, and the activity lifecycle -- a
+    # task snapshot is written when a showing task is paused for something on top of it, or for
+    # sleep. The periodic samplers (am_pss and friends) and process starts are left out.
+    _timelineEvent = re.compile(
+        r"\bI (power_screen_state|power_sleep_requested|power_soft_sleep_requested|screen_toggled"
+        r"|wm_set_keyguard_shown|wm_(create|finish|destroy|pause|stop|resume|restart|relaunch)_activity"
+        r"|wm_set_resumed_activity|wm_add_to_stopping|wm_task_to_front|wm_task_moved|wm_task_removed"
+        r"|wm_create_task|am_(low_memory|crash|anr)|boot_progress_start):"
+    )
+
+    @staticmethod
+    def _fatalPids(crashBuffer: list[str]) -> list[tuple[str, str]]:
+        # (pid, process name) for every process the crash buffer records a fatal signal for, in
+        # order of first appearance: "Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 853
+        # (TaskSnapshotPer), pid 616 (system_server)".
+        found: dict[str, str] = {}
+        for line in crashBuffer:
+            m = re.search(r"Fatal signal .*\bpid (\d+) \(([^)]*)\)", line)
+            if m and m.group(1) not in found:
+                found[m.group(1)] = m.group(2)
+        return list(found.items())
+
     def systemHealth(self) -> str:
         # What the guest says about its own stability, for the failure paths: boot state, uptime,
         # how many times system_server has booted, the crash and watchdog lines, and the persisted
         # crash reports. Tolerant throughout -- an unbootable or restarting device is exactly when
         # this runs. The API 37 emulators failed once with both zygotes restarting every 65s and
         # nothing here to say why.
-        boots = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if "boot_progress_start" in ln]
+        events = self._adbTolerant("logcat -b events -d").splitlines()
+        boots = [ln for ln in events if "boot_progress_start" in ln]
         main = self._adbTolerant("logcat -d").splitlines()
         crashes = self._condensed([ln for ln in main if self._crashLine.search(ln)])
         crashBuffer = self._condensed(self._adbTolerant("logcat -d -b crash").splitlines())
+        # The screen-timeout settings keepScreenOn writes, and what PowerManagerService made of them
+        # (mStayOn is the stay-on setting combined with the charger state the guest reports). Read
+        # after a system_server restart these describe the new instance, which is still what the
+        # dead one had: the settings persist, and the charger does not change.
+        settings = []
+        for namespace, key in (
+            ("system", "screen_off_timeout"),
+            ("global", "stay_on_while_plugged_in"),
+            ("secure", "screensaver_enabled"),
+        ):
+            value = self._adbTolerant(f"shell settings get {namespace} {key}").strip() or "?"
+            settings.append(f"{key}={value}")
+        power = [
+            ln.strip()
+            for ln in self._adbTolerant("shell dumpsys power").splitlines()
+            if re.match(
+                r"\s*(mWakefulness|mStayOn|mIsPowered|mPlugType|mScreenOffTimeoutSetting"
+                r"|mStayOnWhilePluggedInSetting|mUserActivitySummary|mWakeLockSummary)=",
+                ln,
+            )
+        ]
+        timeline = [ln for ln in events if self._timelineEvent.search(ln)]
         out = [
             f"boot_completed={self._adbTolerant('shell getprop sys.boot_completed').strip() or '?'}",
             f"uptime: {self._adbTolerant('shell uptime').strip() or '?'}",
@@ -3235,11 +3317,25 @@ class AndroidProcessController(RemoteProcessController):
                 )
                 or "?"
             ),
-            "-- crash and watchdog lines (last 60, frames dropped) --",
-            "\n".join(crashes[-60:]) or "<none>",
+            "screen settings: " + " ".join(settings),
+            "power: " + (" ".join(power) or "?"),
+            "-- screen, sleep and activity events (last 60) --",
+            "\n".join(timeline[-60:]) or "<none>",
+            "-- crash and watchdog lines (last 100, frames dropped) --",
+            "\n".join(crashes[-100:]) or "<none>",
             "-- crash buffer (last 120, frames dropped) --",
             "\n".join(crashBuffer[-120:]) or "<none>",
         ]
+        # The crash buffer records only the signal. What the process logged just before it -- an
+        # assertion, the abort reason, what it was doing -- is in main and system under its pid,
+        # where the keyword filters above do not reach. Once per dead pid; a restarted process has a
+        # new one, so the pid filter returns the dead instance's lines only.
+        for pid, name in self._fatalPids(crashBuffer):
+            tail = self._condensed(self._adbTolerant(f"logcat -d -b main -b system --pid={pid}").splitlines())
+            out += [
+                f"-- pid {pid} ({name}): last 60 lines before its fatal signal (thread dump dropped) --",
+                "\n".join(tail[-60:]) or "<none>",
+            ]
         # Root-only, through su rather than `adb root` (which restarts adbd and would need a wait
         # this path cannot afford); google_apis images allow it, playstore ones make these print
         # nothing. dmesg has the kernel's own OOM kills. The dropbox files keep the head of every
@@ -3283,7 +3379,9 @@ class AndroidProcessController(RemoteProcessController):
 
     # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
     # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
-    # Netsim virtual Bluetooth network so the two emulators can reach each other.
+    # Netsim virtual Bluetooth network so the two emulators can reach each other. -gpu swiftshader
+    # as in startEmulator: swiftshader_indirect is the deprecated spelling of the same backend, and
+    # the one job that runs the API 37 image to a green result uses the current one.
     bluetoothEmulatorFlags = [
         "-no-audio",
         "-partition-size",
@@ -3291,7 +3389,7 @@ class AndroidProcessController(RemoteProcessController):
         "-no-snapshot",
         "-writable-system",
         "-gpu",
-        "swiftshader_indirect",
+        "swiftshader",
         "-accel",
         "on",
         "-no-boot-anim",
@@ -3384,8 +3482,7 @@ class AndroidProcessController(RemoteProcessController):
         bootTimeout = 600
         while (time.time() - t) <= bootTimeout:
             if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
-                self.useThreeButtonNavigation()
-                self.keepScreenOn()
+                self.configureBootedDevice()
                 break
             time.sleep(2)
         else:
