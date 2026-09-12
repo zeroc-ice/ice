@@ -114,6 +114,11 @@ To build the Android test controller from the command line:
   python allTests.py --android --all --controller-app
   ```
 
+  This creates and boots an Android 16 (API 36) emulator. To run on another release, set `ANDROID_PLATFORM` to the
+  SDK platform whose system image you have installed, for example `android-37.0` for Android 17, and
+  `ANDROID_IMAGE_TAG` to that image's tag when it is not `google_apis`. Or pass `--avd=<name>` to use an existing
+  virtual device.
+
 ### Using Android Studio
 
 - Launch Android Studio and import the `test/android/controller` project.

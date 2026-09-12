@@ -13,6 +13,8 @@ concurrency:
 
 jobs:
   build-and-test:
+    # TEMPORARY: skipped while the Android 17 jobs are being debugged. Revert this commit before merging.
+    if: false
     name: ${{ matrix.distribution }}-${{ matrix.arch }}
     runs-on: ${{ (contains(matrix.arch, 'arm64') || contains(matrix.arch, 'aarch64')) && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     strategy:

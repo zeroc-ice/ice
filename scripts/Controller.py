@@ -377,7 +377,7 @@ class ControllerDriver(Driver):
         controller = AndroidProcessController.forDevice(device)
 
         if self.btSetup:
-            controller.waitForBoot()
+            controller.waitForBoot()  # configureBootedDevice runs here and after each reboot below
             controller.installSystemApp(
                 self.btSetup, "btbond", "com.zeroc.btbond", ["android.permission.BLUETOOTH_PRIVILEGED"]
             )
