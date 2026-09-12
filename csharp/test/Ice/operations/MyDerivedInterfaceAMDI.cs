@@ -47,7 +47,8 @@ public sealed class MyDerivedInterfaceI : Test.AsyncMyDerivedInterfaceDisp_
         return Task.CompletedTask;
     }
 
-    public override Task<bool> supportsCompressAsync(Current current) => Task.FromResult<bool>(true);
+    public override Task<bool> supportsCompressAsync(Current current) =>
+        Task.FromResult(Ice.Internal.BZip2.isLoaded(current.adapter.getCommunicator().getLogger()));
 
     public override Task opVoidAsync(Current current)
     {

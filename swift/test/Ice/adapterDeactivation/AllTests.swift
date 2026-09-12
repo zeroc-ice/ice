@@ -72,7 +72,7 @@ func allTests(_ helper: TestHelper) async throws {
             // stringToProxy must be called before the communicator is destroyed
             let prx = try comm.stringToProxy(ref)!
 
-            Task {
+            _ = Task {
                 try await prx.ice_ping()
             }
             comm.destroy()

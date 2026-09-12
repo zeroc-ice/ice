@@ -100,12 +100,15 @@ jobs:
             /workspace/ice/packaging/deb/build-package.sh
         shell: bash
 
+      # The packaging targets Debian unstable. Use the Debian profile on every builder: the Ubuntu builders default to
+      # the Ubuntu vendor profile, which only recognizes Ubuntu release names and rejects "unstable" with
+      # bad-distribution-in-changes-file.
       - name: Run Lintian
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
             ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }}:${CHANNEL} \
-            bash -c 'lintian /workspace/*_source.changes'
+            bash -c 'lintian --profile debian /workspace/*_source.changes'
         shell: bash
 
       - name: Upload Artifacts
