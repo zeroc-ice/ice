@@ -108,9 +108,8 @@ jobs:
             build_cpp_and_python: true
 
           # Android. android_platform is the SDK platform whose system image the emulators boot, in
-          # sdkmanager's naming (android-36 is Android 16, android-37.0 is Android 17), and
-          # android_image_tag the image's tag when it is not google_apis (android-37.1, Android 17
-          # QPR1, ships google_apis_ps16k only). The API 37 images, 37.0 and 37.1 alike, abort
+          # sdkmanager's naming (android-36 is Android 16, android-37.0 is Android 17).
+          # The API 37 images, 37.0 and 37.1 alike, abort
           # SurfaceFlinger under gesture navigation ("Assertion failed:
           # !rcEnc->featureInfo()->hasReadColorBufferDma"), which restarts zygote and every app
           # about a minute after each boot, and the same readback aborts system_server when it
@@ -312,7 +311,6 @@ jobs:
         uses: ./.github/actions/setup-android
         with:
           platform: ${{ matrix.android_platform || 'android-36' }}
-          image_tag: ${{ matrix.android_image_tag || 'google_apis' }}
 
       - name: Install Windows Debug Tools
         if: runner.os == 'Windows'
