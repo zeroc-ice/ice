@@ -2903,7 +2903,7 @@ class AndroidProcessController(RemoteProcessController):
                     if not frameworkLost:
                         frameworkLost = True
                         print(f"'{name}' reports its boot complete but the framework does not answer; guest state:")
-                        print(self.systemHealth())
+                        # Previously dumped the 'systemHealth' which was deleted.
                         print("waiting for the framework to come back")
             except RuntimeError:
                 pass  # device offline mid-reboot
@@ -3016,23 +3016,14 @@ class AndroidProcessController(RemoteProcessController):
         self._adbTolerant("shell settings put global stay_on_while_plugged_in 7")
         self._adbTolerant("shell settings put secure screensaver_enabled 0")
 
-    def growLogBuffers(self) -> None:
-        # 4 MB per buffer, from logd's default of a few hundred KB. A system_server death is
-        # followed by a full framework restart that logs thousands of lines before the diagnostics
-        # get to run, and at the default size the lines the dead process logged just before its
-        # fatal signal -- which systemHealth prints as the abort's context -- can be gone by then.
-        # The emulator's own `logcat -G 2M` failed on every boot of the Bluetooth pair for the same
-        # adb races that lost its screen-timeout call. Not persisted, hence per boot.
-        self._adbTolerant("logcat -b main -b system -b crash -b events -G 4M")
-
     def configureBootedDevice(self) -> None:
+        # TODO does this need to be applied after every boot now that the log size is remove?
         # Per-boot configuration, applied by waitForBoot (and startEmulator's own boot loop) as soon
         # as sys.boot_completed is set: after the first boot and again after every reboot, since the
         # log buffer sizes do not persist and the Bluetooth setup reboots its emulators twice after
         # configuring them the first time. Everything here is idempotent and tolerant of failure.
         self.useThreeButtonNavigation()
         self.keepScreenOn()
-        self.growLogBuffers()
 
     def enableBluetooth(self) -> None:
         # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
@@ -3241,27 +3232,6 @@ class AndroidProcessController(RemoteProcessController):
         )
         lines = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if events.search(ln)]
         print("\n".join(lines[-40:]) or "<none>")
-        print("-- system health --")
-        print(self.systemHealth())
-
-    # Lines that say why a guest stopped answering: system_server's Watchdog, Java crash headers
-    # (FATAL EXCEPTION, including IN SYSTEM PROCESS), native crashes (Fatal signal; DEBUG is the
-    # tombstone summary), SurfaceFlinger, whose crash restarts zygote by design, zygote starts
-    # themselves (one per system restart), and the low-memory killer. Kept narrow so a healthy
-    # device prints little.
-    _crashLine = re.compile(
-        # Watchdog by its own lines only: the mixed-case word also names WifiLastResortWatchdog,
-        # PackageWatchdog and keystore's watchdog reports, which between them once filled a window.
-        r"WATCHDOG|Watchdog: Blocked|FATAL EXCEPTION|Fatal signal|\bDEBUG\s*:|Abort message|Runtime aborting"
-        r"|Assertion failed|SurfaceFlinger.*(crash|died|abort|fatal)"
-        r"|START com\.android\.internal\.os\.ZygoteInit|lowmemorykiller: Kill "
-        # Sleep and wake, and a screensaver starting or stopping: a task snapshot is written when the
-        # device goes to sleep with an app task showing.
-        r"|PowerManagerService: (Going to sleep|Waking up)|DreamManagerService: (Entering|Leaving)"
-        # Any fatal-priority line (logcat's "PID TID F TAG:" column): assertion messages and ART's
-        # abort reason live there, under tags the words above do not cover.
-        r"|\s\d+\s+\d+\s+F\s+\S"
-    )
 
     # The bulk of a crash report: native frames and register dumps (tombstone lines indented four
     # or more spaces after the DEBUG tag), Java frames, and the tombstone boilerplate. Dropping them
@@ -3275,141 +3245,11 @@ class AndroidProcessController(RemoteProcessController):
         r'|runtime\.cc:\d+\]\s+"|runtime\.cc:\d+\]\s{2,}|runtime\.cc:\d+\]\s*$'
     )
 
-    # The first line a process logs on its way out: the assertion (system_server's came a full
-    # minute before ART's abort dump, which is not the crash's time), the dump, or the signal.
-    _abortLine = re.compile(r"Assertion failed|runtime\.cc:\d+\]|Fatal signal")
-
     @staticmethod
     def _adbEcho(line: str) -> bool:
         # adbd logs every shell request it serves, so the harness's own polling lands in the log
         # carrying the very words the filters here look for.
         return "adbd service requested" in line
-
-    @classmethod
-    def _condensed(cls, lines: list[str]) -> list[str]:
-        return [ln for ln in lines if "\tat " not in ln and not cls._crashNoise.search(ln) and not cls._adbEcho(ln)]
-
-    # Events-buffer records that place a system_server death in time: screen and sleep state
-    # (power_screen_state carries off/on and the reason), keyguard, and the activity lifecycle -- a
-    # task snapshot is written when a showing task is paused for something on top of it, or for
-    # sleep. The periodic samplers (am_pss and friends) and process starts are left out.
-    _timelineEvent = re.compile(
-        r"\bI (power_screen_state|power_sleep_requested|power_soft_sleep_requested|screen_toggled"
-        r"|wm_set_keyguard_shown|wm_(create|finish|destroy|pause|stop|resume|restart|relaunch)_activity"
-        r"|wm_set_resumed_activity|wm_add_to_stopping|wm_task_to_front|wm_task_moved|wm_task_removed"
-        r"|wm_create_task|am_(low_memory|crash|anr)|boot_progress_start):"
-    )
-
-    @staticmethod
-    def _fatalPids(crashBuffer: list[str]) -> list[tuple[str, str]]:
-        # (pid, process name) for every process the crash buffer records a fatal signal for, in
-        # order of first appearance: "Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 853
-        # (TaskSnapshotPer), pid 616 (system_server)".
-        found: dict[str, str] = {}
-        for line in crashBuffer:
-            m = re.search(r"Fatal signal .*\bpid (\d+) \(([^)]*)\)", line)
-            if m and m.group(1) not in found:
-                found[m.group(1)] = m.group(2)
-        return list(found.items())
-
-    def systemHealth(self) -> str:
-        # What the guest says about its own stability, for the failure paths: boot state, uptime,
-        # how many times system_server has booted, the crash and watchdog lines, and the persisted
-        # crash reports. Tolerant throughout -- an unbootable or restarting device is exactly when
-        # this runs. The API 37 emulators failed once with both zygotes restarting every 65s and
-        # nothing here to say why.
-        events = self._adbTolerant("logcat -b events -d").splitlines()
-        boots = [ln for ln in events if "boot_progress_start" in ln]
-        main = self._adbTolerant("logcat -d").splitlines()
-        crashes = self._condensed([ln for ln in main if self._crashLine.search(ln)])
-        crashBuffer = self._condensed(self._adbTolerant("logcat -d -b crash").splitlines())
-        # The screen-timeout settings keepScreenOn writes, and what PowerManagerService made of them
-        # (mStayOn is the stay-on setting combined with the charger state the guest reports). Read
-        # after a system_server restart these describe the new instance, which is still what the
-        # dead one had: the settings persist, and the charger does not change.
-        settings = []
-        for namespace, key in (
-            ("system", "screen_off_timeout"),
-            ("global", "stay_on_while_plugged_in"),
-            ("secure", "screensaver_enabled"),
-        ):
-            value = self._adbTolerant(f"shell settings get {namespace} {key}").strip() or "?"
-            settings.append(f"{key}={value}")
-        power = [
-            ln.strip()
-            for ln in self._adbTolerant("shell dumpsys power").splitlines()
-            if re.match(
-                r"\s*(mWakefulness|mStayOn|mIsPowered|mPlugType|mScreenOffTimeoutSetting"
-                r"|mStayOnWhilePluggedInSetting|mUserActivitySummary|mWakeLockSummary)=",
-                ln,
-            )
-        ]
-        timeline = [ln for ln in events if self._timelineEvent.search(ln)]
-        out = [
-            f"boot_completed={self._adbTolerant('shell getprop sys.boot_completed').strip() or '?'}",
-            f"uptime: {self._adbTolerant('shell uptime').strip() or '?'}",
-            f"system boots recorded in the events buffer: {len(boots)}",
-            "navigation overlays: "
-            + (
-                " ".join(
-                    ln.strip()
-                    for ln in self._adbTolerant("shell cmd overlay list").splitlines()
-                    if "systemui.navbar" in ln and ln.strip().startswith("[x]")
-                )
-                or "?"
-            ),
-            "screen settings: " + " ".join(settings),
-            "power: " + (" ".join(power) or "?"),
-            "-- screen, sleep and activity events (last 60) --",
-            "\n".join(timeline[-60:]) or "<none>",
-            "-- crash and watchdog lines (last 100, frames dropped) --",
-            "\n".join(crashes[-100:]) or "<none>",
-            "-- crash buffer (last 120, frames dropped) --",
-            "\n".join(crashBuffer[-120:]) or "<none>",
-        ]
-        # The crash buffer records only the signal. What the process logged just before it -- an
-        # assertion, the abort reason, what it was doing -- is in main and system under its pid,
-        # where the keyword filters above do not reach. Once per dead pid; a restarted process has a
-        # new one, so the pid filter returns the dead instance's lines only. Cut at the abort: the
-        # process lives on for the half minute the tombstone takes, still logging, and the first
-        # version of this printed those lines instead. ART's dump of the aborting thread itself is
-        # then kept in full -- its native frames name the library that asserted.
-        for pid, name in self._fatalPids(crashBuffer):
-            lines = self._adbTolerant(f"logcat -d -b main -b system --pid={pid}").splitlines()
-            abort = next((i for i, ln in enumerate(lines) if self._abortLine.search(ln)), len(lines))
-            before = self._condensed(lines[:abort])
-            out += [f"-- pid {pid} ({name}): last 40 lines before its abort --", "\n".join(before[-40:]) or "<none>"]
-            aborting = next((i for i, ln in enumerate(lines) if "Aborting thread:" in ln), None)
-            if aborting is not None:
-                out += [f"-- pid {pid} ({name}): the aborting thread --", "\n".join(lines[aborting : aborting + 45])]
-        # Root-only, through su rather than `adb root` (which restarts adbd and would need a wait
-        # this path cannot afford); google_apis images allow it, playstore ones make these print
-        # nothing. dmesg has the kernel's own OOM kills. The dropbox files keep the head of every
-        # system_server crash, watchdog kill and tombstone across restarts, unlike the logcat crash
-        # buffer, which a restart loop overwrites within minutes.
-        oom = [
-            ln
-            for ln in self._adbTolerant("shell su 0 dmesg").splitlines()
-            if re.search(r"(?i)out of memory|oom-kill|killed process", ln)
-        ]
-        out += ["-- kernel oom (last 20) --", "\n".join(oom[-20:]) or "<none>"]
-        # The snapshot files themselves. The persister writes <task id>.proto and then the image,
-        # and the image is the write system_server aborts in, so a .proto without its image names
-        # the task whose snapshot was being written (wm_create_task in the events above maps ids).
-        # Recursive: on the API 37 images the files sit in a subdirectory named by a UUID.
-        snapshotsDir = "/data/system_ce/0/snapshots"
-        snapshots = self._adbTolerant(f"shell su 0 ls -laR --full-time {snapshotsDir}").strip()
-        if not snapshots:  # a toybox without --full-time
-            snapshots = self._adbTolerant(f"shell su 0 ls -laR {snapshotsDir}").strip()
-        out += ["-- task snapshot files --", snapshots or "<none>"]
-        names = self._adbTolerant("shell su 0 ls -t /data/system/dropbox").split()
-        reports = [n for n in names if re.match(r"(system_server_\w+|SYSTEM_TOMBSTONE)@", n)][:3]
-        out += [f"-- dropbox reports (newest 3 of {len(names)}) --", " ".join(reports) or "<none>"]
-        for name in reports:
-            cat = "gzip -dc" if name.endswith(".gz") else "cat"
-            text = self._condensed(self._adbTolerant(f"shell su 0 {cat} /data/system/dropbox/{name}").splitlines())
-            out += [f"-- {name} (first 30 lines, frames dropped) --", "\n".join(text[:30]) or "<empty>"]
-        return "\n".join(out)
 
     # Set once the harness's own emulator has failed to boot, so the tests that follow fail at once
     # instead of each recreating the AVD and waiting out the boot timeout again: with --all that is
@@ -3536,10 +3376,8 @@ class AndroidProcessController(RemoteProcessController):
         try:
             self.waitForBoot(600)
         except RuntimeError as ex:
-            # Say what the guest was doing first -- the emulator's own stdout only covers the host
-            # side -- and stop the emulator so it does not linger into the next test's attempt.
-            print(f"{ex}; guest state:")
-            print(self.systemHealth())
+            # Stop the emulator so it does not linger into the next test's attempt.
+            print(f"{ex}")
             self.killEmulator()
             AndroidProcessController.bootFailed = True
             raise
