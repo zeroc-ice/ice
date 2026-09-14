@@ -77,22 +77,36 @@ jobs:
         run: |
           gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --pattern "windows-installer" --dir staging
 
+      - name: Sync the winget-pkgs fork with upstream
+        env:
+          GH_TOKEN: ${{ secrets.WINGET_GITHUB_PAT }}
+        run: |
+          # wingetcreate submits from the token owner's winget-pkgs fork and fails when GitHub cannot bring that
+          # fork's master up to date with upstream. The fork exists only for these submissions, so reset it to
+          # upstream before submitting.
+          fork_owner=$(gh api user --jq .login)
+          gh repo sync "${fork_owner}/winget-pkgs" --source microsoft/winget-pkgs --branch master --force
+        shell: bash
+
       - name: Submit to WinGet
         env:
           CHANNEL: ${{ inputs.channel }}
-          WINGET_PAT: ${{ secrets.WINGET_GITHUB_PAT }}
+          WINGET_CREATE_GITHUB_TOKEN: ${{ secrets.WINGET_GITHUB_PAT }}
         run: |
           $exeFile = Get-ChildItem staging/windows-installer/*.exe | Select-Object -First 1
           $downloadUrl = "https://download.zeroc.com/ice/${env:CHANNEL}/$($exeFile.Name)"
 
+          # The installer bundle registers as <BASE_VERSION>.0 in Apps & Features (see Bundle.wxs), and the
+          # WinGet package version must match what is installed.
+          $packageVersion = "$($env:BASE_VERSION).0"
+
           Write-Host "Download URL: $downloadUrl"
-          Write-Host "Version: $env:BASE_VERSION"
+          Write-Host "Version: $packageVersion"
 
           Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
 
           .\wingetcreate.exe update ZeroC.IceServices `
             --urls $downloadUrl `
-            --version $env:BASE_VERSION `
-            --submit `
-            --token $env:WINGET_PAT
+            --version $packageVersion `
+            --submit
         shell: pwsh
