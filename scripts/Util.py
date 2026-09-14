@@ -2868,11 +2868,10 @@ class AndroidProcessController(RemoteProcessController):
             return False
 
     def waitForBoot(self, timeout: float = 300) -> None:
-        # Wait for the device to reconnect to adb and finish booting, then apply the per-boot
-        # configuration (configureBootedDevice). Tolerant of the transient adb errors seen while a
-        # device is mid-reboot. One deadline covers both phases -- otherwise wait-for-device could
-        # consume the whole budget and the poll loop would start a fresh one, doubling the
-        # advertised timeout.
+        # Wait for the device to reconnect to adb and finish booting, then apply the per-boot configuration.
+        # Tolerant of the transient adb errors seen while a device is mid-reboot.
+        # One deadline covers both phases -- otherwise wait-for-device could consume the whole budget and the
+        # poll loop would start a fresh one, doubling the advertised timeout.
         #
         # Booted means more than sys.boot_completed. The property is set once and stays set while
         # system_server restarts, and on the API 37 images the framework has been lost at the very
@@ -2898,7 +2897,10 @@ class AndroidProcessController(RemoteProcessController):
                     navigationSet = True
                 if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
                     if self._serviceUp("settings"):
-                        self.configureBootedDevice()
+                        # Per-boot configuration, as soon as sys.boot_completed is set. Applied after the first boot
+                        # and again after every reboot. Everything here is idempotent and tolerant of failure.
+                        self.useThreeButtonNavigation()
+                        self.keepScreenOn()
                         return
                     if not frameworkLost:
                         frameworkLost = True
@@ -3003,8 +3005,8 @@ class AndroidProcessController(RemoteProcessController):
         # out aborts system_server (the GPU-buffer readback SurfaceFlinger's region sampling dies
         # in), so the screen stays on: timeout at its maximum, stay-on while powered, no screensaver
         # (dreams run as an activity of their own since Android 13, so one starting would snapshot
-        # too). The settings persist in /data; they are reapplied after every boot regardless
-        # (configureBootedDevice). Harmless on the API 36 images, which the emulator's own attempt
+        # too). The settings persist in /data; they are reapplied after every boot regardless.
+        # Harmless on the API 36 images, which the emulator's own attempt
         # already covers. The controller app holds a keep-screen-on flag on its window as well.
         # This closes one door only: the API 37 pair still lost system_server to that abort with
         # the screen on and stay-on in effect, the persister writing the snapshot of btbond's task
@@ -3015,15 +3017,6 @@ class AndroidProcessController(RemoteProcessController):
         self._adbTolerant("shell settings put system screen_off_timeout 2147483647")
         self._adbTolerant("shell settings put global stay_on_while_plugged_in 7")
         self._adbTolerant("shell settings put secure screensaver_enabled 0")
-
-    def configureBootedDevice(self) -> None:
-        # TODO does this need to be applied after every boot now that the log size is remove?
-        # Per-boot configuration, applied by waitForBoot (and startEmulator's own boot loop) as soon
-        # as sys.boot_completed is set: after the first boot and again after every reboot, since the
-        # log buffer sizes do not persist and the Bluetooth setup reboots its emulators twice after
-        # configuring them the first time. Everything here is idempotent and tolerant of failure.
-        self.useThreeButtonNavigation()
-        self.keepScreenOn()
 
     def enableBluetooth(self) -> None:
         # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed

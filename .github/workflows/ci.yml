@@ -107,18 +107,7 @@ jobs:
             test_flags: "--platform=x64"
             build_cpp_and_python: true
 
-          # Android. android_platform is the SDK platform whose system image the emulators boot, in
-          # sdkmanager's naming (android-36 is Android 16, android-37.0 is Android 17).
-          # The API 37 images, 37.0 and 37.1 alike, abort
-          # SurfaceFlinger under gesture navigation ("Assertion failed:
-          # !rcEnc->featureInfo()->hasReadColorBufferDma"), which restarts zygote and every app
-          # about a minute after each boot, and the same readback aborts system_server when it
-          # writes out a task snapshot; the harness switches every emulator it boots to
-          # three-button navigation, which never samples, and keeps its screen on (see
-          # AndroidProcessController.configureBootedDevice), and the test apps opt out of real
-          # screenshots of their tasks, btbond also keeping the Settings pairing dialog from
-          # opening one. The controller and btbond APKs build against SDK 36 in every row, so the
-          # Android 17 rows check that Ice runs on that release, not that the test apps target it.
+          # Android 16
           - os: ubuntu-24.04
             config: "android"
             android_platform: "android-36"
@@ -127,6 +116,7 @@ jobs:
             build_cpp_and_python: true
             build_android_controller: true
 
+          # Android 17
           - os: ubuntu-24.04
             config: "android-17"
             android_platform: "android-37.0"
@@ -137,7 +127,6 @@ jobs:
 
           # Android<->Android IceBT over the emulator's virtual Bluetooth controller: one emulator
           # runs the test server (started by setup-android-bt), the other runs the client.
-          # android_bt selects the Bluetooth setup and diagnostics steps below.
           - os: ubuntu-24.04
             config: "android-bt"
             android_platform: "android-36"
@@ -168,10 +157,7 @@ jobs:
               --device=$BT_CLIENT --host-bt=$BT_ADDR
               Ice/operations Ice/ami
 
-          # The same Bluetooth run on Android 17. The flags are copied from android-bt above; keep
-          # the two rows in step. API 37 images force each AVD to 4 GB of RAM (emulator 36.6.11
-          # release notes), so this job's two emulators take 8 GB of a 16 GB runner: a boot
-          # failure here that android-bt does not share is the first thing to check for memory.
+          # The same Bluetooth run on Android 17. The flags are copied from android-bt above.
           - os: ubuntu-24.04
             config: "android-17-bt"
             android_platform: "android-37.0"
@@ -413,18 +399,6 @@ jobs:
           # The polarity is load-bearing -- the natural-looking `matrix.test_all != false` reads
           # null != false as 0 != 0, silently dropping --all from every job in the matrix.
           all: ${{ matrix.skip_all_configs != true }}
-
-      # The non-Bluetooth Android jobs have no diagnostics of their own: the harness prints the
-      # guest's state when a boot fails, and this adds the host's.
-      - name: Android host diagnostics
-        if: always() && startsWith(matrix.config, 'android') && matrix.android_bt != true
-        timeout-minutes: 2
-        run: |
-          set +e
-          free -m; uptime; nproc; adb devices -l
-          sudo dmesg 2>/dev/null | grep -i -E "out of memory|oom-kill|killed process" | tail -20
-          true
-        shell: bash
 
       - name: Bluetooth diagnostics
         if: always() && matrix.android_bt == true
