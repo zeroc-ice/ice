@@ -22,21 +22,44 @@
         ClCompile.RuntimeLibrary.
     -->
     <ItemGroup>
-        <BuildTarget Include="Win32-Debug">      <Plat>Win32</Plat><Conf>Debug</Conf>      </BuildTarget>
-        <BuildTarget Include="Win32-Release">    <Plat>Win32</Plat><Conf>Release</Conf>    </BuildTarget>
-        <BuildTarget Include="Win32-MT-Debug">   <Plat>Win32</Plat><Conf>MT-Debug</Conf>   </BuildTarget>
-        <BuildTarget Include="Win32-MT-Release"> <Plat>Win32</Plat><Conf>MT-Release</Conf> </BuildTarget>
-        <BuildTarget Include="x64-Debug">        <Plat>x64</Plat>  <Conf>Debug</Conf>      </BuildTarget>
-        <BuildTarget Include="x64-Release">      <Plat>x64</Plat>  <Conf>Release</Conf>    </BuildTarget>
-        <BuildTarget Include="x64-MT-Debug">     <Plat>x64</Plat>  <Conf>MT-Debug</Conf>   </BuildTarget>
-        <BuildTarget Include="x64-MT-Release">   <Plat>x64</Plat>  <Conf>MT-Release</Conf> </BuildTarget>
-
+        <BuildTarget Include="Win32-Debug">
+            <Platform>Win32</Platform>
+            <Configuration>Debug</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="Win32-Release">
+            <Platform>Win32</Platform>
+            <Configuration>Release</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="Win32-MT-Debug">
+            <Platform>Win32</Platform>
+            <Configuration>MT-Debug</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="Win32-MT-Release">
+            <Platform>Win32</Platform>
+            <Configuration>MT-Release</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="x64-Debug">
+            <Platform>x64</Platform>
+            <Configuration>Debug</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="x64-Release">
+            <Platform>x64</Platform>
+            <Configuration>Release</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="x64-MT-Debug">
+            <Platform>x64</Platform>
+            <Configuration>MT-Debug</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="x64-MT-Release">
+            <Platform>x64</Platform>
+            <Configuration>MT-Release</Configuration>
+        </BuildTarget>
     </ItemGroup>
 
     <Target Name="Build" DependsOnTargets="DownloadSource">
         <MSBuild Projects="$(MSBuildThisFileDirectory)bzip2.vcxproj"
                  BuildInParallel="true"
-                 Properties="Configuration=%(BuildTarget.Conf);Platform=%(BuildTarget.Plat);DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot)" />
+                 Properties="Configuration=%(BuildTarget.Configuration);Platform=%(BuildTarget.Platform);DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot)" />
     </Target>
 
     <!-- NugetPack does not rebuild, so CI can Authenticode-sign between Build and NugetPack. -->
@@ -44,7 +67,7 @@
         <RemoveDir Directories="$(PackageStagingDir)" />
 
         <MSBuild Projects="$(MSBuildThisFileDirectory)bzip2.nuget.targets"
-                 Properties="Platform=%(BuildTarget.Plat);Configuration=%(BuildTarget.Conf);OutRoot=$(OutRoot);DefaultPlatformToolset=$(DefaultPlatformToolset);PackageStagingDir=$(PackageStagingDir)" />
+                 Properties="Platform=%(BuildTarget.Platform);Configuration=%(BuildTarget.Configuration);OutRoot=$(OutRoot);DefaultPlatformToolset=$(DefaultPlatformToolset);PackageStagingDir=$(PackageStagingDir)" />
 
         <Copy SourceFiles="$(SourceDir)\bzlib.h"
               DestinationFolder="$(PackageStagingDir)\build\native\include" />
