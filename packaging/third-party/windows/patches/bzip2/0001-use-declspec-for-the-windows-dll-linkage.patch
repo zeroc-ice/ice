@@ -25,19 +25,13 @@ diff --git a/bzlib.h b/bzlib.h
 index 8277123..32d83bb 100644
 --- a/bzlib.h
 +++ b/bzlib.h
-@@ -66,8 +66,8 @@ typedef
-    bz_stream;
-
-
+@@ -69,3 +69,3 @@
 -#ifndef BZ_IMPORT
 -#define BZ_EXPORT
 +#ifndef BZ_EXPORT
 +#define BZ_IMPORT
  #endif
-
- #ifndef BZ_NO_STDIO
-@@ -83,11 +83,11 @@ typedef
- #   endif
+@@ -84,8 +84,8 @@
  #   ifdef BZ_EXPORT
  #   define BZ_API(func) WINAPI func
 -#   define BZ_EXTERN extern
@@ -49,5 +43,3 @@ index 8277123..32d83bb 100644
 +#   define BZ_API(func) WINAPI  func
 +#   define BZ_EXTERN __declspec(dllimport)
  #   endif
- #else
- #   define BZ_API(func) func
