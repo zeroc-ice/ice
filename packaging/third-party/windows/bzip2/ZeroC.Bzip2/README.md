@@ -3,9 +3,6 @@
 This package provides the [Bzip2] debug and release DLLs, their corresponding import libraries, and the bzip2 header
 file. Both the shared and static CRT variants are included.
 
-It was originally created for use with ZeroC Ice Windows builds but can be used in any C or C++ project that requires
-bzip2.
-
 ## Source Code
 
 bzip2 is used as released, with one patch to `bzlib.h` that replaces its dynamic-loading declarations with
