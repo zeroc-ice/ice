@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="All" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <Import Project="..\sources.targets" />
+
+    <PropertyGroup>
+        <Dependency>bzip2</Dependency>
+        <ThirdPartyRoot>$(MSBuildThisFileDirectory)..\</ThirdPartyRoot>
+        <SourceDir>$(ThirdPartyRoot)sources\bzip2</SourceDir>
+        <OutRoot>$(ThirdPartyRoot)out\bzip2</OutRoot>
+
+        <PackageName Condition="'$(PackageName)' == ''">ZeroC.Bzip2</PackageName>
+        <PackageStagingDir>$(OutRoot)\$(PackageName)</PackageStagingDir>
+
+        <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
+        <NuGetExe Condition="'$(NuGetExe)' == ''">nuget</NuGetExe>
+    </PropertyGroup>
+
+    <!--
+        Every (platform, configuration) the package ships. bzip2 has four configurations rather than two: the MT-*
+        pair links the static CRT, for consumers built with /MT. The consumer targets file picks between them from
+        ClCompile.RuntimeLibrary.
+    -->
+    <ItemGroup>
+        <BuildTarget Include="Win32-Debug">      <Plat>Win32</Plat><Conf>Debug</Conf>      </BuildTarget>
+        <BuildTarget Include="Win32-Release">    <Plat>Win32</Plat><Conf>Release</Conf>    </BuildTarget>
+        <BuildTarget Include="Win32-MT-Debug">   <Plat>Win32</Plat><Conf>MT-Debug</Conf>   </BuildTarget>
+        <BuildTarget Include="Win32-MT-Release"> <Plat>Win32</Plat><Conf>MT-Release</Conf> </BuildTarget>
+        <BuildTarget Include="x64-Debug">        <Plat>x64</Plat>  <Conf>Debug</Conf>      </BuildTarget>
+        <BuildTarget Include="x64-Release">      <Plat>x64</Plat>  <Conf>Release</Conf>    </BuildTarget>
+        <BuildTarget Include="x64-MT-Debug">     <Plat>x64</Plat>  <Conf>MT-Debug</Conf>   </BuildTarget>
+        <BuildTarget Include="x64-MT-Release">   <Plat>x64</Plat>  <Conf>MT-Release</Conf> </BuildTarget>
+
+    </ItemGroup>
+
+    <Target Name="Build" DependsOnTargets="DownloadSource">
+        <MSBuild Projects="$(MSBuildThisFileDirectory)bzip2.vcxproj"
+                 BuildInParallel="true"
+                 Properties="Configuration=%(BuildTarget.Conf);Platform=%(BuildTarget.Plat);DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot)" />
+    </Target>
+
+    <!-- NugetPack does not rebuild, so CI can Authenticode-sign between Build and NugetPack. -->
+    <Target Name="NugetPack" DependsOnTargets="CheckSources">
+        <RemoveDir Directories="$(PackageStagingDir)" />
+
+        <MSBuild Projects="$(MSBuildThisFileDirectory)bzip2.nuget.targets"
+                 Properties="Platform=%(BuildTarget.Plat);Configuration=%(BuildTarget.Conf);OutRoot=$(OutRoot);DefaultPlatformToolset=$(DefaultPlatformToolset);PackageStagingDir=$(PackageStagingDir)" />
+
+        <Copy SourceFiles="$(SourceDir)\bzlib.h"
+              DestinationFolder="$(PackageStagingDir)\build\native\include" />
+        <Copy SourceFiles="$(SourceDir)\LICENSE"
+              DestinationFiles="$(PackageStagingDir)\LICENSE.txt" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\README.md"
+              DestinationFolder="$(PackageStagingDir)" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\$(PackageName).nuspec"
+              DestinationFolder="$(PackageStagingDir)" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\$(PackageName).targets"
+              DestinationFolder="$(PackageStagingDir)\build\native" />
+
+        <Exec Command="&quot;$(NuGetExe)&quot; pack -NoPackageAnalysis -NonInteractive"
+              WorkingDirectory="$(PackageStagingDir)" />
+    </Target>
+
+    <Target Name="All" DependsOnTargets="Build;NugetPack" />
+
+    <Target Name="Clean">
+        <RemoveDir Directories="$(OutRoot)" />
+    </Target>
+
+</Project>

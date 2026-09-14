@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="All" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <Import Project="..\sources.targets" />
+
+    <PropertyGroup>
+        <Dependency>libexpat</Dependency>
+        <ThirdPartyRoot>$(MSBuildThisFileDirectory)..\</ThirdPartyRoot>
+        <SourceDir>$(ThirdPartyRoot)sources\libexpat\expat</SourceDir>
+        <OutRoot>$(ThirdPartyRoot)out\libexpat</OutRoot>
+
+        <PackageName Condition="'$(PackageName)' == ''">ZeroC.Expat</PackageName>
+        <PackageStagingDir>$(OutRoot)\$(PackageName)</PackageStagingDir>
+
+        <!--
+            The toolset the binaries are built with. The CMake generator is left to CMake, which selects the newest
+            installed Visual Studio; the toolset is what determines the produced binaries, and it is pinned here.
+        -->
+        <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
+
+        <CMakeExe Condition="'$(CMakeExe)' == ''">cmake</CMakeExe>
+        <NuGetExe Condition="'$(NuGetExe)' == ''">nuget</NuGetExe>
+    </PropertyGroup>
+
+    <!--
+        Expat builds its tools, examples and tests by default. We package the library alone, so they are all turned
+        off. EXPAT_SHARED_LIBS=ON is Expat's default and is set explicitly because it also decides the library file
+        name: the "MD"/"MT" CRT suffix is applied to static builds only, so a shared build produces the libexpat.dll
+        and libexpatd.dll names this package has always shipped.
+    -->
+    <PropertyGroup>
+        <CMakeOptions>-DEXPAT_SHARED_LIBS=ON</CMakeOptions>
+        <CMakeOptions>$(CMakeOptions) -DEXPAT_BUILD_TOOLS=OFF</CMakeOptions>
+        <CMakeOptions>$(CMakeOptions) -DEXPAT_BUILD_EXAMPLES=OFF</CMakeOptions>
+        <CMakeOptions>$(CMakeOptions) -DEXPAT_BUILD_TESTS=OFF</CMakeOptions>
+        <CMakeOptions>$(CMakeOptions) -DEXPAT_BUILD_DOCS=OFF</CMakeOptions>
+        <CMakeOptions>$(CMakeOptions) -DEXPAT_BUILD_PKGCONFIG=OFF</CMakeOptions>
+        <CMakeOptions>$(CMakeOptions) -DEXPAT_ENABLE_INSTALL=OFF</CMakeOptions>
+        <CMakeOptions>$(CMakeOptions) -DEXPAT_WARNINGS_AS_ERRORS=ON</CMakeOptions>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- The platforms to build. CMake's -A argument takes these names verbatim. -->
+        <BuildPlatform Include="Win32" />
+        <BuildPlatform Include="x64" />
+
+        <!--
+            The package ships Debug and Release. Release comes from CMake's RelWithDebInfo so the package includes
+            PDBs for the optimized build.
+        -->
+        <BuildConfiguration Include="Debug">
+            <CMakeConfig>Debug</CMakeConfig>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <CMakeConfig>RelWithDebInfo</CMakeConfig>
+        </BuildConfiguration>
+
+        <!-- The entry points IceGrid's XMLParser calls. -->
+    </ItemGroup>
+
+    <Target Name="Configure" DependsOnTargets="DownloadSource">
+        <MakeDir Directories="$(OutRoot)\$(DefaultPlatformToolset)-%(BuildPlatform.Identity)" />
+        <Exec Command="&quot;$(CMakeExe)&quot; -S &quot;$(SourceDir)&quot; -B &quot;$(OutRoot)\$(DefaultPlatformToolset)-%(BuildPlatform.Identity)&quot; -T $(DefaultPlatformToolset) -A %(BuildPlatform.Identity) $(CMakeOptions)" />
+    </Target>
+
+    <Target Name="Build" DependsOnTargets="Configure">
+        <Exec Command="&quot;$(CMakeExe)&quot; --build &quot;$(OutRoot)\$(DefaultPlatformToolset)-%(BuildPlatform.Identity)&quot; --config Debug" />
+        <Exec Command="&quot;$(CMakeExe)&quot; --build &quot;$(OutRoot)\$(DefaultPlatformToolset)-%(BuildPlatform.Identity)&quot; --config RelWithDebInfo" />
+    </Target>
+
+    <!--
+        NugetPack deliberately does not depend on Build, so CI can Authenticode-sign the binaries in the CMake output
+        directories after building and before they are copied into the package.
+    -->
+    <Target Name="NugetPack" DependsOnTargets="CheckSources">
+        <RemoveDir Directories="$(PackageStagingDir)" />
+
+        <MSBuild Projects="$(MSBuildThisFileDirectory)expat.nuget.targets"
+                 Properties="Platform=%(BuildPlatform.Identity);Configuration=Debug;CMakeConfig=Debug;OutRoot=$(OutRoot);DefaultPlatformToolset=$(DefaultPlatformToolset);PackageStagingDir=$(PackageStagingDir)" />
+        <MSBuild Projects="$(MSBuildThisFileDirectory)expat.nuget.targets"
+                 Properties="Platform=%(BuildPlatform.Identity);Configuration=Release;CMakeConfig=RelWithDebInfo;OutRoot=$(OutRoot);DefaultPlatformToolset=$(DefaultPlatformToolset);PackageStagingDir=$(PackageStagingDir)" />
+
+        <!-- The public headers, taken from the verified archive. -->
+        <Copy SourceFiles="$(SourceDir)\lib\expat.h;$(SourceDir)\lib\expat_external.h"
+              DestinationFolder="$(PackageStagingDir)\build\native\include" />
+
+        <!-- Upstream's license, and the files the nuspec references. -->
+        <Copy SourceFiles="$(SourceDir)\COPYING"
+              DestinationFiles="$(PackageStagingDir)\COPYING.txt" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\README.md"
+              DestinationFolder="$(PackageStagingDir)" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\$(PackageName).nuspec"
+              DestinationFolder="$(PackageStagingDir)" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\$(PackageName).targets"
+              DestinationFolder="$(PackageStagingDir)\build\native" />
+
+        <Exec Command="&quot;$(NuGetExe)&quot; pack -NoPackageAnalysis -NonInteractive"
+              WorkingDirectory="$(PackageStagingDir)" />
+    </Target>
+
+    <Target Name="All" DependsOnTargets="Build;NugetPack" />
+
+    <Target Name="Clean">
+        <RemoveDir Directories="$(OutRoot)" />
+    </Target>
+
+</Project>
