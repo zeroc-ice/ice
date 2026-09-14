@@ -1,18 +1,16 @@
 // Copyright (c) ZeroC, Inc.
 
 #include <Ice/Ice.h>
-// Disable deprecation warnings from SecureTransport APIs
-#include "../../src/Ice/DisableWarnings.h"
 
-#if defined(ICE_USE_SECURE_TRANSPORT)
+#if defined(ICE_USE_APPLE_SSL)
 void
 serverCertificateSelectionCallbackExample()
 {
     Ice::CommunicatorHolder communicator = Ice::initialize();
     //! [serverCertificateSelectionCallback]
     CFArrayRef serverCertificateChain = {};
-    // Load the server certificate chain from the keychain using SecureTransport
-    // APIs.
+    // Load the server certificate chain from the keychain using Security
+    // framework APIs.
     communicator->createObjectAdapterWithEndpoints(
         "Hello",
         "ssl -h 127.0.0.1 -p 10000",
@@ -56,13 +54,12 @@ serverSetNewSessionCallbackExample()
         "Hello",
         "ssl -h 127.0.0.1 -p 10000",
         Ice::SSL::ServerAuthenticationOptions{
-            .sslNewSessionCallback = [](SSLContextRef context, const std::string&)
+            .sslNewSessionCallback =
+                [](sec_protocol_options_t secOptions, const std::string&)
             {
-                OSStatus status = SSLSetProtocolVersionMin(context, kTLSProtocol13);
-                if (status != noErr)
-                {
-                    // Handle error
-                }
+                sec_protocol_options_set_min_tls_protocol_version(
+                    secOptions,
+                    tls_protocol_version_TLSv13);
             }});
     //! [sslNewSessionCallback]
 }
@@ -76,7 +73,7 @@ clientCertificateValidationCallbackExample()
         "Hello",
         "ssl -h 127.0.0.1 -p 10000",
         Ice::SSL::ServerAuthenticationOptions{
-            .clientCertificateRequired = kAlwaysAuthenticate,
+            .clientCertificateRequired = true,
             .clientCertificateValidationCallback =
                 [](SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr&)
             { return SecTrustEvaluateWithError(trust, nullptr); }});

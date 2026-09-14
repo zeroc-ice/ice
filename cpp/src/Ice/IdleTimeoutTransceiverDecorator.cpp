@@ -100,7 +100,7 @@ IdleTimeoutTransceiverDecorator::write(Buffer& buf)
     return op;
 }
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
 bool
 IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 {
