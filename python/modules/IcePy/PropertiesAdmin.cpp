@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "PropertiesAdmin.h"
+#include "DocStrings.h"
 #include "Ice/DisableWarnings.h"
 #include "Thread.h"
 #include "Util.h"
@@ -9,29 +10,6 @@
 
 using namespace std;
 using namespace IcePy;
-
-namespace
-{
-    constexpr const char* nativePropertiesAdminAddUpdateCB_doc =
-        R"(addUpdateCallback(callback: Callable[[dict[str, str]], None], /) -> None
-
-Registers an update callback that will be invoked when a property update occurs.
-
-Parameters
-----------
-callback : Callable[[dict[str, str]], None]
-    The callback.)";
-
-    constexpr const char* nativePropertiesAdminRemoveUpdateCB_doc =
-        R"(removeUpdateCallback(callback: Callable[[dict[str, str]], None], /) -> None
-
-Removes a previously registered update callback.
-
-Parameters
-----------
-callback : Callable[[dict[str, str]], None]
-    The callback to remove.)";
-}
 
 namespace IcePy
 {
@@ -143,11 +121,11 @@ static PyMethodDef NativePropertiesAdminMethods[] = {
     {"addUpdateCallback",
      reinterpret_cast<PyCFunction>(nativePropertiesAdminAddUpdateCB),
      METH_VARARGS,
-     PyDoc_STR(nativePropertiesAdminAddUpdateCB_doc)},
+     PyDoc_STR(IcePy_DOC_NativePropertiesAdmin_addUpdateCallback)},
     {"removeUpdateCallback",
      reinterpret_cast<PyCFunction>(nativePropertiesAdminRemoveUpdateCB),
      METH_VARARGS,
-     PyDoc_STR(nativePropertiesAdminRemoveUpdateCB_doc)},
+     PyDoc_STR(IcePy_DOC_NativePropertiesAdmin_removeUpdateCallback)},
     {} /* sentinel */
 };
 
@@ -160,7 +138,7 @@ namespace IcePy
         .tp_basicsize = sizeof(NativePropertiesAdminObject),
         .tp_dealloc = reinterpret_cast<destructor>(nativePropertiesAdminDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("The default implementation of the 'Properties' admin facet."),
+        .tp_doc = PyDoc_STR(IcePy_DOC_NativePropertiesAdmin),
         .tp_methods = NativePropertiesAdminMethods,
         .tp_new = reinterpret_cast<newfunc>(nativePropertiesAdminNew),
     };
