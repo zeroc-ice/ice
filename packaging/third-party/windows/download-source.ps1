@@ -23,8 +23,21 @@ $archive = Join-Path $downloadDir "$Dependency-$($source.sha256).tar.gz"
 $stampFile = Join-Path $destination '.source-stamp'
 New-Item -ItemType Directory -Force -Path $downloadDir, $sourcesDir | Out-Null
 
+function Get-SHA256([string]$Path) {
+    $stream = [IO.File]::OpenRead($Path)
+    $sha256 = [Security.Cryptography.SHA256]::Create()
+    try {
+        $hash = $sha256.ComputeHash($stream)
+        return [BitConverter]::ToString($hash).Replace('-', '').ToLowerInvariant()
+    }
+    finally {
+        $sha256.Dispose()
+        $stream.Dispose()
+    }
+}
+
 function Assert-Checksum([string]$Path) {
-    $actual = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+    $actual = Get-SHA256 $Path
     if ($actual -ne $source.sha256) {
         throw "SHA-256 mismatch for $Dependency. Expected $($source.sha256), got $actual ($Path)."
     }
@@ -53,7 +66,7 @@ Write-Host "Verified SHA-256 for $Dependency $($source.version)."
 # Updating either the source pin or a patch invalidates the extracted tree. Record the stamp only after success.
 $stamp = $source.sha256
 foreach ($patch in $source.patches) {
-    $stamp += ':' + (Get-FileHash -LiteralPath (Join-Path $PSScriptRoot $patch) -Algorithm SHA256).Hash
+    $stamp += ':' + (Get-SHA256 (Join-Path $PSScriptRoot $patch))
 }
 if ((Test-Path -LiteralPath $stampFile) -and
     (Test-Path -LiteralPath (Join-Path $destination $source.required_file)) -and
