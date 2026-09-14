@@ -1,0 +1,53 @@
+Use __declspec for the Windows DLL linkage
+
+Upstream's bzlib.h cannot be used to link against a bzip2 DLL in the ordinary
+way. It defaults to BZ_EXPORT unless BZ_IMPORT is defined, so a consumer that
+forgets -DBZ_IMPORT gets export semantics; and on the import side it declares
+BZ_API(func) as (WINAPI * func) with an empty BZ_EXTERN, which is a function
+*pointer* declaration meant to be filled in with GetProcAddress.
+
+Ice links the bzip2 import library and calls BZ2_bzBuffToBuffCompress and
+BZ2_bzBuffToBuffDecompress directly, so it needs plain function declarations.
+This flips the default to BZ_IMPORT, so the DLL build opts into exporting with
+-DBZ_EXPORT while consumers get import semantics by default, and uses
+__declspec(dllexport)/__declspec(dllimport) instead of the function-pointer
+scheme.
+
+Do not replace this with a .def file: on Win32 the exported names of these
+__stdcall functions depend on how they are exported, and ZeroC.Bzip2 has
+shipped this ABI since 2017.
+
+Taken verbatim from the bzlib.h hunks of zeroc-ice/bzip2 commit a549df837
+("Add MSVC support", 2017-02-08), the source of every ZeroC.Bzip2 package
+published so far. Applies unchanged to bzip2 1.0.6 and 1.0.8.
+
+diff --git a/bzlib.h b/bzlib.h
+index 8277123..32d83bb 100644
+--- a/bzlib.h
++++ b/bzlib.h
+@@ -66,8 +66,8 @@ typedef
+    bz_stream;
+
+
+-#ifndef BZ_IMPORT
+-#define BZ_EXPORT
++#ifndef BZ_EXPORT
++#define BZ_IMPORT
+ #endif
+
+ #ifndef BZ_NO_STDIO
+@@ -83,11 +83,11 @@ typedef
+ #   endif
+ #   ifdef BZ_EXPORT
+ #   define BZ_API(func) WINAPI func
+-#   define BZ_EXTERN extern
++#   define BZ_EXTERN __declspec(dllexport)
+ #   else
+    /* import windows dll dynamically */
+-#   define BZ_API(func) (WINAPI * func)
+-#   define BZ_EXTERN
++#   define BZ_API(func) WINAPI  func
++#   define BZ_EXTERN __declspec(dllimport)
+ #   endif
+ #else
+ #   define BZ_API(func) func

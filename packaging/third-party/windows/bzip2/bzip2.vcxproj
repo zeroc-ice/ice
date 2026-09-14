@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MT-Debug|Win32">
+      <Configuration>MT-Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MT-Debug|x64">
+      <Configuration>MT-Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MT-Release|Win32">
+      <Configuration>MT-Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MT-Release|x64">
+      <Configuration>MT-Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Globals">
+    <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
+    <BzipSourceDir Condition="'$(BzipSourceDir)' == ''">$(MSBuildThisFileDirectory)..\sources\bzip2\</BzipSourceDir>
+    <OutRoot Condition="'$(OutRoot)' == ''">$(MSBuildThisFileDirectory)..\out\bzip2</OutRoot>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <!-- The MT-* configurations differ from their counterparts only in the CRT they link. -->
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <TargetName Condition="$(Configuration.Contains('Debug'))">bzip2d</TargetName>
+    <TargetName Condition="$(Configuration.Contains('Release'))">bzip2</TargetName>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+  <PropertyGroup>
+    <OutDir>$(OutRoot)\$(PlatformToolset)-$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(OutRoot)\$(PlatformToolset)-$(Platform)\$(Configuration)\obj\</IntDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!--
+          BZ_EXPORT selects the exporting side of bzlib.h. See
+          patches/bzip2/0001-use-declspec-for-the-windows-dll-linkage.patch.
+      -->
+      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x600;WIN32_LEAN_AND_MEAN;_CONSOLE;_FILE_OFFSET_BITS=64;BZ_EXPORT</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>4996;4244;4267</DisableSpecificWarnings>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName)-objs.pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <ImportLibrary Condition="$(Configuration.Contains('Debug'))">$(OutDir)libbz2d.lib</ImportLibrary>
+      <ImportLibrary Condition="$(Configuration.Contains('Release'))">$(OutDir)libbz2.lib</ImportLibrary>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="$(Configuration.Contains('Release'))">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='MT-Debug'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='MT-Release'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <!-- The library sources, from the verified upstream archive. bzip2 has no build system we can drive. -->
+  <ItemGroup>
+    <ClCompile Include="$(BzipSourceDir)blocksort.c" />
+    <ClCompile Include="$(BzipSourceDir)huffman.c" />
+    <ClCompile Include="$(BzipSourceDir)crctable.c" />
+    <ClCompile Include="$(BzipSourceDir)randtable.c" />
+    <ClCompile Include="$(BzipSourceDir)compress.c" />
+    <ClCompile Include="$(BzipSourceDir)decompress.c" />
+    <ClCompile Include="$(BzipSourceDir)bzlib.c" />
+  </ItemGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+</Project>
