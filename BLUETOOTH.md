@@ -9,7 +9,7 @@ Runs the Ice test suite over Bluetooth (IceBT). Four setups:
 
 ## Common flags
 
-- `--host-bt` — Bluetooth address of the machine or device running the server
+- `--host-bt` — Bluetooth address of the machine or device running the server (don't pass for clients)
 - `--host` — its IP address
 - `--id=server` — this controller manages servers
 - `--android` — the controller drives an Android device
@@ -102,7 +102,7 @@ cd java
 python ../scripts/Controller.py --id=server --android --controller-app \
   --device="$SERVER" --host-bt="$BT_ADDR" &
 python allTests.py --server=server --protocol=bt --cross=java --android --controller-app \
-  --device="$CLIENT" --host-bt="$BT_ADDR" Ice/operations
+  --device="$CLIENT" Ice/operations
 ```
 
 Pass as many suites as you like. CI's list is in the `android-bt` entry of
@@ -198,7 +198,7 @@ daemon. `--cross=cpp` skips the collocated case, which has no server side and so
 cd cpp
 python3 ../scripts/Controller.py --id=server --host-bt="$BT_ADDR" &
 DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
-  python3 allTests.py --server=server --protocol=bt --cross=cpp --host-bt="$BT_ADDR" Ice/operations
+  python3 allTests.py --server=server --protocol=bt --cross=cpp Ice/operations
 ```
 
 ## Finding Bluetooth addresses

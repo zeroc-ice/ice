@@ -2790,16 +2790,11 @@ class AndroidProcessController(RemoteProcessController):
     def supportsDiscovery(self) -> bool:
         return False
 
-    # NB: getHost is deliberately not overridden here, and this class's getHost is in fact never
-    # consulted for the host. _startServerSide calls getProcessController(current) with no process
-    # argument, and the Android branch of that dispatch is `elif process and config.android`, so it
-    # falls through to LocalProcessController -> Driver.getHost -> --host-bt.
-    #
-    # So --host-bt on the server-side Controller.py is load-bearing: it becomes the server's
-    # Ice.Default.Host, which IceBT's EndpointI uses as the endpoint address when no -a is given,
-    # and startServerSide hands the same value back for the client to use. (The --host-bt on the
-    # allTests.py side is inert for that reason -- the client takes the host from the server -- which
-    # is why passing a bogus one there does not fail the run. It is not a usable negative test.)
+    # We deliberately don't override 'getHost' here, since it is never useful for android.
+    # '_startServerSide' calls `getProcessController(current)`, which will fall through to
+    # LocalProcessController -> Driver.getHost -> --host-bt, which is the host side of the test.
+    # So we need --host-bt on the server side (Controller.py), but not on the client side (allTests.py).
+    # The client side will always just take its host from the server.
 
     def getControllerIdentity(self, current: Driver.Current) -> Any:
         return "Android/ProcessController"

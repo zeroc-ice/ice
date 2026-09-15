@@ -145,7 +145,7 @@ jobs:
             # list, android-17-bt's and cpp-bt's in step with that function if it gains an entry.
             test_flags: >-
               --android --controller-app --protocol=bt --cross=java --server=server
-              --device=$BT_CLIENT --host-bt=$BT_ADDR
+              --device=$BT_CLIENT
               Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
               Ice/inheritance Ice/invoke Ice/objects Ice/optional Ice/proxy
               Ice/slicing/exceptions Ice/slicing/objects
@@ -154,7 +154,7 @@ jobs:
             # to the core suites: it covers the SSL-over-Bluetooth path, not the marshalling again.
             bts_test_flags: >-
               --android --controller-app --protocol=bts --cross=java --server=server
-              --device=$BT_CLIENT --host-bt=$BT_ADDR
+              --device=$BT_CLIENT
               Ice/operations Ice/ami
 
           # The same Bluetooth run on Android 17. The flags are copied from android-bt above.
@@ -170,13 +170,13 @@ jobs:
             job_timeout: 60
             test_flags: >-
               --android --controller-app --protocol=bt --cross=java --server=server
-              --device=$BT_CLIENT --host-bt=$BT_ADDR
+              --device=$BT_CLIENT
               Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
               Ice/inheritance Ice/invoke Ice/objects Ice/optional Ice/proxy
               Ice/slicing/exceptions Ice/slicing/objects
             bts_test_flags: >-
               --android --controller-app --protocol=bts --cross=java --server=server
-              --device=$BT_CLIENT --host-bt=$BT_ADDR
+              --device=$BT_CLIENT
               Ice/operations Ice/ami
 
           # .NET 10.0
@@ -223,12 +223,12 @@ jobs:
             # Ice.Default.Host as an IP address IceBT rejects. The suites are Component.isCross in
             # full, matching android-bt, so both transports cover the same ground.
             test_flags: >-
-              --server=server --protocol=bt --cross=cpp --host-bt=$BT_ADDR
+              --server=server --protocol=bt --cross=cpp
               Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
               Ice/inheritance Ice/invoke Ice/objects Ice/optional Ice/proxy
               Ice/slicing/exceptions Ice/slicing/objects
             bts_test_flags: >-
-              --server=server --protocol=bts --cross=cpp --host-bt=$BT_ADDR
+              --server=server --protocol=bts --cross=cpp
               Ice/operations Ice/ami
 
     runs-on: ${{ matrix.os }}
