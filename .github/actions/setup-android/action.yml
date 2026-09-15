@@ -30,6 +30,10 @@ runs:
         echo "ANDROID_PLATFORM=$PLATFORM" >> $GITHUB_ENV
         # For some reason avdmanager is placing the avd into $HOME/.config/.android/avd instead of $HOME/.android/avd
         echo "ANDROID_AVD_HOME=$HOME/.config/.android" >> $GITHUB_ENV
+        # Workaround for JDK-8349988 which can cause NPE in the JDK's Linux cgroup detection.
+        # Hosted runners are plain VMs, not resource-limited containers, so detection buys nothing.
+        # We disable it for all JVMs in this job via JAVA_TOOL_OPTIONS which they read at startup.
+        echo "JAVA_TOOL_OPTIONS=-XX:-UseContainerSupport" >> "$GITHUB_ENV"
 
     - name: Configure Android SDK
       shell: bash
