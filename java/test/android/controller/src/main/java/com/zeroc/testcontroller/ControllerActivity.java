@@ -40,6 +40,12 @@ public class ControllerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        // And opt out of real screenshots of this task: WindowManager writes a task's snapshot out
+        // whenever the task goes behind another or closes, not only for sleep, and that write is
+        // the same aborting readback. With this the snapshot it writes is a flat drawing of the
+        // theme colors that it renders itself, rather than a capture of SurfaceFlinger's output.
+        setRecentsScreenshotEnabled(false);
+
         _outputListView = findViewById(R.id.outputList);
         if (_outputListView == null) {
             throw new IllegalStateException("Layout must include a View with android:id=\"@+id/outputList\"");
