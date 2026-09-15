@@ -11,6 +11,13 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Require Linux
+      if: runner.os != 'Linux'
+      shell: bash
+      run: |
+        echo "::error::setup-android is Linux-only: it enables KVM through udev and sets a Linux-only JVM flag"
+        exit 1
+
     # See https://github.com/marketplace/actions/android-emulator-runner
     - name: Enable KVM group perms
       shell: bash
