@@ -1,0 +1,103 @@
+name: "Third-Party Windows"
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "packaging/windows/third-party/**"
+      - ".github/workflows/*third-party*windows*.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "packaging/windows/third-party/**"
+      - ".github/workflows/*third-party*windows*.yml"
+  workflow_dispatch:
+
+# A branch pushed to twice does not need the first build to finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# Builds and packs every package, and keeps none of them.
+#
+# Every package is built whichever one a change was aimed at, because the build projects share the packages.json
+# that drives them and the workflows themselves, so a change to either can break a package it did not touch.
+# Building one package on its own is a deliberate act, done by dispatching build-third-party-windows-packages.yml.
+#
+# Nothing here is signed and no artifact is uploaded. publish-third-party-windows-packages.yml publishes artifacts of
+# an earlier build run, so any run that uploads a .nupkg is a run someone can publish from -- and this one builds
+# whatever a pull request contains. Only build-third-party-windows-packages.yml uploads, and it is dispatched by hand
+# from main.
+# Packing still runs here, so a broken nuspec or a file missing from the staging directory fails on the pull
+# request rather than on release day.
+jobs:
+  select:
+    name: "Select packages"
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Read packaging/windows/third-party/packages.json
+        id: select
+        run: |
+          matrix=$(jq -c '.' packaging/windows/third-party/packages.json)
+          echo "matrix={\"include\":$matrix}" >> "$GITHUB_OUTPUT"
+          echo "Building:"
+          echo "$matrix" | jq -r '.[] | "  " + .package'
+
+  build:
+    name: "Build ${{ matrix.package }} (${{ matrix.toolset }})"
+    needs: select
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
+
+      # The runner image ships MSYS2 but not necessarily its MinGW-w64 toolchain, so install it explicitly rather
+      # than depending on what the image happens to contain.
+      - name: Install the MinGW-w64 toolchain
+        if: ${{ matrix.toolset == 'mingw64' }}
+        run: |
+          & "C:\msys64\usr\bin\bash.exe" -lc "pacman -Sy --noconfirm && pacman -S --noconfirm --needed mingw-w64-x86_64-gcc"
+          if ($LASTEXITCODE -ne 0) { throw "pacman failed with exit code $LASTEXITCODE" }
+
+          # The gcc driver spawns cc1 and the assembler from alongside itself, so its directory has to be on PATH.
+          "C:\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          $env:PATH = "C:\msys64\mingw64\bin;$env:PATH"
+
+          & "C:\msys64\mingw64\bin\gcc.exe" --version | Select-Object -First 1
+
+          # Prove the toolchain works before MSBuild uses it, so a broken toolchain reports its own error here
+          # rather than surfacing as an opaque MSBuild exit code.
+          "int main(void) { return 0; }" | Out-File -FilePath "$env:RUNNER_TEMP\smoke.c" -Encoding ascii
+          & "C:\msys64\mingw64\bin\gcc.exe" -static -o "$env:RUNNER_TEMP\smoke.exe" "$env:RUNNER_TEMP\smoke.c"
+          if ($LASTEXITCODE -ne 0) { throw "the MinGW-w64 toolchain cannot compile a trivial program" }
+          Write-Host "MinGW-w64 toolchain OK"
+
+      # /t:All is Build then NugetPack. They are only ever separate so a release can sign in between, and nothing
+      # here is signed.
+      #
+      # The matrix values go through the environment rather than into the command line: this workflow runs on pull
+      # requests, and the matrix is built from the packages.json of whatever branch is being tested.
+      - name: Build and pack ${{ matrix.package }}
+        env:
+          PROJECT: ${{ matrix.project }}
+          TOOLSET: ${{ matrix.toolset }}
+          PACKAGE: ${{ matrix.package }}
+        run: >
+          msbuild $env:PROJECT /t:All
+          /p:DefaultPlatformToolset=$env:TOOLSET
+          /p:PackageName=$env:PACKAGE

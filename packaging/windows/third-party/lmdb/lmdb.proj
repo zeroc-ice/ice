@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="All" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <Import Project="..\sources.targets" />
+
+    <PropertyGroup>
+        <Dependency>lmdb</Dependency>
+        <ThirdPartyRoot>$(MSBuildThisFileDirectory)..\</ThirdPartyRoot>
+        <SourceDir>$(ThirdPartyRoot)sources\lmdb\libraries\liblmdb</SourceDir>
+        <OutRoot>$(ThirdPartyRoot)out\lmdb</OutRoot>
+
+        <PackageName Condition="'$(PackageName)' == ''">ZeroC.LMDB</PackageName>
+        <PackageStagingDir>$(OutRoot)\$(PackageName)</PackageStagingDir>
+
+        <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
+        <NuGetExe Condition="'$(NuGetExe)' == ''">nuget</NuGetExe>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <BuildTarget Include="Win32-Debug">
+            <Platform>Win32</Platform>
+            <Configuration>Debug</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="Win32-Release">
+            <Platform>Win32</Platform>
+            <Configuration>Release</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="x64-Debug">
+            <Platform>x64</Platform>
+            <Configuration>Debug</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="x64-Release">
+            <Platform>x64</Platform>
+            <Configuration>Release</Configuration>
+        </BuildTarget>
+
+        <!-- The entry points IceDB calls. -->
+    </ItemGroup>
+
+    <Target Name="Build" DependsOnTargets="DownloadSource">
+        <MSBuild Projects="$(MSBuildThisFileDirectory)lmdb.vcxproj"
+                 BuildInParallel="true"
+                 Properties="Configuration=%(BuildTarget.Configuration);Platform=%(BuildTarget.Platform);DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot)" />
+    </Target>
+
+    <!-- NugetPack does not rebuild, so CI can sign between Build and NugetPack. LMDB is static, so nothing is signed. -->
+    <Target Name="NugetPack" DependsOnTargets="CheckSources">
+        <RemoveDir Directories="$(PackageStagingDir)" />
+
+        <MSBuild Projects="$(MSBuildThisFileDirectory)lmdb.nuget.targets"
+                 Properties="Platform=%(BuildTarget.Platform);Configuration=%(BuildTarget.Configuration);OutRoot=$(OutRoot);DefaultPlatformToolset=$(DefaultPlatformToolset);PackageStagingDir=$(PackageStagingDir)" />
+
+        <Copy SourceFiles="$(SourceDir)\lmdb.h"
+              DestinationFolder="$(PackageStagingDir)\build\native\include" />
+        <Copy SourceFiles="$(SourceDir)\LICENSE"
+              DestinationFiles="$(PackageStagingDir)\LICENSE.txt" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\README.md"
+              DestinationFolder="$(PackageStagingDir)" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\$(PackageName).nuspec"
+              DestinationFolder="$(PackageStagingDir)" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\$(PackageName).targets"
+              DestinationFolder="$(PackageStagingDir)\build\native" />
+
+        <Exec Command="&quot;$(NuGetExe)&quot; pack -NoPackageAnalysis -NonInteractive"
+              WorkingDirectory="$(PackageStagingDir)" />
+    </Target>
+
+    <Target Name="All" DependsOnTargets="Build;NugetPack" />
+
+    <Target Name="Clean">
+        <RemoveDir Directories="$(OutRoot)" />
+    </Target>
+
+</Project>

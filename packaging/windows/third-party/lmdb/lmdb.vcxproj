@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Globals">
+    <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
+    <LmdbSourceDir Condition="'$(LmdbSourceDir)' == ''">$(MSBuildThisFileDirectory)..\sources\lmdb\libraries\liblmdb\</LmdbSourceDir>
+    <OutRoot Condition="'$(OutRoot)' == ''">$(MSBuildThisFileDirectory)..\out\lmdb</OutRoot>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName Condition="'$(Configuration)'=='Debug'">lmdbd</TargetName>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+  <PropertyGroup>
+    <OutDir>$(OutRoot)\$(PlatformToolset)-$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(OutRoot)\$(PlatformToolset)-$(Platform)\$(Configuration)\obj\</IntDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <AdditionalOptions>/wd4146 /wd4172 /wd4244 /wd4267 /wd4333 /wd4996</AdditionalOptions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <!-- A static library has no linker PDB, so the compiler PDB is the one the package ships. -->
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!--
+      The previous packaging defined MDB_DEBUG here. It is deliberately not set any more.
+
+      MDB_DEBUG controls only LMDB's stderr tracing; assertions are guarded by NDEBUG, so this configuration keeps
+      them either way. LMDB 0.9.32 (ITS#9378) added replay logging with 19 MDB_TRACE call sites where 0.9.29 had
+      none, and mdb_debug defaults to MDB_DBG_TRACE, so defining it now would make every Ice debug build write
+      trace lines to stderr. It also no longer compiles: one of those new call sites uses an undefined Yu macro,
+      an upstream bug reachable only with MDB_DEBUG set.
+  -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <!-- The library sources, from the verified upstream archive. -->
+  <ItemGroup>
+    <ClCompile Include="$(LmdbSourceDir)mdb.c" />
+    <ClCompile Include="$(LmdbSourceDir)midl.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(LmdbSourceDir)lmdb.h" />
+    <ClInclude Include="$(LmdbSourceDir)midl.h" />
+  </ItemGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+</Project>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>ZeroC.LMDB</id>
+    <version>0.9.36</version>
+    <authors>Howard Chu</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">LICENSE.txt</license>
+    <readme>README.md</readme>
+    <projectUrl>https://www.symas.com/mdb/</projectUrl>
+    <repository type="git" url="https://github.com/zeroc-ice/ice" />
+    <description>LMDB built as a static library with Visual Studio 2022 (v143). LMDB is an ultra-fast, ultra-compact key-value embedded data store developed by Symas for the OpenLDAP Project.</description>
+    <tags>lmdb native</tags>
+  </metadata>
+</package>
