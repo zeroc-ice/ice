@@ -33,15 +33,6 @@ runs:
         echo "BT_CLIENT=${{ inputs.client }}" >> "$GITHUB_ENV"
         echo "BT_SERVER=${{ inputs.server }}" >> "$GITHUB_ENV"
 
-    # Workaround for JDK-8287073 which could cause NPE in the JDK's Linux cgroup detection.
-    # Hosted runners are plain VMs, not resource-limited containers, so container
-    # detection buys nothing in CI; turn it off for every JVM in the job.
-    # JAVA_TOOL_OPTIONS is read by every HotSpot JVM at startup.
-    - name: Disable JVM container detection
-      if: runner.os == 'Linux'
-      shell: bash
-      run: echo "JAVA_TOOL_OPTIONS=-XX:-UseContainerSupport" >> "$GITHUB_ENV"
-
     - name: Build the btbond APK
       shell: bash
       run: |
