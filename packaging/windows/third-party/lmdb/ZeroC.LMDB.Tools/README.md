@@ -2,12 +2,12 @@
 
 This package provides the [LMDB] command line tools as x64 executables:
 
-| Tool | Purpose |
-| ---- | ------- |
-| `mdb_copy` | Copy or compact an LMDB environment. |
+| Tool       | Purpose                                                         |
+|------------|-----------------------------------------------------------------|
+| `mdb_copy` | Copy or compact an LMDB environment.                            |
 | `mdb_dump` | Write the contents of an environment to a portable text format. |
-| `mdb_load` | Load an environment from `mdb_dump` output. |
-| `mdb_stat` | Report environment, database and reader statistics. |
+| `mdb_load` | Load an environment from `mdb_dump` output.                     |
+| `mdb_stat` | Report environment, database and reader statistics.             |
 
 They are included with the Ice Services installer for Windows, alongside the IceGrid and IceStorm services whose
 databases they operate on.
