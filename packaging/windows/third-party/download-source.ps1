@@ -87,8 +87,11 @@ try {
     }
     foreach ($patch in $source.patches) {
         # Treat the extracted tree as the worktree, including when invoked from a subdirectory of Ice.
-        & git -C $extracted "--work-tree=$extracted" apply (Join-Path $PSScriptRoot $patch)
+        $patchPath = Join-Path $PSScriptRoot $patch
+        & git -C $extracted "--work-tree=$extracted" apply $patchPath
         if ($LASTEXITCODE -ne 0) { throw "Applying $patch failed with exit code $LASTEXITCODE." }
+        & git -C $extracted "--work-tree=$extracted" apply --reverse --check $patchPath
+        if ($LASTEXITCODE -ne 0) { throw "Verifying $patch failed with exit code $LASTEXITCODE." }
     }
 
     Set-Content -LiteralPath (Join-Path $extracted '.source-stamp') -Value $stamp -Encoding ascii

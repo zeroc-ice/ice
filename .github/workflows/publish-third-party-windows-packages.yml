@@ -1,7 +1,7 @@
 name: "Publish Third-Party Windows Packages"
 
-# Publishes the packages built by a run of build-third-party-windows-packages.yml. It builds nothing itself, so what reaches a
-# feed is exactly what was built and signed earlier.
+# Publishes the packages built by a run of build-third-party-windows-packages.yml. It builds nothing itself, so what
+# reaches a feed is exactly what was built and signed earlier.
 #
 # There are two destinations, and packages move in one direction between them.
 #
@@ -12,8 +12,9 @@ name: "Publish Third-Party Windows Packages"
 #
 # `nuget.org` is where a version goes once it has been tested. Day to day development resolves from there.
 #
-# `package` selects what to publish out of a build run, matching the same input on build-third-party-windows-packages.yml, so a
-# run that built every package can publish just the one whose version changed.
+# `package` selects what to publish out of a build run, matching the same input on
+# build-third-party-windows-packages.yml, so a run that built every package can publish just the one whose version
+# changed.
 
 on:
   workflow_dispatch:
