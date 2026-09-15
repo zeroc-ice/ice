@@ -24,9 +24,10 @@ They are linked statically and depend on nothing beyond Windows itself.
 
 ## Source
 
-LMDB is used unmodified. The MSBuild project and nuspec used to produce this package are available on GitHub,
-alongside the source URL and checksum for the upstream release the executables were built from:
+The executables are built from the unmodified upstream LMDB sources. The MSBuild project and nuspec that produce
+this package are in [the lmdb directory], and the URL and SHA-256 checksum of the upstream source archive are in
+[sources.json].
 
-👉 https://github.com/zeroc-ice/ice/tree/main/packaging/third-party/windows
-
+[the lmdb directory]: https://github.com/zeroc-ice/ice/tree/main/packaging/windows/third-party/lmdb
+[sources.json]: https://github.com/zeroc-ice/ice/blob/main/packaging/windows/third-party/sources.json
 [LMDB]: https://www.symas.com/mdb/

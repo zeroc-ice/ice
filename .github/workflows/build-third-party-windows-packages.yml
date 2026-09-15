@@ -8,17 +8,17 @@ name: "Build Third-Party Windows Packages"
 # what stops a proposed change becoming a publishable artifact. CI builds and packs every package on every pull
 # request that changes the third-party packaging -- it just keeps nothing.
 #
-# The packages are built from one job definition driven by packaging/third-party/windows/packages.json.
-# They differ only in which project is built and how the result is signed. Dependencies move at their own pace, so `package` selects one of
-# them; the default builds all of them.
+# The packages are built from one job definition driven by packaging/windows/third-party/packages.json.
+# They differ only in which project is built and how the result is signed. Dependencies move at their own pace, so
+# `package` selects one of them; the default builds all of them.
 #
 # Notes on the entries in packages.json:
 #   - sign_filter is the file extension Authenticode signing covers. ZeroC.LMDB is a static library with nothing to
 #     sign, so its filter is empty and the signing step is skipped. Signing is not optional otherwise: the only
 #     reason to dispatch this workflow is to produce a release, and CI already covers building and packing. A
-#     signed build needs the AZURE_* secrets; these must be available to this repository.
+#     signed build needs the same AZURE_* secrets used by the other build-* workflows.
 #   - ZeroC.LMDB.Tools is built with MinGW-w64 rather than MSVC, so its toolset is not an MSVC platform toolset.
-#     See packaging/third-party/windows/lmdb/lmdb-tools.proj for why.
+#     See packaging/windows/third-party/lmdb/lmdb-tools.proj for why.
 
 on:
   workflow_dispatch:
@@ -54,13 +54,13 @@ jobs:
           PACKAGE: ${{ inputs.package || 'all' }}
         run: |
           if [ "$PACKAGE" = "all" ]; then
-            selected=$(jq -c '.' packaging/third-party/windows/packages.json)
+            selected=$(jq -c '.' packaging/windows/third-party/packages.json)
           else
-            selected=$(jq -c --arg p "$PACKAGE" '[.[] | select(.package == $p)]' packaging/third-party/windows/packages.json)
+            selected=$(jq -c --arg p "$PACKAGE" '[.[] | select(.package == $p)]' packaging/windows/third-party/packages.json)
           fi
 
           if [ "$(echo "$selected" | jq 'length')" -eq 0 ]; then
-            echo "::error::No package named '$PACKAGE' in packaging/third-party/windows/packages.json"
+            echo "::error::No package named '$PACKAGE' in packaging/windows/third-party/packages.json"
             exit 1
           fi
 
@@ -129,7 +129,7 @@ jobs:
           endpoint: https://eus.codesigning.azure.net/
           signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
-          files-folder: ${{ github.workspace }}\packaging\third-party\windows\out\${{ matrix.dependency }}
+          files-folder: ${{ github.workspace }}\packaging\windows\third-party\out\${{ matrix.dependency }}
           files-folder-filter: ${{ matrix.sign_filter }}
           files-folder-recurse: true
           file-digest: SHA256
@@ -152,7 +152,7 @@ jobs:
       - name: Verify ${{ matrix.package }} is signed
         if: ${{ matrix.sign_filter != '' }}
         env:
-          STAGING: packaging\third-party\windows\out\${{ matrix.dependency }}\${{ matrix.package }}
+          STAGING: packaging\windows\third-party\out\${{ matrix.dependency }}\${{ matrix.package }}
           FILTER: ${{ matrix.sign_filter }}
         run: |
           $files = @(Get-ChildItem -Path $env:STAGING -Filter "*.$env:FILTER" -Recurse -File)
@@ -178,7 +178,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: third-party-windows-package-${{ matrix.package }}
-          path: packaging/third-party/windows/out/${{ matrix.dependency }}/${{ matrix.package }}/*.nupkg
+          path: packaging/windows/third-party/out/${{ matrix.dependency }}/${{ matrix.package }}/*.nupkg
           if-no-files-found: error
 
   # A successful run gets this marker only after every selected package has been built, signed where applicable,

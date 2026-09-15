@@ -4,12 +4,12 @@ on:
   push:
     branches: ["main"]
     paths:
-      - "packaging/third-party/windows/**"
+      - "packaging/windows/third-party/**"
       - ".github/workflows/*third-party*windows*.yml"
   pull_request:
     branches: ["main"]
     paths:
-      - "packaging/third-party/windows/**"
+      - "packaging/windows/third-party/**"
       - ".github/workflows/*third-party*windows*.yml"
   workflow_dispatch:
 
@@ -27,9 +27,10 @@ permissions:
 # that drives them and the workflows themselves, so a change to either can break a package it did not touch.
 # Building one package on its own is a deliberate act, done by dispatching build-third-party-windows-packages.yml.
 #
-# Nothing here is signed and no artifact is uploaded. publish-third-party-windows-packages.yml publishes the artifacts of an
-# earlier build run, so any run that uploads a .nupkg is a run someone can publish from -- and this one builds
-# whatever a pull request contains. Only build-third-party-windows-packages.yml uploads, and it is dispatched by hand from main.
+# Nothing here is signed and no artifact is uploaded. publish-third-party-windows-packages.yml publishes artifacts of
+# an earlier build run, so any run that uploads a .nupkg is a run someone can publish from -- and this one builds
+# whatever a pull request contains. Only build-third-party-windows-packages.yml uploads, and it is dispatched by hand
+# from main.
 # Packing still runs here, so a broken nuspec or a file missing from the staging directory fails on the pull
 # request rather than on release day.
 jobs:
@@ -42,10 +43,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Read packaging/third-party/windows/packages.json
+      - name: Read packaging/windows/third-party/packages.json
         id: select
         run: |
-          matrix=$(jq -c '.' packaging/third-party/windows/packages.json)
+          matrix=$(jq -c '.' packaging/windows/third-party/packages.json)
           echo "matrix={\"include\":$matrix}" >> "$GITHUB_OUTPUT"
           echo "Building:"
           echo "$matrix" | jq -r '.[] | "  " + .package'
