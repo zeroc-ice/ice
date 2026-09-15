@@ -150,6 +150,10 @@ jobs:
   # Gate job that waits for all publish jobs to complete.
   # Other jobs can depend on this instead of listing all publish jobs individually.
   publish-all:
+    # publish-brew-packages and publish-swift-packages only run for nightly builds, and GitHub skips a job whose
+    # needs include a skipped job. Run whenever no publish job failed or was cancelled, so that the jobs below also
+    # run for stable releases.
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-24.04
     needs:
       - publish-brew-packages
@@ -168,7 +172,7 @@ jobs:
       - publish-cpp-swift-deps
       - publish-symbols-sources
     steps:
-      - run: echo "All publish jobs completed successfully"
+      - run: echo "All publish jobs completed"
 
   invalidate-cloudfront-cache:
     runs-on: ubuntu-24.04
