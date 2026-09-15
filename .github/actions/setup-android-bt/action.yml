@@ -6,7 +6,8 @@ description: >
   stack -- see setup-vhci -- which needs modules only the arm64 image has.) This boots two
   emulators, bonds them, and starts the server-side process controller, leaving the client for
   allTests.py.
-  Requires setup-android (SDK, KVM, PATH) and a build that produced Python Ice and the Java tests.
+  Requires setup-android (SDK, KVM, PATH, $ANDROID_PLATFORM) and a build that produced Python
+  Ice and the Java tests.
 
 inputs:
   client:
@@ -43,24 +44,13 @@ runs:
         keytool -genkeypair -v -storepass android -keypass android -alias androiddebugkey \
           -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" \
           -keystore java/test/android/btbond/debug.keystore
-        # Run all three gates, not just an assemble -- otherwise the lint, checkstyle and rewrite
-        # config this project carries never actually runs in CI.
-        #
-        # lintDebug rather than `build`: `build` also runs AGP's *release* lint, and
-        # lintVitalAnalyzeRelease fails to initialize on the runner's JDK ("Could not initialize
-        # class AndroidLintWorkAction") while passing locally. Debug lint is unaffected -- it ran
-        # and passed in the same job that release lint failed -- and only the debug APK is used
-        # here, so naming the debug tasks keeps the checking and drops the broken release path
-        # (along with the unsigned release APK `build` would otherwise leave behind).
-        #
         # btbond has no Gradle wrapper of its own; use java's.
-        # No --no-daemon: AGP's lint fails to initialize its worker under it on this runner
-        # ("Could not initialize class AndroidLintWorkAction"), while the controller app -- which
-        # runs lint successfully in the same job -- invokes gradle without it. Matching that.
         (
           cd java/test/android/btbond
-          ../../../gradlew assembleDebug lintDebug checkstyle
-          ../../../gradlew rewriteDryRun --no-parallel --no-configuration-cache
+          ../../../gradlew --stacktrace build checkstyle
+          ../../../gradlew --stacktrace rewriteDryRun --no-parallel --no-configuration-cache
+          # Free the daemon's heap; we won't need gradle for the rest of this job.
+          ../../../gradlew --stop
         )
         # Name the debug APK explicitly rather than globbing: `build` also produces an unsigned
         # release APK, and a glob could hand the installer that one instead.
@@ -73,11 +63,11 @@ runs:
       run: |
         export PYTHONPATH="$GITHUB_WORKSPACE/python/python"
         mkdir -p "$ANDROID_AVD_HOME"
-        # Match the system image setup-android installed for this runner's architecture.
+        # Match the system image setup-android installed.
         if [ "$(uname -m)" = "aarch64" ]; then ARCH="arm64-v8a"; else ARCH="x86_64"; fi
         python3 scripts/Controller.py --android --bt-emulators \
           --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
-          --bt-image="system-images;android-36;google_apis;$ARCH"
+          --bt-image="system-images;$ANDROID_PLATFORM;google_apis;$ARCH"
 
     - name: Prepare and bond the two emulators
       shell: bash

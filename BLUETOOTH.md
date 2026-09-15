@@ -4,12 +4,12 @@ Runs the Ice test suite over Bluetooth (IceBT). Four setups:
 
 - C++ client against an Android server — needs hardware
 - Android client against a C++ server — needs hardware
-- Android against Android on two emulators — no hardware; CI's `android-bt`
+- Android against Android on two emulators — no hardware; CI's `android-bt` and `android-17-bt`
 - C++ against C++ on two virtual controllers — no hardware, Linux only; CI's `cpp-bt`
 
 ## Common flags
 
-- `--host-bt` — Bluetooth address of the machine or device running the server
+- `--host-bt` — Bluetooth address of the machine or device running the server (don't pass for clients)
 - `--host` — its IP address
 - `--id=server` — this controller manages servers
 - `--android` — the controller drives an Android device
@@ -52,14 +52,16 @@ python ./allTests.py --server=server --protocol=bt --cross=cpp --android
 ## Two emulators, no hardware
 
 The emulator ships a virtual Bluetooth controller (Netsim/Rootcanal) that does RFCOMM between
-emulators. One runs the server, the other the client. This is what CI's `android-bt` configuration
-does. All the adb work lives in the harness, so nothing is bonded by hand.
+emulators. One runs the server, the other the client. This is what CI's `android-bt` and
+`android-17-bt` configurations do, on Android 16 and 17. All the adb work lives in the harness, so
+nothing is bonded by hand.
 
 Run from the repository root, with:
 
 ```bash
 export PYTHONPATH="$PWD/python/python"
 UUID=8ce255c0-200a-11e0-ac64-0800200c9a66
+# Android 16; substitute android-37.0 for Android 17.
 IMG="system-images;android-36;google_apis;x86_64"  # arm64-v8a on Apple silicon
 CLIENT=emulator-5554
 SERVER=emulator-5556
@@ -100,7 +102,7 @@ cd java
 python ../scripts/Controller.py --id=server --android --controller-app \
   --device="$SERVER" --host-bt="$BT_ADDR" &
 python allTests.py --server=server --protocol=bt --cross=java --android --controller-app \
-  --device="$CLIENT" --host-bt="$BT_ADDR" Ice/operations
+  --device="$CLIENT" Ice/operations
 ```
 
 Pass as many suites as you like. CI's list is in the `android-bt` entry of
@@ -196,7 +198,7 @@ daemon. `--cross=cpp` skips the collocated case, which has no server side and so
 cd cpp
 python3 ../scripts/Controller.py --id=server --host-bt="$BT_ADDR" &
 DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
-  python3 allTests.py --server=server --protocol=bt --cross=cpp --host-bt="$BT_ADDR" Ice/operations
+  python3 allTests.py --server=server --protocol=bt --cross=cpp Ice/operations
 ```
 
 ## Finding Bluetooth addresses

@@ -2790,16 +2790,11 @@ class AndroidProcessController(RemoteProcessController):
     def supportsDiscovery(self) -> bool:
         return False
 
-    # NB: getHost is deliberately not overridden here, and this class's getHost is in fact never
-    # consulted for the host. _startServerSide calls getProcessController(current) with no process
-    # argument, and the Android branch of that dispatch is `elif process and config.android`, so it
-    # falls through to LocalProcessController -> Driver.getHost -> --host-bt.
-    #
-    # So --host-bt on the server-side Controller.py is load-bearing: it becomes the server's
-    # Ice.Default.Host, which IceBT's EndpointI uses as the endpoint address when no -a is given,
-    # and startServerSide hands the same value back for the client to use. (The --host-bt on the
-    # allTests.py side is inert for that reason -- the client takes the host from the server -- which
-    # is why passing a bogus one there does not fail the run. It is not a usable negative test.)
+    # We deliberately don't override 'getHost' here, since it is never useful for android.
+    # '_startServerSide' calls `getProcessController(current)`, which will fall through to
+    # LocalProcessController -> Driver.getHost -> --host-bt, which is the host side of the test.
+    # So we need --host-bt on the server side (Controller.py), but not on the client side (allTests.py).
+    # The client side will always just take its host from the server.
 
     def getControllerIdentity(self, current: Driver.Current) -> Any:
         return "Android/ProcessController"
@@ -2857,21 +2852,56 @@ class AndroidProcessController(RemoteProcessController):
             print(f"  (ignored) {ex}", file=sys.stderr)
             return ""
 
+    def _serviceUp(self, service: str) -> bool:
+        # Whether one of the framework's binder services answers: `cmd` fails with "Can't find
+        # service" for as long as system_server is down, or not yet that far into its start. Quiet
+        # on purpose, this is polled from the boot wait.
+        probe = {"overlay": "cmd overlay list", "settings": "settings get global device_provisioned"}[service]
+        try:
+            return "Can't find service" not in run(f"{self.adb()} shell {probe}")
+        except RuntimeError:
+            return False
+
     def waitForBoot(self, timeout: float = 300) -> None:
-        # Wait for the device to reconnect to adb and finish booting. Tolerant of the transient adb
-        # errors seen while a device is mid-reboot. One deadline covers both phases -- otherwise
-        # wait-for-device could consume the whole budget and the poll loop would start a fresh one,
-        # doubling the advertised timeout.
+        # Wait for the device to reconnect to adb and finish booting, then apply the per-boot configuration.
+        # Tolerant of the transient adb errors seen while a device is mid-reboot.
+        # One deadline covers both phases -- otherwise wait-for-device could consume the whole budget and the
+        # poll loop would start a fresh one, doubling the advertised timeout.
+        #
+        # Booted means more than sys.boot_completed. The property is set once and stays set while
+        # system_server restarts, and on the API 37 images the framework has been lost at the very
+        # moment a first boot completed: every command that followed, the emulator's own included,
+        # failed with "Can't find service", and the controller app could not be installed. So the
+        # settings service has to answer as well; when it does not, the guest's state is dumped
+        # once and the wait goes on, since the restart takes half a minute and the run is fine
+        # after it. The navigation overlay goes in as soon as the overlay service answers, ahead of
+        # boot completion, so the gesture handle's sampling has as little of a first boot as
+        # possible to run in.
         deadline = time.time() + timeout
         try:
             subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=timeout, check=False)
         except subprocess.TimeoutExpired:
             pass
         name = self.device or self.avd or "device"
+        navigationSet = False
+        frameworkLost = False
         while time.time() <= deadline:
             try:
+                if not navigationSet and self._serviceUp("overlay"):
+                    self.useThreeButtonNavigation()
+                    navigationSet = True
                 if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
-                    return
+                    if self._serviceUp("settings"):
+                        # Per-boot configuration, as soon as sys.boot_completed is set. Applied after the first boot
+                        # and again after every reboot. Everything here is idempotent and tolerant of failure.
+                        self.useThreeButtonNavigation()
+                        self.keepScreenOn()
+                        return
+                    if not frameworkLost:
+                        frameworkLost = True
+                        print(f"'{name}' reports its boot complete but the framework does not answer; guest state:")
+                        # Previously dumped the 'systemHealth' which was deleted.
+                        print("waiting for the framework to come back")
             except RuntimeError:
                 pass  # device offline mid-reboot
             time.sleep(3)
@@ -2944,6 +2974,44 @@ class AndroidProcessController(RemoteProcessController):
                     return address
             time.sleep(2)
         raise RuntimeError(f"could not read the Bluetooth address of '{self.device}': {reason}")
+
+    def useThreeButtonNavigation(self) -> None:
+        # Gesture navigation is what registers SurfaceFlinger's region-sampling listener: the
+        # navigation handle samples the pixels under it to pick its color (SystemUI's
+        # RegionSamplingHelper only samples in gesture mode, and the launcher's handle code is the
+        # other client). On the API 37 images -- 37.0 and 37.1 alike -- that sampling path aborts
+        # SurfaceFlinger ("Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma"), and
+        # SurfaceFlinger's restart takes zygote and every app down with it about a minute after each
+        # boot. Three-button navigation has no handle and never samples. The overlay choice is
+        # persisted in /data, so later boots of the same AVD start out safe; a first boot races the
+        # first sample, which is why waitForBoot applies this as soon as the overlay service answers
+        # rather than at boot completion -- applied at completion, one first boot lost the race and
+        # the framework was gone the moment the boot completed. Harmless on the API 36 images.
+        # Tolerant: an image without the overlay is not worth failing over.
+        self._adbTolerant(
+            "shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.threebutton"
+        )
+
+    def keepScreenOn(self) -> None:
+        # The emulator raises screen_off_timeout to its maximum itself after every boot, but that adb
+        # call races the reboots the Bluetooth setup performs and failed on every boot of the pair
+        # ("device offline", "not found"), leaving the default timeout in place. Going to sleep
+        # snapshots the showing task, and on the API 37 images WindowManager writing a task snapshot
+        # out aborts system_server (the GPU-buffer readback SurfaceFlinger's region sampling dies
+        # in), so the screen stays on: timeout at its maximum, stay-on while powered, no screensaver
+        # (dreams run as an activity of their own since Android 13, so one starting would snapshot
+        # too). The settings persist in /data; they are reapplied after every boot regardless.
+        # Harmless on the API 36 images, which the emulator's own attempt
+        # already covers. The controller app holds a keep-screen-on flag on its window as well.
+        # This closes one door only: the API 37 pair still lost system_server to that abort with
+        # the screen on and stay-on in effect, the persister writing the snapshot of btbond's task
+        # a few seconds after it closed on both devices (the gralloc mapper's assertion; ART's
+        # abort dump follows it a minute later and is not the crash's time). So the test apps also
+        # opt out of real screenshots of their tasks, and btbond keeps the Settings pairing dialog
+        # from opening a task of its own (see their onCreate methods and btbond's receiver).
+        self._adbTolerant("shell settings put system screen_off_timeout 2147483647")
+        self._adbTolerant("shell settings put global stay_on_while_plugged_in 7")
+        self._adbTolerant("shell settings put secure screensaver_enabled 0")
 
     def enableBluetooth(self) -> None:
         # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
@@ -3132,7 +3200,15 @@ class AndroidProcessController(RemoteProcessController):
         keep = re.compile(
             "testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc|BTBOND"
         )
-        lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
+        # Skip adbd's echo of the harness's own "logcat -d -s BTBOND" polling: it matches BTBOND and,
+        # at one line per poll, filled the 80 slots by itself.
+        # And ART's abort dump of system_server: its native frames name AndroidRuntime, and one such
+        # dump filled the 80 slots with the same javaThreadShell frame over and over.
+        lines = [
+            ln
+            for ln in self._adbTolerant("logcat -d").splitlines()
+            if keep.search(ln) and not self._adbEcho(ln) and not self._crashNoise.search(ln)
+        ]
         print("\n".join(lines[-80:]))
         # A relaunch emits no new "START u0" and its main-buffer logs are compiled out, so the events
         # buffer is the only durable record that a second onCreate ran. bond() clears this buffer
@@ -3145,9 +3221,50 @@ class AndroidProcessController(RemoteProcessController):
         lines = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if events.search(ln)]
         print("\n".join(lines[-40:]) or "<none>")
 
+    # The bulk of a crash report: native frames and register dumps (tombstone lines indented four
+    # or more spaces after the DEBUG tag), Java frames, and the tombstone boilerplate. Dropping them
+    # keeps the lines that name the process, the signal, and the abort message or exception, so a
+    # window of a few dozen lines spans several crashes instead of one backtrace. The first API 37
+    # dump lost the reason system_server died to the 45 lines of the zygote tombstone that followed.
+    _crashNoise = re.compile(
+        r"DEBUG\s*:\s{4,}|total frames|backtrace:|To display stack pointer"
+        # ART's abort dumps every thread: header lines ('"name" prio=...'), indented frames, and
+        # the blank line between threads -- system_server's 300 of those filled a window alone.
+        r'|runtime\.cc:\d+\]\s+"|runtime\.cc:\d+\]\s{2,}|runtime\.cc:\d+\]\s*$'
+    )
+
+    @staticmethod
+    def _adbEcho(line: str) -> bool:
+        # adbd logs every shell request it serves, so the harness's own polling lands in the log
+        # carrying the very words the filters here look for.
+        return "adbd service requested" in line
+
+    # Set once the harness's own emulator has failed to boot, so the tests that follow fail at once
+    # instead of each recreating the AVD and waiting out the boot timeout again: with --all that is
+    # 41 suites, and 41 boot attempts would outlast the job. Process-wide on purpose -- every test
+    # in the run shares the one image.
+    bootFailed = False
+
+    def killEmulator(self) -> None:
+        # Stop the emulator this controller started, falling back to killing the process when the
+        # console command does not end it. Bounded: the caller is already on a failure path.
+        if self.emulator is None:
+            return
+        self._adbTolerant("emu kill")
+        try:
+            self.emulator.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            self.emulator.kill()
+            try:
+                self.emulator.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                pass
+
     # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
     # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
-    # Netsim virtual Bluetooth network so the two emulators can reach each other.
+    # Netsim virtual Bluetooth network so the two emulators can reach each other. -gpu swiftshader
+    # as in startEmulator: swiftshader_indirect is the deprecated spelling of the same backend, and
+    # the one job that runs the API 37 image to a green result uses the current one.
     bluetoothEmulatorFlags = [
         "-no-audio",
         "-partition-size",
@@ -3155,7 +3272,7 @@ class AndroidProcessController(RemoteProcessController):
         "-no-snapshot",
         "-writable-system",
         "-gpu",
-        "swiftshader_indirect",
+        "swiftshader",
         "-accel",
         "on",
         "-no-boot-anim",
@@ -3172,7 +3289,7 @@ class AndroidProcessController(RemoteProcessController):
             run(f"avdmanager -v delete avd -n {avd}")
         except RuntimeError:
             pass  # no existing AVD to delete
-        run(f'echo no | avdmanager -v create avd -k "{image}" -d "Nexus 6" -n {avd}')
+        run(f'echo no | avdmanager -v create avd --force -k "{image}" -d "Nexus 6" -n {avd}')
         print(f"starting emulator '{avd}' on port {port} (log: {logFile})")
         with open(logFile, "wb") as log:
             emulator = subprocess.Popen(
@@ -3211,7 +3328,19 @@ class AndroidProcessController(RemoteProcessController):
         if port == -1:
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
-        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
+        # -gpu swiftshader rather than auto: on a runner without a GPU, auto logs "Your GPU drivers
+        # may have a bug. Switching to software rendering" and picks swangle for GLES with lavapipe
+        # for Vulkan, and under that pair the API 37 image never reached sys.boot_completed in 300s.
+        # The Bluetooth harness boots the same image in under two minutes on SwiftShader (see
+        # bluetoothEmulatorFlags); swiftshader is the non-deprecated name for that backend and
+        # covers both GLES and Vulkan.
+        #
+        # -partition-size 2048, matching bluetoothEmulatorFlags as well: with SwiftShader selected
+        # the API 37 image still did not boot here, and the data partition was the last difference
+        # from the Bluetooth emulators that do boot it (besides -writable-system and the Netsim
+        # endpoint). A first boot writes APEX and dexopt output into /data, Android Studio's default
+        # for this image family is 6 GB, and 768 MB was a plausible place for it to stall.
+        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 2048 -no-snapshot -gpu swiftshader -accel on -no-boot-anim -no-window".format(
             avd, port
         )
 
@@ -3229,15 +3358,17 @@ class AndroidProcessController(RemoteProcessController):
 
         # Wait for the device to be ready
         print("waiting for the emulator to boot")
-        t = time.time()
-        # Wait for up to 5 minutes (300 seconds)
-        while (time.time() - t) <= 300:
-            if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
-                break
-            time.sleep(2)
-        else:
-            # This runs if the while loop completes without breaking
-            raise RuntimeError(f"emulator '{avd}' not booted after 300s")
+        # 10 minutes: a first boot of the API 37 image, which the emulator forces to 4 GB of RAM,
+        # takes around two minutes on SwiftShader on a CI runner, and 300s left little room for a
+        # slow one. waitForBoot also rides out a framework restart at boot completion.
+        try:
+            self.waitForBoot(600)
+        except RuntimeError as ex:
+            # Stop the emulator so it does not linger into the next test's attempt.
+            print(f"{ex}")
+            self.killEmulator()
+            AndroidProcessController.bootFailed = True
+            raise
 
     def startControllerApp(self, current: Driver.Current, ident: Any) -> None:
         mapping = current.getTestCase().getMapping()
@@ -3245,16 +3376,30 @@ class AndroidProcessController(RemoteProcessController):
         if current.config.avd:
             self.startEmulator(current.config.avd)
         elif not current.config.device:
-            # Create Android Virtual Device
-            sdk = mapping.getSDKPackage()
-            print("creating AVD ({0})".format(sdk))
-            try:
-                run("avdmanager -v delete avd -n IceTests")  # Delete the created device
-            except Exception:
-                pass
-            run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
-            self.createdAvd = True
-            self.startEmulator("IceTests")
+            if AndroidProcessController.bootFailed:
+                raise RuntimeError("not retrying: the emulator failed to boot earlier in this run")
+            if self.emulator is not None and self.emulator.poll() is None:
+                # A restart after the controller app died: getController pings it before every test
+                # and comes back here when the ping fails. Keep the emulator that is already running.
+                # Recreating the AVD under it deletes the disk images out from under qemu -- the
+                # first API 37 run left a core dump that way and booted a fresh emulator per test,
+                # 41 boots in 31 minutes -- and nothing about the app dying calls for a new device.
+                # Only make sure it still answers; the app is reinstalled below either way.
+                print("controller app restart: reusing the running emulator")
+                self.waitForBoot()
+            else:
+                # Create Android Virtual Device
+                sdk = mapping.getSDKPackage()
+                print("creating AVD ({0})".format(sdk))
+                try:
+                    run("avdmanager -v delete avd -n IceTests")  # Delete the created device
+                except Exception:
+                    pass
+                # --force: a boot that failed left the AVD directory behind after the delete above,
+                # and every later test in that run then failed with "AVD not created".
+                run('avdmanager -v create avd --force -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
+                self.createdAvd = True
+                self.startEmulator("IceTests")
         elif current.config.device != "usb" and not current.config.device.startswith("emulator-"):
             # Local emulator serials aren't network targets: `adb connect emulator-5554` just prints
             # "failed to resolve host" (and exits 0, so it was harmless -- only noisy).
@@ -4303,8 +4448,13 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self) -> str:
-        return "system-images;android-36;google_apis;{}".format(
-            "arm64-v8a" if platform_machine() == "arm64" else "x86_64"
+        # The system image the harness creates its AVD from when neither --avd nor --device is given.
+        # ANDROID_PLATFORM names the SDK platform in sdkmanager's terms (android-36 for Android 16,
+        # android-37.1 for Android 17); CI's setup-android exports both per matrix row so the same
+        # harness runs the suite on more than one Android release.
+        sdkPlatform = os.environ.get("ANDROID_PLATFORM", "android-36")
+        return "system-images;{};google_apis;{}".format(
+            sdkPlatform, "arm64-v8a" if platform_machine() == "arm64" else "x86_64"
         )
 
     def getApk(self, current: Driver.Current) -> str:

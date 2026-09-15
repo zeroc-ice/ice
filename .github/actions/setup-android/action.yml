@@ -1,9 +1,23 @@
 name: Setup Android
 description: Setup Android SDK and Emulator
 
+inputs:
+  platform:
+    description: >
+      Android SDK platform whose system image the emulators boot, in sdkmanager's naming.
+      For example: `android-36` for Android 16, and `android-37.0` for Android 17.
+    default: "android-36"
+
 runs:
   using: "composite"
   steps:
+    - name: Require Linux
+      if: runner.os != 'Linux'
+      shell: bash
+      run: |
+        echo "::error::setup-android is Linux-only: it enables KVM through udev and sets a Linux-only JVM flag"
+        exit 1
+
     # See https://github.com/marketplace/actions/android-emulator-runner
     - name: Enable KVM group perms
       shell: bash
@@ -14,21 +28,30 @@ runs:
 
     - name: Android SDK and PATH
       shell: bash
+      env:
+        PLATFORM: ${{ inputs.platform }}
       run: |
         echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
         echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+        echo "ANDROID_PLATFORM=$PLATFORM" >> $GITHUB_ENV
         # For some reason avdmanager is placing the avd into $HOME/.config/.android/avd instead of $HOME/.android/avd
         echo "ANDROID_AVD_HOME=$HOME/.config/.android" >> $GITHUB_ENV
+        # Workaround for JDK-8349988 which causes intermittent NPE in the JDK's Linux cgroup detection. This surfaces as
+        # AGP's lint-worker dying at startup. Should be dropped once CI uses JDK 17.0.20 and 21.0.10. Our runners are
+        # VMs, not resource limited containers, so this detection buys nothing anyways.
+        # We disable it for all JVMs in this job via JAVA_TOOL_OPTIONS which they read at startup.
+        echo "JAVA_TOOL_OPTIONS=-XX:-UseContainerSupport" >> "$GITHUB_ENV"
 
     - name: Configure Android SDK
       shell: bash
       run: |
-        # platform-tools, build-tools, and platforms are pre-installed on GitHub runners
-        # We only need to install the system image for the emulator
+        # platform-tools, build-tools, and platforms are pre-installed on GitHub runners.
+        # We only need to install the emulator itself and a system image for it to boot into.
+        # Note: some runners will already have an emulator installed, but it may not be the version we want.
         if [ "$(uname -m)" = "aarch64" ]; then
           ARCH="arm64-v8a"
         else
           ARCH="x86_64"
         fi
-        sdkmanager "system-images;android-36;google_apis;$ARCH"
+        sdkmanager "emulator" "system-images;$ANDROID_PLATFORM;google_apis;$ARCH"
