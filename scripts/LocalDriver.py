@@ -553,7 +553,7 @@ class LocalDriver(Driver):
                     # Otherwise, jobs that explicitly name things could stay green through a rename or typo while
                     # running nothing at all. Only an explicit request is held to this: an unfiltered run that finds no
                     # suites is a legitimate no-op on a mapping this platform does not support, so we don't fail it.
-                    print("no test suite matched {0}".format(", ".join(testSuiteIds) or "the given filters"))
+                    print("no test suite matched {0}".format(", ".join(testSuiteIds) or "the given filters or cross"))
                     return 1
                 else:
                     print("{0} succeeded".format(len(results)))

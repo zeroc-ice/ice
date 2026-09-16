@@ -9,7 +9,7 @@ Runs the Ice test suite over Bluetooth (IceBT). Four setups:
 
 ## Common flags
 
-- `--host-bt` — Bluetooth address of the machine or device running the server (don't pass for clients)
+- `--host-bt` — Bluetooth address of the machine / device running the server; don't pass for clients
 - `--host` — its IP address
 - `--id=server` — this controller manages servers
 - `--android` — the controller drives an Android device
@@ -52,9 +52,8 @@ python ./allTests.py --server=server --protocol=bt --cross=cpp --android
 ## Two emulators, no hardware
 
 The emulator ships a virtual Bluetooth controller (Netsim/Rootcanal) that does RFCOMM between
-emulators. One runs the server, the other the client. This is what CI's `android-bt` and
-`android-17-bt` configurations do, on Android 16 and 17. All the adb work lives in the harness, so
-nothing is bonded by hand.
+emulators. One runs the server, the other the client. This is what `android-bt` and `android-17-bt`
+do in CI. All the adb work lives in the harness, so nothing is bonded by hand.
 
 Run from the repository root, with:
 
