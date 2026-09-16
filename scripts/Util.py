@@ -2765,6 +2765,24 @@ class AndroidProcessController(RemoteProcessController):
     def __str__(self) -> str:
         return "Android"
 
+    def start(
+        self,
+        process: Process,
+        current: Driver.Current,
+        args: list[str],
+        props: Props,
+        envs: Envs,
+        watchDog: Expect.WatchDog | None,
+    ) -> RunningProcess:
+        if current.config.protocol in ("bt", "bts"):
+            # The adapter has been found off at test time on the API 37 pair, a minute after a bond
+            # that needed it on. Enabling is a no-op when it already is; the wait turns a stack that
+            # is restarting into a short delay, and one that stays off into a failure that says so,
+            # instead of IceBT's "bluetooth is not enabled" from inside every server.
+            self._adbTolerant("shell cmd bluetooth_manager enable")
+            run(f"{self.adb()} shell cmd bluetooth_manager wait-for-state:STATE_ON")
+        return super().start(process, current, args, props, envs, watchDog)
+
     def hostPort(self) -> int:
         # The controller app always listens on device port 15001, but when several emulators run on
         # one host each needs its own host-side forward port. Derive it from the emulator serial
@@ -3198,7 +3216,7 @@ class AndroidProcessController(RemoteProcessController):
         # BTBOND, not just com.zeroc: btbond's own lines ("listening", "connecting...", "watchdog:")
         # carry no package name, so only its stack frames were surviving this filter.
         keep = re.compile(
-            "testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc|BTBOND"
+            "testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc|BTBOND|Fatal signal|DEBUG\\s*:|BluetoothManagerService"
         )
         # Skip adbd's echo of the harness's own "logcat -d -s BTBOND" polling: it matches BTBOND and,
         # at one line per poll, filled the 80 slots by itself.
@@ -3220,6 +3238,8 @@ class AndroidProcessController(RemoteProcessController):
         )
         lines = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if events.search(ln)]
         print("\n".join(lines[-40:]) or "<none>")
+        print("-- bluetooth adapter --")
+        print(self._adbTolerant("shell dumpsys bluetooth_manager | grep -m 3 -E 'enabled|state'") or "<none>")
 
     # The bulk of a crash report: native frames and register dumps (tombstone lines indented four
     # or more spaces after the DEBUG tag), Java frames, and the tombstone boilerplate. Dropping them
