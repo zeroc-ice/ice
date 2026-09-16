@@ -40,10 +40,10 @@ public class ControllerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        // Opt out of real screenshots of this task. On API 37 emulator images, 'WindowManager' aborts 'system_server'
-        // when writing a real screenshot of a closed task. And the harness uninstalls this app between testing 'bt' and
-        // 'bts', so the task is closed and the screenshot is written when 'bts' starts - this crashes everything.
-        // By setting this, screenshots become flat drawings of theme colors, not a capture of 'SurfaceFlinger's output.
+        // Opt out of real screenshots of this task: on API 37 emulator images, 'WindowManager' aborts 'system_server'
+        // when writing a screenshot for a task that closed. The harness uninstalls this app between testing 'bt' and
+        // 'bts', closing the task and capturing a snapshot. The next step needs the device again, and without this fix,
+        // crashes. With this fix, the screenshot is a flat drawing of the theme colors, not a 'SurfaceFlinger' capture.
         setRecentsScreenshotEnabled(false);
 
         _outputListView = findViewById(R.id.outputList);

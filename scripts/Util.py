@@ -3239,7 +3239,7 @@ class AndroidProcessController(RemoteProcessController):
         lines = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if events.search(ln)]
         print("\n".join(lines[-40:]) or "<none>")
         print("-- bluetooth adapter --")
-        print(self._adbTolerant("shell dumpsys bluetooth_manager | grep -m 3 -E 'enabled|state'") or "<none>")
+        print("\n".join(self._adbTolerant("shell dumpsys bluetooth_manager").splitlines()[:8]) or "<none>")
 
     # The bulk of a crash report: native frames and register dumps (tombstone lines indented four
     # or more spaces after the DEBUG tag), Java frames, and the tombstone boilerplate. Dropping them

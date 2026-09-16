@@ -38,12 +38,6 @@ android {
     lint {
         disable 'MissingPermission', 'ProtectedPermissions'
     }
-
-    buildTypes {
-        debug {
-            minifyEnabled = false
-        }
-    }
 }
 
 // As in the controller app: this is an 'android' project rather than a 'java' one, so Checkstyle
