@@ -1,9 +1,9 @@
 # Ice 3.8 Changelog <!-- omit in toc -->
 
-The entries below contain brief descriptions of the changes in each release, in no particular order. Some of the
-entries reflect significant new additions, while others represent minor corrections. Although this list is not a
-comprehensive report of every change we made in a release, it does provide details on the changes we feel Ice users
-might need to be aware of.
+This changelog describes the changes in each Ice 3.8 release, from new features to minor bug fixes. It is not an
+exhaustive list: it covers only the changes that are relevant to Ice users, such as new features, changes in behavior,
+deprecations, fixes for bugs that can affect applications, and packaging changes. It leaves out internal changes, such
+as refactorings, test improvements, and build or CI updates.
 
 - [Changes in Ice 3.8.3](#changes-in-ice-383)
   - [General Changes](#general-changes)
