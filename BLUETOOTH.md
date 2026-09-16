@@ -101,8 +101,7 @@ python allTests.py --server=server --protocol=bt --cross=java --android --contro
   --device="$CLIENT" Ice/operations
 ```
 
-Pass as many suites as you like. CI's list is in the `android-bt` entry of
-`.github/workflows/ci.yml`; its setup is in `.github/actions/setup-android-bt`.
+You can pass any number of tests explicitly, or pass none to run all the '--cross' compatible tests.
 
 Dump an emulator's controller state (pid, adb forwards, logcat):
 

@@ -137,24 +137,14 @@ jobs:
             test_workers: 1
             skip_all_configs: true
             job_timeout: 60 # ~2x the observed runtime, to bound a wedged emulator
-            # setup-android-bt exports $BT_CLIENT and $BT_ADDR; these flags are interpolated into a bash
-            # command, so the shell expands them at run time.
-            #
-            # The suites are every id in Component.isCross (scripts/Component.py) -- the full set a
-            # --cross run can pair with a server, so nothing eligible is left untested. Keep this
-            # list, android-17-bt's and cpp-bt's in step with that function if it gains an entry.
+            # setup-android-bt exports $BT_CLIENT.
             test_flags: >-
-              --android --controller-app --protocol=bt --cross=java --server=server
-              --device=$BT_CLIENT
-              Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
-              Ice/inheritance Ice/invoke Ice/objects Ice/optional Ice/proxy
-              Ice/slicing/exceptions Ice/slicing/objects
+              --android --controller-app --protocol=bt --cross=java --server=server --device=$BT_CLIENT
             # bts is the same RFCOMM transport with SSL layered over it. The controller app bundles
             # the keystores it needs (res/raw/*.p12), so this only needs the protocol switched. Kept
             # to the core suites: it covers the SSL-over-Bluetooth path, not the marshalling again.
             bts_test_flags: >-
-              --android --controller-app --protocol=bts --cross=java --server=server
-              --device=$BT_CLIENT
+              --android --controller-app --protocol=bts --cross=java --server=server --device=$BT_CLIENT
               Ice/operations Ice/ami
 
           # The same Bluetooth run on Android 17. The flags are copied from android-bt above.
@@ -169,14 +159,9 @@ jobs:
             skip_all_configs: true
             job_timeout: 60
             test_flags: >-
-              --android --controller-app --protocol=bt --cross=java --server=server
-              --device=$BT_CLIENT
-              Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
-              Ice/inheritance Ice/invoke Ice/objects Ice/optional Ice/proxy
-              Ice/slicing/exceptions Ice/slicing/objects
+              --android --controller-app --protocol=bt --cross=java --server=server --device=$BT_CLIENT
             bts_test_flags: >-
-              --android --controller-app --protocol=bts --cross=java --server=server
-              --device=$BT_CLIENT
+              --android --controller-app --protocol=bts --cross=java --server=server --device=$BT_CLIENT
               Ice/operations Ice/ami
 
           # .NET 10.0
@@ -211,7 +196,7 @@ jobs:
           # builds the same thing on the same OS and arch. That duplicated build is most of the
           # runtime -- ~20 min of a ~23 min job, for ~50 s of Bluetooth testing -- so folding it in
           # is worth revisiting; what keeps it separate now is only that a broken Bluetooth stack
-          # cannot take the arm64 release job down with it.
+          # cannot take the arm64 release job down with it. We should do this to free up CI.
           - os: ubuntu-24.04-arm
             config: "cpp-bt"
             working_directory: "cpp"
@@ -220,16 +205,9 @@ jobs:
             skip_all_configs: true
             job_timeout: 45 # ~2x the observed runtime, to bound a wedged setup
             # --cross=cpp skips the collocated case, which has no server side and so leaves
-            # Ice.Default.Host as an IP address IceBT rejects. The suites are Component.isCross in
-            # full, matching android-bt, so both transports cover the same ground.
-            test_flags: >-
-              --server=server --protocol=bt --cross=cpp
-              Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
-              Ice/inheritance Ice/invoke Ice/objects Ice/optional Ice/proxy
-              Ice/slicing/exceptions Ice/slicing/objects
-            bts_test_flags: >-
-              --server=server --protocol=bts --cross=cpp
-              Ice/operations Ice/ami
+            # 'Ice.Default.Host' as an IP address IceBT rejects.
+            test_flags: "--server=server --protocol=bt --cross=cpp"
+            bts_test_flags: "--server=server --protocol=bts --cross=cpp Ice/operations Ice/ami"
 
     runs-on: ${{ matrix.os }}
     # Only the Bluetooth jobs set job_timeout; everything else keeps GitHub's default. These sit
