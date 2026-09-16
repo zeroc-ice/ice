@@ -137,7 +137,7 @@ jobs:
             test_workers: 1
             skip_all_configs: true
             job_timeout: 60 # ~2x the observed runtime, to bound a wedged emulator
-            # setup-android-bt exports $BT_CLIENT.
+            # setup-android-bt exports $BT_CLIENT; it's a literal since matrix values can't use 'env' context.
             test_flags: >-
               --android --controller-app --protocol=bt --cross=java --server=server --device=$BT_CLIENT
             # bts is the same RFCOMM transport with SSL layered over it. The controller app bundles

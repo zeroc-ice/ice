@@ -101,7 +101,7 @@ python allTests.py --server=server --protocol=bt --cross=java --android --contro
   --device="$CLIENT" Ice/operations
 ```
 
-You can pass any number of tests explicitly, or pass none to run all the '--cross' compatible tests.
+You can pass any number of tests explicitly, or pass none to run all the `--cross` compatible tests.
 
 Dump an emulator's controller state (pid, adb forwards, logcat):
 

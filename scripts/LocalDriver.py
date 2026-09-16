@@ -548,12 +548,11 @@ class LocalDriver(Driver):
                                 for i in range(max(4, len(lines) - 8), len(lines)):
                                     print("  " + lines[i])
                     return 1
-                elif not results and (testSuiteIds or self.filters or self.rfilters):
-                    # Asking for specific suites and matching none is a failure, not a pass. A job
-                    # that names its suites explicitly -- the Bluetooth ones in ci.yml, say -- would
-                    # otherwise stay green through a rename or a typo while running nothing at all.
-                    # Only an explicit request is held to this: an unfiltered run that finds no
-                    # suites is a legitimate no-op on a mapping this platform does not support.
+                elif not results and (testSuiteIds or self.filters or self.rfilters or self.cross or self.allCross):
+                    # If we explicitly asked for specific suites, filters, or cross, and we matched no tests, we fail.
+                    # Otherwise, jobs that explicitly name things could stay green through a rename or typo while
+                    # running nothing at all. Only an explicit request is held to this: an unfiltered run that finds no
+                    # suites is a legitimate no-op on a mapping this platform does not support, so we don't fail it.
                     print("no test suite matched {0}".format(", ".join(testSuiteIds) or "the given filters"))
                     return 1
                 else:

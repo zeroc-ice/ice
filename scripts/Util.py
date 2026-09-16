@@ -2913,7 +2913,6 @@ class AndroidProcessController(RemoteProcessController):
                         # Per-boot configuration, as soon as sys.boot_completed is set. Applied after the first boot
                         # and again after every reboot. Everything here is idempotent and tolerant of failure.
                         self.useThreeButtonNavigation()
-                        self.keepScreenOn()
                         return
                     if not frameworkLost:
                         frameworkLost = True
@@ -3019,8 +3018,7 @@ class AndroidProcessController(RemoteProcessController):
         # in), so the screen stays on: timeout at its maximum, stay-on while powered, no screensaver
         # (dreams run as an activity of their own since Android 13, so one starting would snapshot
         # too). The settings persist in /data; they are reapplied after every boot regardless.
-        # Harmless on the API 36 images, which the emulator's own attempt
-        # already covers. The controller app holds a keep-screen-on flag on its window as well.
+        # Harmless on the API 36 images, which the emulator's own attempt already covers.
         # This closes one door only: the API 37 pair still lost system_server to that abort with
         # the screen on and stay-on in effect, the persister writing the snapshot of btbond's task
         # a few seconds after it closed on both devices (the gralloc mapper's assertion; ART's
@@ -3283,8 +3281,7 @@ class AndroidProcessController(RemoteProcessController):
     # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
     # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
     # Netsim virtual Bluetooth network so the two emulators can reach each other. -gpu swiftshader
-    # as in startEmulator: swiftshader_indirect is the deprecated spelling of the same backend, and
-    # the one job that runs the API 37 image to a green result uses the current one.
+    # to match what we use in 'startEmulator'.
     bluetoothEmulatorFlags = [
         "-no-audio",
         "-partition-size",
@@ -4470,7 +4467,7 @@ class JavaMapping(Mapping):
     def getSDKPackage(self) -> str:
         # The system image the harness creates its AVD from when neither --avd nor --device is given.
         # ANDROID_PLATFORM names the SDK platform in sdkmanager's terms (android-36 for Android 16,
-        # android-37.1 for Android 17); CI's setup-android exports both per matrix row so the same
+        # android-37.0 for Android 17); CI's setup-android exports both per matrix row so the same
         # harness runs the suite on more than one Android release.
         sdkPlatform = os.environ.get("ANDROID_PLATFORM", "android-36")
         return "system-images;{};google_apis;{}".format(
