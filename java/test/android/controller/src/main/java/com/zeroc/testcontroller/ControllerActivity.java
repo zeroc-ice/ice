@@ -40,10 +40,10 @@ public class ControllerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        // And opt out of real screenshots of this task: WindowManager writes a task's snapshot out
-        // whenever the task goes behind another or closes, not only for sleep, and that write is
-        // the same aborting readback. With this the snapshot it writes is a flat drawing of the
-        // theme colors that it renders itself, rather than a capture of SurfaceFlinger's output.
+        // Opt out of real screenshots of this task. On API 37 emulator images, 'WindowManager' aborts 'system_server'
+        // when writing a real screenshot of a closed task. And the harness uninstalls this app between testing 'bt' and
+        // 'bts', so the task is closed and the screenshot is written when 'bts' starts - this crashes everything.
+        // By setting this, screenshots become flat drawings of theme colors, not a capture of 'SurfaceFlinger's output.
         setRecentsScreenshotEnabled(false);
 
         _outputListView = findViewById(R.id.outputList);
