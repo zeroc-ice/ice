@@ -3009,26 +3009,6 @@ class AndroidProcessController(RemoteProcessController):
             "shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.threebutton"
         )
 
-    def keepScreenOn(self) -> None:
-        # The emulator raises screen_off_timeout to its maximum itself after every boot, but that adb
-        # call races the reboots the Bluetooth setup performs and failed on every boot of the pair
-        # ("device offline", "not found"), leaving the default timeout in place. Going to sleep
-        # snapshots the showing task, and on the API 37 images WindowManager writing a task snapshot
-        # out aborts system_server (the GPU-buffer readback SurfaceFlinger's region sampling dies
-        # in), so the screen stays on: timeout at its maximum, stay-on while powered, no screensaver
-        # (dreams run as an activity of their own since Android 13, so one starting would snapshot
-        # too). The settings persist in /data; they are reapplied after every boot regardless.
-        # Harmless on the API 36 images, which the emulator's own attempt already covers.
-        # This closes one door only: the API 37 pair still lost system_server to that abort with
-        # the screen on and stay-on in effect, the persister writing the snapshot of btbond's task
-        # a few seconds after it closed on both devices (the gralloc mapper's assertion; ART's
-        # abort dump follows it a minute later and is not the crash's time). So the test apps also
-        # opt out of real screenshots of their tasks, and btbond keeps the Settings pairing dialog
-        # from opening a task of its own (see their onCreate methods and btbond's receiver).
-        self._adbTolerant("shell settings put system screen_off_timeout 2147483647")
-        self._adbTolerant("shell settings put global stay_on_while_plugged_in 7")
-        self._adbTolerant("shell settings put secure screensaver_enabled 0")
-
     def enableBluetooth(self) -> None:
         # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
         # sleep is enough, as rootRemount does. Under --bt-prepare two of these run in parallel
