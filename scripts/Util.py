@@ -3209,8 +3209,7 @@ class AndroidProcessController(RemoteProcessController):
 
     # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
     # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
-    # Netsim virtual Bluetooth network so the two emulators can reach each other. -gpu swiftshader
-    # to match what we use in 'startEmulator'.
+    # Netsim virtual Bluetooth network so the two emulators can reach each other.
     bluetoothEmulatorFlags = [
         "-no-audio",
         "-partition-size",
@@ -3274,19 +3273,7 @@ class AndroidProcessController(RemoteProcessController):
         if port == -1:
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
-        # -gpu swiftshader rather than auto: on a runner without a GPU, auto logs "Your GPU drivers
-        # may have a bug. Switching to software rendering" and picks swangle for GLES with lavapipe
-        # for Vulkan, and under that pair the API 37 image never reached sys.boot_completed in 300s.
-        # The Bluetooth harness boots the same image in under two minutes on SwiftShader (see
-        # bluetoothEmulatorFlags); swiftshader is the non-deprecated name for that backend and
-        # covers both GLES and Vulkan.
-        #
-        # -partition-size 2048, matching bluetoothEmulatorFlags as well: with SwiftShader selected
-        # the API 37 image still did not boot here, and the data partition was the last difference
-        # from the Bluetooth emulators that do boot it (besides -writable-system and the Netsim
-        # endpoint). A first boot writes APEX and dexopt output into /data, Android Studio's default
-        # for this image family is 6 GB, and 768 MB was a plausible place for it to stall.
-        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 2048 -no-snapshot -gpu swiftshader -accel on -no-boot-anim -no-window".format(
+        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 2048 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
             avd, port
         )
 
@@ -3304,14 +3291,10 @@ class AndroidProcessController(RemoteProcessController):
 
         # Wait for the device to be ready
         print("waiting for the emulator to boot")
-        # 10 minutes: a first boot of the API 37 image, which the emulator forces to 4 GB of RAM,
-        # takes around two minutes on SwiftShader on a CI runner, and 300s left little room for a
-        # slow one. waitForBoot also rides out a framework restart at boot completion.
         try:
-            self.waitForBoot(600)
-        except RuntimeError as ex:
+            self.waitForBoot()
+        except RuntimeError:
             # Stop the emulator so it does not linger into the next test's attempt.
-            print(f"{ex}")
             self.killEmulator()
             AndroidProcessController.bootFailed = True
             raise
