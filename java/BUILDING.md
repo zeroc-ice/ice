@@ -76,7 +76,7 @@ The `java/test/android/controller` directory contains an Android Studio project 
 To build and run the Android test controller, install the following:
 
 - Android SDK 34
-- Android Command Line Tools (optional, for command-line builds)
+- Android Command Line Tools (optional, for command-line builds; version 20 or newer needed for Android 17)
 - Android Studio Meerkat Feature Drop (optional, for IDE-based builds)
 
 ### Using Android Command Line Tools

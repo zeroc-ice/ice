@@ -50,13 +50,11 @@ runs:
       shell: bash
       run: |
         export PYTHONPATH="$GITHUB_WORKSPACE/python/python"
-        mkdir -p "$ANDROID_AVD_HOME"
         # Match the system image setup-android installed.
         if [ "$(uname -m)" = "aarch64" ]; then ARCH="arm64-v8a"; else ARCH="x86_64"; fi
         python3 scripts/Controller.py --android --bt-emulators \
           --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
           --bt-image="system-images;$ANDROID_PLATFORM;google_apis;$ARCH"
-        find "$ANDROID_AVD_HOME" -maxdepth 2 -name '*.ini' -exec grep -H '^target=' {} +
 
     - name: Prepare and bond the two emulators
       shell: bash
