@@ -2910,8 +2910,8 @@ class AndroidProcessController(RemoteProcessController):
         # remount stays tolerant: on the first pass it only disables dm-verity and cannot make
         # /system writable until the reboot that follows, so a failure there is expected. Callers
         # that are about to write to /system pass requireWritable=True, which keeps retrying until
-        # the filesystem really is writable -- otherwise a silently failed remount is only noticed
-        # after it has burned every push attempt against a read-only /system.
+        # the filesystem really is writable -- otherwise a silently failed remount only surfaces
+        # as the push failing against a read-only /system, one step after the real cause.
         deadline = time.time() + timeout
         while time.time() < deadline:
             self._adbTolerant("root")
@@ -3002,20 +3002,10 @@ class AndroidProcessController(RemoteProcessController):
         try:
             self.rootRemount()  # disables dm-verity
             self.reboot()  # apply it so /system becomes writable
-            # Retry the root+remount+push: adb root/remount can still flake under contention, which
-            # would otherwise leave /system read-only and fail the push.
-            for attempt in range(1, 4):
-                self.rootRemount(requireWritable=True)
-                self._adbTolerant(f"shell mkdir -p /system/priv-app/{name}")
-                try:
-                    run(f'{self.adb()} push "{apk}" /system/priv-app/{name}/{name}.apk')
-                    run(f'{self.adb()} push "{xmlPath}" /system/etc/permissions/privapp-permissions-{name}.xml')
-                    break
-                except RuntimeError:
-                    if attempt == 3:
-                        raise
-                    print(f"  /system push failed (attempt {attempt}/3), retrying root+remount")
-                    time.sleep(5)
+            self.rootRemount(requireWritable=True)
+            self._adbTolerant(f"shell mkdir -p /system/priv-app/{name}")
+            run(f'{self.adb()} push "{apk}" /system/priv-app/{name}/{name}.apk')
+            run(f'{self.adb()} push "{xmlPath}" /system/etc/permissions/privapp-permissions-{name}.xml')
         finally:
             os.remove(xmlPath)
         self.reboot()
@@ -3089,7 +3079,9 @@ class AndroidProcessController(RemoteProcessController):
             # Best effort: go ahead and let the client's own connect be the gate, so a logcat
             # hiccup on the peer cannot fail a bond that would otherwise work.
             print(f"warning: '{peerDevice}' never logged btbond's listening marker", file=sys.stderr)
-        run(f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {self.bondServiceUuid}")
+        run(
+            f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {self.bondServiceUuid}"
+        )
         result = ""
         verdict = ""
         # Poll past btbond's own 150s watchdog (MainActivity.WATCHDOG_MS) with some margin: a bond
@@ -3142,20 +3134,19 @@ class AndroidProcessController(RemoteProcessController):
         print("-- adb forwards --")
         print(self._adbTolerant("forward --list"))
         print("-- controller app logcat --")
-        # BTBOND, not just com.zeroc: btbond's own lines ("listening", "connecting...", "watchdog:")
-        # carry no package name, so only its stack frames were surviving this filter.
+        # Collect the actual log entries and write them to a file for the test-logs artifact.
+        log = self._adbTolerant("logcat -d")
+        with open(f"logcat-{self.device}.log", "w", encoding="utf-8") as f:
+            f.write(log)
+        # Log filtering: We only keep lines with the following strings in them, and drop the rest.
+        # We match 'BTBOND' and not just 'com.zeroc' because btbond's own lines ("listening", "connecting", "watchdog:")
+        # carry no package name, so without it only btbond's stack frames would survive this filter.
+        # We remove 'adbd service requested' because these are the harness's own polling which just fill up the log.
         keep = re.compile(
             "testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc|BTBOND|Fatal signal|DEBUG\\s*:|BluetoothManagerService"
         )
-        # Skip adbd's echo of the harness's own "logcat -d -s BTBOND" polling: it matches BTBOND and,
-        # at one line per poll, filled the 80 slots by itself.
-        # And ART's abort dump of system_server: its native frames name AndroidRuntime, and one such
-        # dump filled the 80 slots with the same javaThreadShell frame over and over.
-        lines = [
-            ln
-            for ln in self._adbTolerant("logcat -d").splitlines()
-            if keep.search(ln) and not self._adbEcho(ln) and not self._crashNoise.search(ln)
-        ]
+        lines = [ln for ln in log.splitlines() if keep.search(ln) and "adbd service requested" not in ln]
+        # Print the last 80 lines of the filtered logcat output, just in case there's anything interesting in them.
         print("\n".join(lines[-80:]))
         # A relaunch emits no new "START u0" and its main-buffer logs are compiled out, so the events
         # buffer is the only durable record that a second onCreate ran. bond() clears this buffer
@@ -3169,24 +3160,6 @@ class AndroidProcessController(RemoteProcessController):
         print("\n".join(lines[-40:]) or "<none>")
         print("-- bluetooth adapter --")
         print("\n".join(self._adbTolerant("shell dumpsys bluetooth_manager").splitlines()[:8]) or "<none>")
-
-    # The bulk of a crash report: native frames and register dumps (tombstone lines indented four
-    # or more spaces after the DEBUG tag), Java frames, and the tombstone boilerplate. Dropping them
-    # keeps the lines that name the process, the signal, and the abort message or exception, so a
-    # window of a few dozen lines spans several crashes instead of one backtrace. The first API 37
-    # dump lost the reason system_server died to the 45 lines of the zygote tombstone that followed.
-    _crashNoise = re.compile(
-        r"DEBUG\s*:\s{4,}|total frames|backtrace:|To display stack pointer"
-        # ART's abort dumps every thread: header lines ('"name" prio=...'), indented frames, and
-        # the blank line between threads -- system_server's 300 of those filled a window alone.
-        r'|runtime\.cc:\d+\]\s+"|runtime\.cc:\d+\]\s{2,}|runtime\.cc:\d+\]\s*$'
-    )
-
-    @staticmethod
-    def _adbEcho(line: str) -> bool:
-        # adbd logs every shell request it serves, so the harness's own polling lands in the log
-        # carrying the very words the filters here look for.
-        return "adbd service requested" in line
 
     # Set once the harness's own emulator has failed to boot, so the tests that follow fail at once
     # instead of each recreating the AVD and waiting out the boot timeout again: with --all that is
@@ -3209,20 +3182,12 @@ class AndroidProcessController(RemoteProcessController):
             except subprocess.TimeoutExpired:
                 pass
 
-    # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
-    # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
-    # Netsim virtual Bluetooth network so the two emulators can reach each other.
-    bluetoothEmulatorFlags = [
-        "-no-audio",
-        "-no-snapshot",
-        "-writable-system",
-        "-accel",
-        "on",
-        "-no-boot-anim",
-        "-no-window",
-        "-packet-streamer-endpoint",
-        "default",
-    ]
+    # Flags shared by every emulator the harness launches.
+    emulatorFlags = ["-no-audio", "-no-snapshot", "-accel", "on", "-no-boot-anim", "-no-window"]
+    # For emulators running Bluetooth we add '-writable-system' (so btbond can be installed as a
+    # privileged system app) and '-packet-streamer-endpoint', which attaches each emulator to the
+    # shared Netsim virtual Bluetooth network so they can reach each other.
+    bluetoothEmulatorFlags = [*emulatorFlags, "-writable-system", "-packet-streamer-endpoint", "default"]
 
     @classmethod
     def createBluetoothEmulator(cls, avd: str, image: str, port: int, logFile: str) -> None:
@@ -3271,13 +3236,9 @@ class AndroidProcessController(RemoteProcessController):
         if port == -1:
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
-        cmd = "emulator -avd {0} -port {1} -no-audio -no-snapshot -accel on -no-boot-anim -no-window".format(
-            avd, port
-        )
-
         print("starting the AVD `{}' on port {}".format(avd, port))
 
-        self.emulator = subprocess.Popen(cmd, shell=True)
+        self.emulator = subprocess.Popen(["emulator", "-avd", avd, "-port", str(port), *self.emulatorFlags])
 
         if self.emulator.poll():
             raise RuntimeError("failed to start the Android emulator `{}' on port {}".format(avd, port))
