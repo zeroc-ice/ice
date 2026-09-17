@@ -2775,10 +2775,10 @@ class AndroidProcessController(RemoteProcessController):
         watchDog: Expect.WatchDog | None,
     ) -> RunningProcess:
         if current.config.protocol in ("bt", "bts"):
-            # The adapter has been found off at test time on the API 37 pair, a minute after a bond
-            # that needed it on. Enabling is a no-op when it already is; the wait turns a stack that
-            # is restarting into a short delay, and one that stays off into a failure that says so,
-            # instead of IceBT's "bluetooth is not enabled" from inside every server.
+            # The adapter sometimes goes off or restarts shortly after a bond we need it for.
+            # We work around this by enabling it before starting the process. This is a no-op when
+            # it is already on; the wait turns a stack that is restarting into a short delay, and
+            # one that stays off into a clear failure instead of IceBT's "bluetooth is not enabled".
             self._adbTolerant("shell cmd bluetooth_manager enable")
             run(f"{self.adb()} shell cmd bluetooth_manager wait-for-state:STATE_ON")
         return super().start(process, current, args, props, envs, watchDog)
@@ -3020,7 +3020,11 @@ class AndroidProcessController(RemoteProcessController):
             os.remove(xmlPath)
         self.reboot()
 
-    def bond(self, peerDevice: str, uuid: str, package: str = "com.zeroc.btbond") -> str:
+    # RFCOMM service UUID for btbond's pairing handshake. Any UUID works as long as both sides use
+    # the same one; it is unrelated to the UUIDs in the tests' bt endpoints.
+    bondServiceUuid = "8ce255c0-200a-11e0-ac64-0800200c9a66"
+
+    def bond(self, peerDevice: str, package: str = "com.zeroc.btbond") -> str:
         # Bond this (client) emulator to `peerDevice` (server) over secure RFCOMM using the btbond
         # helper installed on both by installSystemApp: start its server mode on the peer, then
         # connect + pair from this device. Bonding is what secure RFCOMM (and hence IceBT) requires.
@@ -3029,8 +3033,6 @@ class AndroidProcessController(RemoteProcessController):
         # read gets the same retry.
         peer = AndroidProcessController.forDevice(peerDevice)
         peerAdb = peer.adb()
-        if not re.fullmatch(r"[A-Fa-f0-9-]+", uuid):
-            raise RuntimeError(f"invalid service UUID: {uuid!r}")
         peerAddress = peer.bluetoothAddress()
         activity = f"{package}/.MainActivity"
         # Clear both logs first: the result line is matched out of logcat below, and one left over
@@ -3045,7 +3047,7 @@ class AndroidProcessController(RemoteProcessController):
         # or diagnostics cannot tell one attempt's lifecycle records from an earlier attempt's.
         self._adbTolerant("logcat -b events -c")
         self._adbTolerantFor(peerAdb, "logcat -b events -c")
-        run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid}")
+        run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {self.bondServiceUuid}")
 
         def tail(log: str) -> str:
             # Drop stack frames before truncating. One trace is longer than the character budget
@@ -3087,7 +3089,7 @@ class AndroidProcessController(RemoteProcessController):
             # Best effort: go ahead and let the client's own connect be the gate, so a logcat
             # hiccup on the peer cannot fail a bond that would otherwise work.
             print(f"warning: '{peerDevice}' never logged btbond's listening marker", file=sys.stderr)
-        run(f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {uuid}")
+        run(f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {self.bondServiceUuid}")
         result = ""
         verdict = ""
         # Poll past btbond's own 150s watchdog (MainActivity.WATCHDOG_MS) with some margin: a bond
@@ -3214,8 +3216,6 @@ class AndroidProcessController(RemoteProcessController):
         "-no-audio",
         "-no-snapshot",
         "-writable-system",
-        "-gpu",
-        "swiftshader",
         "-accel",
         "on",
         "-no-boot-anim",
@@ -3271,7 +3271,7 @@ class AndroidProcessController(RemoteProcessController):
         if port == -1:
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
-        cmd = "emulator -avd {0} -port {1} -no-audio -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
+        cmd = "emulator -avd {0} -port {1} -no-audio -no-snapshot -accel on -no-boot-anim -no-window".format(
             avd, port
         )
 
@@ -3307,11 +3307,10 @@ class AndroidProcessController(RemoteProcessController):
                 raise RuntimeError("not retrying: the emulator failed to boot earlier in this run")
             if self.emulator is not None and self.emulator.poll() is None:
                 # A restart after the controller app died: getController pings it before every test
-                # and comes back here when the ping fails. Keep the emulator that is already running.
-                # Recreating the AVD under it deletes the disk images out from under qemu -- the
-                # first API 37 run left a core dump that way and booted a fresh emulator per test,
-                # 41 boots in 31 minutes -- and nothing about the app dying calls for a new device.
-                # Only make sure it still answers; the app is reinstalled below either way.
+                # and comes back here when the ping fails. Keep the emulator that is already running:
+                # recreating the AVD would delete the disk images out from under qemu, and nothing
+                # about the app dying calls for a new device. Only make sure it still answers; the
+                # app is reinstalled below either way.
                 print("controller app restart: reusing the running emulator")
                 self.waitForBoot()
             else:

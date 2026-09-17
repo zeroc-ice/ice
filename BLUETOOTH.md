@@ -59,7 +59,6 @@ Run from the repository root, with:
 
 ```bash
 export PYTHONPATH="$PWD/python/python"
-UUID=8ce255c0-200a-11e0-ac64-0800200c9a66
 # Android 16; substitute android-37.0 for Android 17.
 IMG="system-images;android-36;google_apis;x86_64"  # arm64-v8a on Apple silicon
 CLIENT=emulator-5554
@@ -87,7 +86,7 @@ prints the server's address. Progress goes to stderr and to `setup_client.log` /
 
 ```bash
 BT_ADDR=$(python scripts/Controller.py --android --bt-prepare \
-  --bt-client="$CLIENT" --bt-server="$SERVER" --bt-setup="$APK" --uuid="$UUID")
+  --bt-client="$CLIENT" --bt-server="$SERVER" --bt-setup="$APK")
 ```
 
 **4. Run the tests.**
@@ -107,9 +106,6 @@ Dump an emulator's controller state (pid, adb forwards, logcat):
 ```bash
 python scripts/Controller.py --android --device="$CLIENT" --bt-diagnostics
 ```
-
-Emulators can also be prepared or bonded one at a time, with `--device=<serial> --bt-setup=<apk>`
-and `--device=<serial> --bt-bond=<peer> --uuid=<uuid>`.
 
 ## Two virtual controllers, no hardware (Linux)
 

@@ -18,10 +18,6 @@ inputs:
     description: "adb serial of the emulator running the IceBT server (Controller.py)"
     default: "emulator-5556"
 
-  uuid:
-    description: "RFCOMM service UUID the two emulators bond over"
-    default: "8ce255c0-200a-11e0-ac64-0800200c9a66"
-
 runs:
   using: "composite"
   steps:
@@ -74,7 +70,7 @@ runs:
         # per-device setup_{client,server}.log contents go to stderr.
         BT_ADDR=$(python3 scripts/Controller.py --android --bt-prepare \
           --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
-          --bt-setup="$BTBOND_APK" --uuid="${{ inputs.uuid }}")
+          --bt-setup="$BTBOND_APK")
         [ -n "$BT_ADDR" ] || { echo "no server Bluetooth address"; exit 1; }
         echo "server (${{ inputs.server }}) Bluetooth address = $BT_ADDR"
         echo "BT_ADDR=$BT_ADDR" >> "$GITHUB_ENV"
