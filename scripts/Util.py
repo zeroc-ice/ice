@@ -2870,51 +2870,21 @@ class AndroidProcessController(RemoteProcessController):
             print(f"  (ignored) {ex}", file=sys.stderr)
             return ""
 
-    def _serviceUp(self, service: str) -> bool:
-        # Whether one of the framework's binder services answers: `cmd` fails with "Can't find
-        # service" for as long as system_server is down, or not yet that far into its start. Quiet
-        # on purpose, this is polled from the boot wait.
-        probe = {"overlay": "cmd overlay list", "settings": "settings get global device_provisioned"}[service]
-        try:
-            return "Can't find service" not in run(f"{self.adb()} shell {probe}")
-        except RuntimeError:
-            return False
-
     def waitForBoot(self, timeout: float = 300) -> None:
         # Wait for the device to reconnect to adb and finish booting, then apply the per-boot configuration.
         # Tolerant of the transient adb errors seen while a device is mid-reboot.
         # One deadline covers both phases -- otherwise wait-for-device could consume the whole budget and the
         # poll loop would start a fresh one, doubling the advertised timeout.
-        #
-        # Booted means more than sys.boot_completed. The property is set once and stays set while
-        # system_server restarts, and on the API 37 images the framework has been lost at the very
-        # moment a first boot completed: every command that followed, the emulator's own included,
-        # failed with "Can't find service", and the controller app could not be installed. So the
-        # settings service has to answer as well; when it does not, the wait goes on, since the
-        # restart takes half a minute and the run is fine after it. The navigation overlay goes
-        # in as soon as the overlay service answers, ahead of boot completion, so the gesture handle's
-        # sampling has as little of a first boot as possible to run in.
         deadline = time.time() + timeout
         try:
             subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=timeout, check=False)
         except subprocess.TimeoutExpired:
             pass
         name = self.device or self.avd or "device"
-        navigationSet = False
-        frameworkLost = False
         while time.time() <= deadline:
             try:
-                if not navigationSet and self._serviceUp("overlay"):
-                    self.useThreeButtonNavigation()
-                    navigationSet = True
                 if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
-                    if self._serviceUp("settings"):
-                        # Again at boot completion, in case the early call above lost the race; idempotent.
-                        self.useThreeButtonNavigation()
-                        return
-                    if not frameworkLost:
-                        frameworkLost = True
-                        print(f"'{name}' booted but the framework does not answer; waiting for it to come back")
+                    return
             except RuntimeError:
                 pass  # device offline mid-reboot
             time.sleep(3)
@@ -2987,23 +2957,6 @@ class AndroidProcessController(RemoteProcessController):
                     return address
             time.sleep(2)
         raise RuntimeError(f"could not read the Bluetooth address of '{self.device}': {reason}")
-
-    def useThreeButtonNavigation(self) -> None:
-        # Gesture navigation is what registers SurfaceFlinger's region-sampling listener: the
-        # navigation handle samples the pixels under it to pick its color (SystemUI's
-        # RegionSamplingHelper only samples in gesture mode, and the launcher's handle code is the
-        # other client). On the API 37 images -- 37.0 and 37.1 alike -- that sampling path aborts
-        # SurfaceFlinger ("Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma"), and
-        # SurfaceFlinger's restart takes zygote and every app down with it about a minute after each
-        # boot. Three-button navigation has no handle and never samples. The overlay choice is
-        # persisted in /data, so later boots of the same AVD start out safe; a first boot races the
-        # first sample, which is why waitForBoot applies this as soon as the overlay service answers
-        # rather than at boot completion -- applied at completion, one first boot lost the race and
-        # the framework was gone the moment the boot completed. Harmless on the API 36 images.
-        # Tolerant: an image without the overlay is not worth failing over.
-        self._adbTolerant(
-            "shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.threebutton"
-        )
 
     def enableBluetooth(self) -> None:
         # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
