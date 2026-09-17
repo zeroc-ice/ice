@@ -3282,7 +3282,7 @@ class AndroidProcessController(RemoteProcessController):
             run(f"avdmanager -v delete avd -n {avd}")
         except RuntimeError:
             pass  # no existing AVD to delete
-        run(f'echo no | avdmanager -v create avd --force -k "{image}" -d "Nexus 6" -n {avd}')
+        run(f'echo no | avdmanager -v create avd -k "{image}" -d "Nexus 6" -n {avd}')
         print(f"starting emulator '{avd}' on port {port} (log: {logFile})")
         with open(logFile, "wb") as log:
             emulator = subprocess.Popen(
@@ -3388,9 +3388,7 @@ class AndroidProcessController(RemoteProcessController):
                     run("avdmanager -v delete avd -n IceTests")  # Delete the created device
                 except Exception:
                     pass
-                # --force: a boot that failed left the AVD directory behind after the delete above,
-                # and every later test in that run then failed with "AVD not created".
-                run('avdmanager -v create avd --force -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
+                run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
                 self.createdAvd = True
                 self.startEmulator("IceTests")
         elif current.config.device != "usb" and not current.config.device.startswith("emulator-"):
