@@ -3212,8 +3212,6 @@ class AndroidProcessController(RemoteProcessController):
     # Netsim virtual Bluetooth network so the two emulators can reach each other.
     bluetoothEmulatorFlags = [
         "-no-audio",
-        "-partition-size",
-        "2048",
         "-no-snapshot",
         "-writable-system",
         "-gpu",
@@ -3273,7 +3271,7 @@ class AndroidProcessController(RemoteProcessController):
         if port == -1:
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
-        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 2048 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
+        cmd = "emulator -avd {0} -port {1} -no-audio -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
             avd, port
         )
 
