@@ -49,8 +49,6 @@ runs:
         cd test/android/controller
         ./gradlew build checkstyle
         ./gradlew rewriteDryRun --no-parallel --no-configuration-cache
-        # Free the daemon's heap; we won't need gradle for the rest of this job.
-        ./gradlew --stop
       shell: bash
       if: inputs.build_android_controller == 'true'
 

@@ -2914,7 +2914,7 @@ class AndroidProcessController(RemoteProcessController):
                         return
                     if not frameworkLost:
                         frameworkLost = True
-                        print("waiting for the framework to come back")
+                        print(f"'{name}' booted but the framework does not answer; waiting for it to come back")
             except RuntimeError:
                 pass  # device offline mid-reboot
             time.sleep(3)
