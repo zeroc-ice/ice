@@ -40,12 +40,6 @@ public class ControllerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        // Opt out of real screenshots of this task: on API 37 emulator images, 'WindowManager' aborts 'system_server'
-        // when writing a screenshot for a task that closed. The harness uninstalls this app between testing 'bt' and
-        // 'bts', closing the task and capturing a snapshot. The next step needs the device again, and without this fix,
-        // crashes. With this fix, the screenshot is a flat drawing of the theme colors, not a 'SurfaceFlinger' capture.
-        setRecentsScreenshotEnabled(false);
-
         _outputListView = findViewById(R.id.outputList);
         if (_outputListView == null) {
             throw new IllegalStateException("Layout must include a View with android:id=\"@+id/outputList\"");

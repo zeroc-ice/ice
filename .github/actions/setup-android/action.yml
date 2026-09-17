@@ -54,7 +54,6 @@ runs:
         # See: https://github.com/actions/runner-images/issues/14484
         echo "$ANDROID_HOME/cmdline-tools/22.0/bin" >> $GITHUB_PATH
         sdkmanager "cmdline-tools;22.0"
-        sdkmanager --version
         test -x "$ANDROID_HOME/cmdline-tools/22.0/bin/avdmanager"
         # platform-tools, build-tools, and platforms are pre-installed on GitHub runners.
         # We only need to install the emulator itself and a system image for it to boot into.
