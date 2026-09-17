@@ -10,7 +10,10 @@
         <CallTarget Targets="CheckSources" />
     </Target>
 
-    <!-- Packing must use the same sources and patched headers as Build, without rebuilding signed binaries. -->
+    <!--
+        NugetPack depends on CheckSources rather than on Build, so CI can sign the binaries between Build and
+        NugetPack. Packing uses the same sources and patched headers as Build.
+    -->
     <Target Name="CheckSources">
         <Error Condition="!Exists('$(ThirdPartyRoot)sources\$(Dependency)\.source-stamp')"
                Text="The $(Dependency) sources are missing. Run the Build target first." />

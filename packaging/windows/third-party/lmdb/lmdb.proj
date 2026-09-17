@@ -9,7 +9,7 @@
         <SourceDir>$(ThirdPartyRoot)sources\lmdb\libraries\liblmdb</SourceDir>
         <OutRoot>$(ThirdPartyRoot)out\lmdb</OutRoot>
 
-        <PackageName Condition="'$(PackageName)' == ''">ZeroC.LMDB</PackageName>
+        <PackageName>ZeroC.LMDB</PackageName>
         <PackageStagingDir>$(OutRoot)\$(PackageName)</PackageStagingDir>
 
         <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
@@ -33,8 +33,6 @@
             <Platform>x64</Platform>
             <Configuration>Release</Configuration>
         </BuildTarget>
-
-        <!-- The entry points IceDB calls. -->
     </ItemGroup>
 
     <Target Name="Build" DependsOnTargets="DownloadSource">
@@ -43,7 +41,6 @@
                  Properties="Configuration=%(BuildTarget.Configuration);Platform=%(BuildTarget.Platform);DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot)" />
     </Target>
 
-    <!-- NugetPack does not rebuild, so CI can sign between Build and NugetPack. LMDB is static, so nothing is signed. -->
     <Target Name="NugetPack" DependsOnTargets="CheckSources">
         <RemoveDir Directories="$(PackageStagingDir)" />
 

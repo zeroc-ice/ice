@@ -12,10 +12,6 @@ Set-StrictMode -Version Latest
 
 $manifest = Get-Content -LiteralPath "$PSScriptRoot/sources.json" -Raw | ConvertFrom-Json
 $source = $manifest.$Dependency
-if ($source.sha256 -notmatch '^[0-9a-f]{64}$' -or $source.url -notlike 'https://*') {
-    throw "Invalid source URL or SHA-256 for $Dependency in sources.json."
-}
-
 $downloadDir = Join-Path $PSScriptRoot 'downloads'
 $sourcesDir = Join-Path $PSScriptRoot 'sources'
 $destination = Join-Path $sourcesDir $Dependency
@@ -69,7 +65,6 @@ foreach ($patch in $source.patches) {
     $stamp += ':' + (Get-SHA256 (Join-Path $PSScriptRoot $patch))
 }
 if ((Test-Path -LiteralPath $stampFile) -and
-    (Test-Path -LiteralPath (Join-Path $destination $source.required_file)) -and
     ((Get-Content -LiteralPath $stampFile -Raw).Trim() -eq $stamp)) {
     Write-Host "Sources for $Dependency are ready."
     return
@@ -82,9 +77,6 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Extracting $archive failed with exit code $LASTEXITCODE." }
 
     $extracted = Join-Path $temporary $source.root
-    if (!(Test-Path -LiteralPath (Join-Path $extracted $source.required_file))) {
-        throw "The $Dependency archive does not contain $($source.root)/$($source.required_file)."
-    }
     foreach ($patch in $source.patches) {
         # Treat the extracted tree as the worktree, including when invoked from a subdirectory of Ice.
         $patchPath = Join-Path $PSScriptRoot $patch

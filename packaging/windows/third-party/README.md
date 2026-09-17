@@ -18,16 +18,15 @@ msbuild lmdb\lmdb-tools.proj /t:All
 The Build target downloads each pinned upstream archive from [sources.json](sources.json), verifies its SHA-256
 checksum and prepares the source. Bzip2's public header is patched before compiling. The NugetPack target copies
 the built binaries and upstream license into the package. All runs both targets, and Clean removes build outputs.
-Packages are staged under `out/<dependency>/<PackageName>/`; source archives and extracted trees are cached
+Packages are staged under `out/<dependency>/<package>/`; source archives and extracted trees are cached
 under `downloads/` and `sources/`.
 
-| Property               | Default     | Purpose                                                                              |
-|------------------------|-------------|--------------------------------------------------------------------------------------|
-| DefaultPlatformToolset | v143        | MSVC toolset for DLL and library builds.                                             |
-| PackageName            | package ID  | Select the package metadata directory; LMDB and LMDB Tools share one source archive. |
-| CMakeExe               | cmake       | CMake executable for Expat.                                                          |
-| NuGetExe               | nuget       | NuGet CLI used to pack the binaries.                                                 |
-| MinGWBin               | first found | Directory containing mingw-w64 gcc.exe for LMDB Tools.                               |
+| Property               | Default     | Purpose                                                |
+|------------------------|-------------|--------------------------------------------------------|
+| DefaultPlatformToolset | v143        | MSVC toolset for DLL and library builds.               |
+| CMakeExe               | cmake       | CMake executable for Expat.                            |
+| NuGetExe               | nuget       | NuGet CLI used to pack the binaries.                   |
+| MinGWBin               | first found | Directory containing mingw-w64 gcc.exe for LMDB Tools. |
 
 ## Publish a release
 

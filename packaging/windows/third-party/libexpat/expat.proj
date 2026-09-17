@@ -9,7 +9,7 @@
         <SourceDir>$(ThirdPartyRoot)sources\libexpat\expat</SourceDir>
         <OutRoot>$(ThirdPartyRoot)out\libexpat</OutRoot>
 
-        <PackageName Condition="'$(PackageName)' == ''">ZeroC.Expat</PackageName>
+        <PackageName>ZeroC.Expat</PackageName>
         <PackageStagingDir>$(OutRoot)\$(PackageName)</PackageStagingDir>
 
         <!--
@@ -23,10 +23,9 @@
     </PropertyGroup>
 
     <!--
-        Expat builds its tools, examples and tests by default. We package the library alone, so they are all turned
-        off. EXPAT_SHARED_LIBS=ON is Expat's default and is set explicitly because it also decides the library file
-        name: the "MD"/"MT" CRT suffix is applied to static builds only, so a shared build produces the libexpat.dll
-        and libexpatd.dll names this package has always shipped.
+        Expat builds its tools, examples and tests by default; only the library is packaged. EXPAT_SHARED_LIBS=ON
+        is Expat's default and is set explicitly because it also decides the library file name: the "MD"/"MT" CRT
+        suffix is applied to static builds only, so a shared build produces libexpat.dll and libexpatd.dll.
     -->
     <PropertyGroup>
         <CMakeOptions>-DEXPAT_SHARED_LIBS=ON</CMakeOptions>
@@ -54,8 +53,6 @@
         <BuildConfiguration Include="Release">
             <CMakeConfig>RelWithDebInfo</CMakeConfig>
         </BuildConfiguration>
-
-        <!-- The entry points IceGrid's XMLParser calls. -->
     </ItemGroup>
 
     <Target Name="Configure" DependsOnTargets="DownloadSource">
@@ -68,10 +65,6 @@
         <Exec Command="&quot;$(CMakeExe)&quot; --build &quot;$(OutRoot)\$(DefaultPlatformToolset)-%(BuildPlatform.Identity)&quot; --config RelWithDebInfo" />
     </Target>
 
-    <!--
-        NugetPack deliberately does not depend on Build, so CI can Authenticode-sign the binaries in the CMake output
-        directories after building and before they are copied into the package.
-    -->
     <Target Name="NugetPack" DependsOnTargets="CheckSources">
         <RemoveDir Directories="$(PackageStagingDir)" />
 
@@ -80,11 +73,9 @@
         <MSBuild Projects="$(MSBuildThisFileDirectory)expat.nuget.targets"
                  Properties="Platform=%(BuildPlatform.Identity);Configuration=Release;CMakeConfig=RelWithDebInfo;OutRoot=$(OutRoot);DefaultPlatformToolset=$(DefaultPlatformToolset);PackageStagingDir=$(PackageStagingDir)" />
 
-        <!-- The public headers, taken from the verified archive. -->
         <Copy SourceFiles="$(SourceDir)\lib\expat.h;$(SourceDir)\lib\expat_external.h"
               DestinationFolder="$(PackageStagingDir)\build\native\include" />
 
-        <!-- Upstream's license, and the files the nuspec references. -->
         <Copy SourceFiles="$(SourceDir)\COPYING"
               DestinationFiles="$(PackageStagingDir)\COPYING.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\README.md"

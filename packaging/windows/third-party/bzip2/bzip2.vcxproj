@@ -106,7 +106,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
 
-  <!-- The library sources, from the verified upstream archive. bzip2 has no build system we can drive. -->
+  <!-- bzip2 has no build system we can drive. -->
   <ItemGroup>
     <ClCompile Include="$(BzipSourceDir)blocksort.c" />
     <ClCompile Include="$(BzipSourceDir)huffman.c" />

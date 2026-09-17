@@ -51,13 +51,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <!--
-      The previous packaging defined MDB_DEBUG here. It is deliberately not set any more.
-
-      MDB_DEBUG controls only LMDB's stderr tracing; assertions are guarded by NDEBUG, so this configuration keeps
-      them either way. LMDB 0.9.32 (ITS#9378) added replay logging with 19 MDB_TRACE call sites where 0.9.29 had
-      none, and mdb_debug defaults to MDB_DBG_TRACE, so defining it now would make every Ice debug build write
-      trace lines to stderr. It also no longer compiles: one of those new call sites uses an undefined Yu macro,
-      an upstream bug reachable only with MDB_DEBUG set.
+      MDB_DEBUG is not defined: it enables LMDB's stderr tracing, and mdb_debug defaults to MDB_DBG_TRACE, so every
+      Ice debug build would write trace lines to stderr. Assertions are controlled by NDEBUG, which neither
+      configuration defines, like LMDB's own Makefile.
   -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
@@ -71,7 +67,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
 
-  <!-- The library sources, from the verified upstream archive. -->
   <ItemGroup>
     <ClCompile Include="$(LmdbSourceDir)mdb.c" />
     <ClCompile Include="$(LmdbSourceDir)midl.c" />

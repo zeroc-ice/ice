@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Builds the LMDB command line tools shipped with the Ice Services installer for Windows.
-
-    These are built with MinGW-w64 rather than MSVC, because three of the four tools use getopt, which the Microsoft
-    CRT does not provide. Building them with MSVC would mean carrying a getopt implementation of our own, so the
-    tools instead keep the gcc toolchain they have always been built with, and LMDB stays unpatched.
-
-    They are built with the MinGW64 toolchain and linked statically. The previously published tools were built with
-    the MSYS toolchain instead, which made every one of them depend on msys-2.0.dll. That DLL was shipped neither in
-    the package nor in the installer, so none of them could run on a machine without MSYS2 installed.
+    Builds the LMDB command line tools with MinGW-w64, because three of the four tools use getopt, which the
+    Microsoft CRT does not provide.
 -->
 <Project DefaultTargets="All" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
@@ -20,28 +13,22 @@
         <SourceDir>$(ThirdPartyRoot)sources\lmdb\libraries\liblmdb</SourceDir>
         <OutRoot>$(ThirdPartyRoot)out\lmdb</OutRoot>
 
-        <PackageName Condition="'$(PackageName)' == ''">ZeroC.LMDB.Tools</PackageName>
+        <PackageName>ZeroC.LMDB.Tools</PackageName>
         <PackageStagingDir>$(OutRoot)\$(PackageName)</PackageStagingDir>
 
-        <!--
-            Set MinGWBin to point at a specific toolchain. Otherwise the usual install locations are searched, in
-            order: an MSYS2 installation, a standalone MinGW-w64, and the one bundled with Strawberry Perl.
-        -->
+        <!-- Set MinGWBin to point at a specific toolchain. Otherwise the usual install locations are searched. -->
         <MinGWBin Condition="'$(MinGWBin)' == '' And Exists('C:\msys64\mingw64\bin\gcc.exe')">C:\msys64\mingw64\bin</MinGWBin>
         <MinGWBin Condition="'$(MinGWBin)' == '' And Exists('C:\mingw64\bin\gcc.exe')">C:\mingw64\bin</MinGWBin>
         <MinGWBin Condition="'$(MinGWBin)' == '' And Exists('C:\ProgramData\mingw64\mingw64\bin\gcc.exe')">C:\ProgramData\mingw64\mingw64\bin</MinGWBin>
         <MinGWBin Condition="'$(MinGWBin)' == '' And Exists('C:\Strawberry\c\bin\gcc.exe')">C:\Strawberry\c\bin</MinGWBin>
         <GccExe Condition="'$(MinGWBin)' != ''">$(MinGWBin)\gcc.exe</GccExe>
 
-        <!-- The published package has only ever contained x64 executables. -->
+        <!-- x64 only. -->
         <ToolsDir>$(OutRoot)\mingw64-x64\tools</ToolsDir>
 
         <NuGetExe Condition="'$(NuGetExe)' == ''">nuget</NuGetExe>
 
-        <!--
-            -O2 -g matches LMDB's own Makefile. -static avoids a dependency on the MinGW runtime DLLs, so the tools
-            need nothing beyond Windows itself. advapi32 provides the two security descriptor calls mdb.c makes.
-        -->
+        <!-- -O2 -g matches LMDB's own Makefile. advapi32 provides the two security descriptor calls mdb.c makes. -->
         <GccFlags>-O2 -g -static -Wall</GccFlags>
         <GccLibs>-ladvapi32</GccLibs>
     </PropertyGroup>
@@ -73,16 +60,12 @@
               IgnoreStandardErrorWarningFormat="true" />
     </Target>
 
-    <!--
-        Runs automatically after Build. Running each tool confirms it starts without a missing runtime DLL, which
-        is the failure the previously published tools shipped with, and reports the pinned LMDB release.
-    -->
+    <!-- Each tool must start without a missing runtime DLL, and reports the pinned LMDB release. -->
     <Target Name="Verify" AfterTargets="Build">
         <Exec Command="echo   %(Tool.Identity).exe -V: &amp; &quot;$(ToolsDir)\%(Tool.Identity).exe&quot; -V"
               StandardOutputImportance="high" />
     </Target>
 
-    <!-- NugetPack does not rebuild, so CI can Authenticode-sign the executables between Build and NugetPack. -->
     <Target Name="NugetPack" DependsOnTargets="CheckSources">
         <RemoveDir Directories="$(PackageStagingDir)" />
 

@@ -9,7 +9,7 @@
         <SourceDir>$(ThirdPartyRoot)sources\bzip2</SourceDir>
         <OutRoot>$(ThirdPartyRoot)out\bzip2</OutRoot>
 
-        <PackageName Condition="'$(PackageName)' == ''">ZeroC.Bzip2</PackageName>
+        <PackageName>ZeroC.Bzip2</PackageName>
         <PackageStagingDir>$(OutRoot)\$(PackageName)</PackageStagingDir>
 
         <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
@@ -62,7 +62,6 @@
                  Properties="Configuration=%(BuildTarget.Configuration);Platform=%(BuildTarget.Platform);DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot)" />
     </Target>
 
-    <!-- NugetPack does not rebuild, so CI can Authenticode-sign between Build and NugetPack. -->
     <Target Name="NugetPack" DependsOnTargets="CheckSources">
         <RemoveDir Directories="$(PackageStagingDir)" />
 
