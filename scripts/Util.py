@@ -2871,7 +2871,7 @@ class AndroidProcessController(RemoteProcessController):
             return ""
 
     def waitForBoot(self, timeout: float = 300) -> None:
-        # Wait for the device to reconnect to adb and finish booting, then apply the per-boot configuration.
+        # Wait for the device to reconnect to adb and finish booting.
         # Tolerant of the transient adb errors seen while a device is mid-reboot.
         # One deadline covers both phases -- otherwise wait-for-device could consume the whole budget and the
         # poll loop would start a fresh one, doubling the advertised timeout.
