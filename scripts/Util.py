@@ -2890,11 +2890,10 @@ class AndroidProcessController(RemoteProcessController):
         # system_server restarts, and on the API 37 images the framework has been lost at the very
         # moment a first boot completed: every command that followed, the emulator's own included,
         # failed with "Can't find service", and the controller app could not be installed. So the
-        # settings service has to answer as well; when it does not, the guest's state is dumped
-        # once and the wait goes on, since the restart takes half a minute and the run is fine
-        # after it. The navigation overlay goes in as soon as the overlay service answers, ahead of
-        # boot completion, so the gesture handle's sampling has as little of a first boot as
-        # possible to run in.
+        # settings service has to answer as well; when it does not, the wait goes on, since the
+        # restart takes half a minute and the run is fine after it. The navigation overlay goes
+        # in as soon as the overlay service answers, ahead of boot completion, so the gesture handle's
+        # sampling has as little of a first boot as possible to run in.
         deadline = time.time() + timeout
         try:
             subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=timeout, check=False)
@@ -2910,14 +2909,11 @@ class AndroidProcessController(RemoteProcessController):
                     navigationSet = True
                 if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
                     if self._serviceUp("settings"):
-                        # Per-boot configuration, as soon as sys.boot_completed is set. Applied after the first boot
-                        # and again after every reboot. Everything here is idempotent and tolerant of failure.
+                        # Again at boot completion, in case the early call above lost the race; idempotent.
                         self.useThreeButtonNavigation()
                         return
                     if not frameworkLost:
                         frameworkLost = True
-                        print(f"'{name}' reports its boot complete but the framework does not answer; guest state:")
-                        # Previously dumped the 'systemHealth' which was deleted.
                         print("waiting for the framework to come back")
             except RuntimeError:
                 pass  # device offline mid-reboot
