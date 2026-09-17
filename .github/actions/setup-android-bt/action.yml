@@ -60,6 +60,7 @@ runs:
         python3 scripts/Controller.py --android --bt-emulators \
           --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
           --bt-image="system-images;$ANDROID_PLATFORM;google_apis;$ARCH"
+        find "$ANDROID_AVD_HOME" -maxdepth 2 -name '*.ini' -exec grep -H '^target=' {} +
 
     - name: Prepare and bond the two emulators
       shell: bash

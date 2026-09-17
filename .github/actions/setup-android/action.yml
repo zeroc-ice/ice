@@ -46,14 +46,16 @@ runs:
     - name: Configure Android SDK
       shell: bash
       run: |
-        # Android SDK versions changed format in 2024 from a single number to a pair: 'android-36' vs 'android-37.0'.
-        # Ubuntu-24.04 ships with android 'cmdline-tools' 12.0, which is too old to understand the new format and fails
-        # to parse it as an integer. This causes lots of problems. We workaround this by installing the latest tools
-        # first, which understands the new format. We can remove this workaround once the runners ship 'cmdline-tools'
-        # 20.0 or newer.
-        sdkmanager "cmdline-tools;latest"
-        # Print the version of sdkmanager to verify that the latest tools were installed and are being used.
+        # Android SDK changed its version format in 2024 from a single number to a pair: 'android-36' vs 'android-37.0'.
+        # Ubuntu-24.04 runners ship android 'cmdline-tools' 12.0, which doesn't understand the new versioning and fails
+        # to parse it as an integer. Workaround: install a toolset new enough (22.0) to understand the new versioning.
+        # Note: We can remove this workaround once the runners ship 'cmdline-tools' 20.0 or newer; 20.0 is the earliest
+        # version which understands the new versions, and 22.0 is what the original issue asks to ship.
+        # See: https://github.com/actions/runner-images/issues/14484
+        echo "$ANDROID_HOME/cmdline-tools/22.0/bin" >> $GITHUB_PATH
+        sdkmanager "cmdline-tools;22.0"
         sdkmanager --version
+        test -x "$ANDROID_HOME/cmdline-tools/22.0/bin/avdmanager"
         # platform-tools, build-tools, and platforms are pre-installed on GitHub runners.
         # We only need to install the emulator itself and a system image for it to boot into.
         # Note: some runners will already have an emulator installed, but it may not be the version we want.
