@@ -253,7 +253,7 @@ IcePHP::endpointInit(void)
     ipEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
     // Forbid serialization of the class.
     // An instance created by anything other than our factory would have a null native pointer.
-    denySerialization(ipEndpointInfoClassEntry)
+    denySerialization(ipEndpointInfoClassEntry);
     zend_declare_property_string(ipEndpointInfoClassEntry, "host", sizeof("host") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(ipEndpointInfoClassEntry, "port", sizeof("port") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_string(
@@ -269,7 +269,7 @@ IcePHP::endpointInit(void)
     tcpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry);
     // Forbid serialization of the class.
     // An instance created by anything other than our factory would have a null native pointer.
-    denySerialization(tcpEndpointInfoClassEntry)
+    denySerialization(tcpEndpointInfoClassEntry);
 
     // Define the UDPEndpointInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPEndpointInfo", nullptr);

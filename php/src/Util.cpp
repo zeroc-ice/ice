@@ -639,7 +639,8 @@ IcePHP::denySerialization(zend_class_entry* ce)
 #endif
 }
 
-void makeFinal(zend_class_entry* ce)
+void
+IcePHP::makeFinal(zend_class_entry* ce)
 {
     ce->ce_flags |= ZEND_ACC_FINAL;
 }
