@@ -1,0 +1,30 @@
+[
+  {
+    "dependency": "libexpat",
+    "project": "packaging/windows/third-party/libexpat/expat.proj",
+    "package": "ZeroC.Expat",
+    "toolset": "v143",
+    "sign_filter": "dll"
+  },
+  {
+    "dependency": "bzip2",
+    "project": "packaging/windows/third-party/bzip2/bzip2.proj",
+    "package": "ZeroC.Bzip2",
+    "toolset": "v143",
+    "sign_filter": "dll"
+  },
+  {
+    "dependency": "lmdb",
+    "project": "packaging/windows/third-party/lmdb/lmdb.proj",
+    "package": "ZeroC.LMDB",
+    "toolset": "v143",
+    "sign_filter": ""
+  },
+  {
+    "dependency": "lmdb",
+    "project": "packaging/windows/third-party/lmdb/lmdb-tools.proj",
+    "package": "ZeroC.LMDB.Tools",
+    "toolset": "mingw64",
+    "sign_filter": "exe"
+  }
+]

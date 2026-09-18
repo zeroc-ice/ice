@@ -1,0 +1,158 @@
+name: "Publish Third-Party Windows Packages"
+
+# Publishes the packages built by a run of build-third-party-windows-packages.yml.
+#
+# `testing` is the ZeroC-hosted feed where a new upstream release is validated against an Ice build before it is
+# published to nuget.org. The packages are not tied to an Ice release channel, so there is a single testing feed.
+#
+# `package` selects what to publish out of a build run, matching the same input on
+# build-third-party-windows-packages.yml, so a run that built every package can publish just the one whose version
+# changed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "The package to publish"
+        required: false
+        type: choice
+        default: "all"
+        options:
+          - all
+          - ZeroC.Bzip2
+          - ZeroC.Expat
+          - ZeroC.LMDB
+          - ZeroC.LMDB.Tools
+      destination:
+        description: "Where to publish"
+        required: true
+        type: choice
+        default: "testing"
+        options:
+          - testing
+          - nuget.org
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+
+permissions:
+  contents: read
+  # gh run download and gh api read another run's artifacts and metadata.
+  actions: read
+
+env:
+  # The ZeroC-hosted repository for third-party packages under evaluation.
+  TESTING_SOURCE_URL: "https://download.zeroc.com/nexus/repository/nuget-thirdparty/"
+
+  # Matched against the run's `path` rather than its display name, so renaming the workflow cannot quietly widen
+  # what is publishable.
+  BUILD_WORKFLOW_PATH: ".github/workflows/build-third-party-windows-packages.yml"
+
+jobs:
+  # A separate job so an unusable run id is rejected before the publish job asks anyone to approve it, and before
+  # any credential is in scope.
+  validate:
+    name: "Validate run ${{ inputs.run_id }}"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check the run may be published
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ inputs.run_id }}
+          DESTINATION: ${{ inputs.destination }}
+        run: |
+          # A published version can never be replaced, so the run this publishes has to be one that is allowed to
+          # produce a release. Without this any run id is accepted, including a pull request's: CI builds and
+          # packs whatever a proposed change contains.
+          run=$(gh api "repos/$REPO/actions/runs/$RUN_ID")
+          path=$(echo "$run" | jq -r '.path')
+          event=$(echo "$run" | jq -r '.event')
+          branch=$(echo "$run" | jq -r '.head_branch')
+          conclusion=$(echo "$run" | jq -r '.conclusion')
+
+          echo "Run $RUN_ID"
+          echo "  workflow:   $path"
+          echo "  event:      $event"
+          echo "  branch:     $branch"
+          echo "  conclusion: $conclusion"
+          echo
+
+          if [ "$path" != "$BUILD_WORKFLOW_PATH" ]; then
+            echo "::error::Run $RUN_ID is a run of '$path'. Only '$BUILD_WORKFLOW_PATH' produces packages that may be published; CI packs the same packages but uploads nothing."
+            exit 1
+          fi
+
+          # A pull request from a fork runs the workflow file of the fork and names its own head branch, so only a
+          # manual run, which needs write access, is trusted.
+          if [ "$event" != "workflow_dispatch" ]; then
+            echo "::error::Run $RUN_ID was triggered by '$event'. Only a manually dispatched build may be published."
+            exit 1
+          fi
+
+          # A branch build can go to testing, to try a package before its update reaches main.
+          if [ "$DESTINATION" = "nuget.org" ] && [ "$branch" != "main" ]; then
+            echo "::error::Run $RUN_ID built '$branch'. Packages are published to nuget.org from main only."
+            exit 1
+          fi
+
+          if [ "$conclusion" != "success" ]; then
+            echo "::error::Run $RUN_ID concluded '$conclusion'. Only a successful build may be published."
+            exit 1
+          fi
+
+          echo "Run $RUN_ID may be published to $DESTINATION."
+
+  # Pushes with the nuget.exe the Windows runner image provides.
+  publish:
+    name: "Publish to ${{ inputs.destination }}"
+    needs: validate
+    runs-on: windows-2022
+    # One environment per destination, named after the input value, so nuget.org can require a reviewer. The API
+    # keys are organization secrets; an environment secret of the same name would shadow them.
+    environment: ${{ inputs.destination }}
+    steps:
+      - name: Download NuGet artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ inputs.run_id }}
+          PACKAGE: ${{ inputs.package }}
+        run: |
+          $pattern = if ($env:PACKAGE -eq "all") { "third-party-windows-package-*" } else { "third-party-windows-package-$env:PACKAGE" }
+          Write-Host "Downloading artifacts matching '$pattern' from run $env:RUN_ID"
+          gh run download $env:RUN_ID --repo $env:REPO --pattern $pattern --dir staging
+          if ($LASTEXITCODE -ne 0) { throw "gh run download failed with exit code $LASTEXITCODE" }
+
+      - name: Publish NuGet Packages
+        env:
+          DESTINATION: ${{ inputs.destination }}
+          PACKAGE: ${{ inputs.package }}
+          RUN_ID: ${{ inputs.run_id }}
+          NEXUS_NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
+          RELEASE_NUGET_API_KEY: ${{ secrets.RELEASE_NUGET_API_KEY }}
+        run: |
+          switch ($env:DESTINATION) {
+            "nuget.org" { $source = "https://api.nuget.org/v3/index.json"; $key = $env:RELEASE_NUGET_API_KEY }
+            "testing"   { $source = $env:TESTING_SOURCE_URL;               $key = $env:NEXUS_NUGET_API_KEY }
+            default {
+              Write-Host "::error::Unknown destination '$env:DESTINATION'. Expected 'testing' or 'nuget.org'."
+              exit 1
+            }
+          }
+
+          $packages = @(Get-ChildItem -Path staging -Filter "*.nupkg" -Recurse -File)
+
+          if ($packages.Count -eq 0) {
+            Write-Host "::error::No packages matching '$env:PACKAGE' were found in run $env:RUN_ID"
+            exit 1
+          }
+
+          # -NoSymbols: the testing repository advertises SymbolPackagePublish at the same URL as PackagePublish.
+          foreach ($package in $packages) {
+            Write-Host "Publishing $($package.Name) to $env:DESTINATION"
+            & nuget push $package.FullName -Source $source -ApiKey $key -NoSymbols -NonInteractive
+            if ($LASTEXITCODE -ne 0) {
+              throw "pushing $($package.Name) failed with exit code $LASTEXITCODE"
+            }
+          }

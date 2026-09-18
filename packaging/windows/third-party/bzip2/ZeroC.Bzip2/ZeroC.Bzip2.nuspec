@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>ZeroC.Bzip2</id>
+    <version>1.0.8</version>
+    <authors>Julian Seward, Tim Rogers</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">LICENSE.txt</license>
+    <readme>README.md</readme>
+    <projectUrl>https://sourceware.org/bzip2/</projectUrl>
+    <repository type="git" url="https://github.com/zeroc-ice/ice" />
+    <description>bzip2 is a high-quality, freely available data compressor.</description>
+    <tags>bzip2 native</tags>
+  </metadata>
+</package>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copies one (Platform, Configuration) slice of the CMake output into the NuGet staging directory.
+
+    Invoked once per slice by expat.proj. It is a separate project so the wildcards below are evaluated after the
+    binaries exist, with Platform and CMakeConfig each holding a single value.
+-->
+<Project DefaultTargets="CopyBinaries" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <BuildDir>$(OutRoot)\$(DefaultPlatformToolset)-$(Platform)\$(CMakeConfig)</BuildDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ExpatDll Include="$(BuildDir)\libexpat*.dll" />
+        <ExpatLib Include="$(BuildDir)\libexpat*.lib" />
+        <!-- vc*.pdb is the compiler's shared PDB, not the library's. -->
+        <ExpatPdb Include="$(BuildDir)\libexpat*.pdb" Exclude="$(BuildDir)\vc*.pdb" />
+    </ItemGroup>
+
+    <Target Name="CopyBinaries">
+        <Error Condition="'@(ExpatDll)' == ''"
+               Text="No libexpat DLL found in $(BuildDir). Build the $(Platform) $(CMakeConfig) configuration first." />
+
+        <Copy SourceFiles="@(ExpatDll);@(ExpatPdb)"
+              DestinationFolder="$(PackageStagingDir)\build\native\bin\$(Platform)\$(Configuration)" />
+        <Copy SourceFiles="@(ExpatLib)"
+              DestinationFolder="$(PackageStagingDir)\build\native\lib\$(Platform)\$(Configuration)" />
+    </Target>
+
+</Project>

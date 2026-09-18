@@ -1,0 +1,23 @@
+{
+  "bzip2": {
+    "version": "1.0.8",
+    "url": "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz",
+    "sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
+    "root": "bzip2-1.0.8",
+    "patches": ["patches/bzip2/0001-use-declspec-for-the-windows-dll-linkage.patch"]
+  },
+  "libexpat": {
+    "version": "2.8.4",
+    "url": "https://github.com/libexpat/libexpat/archive/refs/tags/R_2_8_4.tar.gz",
+    "sha256": "a8a9c5cbba9110000b13cc9943f50fcd7e552a5cbad49cb191142c500a0a11b7",
+    "root": "libexpat-R_2_8_4",
+    "patches": []
+  },
+  "lmdb": {
+    "version": "0.9.36",
+    "url": "https://github.com/LMDB/lmdb/archive/refs/tags/LMDB_0.9.36.tar.gz",
+    "sha256": "7d55c3cbc1ef55f9b0076d3ddb16d0d9996d05b9caa7ca889ce10430ac677b90",
+    "root": "lmdb-LMDB_0.9.36",
+    "patches": []
+  }
+}

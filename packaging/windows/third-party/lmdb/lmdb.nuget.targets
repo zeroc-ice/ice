@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copies one (Platform, Configuration) slice of the build output into the NuGet staging directory.
+
+    Invoked once per slice by lmdb.proj, so the wildcards below are evaluated after the binaries exist with
+    Platform and Configuration each holding a single value.
+-->
+<Project DefaultTargets="CopyBinaries" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <BuildDir>$(OutRoot)\$(DefaultPlatformToolset)-$(Platform)\$(Configuration)</BuildDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <LmdbLib Include="$(BuildDir)\lmdb*.lib" />
+        <LmdbPdb Include="$(BuildDir)\lmdb*.pdb" />
+    </ItemGroup>
+
+    <Target Name="CopyBinaries">
+        <Error Condition="'@(LmdbLib)' == ''"
+               Text="No LMDB library found in $(BuildDir). Build the $(Platform) $(Configuration) configuration first." />
+
+        <!-- LMDB is static: there is no bin directory, consumers link the library directly. -->
+        <Copy SourceFiles="@(LmdbLib);@(LmdbPdb)"
+              DestinationFolder="$(PackageStagingDir)\build\native\lib\$(Platform)\$(Configuration)" />
+    </Target>
+
+</Project>
