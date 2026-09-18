@@ -3169,10 +3169,12 @@ class AndroidProcessController(RemoteProcessController):
 
     def killEmulator(self) -> None:
         # Stop the emulator this controller started, falling back to killing the process when the
-        # console command does not end it. Bounded: the caller is already on a failure path.
+        # console command does not end it. Bounded, so a stuck emulator does not hang the whole run.
         if self.emulator is None:
             return
         self._adbTolerant("emu kill")
+        sys.stdout.write("Waiting for the emulator to shutdown... ")
+        sys.stdout.flush()
         try:
             self.emulator.wait(timeout=30)
         except subprocess.TimeoutExpired:
@@ -3181,6 +3183,7 @@ class AndroidProcessController(RemoteProcessController):
                 self.emulator.wait(timeout=10)
             except subprocess.TimeoutExpired:
                 pass
+        print("ok" if self.emulator.poll() is not None else "failed")
 
     # Flags shared by every emulator the harness launches.
     emulatorFlags = ["-no-audio", "-no-snapshot", "-accel", "on", "-no-boot-anim", "-no-window"]
@@ -3240,9 +3243,6 @@ class AndroidProcessController(RemoteProcessController):
 
         self.emulator = subprocess.Popen(["emulator", "-avd", avd, "-port", str(port), *self.emulatorFlags])
 
-        if self.emulator.poll():
-            raise RuntimeError("failed to start the Android emulator `{}' on port {}".format(avd, port))
-
         self.avd = avd
 
         # Wait for the device to be ready
@@ -3258,11 +3258,11 @@ class AndroidProcessController(RemoteProcessController):
     def startControllerApp(self, current: Driver.Current, ident: Any) -> None:
         mapping = current.getTestCase().getMapping()
         assert isinstance(mapping, JavaMapping)
+        if AndroidProcessController.bootFailed:
+            raise RuntimeError("not retrying: the emulator failed to boot earlier in this run")
         if current.config.avd:
             self.startEmulator(current.config.avd)
         elif not current.config.device:
-            if AndroidProcessController.bootFailed:
-                raise RuntimeError("not retrying: the emulator failed to boot earlier in this run")
             # Create Android Virtual Device
             sdk = mapping.getSDKPackage()
             print("creating AVD ({0})".format(sdk))
@@ -3361,20 +3361,6 @@ class AndroidProcessController(RemoteProcessController):
                     run("avdmanager -v delete avd -n IceTests")  # Delete the device we created
                 except Exception:
                     pass
-
-        #
-        # Wait for the emulator to shutdown
-        #
-        if self.emulator:
-            sys.stdout.write("Waiting for the emulator to shutdown..")
-            sys.stdout.flush()
-            while True:
-                if self.emulator.poll() is not None:
-                    print(" ok")
-                    break
-                sys.stdout.write(".")
-                sys.stdout.flush()
-                time.sleep(0.5)
 
         # Only reset the adb server if we started (and just killed) our own emulator. When running
         # against an externally-managed device/emulator serial -- especially with a second emulator
@@ -4323,7 +4309,7 @@ class JavaMapping(Mapping):
         # harness runs the suite on more than one Android release.
         sdkPlatform = os.environ.get("ANDROID_PLATFORM", "android-36")
         return "system-images;{};google_apis;{}".format(
-            sdkPlatform, "arm64-v8a" if platform_machine() == "arm64" else "x86_64"
+            sdkPlatform, "arm64-v8a" if platform_machine() in ("arm64", "aarch64") else "x86_64"
         )
 
     def getApk(self, current: Driver.Current) -> str:
