@@ -115,6 +115,31 @@ jobs:
           gh run download $env:RUN_ID --repo $env:REPO --pattern $pattern --dir staging
           if ($LASTEXITCODE -ne 0) { throw "gh run download failed with exit code $LASTEXITCODE" }
 
+      # A version published to nuget.org can never be replaced, so an unsigned binary is caught here rather than
+      # after the fact. The .nupkg files are what gets pushed, so their contents are checked rather than the build
+      # tree.
+      - name: Verify the binaries are signed
+        if: ${{ inputs.destination == 'nuget.org' }}
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $unsigned = @()
+          $checked = 0
+          foreach ($package in Get-ChildItem -Path staging -Filter "*.nupkg" -Recurse -File) {
+            $extracted = Join-Path $env:RUNNER_TEMP "verify\$($package.BaseName)"
+            [IO.Compression.ZipFile]::ExtractToDirectory($package.FullName, $extracted)
+            foreach ($binary in Get-ChildItem -Path $extracted -Include "*.dll", "*.exe" -Recurse -File) {
+              $status = (Get-AuthenticodeSignature -LiteralPath $binary.FullName).Status
+              $relative = $binary.FullName.Substring($extracted.Length + 1)
+              Write-Host ("  {0,-12} {1}: {2}" -f $status, $package.Name, $relative)
+              $checked++
+              if ($status -ne "Valid") { $unsigned += "$($package.Name): $relative" }
+            }
+          }
+          if ($unsigned.Count -gt 0) {
+            throw "$($unsigned.Count) of $checked binaries are not signed with a valid Authenticode signature."
+          }
+          Write-Host "All $checked binaries are signed."
+
       - name: Publish NuGet Packages
         env:
           DESTINATION: ${{ inputs.destination }}
