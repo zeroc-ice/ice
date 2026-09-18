@@ -146,7 +146,7 @@ jobs:
               --android --controller-app --protocol=bts --cross=java --server=server --device=$BT_CLIENT
               Ice/operations Ice/ami
 
-          # The same Bluetooth run on Android 17. The flags are copied from android-bt above.
+          # The same Bluetooth run as above, but on Android 17.
           - os: ubuntu-24.04
             config: "android-17-bt"
             android_platform: "android-37.0"
