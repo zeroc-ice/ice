@@ -75,9 +75,7 @@ class ControllerDriver(Driver):
                 "clean",
                 "id=",
                 "endpoints=",
-                "uuid=",
                 "bt-setup=",
-                "bt-bond=",
                 "bt-diagnostics",
                 "bt-prepare",
                 "bt-emulators",
@@ -100,12 +98,10 @@ class ControllerDriver(Driver):
         print("--bt-prepare          Prepare both emulators and bond them; prints the server address.")
         print("--bt-setup=<apk>      Prepare --device only (boot-wait, install the btbond privileged")
         print("                      helper, enable Bluetooth, grant permissions).")
-        print("--bt-bond=<serial>    Bond --device to the given peer emulator over RFCOMM.")
         print("--bt-diagnostics      Dump adb state (controller pid, forwards, logcat) for --device.")
         print("--bt-client=<serial>  Emulator running the IceBT client (e.g. emulator-5554).")
         print("--bt-server=<serial>  Emulator running the IceBT server (e.g. emulator-5556).")
         print("--bt-image=<sdk>      System image used to create the AVDs for --bt-emulators.")
-        print("--uuid=<uuid>         RFCOMM service UUID used when bonding.")
 
     def __init__(self, options: list[Option], *args: Any, **kargs: Any):
         Driver.__init__(self, options, *args, **kargs)
@@ -113,8 +109,6 @@ class ControllerDriver(Driver):
         self.endpoints = ""
         self.clean = False
         self.btSetup = ""  # path to the btbond APK; when set, run Bluetooth device setup and exit
-        self.btBond = ""  # peer emulator serial; when set, bond --device to it and exit
-        self.uuid = ""  # RFCOMM service UUID used by the btbond bond
         self.btDiagnostics = False  # when set, dump adb diagnostics for --device and exit
         self.btPrepare = False  # when set, prepare + bond --bt-client/--bt-server and exit
         self.btEmulators = False  # when set, create + boot the two emulators and exit
@@ -130,7 +124,6 @@ class ControllerDriver(Driver):
             {
                 "clean": "clean",
                 "bt-setup": "btSetup",
-                "bt-bond": "btBond",
                 "bt-diagnostics": "btDiagnostics",
                 "bt-prepare": "btPrepare",
                 "bt-emulators": "btEmulators",
@@ -148,7 +141,7 @@ class ControllerDriver(Driver):
             return self.runBluetoothEmulators()
         if self.btPrepare:
             return self.runBluetoothPrepare()
-        if self.btSetup or self.btBond or self.btDiagnostics:
+        if self.btSetup or self.btDiagnostics:
             return self.runBluetoothDevice()
 
         if isinstance(platform, Darwin):
@@ -321,8 +314,8 @@ class ControllerDriver(Driver):
         # callers can capture it directly.
         from Util import AndroidProcessController
 
-        if not (self.btClient and self.btServer and self.btSetup and self.uuid):
-            raise RuntimeError("--bt-prepare requires --bt-client, --bt-server, --bt-setup=<apk> and --uuid")
+        if not (self.btClient and self.btServer and self.btSetup):
+            raise RuntimeError("--bt-prepare requires --bt-client, --bt-server, and --bt-setup=<apk>")
 
         # Re-invoke this script per device so each emulator's setup keeps a separate log.
         running: dict[str, tuple[subprocess.Popen[bytes], IO[bytes]]] = {}
@@ -358,7 +351,7 @@ class ControllerDriver(Driver):
         # bond() has already read the server's address and returns it, so use that rather than
         # asking the device a third time -- this print is the harness's only stdout, and re-querying
         # here has failed a run that had otherwise finished its work.
-        btAddress = AndroidProcessController.forDevice(self.btClient).bond(self.btServer, self.uuid)
+        btAddress = AndroidProcessController.forDevice(self.btClient).bond(self.btServer, "com.zeroc.btbond")
         print(f"bonded {self.btClient} to {self.btServer}", file=sys.stderr)
         print(btAddress)
         return 0
@@ -372,7 +365,7 @@ class ControllerDriver(Driver):
 
         device = next((c.device for c in self.configs.values() if c.device), "")
         if not device:
-            raise RuntimeError("--bt-setup/--bt-bond/--bt-diagnostics require --device=<emulator serial>")
+            raise RuntimeError("--bt-setup/--bt-diagnostics require --device=<emulator serial>")
 
         controller = AndroidProcessController.forDevice(device)
 
@@ -384,12 +377,6 @@ class ControllerDriver(Driver):
             controller.enableBluetooth()
             controller.grantRuntimePermissions("com.zeroc.btbond", ["android.permission.BLUETOOTH_CONNECT"])
             print(f"BT_ADDRESS={controller.bluetoothAddress()}")
-
-        if self.btBond:
-            if not self.uuid:
-                raise RuntimeError("--bt-bond requires --uuid=<uuid>")
-            controller.bond(self.btBond, self.uuid)
-            print(f"bonded {device} to {self.btBond}")
 
         if self.btDiagnostics:
             controller.diagnostics()

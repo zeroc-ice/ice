@@ -1,5 +1,12 @@
 name: Setup Android
-description: Setup Android SDK and Emulator
+description: Setup Android SDK and Emulator (Linux only)
+
+inputs:
+  platform:
+    description: >
+      Android SDK platform whose system image the emulators boot, in sdkmanager's naming.
+      For example: `android-36` for Android 16, and `android-37.0` for Android 17.
+    default: "android-36"
 
 runs:
   using: "composite"
@@ -14,21 +21,40 @@ runs:
 
     - name: Android SDK and PATH
       shell: bash
+      env:
+        PLATFORM: ${{ inputs.platform }}
       run: |
         echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
         echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-        # For some reason avdmanager is placing the avd into $HOME/.config/.android/avd instead of $HOME/.android/avd
-        echo "ANDROID_AVD_HOME=$HOME/.config/.android" >> $GITHUB_ENV
+        echo "ANDROID_PLATFORM=$PLATFORM" >> $GITHUB_ENV
+        # Workaround for avd using a nonstandard directory. See 'https://github.com/actions/runner-images/issues/11482'.
+        echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
+        # Workaround for JDK-8349988 which causes intermittent NPE in the JDK's Linux cgroup detection. This surfaces as
+        # AGP's lint-worker dying at startup. Should be dropped once CI uses JDK 17.0.20 and 21.0.10. Our runners are
+        # VMs, not resource limited containers, so this detection buys nothing anyways.
+        # We disable it for all JVMs in this job via JAVA_TOOL_OPTIONS which they read at startup.
+        echo "JAVA_TOOL_OPTIONS=-XX:-UseContainerSupport" >> "$GITHUB_ENV"
 
     - name: Configure Android SDK
       shell: bash
       run: |
-        # platform-tools, build-tools, and platforms are pre-installed on GitHub runners
-        # We only need to install the system image for the emulator
+        # Android SDK changed its version format from a single number to 'major.minor': 'android-36' vs 'android-37.0'.
+        # Ubuntu-24.04 runners ship android 'cmdline-tools' 12.0, which doesn't understand the new versioning and fails
+        # to parse it as an integer. Workaround: install a toolset new enough (22.0) to understand the new versioning.
+        # Note: We can remove this workaround once the runners ship 'cmdline-tools' 20.0 or newer; 20.0 is the earliest
+        # version which understands the new versions, and 22.0 is what the original issue asks to ship.
+        # See: https://github.com/actions/runner-images/issues/14484
+        # When trying that removal, check the AVD ini: it must say target=android-37.0. With tools that
+        # are too old it says target=android-0, and the emulator then crash-loops in SurfaceFlinger.
+        echo "$ANDROID_HOME/cmdline-tools/22.0/bin" >> $GITHUB_PATH
+        sdkmanager "cmdline-tools;22.0"
+        test -x "$ANDROID_HOME/cmdline-tools/22.0/bin/avdmanager"
+        # platform-tools, build-tools, and platforms are pre-installed on GitHub runners.
+        # We only need to install the system image; sdkmanager installs the emulator a given image depends on.
         if [ "$(uname -m)" = "aarch64" ]; then
           ARCH="arm64-v8a"
         else
           ARCH="x86_64"
         fi
-        sdkmanager "system-images;android-36;google_apis;$ARCH"
+        sdkmanager "system-images;$ANDROID_PLATFORM;google_apis;$ARCH"
