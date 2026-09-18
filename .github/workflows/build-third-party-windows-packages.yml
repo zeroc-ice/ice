@@ -1,7 +1,7 @@
 name: "Build Third-Party Windows Packages"
 
 # Builds, signs and uploads the packages that publish-third-party-windows-packages.yml publishes. Dispatched by
-# hand; the pull request workflow builds and packs the same packages but uploads nothing.
+# hand.
 #
 # The packages are built from one job definition driven by packaging/windows/third-party/packages.json. They differ
 # only in which project is built and how the result is signed. Dependencies move at their own pace, so `package`
