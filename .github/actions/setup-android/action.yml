@@ -6,18 +6,12 @@ inputs:
     description: >
       Android SDK platform whose system image the emulators boot, in sdkmanager's naming.
       For example: `android-36` for Android 16, and `android-37.0` for Android 17.
+      Can only run on Linux platforms, since it requires Linux-only JVM flags and enables KVM through udev.
     default: "android-36"
 
 runs:
   using: "composite"
   steps:
-    - name: Require Linux
-      if: runner.os != 'Linux'
-      shell: bash
-      run: |
-        echo "::error::setup-android is Linux-only: it enables KVM through udev and sets a Linux-only JVM flag"
-        exit 1
-
     # See https://github.com/marketplace/actions/android-emulator-runner
     - name: Enable KVM group perms
       shell: bash
