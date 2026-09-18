@@ -60,6 +60,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           RUN_ID: ${{ inputs.run_id }}
+          DESTINATION: ${{ inputs.destination }}
         run: |
           # A published version can never be replaced, so the run this publishes has to be one that is allowed to
           # produce a release. Without this any run id is accepted, including a pull request's: CI builds and
@@ -80,8 +81,9 @@ jobs:
             exit 1
           fi
 
-          if [ "$branch" != "main" ]; then
-            echo "::error::Run $RUN_ID built '$branch'. Packages are published from main only."
+          # A branch build can go to testing, to try a package before its update reaches main.
+          if [ "$DESTINATION" = "nuget.org" ] && [ "$branch" != "main" ]; then
+            echo "::error::Run $RUN_ID built '$branch'. Packages are published to nuget.org from main only."
             exit 1
           fi
 
@@ -90,7 +92,7 @@ jobs:
             exit 1
           fi
 
-          echo "Run $RUN_ID is a successful build of main and may be published."
+          echo "Run $RUN_ID may be published to $DESTINATION."
 
   # Pushes with the nuget.exe the Windows runner image provides.
   publish:

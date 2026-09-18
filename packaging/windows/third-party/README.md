@@ -30,10 +30,12 @@ under `downloads/` and `sources/`.
 
 ## Publish a release
 
-Build the package on main with the manually dispatched **Build Third-Party Windows Packages** workflow. It builds,
-signs where applicable, packs and uploads the NuGet artifact. Dispatch **Publish Third-Party Windows Packages** with
-that build's run ID and destination testing. Validate the package by building Ice against it from the testing feed,
-then publish the validated artifact to nuget.org. Packages are versioned and released independently of Ice itself.
+Build the package with the manually dispatched **Build Third-Party Windows Packages** workflow. It builds, signs
+where applicable, packs and uploads the NuGet artifact. Dispatch **Publish Third-Party Windows Packages** with that
+build's run ID and destination testing. Validate the package by building Ice against it from the testing feed, then
+publish the validated artifact to nuget.org. A build of any branch can be published to testing, so a package update
+can be tried before it reaches main; nuget.org takes builds of main only. Packages are versioned and released
+independently of Ice itself.
 
 To add another package, add an entry to [packages.json](packages.json), add its name to the package choice list of
 both dispatch workflows, and provide build and pack projects. Update [sources.json](sources.json) with the upstream
