@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
     private volatile BluetoothServerSocket serverSocket;
     private volatile BluetoothSocket socket;
 
-    // Process-wide -- the instances that race share one process (see onCreate). Set on the main
+    // Process-wide: the instances that race share one process (see onCreate). Set on the main
     // thread, cleared by the worker's finally, so volatile.
     private static volatile Thread activeWorker;
 
@@ -66,10 +66,14 @@ public class MainActivity extends Activity {
     // finished -- activeWorker is null by then, but the run already has its verdict.
     private static volatile boolean workerStarted;
 
+    // Process-wide instead of activity-wide to avoid losing a pairing request while the system
+    // is relaunching this activity. Registered once on the application context and never unregistered.
+    private static boolean pairingReceiverRegistered; // main thread only
+
     // Best-effort auto-accept of incoming pairing requests. The app runs as a privileged system app
     // (BLUETOOTH_PRIVILEGED), so setPairingConfirmation should succeed; setPin is a fallback that logs
     // any SecurityException.
-    private final BroadcastReceiver pairingReceiver = new BroadcastReceiver() {
+    private static final BroadcastReceiver pairingReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context ctx, Intent intent) {
             BluetoothDevice dev = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice.class);
@@ -102,10 +106,11 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-        // Before the guard below: a relaunch destroys the old instance (and its receiver) first,
-        // so returning earlier would leave the surviving worker with no pairing receiver.
-        IntentFilter pairing = new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST);
-        registerReceiver(pairingReceiver, pairing, Context.RECEIVER_EXPORTED);
+        if (!pairingReceiverRegistered) {
+            IntentFilter pairing = new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST);
+            getApplicationContext().registerReceiver(pairingReceiver, pairing, Context.RECEIVER_EXPORTED);
+            pairingReceiverRegistered = true;
+        }
         Intent it = getIntent();
         final String mode = it.getStringExtra("mode");
         final String peer = it.getStringExtra("peer");
@@ -117,7 +122,7 @@ public class MainActivity extends Activity {
         // b is non-null when the instance is being recreated, not on a fresh `am start`. The
         // worker -- live or already finished -- owns this run's verdict; a FAIL here would become
         // the last RESULT line and condemn a healthy run. Stay resident so the process keeps an
-        // activity and this receiver.
+        // activity: without one the process freezes, taking the worker and pairing receiver with it.
         if (b != null && workerStarted) {
             Log.i(TAG, "relaunch after this process started a worker; it owns this run's verdict");
             finishWhenWorkerEnds();
@@ -203,11 +208,6 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        try {
-            unregisterReceiver(pairingReceiver);
-        } catch (IllegalArgumentException ignored) {
-            // Receiver was not registered; nothing to do.
-        }
         // Deliberately does NOT close the sockets. Closing them here looks like the right cleanup --
         // it does leak a listener and its SDP record until accept() times out -- but the system
         // recreates this activity during a normal run, and closing the socket out from under a

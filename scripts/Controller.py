@@ -351,7 +351,7 @@ class ControllerDriver(Driver):
         # bond() has already read the server's address and returns it, so use that rather than
         # asking the device a third time -- this print is the harness's only stdout, and re-querying
         # here has failed a run that had otherwise finished its work.
-        btAddress = AndroidProcessController.forDevice(self.btClient).bond(self.btServer)
+        btAddress = AndroidProcessController.forDevice(self.btClient).bond(self.btServer, "com.zeroc.btbond")
         print(f"bonded {self.btClient} to {self.btServer}", file=sys.stderr)
         print(btAddress)
         return 0

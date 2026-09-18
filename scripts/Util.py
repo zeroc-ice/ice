@@ -2858,17 +2858,30 @@ class AndroidProcessController(RemoteProcessController):
         return self._adbTolerantFor(self.adb(), args)
 
     @staticmethod
-    def _adbTolerantFor(adb: str, args: str) -> str:
+    def _adbTolerantFor(adb: str, args: str, timeout: float = 60) -> str:
         # As _adbTolerant, but for an explicitly given adb command (e.g. the bond peer's).
+        # Bounded to 60s: these are short commands and one that hangs is just a failure to tolerate.
+        cmd = f"{adb} {args}"
         try:
-            return run(f"{adb} {args}")
-        except RuntimeError as ex:
-            # These prints are the only record of swallowed failures in setup_{client,server}.log,
-            # so keep adb's own output: run() puts the command on the first line and the reason
-            # after it, and printing only the first line would drop the reason entirely.
-            # stderr, not stdout: --bt-prepare's stdout carries only the server's Bluetooth address.
-            print(f"  (ignored) {ex}", file=sys.stderr)
-            return ""
+            p = subprocess.run(
+                cmd,
+                shell=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                timeout=timeout,
+            )
+            out = p.stdout.decode("UTF-8", errors="replace").strip() if p.stdout else ""
+            if p.returncode == 0:
+                return out
+            reason = cmd + " failed:\n" + out
+        except subprocess.TimeoutExpired:
+            reason = f"{cmd} timed out after {timeout}s"
+        # These prints are the only record of swallowed failures in setup_{client,server}.log,
+        # so keep adb's own output. stderr, not stdout: --bt-prepare's stdout carries only the
+        # server's Bluetooth address.
+        print(f"  (ignored) {reason}", file=sys.stderr)
+        return ""
 
     def waitForBoot(self, timeout: float = 300) -> None:
         # Wait for the device to reconnect to adb and finish booting.
@@ -3014,7 +3027,7 @@ class AndroidProcessController(RemoteProcessController):
     # the same one; it is unrelated to the UUIDs in the tests' bt endpoints.
     bondServiceUuid = "8ce255c0-200a-11e0-ac64-0800200c9a66"
 
-    def bond(self, peerDevice: str, package: str = "com.zeroc.btbond") -> str:
+    def bond(self, peerDevice: str, package: str) -> str:
         # Bond this (client) emulator to `peerDevice` (server) over secure RFCOMM using the btbond
         # helper installed on both by installSystemApp: start its server mode on the peer, then
         # connect + pair from this device. Bonding is what secure RFCOMM (and hence IceBT) requires.
@@ -3136,7 +3149,8 @@ class AndroidProcessController(RemoteProcessController):
         print("-- controller app logcat --")
         # Collect the actual log entries and write them to a file for the test-logs artifact.
         log = self._adbTolerant("logcat -d")
-        with open(f"logcat-{self.device}.log", "w", encoding="utf-8") as f:
+        name = re.sub(r"[^A-Za-z0-9._-]", "_", self.device or "device")
+        with open(f"logcat-{name}.log", "w", encoding="utf-8") as f:
             f.write(log)
         # Log filtering: We only keep lines with the following strings in them, and drop the rest.
         # We match 'BTBOND' and not just 'com.zeroc' because btbond's own lines ("listening", "connecting", "watchdog:")
@@ -3242,7 +3256,6 @@ class AndroidProcessController(RemoteProcessController):
         print("starting the AVD `{}' on port {}".format(avd, port))
 
         self.emulator = subprocess.Popen(["emulator", "-avd", avd, "-port", str(port), *self.emulatorFlags])
-
         self.avd = avd
 
         # Wait for the device to be ready
