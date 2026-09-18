@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <DownloadSourceScript>$(MSBuildThisFileDirectory)download-source.ps1</DownloadSourceScript>
+        <PowerShellExe Condition="'$(PowerShellExe)' == ''">powershell</PowerShellExe>
+    </PropertyGroup>
+
+    <Target Name="DownloadSource">
+        <Exec Command="&quot;$(PowerShellExe)&quot; -NoProfile -ExecutionPolicy Bypass -File &quot;$(DownloadSourceScript)&quot; -Dependency &quot;$(Dependency)&quot;" />
+        <CallTarget Targets="CheckSources" />
+    </Target>
+
+    <!--
+        NugetPack depends on CheckSources rather than on Build, so CI can sign the binaries between Build and
+        NugetPack. Packing uses the same sources and patched headers as Build.
+    -->
+    <Target Name="CheckSources">
+        <Error Condition="!Exists('$(ThirdPartyRoot)sources\$(Dependency)\.source-stamp')"
+               Text="The $(Dependency) sources are missing. Run the Build target first." />
+    </Target>
+</Project>
