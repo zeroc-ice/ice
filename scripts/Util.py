@@ -2860,7 +2860,7 @@ class AndroidProcessController(RemoteProcessController):
     @staticmethod
     def _adbTolerantFor(adb: str, args: str, timeout: float = 60) -> str:
         # As _adbTolerant, but for an explicitly given adb command (e.g. the bond peer's).
-        # Bounded to 60s: these are short commands and one that hangs is just a failure to tolerate.
+        # Time-bounded: these are short commands and one that hangs is just a failure to tolerate.
         cmd = f"{adb} {args}"
         try:
             p = subprocess.run(
