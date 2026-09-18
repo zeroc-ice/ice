@@ -1,0 +1,70 @@
+name: "Third-Party Windows"
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "packaging/windows/third-party/**"
+      - ".github/workflows/*third-party*windows*.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "packaging/windows/third-party/**"
+      - ".github/workflows/*third-party*windows*.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# Builds and packs every package on every change, and uploads nothing: only build-third-party-windows-packages.yml
+# produces publishable artifacts. Packing runs here so a broken nuspec or a missing file fails on the pull request
+# rather than on release day.
+#
+# Every package is built whichever one a change was aimed at, because the build projects share the packages.json
+# that drives them and the workflows themselves, so a change to either can break a package it did not touch.
+jobs:
+  select:
+    name: "Select packages"
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Read packaging/windows/third-party/packages.json
+        id: select
+        run: |
+          matrix=$(jq -c '.' packaging/windows/third-party/packages.json)
+          echo "matrix={\"include\":$matrix}" >> "$GITHUB_OUTPUT"
+          echo "Building:"
+          echo "$matrix" | jq -r '.[] | "  " + .package'
+
+  build:
+    name: "Build ${{ matrix.package }} (${{ matrix.toolset }})"
+    needs: select
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
+
+      # The matrix values go through the environment rather than into the command line: this workflow runs on pull
+      # requests, and the matrix is built from the packages.json of whatever branch is being tested.
+      - name: Build and pack ${{ matrix.package }}
+        env:
+          PROJECT: ${{ matrix.project }}
+          TOOLSET: ${{ matrix.toolset }}
+        run: >
+          msbuild $env:PROJECT /t:All
+          /p:DefaultPlatformToolset=$env:TOOLSET

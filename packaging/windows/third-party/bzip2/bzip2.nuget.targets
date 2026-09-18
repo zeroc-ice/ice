@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copies one (Platform, Configuration) slice of the build output into the NuGet staging directory.
+
+    Invoked once per slice by bzip2.proj, so the wildcards below are evaluated after the binaries exist with
+    Platform and Configuration each holding a single value.
+-->
+<Project DefaultTargets="CopyBinaries" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <BuildDir>$(OutRoot)\$(DefaultPlatformToolset)-$(Platform)\$(Configuration)</BuildDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Bzip2Dll Include="$(BuildDir)\bzip2*.dll" />
+        <Bzip2Lib Include="$(BuildDir)\libbz2*.lib" />
+        <!-- *-objs.pdb is the compiler's PDB; the package ships the linker's. -->
+        <Bzip2Pdb Include="$(BuildDir)\bzip2*.pdb" Exclude="$(BuildDir)\*-objs.pdb" />
+    </ItemGroup>
+
+    <Target Name="CopyBinaries">
+        <Error Condition="'@(Bzip2Dll)' == ''"
+               Text="No bzip2 DLL found in $(BuildDir). Build the $(Platform) $(Configuration) configuration first." />
+
+        <Copy SourceFiles="@(Bzip2Dll);@(Bzip2Pdb)"
+              DestinationFolder="$(PackageStagingDir)\build\native\bin\$(Platform)\$(Configuration)" />
+        <Copy SourceFiles="@(Bzip2Lib)"
+              DestinationFolder="$(PackageStagingDir)\build\native\lib\$(Platform)\$(Configuration)" />
+    </Target>
+
+</Project>

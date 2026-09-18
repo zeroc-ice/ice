@@ -1,0 +1,118 @@
+name: "Build Third-Party Windows Packages"
+
+# Builds, signs and uploads the packages that publish-third-party-windows-packages.yml publishes. Dispatched by
+# hand.
+#
+# The packages are built from one job definition driven by packaging/windows/third-party/packages.json. They differ
+# only in which project is built and how the result is signed. Dependencies move at their own pace, so `package`
+# selects one of them; the default builds all of them.
+#
+# sign_filter in packages.json is the file extension Authenticode signing covers; it is empty for ZeroC.LMDB, a
+# static library, and the signing step is skipped. Signing uses the same AZURE_* secrets as the other build-*
+# workflows. ZeroC.LMDB.Tools is built with MinGW-w64, so its toolset is not an MSVC platform toolset (see
+# packaging/windows/third-party/lmdb/lmdb-tools.proj).
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "The package to build"
+        required: false
+        type: choice
+        default: "all"
+        options:
+          - all
+          - ZeroC.Bzip2
+          - ZeroC.Expat
+          - ZeroC.LMDB
+          - ZeroC.LMDB.Tools
+
+permissions:
+  contents: read
+
+jobs:
+  select:
+    name: "Select packages"
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Select the packages to build
+        id: select
+        env:
+          PACKAGE: ${{ inputs.package || 'all' }}
+        run: |
+          if [ "$PACKAGE" = "all" ]; then
+            selected=$(jq -c '.' packaging/windows/third-party/packages.json)
+          else
+            selected=$(jq -c --arg p "$PACKAGE" '[.[] | select(.package == $p)]' packaging/windows/third-party/packages.json)
+          fi
+
+          if [ "$(echo "$selected" | jq 'length')" -eq 0 ]; then
+            echo "::error::No package named '$PACKAGE' in packaging/windows/third-party/packages.json"
+            exit 1
+          fi
+
+          echo "matrix={\"include\":$selected}" >> "$GITHUB_OUTPUT"
+          echo "Building:"
+          echo "$selected" | jq -r '.[] | "  " + .package'
+
+  build:
+    name: "Build ${{ matrix.package }} (${{ matrix.toolset }})"
+    needs: select
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
+
+      # The matrix values go through the environment, as in third-party-windows.yml, so the two stay alike.
+      - name: Build ${{ matrix.package }}
+        env:
+          PROJECT: ${{ matrix.project }}
+          TOOLSET: ${{ matrix.toolset }}
+        run: >
+          msbuild $env:PROJECT /t:Build
+          /p:DefaultPlatformToolset=$env:TOOLSET
+
+      - name: Sign ${{ matrix.package }} binaries with Trusted Signing
+        if: ${{ matrix.sign_filter != '' }}
+        uses: azure/trusted-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-folder: ${{ github.workspace }}\packaging\windows\third-party\out\${{ matrix.dependency }}
+          files-folder-filter: ${{ matrix.sign_filter }}
+          files-folder-recurse: true
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      # NugetPack does not rebuild, so the binaries signed above are the ones that end up in the package.
+      - name: Pack ${{ matrix.package }}
+        env:
+          PROJECT: ${{ matrix.project }}
+          TOOLSET: ${{ matrix.toolset }}
+        run: >
+          msbuild $env:PROJECT /t:NugetPack
+          /p:DefaultPlatformToolset=$env:TOOLSET
+
+      - name: Upload ${{ matrix.package }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: third-party-windows-package-${{ matrix.package }}
+          path: packaging/windows/third-party/out/${{ matrix.dependency }}/${{ matrix.package }}/*.nupkg
+          if-no-files-found: error

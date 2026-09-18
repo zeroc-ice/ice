@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>ZeroC.LMDB.Tools</id>
+    <version>0.9.36</version>
+    <authors>Howard Chu</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">LICENSE.txt</license>
+    <readme>README.md</readme>
+    <projectUrl>https://www.symas.com/mdb/</projectUrl>
+    <repository type="git" url="https://github.com/zeroc-ice/ice" />
+    <description>The LMDB command line tools mdb_copy, mdb_dump, mdb_load and mdb_stat, built for x64 with MinGW-w64 and linked statically.</description>
+    <tags>lmdb native mdb_copy mdb_dump mdb_load mdb_stat</tags>
+  </metadata>
+</package>
