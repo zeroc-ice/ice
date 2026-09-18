@@ -3263,25 +3263,16 @@ class AndroidProcessController(RemoteProcessController):
         elif not current.config.device:
             if AndroidProcessController.bootFailed:
                 raise RuntimeError("not retrying: the emulator failed to boot earlier in this run")
-            if self.emulator is not None and self.emulator.poll() is None:
-                # A restart after the controller app died: getController pings it before every test
-                # and comes back here when the ping fails. Keep the emulator that is already running:
-                # recreating the AVD would delete the disk images out from under qemu, and nothing
-                # about the app dying calls for a new device. Only make sure it still answers; the
-                # app is reinstalled below either way.
-                print("controller app restart: reusing the running emulator")
-                self.waitForBoot()
-            else:
-                # Create Android Virtual Device
-                sdk = mapping.getSDKPackage()
-                print("creating AVD ({0})".format(sdk))
-                try:
-                    run("avdmanager -v delete avd -n IceTests")  # Delete the created device
-                except Exception:
-                    pass
-                run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
-                self.createdAvd = True
-                self.startEmulator("IceTests")
+            # Create Android Virtual Device
+            sdk = mapping.getSDKPackage()
+            print("creating AVD ({0})".format(sdk))
+            try:
+                run("avdmanager -v delete avd -n IceTests")  # Delete the created device
+            except Exception:
+                pass
+            run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
+            self.createdAvd = True
+            self.startEmulator("IceTests")
         elif current.config.device != "usb" and not current.config.device.startswith("emulator-"):
             # Local emulator serials aren't network targets: `adb connect emulator-5554` just prints
             # "failed to resolve host" (and exits 0, so it was harmless -- only noisy).
@@ -3364,11 +3355,7 @@ class AndroidProcessController(RemoteProcessController):
             pass
 
         if self.avd:
-            try:
-                run("{} emu kill".format(self.adb()))
-            except Exception:
-                pass
-
+            self.killEmulator()
             if self.createdAvd:
                 try:
                     run("avdmanager -v delete avd -n IceTests")  # Delete the device we created
