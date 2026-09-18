@@ -3245,9 +3245,6 @@ class AndroidProcessController(RemoteProcessController):
 
         self.avd = avd
 
-        print("waiting for the emulator to respond to adb")
-        subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=60, check=True)
-
         # Wait for the device to be ready
         print("waiting for the emulator to boot")
         try:

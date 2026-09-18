@@ -1,12 +1,11 @@
 name: Setup Android
-description: Setup Android SDK and Emulator
+description: Setup Android SDK and Emulator (Linux only)
 
 inputs:
   platform:
     description: >
       Android SDK platform whose system image the emulators boot, in sdkmanager's naming.
       For example: `android-36` for Android 16, and `android-37.0` for Android 17.
-      Can only run on Linux platforms, since it requires Linux-only JVM flags and enables KVM through udev.
     default: "android-36"
 
 runs:
