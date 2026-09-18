@@ -221,6 +221,10 @@ IcePHP::endpointInit(void)
     INIT_CLASS_ENTRY(ce, "IcePHP_Endpoint", _endpointMethods);
     ce.create_object = handleEndpointAlloc;
     endpointClassEntry = zend_register_internal_class(&ce);
+    // Mark the class as final to prevent subclassing, and forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    makeFinal(endpointClassEntry);
+    denySerialization(endpointClassEntry);
     memcpy(&_endpointHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _endpointHandlers.clone_obj = nullptr;
@@ -232,6 +236,9 @@ IcePHP::endpointInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "EndpointInfo", _endpointInfoMethods);
     ce.create_object = handleEndpointInfoAlloc;
     endpointInfoClassEntry = zend_register_internal_class(&ce);
+    // Forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    denySerialization(endpointInfoClassEntry);
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _endpointInfoHandlers.clone_obj = nullptr;
@@ -244,6 +251,9 @@ IcePHP::endpointInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "IPEndpointInfo", nullptr);
     ce.create_object = handleEndpointInfoAlloc;
     ipEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
+    // Forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    denySerialization(ipEndpointInfoClassEntry);
     zend_declare_property_string(ipEndpointInfoClassEntry, "host", sizeof("host") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(ipEndpointInfoClassEntry, "port", sizeof("port") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_string(
@@ -257,11 +267,17 @@ IcePHP::endpointInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPEndpointInfo", nullptr);
     ce.create_object = handleEndpointInfoAlloc;
     tcpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry);
+    // Forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    denySerialization(tcpEndpointInfoClassEntry);
 
     // Define the UDPEndpointInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPEndpointInfo", nullptr);
     ce.create_object = handleEndpointInfoAlloc;
     udpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry);
+    // Forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    denySerialization(udpEndpointInfoClassEntry);
     zend_declare_property_string(
         udpEndpointInfoClassEntry,
         "mcastInterface",
@@ -274,12 +290,18 @@ IcePHP::endpointInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "WSEndpointInfo", nullptr);
     ce.create_object = handleEndpointInfoAlloc;
     wsEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
+    // Forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    denySerialization(wsEndpointInfoClassEntry);
     zend_declare_property_string(wsEndpointInfoClassEntry, "resource", sizeof("resource") - 1, "", ZEND_ACC_PUBLIC);
 
     // Define the OpaqueEndpointInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "OpaqueEndpointInfo", nullptr);
     ce.create_object = handleEndpointInfoAlloc;
     opaqueEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
+    // Forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    denySerialization(opaqueEndpointInfoClassEntry);
     zend_declare_property_null(opaqueEndpointInfoClassEntry, "rawEncoding", sizeof("rawEncoding") - 1, ZEND_ACC_PUBLIC);
     zend_declare_property_null(opaqueEndpointInfoClassEntry, "rawBytes", sizeof("rawBytes") - 1, ZEND_ACC_PUBLIC);
 
@@ -287,6 +309,9 @@ IcePHP::endpointInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLEndpointInfo", nullptr);
     ce.create_object = handleEndpointInfoAlloc;
     sslEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
+    // Forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    denySerialization(sslEndpointInfoClassEntry);
 
     return true;
 }
@@ -322,12 +347,7 @@ IcePHP::fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint)
             invalidArgument("value is not an endpoint");
             return false;
         }
-        Wrapper<Ice::EndpointPtr>* obj = Wrapper<Ice::EndpointPtr>::extract(zv);
-        if (!obj)
-        {
-            return false;
-        }
-        endpoint = *obj->ptr;
+        endpoint = Wrapper<Ice::EndpointPtr>::value(zv);
     }
     return true;
 }
