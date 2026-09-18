@@ -244,7 +244,8 @@ IcePHP::loggerInit(void)
     loggerClassEntry = zend_register_internal_class(&ce);
     // Mark the class as final to prevent subclassing, and forbid serialization of the class.
     // An instance created by anything other than our factory would have a null native pointer.
-    loggerClassEntry->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+    makeFinal(loggerClassEntry);
+    denySerialization(loggerClassEntry);
     memcpy(&_loggerHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _loggerHandlers.clone_obj = nullptr;

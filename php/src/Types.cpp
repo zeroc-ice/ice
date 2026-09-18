@@ -3686,7 +3686,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     typeInfoClassEntry = zend_register_internal_class(&ce);
     // Mark the class as final to prevent subclassing, and forbid serialization of the class.
     // An instance created by anything other than our factory would have a null native pointer.
-    typeInfoClassEntry->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+    makeFinal(typeInfoClassEntry);
+    denySerialization(typeInfoClassEntry);
     memcpy(&_typeInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _typeInfoHandlers.clone_obj = nullptr;
@@ -3699,7 +3700,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     exceptionInfoClassEntry = zend_register_internal_class(&ce);
     // Mark the class as final to prevent subclassing, and forbid serialization of the class.
     // An instance created by anything other than our factory would have a null native pointer.
-    exceptionInfoClassEntry->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+    makeFinal(exceptionInfoClassEntry);
+    denySerialization(exceptionInfoClassEntry);
     memcpy(&_exceptionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _exceptionInfoHandlers.clone_obj = nullptr;

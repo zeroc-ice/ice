@@ -31,7 +31,7 @@ function allTests($helper)
     flush(); {
         // These classes wrap native C++ state that only the extension's factory functions populate. An instance
         // created any other way would carry a null native pointer and crash the first time it was used, so both
-        // direct construction (private constructor) and unserialization (ZEND_ACC_NOT_SERIALIZABLE) are rejected.
+        // direct construction (private constructor) and unserialization are rejected.
         foreach (
             [
                 "IcePHP_Communicator",
@@ -57,10 +57,10 @@ function allTests($helper)
                 test(false);
             } catch (Error $ex) {
             }
-            // Unserialization is blocked by ZEND_ACC_NOT_SERIALIZABLE (throws Exception).
+            // Test tha unserialization is blocked.
+            // With PHP 8.0, `unserialize` returns false on failure. In newer versions, it fails with an exception.
             try {
-                $o = unserialize('O:' . strlen($className) . ':"' . $className . '":0:{}');
-                test(false);
+                unserialize('O:' . strlen($className) . ':"' . $className . '":0:{}' === false);
             } catch (Exception $ex) {
             }
         }

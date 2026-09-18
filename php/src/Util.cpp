@@ -628,6 +628,22 @@ IcePHP::invalidArgument(const string& msg)
     throwError("InvalidArgumentException", msg);
 }
 
+void
+IcePHP::denySerialization(zend_class_entry* ce)
+{
+#if PHP_VERSION_ID >= 80100
+    ce->ce_flags |= ZEND_ACC_NOT_SERIALIZABLE;
+#else
+    ce->serialize = zend_class_serialize_deny;
+    ce->unserialize = zend_class_unserialize_deny;
+#endif
+}
+
+void makeFinal(zend_class_entry* ce)
+{
+    ce->ce_flags |= ZEND_ACC_FINAL;
+}
+
 optional<int32_t>
 IcePHP::getInt32(zend_long value)
 {

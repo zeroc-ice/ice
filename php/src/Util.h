@@ -43,9 +43,11 @@ namespace IcePHP
             return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char*>(object) - XtOffsetOf(Wrapper<T>, zobj));
         }
 
-        static T value(zval* zv)
+        static T value(zval* zv) { return value(extract(zv)); }
+        static T value(zend_object* object) { return value(fetch(object)); }
+
+        static T value(Wrapper<T>* w)
         {
-            Wrapper<T>* w = extract(zv);
             if (!w->ptr)
             {
                 // The underlying pointer is null, which means the PHP object was constructed outside the extension.
@@ -102,6 +104,12 @@ namespace IcePHP
 
     // Raise InvalidArgumentException with the given message.
     void invalidArgument(const std::string&);
+
+    /// Marks that the provided class does not support serialization.
+    void denySerialization(zend_class_entry* ce);
+
+    /// Marks that the provided class is final (cannot be inherited from).
+    void makeFinal(zend_class_entry* ce);
 
     // Convert a PHP long to a 32-bit integer. Returns nullopt after raising InvalidArgumentException if the value is
     // out of range.

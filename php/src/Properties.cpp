@@ -624,7 +624,7 @@ handleFreeStorage(zend_object* object)
 static zend_object*
 handleClone(zend_object* zobj)
 {
-    Ice::PropertiesPtr p = *Wrapper<Ice::PropertiesPtr>::fetch(zobj)->ptr;
+    Ice::PropertiesPtr p = Wrapper<Ice::PropertiesPtr>::value(zobj);
     assert(p);
     zval clone;
     if (!IcePHP::createProperties(&clone, p->clone()))
@@ -774,7 +774,8 @@ IcePHP::propertiesInit(void)
     propertiesClassEntry = zend_register_internal_class(&ce);
     // Mark the class as final to prevent subclassing, and forbid serialization of the class.
     // An instance created by anything other than our factory would have a null native pointer.
-    propertiesClassEntry->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+    makeFinal(propertiesClassEntry);
+    denySerialization(propertiesClassEntry);
     memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _handlers.clone_obj = handleClone;
     _handlers.free_obj = handleFreeStorage;
