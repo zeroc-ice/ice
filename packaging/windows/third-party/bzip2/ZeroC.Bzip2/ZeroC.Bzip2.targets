@@ -7,7 +7,7 @@
         </ClCompile>
     </ItemDefinitionGroup>
 
-    <Target Name="_Bzip2Propertfies">
+    <Target Name="_Bzip2Properties">
         <CreateProperty Value="MT-Debug" Condition="'%(ClCompile.RuntimeLibrary)' == 'MultiThreadedDebug'">
             <Output TaskParameter="Value" PropertyName="_Bzip2Configuration" />
         </CreateProperty>
@@ -33,7 +33,7 @@
         </CreateProperty>
     </Target>
 
-    <Target Name="_Bzip2Link" BeforeTargets="Link" DependsOnTargets="_Bzip2Propertfies">
+    <Target Name="_Bzip2Link" BeforeTargets="Link" DependsOnTargets="_Bzip2Properties">
         <ItemGroup>
             <Link>
                 <AdditionalDependencies>libbz2$(_Bzip2LibSuffix).lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -42,7 +42,7 @@
         </ItemGroup>
     </Target>
 
-    <Target Name="Bzip2_CopyDLLs" AfterTargets="Build" DependsOnTargets="_Bzip2Propertfies">
+    <Target Name="Bzip2_CopyDLLs" AfterTargets="Build" DependsOnTargets="_Bzip2Properties">
         <Copy SourceFiles="$(MSBuildThisFileDirectory)\bin\$(Platform)\$(_Bzip2Configuration)\bzip2$(_Bzip2LibSuffix).dll"
               DestinationFolder="$(OutDir)"
               SkipUnchangedFiles="true"/>
@@ -51,7 +51,7 @@
               SkipUnchangedFiles="true"/>
     </Target>
 
-    <Target Name="Bzip2_RemoveDlls" BeforeTargets="Clean" DependsOnTargets="_Bzip2Propertfies">
+    <Target Name="Bzip2_RemoveDlls" BeforeTargets="Clean" DependsOnTargets="_Bzip2Properties">
         <Delete Files="$(OutDir)\bzip2$(_Bzip2LibSuffix).dll"/>
         <Delete Files="$(OutDir)\bzip2$(_Bzip2LibSuffix).pdb"/>
     </Target>
