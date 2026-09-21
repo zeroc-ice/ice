@@ -2851,11 +2851,11 @@ class AndroidProcessController(RemoteProcessController):
         self.controllerPid = None
         return self
 
-    def _adbTolerant(self, args: str) -> str:
+    def _adbTolerant(self, args: str, timeout: float = 60) -> str:
         # Run an adb subcommand for this device, ignoring failures. Used for idempotent /
         # environment-setup steps (root, remount, enable, grant) that the equivalent shell ran under
         # `set +e` because they can harmlessly "fail" (already-root, already-enabled, ...).
-        return self._adbTolerantFor(self.adb(), args)
+        return self._adbTolerantFor(self.adb(), args, timeout)
 
     @staticmethod
     def _adbTolerantFor(adb: str, args: str, timeout: float = 60) -> str:
@@ -2863,6 +2863,7 @@ class AndroidProcessController(RemoteProcessController):
         # Time-bounded: these are short commands and one that hangs is just a failure to tolerate.
         cmd = f"{adb} {args}"
         try:
+            start = time.monotonic()
             p = subprocess.run(
                 cmd,
                 shell=True,
@@ -2871,6 +2872,9 @@ class AndroidProcessController(RemoteProcessController):
                 stderr=subprocess.STDOUT,
                 timeout=timeout,
             )
+            elapsed = time.monotonic() - start
+            if elapsed > 10:
+                print(f"  (slow) {cmd} took {elapsed:.0f}s", file=sys.stderr)
             out = p.stdout.decode("UTF-8", errors="replace").strip() if p.stdout else ""
             if p.returncode == 0:
                 return out
@@ -2934,7 +2938,7 @@ class AndroidProcessController(RemoteProcessController):
                 pass
             try:
                 if run(f"{self.adb()} shell id -u").strip() == "0":
-                    self._adbTolerant("remount")
+                    self._adbTolerant("remount", timeout=300)
                     if not requireWritable:
                         return
                     # Probe rather than parse mount output: on system-as-root images /system isn't
