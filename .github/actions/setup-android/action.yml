@@ -39,14 +39,10 @@ runs:
     - name: Configure Android SDK
       shell: bash
       run: |
-        # Android SDK changed its version format from a single number to 'major.minor': 'android-36' vs 'android-37.0'.
-        # Ubuntu-24.04 runners ship android 'cmdline-tools' 12.0, which doesn't understand the new versioning and fails
-        # to parse it as an integer. Workaround: install a toolset new enough (22.0) to understand the new versioning.
-        # Note: We can remove this workaround once the runners ship 'cmdline-tools' 20.0 or newer; 20.0 is the earliest
-        # version which understands the new versions, and 22.0 is what the original issue asks to ship.
+        # Install a toolset new enough (22.0) to properly support Android 37.0 SDK.
         # See: https://github.com/actions/runner-images/issues/14484
-        # When trying that removal, check the AVD ini: it must say target=android-37.0. With tools that
-        # are too old it says target=android-0, and the emulator then crash-loops in SurfaceFlinger.
+        # Note: we can remove this workaround once runners ship 'cmdline-tools' 20.0 or newer. When testing its removal
+        # check the AVD ini: it must say target=android-37.0. It if says target=android-0, it hasn't been fixed yet.
         echo "$ANDROID_HOME/cmdline-tools/22.0/bin" >> $GITHUB_PATH
         sdkmanager "cmdline-tools;22.0"
         test -x "$ANDROID_HOME/cmdline-tools/22.0/bin/avdmanager"

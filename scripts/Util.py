@@ -3176,9 +3176,7 @@ class AndroidProcessController(RemoteProcessController):
         print("\n".join(self._adbTolerant("shell dumpsys bluetooth_manager").splitlines()[:8]) or "<none>")
 
     # Set once the harness's own emulator has failed to boot, so the tests that follow fail at once
-    # instead of each recreating the AVD and waiting out the boot timeout again: with --all that is
-    # 41 suites, and 41 boot attempts would outlast the job. Process-wide on purpose -- every test
-    # in the run shares the one image.
+    # instead of each recreating the AVD and waiting out the boot timeout again.
     bootFailed = False
 
     def killEmulator(self) -> None:
@@ -4318,8 +4316,7 @@ class JavaMapping(Mapping):
     def getSDKPackage(self) -> str:
         # The system image the harness creates its AVD from when neither --avd nor --device is given.
         # ANDROID_PLATFORM names the SDK platform in sdkmanager's terms (android-36 for Android 16,
-        # android-37.0 for Android 17); CI's setup-android exports both per matrix row so the same
-        # harness runs the suite on more than one Android release.
+        # android-37.0 for Android 17).
         sdkPlatform = os.environ.get("ANDROID_PLATFORM", "android-36")
         return "system-images;{};google_apis;{}".format(
             sdkPlatform, "arm64-v8a" if platform_machine() in ("arm64", "aarch64") else "x86_64"
