@@ -274,7 +274,10 @@ internal class SSLEngine : IDisposable
 
         if (_checkCRL == 1)
         {
+            // With CheckCRL=1 a certificate whose revocation status cannot be determined is accepted, wherever it
+            // sits in the chain; only CheckCRL=2 rejects it. The root is excluded by the default RevocationFlag.
             authenticationOptions.CertificateChainPolicy.VerificationFlags |=
+                X509VerificationFlags.IgnoreEndRevocationUnknown |
                 X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;
         }
         authenticationOptions.CertificateChainPolicy.RevocationMode =
@@ -316,7 +319,10 @@ internal class SSLEngine : IDisposable
             _checkCRL == 0 ? X509RevocationMode.NoCheck : X509RevocationMode.Online;
         if (_checkCRL == 1)
         {
+            // With CheckCRL=1 a certificate whose revocation status cannot be determined is accepted, wherever it
+            // sits in the chain; only CheckCRL=2 rejects it. The root is excluded by the default RevocationFlag.
             authenticationOptions.CertificateChainPolicy.VerificationFlags |=
+                X509VerificationFlags.IgnoreEndRevocationUnknown |
                 X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;
         }
         return authenticationOptions;
