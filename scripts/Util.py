@@ -2765,6 +2765,24 @@ class AndroidProcessController(RemoteProcessController):
     def __str__(self) -> str:
         return "Android"
 
+    def start(
+        self,
+        process: Process,
+        current: Driver.Current,
+        args: list[str],
+        props: Props,
+        envs: Envs,
+        watchDog: Expect.WatchDog | None,
+    ) -> RunningProcess:
+        if current.config.protocol in ("bt", "bts"):
+            # The adapter sometimes goes off or restarts shortly after a bond we need it for.
+            # We work around this by enabling it before starting the process. This is a no-op when
+            # it is already on; the wait turns a stack that is restarting into a short delay, and
+            # one that stays off into a clear failure instead of IceBT's "bluetooth is not enabled".
+            self._adbTolerant("shell cmd bluetooth_manager enable")
+            run(f"{self.adb()} shell cmd bluetooth_manager wait-for-state:STATE_ON")
+        return super().start(process, current, args, props, envs, watchDog)
+
     def hostPort(self) -> int:
         # The controller app always listens on device port 15001, but when several emulators run on
         # one host each needs its own host-side forward port. Derive it from the emulator serial
@@ -2790,16 +2808,11 @@ class AndroidProcessController(RemoteProcessController):
     def supportsDiscovery(self) -> bool:
         return False
 
-    # NB: getHost is deliberately not overridden here, and this class's getHost is in fact never
-    # consulted for the host. _startServerSide calls getProcessController(current) with no process
-    # argument, and the Android branch of that dispatch is `elif process and config.android`, so it
-    # falls through to LocalProcessController -> Driver.getHost -> --host-bt.
-    #
-    # So --host-bt on the server-side Controller.py is load-bearing: it becomes the server's
-    # Ice.Default.Host, which IceBT's EndpointI uses as the endpoint address when no -a is given,
-    # and startServerSide hands the same value back for the client to use. (The --host-bt on the
-    # allTests.py side is inert for that reason -- the client takes the host from the server -- which
-    # is why passing a bogus one there does not fail the run. It is not a usable negative test.)
+    # We deliberately don't override 'getHost' here, since it is never useful for android.
+    # '_startServerSide' calls `getProcessController(current)`, which will fall through to
+    # LocalProcessController -> Driver.getHost -> --host-bt, which is the host side of the test.
+    # So we need --host-bt on the server side (Controller.py), but not on the client side (allTests.py).
+    # The client side will always just take its host from the server.
 
     def getControllerIdentity(self, current: Driver.Current) -> Any:
         return "Android/ProcessController"
@@ -2838,30 +2851,47 @@ class AndroidProcessController(RemoteProcessController):
         self.controllerPid = None
         return self
 
-    def _adbTolerant(self, args: str) -> str:
+    def _adbTolerant(self, args: str, timeout: float = 60) -> str:
         # Run an adb subcommand for this device, ignoring failures. Used for idempotent /
         # environment-setup steps (root, remount, enable, grant) that the equivalent shell ran under
         # `set +e` because they can harmlessly "fail" (already-root, already-enabled, ...).
-        return self._adbTolerantFor(self.adb(), args)
+        return self._adbTolerantFor(self.adb(), args, timeout)
 
     @staticmethod
-    def _adbTolerantFor(adb: str, args: str) -> str:
+    def _adbTolerantFor(adb: str, args: str, timeout: float = 60) -> str:
         # As _adbTolerant, but for an explicitly given adb command (e.g. the bond peer's).
+        # Time-bounded: these are short commands and one that hangs is just a failure to tolerate.
+        cmd = f"{adb} {args}"
         try:
-            return run(f"{adb} {args}")
-        except RuntimeError as ex:
-            # These prints are the only record of swallowed failures in setup_{client,server}.log,
-            # so keep adb's own output: run() puts the command on the first line and the reason
-            # after it, and printing only the first line would drop the reason entirely.
-            # stderr, not stdout: --bt-prepare's stdout carries only the server's Bluetooth address.
-            print(f"  (ignored) {ex}", file=sys.stderr)
-            return ""
+            start = time.monotonic()
+            p = subprocess.run(
+                cmd,
+                shell=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                timeout=timeout,
+            )
+            elapsed = time.monotonic() - start
+            if elapsed > 10:
+                print(f"  (slow) {cmd} took {elapsed:.0f}s", file=sys.stderr)
+            out = p.stdout.decode("UTF-8", errors="replace").strip() if p.stdout else ""
+            if p.returncode == 0:
+                return out
+            reason = cmd + " failed:\n" + out
+        except subprocess.TimeoutExpired:
+            reason = f"{cmd} timed out after {timeout}s"
+        # These prints are the only record of swallowed failures in setup_{client,server}.log,
+        # so keep adb's own output. stderr, not stdout: --bt-prepare's stdout carries only the
+        # server's Bluetooth address.
+        print(f"  (ignored) {reason}", file=sys.stderr)
+        return ""
 
     def waitForBoot(self, timeout: float = 300) -> None:
-        # Wait for the device to reconnect to adb and finish booting. Tolerant of the transient adb
-        # errors seen while a device is mid-reboot. One deadline covers both phases -- otherwise
-        # wait-for-device could consume the whole budget and the poll loop would start a fresh one,
-        # doubling the advertised timeout.
+        # Wait for the device to reconnect to adb and finish booting.
+        # Tolerant of the transient adb errors seen while a device is mid-reboot.
+        # One deadline covers both phases -- otherwise wait-for-device could consume the whole budget and the
+        # poll loop would start a fresh one, doubling the advertised timeout.
         deadline = time.time() + timeout
         try:
             subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=timeout, check=False)
@@ -2897,8 +2927,8 @@ class AndroidProcessController(RemoteProcessController):
         # remount stays tolerant: on the first pass it only disables dm-verity and cannot make
         # /system writable until the reboot that follows, so a failure there is expected. Callers
         # that are about to write to /system pass requireWritable=True, which keeps retrying until
-        # the filesystem really is writable -- otherwise a silently failed remount is only noticed
-        # after it has burned every push attempt against a read-only /system.
+        # the filesystem really is writable -- otherwise a silently failed remount only surfaces
+        # as the push failing against a read-only /system, one step after the real cause.
         deadline = time.time() + timeout
         while time.time() < deadline:
             self._adbTolerant("root")
@@ -2908,7 +2938,7 @@ class AndroidProcessController(RemoteProcessController):
                 pass
             try:
                 if run(f"{self.adb()} shell id -u").strip() == "0":
-                    self._adbTolerant("remount")
+                    self._adbTolerant("remount", timeout=300)
                     if not requireWritable:
                         return
                     # Probe rather than parse mount output: on system-as-root images /system isn't
@@ -2989,25 +3019,19 @@ class AndroidProcessController(RemoteProcessController):
         try:
             self.rootRemount()  # disables dm-verity
             self.reboot()  # apply it so /system becomes writable
-            # Retry the root+remount+push: adb root/remount can still flake under contention, which
-            # would otherwise leave /system read-only and fail the push.
-            for attempt in range(1, 4):
-                self.rootRemount(requireWritable=True)
-                self._adbTolerant(f"shell mkdir -p /system/priv-app/{name}")
-                try:
-                    run(f'{self.adb()} push "{apk}" /system/priv-app/{name}/{name}.apk')
-                    run(f'{self.adb()} push "{xmlPath}" /system/etc/permissions/privapp-permissions-{name}.xml')
-                    break
-                except RuntimeError:
-                    if attempt == 3:
-                        raise
-                    print(f"  /system push failed (attempt {attempt}/3), retrying root+remount")
-                    time.sleep(5)
+            self.rootRemount(requireWritable=True)
+            self._adbTolerant(f"shell mkdir -p /system/priv-app/{name}")
+            run(f'{self.adb()} push "{apk}" /system/priv-app/{name}/{name}.apk')
+            run(f'{self.adb()} push "{xmlPath}" /system/etc/permissions/privapp-permissions-{name}.xml')
         finally:
             os.remove(xmlPath)
         self.reboot()
 
-    def bond(self, peerDevice: str, uuid: str, package: str = "com.zeroc.btbond") -> str:
+    # RFCOMM service UUID for btbond's pairing handshake. Any UUID works as long as both sides use
+    # the same one; it is unrelated to the UUIDs in the tests' bt endpoints.
+    bondServiceUuid = "8ce255c0-200a-11e0-ac64-0800200c9a66"
+
+    def bond(self, peerDevice: str, package: str) -> str:
         # Bond this (client) emulator to `peerDevice` (server) over secure RFCOMM using the btbond
         # helper installed on both by installSystemApp: start its server mode on the peer, then
         # connect + pair from this device. Bonding is what secure RFCOMM (and hence IceBT) requires.
@@ -3016,8 +3040,6 @@ class AndroidProcessController(RemoteProcessController):
         # read gets the same retry.
         peer = AndroidProcessController.forDevice(peerDevice)
         peerAdb = peer.adb()
-        if not re.fullmatch(r"[A-Fa-f0-9-]+", uuid):
-            raise RuntimeError(f"invalid service UUID: {uuid!r}")
         peerAddress = peer.bluetoothAddress()
         activity = f"{package}/.MainActivity"
         # Clear both logs first: the result line is matched out of logcat below, and one left over
@@ -3032,7 +3054,7 @@ class AndroidProcessController(RemoteProcessController):
         # or diagnostics cannot tell one attempt's lifecycle records from an earlier attempt's.
         self._adbTolerant("logcat -b events -c")
         self._adbTolerantFor(peerAdb, "logcat -b events -c")
-        run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid}")
+        run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {self.bondServiceUuid}")
 
         def tail(log: str) -> str:
             # Drop stack frames before truncating. One trace is longer than the character budget
@@ -3074,7 +3096,9 @@ class AndroidProcessController(RemoteProcessController):
             # Best effort: go ahead and let the client's own connect be the gate, so a logcat
             # hiccup on the peer cannot fail a bond that would otherwise work.
             print(f"warning: '{peerDevice}' never logged btbond's listening marker", file=sys.stderr)
-        run(f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {uuid}")
+        run(
+            f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {self.bondServiceUuid}"
+        )
         result = ""
         verdict = ""
         # Poll past btbond's own 150s watchdog (MainActivity.WATCHDOG_MS) with some margin: a bond
@@ -3127,12 +3151,20 @@ class AndroidProcessController(RemoteProcessController):
         print("-- adb forwards --")
         print(self._adbTolerant("forward --list"))
         print("-- controller app logcat --")
-        # BTBOND, not just com.zeroc: btbond's own lines ("listening", "connecting...", "watchdog:")
-        # carry no package name, so only its stack frames were surviving this filter.
+        # Collect the actual log entries and write them to a file for the test-logs artifact.
+        log = self._adbTolerant("logcat -d")
+        name = re.sub(r"[^A-Za-z0-9._-]", "_", self.device or "device")
+        with open(f"logcat-{name}.log", "w", encoding="utf-8") as f:
+            f.write(log)
+        # Log filtering: We only keep lines with the following strings in them, and drop the rest.
+        # We match 'BTBOND' and not just 'com.zeroc' because btbond's own lines ("listening", "connecting", "watchdog:")
+        # carry no package name, so without it only btbond's stack frames would survive this filter.
+        # We remove 'adbd service requested' because these are the harness's own polling which just fill up the log.
         keep = re.compile(
-            "testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc|BTBOND"
+            "testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc|BTBOND|Fatal signal|DEBUG\\s*:|BluetoothManagerService"
         )
-        lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
+        lines = [ln for ln in log.splitlines() if keep.search(ln) and "adbd service requested" not in ln]
+        # Print the last 80 lines of the filtered logcat output, just in case there's anything interesting in them.
         print("\n".join(lines[-80:]))
         # A relaunch emits no new "START u0" and its main-buffer logs are compiled out, so the events
         # buffer is the only durable record that a second onCreate ran. bond() clears this buffer
@@ -3144,25 +3176,37 @@ class AndroidProcessController(RemoteProcessController):
         )
         lines = [ln for ln in self._adbTolerant("logcat -b events -d").splitlines() if events.search(ln)]
         print("\n".join(lines[-40:]) or "<none>")
+        print("-- bluetooth adapter --")
+        print("\n".join(self._adbTolerant("shell dumpsys bluetooth_manager").splitlines()[:8]) or "<none>")
 
-    # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
-    # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
-    # Netsim virtual Bluetooth network so the two emulators can reach each other.
-    bluetoothEmulatorFlags = [
-        "-no-audio",
-        "-partition-size",
-        "2048",
-        "-no-snapshot",
-        "-writable-system",
-        "-gpu",
-        "swiftshader_indirect",
-        "-accel",
-        "on",
-        "-no-boot-anim",
-        "-no-window",
-        "-packet-streamer-endpoint",
-        "default",
-    ]
+    # Set once the harness's own emulator has failed to boot, so the tests that follow fail at once
+    # instead of each recreating the AVD and waiting out the boot timeout again.
+    bootFailed = False
+
+    def killEmulator(self) -> None:
+        # Stop the emulator this controller started, falling back to killing the process when the
+        # console command does not end it. Bounded, so a stuck emulator does not hang the whole run.
+        if self.emulator is None:
+            return
+        self._adbTolerant("emu kill")
+        sys.stdout.write("Waiting for the emulator to shutdown... ")
+        sys.stdout.flush()
+        try:
+            self.emulator.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            self.emulator.kill()
+            try:
+                self.emulator.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                pass
+        print("ok" if self.emulator.poll() is not None else "failed")
+
+    # Flags shared by every emulator the harness launches.
+    emulatorFlags = ["-no-audio", "-no-snapshot", "-accel", "on", "-no-boot-anim", "-no-window"]
+    # For emulators running Bluetooth we add '-writable-system' (so btbond can be installed as a
+    # privileged system app) and '-packet-streamer-endpoint', which attaches each emulator to the
+    # shared Netsim virtual Bluetooth network so they can reach each other.
+    bluetoothEmulatorFlags = [*emulatorFlags, "-writable-system", "-packet-streamer-endpoint", "default"]
 
     @classmethod
     def createBluetoothEmulator(cls, avd: str, image: str, port: int, logFile: str) -> None:
@@ -3211,37 +3255,26 @@ class AndroidProcessController(RemoteProcessController):
         if port == -1:
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
-        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
-            avd, port
-        )
-
         print("starting the AVD `{}' on port {}".format(avd, port))
 
-        self.emulator = subprocess.Popen(cmd, shell=True)
-
-        if self.emulator.poll():
-            raise RuntimeError("failed to start the Android emulator `{}' on port {}".format(avd, port))
-
+        self.emulator = subprocess.Popen(["emulator", "-avd", avd, "-port", str(port), *self.emulatorFlags])
         self.avd = avd
-
-        print("waiting for the emulator to respond to adb")
-        subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=60, check=True)
 
         # Wait for the device to be ready
         print("waiting for the emulator to boot")
-        t = time.time()
-        # Wait for up to 5 minutes (300 seconds)
-        while (time.time() - t) <= 300:
-            if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
-                break
-            time.sleep(2)
-        else:
-            # This runs if the while loop completes without breaking
-            raise RuntimeError(f"emulator '{avd}' not booted after 300s")
+        try:
+            self.waitForBoot()
+        except RuntimeError:
+            # Stop the emulator so it does not linger into the next test's attempt.
+            self.killEmulator()
+            AndroidProcessController.bootFailed = True
+            raise
 
     def startControllerApp(self, current: Driver.Current, ident: Any) -> None:
         mapping = current.getTestCase().getMapping()
         assert isinstance(mapping, JavaMapping)
+        if AndroidProcessController.bootFailed:
+            raise RuntimeError("not retrying: the emulator failed to boot earlier in this run")
         if current.config.avd:
             self.startEmulator(current.config.avd)
         elif not current.config.device:
@@ -3337,30 +3370,12 @@ class AndroidProcessController(RemoteProcessController):
             pass
 
         if self.avd:
-            try:
-                run("{} emu kill".format(self.adb()))
-            except Exception:
-                pass
-
+            self.killEmulator()
             if self.createdAvd:
                 try:
                     run("avdmanager -v delete avd -n IceTests")  # Delete the device we created
                 except Exception:
                     pass
-
-        #
-        # Wait for the emulator to shutdown
-        #
-        if self.emulator:
-            sys.stdout.write("Waiting for the emulator to shutdown..")
-            sys.stdout.flush()
-            while True:
-                if self.emulator.poll() is not None:
-                    print(" ok")
-                    break
-                sys.stdout.write(".")
-                sys.stdout.flush()
-                time.sleep(0.5)
 
         # Only reset the adb server if we started (and just killed) our own emulator. When running
         # against an externally-managed device/emulator serial -- especially with a second emulator
@@ -4303,8 +4318,12 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self) -> str:
-        return "system-images;android-36;google_apis;{}".format(
-            "arm64-v8a" if platform_machine() == "arm64" else "x86_64"
+        # The system image the harness creates its AVD from when neither --avd nor --device is given.
+        # ANDROID_PLATFORM names the SDK platform in sdkmanager's terms (android-36 for Android 16,
+        # android-37.0 for Android 17).
+        sdkPlatform = os.environ.get("ANDROID_PLATFORM", "android-36")
+        return "system-images;{};google_apis;{}".format(
+            sdkPlatform, "arm64-v8a" if platform_machine() in ("arm64", "aarch64") else "x86_64"
         )
 
     def getApk(self, current: Driver.Current) -> str:

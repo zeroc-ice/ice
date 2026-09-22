@@ -76,7 +76,7 @@ The `java/test/android/controller` directory contains an Android Studio project 
 To build and run the Android test controller, install the following:
 
 - Android SDK 34
-- Android Command Line Tools (optional, for command-line builds)
+- Android Command Line Tools (optional, for command-line builds; version 20 or newer needed for Android 17)
 - Android Studio Meerkat Feature Drop (optional, for IDE-based builds)
 
 ### Using Android Command Line Tools
@@ -113,6 +113,10 @@ To build the Android test controller from the command line:
   ```shell
   python allTests.py --android --all --controller-app
   ```
+
+  This creates and boots an Android 16 (API 36) emulator. To run on another release, set `ANDROID_PLATFORM` to the
+  SDK platform whose system image you have installed, for example `android-37.0` for Android 17.
+  Or pass `--avd=<name>` to use an existing virtual device.
 
 ### Using Android Studio
 

@@ -171,8 +171,8 @@ runs:
       working-directory: cpp
       run: |
         # Runs against the system bus, so the servers it spawns register their RFCOMM profile
-        # there. --host-bt is load-bearing here and inert on allTests: it becomes the server's
-        # Ice.Default.Host, and startServerSide hands the same value back to the client.
+        # there. --host-bt is load-bearing here: it becomes the server's Ice.Default.Host,
+        # and startServerSide hands the same value back to the client.
         nohup python3 ../scripts/Controller.py --id=server --host-bt="$BT_ADDR" \
           > "$GITHUB_WORKSPACE/controller.log" 2>&1 &
         # Liveness, not readiness -- unlike the bluetoothd poll above, which waits on an observable
