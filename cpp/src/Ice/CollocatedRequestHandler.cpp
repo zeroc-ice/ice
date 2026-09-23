@@ -93,7 +93,7 @@ AsyncStatus
 CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int batchRequestCount, bool synchronous)
 {
     // Increase the direct count to prevent the thread pool from being destroyed before dispatchAll is called. This will
-    // also throw if the object adapter has been deactivated.
+    // also throw if the object adapter has been destroyed.
     _adapter->incDirectCount();
 
     int requestId = 0;
