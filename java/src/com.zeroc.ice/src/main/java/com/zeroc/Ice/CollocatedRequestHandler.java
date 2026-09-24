@@ -81,7 +81,7 @@ final class CollocatedRequestHandler implements RequestHandler {
 
     int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, boolean sync) {
         // Increase the direct count to prevent the thread pool from being destroyed before
-        // dispatchAll is called. This will also throw if the object adapter has been deactivated.
+        // dispatchAll is called. This will also throw if the object adapter has been destroyed.
         _adapter.incDirectCount();
 
         int requestId = 0;
