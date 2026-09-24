@@ -796,7 +796,7 @@ Ice::ObjectAdapterI::decDirectCount()
 {
     lock_guard lock(_mutex);
 
-    // Not check for deactivation here!
+    // Not check for destruction here!
 
     assert(_instance); // Must not be called after destroy().
 
