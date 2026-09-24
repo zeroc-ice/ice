@@ -967,7 +967,7 @@ public final class ObjectAdapter {
      * Decrements the count of direct method calls using this object adapter.
      */
     public synchronized void decDirectCount() {
-        // Not check for deactivation here!
+        // Not check for destruction here!
 
         assert (_instance != null); // Must not be called after destroy().
 
