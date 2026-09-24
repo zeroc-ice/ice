@@ -73,6 +73,12 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
             options["IceRpc"] = value;
         }
 
+        value = item.GetMetadata("IceRpcVersion");
+        if (!string.IsNullOrEmpty(value))
+        {
+            options["IceRpcVersion"] = value;
+        }
+
         value = item.GetMetadata("AdditionalOptions");
         if (!string.IsNullOrEmpty(value))
         {
