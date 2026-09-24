@@ -7,10 +7,10 @@
     "patches": ["patches/bzip2/0001-use-declspec-for-the-windows-dll-linkage.patch"]
   },
   "libexpat": {
-    "version": "2.8.4",
-    "url": "https://github.com/libexpat/libexpat/archive/refs/tags/R_2_8_4.tar.gz",
-    "sha256": "a8a9c5cbba9110000b13cc9943f50fcd7e552a5cbad49cb191142c500a0a11b7",
-    "root": "libexpat-R_2_8_4",
+    "version": "2.8.5",
+    "url": "https://github.com/libexpat/libexpat/archive/refs/tags/R_2_8_5.tar.gz",
+    "sha256": "fd022c541a189bd5bee042a22188351b31e39b9389c2525fa98c28bd05c9ef21",
+    "root": "libexpat-R_2_8_5",
     "patches": []
   },
   "lmdb": {
