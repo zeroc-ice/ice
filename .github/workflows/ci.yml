@@ -21,6 +21,7 @@ jobs:
         run: python -m pip install passlib cryptography
       - name: Restore Expat from the testing feed
         run: |
+          Copy-Item .github/expat-testing.NuGet.config NuGet.config
           nuget install ZeroC.Expat -Version 2.8.5 -ConfigFile NuGet.config -OutputDirectory cpp/msbuild/packages -NoCache -NonInteractive -Verbosity detailed
           if ($LASTEXITCODE -ne 0) { throw "Expat restore failed" }
           $package = "cpp/msbuild/packages/ZeroC.Expat.2.8.5"
