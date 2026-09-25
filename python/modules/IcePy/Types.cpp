@@ -7,6 +7,7 @@
 
 #include "Types.h"
 #include "Current.h"
+#include "DocStrings.h"
 #include "Ice/DisableWarnings.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalExceptions.h"
@@ -3378,7 +3379,7 @@ namespace IcePy
         .tp_basicsize = sizeof(TypeInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(typeInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("IcePy.TypeInfo"),
+        .tp_doc = PyDoc_STR(IcePy_DOC_TypeInfo),
         .tp_new = reinterpret_cast<newfunc>(typeInfoNew),
     };
 
@@ -3388,7 +3389,7 @@ namespace IcePy
         .tp_basicsize = sizeof(ExceptionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(exceptionInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("IcePy.ExceptionInfo"),
+        .tp_doc = PyDoc_STR(IcePy_DOC_ExceptionInfo),
         .tp_new = reinterpret_cast<newfunc>(exceptionInfoNew),
     };
     // clang-format on

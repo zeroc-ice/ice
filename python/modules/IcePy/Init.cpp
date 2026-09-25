@@ -4,6 +4,7 @@
 #include "Communicator.h"
 #include "Connection.h"
 #include "ConnectionInfo.h"
+#include "DocStrings.h"
 #include "Endpoint.h"
 #include "EndpointInfo.h"
 #include "Executor.h"
@@ -26,156 +27,6 @@ extern "C" void IcePy_cleanup(void*);
 
 namespace
 {
-    constexpr const char* IcePy_stringVersion_doc = R"(stringVersion() -> str
-
-Returns the Ice version in the form ``A.B.C``, where ``A`` indicates the major version,
-``B`` indicates the minor version, and ``C`` indicates the patch level.
-For pre-releases, the version includes a pre-release suffix, for example ``3.9.0-alpha.0``.
-
-Returns
--------
-str
-    The Ice version.)";
-
-    constexpr const char* IcePy_intVersion_doc = R"(intVersion() -> int
-
-Returns the Ice version as an integer in the form ``AABBCC``, where ``AA`` indicates the major version,
-``BB`` indicates the minor version, and ``CC`` indicates the patch level.
-For example, for Ice 3.9.1, the returned value is 30901.
-For pre-releases, ``CC`` encodes the pre-release; for example, for Ice 3.9.0-alpha.0, the returned value is 30950.
-
-Returns
--------
-int
-    The Ice version.)";
-
-    constexpr const char* IcePy_createProperties_doc =
-        R"(createProperties(args: list[str] | None = None, defaults: Ice.Properties | None = None, /) -> Properties
-
-Creates a property set initialized from command-line arguments and a default property set.
-
-Parameters
-----------
-args : list[str] | None, optional
-    The command-line arguments.
-defaults : Ice.Properties | None, optional
-    Default values for the new property set.
-
-Returns
--------
-Properties
-    A new property set.)";
-
-    constexpr const char* IcePy_stringToIdentity_doc = R"(stringToIdentity(str: str, /) -> Ice.Identity
-
-Converts a stringified identity into an Identity.
-
-Parameters
-----------
-str : str
-    The stringified identity.
-
-Returns
--------
-Ice.Identity
-    An Identity created from the provided string.
-
-Raises
-------
-ParseException
-    If the string cannot be converted to an object identity.
-LocalException
-    If the resulting identity has an empty name.)";
-
-    constexpr const char* IcePy_identityToString_doc =
-        R"(identityToString(identity: Ice.Identity, toStringMode: Ice.ToStringMode | None = None, /) -> str
-
-Converts an Identity into a string using the specified mode.
-
-Parameters
-----------
-identity : Ice.Identity
-    The identity.
-toStringMode : Ice.ToStringMode | None, optional
-    Specifies how to handle non-ASCII characters and non-printable ASCII characters.
-    The default is :const:`Ice.ToStringMode.Unicode`.
-
-Returns
--------
-str
-    The stringified identity.)";
-
-    constexpr const char* IcePy_getProcessLogger_doc = R"(getProcessLogger() -> Ice.Logger | Logger
-
-Gets the per-process logger.
-
-Returns
--------
-Ice.Logger | Logger
-    The current per-process logger instance.)";
-
-    constexpr const char* IcePy_setProcessLogger_doc = R"(setProcessLogger(logger: Ice.Logger, /) -> None
-
-Sets the per-process logger. Communicators created after this call use this logger unless a logger is set in
-InitializationData or configured through logger properties such as Ice.LogFile.
-
-Parameters
-----------
-logger : Ice.Logger
-    The new per-process logger instance.)";
-
-    constexpr const char* IcePy_loadSlice_doc = R"(loadSlice(args: list[str], /) -> None
-
-Compiles Slice definitions and loads the generated code directly into the current Python environment.
-
-This function does not generate any Python source files. Instead, the generated Python code is loaded directly into the
-running interpreter.
-
-This function does not generate any code for Slice files included by the Slice files being loaded. It is the caller's
-responsibility to load all necessary Slice definitions. This can be done in a single call to :func:`Ice.loadSlice`
-by providing all Slice files (including included files) in the `args` parameter, or by making multiple calls to
-:func:`Ice.loadSlice`.
-
-When :func:`Ice.loadSlice` is called multiple times with the same Slice file, the corresponding Python code is not
-reloaded.
-
-Parameters
-----------
-args : list[str]
-    The list of command-line arguments for the Slice loader. These arguments may include both compiler options and
-    the Slice files to compile.
-
-    Supported compiler options:
-
-        - ``-DNAME``:  Define NAME as 1.
-        - ``-DNAME=DEF``:  Define NAME as DEF.
-        - ``-UNAME``:  Remove any definition for NAME.
-        - ``-IDIR``:  Put DIR in the include file search path.
-        - ``-d``, ``--debug``:  Print debug messages.
-
-Raises
-------
-RuntimeError
-    If an error occurs during Slice parsing or compilation.)";
-
-    constexpr const char* IcePy_compileSlice_doc = R"(compileSlice(args: list[str], /) -> int
-
-Compiles Slice definitions. The behavior is identical to that of the `slice2py` compiler.
-
-Any errors or warnings emitted during compilation are printed to 'stderr'.
-
-This is an internal function used in the implementation of the `slice2py` Python script included in the Ice Python package.
-
-Parameters
-----------
-args : list[str]
-    The list of command-line arguments for Slice compilation, following the same syntax as the `slice2py` compiler.
-
-Returns
--------
-int
-    The exit code: 0 indicates success, and a non-zero value indicates failure.)";
-
     unsigned long mainThreadId;
 }
 
@@ -183,78 +34,67 @@ static PyMethodDef methods[] = {
     {"stringVersion",
      reinterpret_cast<PyCFunction>(IcePy_stringVersion),
      METH_NOARGS,
-     PyDoc_STR(IcePy_stringVersion_doc)},
-    {"intVersion", reinterpret_cast<PyCFunction>(IcePy_intVersion), METH_NOARGS, PyDoc_STR(IcePy_intVersion_doc)},
+     PyDoc_STR(IcePy_DOC_stringVersion)},
+    {"intVersion", reinterpret_cast<PyCFunction>(IcePy_intVersion), METH_NOARGS, PyDoc_STR(IcePy_DOC_intVersion)},
     {"createProperties",
      reinterpret_cast<PyCFunction>(IcePy_createProperties),
      METH_VARARGS,
-     PyDoc_STR(IcePy_createProperties_doc)},
+     PyDoc_STR(IcePy_DOC_createProperties)},
     {"stringToIdentity",
      reinterpret_cast<PyCFunction>(IcePy_stringToIdentity),
      METH_O,
-     PyDoc_STR(IcePy_stringToIdentity_doc)},
+     PyDoc_STR(IcePy_DOC_stringToIdentity)},
     {"identityToString",
      reinterpret_cast<PyCFunction>(IcePy_identityToString),
      METH_VARARGS,
-     PyDoc_STR(IcePy_identityToString_doc)},
+     PyDoc_STR(IcePy_DOC_identityToString)},
     {"getProcessLogger",
      reinterpret_cast<PyCFunction>(IcePy_getProcessLogger),
      METH_NOARGS,
-     PyDoc_STR(IcePy_getProcessLogger_doc)},
+     PyDoc_STR(IcePy_DOC_getProcessLogger)},
     {"setProcessLogger",
      reinterpret_cast<PyCFunction>(IcePy_setProcessLogger),
      METH_VARARGS,
-     PyDoc_STR(IcePy_setProcessLogger_doc)},
-    {"defineEnum",
-     reinterpret_cast<PyCFunction>(IcePy_defineEnum),
-     METH_VARARGS,
-     PyDoc_STR("defineEnum(sliceId: str, type: Type, meta: tuple, enumerators: dict, /)")},
+     PyDoc_STR(IcePy_DOC_setProcessLogger)},
+    {"defineEnum", reinterpret_cast<PyCFunction>(IcePy_defineEnum), METH_VARARGS, PyDoc_STR(IcePy_DOC_defineEnum)},
     {"defineStruct",
      reinterpret_cast<PyCFunction>(IcePy_defineStruct),
      METH_VARARGS,
-     PyDoc_STR("defineStruct(sliceId: str, type: Type, meta: tuple, members: tuple, /)")},
+     PyDoc_STR(IcePy_DOC_defineStruct)},
     {"defineSequence",
      reinterpret_cast<PyCFunction>(IcePy_defineSequence),
      METH_VARARGS,
-     PyDoc_STR("defineSequence(sliceId: str, meta: tuple, elementType: TypeInfo, /)")},
+     PyDoc_STR(IcePy_DOC_defineSequence)},
     {"defineDictionary",
      reinterpret_cast<PyCFunction>(IcePy_defineDictionary),
      METH_VARARGS,
-     PyDoc_STR("defineDictionary(sliceId: str, meta: tuple, keyType: TypeInfo, valueType: TypeInfo, /)")},
+     PyDoc_STR(IcePy_DOC_defineDictionary)},
     {"declareProxy",
      reinterpret_cast<PyCFunction>(IcePy_declareProxy),
      METH_VARARGS,
-     PyDoc_STR("declareProxy(sliceId: str, /)")},
-    {"defineProxy",
-     reinterpret_cast<PyCFunction>(IcePy_defineProxy),
-     METH_VARARGS,
-     PyDoc_STR("defineProxy(sliceId: str, proxyType: Type[ObjectPrx], /)")},
+     PyDoc_STR(IcePy_DOC_declareProxy)},
+    {"defineProxy", reinterpret_cast<PyCFunction>(IcePy_defineProxy), METH_VARARGS, PyDoc_STR(IcePy_DOC_defineProxy)},
     {"declareValue",
      reinterpret_cast<PyCFunction>(IcePy_declareValue),
      METH_VARARGS,
-     PyDoc_STR("declareValue(sliceId: str, /)")},
-    {"defineValue",
-     reinterpret_cast<PyCFunction>(IcePy_defineValue),
-     METH_VARARGS,
-     PyDoc_STR("defineValue(sliceId: str, valueType: Type[Ice.Value], compactId: int, meta: tuple, isInterface: bool, "
-               "baseType: Type[Ice.Value] | None, members: tuple, /)")},
+     PyDoc_STR(IcePy_DOC_declareValue)},
+    {"defineValue", reinterpret_cast<PyCFunction>(IcePy_defineValue), METH_VARARGS, PyDoc_STR(IcePy_DOC_defineValue)},
     {"defineException",
      reinterpret_cast<PyCFunction>(IcePy_defineException),
      METH_VARARGS,
-     PyDoc_STR("defineException(sliceId: str, type: Type[BaseException], meta: tuple, base: Type[BaseException] | "
-               "None, members: tuple, /)")},
-    {"loadSlice", reinterpret_cast<PyCFunction>(IcePy_loadSlice), METH_VARARGS, PyDoc_STR(IcePy_loadSlice_doc)},
+     PyDoc_STR(IcePy_DOC_defineException)},
+    {"loadSlice", reinterpret_cast<PyCFunction>(IcePy_loadSlice), METH_VARARGS, PyDoc_STR(IcePy_DOC_loadSlice)},
     {"compileSlice",
      reinterpret_cast<PyCFunction>(IcePy_compileSlice),
      METH_VARARGS,
-     PyDoc_STR(IcePy_compileSlice_doc)},
+     PyDoc_STR(IcePy_DOC_compileSlice)},
     {} /* sentinel */
 };
 
 static struct PyModuleDef iceModule = {
     PyModuleDef_HEAD_INIT,
     "IcePy",
-    "The Internet Communications Engine.",
+    PyDoc_STR(IcePy_DOC_module),
     -1,
     methods,
     nullptr,

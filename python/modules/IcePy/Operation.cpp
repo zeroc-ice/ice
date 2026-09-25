@@ -5,6 +5,7 @@
 #include "Communicator.h"
 #include "Connection.h"
 #include "Current.h"
+#include "DocStrings.h"
 #include "Future.h"
 #include "Ice/Communicator.h"
 #include "Ice/Initialize.h"
@@ -841,18 +842,15 @@ IcePy::Operation::convertParam(PyObject* p, Py_ssize_t pos)
 }
 
 static PyMethodDef OperationMethods[] = {
-    {"invoke",
-     reinterpret_cast<PyCFunction>(operationInvoke),
-     METH_VARARGS,
-     PyDoc_STR("invoke(proxy: ObjectPrx, args: tuple, /) -> Any")},
+    {"invoke", reinterpret_cast<PyCFunction>(operationInvoke), METH_VARARGS, PyDoc_STR(IcePy_DOC_Operation_invoke)},
     {"invokeAsync",
      reinterpret_cast<PyCFunction>(operationInvokeAsync),
      METH_VARARGS,
-     PyDoc_STR("invokeAsync(proxy: ObjectPrx, args: tuple, /) -> Awaitable[Any]")},
+     PyDoc_STR(IcePy_DOC_Operation_invokeAsync)},
     {"deprecate",
      reinterpret_cast<PyCFunction>(operationDeprecate),
      METH_VARARGS,
-     PyDoc_STR("deprecate(reason: str, /)")},
+     PyDoc_STR(IcePy_DOC_Operation_deprecate)},
     {} /* sentinel */
 };
 
@@ -860,16 +858,19 @@ static PyMethodDef DispatchCallbackMethods[] = {
     {"response",
      reinterpret_cast<PyCFunction>(dispatchCallbackResponse),
      METH_VARARGS,
-     PyDoc_STR("response(result: Any, /) -> None")},
+     PyDoc_STR(IcePy_DOC_DispatchCallback_response)},
     {"exception",
      reinterpret_cast<PyCFunction>(dispatchCallbackException),
      METH_VARARGS,
-     PyDoc_STR("exception(exception: BaseException, /) -> None")},
+     PyDoc_STR(IcePy_DOC_DispatchCallback_exception)},
     {} /* sentinel */
 };
 
 static PyMethodDef AsyncInvocationContextMethods[] = {
-    {"cancel", reinterpret_cast<PyCFunction>(asyncInvocationContextCancel), METH_NOARGS, PyDoc_STR("cancel() -> None")},
+    {"cancel",
+     reinterpret_cast<PyCFunction>(asyncInvocationContextCancel),
+     METH_NOARGS,
+     PyDoc_STR(IcePy_DOC_AsyncInvocationContext_cancel)},
     {} /* sentinel */
 };
 
@@ -882,7 +883,7 @@ namespace IcePy
         .tp_basicsize = sizeof(OperationObject),
         .tp_dealloc = reinterpret_cast<destructor>(operationDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("IcePy.Operation"),
+        .tp_doc = PyDoc_STR(IcePy_DOC_Operation),
         .tp_methods = OperationMethods,
         .tp_init = reinterpret_cast<initproc>(operationInit),
         .tp_new = reinterpret_cast<newfunc>(operationNew),
@@ -894,7 +895,7 @@ namespace IcePy
         .tp_basicsize = sizeof(DispatchCallbackObject),
         .tp_dealloc = reinterpret_cast<destructor>(dispatchCallbackDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("IcePy.DispatchCallback"),
+        .tp_doc = PyDoc_STR(IcePy_DOC_DispatchCallback),
         .tp_methods = DispatchCallbackMethods,
         .tp_new = reinterpret_cast<newfunc>(dispatchCallbackNew),
     };
@@ -905,7 +906,7 @@ namespace IcePy
         .tp_basicsize = sizeof(AsyncInvocationContextObject),
         .tp_dealloc = reinterpret_cast<destructor>(asyncInvocationContextDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("IcePy.AsyncInvocationContext"),
+        .tp_doc = PyDoc_STR(IcePy_DOC_AsyncInvocationContext),
         .tp_methods = AsyncInvocationContextMethods,
         .tp_new = reinterpret_cast<newfunc>(asyncInvocationContextNew),
     };
