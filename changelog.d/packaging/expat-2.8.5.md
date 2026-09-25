@@ -1,0 +1,1 @@
+- Windows binaries now use Expat 2.8.5, which fixes CVE-2026-93990.
