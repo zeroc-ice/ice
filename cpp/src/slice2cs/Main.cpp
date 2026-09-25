@@ -44,7 +44,7 @@ usage(const string& n)
                   "-UNAME                   Remove any definition for NAME.\n"
                   "-IDIR                    Put DIR in the include file search path.\n"
                   "--output-dir DIR         Create files in the directory DIR.\n"
-                  "--icerpc                 Generate code for use with IceRPC instead of Ice.\n"
+                  "--icerpc VERSION         Generate code for use with IceRPC C# VERSION (0.6 or 0.7) instead of Ice.\n"
                   "-d, --debug              Print debug messages.\n"
                   "--depend                 Generate Makefile dependencies.\n"
                   "--depend-xml             Generate dependencies in XML format.\n"
@@ -65,7 +65,7 @@ compile(const vector<string>& argv)
     opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
-    opts.addOpt("", "icerpc");
+    opts.addOpt("", "icerpc", IceInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
@@ -135,6 +135,17 @@ compile(const vector<string>& argv)
     Slice::GenMode genMode = opts.isSet("icerpc") ? Slice::GenMode::IceRpc : Slice::GenMode::Ice;
     if (genMode == Slice::GenMode::IceRpc)
     {
+        // The generated code is currently the same for all supported IceRPC versions.
+        string iceRpcVersion = opts.optArg("icerpc");
+        if (iceRpcVersion != "0.6" && iceRpcVersion != "0.7")
+        {
+            consoleErr << argv[0] << ": error: unsupported IceRPC version '" << iceRpcVersion << "'" << endl;
+            if (!validate)
+            {
+                usage(argv[0]);
+            }
+            return EXIT_FAILURE;
+        }
         preprocessorArgs.emplace_back("-D__ICERPC__");
     }
 

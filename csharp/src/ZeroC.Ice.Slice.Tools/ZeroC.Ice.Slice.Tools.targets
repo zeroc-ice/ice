@@ -122,6 +122,7 @@
             OutputDir             = "%(_SliceCompile.OutputDir)"
             IncludeDirectories    = "%(_SliceCompile.IncludeDirectories)"
             IceRpc                = "%(_SliceCompile.IceRpc)"
+            IceRpcVersion         = "%(_SliceCompile.IceRpcVersion)"
             AdditionalOptions     = "%(_SliceCompile.AdditionalOptions)"
             Sources               = "@(_SliceCompile)"
             Condition             = "'%(_SliceCompile.BuildRequired)' == 'True'"/>
