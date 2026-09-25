@@ -32,6 +32,12 @@ public abstract class SliceCompilerTask : ToolTask
     /// </summary>
     public bool IceRpc { get; set; } = false;
 
+    /// <summary>
+    /// Specifies the IceRPC C# version targeted by the generated code (the argument of '--icerpc'). An empty value
+    /// selects the oldest supported version.
+    /// </summary>
+    public string IceRpcVersion { get; set; } = "";
+
     public string[] AdditionalOptions { get; set; } = Array.Empty<string>();
 
     [Output]
@@ -73,6 +79,12 @@ public abstract class SliceCompilerTask : ToolTask
             options["IceRpc"] = value;
         }
 
+        value = item.GetMetadata("IceRpcVersion");
+        if (!string.IsNullOrEmpty(value))
+        {
+            options["IceRpcVersion"] = value;
+        }
+
         if (AdditionalOptions.Length > 0)
         {
             options["AdditionalOptions"] = string.Join(";", AdditionalOptions);
@@ -100,7 +112,7 @@ public abstract class SliceCompilerTask : ToolTask
 
         if (IceRpc)
         {
-            builder.AppendSwitch("--icerpc");
+            builder.AppendSwitchIfNotNull("--icerpc ", IceRpcVersion.Length > 0 ? IceRpcVersion : "0.6");
         }
 
         foreach (string option in AdditionalOptions)
