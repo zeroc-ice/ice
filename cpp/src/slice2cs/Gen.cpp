@@ -20,7 +20,7 @@ Slice::Gen::Gen(const string& base, const string& dir, GenMode genMode, bool ena
       _enableAnalysis(enableAnalysis),
       _fileBase(Slice::baseName(base))
 {
-    string file = _genMode == GenMode::IceRpc ? _fileBase + ".IceRpc.cs" : _fileBase + ".cs";
+    string file = _genMode == GenMode::Ice ? _fileBase + ".cs" : _fileBase + ".IceRpc.cs";
 
     if (!dir.empty())
     {
@@ -37,16 +37,16 @@ Slice::Gen::Gen(const string& base, const string& dir, GenMode genMode, bool ena
     FileTracker::instance()->addFile(file);
 
     printHeader(_fileBase + ".ice");
-    if (_genMode == GenMode::IceRpc)
+    if (_genMode == GenMode::Ice)
     {
         _out << sp;
-        _out << nl << "using IceRpc.Ice;";
-        _out << nl << "using IceRpc.Ice.Codec;";
+        _out << nl << "[assembly:Ice.Slice(\"" << _fileBase << ".ice\")]";
     }
     else
     {
         _out << sp;
-        _out << nl << "[assembly:Ice.Slice(\"" << _fileBase << ".ice\")]";
+        _out << nl << "using IceRpc.Ice;";
+        _out << nl << "using IceRpc.Ice.Codec;";
     }
 }
 
@@ -90,7 +90,7 @@ Slice::Gen::generate(const UnitPtr& unit)
         _out << sp;
         _out << nl << "[assembly:IceGeneratedCode(\"" << _fileBase << ".ice\")]";
 
-        Slice::IceRpc::TypesVisitor typesVisitor(_out);
+        Slice::IceRpc::TypesVisitor typesVisitor(_out, _genMode);
         unit->visit(&typesVisitor);
 
         Slice::IceRpc::SkeletonVisitor skeletonVisitor(_out);
