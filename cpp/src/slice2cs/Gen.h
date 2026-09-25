@@ -8,10 +8,12 @@
 
 namespace Slice
 {
+    /// The RPC framework the generated code targets: Ice, or a version of IceRPC C#.
     enum class GenMode
     {
         Ice,
-        IceRpc
+        IceRpc06,
+        IceRpc07
     };
 
     class Gen final

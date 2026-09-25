@@ -175,7 +175,9 @@ namespace
     string accessModifier(const ContainedPtr& p) { return p->hasMetadata("cs:internal") ? "internal" : "public"; }
 }
 
-Slice::IceRpc::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
+Slice::IceRpc::TypesVisitor::TypesVisitor(IceInternal::Output& out, GenMode genMode) : CsVisitor(out), _genMode(genMode)
+{
+}
 
 bool
 Slice::IceRpc::TypesVisitor::visitStructStart(const StructPtr& p)
@@ -605,7 +607,7 @@ Slice::IceRpc::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "[IceTypeId(\"" << p->scoped() << "\")]";
     emitObsoleteAttribute(p);
     _out << nl << accessModifier(p) << " readonly partial record struct " << name << "Proxy : " << 'I' << name
-         << ", IIceProxy";
+         << (_genMode == GenMode::IceRpc06 ? ", IIceProxy" : ", IIceProxy<" + name + "Proxy>");
 
     _out << sb;
 
@@ -627,20 +629,28 @@ Slice::IceRpc::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "public required IceRpc.IInvoker Invoker { get; init; }";
     _out << sp;
     _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public IceRpc.ServiceAddress ServiceAddress";
-    _out << sb;
-    _out << nl << "get;";
-    _out << nl << "init";
-    _out << sb;
-    _out << nl << "if (value.Protocol is null)";
-    _out << sb;
-    _out << nl
-         << R"(throw new System.ArgumentException("An Ice proxy's service address must have a non-null protocol.", )"
-         << "nameof(value));";
-    _out << eb;
-    _out << nl << "field = value;";
-    _out << eb;
-    _out << eb << " = _defaultServiceAddress;";
+    if (_genMode == GenMode::IceRpc06)
+    {
+        _out << nl << "public IceRpc.ServiceAddress ServiceAddress";
+        _out << sb;
+        _out << nl << "get;";
+        _out << nl << "init";
+        _out << sb;
+        _out << nl << "if (value.Protocol is null)";
+        _out << sb;
+        _out
+            << nl
+            << R"(throw new System.ArgumentException("An Ice proxy's service address must have a non-null protocol.", )"
+            << "nameof(value));";
+        _out << eb;
+        _out << nl << "field = value;";
+        _out << eb;
+        _out << eb << " = _defaultServiceAddress;";
+    }
+    else
+    {
+        _out << nl << "public IceRpc.ServiceAddress ServiceAddress { get; init; } = _defaultServiceAddress;";
+    }
     _out << sp;
     _out << nl << "private static IceRpc.ServiceAddress _defaultServiceAddress =";
     _out.inc();
@@ -664,6 +674,18 @@ Slice::IceRpc::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         _out << nl
              << "new() { EncodeOptions = proxy.EncodeOptions, Invoker = proxy.Invoker, ServiceAddress = "
                 "proxy.ServiceAddress };";
+        _out.dec();
+    }
+
+    if (_genMode > GenMode::IceRpc06)
+    {
+        _out << sp;
+        _out << nl << "static " << name << "Proxy IIceProxy<" << name << "Proxy>.Create(";
+        _out.inc();
+        _out << nl << "IceRpc.IInvoker invoker,";
+        _out << nl << "IceRpc.ServiceAddress? serviceAddress,";
+        _out << nl << "IceEncodeOptions? encodeOptions) =>";
+        _out << nl << "new(invoker, serviceAddress, encodeOptions);";
         _out.dec();
     }
 

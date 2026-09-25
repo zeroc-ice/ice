@@ -132,14 +132,21 @@ compile(const vector<string>& argv)
 
     bool debug = opts.isSet("debug");
 
-    Slice::GenMode genMode = opts.isSet("icerpc") ? Slice::GenMode::IceRpc : Slice::GenMode::Ice;
-    if (genMode == Slice::GenMode::IceRpc)
+    Slice::GenMode genMode = Slice::GenMode::Ice;
+    if (opts.isSet("icerpc"))
     {
-        // The generated code is currently the same for all supported IceRPC versions.
-        string iceRpcVersion = opts.optArg("icerpc");
-        if (iceRpcVersion != "0.6" && iceRpcVersion != "0.7")
+        string version = opts.optArg("icerpc");
+        if (version == "0.6")
         {
-            consoleErr << argv[0] << ": error: unsupported IceRPC version '" << iceRpcVersion << "'" << endl;
+            genMode = Slice::GenMode::IceRpc06;
+        }
+        else if (version == "0.7")
+        {
+            genMode = Slice::GenMode::IceRpc07;
+        }
+        else
+        {
+            consoleErr << argv[0] << ": error: unsupported IceRPC version '" << version << "'" << endl;
             if (!validate)
             {
                 usage(argv[0]);
@@ -196,7 +203,7 @@ compile(const vector<string>& argv)
             }
 
             UnitOptions unitOptions{};
-            if (genMode == Slice::GenMode::IceRpc)
+            if (genMode != Slice::GenMode::Ice)
             {
                 unitOptions.defaultMappedName = [](const Contained& contained)
                 {
@@ -226,8 +233,8 @@ compile(const vector<string>& argv)
                 dependencyGenerator.addDependenciesFor(unit);
                 if (depend)
                 {
-                    string target = removeExtension(baseName(fileName)) +
-                                    (genMode == Slice::GenMode::IceRpc ? ".IceRpc.cs" : ".cs");
+                    string target =
+                        removeExtension(baseName(fileName)) + (genMode == Slice::GenMode::Ice ? ".cs" : ".IceRpc.cs");
                     dependencyGenerator.addMakefileRule(unit->topLevelFile(), target);
                 }
                 // The dependencies are written below, after all units have been processed.
