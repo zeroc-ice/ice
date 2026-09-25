@@ -4,6 +4,7 @@
 #define ICE_RPC_VISITORS_H
 
 #include "CsVisitor.h"
+#include "Gen.h"
 
 // Visitors for generating C# code for IceRPC.
 
@@ -13,7 +14,7 @@ namespace Slice::IceRpc
     class TypesVisitor final : public CsVisitor
     {
     public:
-        TypesVisitor(IceInternal::Output& out);
+        TypesVisitor(IceInternal::Output& out, GenMode genMode);
 
         bool visitStructStart(const StructPtr&) final;
         void visitStructEnd(const StructPtr&) final;
@@ -50,6 +51,8 @@ namespace Slice::IceRpc
 
         void writeProxyRequestClass(const InterfaceDefPtr& interface);
         void writeProxyResponseClass(const InterfaceDefPtr& interface);
+
+        const GenMode _genMode;
     };
 
     // Generates skeleton interfaces.
