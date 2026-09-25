@@ -729,6 +729,114 @@ public class AllTests : global::Test.AllTests
             }
             Console.Out.WriteLine("ok");
 
+            Console.Out.Write("testing certificate revocation... ");
+            Console.Out.Flush();
+            {
+                // The test driver serves the ca3 CRLs and an OCSP responder for ca4 at the loopback addresses named
+                // in the certificates' CRL distribution point and authority information access extensions.
+
+                // The client checks the revocation status of the server certificate.
+                void connectWithServerCert(string caName, string serverCert, string checkCRL, bool expectAccepted)
+                {
+                    string ca = $"{caName}/{caName}";
+                    initData = createClientProps(defaultProperties, "", ca);
+                    initData.properties.setProperty("IceSSL.CheckCRL", checkCRL);
+                    using var comm = new Ice.Communicator(initData);
+                    ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, $"{caName}/{serverCert}", ca);
+                    d["IceSSL.VerifyPeer"] = "0";
+                    ServerPrx server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                        test(expectAccepted);
+                    }
+                    catch (Ice.SecurityException ex)
+                    {
+                        if (expectAccepted)
+                        {
+                            Console.Out.Write(ex.ToString());
+                        }
+                        test(!expectAccepted);
+                    }
+                    catch (Ice.LocalException ex)
+                    {
+                        Console.Out.Write(ex.ToString());
+                        test(false);
+                    }
+                    fact.destroyServer(server);
+                }
+
+                // The server checks the revocation status of the client certificate.
+                void connectWithClientCert(string caName, string clientCert, string checkCRL, bool expectAccepted)
+                {
+                    string ca = $"{caName}/{caName}";
+                    initData = createClientProps(defaultProperties, $"{caName}/{clientCert}", ca);
+                    using var comm = new Ice.Communicator(initData);
+                    ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, $"{caName}/server", ca);
+                    d["IceSSL.VerifyPeer"] = "2";
+                    d["IceSSL.CheckCRL"] = checkCRL;
+                    ServerPrx server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                        test(expectAccepted);
+                    }
+                    catch (Ice.ConnectionLostException ex)
+                    {
+                        if (expectAccepted)
+                        {
+                            Console.Out.Write(ex.ToString());
+                        }
+                        test(!expectAccepted);
+                    }
+                    catch (Ice.LocalException ex)
+                    {
+                        Console.Out.Write(ex.ToString());
+                        test(false);
+                    }
+                    fact.destroyServer(server);
+                }
+
+                // The OCSP responder reports ca4/server as good.
+                connectWithServerCert("ca4", "server", checkCRL: "0", expectAccepted: true);
+                connectWithServerCert("ca4", "server", checkCRL: "1", expectAccepted: true);
+                connectWithServerCert("ca4", "server", checkCRL: "2", expectAccepted: true);
+
+                // The OCSP responder reports ca4/server_revoked, a client certificate, as revoked.
+                connectWithClientCert("ca4", "server_revoked", checkCRL: "0", expectAccepted: true);
+                connectWithClientCert("ca4", "server_revoked", checkCRL: "1", expectAccepted: false);
+                connectWithClientCert("ca4", "server_revoked", checkCRL: "2", expectAccepted: false);
+
+                // The OCSP responder does not know ca4/server_unknown, so its revocation status cannot be determined.
+                connectWithServerCert("ca4", "server_unknown", checkCRL: "0", expectAccepted: true);
+                connectWithServerCert("ca4", "server_unknown", checkCRL: "1", expectAccepted: true);
+                connectWithServerCert("ca4", "server_unknown", checkCRL: "2", expectAccepted: false);
+
+                // The ca3 certificates carry a CRL distribution point, and ca3/server_revoked is on the CRL. The trust
+                // evaluation on macOS does not fetch CRLs from distribution points, it only uses OCSP, so these
+                // certificates have an undeterminable revocation status there.
+                if (!Ice.Internal.AssemblyUtil.isMacOS)
+                {
+                    connectWithServerCert("ca3", "server", checkCRL: "0", expectAccepted: true);
+                    connectWithServerCert("ca3", "server", checkCRL: "1", expectAccepted: true);
+                    connectWithServerCert("ca3", "server", checkCRL: "2", expectAccepted: true);
+                    connectWithServerCert("ca3", "server_revoked", checkCRL: "0", expectAccepted: true);
+                    connectWithServerCert("ca3", "server_revoked", checkCRL: "1", expectAccepted: false);
+                    connectWithServerCert("ca3", "server_revoked", checkCRL: "2", expectAccepted: false);
+                }
+
+                // The ca1 certificates carry no revocation information at all, so their revocation status cannot be
+                // determined either. This exercises the same rule on the server side.
+                connectWithClientCert("ca1", "client", checkCRL: "0", expectAccepted: true);
+                connectWithClientCert("ca1", "client", checkCRL: "1", expectAccepted: true);
+                connectWithClientCert("ca1", "client", checkCRL: "2", expectAccepted: false);
+            }
+            Console.Out.WriteLine("ok");
+
             if (Ice.Internal.AssemblyUtil.isWindows && isAdministrator)
             {
                 // LocalMachine certificate store is not supported on non Windows platforms.
