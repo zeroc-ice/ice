@@ -98,16 +98,16 @@ jobs:
 
           # Copy the slice2java binaries to the staging path.
           cp -v artifacts/slice2java-macos-arm64/slice2java "$SLICE2JAVA_STAGING_PATH/macos-arm64/"
-          chmod +x $SLICE2JAVA_STAGING_PATH/macos-arm64/slice2java
+          chmod +x "$SLICE2JAVA_STAGING_PATH/macos-arm64/slice2java"
           cp -v artifacts/slice2java-linux-x64/slice2java "$SLICE2JAVA_STAGING_PATH/linux-x64/"
-          chmod +x $SLICE2JAVA_STAGING_PATH/linux-x64/slice2java
+          chmod +x "$SLICE2JAVA_STAGING_PATH/linux-x64/slice2java"
           cp -v artifacts/slice2java-linux-arm64/slice2java "$SLICE2JAVA_STAGING_PATH/linux-arm64/"
-          chmod +x $SLICE2JAVA_STAGING_PATH/linux-arm64/slice2java
+          chmod +x "$SLICE2JAVA_STAGING_PATH/linux-arm64/slice2java"
           cp -v artifacts/slice2java-windows-x64/slice2java.exe "$SLICE2JAVA_STAGING_PATH/windows-x64/"
 
           for component in DataStorm Glacier2 Ice IceBox IceGrid IceStorm; do
-            mkdir -p $SLICE2JAVA_STAGING_PATH/slice/$component
-            cp -v ice/slice/$component/*.ice $SLICE2JAVA_STAGING_PATH/slice/$component
+            mkdir -p "$SLICE2JAVA_STAGING_PATH/slice/$component"
+            cp -v "ice/slice/$component/"*.ice "$SLICE2JAVA_STAGING_PATH/slice/$component"
           done
 
       - name: Update Ice Version

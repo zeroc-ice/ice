@@ -29,8 +29,8 @@ jobs:
 
       - name: Run Clang Format
         run: |
-          find . -name "*.h" -o -name "*.c" -o -name "*.cpp" -o -name "*.mm" | xargs clang-format-19 --style=file --fallback-style=none -i
-          find cpp -name "*.m" | xargs clang-format-19 --style=file --fallback-style=none -i
+          find . \( -name "*.h" -o -name "*.c" -o -name "*.cpp" -o -name "*.mm" \) -print0 | xargs -0 clang-format-19 --style=file --fallback-style=none -i
+          find cpp -name "*.m" -print0 | xargs -0 clang-format-19 --style=file --fallback-style=none -i
 
           if [ -n "$(git status --porcelain)" ]; then
             echo "clang-format found issues, please run it locally and commit the changes."
@@ -98,7 +98,8 @@ jobs:
           FILES: ${{ steps.glob.outputs.paths }}
         run: |
           echo "Running clang-tidy on ${FILES}"
-          run-clang-tidy-19 -j$(nproc) -quiet ${FILES}
+          # shellcheck disable=SC2086 # FILES is a space-separated list of paths
+          run-clang-tidy-19 -j"$(nproc)" -quiet ${FILES}
 
       - name: Select files to check for IcePy
         uses: tj-actions/glob@2deae40528141fc53131606d56b4e4ce2a486b29 # v22.0.2
@@ -114,4 +115,5 @@ jobs:
           FILES: ${{ steps.globpy.outputs.paths }}
         run: |
           echo "Running clang-tidy on ${FILES}"
-          run-clang-tidy-19 -j$(nproc) -quiet ${FILES}
+          # shellcheck disable=SC2086 # FILES is a space-separated list of paths
+          run-clang-tidy-19 -j"$(nproc)" -quiet ${FILES}

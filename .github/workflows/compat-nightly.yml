@@ -150,12 +150,12 @@ jobs:
           echo "HEAD version: ${HEAD_VER}"
           echo ""
           echo "=== HEAD Java JARs ==="
-          ls -la head/java/lib/*-${HEAD_VER}.jar
+          ls -la head/java/lib/*-"${HEAD_VER}".jar
           echo ""
           echo "=== Stable Java JARs BEFORE swap ==="
           ls -la stable/java/lib/
           echo ""
-          for jar in head/java/lib/*-${HEAD_VER}.jar; do
+          for jar in head/java/lib/*-"${HEAD_VER}".jar; do
             name=$(basename "$jar" | sed "s/${HEAD_VER}/${STABLE_VER}/")
             echo "Copying: $jar -> stable/java/lib/${name}"
             cp -v "$jar" "stable/java/lib/${name}"

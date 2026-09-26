@@ -49,9 +49,9 @@ jobs:
         run: |
           if [[ "${QUALITY}" == "stable" ]]; then
             source ./config/version.env
-            echo "ICE_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
+            echo "ICE_VERSION=${BASE_VERSION}" >> "$GITHUB_ENV"
           else
-            echo "ICE_VERSION=${ICE_VERSION}" >> $GITHUB_ENV
+            echo "ICE_VERSION=${ICE_VERSION}" >> "$GITHUB_ENV"
           fi
 
       - name: Setup Python

@@ -61,6 +61,7 @@ jobs:
 
       - name: Build Windows MATLAB ToolBox
         run: MSBuild /p:Configuration=Release /p:Platform=x64 /t:BuildDist matlab\msbuild\ice.proj
+        shell: pwsh
         if: runner.os == 'Windows'
 
       - name: Collect Files To Sign
@@ -87,6 +88,7 @@ jobs:
 
       - name: Package Windows MATLAB ToolBox
         run: MSBuild /p:Configuration=Release /p:Platform=x64 /t:Package matlab\msbuild\ice.proj
+        shell: pwsh
         if: runner.os == 'Windows'
 
       - name: Upload Artifacts

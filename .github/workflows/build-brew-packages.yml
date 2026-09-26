@@ -65,7 +65,7 @@ jobs:
             exit 1
           fi
 
-          echo "icegridgui_dmg_sha256=$icegridgui_dmg_sha256" >> $GITHUB_OUTPUT
+          echo "icegridgui_dmg_sha256=$icegridgui_dmg_sha256" >> "$GITHUB_OUTPUT"
 
       - name: Update Nightly Tap
         env:

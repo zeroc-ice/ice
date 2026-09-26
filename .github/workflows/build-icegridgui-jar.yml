@@ -24,6 +24,7 @@ jobs:
 
       - name: Build IceGrid GUI
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           nuget restore ..\cpp\msbuild\ice.slnx
           MSBuild ..\cpp\msbuild\ice.slnx /t:"slice2java" /p:Configuration=Release /p:Platform=x64

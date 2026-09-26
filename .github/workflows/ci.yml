@@ -457,7 +457,7 @@ jobs:
         timeout-minutes: 15
         run: |
           python3 scripts/process_linux_crash_dumps.py \
-              --workspace $GITHUB_WORKSPACE \
+              --workspace "$GITHUB_WORKSPACE" \
               --reports LinuxDumpReports \
               -v
         shell: bash

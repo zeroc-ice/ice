@@ -93,7 +93,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace"
             -e GPG_KEY="${GPG_KEY}"
             -e GPG_KEY_ID="${GPG_KEY_ID}"
-            ghcr.io/zeroc-ice/rpm-repo-builder:${CHANNEL}
+            "ghcr.io/zeroc-ice/rpm-repo-builder:${CHANNEL}"
           )
           docker run "${docker_args[@]}" /workspace/ice/packaging/rpm/create-rpm-repo.sh \
             --staging /workspace/staging/ \

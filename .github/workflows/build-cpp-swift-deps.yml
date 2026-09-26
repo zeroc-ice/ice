@@ -32,13 +32,13 @@ jobs:
         env:
           ICE_VERSION: ${{ inputs.ice_version }}
         run: |
-          echo "ICE_VERSION=$ICE_VERSION" >> $GITHUB_ENV
+          echo "ICE_VERSION=$ICE_VERSION" >> "$GITHUB_ENV"
         if: ${{ inputs.ice_version != '' }}
 
       - name: Set Version (For Release Builds)
         run: |
           source config/version.env
-          echo "ICE_VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "ICE_VERSION=${VERSION}" >> "$GITHUB_ENV"
         if: ${{ inputs.ice_version == '' }}
 
       - name: Build XCFramework Packages
@@ -48,14 +48,14 @@ jobs:
       - name: Create XCFrameworks Zip archives
         run: |
           for dir in *.xcframework; do
-            framework_name=$(basename $dir)
+            framework_name=$(basename "$dir")
             framework_zip=${framework_name/.xcframework/-${ICE_VERSION}.xcframework.zip}
-            zip -r $framework_zip $dir
+            zip -r "$framework_zip" "$dir"
           done
         working-directory: cpp/lib/XCFrameworks
 
       - name: Create slice2swift Artifact Bundle Zip archive
-        run: mv slice2swift.artifactbundle.zip slice2swift-${ICE_VERSION}.artifactbundle.zip
+        run: mv slice2swift.artifactbundle.zip "slice2swift-${ICE_VERSION}.artifactbundle.zip"
         working-directory: cpp/bin
 
       - name: Stage C++ Dependencies for Swift

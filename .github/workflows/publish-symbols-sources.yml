@@ -46,7 +46,7 @@ jobs:
       - name: Publish Symbols, Sources, and PDBs to S3
         run: |
           # Get the version from the directory structure (assumes staging/windows-indexed-pdbs/pdbs/<version>/...)
-          VERSION=$(basename $(find staging/windows-indexed-pdbs/pdbs/ -mindepth 1 -maxdepth 1))
+          VERSION=$(basename "$(find staging/windows-indexed-pdbs/pdbs/ -mindepth 1 -maxdepth 1)")
           echo "Version: ${VERSION}"
 
           # Create a zip which includes the version
@@ -101,7 +101,7 @@ jobs:
         id: version
         run: |
           source ./config/version.env
-          echo "ice_version=${BASE_VERSION}" >> $GITHUB_OUTPUT
+          echo "ice_version=${BASE_VERSION}" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Download existing 000admin from S3

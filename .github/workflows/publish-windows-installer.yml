@@ -70,7 +70,7 @@ jobs:
       - name: Load version
         run: |
           source ./config/version.env
-          echo "BASE_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
+          echo "BASE_VERSION=${BASE_VERSION}" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Download installer artifacts
