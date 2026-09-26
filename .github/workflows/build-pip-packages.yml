@@ -35,7 +35,9 @@ jobs:
           python3 -m pip install toml
 
       - name: Update PYPI Version
-        run: python3 packaging/pypi/update_version.py ${{ inputs.ice_version }} python/pyproject.toml
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
+        run: python3 packaging/pypi/update_version.py "$ICE_VERSION" python/pyproject.toml
         if: inputs.ice_version != ''
 
       - name: Build Source Distribution

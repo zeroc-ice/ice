@@ -76,8 +76,9 @@ jobs:
       - name: Download installer artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --pattern "windows-installer" --dir staging
+          gh run download "$env:RUN_ID" --repo ${{ github.repository }} --pattern "windows-installer" --dir staging
 
       - name: Sync the winget-pkgs fork with upstream
         env:

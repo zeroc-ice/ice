@@ -58,20 +58,24 @@ jobs:
 
       - name: Configure build
         id: configure
+        env:
+          QUALITY: ${{ inputs.quality }}
+          AUTHENTICODE_SIGN: ${{ inputs.authenticode_sign }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
           # Load version information
           source ./config/version.env
           # The channel for the branch from version.env
           echo "channel=${CHANNEL}" >> $GITHUB_OUTPUT
           # Authenticode sign is always true for stable quality, otherwise use the input value
-          if [[ "${{ inputs.quality }}" == "stable" ]] || [[ "${{ inputs.authenticode_sign }}" == "true" ]]; then
+          if [[ "${QUALITY}" == "stable" ]] || [[ "${AUTHENTICODE_SIGN}" == "true" ]]; then
             echo "authenticode_sign=true" >> $GITHUB_OUTPUT
           else
             echo "authenticode_sign=false" >> $GITHUB_OUTPUT
           fi
-          if [[ "${{ inputs.quality }}" == "nightly" ]]; then
+          if [[ "${QUALITY}" == "nightly" ]]; then
             DATE=$(date +%Y%m%d)
-            BUILD=${{ inputs.build_number }}
+            BUILD=${BUILD_NUMBER}
             # Set version variables for nightly packages according to platform conventions:
 
             # e.g. 3.9.0-nightly.20250625.1

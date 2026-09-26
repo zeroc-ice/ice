@@ -98,8 +98,10 @@ jobs:
 
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
         run: |
-          "IcePackageVersion=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "IcePackageVersion=$env:ICE_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         shell: pwsh
 
       # Build .NET assemblies.
