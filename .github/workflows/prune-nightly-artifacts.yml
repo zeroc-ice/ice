@@ -11,6 +11,10 @@ on:
       channel:
         required: true
         type: string
+
+permissions:
+  contents: read
+
 jobs:
     prune-nightly-artifacts:
         runs-on: ubuntu-24.04

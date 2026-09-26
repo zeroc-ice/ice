@@ -36,6 +36,11 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read
+  # The DEB and RPM builds pull their builder images from ghcr.io.
+  packages: read
+
 jobs:
   configure:
     runs-on: ubuntu-24.04

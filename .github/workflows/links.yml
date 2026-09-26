@@ -15,6 +15,9 @@ on:
       - "**.html"
       - ".github/workflows/links.yml"
 
+permissions:
+  contents: read
+
 jobs:
   check-links:
     runs-on: ubuntu-latest

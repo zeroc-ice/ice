@@ -21,6 +21,10 @@ on:
         required: false
         type: boolean
         default: false
+
+permissions:
+  contents: read
+
 jobs:
   build-slice-compilers:
     strategy:

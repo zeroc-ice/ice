@@ -20,6 +20,10 @@ on:
         required: false
         default: "nocheck parallel=4"
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build:
     name: "Build for ${{ matrix.distribution }}-${{ matrix.arch }}"

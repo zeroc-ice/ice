@@ -11,6 +11,10 @@ on:
       ice_version:
         description: "The Ice version to build"
         required: false
+
+permissions:
+  contents: read
+
 jobs:
   build-java-packages:
     runs-on: ubuntu-24.04

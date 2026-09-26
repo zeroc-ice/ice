@@ -13,6 +13,9 @@ on:
 env:
   STABLE_TAG: "v3.8.1"
 
+permissions:
+  contents: read
+
 jobs:
   compat:
     name: compat on ${{ matrix.os }}
