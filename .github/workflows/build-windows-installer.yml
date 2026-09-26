@@ -38,9 +38,10 @@ jobs:
       - name: Download Artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-x64-Release-build --dir cpp
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-jar-Windows --dir java/lib
+          gh run download "$env:RUN_ID" --repo ${{ github.repository }} --name windows-cpp-x64-Release-build --dir cpp
+          gh run download "$env:RUN_ID" --repo ${{ github.repository }} --name icegridgui-jar-Windows --dir java/lib
 
       - name: Download VC++ Redistributable
         run: |

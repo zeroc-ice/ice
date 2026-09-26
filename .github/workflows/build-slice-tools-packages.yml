@@ -111,8 +111,10 @@ jobs:
           done
 
       - name: Update Ice Version
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
         run: |
-          sed -i "s/^sliceToolsVersion = .*/sliceToolsVersion = ${{ inputs.ice_version }}/" tools/slice-tools/gradle.properties
+          sed -i "s/^sliceToolsVersion = .*/sliceToolsVersion = ${ICE_VERSION}/" tools/slice-tools/gradle.properties
         working-directory: ice/java
         if: ${{ inputs.ice_version != '' }}
 

@@ -31,8 +31,10 @@ jobs:
         run: make -C cpp slice2java
 
       - name: Update Ice Version
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
         run: |
-          sed -i "s/^iceVersion = .*/iceVersion = ${{ inputs.ice_version }}/" gradle.properties
+          sed -i "s/^iceVersion = .*/iceVersion = ${ICE_VERSION}/" gradle.properties
         working-directory: java
         if: ${{ inputs.ice_version != '' }}
 

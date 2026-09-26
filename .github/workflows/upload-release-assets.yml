@@ -33,13 +33,15 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Ensure tag matches channel
+        env:
+          CHANNEL: ${{ inputs.channel }}
         run: |
           case "${GITHUB_REF}" in
-            refs/tags/v${{ inputs.channel }}*)
+            refs/tags/v"${CHANNEL}"*)
               echo "Tag matches channel"
               ;;
             *)
-              echo "❌ Tag '${GITHUB_REF}' does not match channel '${{ inputs.channel }}'"
+              echo "❌ Tag '${GITHUB_REF}' does not match channel '${CHANNEL}'"
               exit 1
               ;;
           esac

@@ -83,6 +83,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build DEB Packages
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
         run: |
           set -euo pipefail
 
@@ -93,7 +95,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace" \
             -e DEBEMAIL="ci@zeroc.com" \
             -e DEBFULLNAME="CI" \
-            -e ICE_VERSION=${{ inputs.ice_version }} \
+            -e ICE_VERSION="${ICE_VERSION}" \
             -e DH_BUILD_DDEBS="${DH_BUILD_DDEBS}" \
             -e DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" \
             -e DEB_BUILD_PROFILES="${{ matrix.deb_build_profiles }}" \

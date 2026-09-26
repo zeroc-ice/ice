@@ -52,11 +52,13 @@ jobs:
         id: icegridgui
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+          ICE_VERSION: ${{ inputs.ice_version }}
         run: |
           set -o pipefail
 
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-macos-app --dir staging
-          icegridgui_dmg_sha256=$(shasum -a 256 "staging/IceGridGUI-${{ inputs.ice_version }}.dmg" | cut -d ' ' -f 1)
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --name icegridgui-macos-app --dir staging
+          icegridgui_dmg_sha256=$(shasum -a 256 "staging/IceGridGUI-${ICE_VERSION}.dmg" | cut -d ' ' -f 1)
 
           if [[ -z "$icegridgui_dmg_sha256" ]]; then
             echo "Failed to calculate SHA256 checksum for IceGrid GUI DMG"
@@ -66,8 +68,13 @@ jobs:
           echo "icegridgui_dmg_sha256=$icegridgui_dmg_sha256" >> $GITHUB_OUTPUT
 
       - name: Update Nightly Tap
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
+          ICE_VERSION: ${{ inputs.ice_version }}
+          ICEGRIDGUI_DMG_SHA256: ${{ steps.icegridgui.outputs.icegridgui_dmg_sha256 }}
         run: |
-          ./packaging/brew/update-nightly-tap.sh "${{ inputs.channel }}" "${{ inputs.quality }}" "${{ inputs.ice_version }}" "${{ steps.icegridgui.outputs.icegridgui_dmg_sha256 }}"
+          ./packaging/brew/update-nightly-tap.sh "$CHANNEL" "$QUALITY" "$ICE_VERSION" "$ICEGRIDGUI_DMG_SHA256"
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

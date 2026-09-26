@@ -46,9 +46,11 @@ jobs:
 
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
         run: |
-          "IceToolboxVersion=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "ICE_TOOLBOX_VERSION=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "IceToolboxVersion=$env:ICE_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "ICE_TOOLBOX_VERSION=$env:ICE_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         shell: pwsh
 
       - name: Build Linux MATLAB ToolBox

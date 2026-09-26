@@ -44,13 +44,17 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build RPM packages
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
+          GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
+          GPG_KEY_ID: ${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
-            -e ICE_VERSION="${{ inputs.ice_version }}" \
-            -e GIT_TAG="${{ github.ref_name }}" \
-            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}" \
-            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
+            -e ICE_VERSION="${ICE_VERSION}" \
+            -e GIT_TAG="${GITHUB_REF_NAME}" \
+            -e GPG_KEY="${GPG_KEY}" \
+            -e GPG_KEY_ID="${GPG_KEY_ID}" \
             ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }}:${CHANNEL} \
             /workspace/ice/packaging/rpm/build-package.sh
 
