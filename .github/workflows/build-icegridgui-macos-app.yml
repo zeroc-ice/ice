@@ -20,6 +20,9 @@ on:
         description: "The version number to use in the DMG filename (defaults to BASE_VERSION from version.env)"
         required: false
 
+permissions:
+  contents: read
+
 jobs:
   build-icegridgui-macos-app:
     runs-on: macos-26

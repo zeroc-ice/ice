@@ -25,6 +25,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   # Non-stable releases (nightly, RC) - simple sync to quality-specific paths
   publish-symbols-sources-nightly:

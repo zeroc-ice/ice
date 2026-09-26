@@ -12,6 +12,9 @@ on:
         description: "The Ice version to build"
         required: false
 
+permissions:
+  contents: read
+
 jobs:
   build-sdist:
     runs-on: ubuntu-24.04

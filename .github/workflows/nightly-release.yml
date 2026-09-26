@@ -18,10 +18,16 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build Release
     uses: ./.github/workflows/build-release.yml
+    permissions:
+      contents: read
+      packages: read
     with:
       quality: nightly
       build_number: ${{ inputs.build_number }}
@@ -48,6 +54,11 @@ jobs:
       - build
       - prune
     uses: ./.github/workflows/publish-release.yml
+    # GitHub checks the permissions of every publish-release job, including those a nightly skips: upload-release-assets
+    # writes contents, and the GEM and NPM publishes use OIDC.
+    permissions:
+      contents: write
+      id-token: write
     with:
       channel: ${{ needs.build.outputs.channel }}
       quality: nightly

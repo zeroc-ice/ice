@@ -3,10 +3,16 @@ name: "Build Docker CI Images"
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build-images:
     name: "Build ${{ matrix.image }} (${{ matrix.platform }})"
     runs-on: ${{ matrix.platform == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         include:
@@ -147,6 +153,9 @@ jobs:
   create-manifests:
     name: "Create and Push Multi-Arch Manifests"
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
     needs: build-images
     strategy:
       matrix:

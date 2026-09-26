@@ -8,6 +8,10 @@ on:
         required: false
         default: "nightly"
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build:
     name: "Build Ice Repo RPM packages for ${{ matrix.distribution }}"

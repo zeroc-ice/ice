@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: "0 0 * * 0" # Run every Sunday at midnight
 
+permissions:
+  contents: read
+
 jobs:
   generate-cpp-coverage-report:
     if: github.repository == 'zeroc-ice/ice'

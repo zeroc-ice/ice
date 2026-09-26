@@ -32,6 +32,9 @@ on:
         description: "The run ID of a successful build-cpp-windows-binaries workflow run"
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   build-symbols-sources-store:
     runs-on: windows-2022

@@ -11,6 +11,10 @@ concurrency:
   group: ci-linux-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build-and-test:
     name: ${{ matrix.distribution }}-${{ matrix.arch }}

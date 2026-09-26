@@ -17,6 +17,9 @@ env:
   # Configure the various build systems to treat warnings as errors
   WARNINGS_AS_ERRORS: yes
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     name: ${{ matrix.config }} on ${{ matrix.os }}

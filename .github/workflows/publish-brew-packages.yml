@@ -25,6 +25,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   publish-brew-packages:
     name: "Publish Brew Packages"

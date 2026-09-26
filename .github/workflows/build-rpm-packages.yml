@@ -12,6 +12,10 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build:
     name: "Build for ${{ matrix.distribution }}-${{ matrix.arch }}"

@@ -17,6 +17,9 @@ on:
       - ".github/actions/setup-cpp/**"
       - ".github/actions/setup-python/**"
 
+permissions:
+  contents: read
+
 jobs:
   build-sdist:
     runs-on: ubuntu-24.04
