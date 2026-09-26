@@ -21,12 +21,12 @@ namespace Ice::SSL
     /// An alias for the platform-specific implementation of the SSL ConnectionInfo on Windows.
     using ConnectionInfo = SchannelConnectionInfo;
     using ConnectionInfoPtr = std::shared_ptr<SchannelConnectionInfo>;
-#elif defined(ICE_USE_SECURE_TRANSPORT)
-    class SecureTransportConnectionInfo;
+#elif defined(ICE_USE_APPLE_SSL)
+    class AppleConnectionInfo;
 
     /// An alias for the platform-specific implementation of the SSL ConnectionInfo on macOS and iOS.
-    using ConnectionInfo = SecureTransportConnectionInfo;
-    using ConnectionInfoPtr = std::shared_ptr<SecureTransportConnectionInfo>;
+    using ConnectionInfo = AppleConnectionInfo;
+    using ConnectionInfoPtr = std::shared_ptr<AppleConnectionInfo>;
 #else
     class OpenSSLConnectionInfo;
 

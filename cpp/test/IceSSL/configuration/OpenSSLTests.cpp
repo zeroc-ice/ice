@@ -5,7 +5,7 @@
 #define OPENSSL_API_COMPAT 30000
 #define OPENSSL_NO_DEPRECATED
 
-#include "../../src/Ice/SSL/SecureTransportUtil.h"
+#include "../../src/Ice/SSL/AppleSSLUtil.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
 #include "Test.h"

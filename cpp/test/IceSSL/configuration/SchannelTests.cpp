@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "../../src/Ice/SSL/SecureTransportUtil.h"
+#include "../../src/Ice/SSL/AppleSSLUtil.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
 #include "Test.h"
