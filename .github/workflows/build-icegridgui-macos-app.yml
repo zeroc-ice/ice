@@ -55,7 +55,7 @@ jobs:
           KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
 
           # Decode the certificate
-          echo "$APPLE_CERTIFICATE_P12" | base64 --decode > $RUNNER_TEMP/certificate.p12
+          echo "$APPLE_CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
 
           # Create and configure a temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
@@ -63,13 +63,14 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
           # Import the certificate
-          security import $RUNNER_TEMP/certificate.p12 -P "" \
+          security import "$RUNNER_TEMP/certificate.p12" -P "" \
             -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
 
           # Allow codesign to access the keychain without prompting
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
           # Add temporary keychain to the search list
+          # shellcheck disable=SC2046 # each existing keychain is a separate argument
           security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
 
       - name: Sign macOS App
