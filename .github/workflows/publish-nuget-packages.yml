@@ -51,14 +51,22 @@ jobs:
               ;;
           esac
 
-          # Collect all packages. The symbol package ".snupkg" files are published automatically with the main package
-          # no need to push them separately.
+          # Collect all packages. On NuGet.org, "dotnet nuget push" publishes the symbol package ".snupkg" files
+          # automatically with the main package, no need to push them separately.
           mapfile -t packages < <(find staging -type f -name "*.nupkg")
 
           # Push each package to the appropriate NuGet repository
           for package in "${packages[@]}"; do
             echo "Publishing package: $package"
-            dotnet nuget push "$package" --source "$SOURCE_URL" --api-key "$NUGET_API_KEY"
+            if [ "$QUALITY" = "stable" ]; then
+              dotnet nuget push "$package" --source "$SOURCE_URL" --api-key "$NUGET_API_KEY"
+            else
+              # The NuGet clients upload every package as "package.nupkg", and Nexus then stores a package that
+              # contains PDBs as a symbol package, which clients cannot restore. Sending the real file name avoids
+              # it. See https://github.com/sonatype/nexus-public/issues/1058
+              curl --fail-with-body -sS -w "\n" -X PUT -H "X-NuGet-ApiKey: $NUGET_API_KEY" \
+                -F "package=@$package;filename=$(basename "$package")" "$SOURCE_URL"
+            fi
           done
         env:
           CHANNEL: ${{ inputs.channel }}
