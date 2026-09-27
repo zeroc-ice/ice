@@ -22,6 +22,6 @@ jobs:
           persist-credentials: false
 
       - name: Run whitespace validation
-        uses: zeroc-ice/github-actions/@main
+        uses: zeroc-ice/github-actions@main
         with:
           whitespace_patterns: "'*'"

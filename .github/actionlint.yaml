@@ -1,0 +1,4 @@
+self-hosted-runner:
+  labels:
+    # The GitHub-hosted larger runner that copilot-setup-steps.yml uses; actionlint only knows the standard labels.
+    - linux-latest-copilot

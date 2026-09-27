@@ -16,7 +16,7 @@ jobs:
     name: Swift format and lint
     runs-on: ubuntu-24.04
     container:
-      image: swift
+      image: swift:6.4
       volumes:
         - ${{ github.workspace }}:${{ github.workspace }}
     steps:
