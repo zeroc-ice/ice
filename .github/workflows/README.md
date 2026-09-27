@@ -33,3 +33,7 @@ from a specified build run.
 The RPM and DEB packaging workflows use Docker images from `packaging/rpm/docker` and `packaging/deb/docker`. The
 release pipeline uses `ghcr.io`; the `build-container-images` workflow builds and publishes these images for internal
 use.
+
+Workflows grant write permissions to the `GITHUB_TOKEN` only at the job level, in the jobs that need them. A called
+workflow gets at most the permissions of the job that calls it, so a permission added to a `build-xxx` or
+`publish-xxx` workflow must also be granted by `build-release` or `publish-release`, and by `nightly-release`.
