@@ -643,7 +643,7 @@ IcePHP::PrimitiveInfo::validate(zval* zv, bool throwException)
                 string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
                 try
                 {
-                    std::stoll(sval, nullptr, 0);
+                    [[maybe_unused]] auto _ = std::stoll(sval, nullptr, 0);
                 }
                 catch (const std::exception&)
                 {
