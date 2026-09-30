@@ -27,7 +27,7 @@ function allTests($helper)
 {
     $communicator = $helper->communicator();
 
-    echo "testing that internal classes cannot be created outside the extension... ";
+    echo "testing guardrails against creating internal classes outside the extension... ";
     flush(); {
         // These classes wrap native C++ state that only the extension's factory functions populate. An instance
         // created any other way would carry a null native pointer and crash the first time it was used, so both

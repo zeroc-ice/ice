@@ -427,11 +427,14 @@ function allTests($helper)
     test($cl == $derived);
 
     // Comparing a proxy with an object of another class or with a value of another type must not crash: PHP's
-    // standard object comparison applies instead.
-    test($cl != new stdClass());
-    test(new stdClass() != $cl);
+    // standard object comparison applies instead. All the operands are variables because PHP reorders the operands
+    // of == and != when they are not the same kind of symbol.
+    $otherObject = new stdClass();
+    $proxyString = $cl->ice_toString();
+    test($cl != $otherObject);
     test($cl != $communicator);
-    test($cl == $cl->ice_toString());
+    test($cl == $proxyString);
+    test($proxyString == $cl);
 
     try {
         Test\MyInterfacePrxHelper::checkedCast($base, "facet");
@@ -475,9 +478,12 @@ function allTests($helper)
         $fixedConnection = $cl->ice_connectionId("ice_fixed")->ice_getConnection();
         test($cl->ice_fixed($connection)->ice_fixed($fixedConnection)->ice_getConnection() == $fixedConnection);
         // Comparing a connection with an object of another class or with a value of another type must not crash.
-        test($connection != new stdClass());
+        // As with the proxy comparisons above, all the operands are variables.
+        $connectionString = $connection->toString();
+        test($connection != $otherObject);
         test($connection != $cl);
-        test($connection == $connection->toString());
+        test($connection == $connectionString);
+        test($connectionString == $connection);
         try {
             $cl->ice_datagram()->ice_fixed($connection)->ice_ping();
         } catch (Exception $ex) {
@@ -490,6 +496,21 @@ function allTests($helper)
             # Expected with null connection.
         }
     }
+    echo "ok\n";
+
+    echo "testing ice_getConnection with a collocated proxy... ";
+    flush();
+    // A proxy that points to an object adapter of its own communicator is collocated: it has no connection. The Admin
+    // object adapter is the only object adapter a PHP communicator can have.
+    $adminEndpoint = sprintf("tcp -h 127.0.0.1 -p %d", $helper->getTestPort(10));
+    $initData = new Ice\InitializationData();
+    $initData->properties = Ice\createProperties();
+    $initData->properties->setProperty("Ice.Admin.Endpoints", $adminEndpoint);
+    $collocatedCommunicator = Ice\initialize($initData);
+    $collocated = $collocatedCommunicator->stringToProxy("test:" . $adminEndpoint);
+    test($collocated->ice_getConnection() === null);
+    test($collocated->ice_getCachedConnection() === null);
+    $collocatedCommunicator->destroy();
     echo "ok\n";
 
     echo "testing encoding versioning... ";
