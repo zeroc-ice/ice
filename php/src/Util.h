@@ -44,13 +44,12 @@ namespace IcePHP
             return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char*>(object) - XtOffsetOf(Wrapper<T>, zobj));
         }
 
-        // Returns the wrapped value. A null pointer means the PHP object was constructed outside the extension, for
-        // example by reflection; value ends the request with a fatal error, which skips the destructors of the C++
-        // objects that are live in the calling frames. So value must only be called where there are none, typically
-        // as the first statement of a method or object handler. Elsewhere, call valueOrNull.
+        // Returns the wrapped value.
+        // A null pointer means the PHP object was constructed outside the extension, in which case these functions
+        // raise a fatal error in the PHP interpreter and do not return. This skips destructors of live C++ objects
+        // in the calling frames. So only call this when there are none present; otherwise use `valueOrNull`.
         static T value(zval* zv) { return value(extract(zv)); }
         static T value(zend_object* object) { return value(fetch(object)); }
-
         static T value(Wrapper<T>* w)
         {
             if (!w->ptr)
@@ -65,15 +64,16 @@ namespace IcePHP
             return *w->ptr;
         }
 
-        // Like value, but raises RuntimeException in the PHP interpreter and returns an empty T when the PHP object
-        // was constructed outside the extension. The caller reports the failure and returns normally.
+        // Returns the wrapped value like `value` does.
+        // But in the case of a null pointer, this raises a `RuntimeException` in the PHP interpreter and returns an
+        // empty `T`, instead of raising a fatal error.
         static T valueOrNull(zval* zv)
         {
             Wrapper<T>* w = extract(zv);
             if (!w->ptr)
             {
                 runtimeError(
-                    std::string("the ") + ZSTR_VAL(w->zobj.ce->name) + " object was not created by the Ice extension");
+                    std::string("a ") + ZSTR_VAL(w->zobj.ce->name) + " object was created outside the Ice extension");
                 return T();
             }
             return *w->ptr;

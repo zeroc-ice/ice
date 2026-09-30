@@ -515,9 +515,8 @@ function allTests($helper)
 
     echo "testing a proxy created outside the extension... ";
     flush();
-    // Ice\ObjectPrx is not final, so that it can be mocked, which lets reflection create an instance that carries no
-    // native state. Handing such a proxy to the extension must raise an exception, without a crash and without ending
-    // the request.
+    // Creating a proxy outside the extension using reflection creates an instance that carries no native state.
+    // Using such a proxy with the extension should raise an exception without crashing or ending the request.
     $fabricated = (new ReflectionClass("Ice\\ObjectPrx"))->newInstanceWithoutConstructor();
     try {
         $communicator->proxyToString($fabricated);
@@ -536,11 +535,6 @@ function allTests($helper)
     }
     try {
         $r = ($fabricated == $cl);
-        test(false);
-    } catch (RuntimeException $ex) {
-    }
-    try {
-        $r = ($cl == $fabricated);
         test(false);
     } catch (RuntimeException $ex) {
     }

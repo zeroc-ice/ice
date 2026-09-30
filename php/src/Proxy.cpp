@@ -1544,10 +1544,10 @@ handleGetMethod(zend_object** object, zend_string* name, const zval* key)
 static int
 handleCompare(zval* zobj1, zval* zobj2)
 {
-    // PHP calls this handler when either operand is a proxy. Unless both are, defer to the standard object comparison.
+    // PHP will call this fallback handler if either operand is not a proxy.
+    // If both operands are proxies, this is no-op and the rest of this function will be executed.
     ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
 
-    // The interpreter checks for an exception raised by the comparison once this handler returns.
     ProxyPtr obj1 = Wrapper<ProxyPtr>::valueOrNull(zobj1);
     if (!obj1)
     {

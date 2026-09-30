@@ -284,11 +284,10 @@ handleConnectionFreeStorage(zend_object* object)
 static int
 handleConnectionCompare(zval* zobj1, zval* zobj2)
 {
-    // PHP calls this handler when either operand is a connection. Unless both are, defer to the standard object
-    // comparison.
+    // PHP will call this fallback handler if either operand is not a connection.
+    // If both operands are connections, this is no-op and the rest of this function will be executed.
     ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
 
-    // The interpreter checks for an exception raised by the comparison once this handler returns.
     Ice::ConnectionPtr con1 = Wrapper<Ice::ConnectionPtr>::valueOrNull(zobj1);
     if (!con1)
     {
