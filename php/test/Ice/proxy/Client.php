@@ -513,6 +513,39 @@ function allTests($helper)
     $collocatedCommunicator->destroy();
     echo "ok\n";
 
+    echo "testing a proxy created outside the extension... ";
+    flush();
+    // Ice\ObjectPrx is not final, so that it can be mocked, which lets reflection create an instance that carries no
+    // native state. Handing such a proxy to the extension must raise an exception, without a crash and without ending
+    // the request.
+    $fabricated = (new ReflectionClass("Ice\\ObjectPrx"))->newInstanceWithoutConstructor();
+    try {
+        $communicator->proxyToString($fabricated);
+        test(false);
+    } catch (RuntimeException $ex) {
+    }
+    try {
+        $cl->ice_router($fabricated);
+        test(false);
+    } catch (RuntimeException $ex) {
+    }
+    try {
+        $derived->_echo($fabricated);
+        test(false);
+    } catch (RuntimeException $ex) {
+    }
+    try {
+        $r = ($fabricated == $cl);
+        test(false);
+    } catch (RuntimeException $ex) {
+    }
+    try {
+        $r = ($cl == $fabricated);
+        test(false);
+    } catch (RuntimeException $ex) {
+    }
+    echo "ok\n";
+
     echo "testing encoding versioning... ";
     flush();
     $ref20 = sprintf("test -e 2.0:%s", $helper->getTestEndpoint());

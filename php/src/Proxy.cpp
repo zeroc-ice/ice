@@ -1544,12 +1544,23 @@ handleGetMethod(zend_object** object, zend_string* name, const zval* key)
 static int
 handleCompare(zval* zobj1, zval* zobj2)
 {
-    // PHP will call this fallback handler if either operand is not a proxy.
-    // If both operands are proxies, this is no-op and the rest of this function will be executed.
+    // PHP calls this handler when either operand is a proxy. Unless both are, defer to the standard object comparison.
     ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
 
-    Ice::ObjectPrx prx1 = Wrapper<ProxyPtr>::value(zobj1)->proxy;
-    Ice::ObjectPrx prx2 = Wrapper<ProxyPtr>::value(zobj2)->proxy;
+    // The interpreter checks for an exception raised by the comparison once this handler returns.
+    ProxyPtr obj1 = Wrapper<ProxyPtr>::valueOrNull(zobj1);
+    if (!obj1)
+    {
+        return ZEND_UNCOMPARABLE;
+    }
+    ProxyPtr obj2 = Wrapper<ProxyPtr>::valueOrNull(zobj2);
+    if (!obj2)
+    {
+        return ZEND_UNCOMPARABLE;
+    }
+
+    const Ice::ObjectPrx& prx1 = obj1->proxy;
+    const Ice::ObjectPrx& prx2 = obj2->proxy;
 
     if (prx1 == prx2)
     {
@@ -1715,7 +1726,11 @@ IcePHP::fetchProxy(zval* zv, optional<Ice::ObjectPrx>& prx, ProxyInfoPtr& info, 
             invalidArgument("value is not a proxy");
             return false;
         }
-        ProxyPtr obj = Wrapper<ProxyPtr>::value(zv);
+        ProxyPtr obj = Wrapper<ProxyPtr>::valueOrNull(zv);
+        if (!obj)
+        {
+            return false;
+        }
         prx = obj->proxy;
         info = obj->info;
         comm = obj->communicator;

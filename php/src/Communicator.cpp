@@ -1028,8 +1028,11 @@ ZEND_FUNCTION(Ice_register)
         RETURN_NULL();
     }
 
-    CommunicatorInfoIPtr info = Wrapper<CommunicatorInfoIPtr>::value(comm);
-    assert(info);
+    CommunicatorInfoIPtr info = Wrapper<CommunicatorInfoIPtr>::valueOrNull(comm);
+    if (!info)
+    {
+        RETURN_NULL();
+    }
 
     lock_guard lock(_registeredCommunicatorsMutex);
 

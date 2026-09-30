@@ -281,10 +281,9 @@ IcePHP::fetchLogger(zval* zv, Ice::LoggerPtr& p)
             invalidArgument("value is not a logger object");
             return false;
         }
-        p = Wrapper<Ice::LoggerPtr>::value(zv);
+        p = Wrapper<Ice::LoggerPtr>::valueOrNull(zv);
         if (!p)
         {
-            runtimeError("unable to retrieve logger object from object store");
             return false;
         }
     }

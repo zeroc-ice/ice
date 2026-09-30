@@ -15,6 +15,7 @@ extern "C"
 namespace IcePHP
 {
     void* extractWrapper(zval*);
+    void runtimeError(const std::string&);
 
     // Wraps a C++ pointer inside a PHP object.
     template<typename T> struct Wrapper
@@ -43,6 +44,10 @@ namespace IcePHP
             return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char*>(object) - XtOffsetOf(Wrapper<T>, zobj));
         }
 
+        // Returns the wrapped value. A null pointer means the PHP object was constructed outside the extension, for
+        // example by reflection; value ends the request with a fatal error, which skips the destructors of the C++
+        // objects that are live in the calling frames. So value must only be called where there are none, typically
+        // as the first statement of a method or object handler. Elsewhere, call valueOrNull.
         static T value(zval* zv) { return value(extract(zv)); }
         static T value(zend_object* object) { return value(fetch(object)); }
 
@@ -56,6 +61,20 @@ namespace IcePHP
                     E_ERROR,
                     "%s(): the object was not created by the Ice extension",
                     get_active_function_name());
+            }
+            return *w->ptr;
+        }
+
+        // Like value, but raises RuntimeException in the PHP interpreter and returns an empty T when the PHP object
+        // was constructed outside the extension. The caller reports the failure and returns normally.
+        static T valueOrNull(zval* zv)
+        {
+            Wrapper<T>* w = extract(zv);
+            if (!w->ptr)
+            {
+                runtimeError(
+                    std::string("the ") + ZSTR_VAL(w->zobj.ce->name) + " object was not created by the Ice extension");
+                return T();
             }
             return *w->ptr;
         }

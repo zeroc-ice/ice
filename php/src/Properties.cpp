@@ -811,10 +811,9 @@ IcePHP::fetchProperties(zval* zv, Ice::PropertiesPtr& p)
             invalidArgument("value is not a properties object");
             return false;
         }
-        p = Wrapper<Ice::PropertiesPtr>::value(zv);
+        p = Wrapper<Ice::PropertiesPtr>::valueOrNull(zv);
         if (!p)
         {
-            runtimeError("unable to retrieve properties object from object store");
             return false;
         }
     }
