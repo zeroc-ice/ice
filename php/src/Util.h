@@ -56,10 +56,7 @@ namespace IcePHP
             {
                 // The underlying pointer is null, which means the PHP object was constructed outside the extension.
                 // We emit a non-returning error to the PHP interpreter, to avoid hitting the dereference below here.
-                zend_error_noreturn(
-                    E_ERROR,
-                    "'%s' was created outside the Ice extension",
-                    ZSTR_VAL(w->zobj.ce->name));
+                zend_error_noreturn(E_ERROR, "'%s' was created outside the Ice extension", ZSTR_VAL(w->zobj.ce->name));
             }
             return *w->ptr;
         }
@@ -71,8 +68,7 @@ namespace IcePHP
             Wrapper<T>* w = extract(zv);
             if (!w->ptr)
             {
-                runtimeError(
-                    std::string("'") + ZSTR_VAL(w->zobj.ce->name) + "' was created outside the Ice extension");
+                runtimeError(std::string("'") + ZSTR_VAL(w->zobj.ce->name) + "' was created outside the Ice extension");
                 return nullptr;
             }
             return w->ptr;
