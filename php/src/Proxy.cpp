@@ -1297,7 +1297,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCachedConnection)
 
     try
     {
-        // ice_getConnection returns null when the target is reached through colloc.
+        // ice_getCachedConnection returns null when the target is reached through colloc.
         Ice::ConnectionPtr con = _this->proxy->ice_getCachedConnection();
         if (!con || !createConnection(return_value, con))
         {
