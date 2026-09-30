@@ -57,10 +57,10 @@ function allTests($helper)
                 test(false);
             } catch (Error $ex) {
             }
-            // Test tha unserialization is blocked.
-            // With PHP 8.0, `unserialize` returns false on failure. In newer versions, it fails with an exception.
+            // Test that unserialization is blocked. With PHP 8.0, `unserialize` returns false on failure.
+            // In newer versions, it fails with an exception. We handle both outcomes here.
             try {
-                unserialize('O:' . strlen($className) . ':"' . $className . '":0:{}' === false);
+                test(@unserialize('O:' . strlen($className) . ':"' . $className . '":0:{}') === false);
             } catch (Exception $ex) {
             }
         }
