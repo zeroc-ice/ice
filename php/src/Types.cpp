@@ -3344,7 +3344,8 @@ ZEND_FUNCTION(IcePHP_defineSequence)
     size_t idLen;
     zval* element;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("so"), &id, &idLen, &element) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sO"), &id, &idLen, &element, typeInfoClassEntry) ==
+        FAILURE)
     {
         assert(false);
         return;
@@ -3363,7 +3364,15 @@ ZEND_FUNCTION(IcePHP_defineDictionary)
     zval* key;
     zval* value;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("soo"), &id, &idLen, &key, &value) == FAILURE)
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("sOO"),
+            &id,
+            &idLen,
+            &key,
+            typeInfoClassEntry,
+            &value,
+            typeInfoClassEntry) == FAILURE)
     {
         return;
     }
@@ -3404,7 +3413,14 @@ ZEND_FUNCTION(IcePHP_defineProxy)
     zval* base;
     zval* interfaces;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("so!a!"), &id, &idLen, &base, &interfaces) == FAILURE)
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("sO!a!"),
+            &id,
+            &idLen,
+            &base,
+            typeInfoClassEntry,
+            &interfaces) == FAILURE)
     {
         return;
     }
@@ -3458,13 +3474,14 @@ ZEND_FUNCTION(IcePHP_defineClass)
 
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            const_cast<char*>("sslo!a!"),
+            const_cast<char*>("sslO!a!"),
             &id,
             &idLen,
             &name,
             &nameLen,
             &compactId,
             &base,
+            typeInfoClassEntry,
             &members) == FAILURE)
     {
         return;
@@ -3537,12 +3554,13 @@ ZEND_FUNCTION(IcePHP_defineException)
 
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            const_cast<char*>("sso!a!"),
+            const_cast<char*>("ssO!a!"),
             &id,
             &idLen,
             &name,
             &nameLen,
             &base,
+            exceptionInfoClassEntry,
             &members) == FAILURE)
     {
         return;
@@ -3603,7 +3621,7 @@ ZEND_FUNCTION(IcePHP_stringify)
     zval* v;
     zval* t;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zz"), &v, &t) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zO"), &v, &t, typeInfoClassEntry) == FAILURE)
     {
         return;
     }
@@ -3631,7 +3649,7 @@ ZEND_FUNCTION(IcePHP_stringifyException)
     zval* v;
     zval* t;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("oo"), &v, &t) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("oO"), &v, &t, exceptionInfoClassEntry) == FAILURE)
     {
         return;
     }

@@ -27,6 +27,9 @@ extern "C"
 
 namespace IcePHP
 {
+    extern zend_class_entry* typeInfoClassEntry;
+    extern zend_class_entry* exceptionInfoClassEntry;
+
     // This class is raised as an exception when object marshaling needs to be aborted.
     class AbortMarshaling
     {
