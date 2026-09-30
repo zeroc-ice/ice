@@ -329,11 +329,12 @@ IcePHP::fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint)
             invalidArgument("value is not an endpoint");
             return false;
         }
-        endpoint = Wrapper<Ice::EndpointPtr>::valueOrNull(zv);
-        if (!endpoint)
+        const Ice::EndpointPtr* endpointPtr = Wrapper<Ice::EndpointPtr>::valueOrNull(zv);
+        if (!endpointPtr)
         {
             return false;
         }
+        endpoint = *endpointPtr;
     }
     return true;
 }

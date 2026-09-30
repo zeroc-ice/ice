@@ -281,11 +281,12 @@ IcePHP::fetchLogger(zval* zv, Ice::LoggerPtr& p)
             invalidArgument("value is not a logger object");
             return false;
         }
-        p = Wrapper<Ice::LoggerPtr>::valueOrNull(zv);
-        if (!p)
+        const Ice::LoggerPtr* logger = Wrapper<Ice::LoggerPtr>::valueOrNull(zv);
+        if (!logger)
         {
             return false;
         }
+        p = *logger;
     }
     return true;
 }

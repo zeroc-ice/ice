@@ -1548,19 +1548,19 @@ handleCompare(zval* zobj1, zval* zobj2)
     // `ZEND_COMPARE_OBJECTS_FALLBACK` returns early, so our code below can assume they both are.
     ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
 
-    ProxyPtr obj1 = Wrapper<ProxyPtr>::valueOrNull(zobj1);
+    const ProxyPtr* obj1 = Wrapper<ProxyPtr>::valueOrNull(zobj1);
     if (!obj1)
     {
         return ZEND_UNCOMPARABLE;
     }
-    ProxyPtr obj2 = Wrapper<ProxyPtr>::valueOrNull(zobj2);
+    const ProxyPtr* obj2 = Wrapper<ProxyPtr>::valueOrNull(zobj2);
     if (!obj2)
     {
         return ZEND_UNCOMPARABLE;
     }
 
-    const Ice::ObjectPrx& prx1 = obj1->proxy;
-    const Ice::ObjectPrx& prx2 = obj2->proxy;
+    const Ice::ObjectPrx& prx1 = (*obj1)->proxy;
+    const Ice::ObjectPrx& prx2 = (*obj2)->proxy;
 
     if (prx1 == prx2)
     {
@@ -1726,14 +1726,14 @@ IcePHP::fetchProxy(zval* zv, optional<Ice::ObjectPrx>& prx, ProxyInfoPtr& info, 
             invalidArgument("value is not a proxy");
             return false;
         }
-        ProxyPtr obj = Wrapper<ProxyPtr>::valueOrNull(zv);
+        const ProxyPtr* obj = Wrapper<ProxyPtr>::valueOrNull(zv);
         if (!obj)
         {
             return false;
         }
-        prx = obj->proxy;
-        info = obj->info;
-        comm = obj->communicator;
+        prx = (*obj)->proxy;
+        info = (*obj)->info;
+        comm = (*obj)->communicator;
     }
     return true;
 }

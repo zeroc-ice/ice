@@ -288,22 +288,22 @@ handleConnectionCompare(zval* zobj1, zval* zobj2)
     // not a connection, `ZEND_COMPARE_OBJECTS_FALLBACK` returns early, so our code below can assume they both are.
     ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
 
-    Ice::ConnectionPtr con1 = Wrapper<Ice::ConnectionPtr>::valueOrNull(zobj1);
+    const Ice::ConnectionPtr* con1 = Wrapper<Ice::ConnectionPtr>::valueOrNull(zobj1);
     if (!con1)
     {
         return ZEND_UNCOMPARABLE;
     }
-    Ice::ConnectionPtr con2 = Wrapper<Ice::ConnectionPtr>::valueOrNull(zobj2);
+    const Ice::ConnectionPtr* con2 = Wrapper<Ice::ConnectionPtr>::valueOrNull(zobj2);
     if (!con2)
     {
         return ZEND_UNCOMPARABLE;
     }
 
-    if (con1 == con2)
+    if (*con1 == *con2)
     {
         return 0;
     }
-    else if (con1 < con2)
+    else if (*con1 < *con2)
     {
         return -1;
     }
@@ -472,11 +472,12 @@ IcePHP::fetchConnection(zval* zv, Ice::ConnectionPtr& connection)
             invalidArgument("value is not a connection");
             return false;
         }
-        connection = Wrapper<Ice::ConnectionPtr>::valueOrNull(zv);
-        if (!connection)
+        const Ice::ConnectionPtr* connectionPtr = Wrapper<Ice::ConnectionPtr>::valueOrNull(zv);
+        if (!connectionPtr)
         {
             return false;
         }
+        connection = *connectionPtr;
     }
     return true;
 }

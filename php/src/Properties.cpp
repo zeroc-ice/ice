@@ -811,11 +811,12 @@ IcePHP::fetchProperties(zval* zv, Ice::PropertiesPtr& p)
             invalidArgument("value is not a properties object");
             return false;
         }
-        p = Wrapper<Ice::PropertiesPtr>::valueOrNull(zv);
-        if (!p)
+        const Ice::PropertiesPtr* properties = Wrapper<Ice::PropertiesPtr>::valueOrNull(zv);
+        if (!properties)
         {
             return false;
         }
+        p = *properties;
     }
     return true;
 }

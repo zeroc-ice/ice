@@ -48,9 +48,9 @@ namespace IcePHP
         // A null pointer means the PHP object was constructed outside the extension, in which case these functions
         // raise a fatal error in the PHP interpreter and do not return. This skips destructors of live C++ objects
         // in the calling frames. So only call this when there are none present; otherwise use `valueOrNull`.
-        static T value(zval* zv) { return value(extract(zv)); }
-        static T value(zend_object* object) { return value(fetch(object)); }
-        static T value(Wrapper<T>* w)
+        static const T& value(zval* zv) { return value(extract(zv)); }
+        static const T& value(zend_object* object) { return value(fetch(object)); }
+        static const T& value(Wrapper<T>* w)
         {
             if (!w->ptr)
             {
@@ -58,25 +58,24 @@ namespace IcePHP
                 // We emit a non-returning error to the PHP interpreter, to avoid hitting the dereference below here.
                 zend_error_noreturn(
                     E_ERROR,
-                    "%s(): the object was not created by the Ice extension",
-                    get_active_function_name());
+                    "'%s' was created outside the Ice extension",
+                    ZSTR_VAL(w->zobj.ce->name));
             }
             return *w->ptr;
         }
 
-        // Returns the wrapped value like `value` does.
-        // But in the case of a null pointer, this raises a `RuntimeException` in the PHP interpreter and returns an
-        // empty `T`, instead of raising a fatal error.
-        static T valueOrNull(zval* zv)
+        // Returns the wrapped value like `value` does. But in the case of a null pointer,
+        // this raises a `RuntimeException` in the PHP interpreter and returns null, instead of raising a fatal error.
+        static const T* valueOrNull(zval* zv)
         {
             Wrapper<T>* w = extract(zv);
             if (!w->ptr)
             {
                 runtimeError(
-                    std::string("a ") + ZSTR_VAL(w->zobj.ce->name) + " object was created outside the Ice extension");
-                return T();
+                    std::string("'") + ZSTR_VAL(w->zobj.ce->name) + "' was created outside the Ice extension");
+                return nullptr;
             }
-            return *w->ptr;
+            return w->ptr;
         }
 
         // This must be last element in the struct
