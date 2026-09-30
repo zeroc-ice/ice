@@ -284,7 +284,7 @@ handleConnectionFreeStorage(zend_object* object)
 static int
 handleConnectionCompare(zval* zobj1, zval* zobj2)
 {
-    // PHP calls `handleConnectionCompare` when either of the objects being compared is a connection. If one of them is
+    // PHP calls `handleConnectionCompare` when either of the values being compared is a connection. If one of them is
     // not a connection, `ZEND_COMPARE_OBJECTS_FALLBACK` returns early, so our code below can assume they both are.
     ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
 

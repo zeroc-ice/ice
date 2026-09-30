@@ -1544,7 +1544,7 @@ handleGetMethod(zend_object** object, zend_string* name, const zval* key)
 static int
 handleCompare(zval* zobj1, zval* zobj2)
 {
-    // PHP calls `handleCompare` when either of the objects being compared is a proxy. If one of them is not a proxy,
+    // PHP calls `handleCompare` when either of the values being compared is a proxy. If one of them is not a proxy,
     // `ZEND_COMPARE_OBJECTS_FALLBACK` returns early, so our code below can assume they both are.
     ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
 
