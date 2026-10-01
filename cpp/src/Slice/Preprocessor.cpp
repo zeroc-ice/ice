@@ -313,7 +313,7 @@ Slice::Preprocessor::close()
         _cppHandle = nullptr;
         if (status != 0)
         {
-            throw runtime_error("failed to close preprocessor file '" + IceInternal::lastErrorToString() + "'");
+            throw runtime_error("failed to close preprocessor file: " + IceInternal::lastErrorToString());
         }
     }
 }

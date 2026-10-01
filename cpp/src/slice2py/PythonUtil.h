@@ -483,7 +483,6 @@ namespace Slice::Python
     /// @param debug Whether to enable debug output.
     /// @return A CompilationResult containing the generated code fragments and the compilation status.
     CompilationResult compile(
-
         const std::unique_ptr<DependencyGenerator>& dependencyGenerator,
         PackageVisitor& packageVisitor,
         const std::vector<std::string>& files,
