@@ -210,12 +210,12 @@ IcePy_compileSlice(PyObject* /*self*/, PyObject* args)
     }
     catch (const std::exception& ex)
     {
-        consoleErr << argSeq[0] << ": error:" << ex.what() << endl;
+        consoleErr << argSeq[0] << ": error: " << ex.what() << endl;
         rc = EXIT_FAILURE;
     }
     catch (...)
     {
-        consoleErr << argSeq[0] << ": error:unknown exception" << endl;
+        consoleErr << argSeq[0] << ": error: unknown exception" << endl;
         rc = EXIT_FAILURE;
     }
 
