@@ -211,7 +211,7 @@ namespace
             UnitPtr unit;
             try
             {
-                preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+                preprocessor = Preprocessor::create(fileName, preprocessorArgs);
                 FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2MATLAB__");
                 if (preprocessedHandle == nullptr)
                 {

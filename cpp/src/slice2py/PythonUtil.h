@@ -473,8 +473,6 @@ namespace Slice::Python
     /// Generates Python modules and packages from the specified Slice files. Returns the generated code
     /// fragments and the compilation status as a CompilationResult.
     ///
-    /// @param programName The name of the caller program (typically "slice2py" or "Ice.loadSlice"), used for
-    /// parser errors.
     /// @param dependencyGenerator The dependency generator used to collect Slice file dependencies.
     /// @param packageVisitor The package visitor responsible for collecting package and module information.
     /// @param files The list of Slice files to process.
@@ -485,7 +483,7 @@ namespace Slice::Python
     /// @param debug Whether to enable debug output.
     /// @return A CompilationResult containing the generated code fragments and the compilation status.
     CompilationResult compile(
-        const std::string& programName,
+
         const std::unique_ptr<DependencyGenerator>& dependencyGenerator,
         PackageVisitor& packageVisitor,
         const std::vector<std::string>& files,

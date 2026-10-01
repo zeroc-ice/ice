@@ -15,10 +15,9 @@ namespace Slice
     class Preprocessor final
     {
     public:
-        static PreprocessorPtr
-        create(const std::string& path, const std::string& fileName, const std::vector<std::string>& args);
+        static PreprocessorPtr create(const std::string& fileName, const std::vector<std::string>& args);
 
-        Preprocessor(std::string path, const std::string& fileName, const std::vector<std::string>& args);
+        Preprocessor(const std::string& fileName, const std::vector<std::string>& args);
         ~Preprocessor();
 
         FILE* preprocess(const std::string& languageArg = "");
@@ -31,7 +30,6 @@ namespace Slice
     private:
         void checkInputFile();
 
-        const std::string _path;
         const std::string _fileName;
         const std::vector<std::string> _args;
         FILE* _cppHandle{nullptr};

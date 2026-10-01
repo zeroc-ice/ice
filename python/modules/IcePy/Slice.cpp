@@ -3,7 +3,6 @@
 #include "Slice.h"
 #include "Ice/ConsoleUtil.h"
 #include "Ice/Options.h"
-#include "Slice/Preprocessor.h"
 #include "Slice/Util.h"
 #include "Util.h"
 #include "slice2py/PythonUtil.h"
@@ -92,7 +91,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     {
         PackageVisitor packageVisitor;
         compilationResult = Slice::Python::compile(
-            "Ice.loadSlice",
             nullptr, // No dependency generator
             packageVisitor,
             sliceFiles,

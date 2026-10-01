@@ -206,7 +206,7 @@ compile(const vector<string>& argv)
         UnitPtr unit;
         try
         {
-            preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            preprocessor = Preprocessor::create(fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2JS__");
             if (preprocessedHandle == nullptr)
             {

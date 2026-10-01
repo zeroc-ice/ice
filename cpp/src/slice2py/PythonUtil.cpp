@@ -2762,7 +2762,6 @@ namespace
 
 Slice::Python::CompilationResult
 Slice::Python::compile(
-    const string& programName,
     const unique_ptr<DependencyGenerator>& dependencyGenerator,
     PackageVisitor& packageVisitor,
     const vector<string>& files,
@@ -2786,7 +2785,7 @@ Slice::Python::compile(
         UnitPtr unit;
         try
         {
-            preprocessor = Preprocessor::create(programName, fileName, preprocessorArgs);
+            preprocessor = Preprocessor::create(fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
             if (preprocessedHandle == nullptr)
             {
@@ -3316,7 +3315,6 @@ Slice::Python::compile(const vector<string>& args)
     }
 
     CompilationResult compilationResult = Slice::Python::compile(
-        programName,
         dependencyGenerator,
         packageVisitor,
         sliceFiles,
