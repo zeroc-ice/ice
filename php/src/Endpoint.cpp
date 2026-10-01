@@ -221,6 +221,10 @@ IcePHP::endpointInit(void)
     INIT_CLASS_ENTRY(ce, "IcePHP_Endpoint", _endpointMethods);
     ce.create_object = handleEndpointAlloc;
     endpointClassEntry = zend_register_internal_class(&ce);
+    // Mark the class as final to prevent subclassing, and forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    makeFinal(endpointClassEntry);
+    denySerialization(endpointClassEntry);
     memcpy(&_endpointHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _endpointHandlers.clone_obj = nullptr;
@@ -232,6 +236,9 @@ IcePHP::endpointInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "EndpointInfo", _endpointInfoMethods);
     ce.create_object = handleEndpointInfoAlloc;
     endpointInfoClassEntry = zend_register_internal_class(&ce);
+    // Forbid serialization of the class; the EndpointInfo subclasses registered below inherit this.
+    // An instance created by anything other than our factory would have a null native pointer.
+    denySerialization(endpointInfoClassEntry);
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _endpointInfoHandlers.clone_obj = nullptr;
@@ -322,12 +329,12 @@ IcePHP::fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint)
             invalidArgument("value is not an endpoint");
             return false;
         }
-        Wrapper<Ice::EndpointPtr>* obj = Wrapper<Ice::EndpointPtr>::extract(zv);
-        if (!obj)
+        const Ice::EndpointPtr* endpointPtr = Wrapper<Ice::EndpointPtr>::valueOrNull(zv);
+        if (!endpointPtr)
         {
             return false;
         }
-        endpoint = *obj->ptr;
+        endpoint = *endpointPtr;
     }
     return true;
 }

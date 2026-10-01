@@ -284,17 +284,26 @@ handleConnectionFreeStorage(zend_object* object)
 static int
 handleConnectionCompare(zval* zobj1, zval* zobj2)
 {
-    // PHP guarantees that the objects have the same class.
-    Ice::ConnectionPtr con1 = Wrapper<Ice::ConnectionPtr>::value(zobj1);
-    assert(con1);
-    Ice::ConnectionPtr con2 = Wrapper<Ice::ConnectionPtr>::value(zobj2);
-    assert(con2);
+    // PHP calls `handleConnectionCompare` when either of the values being compared is a connection. If one of them is
+    // not a connection, `ZEND_COMPARE_OBJECTS_FALLBACK` returns early, so our code below can assume they both are.
+    ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
 
-    if (con1 == con2)
+    const Ice::ConnectionPtr* con1 = Wrapper<Ice::ConnectionPtr>::valueOrNull(zobj1);
+    if (!con1)
+    {
+        return ZEND_UNCOMPARABLE;
+    }
+    const Ice::ConnectionPtr* con2 = Wrapper<Ice::ConnectionPtr>::valueOrNull(zobj2);
+    if (!con2)
+    {
+        return ZEND_UNCOMPARABLE;
+    }
+
+    if (*con1 == *con2)
     {
         return 0;
     }
-    else if (con1 < con2)
+    else if (*con1 < *con2)
     {
         return -1;
     }
@@ -352,6 +361,10 @@ IcePHP::connectionInit(void)
     INIT_CLASS_ENTRY(ce, "IcePHP_Connection", _connectionClassMethods);
     ce.create_object = handleConnectionAlloc;
     connectionClassEntry = zend_register_internal_class(&ce);
+    // Mark the class as final to prevent subclassing, and forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    makeFinal(connectionClassEntry);
+    denySerialization(connectionClassEntry);
     memcpy(&_connectionHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _connectionHandlers.clone_obj = nullptr;
@@ -459,12 +472,12 @@ IcePHP::fetchConnection(zval* zv, Ice::ConnectionPtr& connection)
             invalidArgument("value is not a connection");
             return false;
         }
-        Wrapper<Ice::ConnectionPtr>* obj = Wrapper<Ice::ConnectionPtr>::extract(zv);
-        if (!obj)
+        const Ice::ConnectionPtr* connectionPtr = Wrapper<Ice::ConnectionPtr>::valueOrNull(zv);
+        if (!connectionPtr)
         {
             return false;
         }
-        connection = *obj->ptr;
+        connection = *connectionPtr;
     }
     return true;
 }

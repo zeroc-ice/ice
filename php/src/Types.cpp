@@ -3344,7 +3344,8 @@ ZEND_FUNCTION(IcePHP_defineSequence)
     size_t idLen;
     zval* element;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("so"), &id, &idLen, &element) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sO"), &id, &idLen, &element, typeInfoClassEntry) ==
+        FAILURE)
     {
         assert(false);
         return;
@@ -3363,7 +3364,15 @@ ZEND_FUNCTION(IcePHP_defineDictionary)
     zval* key;
     zval* value;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("soo"), &id, &idLen, &key, &value) == FAILURE)
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("sOO"),
+            &id,
+            &idLen,
+            &key,
+            typeInfoClassEntry,
+            &value,
+            typeInfoClassEntry) == FAILURE)
     {
         return;
     }
@@ -3404,7 +3413,14 @@ ZEND_FUNCTION(IcePHP_defineProxy)
     zval* base;
     zval* interfaces;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("so!a!"), &id, &idLen, &base, &interfaces) == FAILURE)
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("sO!a!"),
+            &id,
+            &idLen,
+            &base,
+            typeInfoClassEntry,
+            &interfaces) == FAILURE)
     {
         return;
     }
@@ -3458,13 +3474,14 @@ ZEND_FUNCTION(IcePHP_defineClass)
 
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            const_cast<char*>("sslo!a!"),
+            const_cast<char*>("sslO!a!"),
             &id,
             &idLen,
             &name,
             &nameLen,
             &compactId,
             &base,
+            typeInfoClassEntry,
             &members) == FAILURE)
     {
         return;
@@ -3537,12 +3554,13 @@ ZEND_FUNCTION(IcePHP_defineException)
 
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            const_cast<char*>("sso!a!"),
+            const_cast<char*>("ssO!a!"),
             &id,
             &idLen,
             &name,
             &nameLen,
             &base,
+            exceptionInfoClassEntry,
             &members) == FAILURE)
     {
         return;
@@ -3603,7 +3621,7 @@ ZEND_FUNCTION(IcePHP_stringify)
     zval* v;
     zval* t;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zz"), &v, &t) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zO"), &v, &t, typeInfoClassEntry) == FAILURE)
     {
         return;
     }
@@ -3631,7 +3649,7 @@ ZEND_FUNCTION(IcePHP_stringifyException)
     zval* v;
     zval* t;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("oo"), &v, &t) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("oO"), &v, &t, exceptionInfoClassEntry) == FAILURE)
     {
         return;
     }
@@ -3647,11 +3665,17 @@ ZEND_FUNCTION(IcePHP_stringifyException)
     RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
 }
 
+ZEND_METHOD(Ice_TypeInfo, __construct) { runtimeError("IcePHP_TypeInfo cannot be instantiated"); }
+
+ZEND_METHOD(Ice_ExceptionInfo, __construct) { runtimeError("IcePHP_ExceptionInfo cannot be instantiated"); }
+
 // Predefined methods for IcePHP_TypeInfo.
-static zend_function_entry _typeInfoMethods[] = {{0, 0, 0}};
+static zend_function_entry _typeInfoMethods[] = {
+    ZEND_ME(Ice_TypeInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR){0, 0, 0}};
 
 // Predefined methods for IcePHP_ExceptionInfo.
-static zend_function_entry _exceptionInfoMethods[] = {{0, 0, 0}};
+static zend_function_entry _exceptionInfoMethods[] = {
+    ZEND_ME(Ice_ExceptionInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR){0, 0, 0}};
 
 bool
 IcePHP::isUnset(zval* zv)
@@ -3678,6 +3702,10 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     INIT_CLASS_ENTRY(ce, "IcePHP_TypeInfo", _typeInfoMethods);
     ce.create_object = handleTypeInfoAlloc;
     typeInfoClassEntry = zend_register_internal_class(&ce);
+    // Mark the class as final to prevent subclassing, and forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    makeFinal(typeInfoClassEntry);
+    denySerialization(typeInfoClassEntry);
     memcpy(&_typeInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _typeInfoHandlers.clone_obj = nullptr;
@@ -3688,6 +3716,10 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     INIT_CLASS_ENTRY(ce, "IcePHP_ExceptionInfo", _exceptionInfoMethods);
     ce.create_object = handleExceptionInfoAlloc;
     exceptionInfoClassEntry = zend_register_internal_class(&ce);
+    // Mark the class as final to prevent subclassing, and forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    makeFinal(exceptionInfoClassEntry);
+    denySerialization(exceptionInfoClassEntry);
     memcpy(&_exceptionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _exceptionInfoHandlers.clone_obj = nullptr;
