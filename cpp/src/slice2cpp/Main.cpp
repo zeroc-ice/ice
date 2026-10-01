@@ -110,7 +110,7 @@ compile(const vector<string>& argv)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        consoleErr << argv[0] << ": " << e.what() << endl;
+        consoleErr << argv[0] << ": error: " << e.what() << endl;
         if (!validate)
         {
             usage(argv[0]);
