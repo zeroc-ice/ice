@@ -1026,8 +1026,12 @@ ZEND_FUNCTION(Ice_register)
         RETURN_NULL();
     }
 
-    CommunicatorInfoIPtr info = Wrapper<CommunicatorInfoIPtr>::value(comm);
-    assert(info);
+    const CommunicatorInfoIPtr* infoPtr = Wrapper<CommunicatorInfoIPtr>::valueOrNull(comm);
+    if (!infoPtr)
+    {
+        RETURN_NULL();
+    }
+    const CommunicatorInfoIPtr& info = *infoPtr;
 
     lock_guard lock(_registeredCommunicatorsMutex);
 
@@ -1492,6 +1496,10 @@ IcePHP::communicatorInit(void)
     INIT_CLASS_ENTRY(ce, "IcePHP_Communicator", _classMethods);
     ce.create_object = handleAlloc;
     communicatorClassEntry = zend_register_internal_class(&ce);
+    // Mark the class as final to prevent subclassing, and forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    makeFinal(communicatorClassEntry);
+    denySerialization(communicatorClassEntry);
     memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _handlers.clone_obj = nullptr;

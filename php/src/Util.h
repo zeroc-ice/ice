@@ -15,6 +15,7 @@ extern "C"
 namespace IcePHP
 {
     void* extractWrapper(zval*);
+    void runtimeError(const std::string&);
 
     // Wraps a C++ pointer inside a PHP object.
     template<typename T> struct Wrapper
@@ -28,7 +29,7 @@ namespace IcePHP
             zend_object_std_init(&w->zobj, ce);
             object_properties_init(&w->zobj, ce);
 
-            w->ptr = 0;
+            w->ptr = nullptr;
             return w;
         }
 
@@ -43,7 +44,35 @@ namespace IcePHP
             return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char*>(object) - XtOffsetOf(Wrapper<T>, zobj));
         }
 
-        static T value(zval* zv) { return *extract(zv)->ptr; }
+        // Returns the wrapped value.
+        // A null pointer means the PHP object was constructed outside the extension, in which case these functions
+        // raise a fatal error in the PHP interpreter and do not return. This skips destructors of live C++ objects
+        // in the calling frames. So only call this when there are none present; otherwise use `valueOrNull`.
+        static const T& value(zval* zv) { return value(extract(zv)); }
+        static const T& value(zend_object* object) { return value(fetch(object)); }
+        static const T& value(Wrapper<T>* w)
+        {
+            if (!w->ptr)
+            {
+                // The underlying pointer is null, which means the PHP object was constructed outside the extension.
+                // We emit a non-returning error to the PHP interpreter, to avoid hitting the dereference below here.
+                zend_error_noreturn(E_ERROR, "'%s' was created outside the Ice extension", ZSTR_VAL(w->zobj.ce->name));
+            }
+            return *w->ptr;
+        }
+
+        // Returns the wrapped value like `value` does. But in the case of a null pointer,
+        // this raises a `RuntimeException` in the PHP interpreter and returns null, instead of raising a fatal error.
+        static const T* valueOrNull(zval* zv)
+        {
+            Wrapper<T>* w = extract(zv);
+            if (!w->ptr)
+            {
+                runtimeError(std::string("'") + ZSTR_VAL(w->zobj.ce->name) + "' was created outside the Ice extension");
+                return nullptr;
+            }
+            return w->ptr;
+        }
 
         // This must be last element in the struct
         zend_object zobj;
@@ -89,6 +118,12 @@ namespace IcePHP
 
     // Raise InvalidArgumentException with the given message.
     void invalidArgument(const std::string&);
+
+    /// Marks that the provided class does not support serialization.
+    void denySerialization(zend_class_entry* ce);
+
+    /// Marks that the provided class is final (cannot be inherited from).
+    void makeFinal(zend_class_entry* ce);
 
     // Convert a PHP long to a 32-bit integer. Returns nullopt after raising InvalidArgumentException if the value is
     // out of range.

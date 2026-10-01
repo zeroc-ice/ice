@@ -1271,8 +1271,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getConnection)
 
     try
     {
+        // ice_getConnection returns null when the target is reached through colloc.
         Ice::ConnectionPtr con = _this->proxy->ice_getConnection();
-        if (!createConnection(return_value, con))
+        if (!con || !createConnection(return_value, con))
         {
             RETURN_NULL();
         }
@@ -1296,6 +1297,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCachedConnection)
 
     try
     {
+        // ice_getCachedConnection returns null when the target is reached through colloc.
         Ice::ConnectionPtr con = _this->proxy->ice_getCachedConnection();
         if (!con || !createConnection(return_value, con))
         {
@@ -1501,7 +1503,7 @@ static zend_object*
 handleClone(zend_object* zobj)
 {
     // Create a new object that shares a C++ proxy instance with this object.
-    ProxyPtr obj = *Wrapper<ProxyPtr>::fetch(zobj)->ptr;
+    ProxyPtr obj = Wrapper<ProxyPtr>::value(zobj);
     assert(obj);
     zval clone;
     if (!obj->clone(&clone, obj->proxy))
@@ -1520,9 +1522,8 @@ handleGetMethod(zend_object** object, zend_string* name, const zval* key)
     result = zend_get_std_object_handlers()->get_method(object, name, key);
     if (!result)
     {
-        Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::fetch(*object);
-        assert(obj->ptr);
-        ProxyPtr _this = *obj->ptr;
+        ProxyPtr _this = Wrapper<ProxyPtr>::value(*object);
+        assert(_this);
 
         ProxyInfoPtr info = _this->info;
         assert(info);
@@ -1543,16 +1544,23 @@ handleGetMethod(zend_object** object, zend_string* name, const zval* key)
 static int
 handleCompare(zval* zobj1, zval* zobj2)
 {
-    // PHP guarantees that the objects have the same class.
-    Wrapper<ProxyPtr>* obj1 = Wrapper<ProxyPtr>::extract(zobj1);
-    assert(obj1->ptr);
-    ProxyPtr _this1 = *obj1->ptr;
-    Ice::ObjectPrx prx1 = _this1->proxy;
+    // PHP calls `handleCompare` when either of the values being compared is a proxy. If one of them is not a proxy,
+    // `ZEND_COMPARE_OBJECTS_FALLBACK` returns early, so our code below can assume they both are.
+    ZEND_COMPARE_OBJECTS_FALLBACK(zobj1, zobj2);
 
-    Wrapper<ProxyPtr>* obj2 = Wrapper<ProxyPtr>::extract(zobj2);
-    assert(obj2->ptr);
-    ProxyPtr _this2 = *obj2->ptr;
-    Ice::ObjectPrx prx2 = _this2->proxy;
+    const ProxyPtr* obj1 = Wrapper<ProxyPtr>::valueOrNull(zobj1);
+    if (!obj1)
+    {
+        return ZEND_UNCOMPARABLE;
+    }
+    const ProxyPtr* obj2 = Wrapper<ProxyPtr>::valueOrNull(zobj2);
+    if (!obj2)
+    {
+        return ZEND_UNCOMPARABLE;
+    }
+
+    const Ice::ObjectPrx& prx1 = (*obj1)->proxy;
+    const Ice::ObjectPrx& prx2 = (*obj2)->proxy;
 
     if (prx1 == prx2)
     {
@@ -1677,7 +1685,9 @@ IcePHP::proxyInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "ObjectPrx", _proxyMethods);
     ce.create_object = handleAlloc;
     proxyClassEntry = zend_register_internal_class(&ce);
-    // proxyClassEntry->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
+    // Forbid serialization of the class.
+    // An instance created by anything other than our factory would have a null native pointer.
+    denySerialization(proxyClassEntry);
     memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _handlers.clone_obj = handleClone;
     _handlers.get_method = handleGetMethod;
@@ -1716,16 +1726,14 @@ IcePHP::fetchProxy(zval* zv, optional<Ice::ObjectPrx>& prx, ProxyInfoPtr& info, 
             invalidArgument("value is not a proxy");
             return false;
         }
-        Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::extract(zv);
+        const ProxyPtr* obj = Wrapper<ProxyPtr>::valueOrNull(zv);
         if (!obj)
         {
-            runtimeError("unable to retrieve proxy object from object store");
             return false;
         }
-        assert(obj->ptr);
-        prx = (*obj->ptr)->proxy;
-        info = (*obj->ptr)->info;
-        comm = (*obj->ptr)->communicator;
+        prx = (*obj)->proxy;
+        info = (*obj)->info;
+        comm = (*obj)->communicator;
     }
     return true;
 }
