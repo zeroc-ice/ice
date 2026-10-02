@@ -54,6 +54,16 @@ updates:
       python-docs:
         patterns: ["*"]
 
+  - package-ecosystem: "bundler"
+    directory: "/.github/actions/documentation"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      ruby-docs:
+        patterns: ["*"]
+
   - package-ecosystem: "swift"
     directory: "/"
     schedule:

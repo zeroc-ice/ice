@@ -26,6 +26,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   publish-brew-packages:
     uses: ./.github/workflows/publish-brew-packages.yml
@@ -45,6 +48,9 @@ jobs:
 
   publish-gem-packages:
     uses: ./.github/workflows/publish-gem-packages.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       channel: ${{ inputs.channel }}
       quality: ${{ inputs.quality }}
@@ -93,6 +99,9 @@ jobs:
 
   publish-npm-packages:
     uses: ./.github/workflows/publish-npm-packages.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       channel: ${{ inputs.channel }}
       quality: ${{ inputs.quality }}
@@ -180,23 +189,28 @@ jobs:
     steps:
       - name: Invalidate CloudFront Cache
         run: |
-          if [ "${{ inputs.quality }}" = "stable" ]; then
-            INVALIDATION_PATH="/ice/${{ inputs.channel }}/*"
+          if [ "${QUALITY}" = "stable" ]; then
+            INVALIDATION_PATH="/ice/${CHANNEL}/*"
           else
-            INVALIDATION_PATH="/ice/${{ inputs.quality }}/${{ inputs.channel }}/*"
+            INVALIDATION_PATH="/ice/${QUALITY}/${CHANNEL}/*"
           fi
           aws cloudfront create-invalidation \
-            --distribution-id ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --distribution-id "${CLOUDFRONT_DISTRIBUTION_ID}" \
             --paths "${INVALIDATION_PATH}"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          QUALITY: ${{ inputs.quality }}
+          CHANNEL: ${{ inputs.channel }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
 
   upload-release-assets:
     # For stable channels if running on a tag, we upload the release assets to the tag.
     if: ${{ inputs.quality == 'stable' && startsWith(github.ref, 'refs/tags/') }}
     needs: publish-all
     uses: ./.github/workflows/upload-release-assets.yml
+    permissions:
+      contents: write
     with:
       channel: ${{ inputs.channel }}
       quality: ${{ inputs.quality }}

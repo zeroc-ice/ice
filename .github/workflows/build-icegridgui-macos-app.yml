@@ -20,6 +20,9 @@ on:
         description: "The version number to use in the DMG filename (defaults to BASE_VERSION from version.env)"
         required: false
 
+permissions:
+  contents: read
+
 jobs:
   build-icegridgui-macos-app:
     runs-on: macos-26
@@ -27,6 +30,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Java
         uses: ./.github/actions/setup-java
@@ -34,8 +39,9 @@ jobs:
       - name: Download IceGrid GUI JAR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-jar-macOS --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --name icegridgui-jar-macOS --dir staging
 
       - name: Build macOS App
         run: ./packaging/macos/build-icegridgui-macos-app.sh staging/icegridgui.jar output
@@ -52,7 +58,7 @@ jobs:
           KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
 
           # Decode the certificate
-          echo "$APPLE_CERTIFICATE_P12" | base64 --decode > $RUNNER_TEMP/certificate.p12
+          echo "$APPLE_CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
 
           # Create and configure a temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
@@ -60,13 +66,14 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
           # Import the certificate
-          security import $RUNNER_TEMP/certificate.p12 -P "" \
+          security import "$RUNNER_TEMP/certificate.p12" -P "" \
             -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
 
           # Allow codesign to access the keychain without prompting
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
           # Add temporary keychain to the search list
+          # shellcheck disable=SC2046 # each existing keychain is a separate argument
           security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
 
       - name: Sign macOS App
@@ -79,14 +86,15 @@ jobs:
       - name: Create DMG
         run: |
           dmg_args=("output/IceGrid GUI.app" output --sign --notarize)
-          if [ -n "${{ inputs.dmg_version }}" ]; then
-            dmg_args+=(--version "${{ inputs.dmg_version }}")
+          if [ -n "$DMG_VERSION" ]; then
+            dmg_args+=(--version "$DMG_VERSION")
           fi
           ./packaging/macos/create-icegridgui-dmg.sh "${dmg_args[@]}"
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          DMG_VERSION: ${{ inputs.dmg_version }}
 
       - name: Upload IceGrid GUI macOS App
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

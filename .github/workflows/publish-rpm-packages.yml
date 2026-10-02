@@ -25,6 +25,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: "Publish RPM Packages for ${{ matrix.distribution }}"
@@ -44,6 +47,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: ice
+          persist-credentials: false
 
       - name: Download RPM artifacts
         env:
@@ -92,7 +96,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace"
             -e GPG_KEY="${GPG_KEY}"
             -e GPG_KEY_ID="${GPG_KEY_ID}"
-            ghcr.io/zeroc-ice/rpm-repo-builder:${CHANNEL}
+            "ghcr.io/zeroc-ice/rpm-repo-builder:${CHANNEL}"
           )
           docker run "${docker_args[@]}" /workspace/ice/packaging/rpm/create-rpm-repo.sh \
             --staging /workspace/staging/ \

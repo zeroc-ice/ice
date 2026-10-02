@@ -25,6 +25,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   publish-windows-installer:
     name: "Publish Windows Installer"
@@ -64,18 +67,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Load version
         run: |
           source ./config/version.env
-          echo "BASE_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
+          echo "BASE_VERSION=${BASE_VERSION}" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Download installer artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --pattern "windows-installer" --dir staging
+          gh run download "$env:RUN_ID" --repo ${{ github.repository }} --pattern "windows-installer" --dir staging
 
       - name: Sync the winget-pkgs fork with upstream
         env:

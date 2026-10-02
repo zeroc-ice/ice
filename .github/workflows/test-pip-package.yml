@@ -17,6 +17,9 @@ on:
       - ".github/actions/setup-cpp/**"
       - ".github/actions/setup-python/**"
 
+permissions:
+  contents: read
+
 jobs:
   build-sdist:
     runs-on: ubuntu-24.04
@@ -24,6 +27,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -58,6 +63,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp

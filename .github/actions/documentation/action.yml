@@ -86,10 +86,11 @@ runs:
 
     - name: Generate API reference for Ruby
       working-directory: ./ruby
+      env:
+        BUNDLE_GEMFILE: ${{ github.action_path }}/Gemfile
       run: |
-        gem install --user-install yard
-        export PATH="$(ruby -r rubygems -e 'puts Gem.user_dir')/bin:$PATH"
-        yard  doc 'ruby/**/*.rb'
+        bundle install
+        bundle exec yard doc 'ruby/**/*.rb'
       shell: bash
 
     - name: Generate API reference for PHP

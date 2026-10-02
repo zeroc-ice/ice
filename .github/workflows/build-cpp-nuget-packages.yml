@@ -19,12 +19,17 @@ on:
         description: "The run ID to use for downloading artifacts"
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   build-cpp-nuget-packages:
     runs-on: windows-2022
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -32,19 +37,22 @@ jobs:
       - name: Download C++ Binaries
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-x64-Release-build --dir cpp
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-x64-Debug-build --dir cpp
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-Win32-Release-build --dir cpp
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-Win32-Debug-build --dir cpp
+          gh run download "$env:RUN_ID" --repo ${{ github.repository }} --name windows-cpp-x64-Release-build --dir cpp
+          gh run download "$env:RUN_ID" --repo ${{ github.repository }} --name windows-cpp-x64-Debug-build --dir cpp
+          gh run download "$env:RUN_ID" --repo ${{ github.repository }} --name windows-cpp-Win32-Release-build --dir cpp
+          gh run download "$env:RUN_ID" --repo ${{ github.repository }} --name windows-cpp-Win32-Debug-build --dir cpp
           # Download Slice Tools (We only need the Release x64 build)
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-slice-tools `
+          gh run download "$env:RUN_ID" --repo ${{ github.repository }} --name windows-cpp-slice-tools `
             --dir cpp/tools/ZeroC.Ice.Slice.Tools.Cpp/bin
 
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
         run: |
-          "IcePackageVersion=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "IcePackageVersion=$env:ICE_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         shell: pwsh
 
       - name: Build C++ NuGet Packages
