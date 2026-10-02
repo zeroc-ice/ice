@@ -10,7 +10,7 @@ ifeq ($(os),Darwin)
 IceExamples_extra_sources += $(filter-out doxygen/examples/Ice/SSL/OpenSSL%.cpp doxygen/examples/Ice/SSL/Schannel%.cpp, $(wildcard doxygen/examples/Ice/SSL/*.cpp))
 IceExamples_ldflags       += -framework Security -framework CoreFoundation
 else
-IceExamples_extra_sources += $(filter-out doxygen/examples/Ice/SSL/SecureTransport%.cpp doxygen/examples/Ice/SSL/Schannel%.cpp, $(wildcard doxygen/examples/Ice/SSL/*.cpp))
+IceExamples_extra_sources += $(filter-out doxygen/examples/Ice/SSL/Apple%.cpp doxygen/examples/Ice/SSL/Schannel%.cpp, $(wildcard doxygen/examples/Ice/SSL/*.cpp))
 IceExamples_ldflags       += -lssl -lcrypto
 endif
 

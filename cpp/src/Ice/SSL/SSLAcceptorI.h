@@ -31,7 +31,7 @@ namespace Ice::SSL
 
         void close() final;
         IceInternal::EndpointIPtr listen() final;
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         void startAccept() final;
         void finishAccept() final;
 #endif

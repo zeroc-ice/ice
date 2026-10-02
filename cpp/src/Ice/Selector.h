@@ -16,18 +16,12 @@
 #    include <sys/epoll.h>
 #elif defined(ICE_USE_KQUEUE)
 #    include <sys/event.h>
-#elif defined(ICE_USE_CFSTREAM)
-#    include <set>
-#    include <thread>
+#elif defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include "apple/ObjectRef.h"
 
-struct __CFRunLoop;
-typedef struct __CFRunLoop* CFRunLoopRef;
-
-struct __CFRunLoopSource;
-typedef struct __CFRunLoopSource* CFRunLoopSourceRef;
-
-struct __CFSocket;
-typedef struct __CFSocket* CFSocketRef;
+#    include <deque>
+#    include <dispatch/dispatch.h>
+#    include <mutex>
 #endif
 
 #ifdef __clang__
@@ -121,108 +115,44 @@ namespace IceInternal
 #    endif
     };
 
-#elif defined(ICE_USE_CFSTREAM)
+#elif defined(ICE_USE_NETWORK_FRAMEWORK)
 
-    class Selector;
-
-    class SelectorReadyCallback
-    {
-    public:
-        virtual ~SelectorReadyCallback() = default;
-        virtual void readyCallback(SocketOperation, int = 0) = 0;
-    };
-
-    class StreamNativeInfo : public NativeInfo
-    {
-    public:
-        StreamNativeInfo(SOCKET fd) : NativeInfo(fd), _connectError(0) {}
-
-        virtual void initStreams(SelectorReadyCallback*) = 0;
-        virtual SocketOperation registerWithRunLoop(SocketOperation) = 0;
-        virtual SocketOperation unregisterFromRunLoop(SocketOperation, bool) = 0;
-        virtual void closeStreams() = 0;
-
-        void setConnectError(int error) { _connectError = error; }
-
-    private:
-        int _connectError;
-    };
-    using StreamNativeInfoPtr = std::shared_ptr<StreamNativeInfo>;
-
-    class EventHandlerWrapper final : public SelectorReadyCallback,
-                                      public std::enable_shared_from_this<EventHandlerWrapper>
-    {
-    public:
-        EventHandlerWrapper(EventHandler*, Selector&);
-        ~EventHandlerWrapper();
-
-        void updateRunLoop();
-
-        void readyCallback(SocketOperation, int = 0) final;
-        void ready(SocketOperation, int);
-
-        SocketOperation readyOp();
-        bool checkReady();
-
-        bool update(SocketOperation, SocketOperation);
-        bool finish();
-
-        bool operator<(const EventHandlerWrapper& o) { return this < &o; }
-
-    private:
-        friend class Selector;
-
-        EventHandlerPtr _handler;
-        StreamNativeInfoPtr _streamNativeInfo;
-        Selector& _selector;
-        SocketOperation _ready;
-        bool _finish;
-        IceInternal::UniqueRef<CFSocketRef> _socket;
-        IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
-    };
-    using EventHandlerWrapperPtr = std::shared_ptr<EventHandlerWrapper>;
-
+    //
+    // Completion-based selector for Apple Network.framework.
+    // Follows the same interface as the IOCP selector — the ThreadPool drives
+    // the completion loop by calling getNextHandler() which blocks until a
+    // Network.framework dispatch block posts a completion.
+    //
     class Selector final
     {
     public:
         Selector(const InstancePtr&);
 
+        void setup(int);
         void destroy();
 
         void initialize(EventHandler*);
         void update(EventHandler*, SocketOperation, SocketOperation);
-        void enable(EventHandler*, SocketOperation);
-        void disable(EventHandler*, SocketOperation);
-        bool finish(EventHandler*, bool);
+        void finish(EventHandler*);
 
         void ready(EventHandler*, SocketOperation, bool);
 
-        void startSelect();
-        void finishSelect(std::vector<std::pair<EventHandler*, SocketOperation>>&);
-        void select(int);
+        EventHandler* getNextHandler(SocketOperation&, size_t&, int&, int);
 
-        void processInterrupt();
-        void run();
+        void completed(EventHandler*, SocketOperation);
 
     private:
-        void ready(EventHandlerWrapper*, SocketOperation, int = 0);
-        void addReadyHandler(EventHandlerWrapperPtr);
+        const InstancePtr _instance;
+        DispatchRef<dispatch_semaphore_t> _semaphore;
 
-        friend class EventHandlerWrapper;
-
-        InstancePtr _instance;
-        std::thread _thread;
-        CFRunLoopRef _runLoop;
-        IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
-        bool _destroyed;
-
-        std::set<EventHandlerWrapperPtr> _changes;
-
-        std::set<EventHandlerWrapperPtr> _readyHandlers;
-        std::vector<std::pair<EventHandlerWrapperPtr, SocketOperation>> _selectedHandlers;
-        std::map<EventHandler*, EventHandlerWrapperPtr> _wrappers;
-        std::recursive_mutex _mutex;
-        std::condition_variable_any _conditionVariable;
+        struct CompletionEntry
+        {
+            EventHandler* handler;
+            SocketOperation operation;
+        };
+        std::mutex _mutex;
+        std::deque<CompletionEntry> _completionQueue;
+        std::shared_ptr<SelectorCompletionToken> _completionToken;
     };
 
 #endif

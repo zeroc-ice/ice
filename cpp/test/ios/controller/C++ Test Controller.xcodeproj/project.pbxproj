@@ -21,6 +21,7 @@
 		14E398391E01B30E00A89291 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14E398371E01B30500A89291 /* CFNetwork.framework */; };
 		822123442DE0EB2C00E183F2 /* certs in Resources */ = {isa = PBXBuildFile; fileRef = 822123432DE0EB2600E183F2 /* certs */; };
 		8267256920A9EF6E0089EA2D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8267256820A9EF6E0089EA2D /* Security.framework */; };
+		8F8493F2C236405AA3B276D1 /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9ADFFAABB0244C1A8A0593C /* Network.framework */; };
 		828491FE20C82DAB00B4B721 /* ControllerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 82A1B91620C0081200B3535B /* ControllerView.m */; };
 /* End PBXBuildFile section */
 
@@ -86,6 +87,7 @@
 		14E398371E01B30500A89291 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		822123432DE0EB2600E183F2 /* certs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = certs; path = ../../../../certs; sourceTree = "<group>"; };
 		8267256820A9EF6E0089EA2D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		A9ADFFAABB0244C1A8A0593C /* Network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Network.framework; path = System/Library/Frameworks/Network.framework; sourceTree = SDKROOT; };
 		82A1B91620C0081200B3535B /* ControllerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ControllerView.m; sourceTree = "<group>"; };
 		82A1B91720C0081200B3535B /* ControllerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -96,6 +98,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8267256920A9EF6E0089EA2D /* Security.framework in Frameworks */,
+				8F8493F2C236405AA3B276D1 /* Network.framework in Frameworks */,
 				14E398391E01B30E00A89291 /* CFNetwork.framework in Frameworks */,
 				1440D8761E0187BA00CF7ED3 /* UIKit.framework in Frameworks */,
 				1440D88A1E0189F300CF7ED3 /* Foundation.framework in Frameworks */,
@@ -181,6 +184,7 @@
 			isa = PBXGroup;
 			children = (
 				8267256820A9EF6E0089EA2D /* Security.framework */,
+				A9ADFFAABB0244C1A8A0593C /* Network.framework */,
 				14E398371E01B30500A89291 /* CFNetwork.framework */,
 				1440D8891E0189F300CF7ED3 /* Foundation.framework */,
 				14B70D0F1E0160FD00118DE3 /* UIKit.framework */,
