@@ -214,7 +214,7 @@ namespace
             if (nameStart == string::npos)
             {
                 // Malformed line, missing the name part after the tag. We return early, and still return `true` to
-                // indicate the line did start with the provided tag. It's up the caller to handle the missing `name`.
+                // indicate the line did start with the provided tag. It's up to callers to handle the missing `name`.
                 name = "";
                 return true;
             }
