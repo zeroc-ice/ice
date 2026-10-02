@@ -93,7 +93,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
             try
             {
                 string file = *p;
-                preprocessor = Preprocessor::create("preprocessor", file, cppArgs);
+                preprocessor = Preprocessor::create(file, cppArgs);
                 FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2RB__");
                 if (preprocessedHandle == nullptr)
                 {
@@ -176,12 +176,12 @@ IceRuby_compile(int argc, VALUE* argv, VALUE /*self*/)
         }
         catch (const std::exception& ex)
         {
-            cerr << argSeq[0] << ": error:" << ex.what() << endl;
+            cerr << argSeq[0] << ": error: " << ex.what() << endl;
             rc = EXIT_FAILURE;
         }
         catch (...)
         {
-            cerr << argSeq[0] << ": error:unknown exception" << endl;
+            cerr << argSeq[0] << ": error: unknown exception" << endl;
             rc = EXIT_FAILURE;
         }
         return INT2FIX(rc);

@@ -149,7 +149,7 @@ Slice::Ruby::compile(const vector<string>& argv)
         PreprocessorPtr preprocessor;
         try
         {
-            preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            preprocessor = Preprocessor::create(fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2RB__");
             if (preprocessedHandle == nullptr)
             {

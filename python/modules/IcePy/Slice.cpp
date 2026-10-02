@@ -3,7 +3,6 @@
 #include "Slice.h"
 #include "Ice/ConsoleUtil.h"
 #include "Ice/Options.h"
-#include "Slice/Preprocessor.h"
 #include "Slice/Util.h"
 #include "Util.h"
 #include "slice2py/PythonUtil.h"
@@ -92,7 +91,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     {
         PackageVisitor packageVisitor;
         compilationResult = Slice::Python::compile(
-            "Ice.loadSlice",
             nullptr, // No dependency generator
             packageVisitor,
             sliceFiles,
@@ -212,12 +210,12 @@ IcePy_compileSlice(PyObject* /*self*/, PyObject* args)
     }
     catch (const std::exception& ex)
     {
-        consoleErr << argSeq[0] << ": error:" << ex.what() << endl;
+        consoleErr << argSeq[0] << ": error: " << ex.what() << endl;
         rc = EXIT_FAILURE;
     }
     catch (...)
     {
-        consoleErr << argSeq[0] << ": error:unknown exception" << endl;
+        consoleErr << argSeq[0] << ": error: unknown exception" << endl;
         rc = EXIT_FAILURE;
     }
 
