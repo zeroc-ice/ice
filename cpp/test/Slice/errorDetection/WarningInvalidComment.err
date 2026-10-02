@@ -26,4 +26,8 @@ WarningInvalidComment.ice:59: warning: ignoring duplicate doc-comment tag: '@ret
 WarningInvalidComment.ice:59: warning: '@throws DerivedFromDummy': this exception is not listed in the exception specification of 'stringOp'
 WarningInvalidComment.ice:59: warning: '@throws SomeOtherException': this exception is not listed in the exception specification of 'stringOp'
 WarningInvalidComment.ice:59: warning: ignoring duplicate doc-comment tag: '@throws CommentDummy'
-WarningInvalidComment.ice:88: warning: unterminated link tag: missing closing '}'
+WarningInvalidComment.ice:86: warning: missing parameter name after '@param' tag
+WarningInvalidComment.ice:86: warning: missing exception name after '@throws' tag
+WarningInvalidComment.ice:86: warning: missing exception name after '@exception' tag
+WarningInvalidComment.ice:90: warning: '@throws SomeOtherException': this exception is not listed in the exception specification of 'SomeOtherException'
+WarningInvalidComment.ice:95: warning: unterminated link tag: missing closing '}'

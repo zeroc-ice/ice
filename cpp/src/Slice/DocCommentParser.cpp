@@ -213,7 +213,10 @@ namespace
             auto nameStart = doc.find_first_not_of(ws);
             if (nameStart == string::npos)
             {
-                return false; // Malformed line, missing the name part after the tag. Ignore this line.
+                // Malformed line, missing the name part after the tag. We return early, and still return `true` to
+                // indicate the line did start with the provided tag. It's up the caller to handle the missing `name`.
+                name = "";
+                return true;
             }
 
             // If there's no whitespace after the name, that means the name runs to the end of the line.
@@ -522,6 +525,13 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                 p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }
+            else if (name.empty())
+            {
+                // If the '@param' tag is missing a name, ignore it and issue a warning.
+                const string msg = "missing parameter name after '" + paramTag + "' tag";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                currentSection = nullptr;
+            }
             else
             {
                 // Check that the '@param <name>' corresponds to an actual parameter in the operation.
@@ -558,6 +568,13 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             {
                 // If '@throws'/'@exception' was put on anything other than an operation, ignore it and issue a warning.
                 const string msg = "the '" + actualTag + "' tag is only valid on operations";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                currentSection = nullptr;
+            }
+            else if (name.empty())
+            {
+                // If the '@throws'/'@exception' tag is missing a name, ignore it and issue a warning.
+                const string msg = "missing exception name after '" + actualTag + "' tag";
                 p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }

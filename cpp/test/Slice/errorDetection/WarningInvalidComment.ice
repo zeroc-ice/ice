@@ -79,8 +79,15 @@ module Test
         /// @throws CommentDummy
         bool bareCommentTagTest(int param, out int myOut) throws CommentDummy;
 
+        /// This tests that doc-comment tags which require a name, will emit a warning if the name is missing.
+        /// @param
+        /// @throws
+        /// @exception
+        void missingNameTest(int param) throws CommentDummy;
+
         /// This tests that exception lookup is done at module scope, so parameters/operations can't shadow the lookup.
-        void someOtherException(string someOtherException) throws SomeOtherException;
+        /// @throws SomeOtherException this should cause a warning, but not one about the exception not existing.
+        void SomeOtherException(string someOtherException);
     }
 
     /// Unterminated link tag: {@link CommentDummy
