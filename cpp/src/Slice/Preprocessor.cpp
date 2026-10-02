@@ -102,14 +102,13 @@ extern "C" void mcpp_use_mem_buffers(int tf);
 extern "C" char* mcpp_get_mem_buffer(Outdest od);
 
 Slice::PreprocessorPtr
-Slice::Preprocessor::create(const string& path, const string& fileName, const vector<string>& args)
+Slice::Preprocessor::create(const string& fileName, const vector<string>& args)
 {
-    return make_shared<Preprocessor>(path, fileName, args);
+    return make_shared<Preprocessor>(fileName, args);
 }
 
-Slice::Preprocessor::Preprocessor(string path, const string& fileName, const vector<string>& args)
-    : _path(std::move(path)),
-      _fileName(fullPath(fileName)),
+Slice::Preprocessor::Preprocessor(const string& fileName, const vector<string>& args)
+    : _fileName(fullPath(fileName)),
       _args(args)
 {
 }
@@ -292,7 +291,7 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         {
             // Calling this again causes the memory buffers to be freed.
             mcpp_use_mem_buffers(1);
-            throw runtime_error(_path + ": error: could not open temporary file for preprocessor output");
+            throw runtime_error("could not open temporary file for preprocessor output");
         }
     }
 
@@ -331,13 +330,13 @@ Slice::Preprocessor::checkInputFile()
     }
     if (suffix != ".ice")
     {
-        throw runtime_error(_path + ": error: input files must end with '.ice'");
+        throw runtime_error("input file '" + _fileName + "' must end with '.ice'");
     }
 
     ifstream test(IceInternal::streamFilename(_fileName).c_str());
     if (!test)
     {
-        throw runtime_error(_path + ": error: cannot open '" + _fileName + "' for reading");
+        throw runtime_error("cannot open '" + _fileName + "' for reading");
     }
     test.close();
 }
