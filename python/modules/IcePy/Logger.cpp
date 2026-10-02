@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Logger.h"
+#include "DocStrings.h"
 #include "Ice/Initialize.h"
 #include "Thread.h"
 
@@ -310,21 +311,15 @@ loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
 }
 
 static PyMethodDef LoggerMethods[] = {
-    {"print", reinterpret_cast<PyCFunction>(loggerPrint), METH_VARARGS, PyDoc_STR("print(message: str, /) -> None")},
-    {"trace",
-     reinterpret_cast<PyCFunction>(loggerTrace),
-     METH_VARARGS,
-     PyDoc_STR("trace(category: str, message: str, /) -> None")},
-    {"warning",
-     reinterpret_cast<PyCFunction>(loggerWarning),
-     METH_VARARGS,
-     PyDoc_STR("warning(message: str, /) -> None")},
-    {"error", reinterpret_cast<PyCFunction>(loggerError), METH_VARARGS, PyDoc_STR("error(message: str, /) -> None")},
-    {"getPrefix", reinterpret_cast<PyCFunction>(loggerGetPrefix), METH_NOARGS, PyDoc_STR("getPrefix() -> str")},
+    {"print", reinterpret_cast<PyCFunction>(loggerPrint), METH_VARARGS, PyDoc_STR(IcePy_DOC_Logger_print)},
+    {"trace", reinterpret_cast<PyCFunction>(loggerTrace), METH_VARARGS, PyDoc_STR(IcePy_DOC_Logger_trace)},
+    {"warning", reinterpret_cast<PyCFunction>(loggerWarning), METH_VARARGS, PyDoc_STR(IcePy_DOC_Logger_warning)},
+    {"error", reinterpret_cast<PyCFunction>(loggerError), METH_VARARGS, PyDoc_STR(IcePy_DOC_Logger_error)},
+    {"getPrefix", reinterpret_cast<PyCFunction>(loggerGetPrefix), METH_NOARGS, PyDoc_STR(IcePy_DOC_Logger_getPrefix)},
     {"cloneWithPrefix",
      reinterpret_cast<PyCFunction>(loggerCloneWithPrefix),
      METH_VARARGS,
-     PyDoc_STR("cloneWithPrefix(prefix: str, /) -> Logger")},
+     PyDoc_STR(IcePy_DOC_Logger_cloneWithPrefix)},
     {} /* sentinel */
 };
 
@@ -337,7 +332,7 @@ namespace IcePy
         .tp_basicsize = sizeof(LoggerObject),
         .tp_dealloc = reinterpret_cast<destructor>(loggerDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("IcePy.Logger"),
+        .tp_doc = PyDoc_STR(IcePy_DOC_Logger),
         .tp_methods = LoggerMethods,
         .tp_new = reinterpret_cast<newfunc>(loggerNew),
     };

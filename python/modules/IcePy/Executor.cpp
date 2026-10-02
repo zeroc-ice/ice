@@ -2,6 +2,7 @@
 
 #include "Executor.h"
 #include "Connection.h"
+#include "DocStrings.h"
 #include "Ice/Initialize.h"
 #include "Thread.h"
 
@@ -54,6 +55,7 @@ namespace IcePy
         .tp_dealloc = reinterpret_cast<destructor>(executorCallDealloc),
         .tp_call = reinterpret_cast<ternaryfunc>(executorCallInvoke),
         .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_doc = PyDoc_STR(IcePy_DOC_ExecutorCall),
     };
     // clang-format on
 }

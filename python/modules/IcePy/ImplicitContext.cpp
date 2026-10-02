@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "ImplicitContext.h"
+#include "DocStrings.h"
 #include "Ice/ImplicitContext.h"
 #include "ObjectAdapter.h"
 #include "Proxy.h"
@@ -248,24 +249,21 @@ static PyMethodDef ImplicitContextMethods[] = {
     {"getContext",
      reinterpret_cast<PyCFunction>(implicitContextGetContext),
      METH_NOARGS,
-     PyDoc_STR("getContext() -> dict[str, str]")},
+     PyDoc_STR(IcePy_DOC_ImplicitContext_getContext)},
     {"setContext",
      reinterpret_cast<PyCFunction>(implicitContextSetContext),
      METH_VARARGS,
-     PyDoc_STR("setContext(newContext: dict[str, str], /) -> None")},
+     PyDoc_STR(IcePy_DOC_ImplicitContext_setContext)},
     {"containsKey",
      reinterpret_cast<PyCFunction>(implicitContextContainsKey),
      METH_VARARGS,
-     PyDoc_STR("containsKey(key: str, /) -> bool")},
-    {"get", reinterpret_cast<PyCFunction>(implicitContextGet), METH_VARARGS, PyDoc_STR("get(key: str, /) -> str")},
-    {"put",
-     reinterpret_cast<PyCFunction>(implicitContextPut),
-     METH_VARARGS,
-     PyDoc_STR("put(key: str, value: str, /) -> str")},
+     PyDoc_STR(IcePy_DOC_ImplicitContext_containsKey)},
+    {"get", reinterpret_cast<PyCFunction>(implicitContextGet), METH_VARARGS, PyDoc_STR(IcePy_DOC_ImplicitContext_get)},
+    {"put", reinterpret_cast<PyCFunction>(implicitContextPut), METH_VARARGS, PyDoc_STR(IcePy_DOC_ImplicitContext_put)},
     {"remove",
      reinterpret_cast<PyCFunction>(implicitContextRemove),
      METH_VARARGS,
-     PyDoc_STR("remove(key: str, /) -> str")},
+     PyDoc_STR(IcePy_DOC_ImplicitContext_remove)},
     {} /* sentinel */
 };
 
@@ -278,7 +276,7 @@ namespace IcePy
         .tp_basicsize = sizeof(ImplicitContextObject),
         .tp_dealloc = reinterpret_cast<destructor>(implicitContextDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("IcePy.ImplicitContext"),
+        .tp_doc = PyDoc_STR(IcePy_DOC_ImplicitContext),
         .tp_richcompare = reinterpret_cast<richcmpfunc>(implicitContextCompare),
         .tp_methods = ImplicitContextMethods,
         .tp_new = reinterpret_cast<newfunc>(implicitContextNew),
