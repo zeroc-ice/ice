@@ -564,7 +564,8 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             else
             {
                 // Check if the exception exists...
-                const ExceptionPtr exceptionTarget = operationTarget->lookupException(name, false);
+                const ContainerPtr containingModule = operationTarget->parentInterface()->container();
+                const ExceptionPtr exceptionTarget = containingModule->lookupException(name, false);
                 if (!exceptionTarget)
                 {
                     const string msg = "'" + actualTag + " " + name +
