@@ -583,19 +583,19 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                                            "exception specification of '" + operationTarget->name() + "'";
                         p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     }
+                }
 
-                    // Check if this is a duplicate tag. If it is, ignore it and issue a warning.
-                    if (docComment->_exceptions.count(name) != 0)
-                    {
-                        const string msg = "ignoring duplicate doc-comment tag: '" + actualTag + " " + name + "'";
-                        p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                        currentSection = nullptr;
-                    }
-                    else
-                    {
-                        docComment->_exceptions[name] = {};
-                        currentSection = &docComment->_exceptions[name];
-                    }
+                // Check if this is a duplicate tag. If it is, ignore it and issue a warning.
+                if (docComment->_exceptions.count(name) != 0)
+                {
+                    const string msg = "ignoring duplicate doc-comment tag: '" + actualTag + " " + name + "'";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    currentSection = nullptr;
+                }
+                else
+                {
+                    docComment->_exceptions[name] = {};
+                    currentSection = &docComment->_exceptions[name];
                 }
             }
         }
