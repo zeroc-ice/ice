@@ -92,7 +92,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
             try
             {
                 string file = *p;
-                Preprocessor preprocessor(file, cppArgs);
+                Preprocessor preprocessor{file, cppArgs};
                 FILE* preprocessedHandle = preprocessor.preprocess("-D__SLICE2RB__");
                 if (preprocessedHandle == nullptr)
                 {

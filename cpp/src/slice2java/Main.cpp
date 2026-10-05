@@ -173,7 +173,7 @@ namespace
             try
             {
                 FileTracker::instance()->setSource(fileName);
-                Preprocessor preprocessor(fileName, preprocessorArgs);
+                Preprocessor preprocessor{fileName, preprocessorArgs};
                 FILE* preprocessedHandle = preprocessor.preprocess("-D__SLICE2JAVA__");
                 if (preprocessedHandle == nullptr)
                 {

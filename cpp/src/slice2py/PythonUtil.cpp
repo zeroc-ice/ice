@@ -2784,7 +2784,7 @@ Slice::Python::compile(
         UnitPtr unit;
         try
         {
-            Preprocessor preprocessor(fileName, preprocessorArgs);
+            Preprocessor preprocessor{fileName, preprocessorArgs};
             FILE* preprocessedHandle = preprocessor.preprocess("-D__SLICE2PY__");
             if (preprocessedHandle == nullptr)
             {

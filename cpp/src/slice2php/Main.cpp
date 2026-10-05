@@ -1245,7 +1245,7 @@ compile(const vector<string>& argv)
         UnitPtr unit;
         try
         {
-            Preprocessor preprocessor(fileName, preprocessorArgs);
+            Preprocessor preprocessor{fileName, preprocessorArgs};
             FILE* preprocessedHandle = preprocessor.preprocess("-D__SLICE2PHP__");
             if (preprocessedHandle == nullptr)
             {
