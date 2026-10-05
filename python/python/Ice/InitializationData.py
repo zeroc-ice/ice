@@ -33,10 +33,11 @@ class InitializationData:
     threadStop : Callable[[], None] | None
         A :class:`~collections.abc.Callable` that is invoked whenever a thread created by the communicator is about
         to be destroyed.
-    executor : Callable[[Callable[[], None], Connection], None] | None
+    executor : Callable[[Callable[[], None], Connection | None], None] | None
         A :class:`~collections.abc.Callable` that the communicator invokes to execute dispatches and async invocation
         callbacks.
-        The callable receives two arguments: a callable and an Ice.Connection object.
+        The callable receives two arguments: a callable and the Ice.Connection associated with this call, or ``None``
+        when the call has no connection, such as a collocated dispatch.
         The executor must eventually invoke the callable with no arguments.
     batchRequestInterceptor : Callable[[Ice.BatchRequest, int, int], None] | None
         A :class:`~collections.abc.Callable` that is invoked by the Ice runtime to enqueue a batch request.
@@ -59,7 +60,7 @@ class InitializationData:
     logger: Logger | None = None
     threadStart: Callable[[], None] | None = None
     threadStop: Callable[[], None] | None = None
-    executor: Callable[[Callable[[], None], Connection], None] | None = None
+    executor: Callable[[Callable[[], None], Connection | None], None] | None = None
     batchRequestInterceptor: Callable[[BatchRequest, int, int], None] | None = None
     eventLoopAdapter: EventLoopAdapter | None = None
     sliceLoader: Callable[[str], Value | UserException | None] | None = None
