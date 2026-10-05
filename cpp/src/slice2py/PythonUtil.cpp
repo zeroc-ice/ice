@@ -2781,12 +2781,11 @@ Slice::Python::compile(
 
     for (const auto& fileName : files)
     {
-        PreprocessorPtr preprocessor;
         UnitPtr unit;
         try
         {
-            preprocessor = Preprocessor::create(fileName, preprocessorArgs);
-            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
+            Preprocessor preprocessor(fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor.preprocess("-D__SLICE2PY__");
             if (preprocessedHandle == nullptr)
             {
                 throw runtime_error("Failed to preprocess Slice file: " + fileName);
@@ -2795,7 +2794,7 @@ Slice::Python::compile(
             unit = Unit::createUnit("python");
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-            preprocessor->close();
+            preprocessor.close();
 
             if (parseStatus == EXIT_FAILURE)
             {
@@ -2829,11 +2828,6 @@ Slice::Python::compile(
         }
         catch (...)
         {
-            if (preprocessor)
-            {
-                preprocessor->close();
-            }
-
             if (unit)
             {
                 unit->destroy();

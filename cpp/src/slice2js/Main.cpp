@@ -202,12 +202,11 @@ compile(const vector<string>& argv)
 
     for (const auto& fileName : sliceFiles)
     {
-        PreprocessorPtr preprocessor;
         UnitPtr unit;
         try
         {
-            preprocessor = Preprocessor::create(fileName, preprocessorArgs);
-            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2JS__");
+            Preprocessor preprocessor(fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor.preprocess("-D__SLICE2JS__");
             if (preprocessedHandle == nullptr)
             {
                 return EXIT_FAILURE;
@@ -216,7 +215,7 @@ compile(const vector<string>& argv)
             unit = Unit::createUnit("js");
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-            preprocessor->close();
+            preprocessor.close();
 
             if (parseStatus == EXIT_FAILURE)
             {
@@ -239,12 +238,12 @@ compile(const vector<string>& argv)
 
                 if (useStdout)
                 {
-                    Gen gen(preprocessor->getBaseName(), cout, typeScript);
+                    Gen gen(preprocessor.getBaseName(), cout, typeScript);
                     gen.generate(unit);
                 }
                 else
                 {
-                    Gen gen(preprocessor->getBaseName(), output, typeScript);
+                    Gen gen(preprocessor.getBaseName(), output, typeScript);
                     gen.generate(unit);
                 }
 
@@ -255,12 +254,6 @@ compile(const vector<string>& argv)
         catch (...)
         {
             FileTracker::instance()->cleanup();
-
-            if (preprocessor)
-            {
-                preprocessor->close();
-            }
-
             if (unit)
             {
                 unit->destroy();

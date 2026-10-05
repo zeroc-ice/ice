@@ -101,12 +101,6 @@ extern "C" int mcpp_lib_main(int argc, char** argv);
 extern "C" void mcpp_use_mem_buffers(int tf);
 extern "C" char* mcpp_get_mem_buffer(Outdest od);
 
-Slice::PreprocessorPtr
-Slice::Preprocessor::create(const string& fileName, const vector<string>& args)
-{
-    return make_shared<Preprocessor>(fileName, args);
-}
-
 Slice::Preprocessor::Preprocessor(const string& fileName, const vector<string>& args)
     : _fileName(fullPath(fileName)),
       _args(args)

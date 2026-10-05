@@ -207,12 +207,11 @@ namespace
 
         for (const auto& fileName : sliceFiles)
         {
-            PreprocessorPtr preprocessor;
             UnitPtr unit;
             try
             {
-                preprocessor = Preprocessor::create(fileName, preprocessorArgs);
-                FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2MATLAB__");
+                Preprocessor preprocessor(fileName, preprocessorArgs);
+                FILE* preprocessedHandle = preprocessor.preprocess("-D__SLICE2MATLAB__");
                 if (preprocessedHandle == nullptr)
                 {
                     return EXIT_FAILURE;
@@ -221,7 +220,7 @@ namespace
                 unit = Unit::createUnit("matlab", {.all = all});
                 int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-                preprocessor->close();
+                preprocessor.close();
 
                 if (parseStatus == EXIT_FAILURE)
                 {
@@ -250,12 +249,6 @@ namespace
             catch (...)
             {
                 FileTracker::instance()->cleanup();
-
-                if (preprocessor)
-                {
-                    preprocessor->close();
-                }
-
                 if (unit)
                 {
                     unit->destroy();

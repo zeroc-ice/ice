@@ -9,14 +9,9 @@
 
 namespace Slice
 {
-    class Preprocessor;
-    using PreprocessorPtr = std::shared_ptr<Preprocessor>;
-
     class Preprocessor final
     {
     public:
-        static PreprocessorPtr create(const std::string& fileName, const std::vector<std::string>& args);
-
         Preprocessor(const std::string& fileName, const std::vector<std::string>& args);
         ~Preprocessor();
 
