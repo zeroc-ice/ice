@@ -182,9 +182,6 @@ namespace
 
                 unit = Unit::createUnit("java");
                 int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
-
-                preprocessor.close();
-
                 if (parseStatus == EXIT_FAILURE)
                 {
                     status = EXIT_FAILURE;

@@ -157,9 +157,6 @@ Slice::Ruby::compile(const vector<string>& argv)
 
             unit = Unit::createUnit("ruby", {.all = all});
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
-
-            preprocessor.close();
-
             if (parseStatus == EXIT_FAILURE)
             {
                 status = EXIT_FAILURE;

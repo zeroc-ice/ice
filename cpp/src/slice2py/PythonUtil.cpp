@@ -2793,9 +2793,6 @@ Slice::Python::compile(
 
             unit = Unit::createUnit("python");
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
-
-            preprocessor.close();
-
             if (parseStatus == EXIT_FAILURE)
             {
                 status = EXIT_FAILURE;

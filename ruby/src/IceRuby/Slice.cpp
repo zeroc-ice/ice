@@ -101,9 +101,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
 
                 unit = Unit::createUnit("ruby", {.all = all});
                 int parseStatus = unit->parse(file, preprocessedHandle, debug);
-
-                preprocessor.close();
-
                 if (parseStatus == EXIT_FAILURE)
                 {
                     unit->destroy();

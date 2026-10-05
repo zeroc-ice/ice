@@ -219,9 +219,6 @@ namespace
 
                 unit = Unit::createUnit("matlab", {.all = all});
                 int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
-
-                preprocessor.close();
-
                 if (parseStatus == EXIT_FAILURE)
                 {
                     status = EXIT_FAILURE;

@@ -219,9 +219,6 @@ compile(const vector<string>& argv)
 
             unit = Unit::createUnit("cs", unitOptions);
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
-
-            preprocessor.close();
-
             if (parseStatus == EXIT_FAILURE)
             {
                 status = EXIT_FAILURE;

@@ -15,8 +15,10 @@ namespace Slice
         Preprocessor(const std::string& fileName, const std::vector<std::string>& args);
         ~Preprocessor();
 
+        Preprocessor(const Preprocessor&) = delete;
+        Preprocessor& operator=(const Preprocessor&) = delete;
+
         FILE* preprocess(const std::string& languageArg = "");
-        void close();
 
         std::string getBaseName();
 
