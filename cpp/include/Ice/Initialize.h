@@ -65,7 +65,7 @@ namespace Ice
         /// The authentication options for SSL client connections. When set, the SSL transport ignores all IceSSL
         /// configuration properties and uses these options.
         /// @see SSL::OpenSSLClientAuthenticationOptions
-        /// @see SSL::SecureTransportClientAuthenticationOptions
+        /// @see SSL::AppleClientAuthenticationOptions
         /// @see SSL::SchannelClientAuthenticationOptions
         std::optional<SSL::ClientAuthenticationOptions> clientAuthenticationOptions{};
 

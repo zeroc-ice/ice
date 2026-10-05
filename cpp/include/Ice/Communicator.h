@@ -146,7 +146,7 @@ namespace Ice
         /// @see ObjectAdapter
         /// @see Properties
         /// @see SSL::OpenSSLServerAuthenticationOptions
-        /// @see SSL::SecureTransportServerAuthenticationOptions
+        /// @see SSL::AppleServerAuthenticationOptions
         /// @see SSL::SchannelServerAuthenticationOptions
         ObjectAdapterPtr createObjectAdapter(
             std::string name,
@@ -163,7 +163,7 @@ namespace Ice
         /// @see #createObjectAdapter
         /// @see Properties
         /// @see SSL::OpenSSLServerAuthenticationOptions
-        /// @see SSL::SecureTransportServerAuthenticationOptions
+        /// @see SSL::AppleServerAuthenticationOptions
         /// @see SSL::SchannelServerAuthenticationOptions
         ObjectAdapterPtr createObjectAdapterWithEndpoints(
             std::string name,
