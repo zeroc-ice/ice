@@ -88,13 +88,12 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
 
         for (vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
         {
-            PreprocessorPtr preprocessor;
             UnitPtr unit;
             try
             {
                 string file = *p;
-                preprocessor = Preprocessor::create(file, cppArgs);
-                FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2RB__");
+                Preprocessor preprocessor{file, cppArgs};
+                FILE* preprocessedHandle = preprocessor.preprocess("-D__SLICE2RB__");
                 if (preprocessedHandle == nullptr)
                 {
                     throw RubyException(rb_eArgError, "Slice preprocessing failed");
@@ -102,9 +101,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
 
                 unit = Unit::createUnit("ruby", {.all = all});
                 int parseStatus = unit->parse(file, preprocessedHandle, debug);
-
-                preprocessor->close();
-
                 if (parseStatus == EXIT_FAILURE)
                 {
                     unit->destroy();
@@ -133,11 +129,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
             }
             catch (...)
             {
-                if (preprocessor)
-                {
-                    preprocessor->close();
-                }
-
                 if (unit)
                 {
                     unit->destroy();
