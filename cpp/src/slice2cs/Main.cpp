@@ -190,12 +190,11 @@ compile(const vector<string>& argv)
 
     for (const auto& fileName : sliceFiles)
     {
-        PreprocessorPtr preprocessor;
         UnitPtr unit;
         try
         {
-            preprocessor = Preprocessor::create(fileName, preprocessorArgs);
-            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2CS__");
+            Preprocessor preprocessor{fileName, preprocessorArgs};
+            FILE* preprocessedHandle = preprocessor.preprocess("-D__SLICE2CS__");
             if (preprocessedHandle == nullptr)
             {
                 return EXIT_FAILURE;
@@ -220,9 +219,6 @@ compile(const vector<string>& argv)
 
             unit = Unit::createUnit("cs", unitOptions);
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
-
-            preprocessor->close();
-
             if (parseStatus == EXIT_FAILURE)
             {
                 status = EXIT_FAILURE;
@@ -246,7 +242,7 @@ compile(const vector<string>& argv)
 
                 parseAllDocComments(unit, docCommentFormatter);
 
-                Gen gen(preprocessor->getBaseName(), output, genMode, enableAnalysis);
+                Gen gen(preprocessor.getBaseName(), output, genMode, enableAnalysis);
                 gen.generate(unit);
 
                 status |= unit->getStatus();
@@ -256,11 +252,6 @@ compile(const vector<string>& argv)
         catch (...)
         {
             FileTracker::instance()->cleanup();
-            if (preprocessor)
-            {
-                preprocessor->close();
-            }
-
             if (unit)
             {
                 unit->destroy();

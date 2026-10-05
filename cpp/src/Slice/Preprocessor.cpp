@@ -101,19 +101,27 @@ extern "C" int mcpp_lib_main(int argc, char** argv);
 extern "C" void mcpp_use_mem_buffers(int tf);
 extern "C" char* mcpp_get_mem_buffer(Outdest od);
 
-Slice::PreprocessorPtr
-Slice::Preprocessor::create(const string& fileName, const vector<string>& args)
-{
-    return make_shared<Preprocessor>(fileName, args);
-}
-
 Slice::Preprocessor::Preprocessor(const string& fileName, const vector<string>& args)
     : _fileName(fullPath(fileName)),
       _args(args)
 {
 }
 
-Slice::Preprocessor::~Preprocessor() { close(); }
+Slice::Preprocessor::~Preprocessor()
+{
+    if (_cppHandle != nullptr)
+    {
+        // The temp file deletes itself when the descriptor is closed. On POSIX, tmpfile() returns an
+        // already-unlinked file and the CWD fallback unlinks after open; on Windows, openExclusive opens
+        // with _O_TEMPORARY. fclose is the only cleanup needed.
+        int status = fclose(_cppHandle);
+        _cppHandle = nullptr;
+        if (status != 0)
+        {
+            emitWarning(_fileName, -1, "failed to close preprocessor file: " + IceInternal::lastErrorToString());
+        }
+    }
+}
 
 string
 Slice::Preprocessor::getBaseName()
@@ -299,23 +307,6 @@ Slice::Preprocessor::preprocess(const string& languageArg)
     mcpp_use_mem_buffers(1);
 
     return _cppHandle;
-}
-
-void
-Slice::Preprocessor::close()
-{
-    if (_cppHandle != nullptr)
-    {
-        // The temp file deletes itself when the descriptor is closed. On POSIX, tmpfile() returns an
-        // already-unlinked file and the CWD fallback unlinks after open; on Windows, openExclusive opens
-        // with _O_TEMPORARY. fclose is the only cleanup needed.
-        int status = fclose(_cppHandle);
-        _cppHandle = nullptr;
-        if (status != 0)
-        {
-            throw runtime_error("failed to close preprocessor file: " + IceInternal::lastErrorToString());
-        }
-    }
 }
 
 void

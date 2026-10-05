@@ -1245,8 +1245,8 @@ compile(const vector<string>& argv)
         UnitPtr unit;
         try
         {
-            PreprocessorPtr preprocessor = Preprocessor::create(fileName, preprocessorArgs);
-            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PHP__");
+            Preprocessor preprocessor{fileName, preprocessorArgs};
+            FILE* preprocessedHandle = preprocessor.preprocess("-D__SLICE2PHP__");
             if (preprocessedHandle == nullptr)
             {
                 return EXIT_FAILURE;
@@ -1254,9 +1254,6 @@ compile(const vector<string>& argv)
 
             unit = Unit::createUnit("php", {.all = all});
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
-
-            preprocessor->close();
-
             if (parseStatus == EXIT_FAILURE)
             {
                 status = EXIT_FAILURE;

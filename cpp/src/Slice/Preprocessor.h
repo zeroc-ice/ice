@@ -3,25 +3,21 @@
 #ifndef PREPROCESSOR_H
 #define PREPROCESSOR_H
 
-#include <memory>
+#include <cstdio>
 #include <string>
 #include <vector>
 
 namespace Slice
 {
-    class Preprocessor;
-    using PreprocessorPtr = std::shared_ptr<Preprocessor>;
-
     class Preprocessor final
     {
     public:
-        static PreprocessorPtr create(const std::string& fileName, const std::vector<std::string>& args);
-
         Preprocessor(const std::string& fileName, const std::vector<std::string>& args);
+        Preprocessor(const Preprocessor&) = delete;
+        Preprocessor& operator=(const Preprocessor&) = delete;
         ~Preprocessor();
 
         FILE* preprocess(const std::string& languageArg = "");
-        void close();
 
         std::string getBaseName();
 
