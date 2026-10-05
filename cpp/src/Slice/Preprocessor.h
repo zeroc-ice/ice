@@ -13,10 +13,9 @@ namespace Slice
     {
     public:
         Preprocessor(const std::string& fileName, const std::vector<std::string>& args);
-        ~Preprocessor();
-
         Preprocessor(const Preprocessor&) = delete;
         Preprocessor& operator=(const Preprocessor&) = delete;
+        ~Preprocessor();
 
         FILE* preprocess(const std::string& languageArg = "");
 
