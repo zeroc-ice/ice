@@ -36,6 +36,13 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read
+  # The DEB and RPM builds pull their builder images from ghcr.io.
+  packages: read
+  # Several package builds download the artifacts of earlier jobs with gh run download.
+  actions: read
+
 jobs:
   configure:
     runs-on: ubuntu-24.04
@@ -53,54 +60,62 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Configure build
         id: configure
+        env:
+          QUALITY: ${{ inputs.quality }}
+          AUTHENTICODE_SIGN: ${{ inputs.authenticode_sign }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
           # Load version information
           source ./config/version.env
           # The channel for the branch from version.env
-          echo "channel=${CHANNEL}" >> $GITHUB_OUTPUT
+          echo "channel=${CHANNEL}" >> "$GITHUB_OUTPUT"
           # Authenticode sign is always true for stable quality, otherwise use the input value
-          if [[ "${{ inputs.quality }}" == "stable" ]] || [[ "${{ inputs.authenticode_sign }}" == "true" ]]; then
-            echo "authenticode_sign=true" >> $GITHUB_OUTPUT
+          if [[ "${QUALITY}" == "stable" ]] || [[ "${AUTHENTICODE_SIGN}" == "true" ]]; then
+            echo "authenticode_sign=true" >> "$GITHUB_OUTPUT"
           else
-            echo "authenticode_sign=false" >> $GITHUB_OUTPUT
+            echo "authenticode_sign=false" >> "$GITHUB_OUTPUT"
           fi
-          if [[ "${{ inputs.quality }}" == "nightly" ]]; then
+          if [[ "${QUALITY}" == "nightly" ]]; then
             DATE=$(date +%Y%m%d)
-            BUILD=${{ inputs.build_number }}
             # Set version variables for nightly packages according to platform conventions:
+            {
+              # e.g. 3.9.0-nightly.20250625.1
+              echo "semver_version=${BASE_VERSION}-nightly.${DATE}.${BUILD_NUMBER}"
 
-            # e.g. 3.9.0-nightly.20250625.1
-            echo "semver_version=${BASE_VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+              # e.g. 3.9.0~0.nightly20250625.1-1
+              echo "deb_version=${BASE_VERSION}~0.nightly${DATE}.${BUILD_NUMBER}-1"
 
-            # e.g. 3.9.0~0.nightly20250625.1-1
-            echo "deb_version=${BASE_VERSION}~0.nightly${DATE}.${BUILD}-1" >> $GITHUB_OUTPUT
+              # e.g. 3.9.0.pre.20250625.1
+              echo "gem_version=${BASE_VERSION}.pre.${DATE}.${BUILD_NUMBER}"
 
-            # e.g. 3.9.0.pre.20250625.1
-            echo "gem_version=${BASE_VERSION}.pre.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+              # e.g. 3.9.0-nightly-20250625.1-SNAPSHOT
+              echo "maven_version=${BASE_VERSION}-nightly-${DATE}.${BUILD_NUMBER}-SNAPSHOT"
 
-            # e.g. 3.9.0-nightly-20250625.1-SNAPSHOT
-            echo "maven_version=${BASE_VERSION}-nightly-${DATE}.${BUILD}-SNAPSHOT" >> $GITHUB_OUTPUT
+              # e.g. 3.9.0.dev202506251
+              echo "pypi_version=${BASE_VERSION}.dev${DATE}${BUILD_NUMBER}"
 
-            # e.g. 3.9.0.dev202506251
-            echo "pypi_version=${BASE_VERSION}.dev${DATE}${BUILD}" >> $GITHUB_OUTPUT
+              # e.g. 3.9.0~0.nightly20250625.1
+              echo "rpm_version=${BASE_VERSION}~0.nightly${DATE}.${BUILD_NUMBER}"
 
-            # e.g. 3.9.0~0.nightly20250625.1
-            echo "rpm_version=${BASE_VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
-
-            # e.g. 3.9.0.202506251
-            echo "matlab_version=${BASE_VERSION}.${DATE}${BUILD}" >> $GITHUB_OUTPUT
+              # e.g. 3.9.0.202506251
+              echo "matlab_version=${BASE_VERSION}.${DATE}${BUILD_NUMBER}"
+            } >> "$GITHUB_OUTPUT"
           else
             # Define version variables as empty for stable channels to use the version from the repository
-            echo "semver_version=" >> $GITHUB_OUTPUT
-            echo "deb_version=" >> $GITHUB_OUTPUT
-            echo "gem_version=" >> $GITHUB_OUTPUT
-            echo "maven_version=" >> $GITHUB_OUTPUT
-            echo "pypi_version=" >> $GITHUB_OUTPUT
-            echo "rpm_version=" >> $GITHUB_OUTPUT
-            echo "matlab_version=" >> $GITHUB_OUTPUT
+            {
+              echo "semver_version="
+              echo "deb_version="
+              echo "gem_version="
+              echo "maven_version="
+              echo "pypi_version="
+              echo "rpm_version="
+              echo "matlab_version="
+            } >> "$GITHUB_OUTPUT"
           fi
 
   build-brew-packages:

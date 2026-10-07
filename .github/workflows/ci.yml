@@ -17,6 +17,9 @@ env:
   # Configure the various build systems to treat warnings as errors
   WARNINGS_AS_ERRORS: yes
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     name: ${{ matrix.config }} on ${{ matrix.os }}
@@ -210,6 +213,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Print System Info
         uses: ./.github/actions/system-info
@@ -446,7 +451,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: test-logs-${{ matrix.config }}-${{ matrix.os }}
-          path: ${{ '.' }}/**/*.log
+          path: ./**/*.log
           if-no-files-found: ignore
         if: always()
 
@@ -455,7 +460,7 @@ jobs:
         timeout-minutes: 15
         run: |
           python3 scripts/process_linux_crash_dumps.py \
-              --workspace $GITHUB_WORKSPACE \
+              --workspace "$GITHUB_WORKSPACE" \
               --reports LinuxDumpReports \
               -v
         shell: bash

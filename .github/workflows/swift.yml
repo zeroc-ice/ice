@@ -8,17 +8,22 @@ on:
     # The branches below must be a subset of the branches above
     branches: ["main"]
 
+permissions:
+  contents: read
+
 jobs:
   swift-format:
     name: Swift format and lint
     runs-on: ubuntu-24.04
     container:
-      image: swift
+      image: swift:6.4
       volumes:
         - ${{ github.workspace }}:${{ github.workspace }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       # https://github.com/actions/runner/issues/2033
       - name: Set safe directory

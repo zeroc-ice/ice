@@ -12,6 +12,9 @@ on:
         description: "The Ice version to build"
         required: false
 
+permissions:
+  contents: read
+
 jobs:
   build-gem-packages:
     runs-on: ubuntu-24.04
@@ -19,6 +22,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -26,12 +31,11 @@ jobs:
       - name: Setup Ruby
         uses: ./.github/actions/setup-ruby
 
-      - name: Install Build Dependencies
-        run: gem install rake
-
       - name: Update GEM Version
         working-directory: ruby
-        run: sed -i "s/spec.version.*/spec.version = '${{ inputs.ice_version }}'/" ice.gemspec
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
+        run: sed -i "s/spec.version.*/spec.version = '${ICE_VERSION}'/" ice.gemspec
         if: ${{ inputs.ice_version != '' }}
 
       - name: Build GEM Package

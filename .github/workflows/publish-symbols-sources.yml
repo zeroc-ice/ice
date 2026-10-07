@@ -25,6 +25,11 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+  # gh run download reads the build run's artifacts.
+  actions: read
+
 jobs:
   # Non-stable releases (nightly, RC) - simple sync to quality-specific paths
   publish-symbols-sources-nightly:
@@ -38,14 +43,15 @@ jobs:
       - name: Download Symbols, Sources, and PDB artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
-          gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-indexed-pdbs" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-indexed-pdbs" --dir staging
 
       - name: Publish Symbols, Sources, and PDBs to S3
         run: |
           # Get the version from the directory structure (assumes staging/windows-indexed-pdbs/pdbs/<version>/...)
-          VERSION=$(basename $(find staging/windows-indexed-pdbs/pdbs/ -mindepth 1 -maxdepth 1))
+          VERSION=$(basename "$(find staging/windows-indexed-pdbs/pdbs/ -mindepth 1 -maxdepth 1)")
           echo "Version: ${VERSION}"
 
           # Create a zip which includes the version
@@ -82,6 +88,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Windows Debug Tools
         uses: ./.github/actions/install-windows-debug-tools
@@ -89,22 +97,23 @@ jobs:
       - name: Download Symbols and Sources artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
-          gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-indexed-pdbs" --dir staging
+          gh run download "$env:RUN_ID" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
+          gh run download "$env:RUN_ID" --repo zeroc-ice/ice --pattern "windows-indexed-pdbs" --dir staging
 
       - name: Read version from config
         id: version
         run: |
           source ./config/version.env
-          echo "ice_version=${BASE_VERSION}" >> $GITHUB_OUTPUT
+          echo "ice_version=${BASE_VERSION}" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Download existing 000admin from S3
         run: |
           New-Item -ItemType Directory -Force -Path symbol-store
           # Download existing 000admin from stable symbol store
-          aws s3 sync "s3://${{ env.S3_BUCKET }}/symstore/000admin/" "symbol-store/000admin/"
+          aws s3 sync "s3://$env:S3_BUCKET/symstore/000admin/" "symbol-store/000admin/"
           if (-not (Test-Path "symbol-store/000admin/history.txt")) {
             Write-Error "No existing 000admin found in stable symbol store - this should not happen"
             exit 1
@@ -113,29 +122,34 @@ jobs:
         shell: pwsh
 
       - name: Add symbols to store using symstore
+        env:
+          ICE_VERSION: ${{ steps.version.outputs.ice_version }}
         run: |
           # Add all PDBs in a single transaction
           # symstore /r recursively finds all PDBs under the staging directory
           symstore add /3 /compress /r `
             /t "Ice" `
-            /v "${{ steps.version.outputs.ice_version }}" `
+            /v "$env:ICE_VERSION" `
             /s ${{ github.workspace }}/symbol-store `
             /f "${{ github.workspace }}/staging/windows-indexed-pdbs"
         shell: pwsh
 
       - name: Publish Symbols and Sources to S3
+        env:
+          ICE_VERSION: ${{ steps.version.outputs.ice_version }}
+          CHANNEL: ${{ inputs.channel }}
         run: |
           # Create a zip which includes the version
-          $version = "${{ steps.version.outputs.ice_version }}"
+          $version = "$env:ICE_VERSION"
           $zipName = "windows-indexed-pdbs-$version.zip"
           Compress-Archive -Path "staging/windows-indexed-pdbs" -DestinationPath "staging/$zipName"
 
           # Upload zip to S3
-          aws s3 cp "staging/$zipName" "s3://${{ env.S3_DOWNLOADS_BUCKET }}/ice/${{ inputs.channel }}/$zipName"
+          aws s3 cp "staging/$zipName" "s3://$env:S3_DOWNLOADS_BUCKET/ice/$env:CHANNEL/$zipName"
 
           # Upload sources to S3
-          aws s3 sync "staging/windows-symbols-sources/sources/" "s3://${{ env.S3_BUCKET }}/sources/ice/"
+          aws s3 sync "staging/windows-symbols-sources/sources/" "s3://$env:S3_BUCKET/sources/ice/"
 
           # Sync the entire symbol store including 000admin
-          aws s3 sync "symbol-store/" "s3://${{ env.S3_BUCKET }}/symstore/"
+          aws s3 sync "symbol-store/" "s3://$env:S3_BUCKET/symstore/"
         shell: pwsh
