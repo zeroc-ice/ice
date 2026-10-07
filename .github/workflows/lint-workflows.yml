@@ -6,10 +6,12 @@ on:
     branches: ["main"]
     paths:
       - ".github/**"
+      - ".gitignore"
   pull_request:
     branches: ["main"]
     paths:
       - ".github/**"
+      - ".gitignore"
 
 permissions:
   contents: read
