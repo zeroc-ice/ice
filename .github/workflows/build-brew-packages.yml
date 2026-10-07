@@ -33,6 +33,8 @@ on:
 
 permissions:
   contents: read
+  # gh run download reads the build run's artifacts.
+  actions: read
 
 jobs:
   build-brew-packages:

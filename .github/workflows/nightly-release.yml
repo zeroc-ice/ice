@@ -28,6 +28,7 @@ jobs:
     permissions:
       contents: read
       packages: read
+      actions: read
     with:
       quality: nightly
       build_number: ${{ inputs.build_number }}
@@ -59,6 +60,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      actions: read
     with:
       channel: ${{ needs.build.outputs.channel }}
       quality: nightly

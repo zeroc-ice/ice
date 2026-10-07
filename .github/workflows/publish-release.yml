@@ -28,6 +28,8 @@ on:
 
 permissions:
   contents: read
+  # The publish workflows download the build run's artifacts.
+  actions: read
 
 jobs:
   publish-brew-packages:
@@ -51,6 +53,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: read
     with:
       channel: ${{ inputs.channel }}
       quality: ${{ inputs.quality }}
@@ -102,6 +105,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: read
     with:
       channel: ${{ inputs.channel }}
       quality: ${{ inputs.quality }}
@@ -211,6 +215,7 @@ jobs:
     uses: ./.github/workflows/upload-release-assets.yml
     permissions:
       contents: write
+      actions: read
     with:
       channel: ${{ inputs.channel }}
       quality: ${{ inputs.quality }}
