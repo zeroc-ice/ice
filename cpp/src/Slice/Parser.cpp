@@ -2758,6 +2758,7 @@ Slice::InterfaceDef::createOperation(
     if (!name.empty())
     {
         bool hasConflictingIdentifier = doesNameConflict(name, "operation", _contents);
+        reportIllegalSuffixOrUnderscore(name);
 
         // Check whether enclosing interface has the same name.
         if (name == this->name())
