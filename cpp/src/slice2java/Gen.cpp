@@ -1329,8 +1329,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
     Output& out,
     const OperationPtr& p,
     const vector<string>& params,
-    const ExceptionList& throws,
-    const optional<DocComment>& dc)
+    const ExceptionList& throws)
 {
     const string name = p->mappedName();
     const string package = getPackage(p->parentInterface());
@@ -1347,11 +1346,8 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
 
     // Generate a synchronous version of this operation which doesn't takes a context parameter.
     out << sp;
-    writeProxyOpDocComment(out, p, package, dc, false, "");
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeProxyOpDocComment(out, p, package, false, "");
+    writeDeprecatedAnnotation(out, p);
     out << nl << "default " << resultType << ' ' << name << spar << params << epar;
     writeThrowsClause(out, package, throws);
     out << sb;
@@ -1365,11 +1361,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
 
     // Generate a synchronous version of this operation which takes a context parameter.
     out << sp;
-    writeProxyOpDocComment(out, p, package, dc, false, contextDoc);
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeProxyOpDocComment(out, p, package, false, contextDoc);
     out << nl << "default " << resultType << ' ' << name << spar << params << contextParam << epar;
     writeThrowsClause(out, package, throws);
     out << sb;
@@ -1412,11 +1404,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
 }
 
 void
-Slice::JavaVisitor::writeAsyncIceInvokeMethods(
-    Output& out,
-    const OperationPtr& p,
-    const vector<string>& params,
-    const optional<DocComment>& dc)
+Slice::JavaVisitor::writeAsyncIceInvokeMethods(Output& out, const OperationPtr& p, const vector<string>& params)
 {
     const string name = p->mappedName();
     const string package = getPackage(p->parentInterface());
@@ -1432,11 +1420,8 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
 
     // Generate an overload of '<NAME>Async' that doesn't take a context parameter.
     out << sp;
-    writeProxyOpDocComment(out, p, package, dc, true, "");
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeProxyOpDocComment(out, p, package, true, "");
+    writeDeprecatedAnnotation(out, p);
     out << nl << "default " << futureType << ' ' << name << "Async" << spar << params << epar;
     out << sb;
     out << nl << "return _iceI_" << name << "Async" << spar << args << noExplicitContextArg << "false" << epar << ';';
@@ -1444,11 +1429,8 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
 
     // Generate an overload of '<NAME>Async' that takes a context parameter.
     out << sp;
-    writeProxyOpDocComment(out, p, package, dc, true, contextDoc);
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeProxyOpDocComment(out, p, package, true, contextDoc);
+    writeDeprecatedAnnotation(out, p);
     out << nl << "default " << futureType << ' ' << name << "Async" << spar << params << contextParam << epar;
     out << sb;
     out << nl << "return _iceI_" << name << "Async" << spar << args << contextParamName << "false" << epar << ';';
@@ -1925,6 +1907,15 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
 }
 
 void
+Slice::JavaVisitor::writeDeprecatedAnnotation(IceInternal::Output& out, const ContainedPtr& p)
+{
+    if (p->isDeprecated())
+    {
+        out << nl << "@Deprecated";
+    }
+}
+
+void
 Slice::JavaVisitor::writeExceptionDocComment(Output& out, const OperationPtr& op, const DocComment& dc)
 {
     for (const auto& [name, lines] : dc.exceptions())
@@ -2107,10 +2098,10 @@ Slice::JavaVisitor::writeProxyOpDocComment(
     Output& out,
     const OperationPtr& p,
     const string& package,
-    const optional<DocComment>& dc,
     bool async,
     const string& contextParam)
 {
+    const optional<DocComment>& dc = p->docComment();
     if (!dc)
     {
         return;
@@ -2390,11 +2381,7 @@ Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     writeDocComment(out, p, "class");
-    const optional<DocComment>& dc = p->docComment();
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeDeprecatedAnnotation(out, p);
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     if (p->compactId() != -1)
@@ -2680,11 +2667,7 @@ Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sp;
 
     writeDocComment(out, p, "exception class");
-    const optional<DocComment>& dc = p->docComment();
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeDeprecatedAnnotation(out, p);
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public class " << name << " extends ";
@@ -2950,11 +2933,7 @@ Slice::TypesVisitor::visitStructStart(const StructPtr& p)
     out << sp;
 
     writeDocComment(out, p, "class");
-    const optional<DocComment>& dc = p->docComment();
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeDeprecatedAnnotation(out, p);
 
     out << nl << "public final class " << p->mappedName() << " implements java.lang.Cloneable, java.io.Serializable";
     out << sb;
@@ -3303,11 +3282,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     out << sp;
 
     writeDocComment(out, p);
-    const optional<DocComment>& dc = p->docComment();
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeDeprecatedAnnotation(out, p);
 
     if (getSet || isOptional)
     {
@@ -3336,10 +3311,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         out << sp;
         writeDocComment(out, p);
-        if (dc && dc->isDeprecated())
-        {
-            out << nl << "@Deprecated";
-        }
+        writeDeprecatedAnnotation(out, p);
         out << nl << "public final " << s << " get" << capName << "()";
         out << sb;
         if (isOptional)
@@ -3357,10 +3329,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         out << sp;
         writeDocComment(out, p);
-        if (dc && dc->isDeprecated())
-        {
-            out << nl << "@Deprecated";
-        }
+        writeDeprecatedAnnotation(out, p);
         out << nl << "public final void set" << capName << '(' << s << " " << name << ')';
         out << sb;
         if (isOptional)
@@ -3377,10 +3346,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             out << sp;
             writeDocComment(out, p);
-            if (dc && dc->isDeprecated())
-            {
-                out << nl << "@Deprecated";
-            }
+            writeDeprecatedAnnotation(out, p);
             out << nl << "public final boolean has" << capName << "()";
             out << sb;
             out << nl << "return _" << name << ';';
@@ -3388,10 +3354,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
             out << sp;
             writeDocComment(out, p);
-            if (dc && dc->isDeprecated())
-            {
-                out << nl << "@Deprecated";
-            }
+            writeDeprecatedAnnotation(out, p);
             out << nl << "public final void clear" << capName << "()";
             out << sb;
             out << nl << "_" << name << " = false;";
@@ -3401,10 +3364,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
             out << sp;
             writeDocComment(out, p);
-            if (dc && dc->isDeprecated())
-            {
-                out << nl << "@Deprecated";
-            }
+            writeDeprecatedAnnotation(out, p);
             out << nl << "public final void optional" << capName << '(' << optType << " v)";
             out << sb;
             out << nl << "if (v == null || !v.isPresent())";
@@ -3434,10 +3394,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
             out << sp;
             writeDocComment(out, p);
-            if (dc && dc->isDeprecated())
-            {
-                out << nl << "@Deprecated";
-            }
+            writeDeprecatedAnnotation(out, p);
             out << nl << "public final " << optType << " optional" << capName << "()";
             out << sb;
             out << nl << "if (_" << name << ')';
@@ -3490,10 +3447,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if (b && b->kind() == Builtin::KindBool)
         {
             out << sp;
-            if (dc && dc->isDeprecated())
-            {
-                out << nl << "@Deprecated";
-            }
+            writeDeprecatedAnnotation(out, p);
             out << nl << "public final boolean is" << capName << "()";
             out << sb;
             if (isOptional)
@@ -3522,10 +3476,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 // Indexed getter.
                 //
                 out << sp;
-                if (dc && dc->isDeprecated())
-                {
-                    out << nl << "@Deprecated";
-                }
+                writeDeprecatedAnnotation(out, p);
                 out << nl << "public final " << elem << " get" << capName << "(int index)";
                 out << sb;
                 if (isOptional)
@@ -3542,10 +3493,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 // Indexed setter.
                 //
                 out << sp;
-                if (dc && dc->isDeprecated())
-                {
-                    out << nl << "@Deprecated";
-                }
+                writeDeprecatedAnnotation(out, p);
                 out << nl << "public final void set" << capName << "(int index, " << elem << " val)";
                 out << sb;
                 if (isOptional)
@@ -3577,11 +3525,7 @@ Slice::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp;
 
     writeDocComment(out, p, "enum");
-    const optional<DocComment>& dc = p->docComment();
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeDeprecatedAnnotation(out, p);
 
     out << nl << "public enum " << name;
     out << sb;
@@ -3593,11 +3537,7 @@ Slice::TypesVisitor::visitEnum(const EnumPtr& p)
             out << ',';
         }
         writeDocComment(out, *en);
-        const optional<DocComment>& edc = (*en)->docComment();
-        if (edc && edc->isDeprecated())
-        {
-            out << nl << "@Deprecated";
-        }
+        writeDeprecatedAnnotation(out, *en);
         out << nl << (*en)->mappedName() << '(' << (*en)->value() << ')';
     }
     out << ';';
@@ -4076,11 +4016,7 @@ Slice::TypesVisitor::visitConst(const ConstPtr& p)
     out << sp;
 
     writeDocComment(out, p, "constant");
-    const optional<DocComment>& dc = p->docComment();
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeDeprecatedAnnotation(out, p);
 
     out << nl << "public interface " << p->mappedName();
     out << sb;
@@ -4105,11 +4041,7 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << sp;
 
     writeDocComment(out, p, "proxy interface");
-    const optional<DocComment>& dc = p->docComment();
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
+    writeDeprecatedAnnotation(out, p);
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << p->mappedName() << "Prx extends ";
     if (bases.empty())
@@ -4293,11 +4225,7 @@ Slice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     outi << sp;
     writeHiddenDocComment(outi);
-    const optional<DocComment>& dc = p->docComment();
-    if (dc && dc->isDeprecated())
-    {
-        outi << nl << "@Deprecated";
-    }
+    writeDeprecatedAnnotation(outi, p);
     outi << nl << "public class " << prxIName;
     outi << " extends com.zeroc.Ice._ObjectPrxFactoryMethods<" << prxName << ">";
     outi << " implements " << prxName;
@@ -4332,7 +4260,6 @@ Slice::TypesVisitor::visitOperation(const OperationPtr& p)
     const vector<string> params = getParamsProxy(p, package, false);
     const vector<string> paramsOpt = getParamsProxy(p, package, true);
     const bool sendsOptionals = p->sendsOptionals();
-    const optional<DocComment>& dc = p->docComment();
 
     // Arrange exceptions into most-derived to least-derived order. If we don't
     // do this, a base exception handler can appear before a derived exception
@@ -4342,19 +4269,19 @@ Slice::TypesVisitor::visitOperation(const OperationPtr& p)
     throws.sort(Slice::DerivedToBaseCompare());
 
     // Synchronous methods with required parameters.
-    writeSyncIceInvokeMethods(out, p, params, throws, dc);
+    writeSyncIceInvokeMethods(out, p, params, throws);
     if (sendsOptionals)
     {
         // Synchronous methods using optional parameters (if any).
-        writeSyncIceInvokeMethods(out, p, paramsOpt, throws, dc);
+        writeSyncIceInvokeMethods(out, p, paramsOpt, throws);
     }
 
     // Asynchronous methods with required parameters.
-    writeAsyncIceInvokeMethods(out, p, params, dc);
+    writeAsyncIceInvokeMethods(out, p, params);
     if (sendsOptionals)
     {
         // Asynchronous methods with optional parameters.
-        writeAsyncIceInvokeMethods(out, p, paramsOpt, dc);
+        writeAsyncIceInvokeMethods(out, p, paramsOpt);
     }
 
     writeIceIHelperMethods(out, p, !throws.empty(), false);
