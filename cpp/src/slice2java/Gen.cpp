@@ -1361,7 +1361,8 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
 
     // Generate a synchronous version of this operation which takes a context parameter.
     out << sp;
-    writeProxyOpDocComment(out, p, package, false, contextDoc);
+writeProxyOpDocComment(out, p, package, false, contextDoc);
+    writeDeprecatedAnnotation(out, p);
     out << nl << "default " << resultType << ' ' << name << spar << params << contextParam << epar;
     writeThrowsClause(out, package, throws);
     out << sb;
