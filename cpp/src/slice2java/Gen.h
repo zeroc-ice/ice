@@ -146,7 +146,7 @@ namespace Slice
             const DataMemberList& members,
             const std::string& package);
 
-        /// Generate an '@Deprecated' annotation on the provided element if it has the 'deprecated' metadata.
+        /// Generate a 'Deprecated' annotation on the provided element if it has the 'deprecated' metadata.
         static void writeDeprecatedAnnotation(IceInternal::Output& out, const ContainedPtr& contained);
 
         //
