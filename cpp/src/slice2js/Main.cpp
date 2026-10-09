@@ -61,7 +61,6 @@ usage(const string& n)
                   "--depend                 Generate Makefile dependencies.\n"
                   "--depend-xml             Generate dependencies in XML format.\n"
                   "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
-                  "--validate               Validate command line options.\n"
                   "--stdout                 Print generated code to stdout.\n"
                   "--typescript             Generate TypeScript declarations.\n"
                   "--depend-json            Generate dependency information in JSON format.\n";
@@ -73,7 +72,6 @@ compile(const vector<string>& argv)
     IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("", "validate");
     opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
@@ -86,8 +84,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
 
-    bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
-
     vector<string> sliceFiles;
     try
     {
@@ -96,10 +92,7 @@ compile(const vector<string>& argv)
     catch (const IceInternal::BadOptException& e)
     {
         consoleErr << argv[0] << ": error: " << e.what() << endl;
-        if (!validate)
-        {
-            usage(argv[0]);
-        }
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -133,64 +126,40 @@ compile(const vector<string>& argv)
     }
 
     bool useStdout = opts.isSet("stdout");
-
     string output = opts.optArg("output-dir");
-
     bool depend = opts.isSet("depend");
-
     bool dependJSON = opts.isSet("depend-json");
-
     bool dependXML = opts.isSet("depend-xml");
-
     string dependFile = opts.optArg("depend-file");
-
     bool debug = opts.isSet("debug");
-
     bool typeScript = opts.isSet("typescript");
 
     if (sliceFiles.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
-        if (!validate)
-        {
-            usage(argv[0]);
-        }
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     if (depend && dependJSON)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-json" << endl;
-        if (!validate)
-        {
-            usage(argv[0]);
-        }
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     if (depend && dependXML)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
-        if (!validate)
-        {
-            usage(argv[0]);
-        }
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     if (dependXML && dependJSON)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend-xml and --depend-json" << endl;
-        if (!validate)
-        {
-            usage(argv[0]);
-        }
+        usage(argv[0]);
         return EXIT_FAILURE;
-    }
-
-    if (validate)
-    {
-        return EXIT_SUCCESS;
     }
 
     int status = EXIT_SUCCESS;

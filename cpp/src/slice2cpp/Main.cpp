@@ -72,7 +72,6 @@ usage(const string& n)
                   "--depend                 Generate Makefile dependencies.\n"
                   "--depend-xml             Generate dependencies in XML format.\n"
                   "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
-                  "--validate               Validate command line options.\n"
                   "--header-ext EXT         Use EXT instead of the default 'h' extension.\n"
                   "--source-ext EXT         Use EXT instead of the default 'cpp' extension.\n"
                   "--add-header HDR[,GUARD] Add #include for HDR (with guard GUARD) to generated source file.\n"
@@ -87,7 +86,6 @@ compile(const vector<string>& argv)
     IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("", "validate");
     opts.addOpt("", "header-ext", IceInternal::Options::NeedArg, "h");
     opts.addOpt("", "source-ext", IceInternal::Options::NeedArg, "cpp");
     opts.addOpt("", "add-header", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
@@ -102,7 +100,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
 
-    bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
     vector<string> sliceFiles;
     try
     {
@@ -111,10 +108,7 @@ compile(const vector<string>& argv)
     catch (const IceInternal::BadOptException& e)
     {
         consoleErr << argv[0] << ": error: " << e.what() << endl;
-        if (!validate)
-        {
-            usage(argv[0]);
-        }
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -157,42 +151,25 @@ compile(const vector<string>& argv)
     }
 
     string include = opts.optArg("include-dir");
-
     string output = opts.optArg("output-dir");
-
     string dllExport = opts.optArg("dll-export");
-
     bool depend = opts.isSet("depend");
-
     bool dependXML = opts.isSet("depend-xml");
-
     string dependFile = opts.optArg("depend-file");
-
     bool debug = opts.isSet("debug");
 
     if (sliceFiles.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
-        if (!validate)
-        {
-            usage(argv[0]);
-        }
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     if (depend && dependXML)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
-        if (!validate)
-        {
-            usage(argv[0]);
-        }
+        usage(argv[0]);
         return EXIT_FAILURE;
-    }
-
-    if (validate)
-    {
-        return EXIT_SUCCESS;
     }
 
     int status = EXIT_SUCCESS;
