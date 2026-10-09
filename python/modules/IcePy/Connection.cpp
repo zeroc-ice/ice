@@ -3,6 +3,7 @@
 #include "Connection.h"
 #include "Communicator.h"
 #include "ConnectionInfo.h"
+#include "DocStrings.h"
 #include "Endpoint.h"
 #include "Future.h"
 #include "ObjectAdapter.h"
@@ -53,186 +54,6 @@ namespace
     };
 
     long hashPointer(void* ptr) { return Hasher<sizeof(void*), sizeof(long)>()(ptr); }
-
-    constexpr const char* connectionAbort_doc = R"(abort() -> None
-
-Aborts this connection.)";
-
-    constexpr const char* connectionClose_doc = R"(close() -> Awaitable[None]
-
-Starts a graceful closure of this connection once all outstanding invocations have completed.
-
-Returns
--------
-Awaitable[None]
-    A future that becomes available when the connection is closed. If the connection was lost or
-    aborted, awaiting this future raises the exception that caused the connection's closure.)";
-
-    constexpr const char* connectionCreateProxy_doc = R"(createProxy(identity: Ice.Identity, /) -> Ice.ObjectPrx
-
-Creates a special proxy (a 'fixed proxy') that always uses this connection.
-
-Parameters
-----------
-identity : Ice.Identity
-    The identity of the target object.
-
-Returns
--------
-Ice.ObjectPrx
-    A fixed proxy with the provided identity.
-
-Raises
-------
-CommunicatorDestroyedException
-    If the communicator has been destroyed.)";
-
-    constexpr const char* connectionDisableInactivityCheck_doc = R"(disableInactivityCheck() -> None
-
-Disables the inactivity check on this connection.
-
-By default, Ice will close connections that remain inactive for a certain period.
-This method disables that behavior for this connection.)";
-
-    constexpr const char* connectionSetAdapter_doc = R"(setAdapter(adapter: Ice.ObjectAdapter | None, /) -> None
-
-Associates an object adapter with this connection.
-
-When a connection receives a request, it dispatches this request using its associated object adapter.
-If the associated object adapter is ``None``, the connection rejects any incoming request with an
-:class:`Ice.ObjectNotExistException`.
-
-The default object adapter of an incoming connection is the object adapter that created this connection;
-the default object adapter of an outgoing connection is the communicator's default object adapter.
-
-Parameters
-----------
-adapter : Ice.ObjectAdapter | None
-    The object adapter to associate with this connection.
-
-Raises
-------
-LocalException
-    If this connection is an incoming (server) connection: only outgoing (client) connections
-    support setting the object adapter.)";
-
-    constexpr const char* connectionGetAdapter_doc = R"(getAdapter() -> Ice.ObjectAdapter | None
-
-Gets the object adapter associated with this connection.
-
-Returns
--------
-Ice.ObjectAdapter | None
-    The object adapter associated with this connection.)";
-
-    constexpr const char* connectionFlushBatchRequests_doc =
-        R"(flushBatchRequests(compress: Ice.CompressBatch, /) -> None
-
-Flushes any pending batch requests for this connection.
-
-This corresponds to all batch requests invoked on fixed proxies associated with the connection.
-
-Parameters
-----------
-compress : Ice.CompressBatch
-    Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
-
-Raises
-------
-LocalException
-    If the flush fails. For example, this method raises CommunicatorDestroyedException if the communicator
-    has been destroyed.)";
-
-    constexpr const char* connectionFlushBatchRequestsAsync_doc =
-        R"(flushBatchRequestsAsync(compress: Ice.CompressBatch, /) -> Awaitable[None]
-
-Flushes any pending batch requests for this connection asynchronously.
-
-This corresponds to all batch requests invoked on fixed proxies associated with the connection.
-
-Parameters
-----------
-compress : Ice.CompressBatch
-    Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
-
-Returns
--------
-Awaitable[None]
-    A future that becomes available when the flush completes.
-
-Raises
-------
-CommunicatorDestroyedException
-    If the communicator has been destroyed. This exception is raised synchronously.)";
-
-    constexpr const char* connectionSetCloseCallback_doc =
-        R"(setCloseCallback(callback: Callable[[Connection], None] | None, /) -> None
-
-Sets a close callback on the connection. The callback is called by the connection when it's closed.
-The callback is called from the Ice thread pool associated with the connection.
-
-Parameters
-----------
-callback : Callable[[Connection], None] | None
-    The close callback callable, or ``None`` to remove the current callback.)";
-
-    constexpr const char* connectionType_doc = R"(type() -> str
-
-Returns the connection type. This corresponds to the endpoint type, such as 'tcp', 'udp', etc.
-
-Returns
--------
-str
-    The type of the connection.)";
-
-    constexpr const char* connectionToString_doc = R"(toString() -> str
-
-Returns a description of the connection as human readable text, suitable for logging or error messages.
-
-Notes
------
-This method remains usable after the connection is closed or aborted.
-
-Returns
--------
-str
-    The description of the connection as human readable text.)";
-
-    constexpr const char* connectionGetInfo_doc = R"(getInfo() -> Ice.ConnectionInfo
-
-Returns the connection information.
-
-Returns
--------
-Ice.ConnectionInfo
-    The connection information.)";
-
-    constexpr const char* connectionGetEndpoint_doc = R"(getEndpoint() -> Ice.Endpoint
-
-Gets the endpoint from which the connection was created.
-
-Returns
--------
-Ice.Endpoint
-    The endpoint from which the connection was created.)";
-
-    constexpr const char* connectionSetBufferSize_doc = R"(setBufferSize(rcvSize: int, sndSize: int, /) -> None
-
-Sets the size of the receive and send buffers.
-
-Parameters
-----------
-rcvSize : int
-    The size of the receive buffer.
-sndSize : int
-    The size of the send buffer.)";
-
-    constexpr const char* connectionThrowException_doc = R"(throwException() -> None
-
-Raises an exception that provides the reason for the closure of this connection. For example, this method
-raises :class:`Ice.CloseConnectionException` when the connection was closed gracefully by the peer; it raises
-:class:`Ice.ConnectionAbortedException` when the connection is aborted with :meth:`~Ice.Connection.abort`.
-This method does nothing if the connection is not yet closing or closed.)";
 }
 
 namespace IcePy
@@ -773,51 +594,54 @@ connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef ConnectionMethods[] = {
-    {"abort", reinterpret_cast<PyCFunction>(connectionAbort), METH_NOARGS, PyDoc_STR(connectionAbort_doc)},
-    {"close", reinterpret_cast<PyCFunction>(connectionClose), METH_NOARGS, PyDoc_STR(connectionClose_doc)},
+    {"abort", reinterpret_cast<PyCFunction>(connectionAbort), METH_NOARGS, PyDoc_STR(IcePy_DOC_Connection_abort)},
+    {"close", reinterpret_cast<PyCFunction>(connectionClose), METH_NOARGS, PyDoc_STR(IcePy_DOC_Connection_close)},
     {"createProxy",
      reinterpret_cast<PyCFunction>(connectionCreateProxy),
      METH_VARARGS,
-     PyDoc_STR(connectionCreateProxy_doc)},
+     PyDoc_STR(IcePy_DOC_Connection_createProxy)},
     {"disableInactivityCheck",
      reinterpret_cast<PyCFunction>(connectionDisableInactivityCheck),
      METH_NOARGS,
-     PyDoc_STR(connectionDisableInactivityCheck_doc)},
+     PyDoc_STR(IcePy_DOC_Connection_disableInactivityCheck)},
     {"setAdapter",
      reinterpret_cast<PyCFunction>(connectionSetAdapter),
      METH_VARARGS,
-     PyDoc_STR(connectionSetAdapter_doc)},
+     PyDoc_STR(IcePy_DOC_Connection_setAdapter)},
     {"getAdapter",
      reinterpret_cast<PyCFunction>(connectionGetAdapter),
      METH_NOARGS,
-     PyDoc_STR(connectionGetAdapter_doc)},
+     PyDoc_STR(IcePy_DOC_Connection_getAdapter)},
     {"flushBatchRequests",
      reinterpret_cast<PyCFunction>(connectionFlushBatchRequests),
      METH_VARARGS,
-     PyDoc_STR(connectionFlushBatchRequests_doc)},
+     PyDoc_STR(IcePy_DOC_Connection_flushBatchRequests)},
     {"flushBatchRequestsAsync",
      reinterpret_cast<PyCFunction>(connectionFlushBatchRequestsAsync),
      METH_VARARGS,
-     PyDoc_STR(connectionFlushBatchRequestsAsync_doc)},
+     PyDoc_STR(IcePy_DOC_Connection_flushBatchRequestsAsync)},
     {"setCloseCallback",
      reinterpret_cast<PyCFunction>(connectionSetCloseCallback),
      METH_VARARGS,
-     PyDoc_STR(connectionSetCloseCallback_doc)},
-    {"type", reinterpret_cast<PyCFunction>(connectionType), METH_NOARGS, PyDoc_STR(connectionType_doc)},
-    {"toString", reinterpret_cast<PyCFunction>(connectionToString), METH_NOARGS, PyDoc_STR(connectionToString_doc)},
-    {"getInfo", reinterpret_cast<PyCFunction>(connectionGetInfo), METH_NOARGS, PyDoc_STR(connectionGetInfo_doc)},
+     PyDoc_STR(IcePy_DOC_Connection_setCloseCallback)},
+    {"type", reinterpret_cast<PyCFunction>(connectionType), METH_NOARGS, PyDoc_STR(IcePy_DOC_Connection_type)},
+    {"toString",
+     reinterpret_cast<PyCFunction>(connectionToString),
+     METH_NOARGS,
+     PyDoc_STR(IcePy_DOC_Connection_toString)},
+    {"getInfo", reinterpret_cast<PyCFunction>(connectionGetInfo), METH_NOARGS, PyDoc_STR(IcePy_DOC_Connection_getInfo)},
     {"getEndpoint",
      reinterpret_cast<PyCFunction>(connectionGetEndpoint),
      METH_NOARGS,
-     PyDoc_STR(connectionGetEndpoint_doc)},
+     PyDoc_STR(IcePy_DOC_Connection_getEndpoint)},
     {"setBufferSize",
      reinterpret_cast<PyCFunction>(connectionSetBufferSize),
      METH_VARARGS,
-     PyDoc_STR(connectionSetBufferSize_doc)},
+     PyDoc_STR(IcePy_DOC_Connection_setBufferSize)},
     {"throwException",
      reinterpret_cast<PyCFunction>(connectionThrowException),
      METH_NOARGS,
-     PyDoc_STR(connectionThrowException_doc)},
+     PyDoc_STR(IcePy_DOC_Connection_throwException)},
     {} /* sentinel */
 };
 
@@ -831,7 +655,7 @@ namespace IcePy
         .tp_dealloc = reinterpret_cast<destructor>(connectionDealloc),
         .tp_hash = reinterpret_cast<hashfunc>(connectionHash),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("Represents a connection that uses the Ice protocol."),
+        .tp_doc = PyDoc_STR(IcePy_DOC_Connection),
         .tp_richcompare = reinterpret_cast<richcmpfunc>(connectionCompare),
         .tp_methods = ConnectionMethods,
         .tp_new = reinterpret_cast<newfunc>(connectionNew),

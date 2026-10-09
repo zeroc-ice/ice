@@ -2,6 +2,7 @@
 
 #include "ConnectionInfo.h"
 #include "../../cpp/src/Ice/SSL/SSLUtil.h"
+#include "DocStrings.h"
 #include "EndpointInfo.h"
 #include "Ice/Ice.h"
 #include "Util.h"
@@ -175,23 +176,22 @@ static PyGetSetDef ConnectionInfoGetters[] = {
     {"underlying",
      reinterpret_cast<getter>(connectionInfoGetUnderlying),
      nullptr,
-     PyDoc_STR("ConnectionInfo | None: The information of the underlying transport or ``None`` if there's no "
-               "underlying transport."),
+     PyDoc_STR(IcePy_DOC_ConnectionInfo_underlying),
      nullptr},
     {"incoming",
      reinterpret_cast<getter>(connectionInfoGetIncoming),
      nullptr,
-     PyDoc_STR("bool: ``True`` if this is an incoming connection, ``False`` otherwise."),
+     PyDoc_STR(IcePy_DOC_ConnectionInfo_incoming),
      nullptr},
     {"adapterName",
      reinterpret_cast<getter>(connectionInfoGetAdapterName),
      nullptr,
-     PyDoc_STR("str: The name of the adapter associated with the connection."),
+     PyDoc_STR(IcePy_DOC_ConnectionInfo_adapterName),
      nullptr},
     {"connectionId",
      reinterpret_cast<getter>(connectionInfoGetConnectionId),
      nullptr,
-     PyDoc_STR("str: The connection ID."),
+     PyDoc_STR(IcePy_DOC_ConnectionInfo_connectionId),
      nullptr},
     {} /* sentinel */
 };
@@ -200,22 +200,22 @@ static PyGetSetDef IPConnectionInfoGetters[] = {
     {"localAddress",
      reinterpret_cast<getter>(ipConnectionInfoGetLocalAddress),
      nullptr,
-     PyDoc_STR("str: The local address."),
+     PyDoc_STR(IcePy_DOC_IPConnectionInfo_localAddress),
      nullptr},
     {"localPort",
      reinterpret_cast<getter>(ipConnectionInfoGetLocalPort),
      nullptr,
-     PyDoc_STR("int: The local port."),
+     PyDoc_STR(IcePy_DOC_IPConnectionInfo_localPort),
      nullptr},
     {"remoteAddress",
      reinterpret_cast<getter>(ipConnectionInfoGetRemoteAddress),
      nullptr,
-     PyDoc_STR("str: The remote address."),
+     PyDoc_STR(IcePy_DOC_IPConnectionInfo_remoteAddress),
      nullptr},
     {"remotePort",
      reinterpret_cast<getter>(ipConnectionInfoGetRemotePort),
      nullptr,
-     PyDoc_STR("int: The remote port."),
+     PyDoc_STR(IcePy_DOC_IPConnectionInfo_remotePort),
      nullptr},
     {} /* sentinel */
 };
@@ -224,12 +224,12 @@ static PyGetSetDef TCPConnectionInfoGetters[] = {
     {"rcvSize",
      reinterpret_cast<getter>(tcpConnectionInfoGetRcvSize),
      nullptr,
-     PyDoc_STR("int: The size of the receive buffer."),
+     PyDoc_STR(IcePy_DOC_TCPConnectionInfo_rcvSize),
      nullptr},
     {"sndSize",
      reinterpret_cast<getter>(tcpConnectionInfoGetSndSize),
      nullptr,
-     PyDoc_STR("int: The size of the send buffer."),
+     PyDoc_STR(IcePy_DOC_TCPConnectionInfo_sndSize),
      nullptr},
     {} /* sentinel */
 };
@@ -238,22 +238,22 @@ static PyGetSetDef UDPConnectionInfoGetters[] = {
     {"mcastAddress",
      reinterpret_cast<getter>(udpConnectionInfoGetMcastAddress),
      nullptr,
-     PyDoc_STR("str: The multicast address."),
+     PyDoc_STR(IcePy_DOC_UDPConnectionInfo_mcastAddress),
      nullptr},
     {"mcastPort",
      reinterpret_cast<getter>(udpConnectionInfoGetMcastPort),
      nullptr,
-     PyDoc_STR("int: The multicast port."),
+     PyDoc_STR(IcePy_DOC_UDPConnectionInfo_mcastPort),
      nullptr},
     {"rcvSize",
      reinterpret_cast<getter>(udpConnectionInfoGetRcvSize),
      nullptr,
-     PyDoc_STR("int: The size of the receive buffer."),
+     PyDoc_STR(IcePy_DOC_UDPConnectionInfo_rcvSize),
      nullptr},
     {"sndSize",
      reinterpret_cast<getter>(udpConnectionInfoGetSndSize),
      nullptr,
-     PyDoc_STR("int: The size of the send buffer."),
+     PyDoc_STR(IcePy_DOC_UDPConnectionInfo_sndSize),
      nullptr},
     {} /* sentinel */
 };
@@ -262,8 +262,7 @@ static PyGetSetDef WSConnectionInfoGetters[] = {
     {"headers",
      reinterpret_cast<getter>(wsConnectionInfoGetHeaders),
      nullptr,
-     PyDoc_STR("dict[str, str]: The HTTP headers from the WebSocket upgrade handshake, with the request headers for "
-               "an incoming connection and the response headers for an outgoing connection."),
+     PyDoc_STR(IcePy_DOC_WSConnectionInfo_headers),
      nullptr},
     {} /* sentinel */
 };
@@ -272,7 +271,7 @@ static PyGetSetDef SSLConnectionInfoGetters[] = {
     {"peerCertificate",
      reinterpret_cast<getter>(sslConnectionInfoGetPeerCertificate),
      nullptr,
-     PyDoc_STR("str: The peer certificate, PEM-encoded, or an empty string if the peer did not provide one."),
+     PyDoc_STR(IcePy_DOC_SSLConnectionInfo_peerCertificate),
      nullptr},
     {} /* sentinel */
 };
@@ -286,7 +285,7 @@ namespace IcePy
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Base class for all connection info classes."),
+        .tp_doc = PyDoc_STR(IcePy_DOC_ConnectionInfo),
         .tp_getset = ConnectionInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(connectionInfoNew),
     };
@@ -297,7 +296,7 @@ namespace IcePy
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Provides access to the connection details of an IP connection."),
+        .tp_doc = PyDoc_STR(IcePy_DOC_IPConnectionInfo),
         .tp_getset = IPConnectionInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(connectionInfoNew),
     };
@@ -308,7 +307,7 @@ namespace IcePy
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Provides access to the connection details of a TCP connection."),
+        .tp_doc = PyDoc_STR(IcePy_DOC_TCPConnectionInfo),
         .tp_getset = TCPConnectionInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(connectionInfoNew),
     };
@@ -319,7 +318,7 @@ namespace IcePy
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Provides access to the connection details of a UDP connection."),
+        .tp_doc = PyDoc_STR(IcePy_DOC_UDPConnectionInfo),
         .tp_getset = UDPConnectionInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(connectionInfoNew),
     };
@@ -330,7 +329,7 @@ namespace IcePy
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Provides access to the connection details of a WebSocket connection."),
+        .tp_doc = PyDoc_STR(IcePy_DOC_WSConnectionInfo),
         .tp_getset = WSConnectionInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(connectionInfoNew),
     };
@@ -341,7 +340,7 @@ namespace IcePy
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Provides access to the connection details of an SSL connection."),
+        .tp_doc = PyDoc_STR(IcePy_DOC_SSLConnectionInfo),
         .tp_getset = SSLConnectionInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(connectionInfoNew),
     };
