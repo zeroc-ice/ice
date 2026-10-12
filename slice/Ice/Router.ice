@@ -43,8 +43,8 @@ module Ice
     /// Provides access to a {@link Router} object via a fixed identity.
     /// A RouterFinder is always registered with identity `Ice/RouterFinder`. This allows clients to obtain the
     /// associated Router proxy with just the endpoint information of the object. For example, you can use the
-    /// RouterFinder proxy `Ice/RouterFinder:tcp -h somehost -p 4061` to get the Router proxy
-    /// `MyGlacier2/Router:tcp -h somehost -p 4061`.
+    /// RouterFinder proxy `Ice/RouterFinder:tcp -h somehost -p 4063` to get the Router proxy
+    /// `MyGlacier2/router:tcp -h somehost -p 4063`.
     interface RouterFinder
     {
         /// Gets a proxy to the associated {@link Router}. The proxy might point to several replicas.
