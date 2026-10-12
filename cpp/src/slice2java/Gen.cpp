@@ -2309,7 +2309,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const StringList& seeAlso)
 }
 
 void
-Slice::JavaVisitor::writeParamDocComments(IceInternal::Output& out, const DataMemberList& members)
+Slice::JavaVisitor::writeParamDocComments(Output& out, const DataMemberList& members)
 {
     bool first = true;
     for (const auto& member : members)
