@@ -10,7 +10,6 @@
 #include "Gen.h"
 #include "Ice/CtrlCHandler.h"
 
-#include <algorithm>
 #include <cassert>
 #include <climits>
 #include <cstring>

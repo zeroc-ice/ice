@@ -11,7 +11,6 @@
 #include "IceCsUtil.h"
 #include "IceRpcCsUtil.h"
 
-#include <algorithm>
 #include <cassert>
 #include <mutex>
 

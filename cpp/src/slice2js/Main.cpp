@@ -9,7 +9,6 @@
 #include "Gen.h"
 #include "Ice/CtrlCHandler.h"
 
-#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <mutex>

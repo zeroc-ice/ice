@@ -12,7 +12,6 @@
 #include "Ice/CtrlCHandler.h"
 #include "Ice/StringUtil.h"
 
-#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <mutex>
