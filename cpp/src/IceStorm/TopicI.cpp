@@ -577,6 +577,9 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
     catch(const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
+        // The subscriber was created (and its publisher servant registered) before the transaction; remove
+        // it so a retry with the same subscriber identity is not rejected with AlreadyRegisteredException.
+        subscriber->destroy();
         throw; // will become UnknownException in caller
     }
 
@@ -1102,6 +1105,9 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
     catch(const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
+        // The subscriber was created (and its publisher servant registered) before the transaction; remove
+        // it so a later replica sync does not fail re-registering the same subscriber identity.
+        subscriber->destroy();
         throw; // will become UnknownException in caller
     }
 
