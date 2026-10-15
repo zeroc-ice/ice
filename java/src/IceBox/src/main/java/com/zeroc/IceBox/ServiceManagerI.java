@@ -84,7 +84,7 @@ public class ServiceManagerI implements ServiceManager
             {
                 throw new NoSuchServiceException();
             }
-            _pendingStatusChanges = true;
+            ++_pendingStatusChanges;
         }
 
         boolean started = false;
@@ -123,7 +123,7 @@ public class ServiceManagerI implements ServiceManager
                     break;
                 }
             }
-            _pendingStatusChanges = false;
+            --_pendingStatusChanges;
             notifyAll();
         }
     }
@@ -156,7 +156,7 @@ public class ServiceManagerI implements ServiceManager
             {
                 throw new NoSuchServiceException();
             }
-            _pendingStatusChanges = true;
+            ++_pendingStatusChanges;
         }
 
         boolean stopped = false;
@@ -195,7 +195,7 @@ public class ServiceManagerI implements ServiceManager
                     break;
                 }
             }
-            _pendingStatusChanges = false;
+            --_pendingStatusChanges;
             notifyAll();
         }
     }
@@ -758,7 +758,7 @@ public class ServiceManagerI implements ServiceManager
         //
         // First wait for any active startService/stopService calls to complete.
         //
-        while(_pendingStatusChanges)
+        while(_pendingStatusChanges > 0)
         {
             try
             {
@@ -1157,7 +1157,7 @@ public class ServiceManagerI implements ServiceManager
     private com.zeroc.Ice.Logger _logger;
     private String[] _argv; // Filtered server argument vector
     private java.util.List<ServiceInfo> _services = new java.util.LinkedList<>();
-    private boolean _pendingStatusChanges = false;
+    private int _pendingStatusChanges = 0;
     private java.util.HashSet<ServiceObserverPrx> _observers = new java.util.HashSet<>();
     private int _traceServiceObserver = 0;
     private java.util.Map<String, ClassLoader> _classLoaders;
