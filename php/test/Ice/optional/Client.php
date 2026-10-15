@@ -345,6 +345,10 @@ function allTests($helper)
                       eval("return Test_Initial2PrxHelper::uncheckedCast(\$base);");
     $initial2->opVoid(15, "test");
 
+    $p = 15;
+    $r = $initial2->supportsRequiredParams($p);
+    test($r === $initial->supportsRequiredParams() && $p == $none);
+
     echo "ok\n";
 
     echo "testing marshaling of large containers with fixed size elements... ";
