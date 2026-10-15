@@ -147,6 +147,35 @@ private:
 };
 ICE_DEFINE_PTR(DestroyTaskPtr, DestroyTask);
 
+//
+// A task whose destructor re-enters the timer by cancelling another task. Timer::destroy() must not run such a
+// destructor while holding its internal lock.
+//
+class ReentrantCancelTask : public IceUtil::TimerTask
+{
+public:
+
+    ReentrantCancelTask(const IceUtil::TimerPtr& timer, const IceUtil::TimerTaskPtr& other) :
+        _timer(timer), _other(other)
+    {
+    }
+
+    virtual ~ReentrantCancelTask()
+    {
+        _timer->cancel(_other);
+    }
+
+    virtual void
+    runTimerTask()
+    {
+    }
+
+private:
+
+    const IceUtil::TimerPtr _timer;
+    const IceUtil::TimerTaskPtr _other;
+};
+
 class Client : public Test::TestHelper
 {
 public:
@@ -277,6 +306,21 @@ Client::run(int, char*[])
                 // Expected;
             }
         }
+    }
+    cout << "ok" << endl;
+
+    cout << "testing timer destroy with a re-entrant cancel... " << flush;
+    {
+        IceUtil::TimerPtr timer = new IceUtil::Timer();
+        TestTaskPtr other = ICE_MAKE_SHARED(TestTask);
+        timer->schedule(other, IceUtil::Time::seconds(3600));
+        timer->schedule(ICE_MAKE_SHARED(ReentrantCancelTask, timer, other), IceUtil::Time::seconds(3600));
+
+        //
+        // The re-entrant task is now referenced only by the timer. Destroying the timer runs its destructor, which
+        // cancels 'other'; this must complete without deadlocking.
+        //
+        timer->destroy();
     }
     cout << "ok" << endl;
 }
