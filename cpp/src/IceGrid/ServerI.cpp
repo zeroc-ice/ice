@@ -2696,6 +2696,14 @@ ServerI::updateRuntimePropertiesCallback(const InternalServerDescriptorPtr& desc
 
     if(_load->finishRuntimePropertiesUpdate(desc, _process))
     {
+        //
+        // The server's runtime properties now match the updated descriptor: adopt it as the server's descriptor so
+        // that loading the same descriptor again replies immediately instead of waiting on the load command. The
+        // load command remains set: it still needs to run once the server stops, to write the updated configuration
+        // to disk.
+        //
+        _desc = _load->getInternalServerDescriptor();
+
         AdapterPrxDict adapters;
         for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
         {
