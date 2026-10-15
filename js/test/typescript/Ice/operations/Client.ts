@@ -30,7 +30,7 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("testing batch oneway operations... ");
-        await BatchOneways.run(communicator, cl, bidir);
+        await BatchOneways.run(communicator, cl, bidir, this);
         out.writeLine("ok");
 
         out.write("testing server shutdown... ");
