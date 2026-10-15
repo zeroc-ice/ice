@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, Ice, Test
+import sys, gc, Ice, Test
 
 def test(b):
     if not b:
@@ -39,6 +39,25 @@ def allTests(helper, communicator):
     sys.stdout.write("creating/activating/deactivating object adapter in one operation... ")
     sys.stdout.flush()
     obj.transient()
+    print("ok")
+
+    sys.stdout.write("testing getCommunicator on a destroyed communicator... ")
+    sys.stdout.flush()
+    comm = Ice.initialize()
+    bidirAdapter = comm.createObjectAdapter("")
+    comm.destroy()
+    try:
+        bidirAdapter.getCommunicator()
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass
+    del comm
+    gc.collect()
+    try:
+        bidirAdapter.getCommunicator()
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass
     print("ok")
 
     sys.stdout.write("testing connection closure... ")
