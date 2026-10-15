@@ -817,7 +817,6 @@ TopicImpl::destroy()
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
-    _destroyed = true;
 
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topic > 0)
@@ -826,9 +825,12 @@ TopicImpl::destroy()
         out << _name << ": destroy";
     }
 
-    // destroyInternal clears out the topic content.
+    // destroyInternal clears out the topic content. Mark the topic destroyed only once its database
+    // transaction has committed, so a failed commit leaves the topic intact and still destroyable.
     LogUpdate llu = {0,0};
-    _instance->observers()->destroyTopic(destroyInternal(llu, true), _name);
+    LogUpdate destroyLLU = destroyInternal(llu, true);
+    _destroyed = true;
+    _instance->observers()->destroyTopic(destroyLLU, _name);
 
     _observer.detach();
 }
@@ -1174,7 +1176,6 @@ TopicImpl::observerDestroyTopic(const LogUpdate& llu)
     {
         return;
     }
-    _destroyed = true;
 
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topic > 0)
@@ -1183,7 +1184,11 @@ TopicImpl::observerDestroyTopic(const LogUpdate& llu)
         out << _name << ": destroyed";
         out << " llu: " << llu.generation << "/" << llu.iteration;
     }
+
+    // Mark the topic destroyed only once its database transaction has committed, so a failed commit leaves the topic
+    // intact and still destroyable.
     destroyInternal(llu, false);
+    _destroyed = true;
 }
 
 Ice::ObjectPtr
