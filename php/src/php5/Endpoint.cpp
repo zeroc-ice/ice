@@ -288,6 +288,8 @@ IcePHP::endpointInit(TSRMLS_D)
     ce.create_object = handleEndpointAlloc;
     endpointClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
     memcpy(&_endpointHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _endpointHandlers.clone_obj = 0;
     zend_class_implements(endpointClassEntry TSRMLS_CC, 1, endpointInterface);
 
     //
@@ -301,6 +303,8 @@ IcePHP::endpointInit(TSRMLS_D)
     ce.create_object = handleEndpointInfoAlloc;
     endpointInfoClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _endpointInfoHandlers.clone_obj = 0;
     zend_declare_property_null(endpointInfoClassEntry, STRCAST("underlying"), sizeof("underlying") - 1,
                                ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_long(endpointInfoClassEntry, STRCAST("timeout"), sizeof("timeout") - 1, 0,
