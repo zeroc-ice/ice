@@ -1174,7 +1174,10 @@ class InputStream
                     }
                     else if(arg.constructor === Uint8Array)
                     {
-                        args.bytes = arg.buffer;
+                        // Buffer works with a whole ArrayBuffer: copy the view's range when it doesn't span its
+                        // entire underlying buffer.
+                        args.bytes = arg.byteOffset === 0 && arg.byteLength === arg.buffer.byteLength ?
+                            arg.buffer : arg.buffer.slice(arg.byteOffset, arg.byteOffset + arg.byteLength);
                     }
                     else
                     {
