@@ -31,7 +31,7 @@ class ParamInfo : public UnmarshalCallback
 {
 public:
 
-    virtual void unmarshaled(VALUE, VALUE, void*);
+    virtual void unmarshaled(VALUE, VALUE, void*, StreamUtil*);
 
     TypeInfoPtr type;
     bool optional;
@@ -157,7 +157,7 @@ IceRuby::Operation::~Operation()
 // ParamInfo implementation.
 //
 void
-IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
+IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure, StreamUtil*)
 {
     assert(TYPE(target) == T_ARRAY);
 #ifdef ICE_64
