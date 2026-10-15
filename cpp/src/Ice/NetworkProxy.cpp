@@ -232,7 +232,12 @@ HTTPNetworkProxy::endRead(Buffer& buf)
     // reading otherwise we're done.
     //
     const Ice::Byte* end = HttpParser().isCompleteMessage(buf.b.begin(), buf.i);
-    if(!end && buf.i == buf.b.end())
+    if(end)
+    {
+        return SocketOperationNone;
+    }
+
+    if(buf.i == buf.b.end())
     {
         //
         // Read one more byte, we can't easily read bytes in advance
@@ -243,9 +248,8 @@ HTTPNetworkProxy::endRead(Buffer& buf)
         //
         buf.b.resize(buf.b.size() + 1);
         buf.i = buf.b.begin() + buf.b.size() - 1;
-        return SocketOperationRead;
     }
-    return SocketOperationNone;
+    return SocketOperationRead;
 }
 
 void
