@@ -136,11 +136,15 @@ def loopbackTests() -> list[FilterTest]:
             "category filter",
             filters={"Category.Accept": 'foo "a cat with spaces"'},
             accepted=[
+                # The category is listed.
                 f"foo/helloA:{LOOPBACK}",
+                # The category is listed; a quoted entry of the filter can contain spaces.
                 f'"a cat with spaces/helloB":{LOOPBACK}',
             ],
             rejected=[
+                # The category is not listed.
                 f"nocat/helloC:{LOOPBACK}",
+                # A category must match a listed one in full: being part of "a cat with spaces" is not enough.
                 f"cat/helloD:{LOOPBACK}",
             ],
         ),
@@ -148,14 +152,19 @@ def loopbackTests() -> list[FilterTest]:
             "adapter id filter",
             filters={"Address.Reject": "*", "AdapterId.Accept": 'foo "an adapter with spaces"'},
             accepted=[
+                # The adapter id is listed; a quoted entry of the filter can contain spaces.
                 'helloF1 @ "an adapter with spaces"',
+                # The adapter id is listed.
                 "helloF @ foo",
             ],
             rejected=[
+                # The adapter id filter only applies to indirect proxies, so the "*" reject rule is what rejects
+                # these direct proxies.
                 f"foo/helloA:{LOOPBACK}",
                 f'"a cat with spaces/helloB":{LOOPBACK}',
                 f"nocat/helloC:{LOOPBACK}",
                 f"cat/helloD:{LOOPBACK}",
+                # The adapter id is not listed.
                 "helloE @ bar",
             ],
         ),
@@ -163,20 +172,26 @@ def loopbackTests() -> list[FilterTest]:
             "identity filters",
             filters={"Identity.Accept": 'myident cata/fooa "a funny id/that might mess it up"'},
             accepted=[
+                # The identity is listed, without a category.
                 f"myident:{LOOPBACK}",
+                # The identity is listed, with its category.
                 f"cata/fooa:{LOOPBACK}",
+                # The identity is listed; a quoted entry of the filter can contain spaces and a slash.
                 f'"a funny id/that might mess it up":{LOOPBACK}',
             ],
             rejected=[
+                # The identity is not listed.
                 f'"a cat with spaces/helloB":{LOOPBACK}',
                 f"nocat/helloC:{LOOPBACK}",
                 f"cat/helloD:{LOOPBACK}",
+                # An identity must match a listed one in both category and name: each of these matches only one.
                 f"baz/myident:{LOOPBACK}",
                 f"cata/foo:{LOOPBACK}",
                 f"cat/fooa:{LOOPBACK}",
             ],
         ),
         FilterTest(
+            # A request is accepted as soon as one of the category, identity, or adapter id filters matches it.
             "mixing filters",
             filters={
                 "Category.Accept": 'mycat "a sec cat"',
@@ -184,26 +199,35 @@ def loopbackTests() -> list[FilterTest]:
                 "AdapterId.Accept": "myadapter",
             },
             accepted=[
+                # The category is listed.
                 f"mycat/fooa:{LOOPBACK}",
                 f'"a sec cat/fooa":{LOOPBACK}',
+                # The category is listed, even though the adapter id is not.
                 "mycat/foo @ jimbo",
+                # The adapter id is listed.
                 "hiscat @ myadapter",
+                # The identity is listed, even though the adapter id is not; the filter entry escapes the quote.
                 'a"nother @ jimbo',
+                # The identity is listed.
                 f"myident:{LOOPBACK}",
                 f"cata/fooa:{LOOPBACK}",
                 f'"a funny id/that might mess it up":{LOOPBACK}',
             ],
             rejected=[
+                # Neither the category nor the identity is listed, and a direct proxy has no adapter id.
                 f'"a cat with spaces/helloB":{LOOPBACK}',
                 f"nocat/helloC:{LOOPBACK}",
                 f"cat/helloD:{LOOPBACK}",
                 f"baz/myident:{LOOPBACK}",
                 f"cata/foo:{LOOPBACK}",
                 f"cat/fooa:{LOOPBACK}",
+                # None of the category, identity, and adapter id is listed.
                 "hiscatA @ jimbo",
             ],
         ),
         FilterTest(
+            # Same as above, with a "*" reject rule that rejects every direct proxy. Indirect proxies have no
+            # endpoints for the address rules to match, so only the other filters apply to them.
             "mixing filters (indirect only)",
             filters={
                 "Address.Reject": "*",
@@ -212,20 +236,27 @@ def loopbackTests() -> list[FilterTest]:
                 "AdapterId.Accept": "myadapter",
             },
             accepted=[
+                # The category is listed.
                 "mycat/foo @ jimbo",
+                # The adapter id is listed.
                 "hiscat @ myadapter",
+                # The identity and the adapter id are listed.
                 '"a funny id/that might mess it up" @ myadapter',
             ],
             rejected=[
+                # Direct proxies, rejected by the "*" reject rule.
                 f'"a cat with spaces/helloB":{LOOPBACK}',
                 f"nocat/helloC:{LOOPBACK}",
                 f"cat/helloD:{LOOPBACK}",
                 f"baz/myident:{LOOPBACK}",
                 f"cata/foo:{LOOPBACK}",
                 f"cat/fooa:{LOOPBACK}",
+                # Direct proxies, rejected by the "*" reject rule even though their category is listed.
                 f"mycat/fooa:{LOOPBACK}",
                 f'"a sec cat/fooa":{LOOPBACK}',
+                # Indirect, but none of the category, identity, and adapter id is listed.
                 "hiscatA @ jimbo",
+                # Direct proxies, rejected by the "*" reject rule even though their identity is listed.
                 f"myident:{LOOPBACK}",
                 f"cata/fooa:{LOOPBACK}",
                 f'"a funny id/that might mess it up":{LOOPBACK}',
@@ -234,8 +265,15 @@ def loopbackTests() -> list[FilterTest]:
         FilterTest(
             "address filter with numeric range in hostname",
             filters={"Address.Accept": "12[7].0.0.*"},
-            accepted=[f"hello:{LOOPBACK}"],
-            rejected=[f"hello:{tcp('128.0.0.1')}", f"hello:{tcp('126.0.0.1')}"],
+            accepted=[
+                # The 7 after the 12 prefix is in the range [7].
+                f"hello:{LOOPBACK}",
+            ],
+            rejected=[
+                # The 8 and the 6 after the 12 prefix are not.
+                f"hello:{tcp('128.0.0.1')}",
+                f"hello:{tcp('126.0.0.1')}",
+            ],
         ),
         FilterTest(
             # A rule must match the host in full, so 12[7] does not match 127.0.0.1.
@@ -272,7 +310,10 @@ def loopbackTests() -> list[FilterTest]:
             "address filter with a numeric range followed by a trailing wildcard",
             filters={"Address.Accept": "12[0-255]*"},
             accepted=[f"hello:{LOOPBACK}"],
-            rejected=[f"hello:{tcp('12x.0.0.1')}"],
+            rejected=[
+                # There is no number after the 12 prefix for the range to match.
+                f"hello:{tcp('12x.0.0.1')}",
+            ],
         ),
         FilterTest(
             # A digit run too long to fit in an int does not match a numeric range: the scan skips the run, finds no
@@ -286,8 +327,14 @@ def loopbackTests() -> list[FilterTest]:
             # tried before concluding that the host does not match.
             "address filter with many wildcard segments",
             filters={"Address.Accept": "*aa*aa*aa*aa*aa*aa*aab *7.*.1"},
-            accepted=[f"hello:{LOOPBACK}"],
-            rejected=[f"hello:{tcp('a' * 255)}"],
+            accepted=[
+                # Matches the second rule, *7.*.1.
+                f"hello:{LOOPBACK}",
+            ],
+            rejected=[
+                # A host of only 'a' characters has no 'b' for the first rule to end on, and no digits for the second.
+                f"hello:{tcp('a' * 255)}",
+            ],
         ),
         FilterTest(
             # Host names are case-insensitive: an accept rule matches the host regardless of the case of either the
@@ -295,15 +342,22 @@ def loopbackTests() -> list[FilterTest]:
             "address filter accept rule is case-insensitive",
             filters={"Address.Accept": "LocalHost"},
             accepted=[f"hello:{tcp('localhost')}", f"hello:{tcp('LOCALHOST')}"],
-            rejected=[f"hello:{LOOPBACK}"],
+            rejected=[
+                # The rules match the host as written, without resolving it, so 127.0.0.1 is not localhost.
+                f"hello:{LOOPBACK}",
+            ],
         ),
         FilterTest(
             # A reject rule matches a proxy as soon as one of its endpoints matches: extra endpoints that do not
             # match the rule do not get the proxy accepted.
             "address filter reject rule against a multi-endpoint proxy",
             filters={"Address.Reject": "127.0.0.1"},
-            accepted=[f"hello:{tcp('localhost')}"],
+            accepted=[
+                # The rules match the host as written, without resolving it, so localhost is not 127.0.0.1.
+                f"hello:{tcp('localhost')}",
+            ],
             rejected=[
+                # The 127.0.0.1 endpoint matches, whether it comes first or last.
                 f"hello:{LOOPBACK}:{tcp('127.0.0.2')}",
                 f"hello:{tcp('127.0.0.2')}:{LOOPBACK}",
             ],
@@ -312,7 +366,10 @@ def loopbackTests() -> list[FilterTest]:
             # Same for a reject rule: a case variation of the host still matches the rule.
             "address filter reject rule is case-insensitive",
             filters={"Address.Reject": "badhost.example.com"},
-            accepted=[f"hello:{tcp('localhost')}"],
+            accepted=[
+                # The host does not match the reject rule.
+                f"hello:{tcp('localhost')}",
+            ],
             rejected=[f"hello:{tcp('BadHost.Example.COM')}"],
         ),
         FilterTest(
@@ -323,21 +380,30 @@ def loopbackTests() -> list[FilterTest]:
             "address filter against non-canonical hosts",
             filters={"Address.Accept": "localhost 127.0.0.1"},
             accepted=[
+                # The host is listed.
                 f"hello:{tcp('localhost')}",
                 f"hello:{LOOPBACK}",
+                # The trailing dot is stripped, so the host matches localhost.
                 f"hello:{tcp('localhost.')}",
             ],
             rejected=[
+                # Leading zeros: a non-canonical spelling of 127.0.0.1.
                 f"hello:{tcp('127.000.000.001')}",
+                # A rule must match the host in full, so localhost does not match localhost.example.com.
                 f"hello:{tcp('localhost.example.com')}",
             ],
         ),
         FilterTest(
             "address filter reject rule against a trailing-dot host",
             filters={"Address.Reject": "badhost.example.com *.internal.example.com"},
-            accepted=[f"hello:{LOOPBACK}"],
+            accepted=[
+                # The host matches no reject rule.
+                f"hello:{LOOPBACK}",
+            ],
             rejected=[
+                # The trailing dot is stripped, so the host matches badhost.example.com.
                 f"hello:{tcp('badhost.example.com.')}",
+                # The trailing dot is stripped, so the host matches *.internal.example.com.
                 f"hello:{tcp('db.internal.example.com.')}",
             ],
         ),
@@ -346,7 +412,10 @@ def loopbackTests() -> list[FilterTest]:
             # spellings of the host.
             "address filter reject rule written with a trailing dot",
             filters={"Address.Reject": "badhost.example.com."},
-            accepted=[f"hello:{LOOPBACK}"],
+            accepted=[
+                # The host does not match the reject rule.
+                f"hello:{LOOPBACK}",
+            ],
             rejected=[
                 f"hello:{tcp('badhost.example.com')}",
                 f"hello:{tcp('badhost.example.com.')}",
@@ -358,14 +427,24 @@ def loopbackTests() -> list[FilterTest]:
             # address the rule rejects.
             "address filter reject rule against non-canonical IPv4 literals",
             filters={"Address.Reject": "127.0.0.1"},
-            accepted=[f"hello:{tcp('localhost')}"],
+            accepted=[
+                # Not an IPv4 literal, and the rules do not resolve it, so it does not match 127.0.0.1.
+                f"hello:{tcp('localhost')}",
+            ],
             rejected=[
+                # Leading zeros.
                 f"hello:{tcp('127.000.000.001')}",
+                # A single hexadecimal number.
                 f"hello:{tcp('0x7f000001')}",
+                # A single decimal number.
                 f"hello:{tcp('2130706433')}",
+                # Fewer than four parts.
                 f"hello:{tcp('127.1')}",
+                # An octal part.
                 f"hello:{tcp('0177.0.0.1')}",
+                # A hexadecimal part with no digits.
                 f"hello:{tcp('0x.0.0.1')}",
+                # A trailing dot, which the resolver reads as a DNS name rather than an address.
                 f"hello:{tcp('127.0.0.1.')}",
             ],
         ),
@@ -382,7 +461,10 @@ def loopbackTests() -> list[FilterTest]:
             # rule matches it: no legal host name or IP address is that long.
             "address filter rejects an oversized host",
             filters={"Address.Reject": "*.invalid"},
-            accepted=[f"hello:{LOOPBACK}"],
+            accepted=[
+                # The host does not match the reject rule.
+                f"hello:{LOOPBACK}",
+            ],
             rejected=[f"hello:{tcp('a' * 300)}"],
         ),
         FilterTest(
@@ -392,9 +474,14 @@ def loopbackTests() -> list[FilterTest]:
             # added alongside it, so the host-less endpoint cannot ride in behind a legitimate one.
             "address filter rejects an endpoint with no host",
             filters={"Address.Reject": "127.0.0.1"},
-            accepted=[f"hello:{tcp('localhost')}"],
+            accepted=[
+                # The host does not match the reject rule.
+                f"hello:{tcp('localhost')}",
+            ],
             rejected=[
+                # The only endpoint has no host.
                 "hello:tcp -p 12010",
+                # The second endpoint has no host.
                 f"hello:{tcp('localhost')}:tcp -p 12010",
             ],
         ),
@@ -405,8 +492,14 @@ def loopbackTests() -> list[FilterTest]:
             # added alongside it, so the non-IP endpoint cannot ride in behind a legitimate one.
             "address filter rejects a non-IP endpoint",
             filters={"Address.Reject": "127.0.0.1"},
-            accepted=[f"hello:{tcp('localhost')}"],
-            rejected=[f"hello:{tcp('localhost')}:opaque -t 99 -v ABCD"],
+            accepted=[
+                # The host does not match the reject rule.
+                f"hello:{tcp('localhost')}",
+            ],
+            rejected=[
+                # The second endpoint is not an IP endpoint.
+                f"hello:{tcp('localhost')}:opaque -t 99 -v ABCD",
+            ],
         ),
     ]
 
@@ -418,8 +511,12 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
         FilterTest(
             "reject all",
             filters={"Address.Reject": "*"},
-            accepted=["bar @ foo"],
+            accepted=[
+                # An indirect proxy has no endpoints for the address rules to match.
+                "bar @ foo",
+            ],
             rejected=[
+                # "*" matches every host.
                 f"helloA:{tcp(fqdn)}",
                 f"helloB:{tcp(hostname)}",
                 f"helloC:{LOOPBACK}",
@@ -429,14 +526,17 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
             "loopback only rule",
             filters={"Address.Accept": "127.0.0.1 localhost"},
             accepted=[
+                # The host is listed; the identity plays no part in address rules.
                 f"localhost:{LOOPBACK}",
                 f"localhost/127.0.0.1:{tcp('localhost')}",
                 f"hello:{LOOPBACK}",
                 f"hello/somecat:{tcp('localhost')}",
             ],
             rejected=[
+                # The host is not listed.
                 f"hello:{tcp(fqdn)}",
                 f"hello:{tcp(hostname)}",
+                # The host is not listed; an identity spelled like a listed host does not help.
                 f"127.0.0.1:{tcp(hostname)}",
                 f"localhost:{tcp(hostname)}",
                 f"localhost/127.0.0.1:{tcp(hostname)}",
@@ -445,48 +545,99 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
         FilterTest(
             "port filter rule",
             filters={"Address.Accept": "127.0.0.1:12010 localhost:12010"},
-            accepted=[f"hello3:{LOOPBACK}", f"hello4:{tcp('localhost')}"],
+            accepted=[
+                # The host and the port are listed.
+                f"hello3:{LOOPBACK}",
+                f"hello4:{tcp('localhost')}",
+            ],
             rejected=[
+                # The host is listed, but not the port.
                 f"hello1:{tcp('127.0.0.1', 12011)}",
                 f"hello2:{tcp('localhost', 12011)}",
+                # The port is listed, but not the host.
                 f"hello5:{tcp(hostname)}",
             ],
         ),
         FilterTest(
             "reject port filter rule",
             filters={"Address.Reject": "127.0.0.1:[0-12009,12011-65535] localhost:[0-12009,12011-65535]"},
-            accepted=[f"hello5:{tcp(hostname)}", f"hello3:{LOOPBACK}", f"hello4:{tcp('localhost')}"],
-            rejected=[f"hello1:{tcp('127.0.0.1', 12011)}", f"hello2:{tcp('localhost', 12011)}"],
+            accepted=[
+                # The host matches no reject rule.
+                f"hello5:{tcp(hostname)}",
+                # The port is outside the rejected ranges.
+                f"hello3:{LOOPBACK}",
+                f"hello4:{tcp('localhost')}",
+            ],
+            rejected=[
+                # The host matches and the port is in a rejected range.
+                f"hello1:{tcp('127.0.0.1', 12011)}",
+                f"hello2:{tcp('localhost', 12011)}",
+            ],
         ),
         FilterTest(
             "port filter rule with wildcard address rule",
             filters={"Address.Accept": "*:12010"},
-            accepted=[f"hello5:{tcp(hostname)}", f"hello3:{LOOPBACK}", f"hello4:{tcp('localhost')}"],
-            rejected=[f"hello1:{tcp('127.0.0.1', 12011)}", f"hello2:{tcp('localhost', 12011)}"],
+            accepted=[
+                # Any host, on the listed port.
+                f"hello5:{tcp(hostname)}",
+                f"hello3:{LOOPBACK}",
+                f"hello4:{tcp('localhost')}",
+            ],
+            rejected=[
+                # The port is not listed.
+                f"hello1:{tcp('127.0.0.1', 12011)}",
+                f"hello2:{tcp('localhost', 12011)}",
+            ],
         ),
         FilterTest(
             "domain filter rule (accept)",
             filters={"Address.Accept": f"*{domainname}"},
-            accepted=[f"hello:{tcp(fqdn)}"],
-            rejected=[f"hello:{tcp(hostname)}"],
+            accepted=[
+                # The fully qualified name ends with the domain.
+                f"hello:{tcp(fqdn)}",
+            ],
+            rejected=[
+                # The short host name does not.
+                f"hello:{tcp(hostname)}",
+            ],
         ),
         FilterTest(
             "domain filter rule (reject)",
             filters={"Address.Reject": f"*{domainname}"},
-            accepted=[f"hello:{tcp(hostname)}", f"bar:{LOOPBACK}"],
-            rejected=[f"hello:{tcp(fqdn)}"],
+            accepted=[
+                # The host does not end with the domain.
+                f"hello:{tcp(hostname)}",
+                f"bar:{LOOPBACK}",
+            ],
+            rejected=[
+                # The fully qualified name ends with the domain.
+                f"hello:{tcp(fqdn)}",
+            ],
         ),
         FilterTest(
             "domain filter rule (mixed)",
             filters={"Address.Accept": "127.0.0.1", "Address.Reject": fqdn},
-            accepted=[f"bar:{LOOPBACK}"],
-            rejected=[f"hello:{tcp(fqdn)}:{LOOPBACK}"],
+            accepted=[
+                # The host matches the accept rule and not the reject rule.
+                f"bar:{LOOPBACK}",
+            ],
+            rejected=[
+                # The fully qualified name endpoint matches the reject rule. It also fails the accept rule, which
+                # every endpoint must match.
+                f"hello:{tcp(fqdn)}:{LOOPBACK}",
+            ],
         ),
         FilterTest(
             "maximum proxy length rule",
             filters={"ProxySizeMax": "53"},
-            accepted=[f"hello:{LOOPBACK} -t infinite"],
-            rejected=[f"012345678901234567890123456789012345678901234567890123456789:{LOOPBACK}"],
+            accepted=[
+                # The stringified proxy is within the limit.
+                f"hello:{LOOPBACK} -t infinite",
+            ],
+            rejected=[
+                # The 60-character identity alone exceeds the limit.
+                f"012345678901234567890123456789012345678901234567890123456789:{LOOPBACK}",
+            ],
         ),
     ]
 
