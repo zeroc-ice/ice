@@ -39,7 +39,7 @@ class ImplicitContextI
 
     containsKey(key)
     {
-        if(key === null)
+        if(key === null || key === undefined)
         {
             key = "";
         }
@@ -49,13 +49,13 @@ class ImplicitContextI
 
     get(key)
     {
-        if(key === null)
+        if(key === null || key === undefined)
         {
             key = "";
         }
 
         let val = this._context.get(key);
-        if(val === null)
+        if(val === null || val === undefined)
         {
             val = "";
         }
@@ -65,17 +65,17 @@ class ImplicitContextI
 
     put(key, value)
     {
-        if(key === null)
+        if(key === null || key === undefined)
         {
             key = "";
         }
-        if(value === null)
+        if(value === null || value === undefined)
         {
             value = "";
         }
 
         let oldVal = this._context.get(key);
-        if(oldVal === null)
+        if(oldVal === null || oldVal === undefined)
         {
             oldVal = "";
         }
@@ -87,7 +87,7 @@ class ImplicitContextI
 
     remove(key)
     {
-        if(key === null)
+        if(key === null || key === undefined)
         {
             key = "";
         }
@@ -95,7 +95,7 @@ class ImplicitContextI
         let val = this._context.get(key);
         this._context.delete(key);
 
-        if(val === null)
+        if(val === null || val === undefined)
         {
             val = "";
         }
