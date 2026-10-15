@@ -2593,6 +2593,17 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
     catch(const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
+        finishUpdating(update.descriptor.name);
+        throw;
+    }
+    catch(...)
+    {
+        //
+        // Any other failure (e.g. a ServerNotExistException thrown by checkUpdate) must also clear the
+        // in-progress update entry. Otherwise waitForUpdate() blocks forever and every subsequent add, update
+        // or removal of this application hangs until the registry is restarted.
+        //
+        finishUpdating(update.descriptor.name);
         throw;
     }
 
