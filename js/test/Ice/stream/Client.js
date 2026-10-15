@@ -610,6 +610,38 @@
                 test(dict2.get("key2").s.e == Test.MyEnum.enum3);
             }
             out.writeLine("ok");
+
+            out.write("testing skipEncapsulation... ");
+            {
+                outS = new Ice.OutputStream(communicator);
+                outS.startEncapsulation();
+                outS.writeInt(42);
+                outS.endEncapsulation();
+                const data = outS.finished();
+
+                // A well-formed encapsulation is skipped, advancing to its end and returning the encoding it was
+                // written with.
+                inS = new Ice.InputStream(communicator, data);
+                const encoding = inS.skipEncapsulation();
+                test(encoding.equals(outS.getEncoding()));
+                test(inS.pos === data.length);
+
+                // An encapsulation whose declared size exceeds the remaining buffer must be rejected.
+                const bogus = data.slice();
+                new DataView(bogus.buffer, bogus.byteOffset, bogus.byteLength).setInt32(0, data.length + 100, true);
+
+                inS = new Ice.InputStream(communicator, bogus);
+                try
+                {
+                    inS.skipEncapsulation();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.UnmarshalOutOfBoundsException, ex);
+                }
+            }
+            out.writeLine("ok");
         }
 
         async run(args)
