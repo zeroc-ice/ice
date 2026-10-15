@@ -1455,6 +1455,17 @@ namespace Ice
                         test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
                         test(Ice.CollectionComparer.Equals(p3.opContext(), ctx));
 
+                        test(ic.getImplicitContext().get("missing").Equals(""));
+                        test(ic.getImplicitContext().remove("missing").Equals(""));
+
+                        Dictionary<string, string> only = new Dictionary<string, string>();
+                        only["only"] = "ONLY";
+                        ic.getImplicitContext().setContext(only);
+                        test(ic.getImplicitContext().containsKey("only"));
+                        test(ic.getImplicitContext().containsKey("one") == false);
+                        ic.getImplicitContext().setContext(ctx);
+                        test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
+
                         test(ic.getImplicitContext().containsKey("zero") == false);
                         String r = ic.getImplicitContext().put("zero", "ZERO");
                         test(r.Equals(""));
