@@ -161,6 +161,7 @@ export class Client extends TestHelper
             await testController.holdAdapter();
             let r1:Ice.AsyncResult<void>;
             let r2:Ice.AsyncResult<void>;
+            const requests:Ice.AsyncResult<void>[] = [];
             try
             {
                 r1 = p.op();
@@ -168,6 +169,7 @@ export class Client extends TestHelper
                 while(true)
                 {
                     r2 = p.opWithPayload(seq);
+                    requests.push(r2);
                     if(r2.sentSynchronously())
                     {
                         await Ice.Promise.delay(0);
@@ -201,6 +203,8 @@ export class Client extends TestHelper
             await r2;
             test(r2.isSent());
             test(r2.isCompleted());
+
+            await Promise.all(requests);
 
             test(r1.operation == "op");
             test(r2.operation == "opWithPayload");
@@ -260,9 +264,11 @@ export class Client extends TestHelper
             await testController.holdAdapter();
             const seq = new Uint8Array(new Array(100000));
             let r;
+            const requests:Ice.AsyncResult<void>[] = [];
             while(true)
             {
                 r = p.opWithPayload(seq);
+                requests.push(r);
                 if(r.sentSynchronously())
                 {
                     await Ice.Promise.delay(0);
@@ -289,7 +295,7 @@ export class Client extends TestHelper
             r2.cancel();
 
             await testController.resumeAdapter();
-            await p.ice_ping();
+            await Promise.all(requests);
 
             test(!r1.isSent() && r1.isCompleted());
             test(!r2.isSent() && r2.isCompleted());
