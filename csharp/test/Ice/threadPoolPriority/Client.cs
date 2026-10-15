@@ -13,6 +13,17 @@ namespace Ice
                 using(var communicator = initialize(ref args))
                 {
                     var output = getWriter();
+
+                    output.Write("testing stringToThreadPriority parsing... ");
+                    output.Flush();
+                    test(global::IceInternal.Util.stringToThreadPriority("ThreadPriority.AboveNormal") ==
+                         System.Threading.ThreadPriority.AboveNormal);
+                    test(global::IceInternal.Util.stringToThreadPriority("AboveNormal") ==
+                         System.Threading.ThreadPriority.AboveNormal);
+                    test(global::IceInternal.Util.stringToThreadPriority("") ==
+                         System.Threading.ThreadPriority.Normal);
+                    output.WriteLine("ok");
+
                     output.Write("testing server priority... ");
                     output.Flush();
                     var obj = communicator.stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
