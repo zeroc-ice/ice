@@ -2343,13 +2343,18 @@ IcePHP::DictionaryInfo::KeyCallback::unmarshaled(zval* zv, zval*, void*)
     ZVAL_COPY(&key, zv);
 }
 
+//
+// Hold a reference to the key: with a class value type, unmarshaled() can be called after unmarshal() returns (when
+// the pending class instances are read), by which time the KeyCallback that owned the key is gone.
+//
 IcePHP::DictionaryInfo::ValueCallback::ValueCallback(zval* k)
 {
-    ZVAL_COPY_VALUE(&key, k);
+    ZVAL_COPY(&key, k);
 }
 
 IcePHP::DictionaryInfo::ValueCallback::~ValueCallback()
 {
+    zval_ptr_dtor(&key);
 }
 
 void
