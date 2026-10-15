@@ -680,10 +680,9 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    PyObject* callbackType = lookupType("types.FunctionType");
-    if(cb != Py_None && !PyObject_IsInstance(cb, callbackType))
+    if(cb != Py_None && !PyCallable_Check(cb))
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a function"));
+        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a callable"));
         return 0;
     }
 
@@ -722,10 +721,9 @@ connectionSetHeartbeatCallback(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    PyObject* callbackType = lookupType("types.FunctionType");
-    if(cb != Py_None && !PyObject_IsInstance(cb, callbackType))
+    if(cb != Py_None && !PyCallable_Check(cb))
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a function"));
+        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a callable"));
         return 0;
     }
 
