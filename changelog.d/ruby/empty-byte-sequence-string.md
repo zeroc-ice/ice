@@ -1,0 +1,1 @@
+- Fixed the marshaling of an empty `sequence<byte>` supplied as a string, which corrupted the rest of the message.
