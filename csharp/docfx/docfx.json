@@ -38,7 +38,7 @@
       }
     ],
     "sitemap": {
-      "baseUrl": "https://code.zeroc.com/ice/3.8/api/csharp/index.html"
+      "baseUrl": "https://code.zeroc.com/ice/3.8/api/csharp/"
     },
     "overwrite": [
       {
