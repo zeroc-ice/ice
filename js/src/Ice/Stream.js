@@ -1982,7 +1982,7 @@ class InputStream
 
     skip(size)
     {
-        if(size > this._buf.remaining)
+        if(size < 0 || size > this._buf.remaining)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
