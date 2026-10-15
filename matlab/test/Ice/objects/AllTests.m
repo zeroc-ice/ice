@@ -17,6 +17,10 @@ classdef AllTests
             AllTests.testMissingInstanceWithLargeIndex(communicator);
             fprintf('ok\n');
 
+            fprintf('testing encoding 1.0 reference with index INT32_MIN... ');
+            AllTests.testInt32MinReference(communicator);
+            fprintf('ok\n');
+
             ref = ['initial:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);
             initial = InitialPrx.checkedCast(base);
@@ -392,6 +396,26 @@ classdef AllTests
                 assert(false);
             catch ex
                 assert(isa(ex, 'Ice.MarshalException'));
+            end
+        end
+
+        function testInt32MinReference(communicator)
+            % In encoding 1.0, a reference is the negated instance index; INT32_MIN has no positive counterpart.
+            encoding = Ice.EncodingVersion(1, 0);
+            os = Ice.OutputStream(communicator, encoding);
+            os.startEncapsulation([]);
+            os.writeInt(intmin('int32'));
+            os.writeSize(0); % No pending instances.
+            os.endEncapsulation();
+
+            is = Ice.InputStream(communicator, encoding, os.finished());
+            is.startEncapsulation();
+            try
+                is.readValue(@(v) assert(false), 'Ice.Value');
+                assert(false);
+            catch ex
+                assert(isa(ex, 'Ice.MarshalException'));
+                assert(strcmp(ex.reason, 'invalid object id'));
             end
         end
     end
