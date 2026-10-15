@@ -1471,15 +1471,18 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         else if(_state == StatePongPending)
         {
             prepareWriteHeader(OP_PONG, _pingPayload.size());
-            if(_pingPayload.size() > static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i))
+            if(!_pingPayload.empty())
             {
-                size_t pos = static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin());
-                _writeBuffer.b.resize(pos + _pingPayload.size());
-                _writeBuffer.i = _writeBuffer.b.begin() + pos;
+                if(_pingPayload.size() > static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i))
+                {
+                    size_t pos = static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin());
+                    _writeBuffer.b.resize(pos + _pingPayload.size());
+                    _writeBuffer.i = _writeBuffer.b.begin() + pos;
+                }
+                memcpy(_writeBuffer.i, &_pingPayload[0], _pingPayload.size());
+                _writeBuffer.i += _pingPayload.size();
+                _pingPayload.clear();
             }
-            memcpy(_writeBuffer.i, &_pingPayload[0], _pingPayload.size());
-            _writeBuffer.i += _pingPayload.size();
-            _pingPayload.clear();
 
             _writeBuffer.b.resize(static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin()));
             _writeState = WriteStateControlFrame;
