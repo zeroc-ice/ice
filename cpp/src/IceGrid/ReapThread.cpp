@@ -119,20 +119,7 @@ ReapThread::run()
                 //
                 // Remove the reapable
                 //
-                if(p->connection)
-                {
-                    map<Ice::ConnectionPtr, set<ReapablePtr> >::iterator q = _connections.find(p->connection);
-                    if(q != _connections.end())
-                    {
-                        q->second.erase(p->item);
-                        if(q->second.empty())
-                        {
-                            p->connection->setCloseCallback(0);
-                            p->connection->setHeartbeatCallback(0);
-                            _connections.erase(q);
-                        }
-                    }
-                }
+                detachConnection(*p);
                 p = _sessions.erase(p);
             }
         }
@@ -183,6 +170,24 @@ ReapThread::add(const ReapablePtr& reapable, int timeout, const Ice::ConnectionP
     if(_terminated)
     {
         return;
+    }
+
+    //
+    // The reaper thread can wait forever when all the remaining sessions have a null timeout, so it can't be
+    // relied upon to remove the entries of sessions destroyed explicitly. Remove them now.
+    //
+    for(list<ReapableItem>::iterator p = _sessions.begin(); p != _sessions.end();)
+    {
+        try
+        {
+            p->item->timestamp(); // This throws if the reapable is destroyed.
+            ++p;
+        }
+        catch(const Ice::ObjectNotExistException&)
+        {
+            detachConnection(*p);
+            p = _sessions.erase(p);
+        }
     }
 
     //
@@ -269,6 +274,23 @@ ReapThread::connectionClosed(const Ice::ConnectionPtr& con)
         }
         reapables.swap(p->second);
         _connections.erase(p);
+
+        //
+        // Also remove the matching _sessions entries: the reaper thread can wait forever when all the remaining
+        // sessions have a null timeout, so it can't be relied upon to remove them.
+        //
+        list<ReapableItem>::iterator q = _sessions.begin();
+        while(q != _sessions.end())
+        {
+            if(q->connection == con)
+            {
+                q = _sessions.erase(q);
+            }
+            else
+            {
+                ++q;
+            }
+        }
     }
 
     //
@@ -304,4 +326,23 @@ ReapThread::calcWakeInterval()
 
     _wakeInterval = minimum;
     return oldWakeInterval == IceUtil::Time() || minimum < oldWakeInterval;
+}
+
+void
+ReapThread::detachConnection(const ReapableItem& item)
+{
+    if(item.connection)
+    {
+        map<Ice::ConnectionPtr, set<ReapablePtr> >::iterator p = _connections.find(item.connection);
+        if(p != _connections.end())
+        {
+            p->second.erase(item.item);
+            if(p->second.empty())
+            {
+                item.connection->setCloseCallback(0);
+                item.connection->setHeartbeatCallback(0);
+                _connections.erase(p);
+            }
+        }
+    }
 }
