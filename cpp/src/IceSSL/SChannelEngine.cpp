@@ -380,7 +380,12 @@ addCertificatesToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cer
         if(startpos != string::npos)
         {
             endpos = strbuf.find("-----END CERTIFICATE-----", startpos);
-            size = endpos - startpos + sizeof("-----END CERTIFICATE-----");
+            if(endpos == string::npos)
+            {
+                throw PluginInitializationException(__FILE__, __LINE__,
+                                                    "IceSSL: malformed PEM certificate (missing END marker):\n" + file);
+            }
+            size = endpos - startpos + sizeof("-----END CERTIFICATE-----") - 1;
         }
         else if(first)
         {
