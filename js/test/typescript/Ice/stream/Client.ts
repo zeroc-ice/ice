@@ -639,6 +639,26 @@ export class Client extends TestHelper
             }
         }
         out.writeLine("ok");
+
+        out.write("testing skip with a negative size... ");
+        {
+            outS = new Ice.OutputStream(communicator);
+            outS.writeInt(42);
+            const data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            test(inS.readInt() === 42);
+            try
+            {
+                inS.skip(-4);
+                test(false);
+            }
+            catch(ex)
+            {
+                test(ex instanceof Ice.UnmarshalOutOfBoundsException, ex);
+            }
+            test(inS.pos === data.length);
+        }
+        out.writeLine("ok");
     }
 
     async run(args:string[])
