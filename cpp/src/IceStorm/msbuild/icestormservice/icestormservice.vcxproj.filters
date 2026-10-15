@@ -73,6 +73,9 @@
     <ClCompile Include="..\..\Subscriber.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SubscriberRecordKeyCompare.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\TopicI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
