@@ -259,9 +259,14 @@ TopicManagerImpl::TopicManagerImpl(const PersistentInstancePtr& instance) :
         {
             IceDB::ReadWriteTxn txn(_instance->dbEnv());
 
-            // Ensure that the llu counter is present in the log.
-            LogUpdate empty = {0, 0};
-            _instance->lluMap().put(txn, lluDbKey, empty);
+            // Ensure that the llu counter is present in the log, without overwriting the last value persisted by a
+            // previous run.
+            LogUpdate llu;
+            if(!_instance->lluMap().get(txn, lluDbKey, llu))
+            {
+                LogUpdate empty = {0, 0};
+                _instance->lluMap().put(txn, lluDbKey, empty);
+            }
 
             // Recreate each of the topics.
             SubscriberRecordKey k;
