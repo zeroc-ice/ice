@@ -67,7 +67,7 @@ namespace IceInternal
                         // encoded with Base64.
                         //
                         byte[] key = new byte[16];
-                        _rand.NextBytes(key);
+                        _rand.GetBytes(key);
                         _key = System.Convert.ToBase64String(key);
                         @out.Append(_key + "\r\n\r\n"); // EOM
 
@@ -735,7 +735,7 @@ namespace IceInternal
             _writeMask = new byte[4];
             _key = "";
             _pingPayload = new byte[0];
-            _rand = new Random();
+            _rand = RandomNumberGenerator.Create();
         }
 
         private void handleRequest(Buffer responseBuffer)
@@ -1650,7 +1650,7 @@ namespace IceInternal
                 // and apply the mask.
                 //
                 _writeBuffer.b.put(1, (byte)(_writeBuffer.b.get(1) | FLAG_MASKED));
-                _rand.NextBytes(_writeMask);
+                _rand.GetBytes(_writeMask);
                 _writeBuffer.b.put(_writeMask);
             }
         }
@@ -1716,7 +1716,7 @@ namespace IceInternal
 
         private byte[] _pingPayload;
 
-        private Random _rand;
+        private RandomNumberGenerator _rand;
 
         //
         // WebSocket opcodes
