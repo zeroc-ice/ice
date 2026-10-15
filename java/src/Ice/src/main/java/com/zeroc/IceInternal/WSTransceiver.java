@@ -568,7 +568,7 @@ final class WSTransceiver implements Transceiver
         _writeMask = new byte[4];
         _key = "";
         _pingPayload = new byte[0];
-        _rand = new java.util.Random();
+        _rand = new java.security.SecureRandom();
     }
 
     private void handleRequest(Buffer responseBuffer)
@@ -1629,7 +1629,7 @@ final class WSTransceiver implements Transceiver
 
     private byte[] _pingPayload;
 
-    private java.util.Random _rand;
+    private java.security.SecureRandom _rand;
 
     //
     // WebSocket opcodes
