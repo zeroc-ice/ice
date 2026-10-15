@@ -220,7 +220,7 @@ class ConnectRequestHandler
                     {
                         Debug.assert(ex instanceof LocalException);
                         exception = ex;
-                        request.out.completedEx(ex);
+                        request.completedEx(ex);
                     }
                 }
             });
