@@ -122,7 +122,7 @@ class PluginI implements com.zeroc.Ice.Plugin
         {
             _locatorAdapter.destroy();
         }
-        if(_communicator.getDefaultLocator().equals(_locator))
+        if(_locator.equals(_communicator.getDefaultLocator()))
         {
             // Restore original default locator proxy, if the user didn't change it in the meantime
             _communicator.setDefaultLocator(_defaultLocator);
