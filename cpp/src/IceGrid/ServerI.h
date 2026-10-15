@@ -35,6 +35,9 @@ typedef IceUtil::Handle<PatchCommand> PatchCommandPtr;
 class LoadCommand;
 typedef IceUtil::Handle<LoadCommand> LoadCommandPtr;
 
+//
+// Lock order: the ServerI mutex is always acquired before the ServerAdapterI mutex, never after.
+//
 class ServerI : public Server, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
