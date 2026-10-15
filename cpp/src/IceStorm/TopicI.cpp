@@ -27,6 +27,19 @@ logError(const Ice::CommunicatorPtr& com, const IceDB::LMDBException& ex)
     error << "LMDB error: " << ex;
 }
 
+// SubscriberRecord holds proxies and a dictionary, so the C++98 mapping does not generate comparison operators for it.
+bool
+sameRecord(const SubscriberRecord& lhs, const SubscriberRecord& rhs)
+{
+    return lhs.topicName == rhs.topicName &&
+        lhs.id == rhs.id &&
+        lhs.link == rhs.link &&
+        lhs.obj == rhs.obj &&
+        lhs.theQoS == rhs.theQoS &&
+        lhs.cost == rhs.cost &&
+        lhs.theTopic == rhs.theTopic;
+}
+
 //
 // The servant has a 1-1 association with a topic. It is used to
 // receive events from Publishers.
@@ -880,18 +893,20 @@ TopicImpl::update(const SubscriberRecordSeq& records)
                     break;
                 }
             }
-            // The subscriber doesn't exist in the incoming subscriber
-            // set so destroy it.
-            if(q == records.end())
+            // Keep the subscriber only when it exists in the incoming subscriber set with the same
+            // record, and reset its reaped status if necessary. Otherwise destroy it: it is either
+            // gone, or it re-registered with a different proxy or QoS while this replica was out of
+            // sync, and the second scan re-creates it from the incoming record so it matches the
+            // database.
+            if(q != records.end() && sameRecord((*p)->record(), *q))
             {
-                (*p)->destroy();
-                p = _subscribers.erase(p);
+                (*p)->resetIfReaped();
+                ++p;
             }
             else
             {
-                // Otherwise reset the reaped status if necessary.
-                (*p)->resetIfReaped();
-                ++p;
+                (*p)->destroy();
+                p = _subscribers.erase(p);
             }
         }
     }
