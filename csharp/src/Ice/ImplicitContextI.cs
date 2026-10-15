@@ -90,8 +90,8 @@ namespace Ice
                     key = "";
                 }
 
-                string val = _context[key];
-                if(val == null)
+                string val;
+                if(!_context.TryGetValue(key, out val) || val == null)
                 {
                     val = "";
                 }
@@ -133,17 +133,16 @@ namespace Ice
                     key = "";
                 }
 
-                string val = _context[key];
+                string val;
+                if(_context.TryGetValue(key, out val))
+                {
+                    _context.Remove(key);
+                }
 
                 if(val == null)
                 {
                     val = "";
                 }
-                else
-                {
-                    _context.Remove(key);
-                }
-
                 return val;
             }
         }
@@ -227,7 +226,7 @@ namespace Ice
 
                 lock(this)
                 {
-                    _map.Add(Thread.CurrentThread, threadContext);
+                    _map[Thread.CurrentThread] = threadContext;
                 }
             }
         }
@@ -267,8 +266,8 @@ namespace Ice
                 }
             }
 
-            string val = threadContext[key];
-            if(val == null)
+            string val;
+            if(!threadContext.TryGetValue(key, out val) || val == null)
             {
                 val = "";
             }
