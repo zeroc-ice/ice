@@ -169,6 +169,14 @@ classdef AllTests
             assert(isempty(cl.dict));
 
             fprintf('ok\n');
+
+            fprintf('testing long values above 2^53... ');
+            assert(isa(ConstLongAbove2Pow53.value, 'int64'));
+            assert(ConstLongAbove2Pow53.value - int64(2^53) == 1);
+            assert(ConstLongNearMin.value == intmin('int64') + 1);
+            v = StructLong();
+            assert(v.above2Pow53 - int64(2^53) == 1);
+            fprintf('ok\n');
         end
     end
 end

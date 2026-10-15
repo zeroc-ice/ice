@@ -40,10 +40,19 @@ typedef std::map<VALUE, Ice::ObjectPtr> ObjectMap;
 class ObjectReader;
 typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
 
+class StreamUtil;
+
+//
+// Tracks the class instances already printed during a stringification, to detect shared instances and cycles.
+// The instances are keyed in a Ruby identity hash (instance => index), whose keys remain valid when GC
+// compaction runs during the stringification.
+//
 struct PrintObjectHistory
 {
-    int index;
-    std::map<VALUE, int> objects;
+    PrintObjectHistory();
+
+    int index; // the index to assign to the next class instance printed for the first time
+    VALUE objects; // Ruby identity hash
 };
 
 //
@@ -62,22 +71,25 @@ public:
 
     //
     // The unmarshaled() member function receives the unmarshaled value. The
-    // last two arguments are the values passed to unmarshal() for use by
-    // UnmarshalCallback implementations.
+    // next two arguments are the values passed to unmarshal() for use by
+    // UnmarshalCallback implementations, and the last argument is the
+    // StreamUtil attached to the stream.
     //
-    virtual void unmarshaled(VALUE, VALUE, void*) = 0;
+    virtual void unmarshaled(VALUE, VALUE, void*, StreamUtil*) = 0;
 };
 typedef IceUtil::Handle<UnmarshalCallback> UnmarshalCallbackPtr;
 
 //
 // ReadObjectCallback retains all of the information necessary to store an unmarshaled
-// Slice value as a Ruby object.
+// Slice value as a Ruby object. Its only owner is the StreamUtil attached to the
+// stream (the stream's patch entries hold non-owning pointers), so it never outlives
+// the StreamUtil and _util remains valid for its whole lifetime.
 //
 class ReadObjectCallback : public IceUtil::Shared
 {
 public:
 
-    ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+    ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*, StreamUtil*);
 
     void invoke(const ::Ice::ObjectPtr&);
 
@@ -85,7 +97,8 @@ private:
 
     ClassInfoPtr _info;
     UnmarshalCallbackPtr _cb;
-    VALUE _target;
+    StreamUtil* _util;
+    long _targetIndex;
     void* _closure;
 };
 typedef IceUtil::Handle<ReadObjectCallback> ReadObjectCallbackPtr;
@@ -112,6 +125,15 @@ public:
     void add(const ObjectReaderPtr&);
 
     //
+    // Keep a Ruby object reachable for the lifetime of the stream and return an index
+    // that recovers it via getHeldValue. The objects are held in a Ruby array whose
+    // elements the GC updates when compaction moves them, so getHeldValue remains
+    // valid where a raw VALUE copy in native code would go stale.
+    //
+    long hold(VALUE);
+    VALUE getHeldValue(long) const;
+
+    //
     // Updated the sliced data information for all stored object instances.
     //
     void updateSlicedData();
@@ -121,8 +143,13 @@ public:
 
 private:
 
+    // Registers a GC root tied to the address of _held, so it must not be copied.
+    StreamUtil(const StreamUtil&);
+    StreamUtil& operator=(const StreamUtil&);
+
     std::vector<ReadObjectCallbackPtr> _callbacks;
     std::set<ObjectReaderPtr> _readers;
+    VALUE _held; // Ruby array created on first use by hold()
     static VALUE _slicedDataType;
     static VALUE _sliceInfoType;
 };
@@ -144,7 +171,7 @@ public:
 
     virtual bool usesClasses() const; // Default implementation returns false.
 
-    virtual void unmarshaled(VALUE, VALUE, void*); // Default implementation is assert(false).
+    virtual void unmarshaled(VALUE, VALUE, void*, StreamUtil*); // Default implementation is assert(false).
 
     virtual void destroy();
 
@@ -241,7 +268,7 @@ class DataMember : public UnmarshalCallback
 {
 public:
 
-    virtual void unmarshaled(VALUE, VALUE, void*);
+    virtual void unmarshaled(VALUE, VALUE, void*, StreamUtil*);
 
     std::string name;
     TypeInfoPtr type;
@@ -311,7 +338,7 @@ public:
 
     virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
-    virtual void unmarshaled(VALUE, VALUE, void*);
+    virtual void unmarshaled(VALUE, VALUE, void*, StreamUtil*);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
@@ -350,7 +377,7 @@ public:
     virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
     void marshalElement(VALUE, VALUE, Ice::OutputStream*, ObjectMap*);
-    virtual void unmarshaled(VALUE, VALUE, void*);
+    virtual void unmarshaled(VALUE, VALUE, void*, StreamUtil*);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
     void printElement(VALUE, VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -361,7 +388,7 @@ public:
     {
     public:
 
-        virtual void unmarshaled(VALUE, VALUE, void*);
+        virtual void unmarshaled(VALUE, VALUE, void*, StreamUtil*);
 
         VALUE key;
     };

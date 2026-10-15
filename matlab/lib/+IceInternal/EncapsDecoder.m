@@ -12,9 +12,10 @@ classdef (Abstract) EncapsDecoder < handle
             obj.classResolver = classResolver;
             obj.classGraphDepthMax = classGraphDepthMax;
             obj.classGraphDepth = 0;
-            obj.patchMap = {};
-            obj.patchMapLength = 0;
-            obj.unmarshaledMap = {};
+            % Keyed by the instance index read from the stream. A cell array indexed by this value would grow to
+            % the largest index received.
+            obj.patchMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            obj.unmarshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             obj.typeIdMap = {};
             obj.typeIdConstructorMap = {};
             obj.valueList = {};
@@ -129,12 +130,9 @@ classdef (Abstract) EncapsDecoder < handle
             % Check if we have already unmarshalled the instance. If that's the case,
             % just invoke the callback and we're done.
             %
-            if index <= length(obj.unmarshaledMap)
-                v = obj.unmarshaledMap{index};
-                if ~isempty(v)
-                    cb(v);
-                    return;
-                end
+            if isKey(obj.unmarshaledMap, index)
+                cb(obj.unmarshaledMap(index));
+                return;
             end
 
             %
@@ -142,15 +140,14 @@ classdef (Abstract) EncapsDecoder < handle
             % the callback will be called when the instance is
             % unmarshaled.
             %
-            if index <= length(obj.patchMap)
-                pl = obj.patchMap{index};
+            if isKey(obj.patchMap, index)
+                pl = obj.patchMap(index);
             else
                 %
                 % We have no outstanding instances to be patched for this
                 % index, so make a new entry in the patch map.
                 %
                 pl = {};
-                obj.patchMapLength = obj.patchMapLength + 1;
             end
 
             %
@@ -160,7 +157,7 @@ classdef (Abstract) EncapsDecoder < handle
             e.cb = cb;
             e.classGraphDepth = obj.classGraphDepth;
             pl{end + 1} = e;
-            obj.patchMap{index} = pl;
+            obj.patchMap(index) = pl;
         end
 
         function unmarshal(obj, index, v)
@@ -168,24 +165,24 @@ classdef (Abstract) EncapsDecoder < handle
             % Add the instance to the map of unmarshaled instances, this must
             % be done before reading the instances (for circular references).
             %
-            obj.unmarshaledMap{index} = v;
+            obj.unmarshaledMap(index) = v;
 
             %
             % Read the instance.
             %
             v.iceRead(obj.is);
 
-            if index <= length(obj.patchMap)
+            if isKey(obj.patchMap, index)
                 %
                 % Patch all instances now that the instance is unmarshaled.
                 %
-                l = obj.patchMap{index};
+                pl = obj.patchMap(index);
 
                 %
                 % Patch all pointers that refer to the instance.
                 %
-                for i = 1:length(l)
-                    e = l{i};
+                for i = 1:length(pl)
+                    e = pl{i};
                     e.cb(v);
                 end
 
@@ -193,11 +190,10 @@ classdef (Abstract) EncapsDecoder < handle
                 % Clear out the patch map for that index -- there is nothing left
                 % to patch for that index for the time being.
                 %
-                obj.patchMap{index} = [];
-                obj.patchMapLength = obj.patchMapLength - 1;
+                remove(obj.patchMap, index);
             end
 
-            if obj.patchMapLength == 0 && isempty(obj.valueList)
+            if obj.patchMap.Count == 0 && isempty(obj.valueList)
                 if v.iceDelayPostUnmarshal()
                     obj.delayedPostUnmarshal{end + 1} = v; % See finish()
                 else
@@ -211,7 +207,7 @@ classdef (Abstract) EncapsDecoder < handle
             else
                 obj.valueList{end + 1} = v;
 
-                if obj.patchMapLength == 0
+                if obj.patchMap.Count == 0
                     %
                     % Iterate over the instance list and invoke ice_postUnmarshal on
                     % each instance. We must do this after all instances have been
@@ -245,7 +241,6 @@ classdef (Abstract) EncapsDecoder < handle
         classGraphDepth
         classGraphDepthMax
         patchMap
-        patchMapLength
     end
     properties(Access=private)
         unmarshaledMap

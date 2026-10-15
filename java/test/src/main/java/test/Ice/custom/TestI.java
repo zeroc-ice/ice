@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.nio.IntBuffer;
@@ -16,6 +17,8 @@ import java.nio.FloatBuffer;
 import java.nio.DoubleBuffer;
 
 import test.Ice.custom.Test.C;
+import test.Ice.custom.Test.DictClass;
+import test.Ice.custom.Test.DictException;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.S;
 import test.Ice.custom.Test.TestIntf;
@@ -312,6 +315,28 @@ public final class TestI implements TestIntf
     public TestIntf.OpOptDoubleBufferSeqResult opOptDoubleBufferSeq(java.util.Optional<DoubleBuffer> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptDoubleBufferSeqResult(inSeq, inSeq);
+    }
+
+    @Override
+    public DictClass opDictClass(DictClass c, com.zeroc.Ice.Current current)
+    {
+        return c;
+    }
+
+    @Override
+    public void throwDictException(Map<Integer, String> d, com.zeroc.Ice.Current current)
+        throws DictException
+    {
+        DictException ex = new DictException();
+        ex.sortedD = new TreeMap<>(d);
+        throw ex;
+    }
+
+    @Override
+    public TestIntf.OpMarshaledSortedDMarshaledResult opMarshaledSortedD(Map<Integer, String> d,
+                                                                         com.zeroc.Ice.Current current)
+    {
+        return new TestIntf.OpMarshaledSortedDMarshaledResult(new TreeMap<>(d), current);
     }
 
     @Override

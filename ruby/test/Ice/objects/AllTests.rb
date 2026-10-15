@@ -22,8 +22,29 @@ end
 # we always need to install the factories, even for the collocated
 # case.
 #
+#
+# Compacts the GC heap, moving every object that can move. Returns false when the platform does not support
+# compaction.
+#
+def compactHeap()
+    begin
+        GC.verify_compaction_references(expand_heap: true, toward: :empty)
+    rescue ArgumentError
+        # Ruby 3.0 and 3.1 do not accept expand_heap.
+        GC.verify_compaction_references(double_heap: true, toward: :empty)
+    end
+    return true
+rescue NotImplementedError
+    return false
+end
+
+$compactDuringUnmarshal = false
+
 class MyValueFactory
     def create(type)
+        # Compact the GC heap in the middle of unmarshaling the enclosing request results.
+        compactHeap() if $compactDuringUnmarshal
+
         if type == '::Test::B'
             return BI.new
         elsif type == '::Test::C'
@@ -44,6 +65,17 @@ class MyValueFactory
             return JI.new
         end
         fail "unknown type"
+    end
+end
+
+#
+# Default value factory that compacts the GC heap in the middle of unmarshaling the enclosing request results,
+# and then returns nil so that Ice creates the instance.
+#
+class CompactingValueFactory
+    def create(type)
+        compactHeap() if $compactDuringUnmarshal
+        return nil
     end
 end
 
@@ -73,6 +105,7 @@ def allTests(helper, communicator)
     communicator.getValueFactoryManager().add(factory, '::Test::F')
     communicator.getValueFactoryManager().add(factory, '::Test::I')
     communicator.getValueFactoryManager().add(factory, '::Test::J')
+    communicator.getValueFactoryManager().add(CompactingValueFactory.new, '')
 
     communicator.addObjectFactory(MyObjectFactory.new, 'TestOF')
 
@@ -423,6 +456,63 @@ def allTests(helper, communicator)
     i = initial.getI()
     n = Test::N.new(i);
     n = initial.opN(n)
+    puts "ok"
+
+    print "testing GC compaction during unmarshaling... "
+    STDOUT.flush
+    compactionSupported = compactHeap()
+    if compactionSupported
+        # The value factories now compact the GC heap each time a class instance is unmarshaled. The raw VALUEs
+        # the extension holds while unmarshaling the enclosing graph (dictionary keys, patch targets) and the
+        # classes it instantiates must remain valid when the heap moves.
+        $compactDuringUnmarshal = true
+        begin
+            b1 = initial.getB1()
+            test(b1.theB == b1)
+            test(b1.theA.theC.theB == b1.theA)
+
+            v1 = {}
+            v1["l"] = Test::L.new("l")
+            v2, v3 = initial.opValueMap(v1)
+            test(v2["l"].data == "l")
+            test(v3["l"].data == "l")
+
+            m = Test::M.new
+            m.v = {}
+            k1 = Test::StructKey.new(1, "1")
+            m.v[k1] = Test::L.new("one")
+            k2 = Test::StructKey.new(2, "2")
+            m.v[k2] = Test::L.new("two")
+            m1, m2 = initial.opM(m)
+            test(m1.v[k1].data == "one" && m1.v[k2].data == "two")
+            test(m2.v[k1].data == "one" && m2.v[k2].data == "two")
+        ensure
+            $compactDuringUnmarshal = false
+        end
+    end
+    puts "ok"
+
+    print "testing GC compaction during stringification... "
+    STDOUT.flush
+    if compactionSupported
+        # A shared instance must be printed as a back reference on its second occurrence, even when GC compaction
+        # runs in the middle of the stringification. The compactor's to_str compacts the heap while a2 is printed:
+        # after the shared instance was printed as a1, and before it is looked up again as a3.
+        compactor = Object.new
+        def compactor.to_str
+            compactHeap()
+            "compacted"
+        end
+        # The shared instance is referenced only from holder's members: a reference from a local variable would pin
+        # it through conservative stack marking, and it could then never move.
+        holder = Test::D1.new(Test::A1.new("shared"), Test::A1.new(compactor))
+        holder.a3 = holder.a1
+        # holder is object #0 and the shared instance is object #1; a3 must print as a back reference to object #1.
+        # The first assertion checks that the compactor's to_str ran, i.e. that the compaction actually happened.
+        s = holder.inspect
+        test(s.include?("'compacted'"))
+        test(s.include?("a3 = <object #1>"))
+    end
     puts "ok"
 
     return initial

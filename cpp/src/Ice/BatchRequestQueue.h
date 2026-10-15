@@ -8,6 +8,7 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
+#include <IceUtil/Thread.h>
 #include <Ice/UniquePtr.h>
 
 #include <Ice/BatchRequestInterceptor.h>
@@ -46,7 +47,13 @@ private:
 #endif
     Ice::OutputStream _batchStream;
     bool _batchStreamInUse;
+    //
+    // While finishBatchRequest holds the in-use stream, _batchStreamCanFlush is true and _batchStreamOwner is its
+    // thread: the only thread allowed to re-enter swap() (for its own auto-flush). Other threads wait for
+    // _batchStreamInUse to clear.
+    //
     bool _batchStreamCanFlush;
+    IceUtil::ThreadControl _batchStreamOwner;
     bool _batchCompress;
     int _batchRequestNum;
     size_t _batchMarker;

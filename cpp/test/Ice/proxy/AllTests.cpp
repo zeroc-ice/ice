@@ -851,6 +851,16 @@ allTests(Test::TestHelper* helper)
     test(Ice::targetLess(compObj1->ice_locatorCacheTimeout(10), compObj1->ice_locatorCacheTimeout(20)));
     test(Ice::targetGreaterEqual(compObj1->ice_locatorCacheTimeout(20), compObj1->ice_locatorCacheTimeout(10)));
 
+    {
+        // Proxies parsed from the same string have equal endpoints held by distinct endpoint objects.
+        auto prx1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
+        auto prx2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
+        test(Ice::targetLess(prx1->ice_locatorCacheTimeout(10), prx2->ice_locatorCacheTimeout(20)));
+        test(Ice::targetLess(prx2->ice_locatorCacheTimeout(10), prx1->ice_locatorCacheTimeout(20)));
+        test(!Ice::targetLess(prx1->ice_locatorCacheTimeout(20), prx2->ice_locatorCacheTimeout(10)));
+        test(!Ice::targetLess(prx2->ice_locatorCacheTimeout(20), prx1->ice_locatorCacheTimeout(10)));
+    }
+
     test(Ice::targetEqualTo(compObj1->ice_invocationTimeout(20), compObj1->ice_invocationTimeout(20)));
     test(Ice::targetNotEqualTo(compObj1->ice_invocationTimeout(10), compObj1->ice_invocationTimeout(20)));
     test(Ice::targetLess(compObj1->ice_invocationTimeout(10), compObj1->ice_invocationTimeout(20)));
@@ -1039,6 +1049,16 @@ allTests(Test::TestHelper* helper)
     test(compObj1->ice_locatorCacheTimeout(10) != compObj1->ice_locatorCacheTimeout(20));
     test(compObj1->ice_locatorCacheTimeout(10) < compObj1->ice_locatorCacheTimeout(20));
     test(!(compObj1->ice_locatorCacheTimeout(20) < compObj1->ice_locatorCacheTimeout(10)));
+
+    {
+        // Proxies parsed from the same string have equal endpoints held by distinct endpoint objects.
+        Ice::ObjectPrxPtr prx1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
+        Ice::ObjectPrxPtr prx2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
+        test(prx1->ice_locatorCacheTimeout(10) < prx2->ice_locatorCacheTimeout(20));
+        test(prx2->ice_locatorCacheTimeout(10) < prx1->ice_locatorCacheTimeout(20));
+        test(!(prx1->ice_locatorCacheTimeout(20) < prx2->ice_locatorCacheTimeout(10)));
+        test(!(prx2->ice_locatorCacheTimeout(20) < prx1->ice_locatorCacheTimeout(10)));
+    }
 
     test(compObj1->ice_invocationTimeout(20) == compObj1->ice_invocationTimeout(20));
     test(compObj1->ice_invocationTimeout(10) != compObj1->ice_invocationTimeout(20));

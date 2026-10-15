@@ -283,31 +283,14 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
         return false;
     }
 #if defined(__GLIBC__) || defined(__FreeBSD__)
-    size_t i = p->second.rfind('$');
-    string salt;
-    if(i == string::npos)
-    {
-        //
-        // Crypt DES
-        //
-        if(p->second.size() != 13) // DES passwords are 13 characters long.
-        {
-            return false;
-        }
-        salt = p->second.substr(0, 2);
-    }
-    else
-    {
-        salt = p->second.substr(0, i + 1);
-        if(salt.empty())
-        {
-            return false;
-        }
-    }
+    //
+    // Pass the whole stored hash as the setting: crypt only reads its salt prefix, and this works for all
+    // schemes, including bcrypt whose salt is not terminated by '$'.
+    //
 #   if defined(__GLIBC__)
     struct crypt_data data;
     data.initialized = 0;
-    const char* hashed = crypt_r(password.c_str(), salt.c_str(), &data);
+    const char* hashed = crypt_r(password.c_str(), p->second.c_str(), &data);
     if(hashed == 0 || p->second.size() != strlen(hashed))
     {
         return false;
@@ -315,7 +298,7 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     return constantTimeEquals(p->second.data(), hashed, p->second.size());
 #   else
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
-    const char* hashed = crypt(password.c_str(), salt.c_str());
+    const char* hashed = crypt(password.c_str(), p->second.c_str());
     if(hashed == 0 || p->second.size() != strlen(hashed))
     {
         return false;

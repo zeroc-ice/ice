@@ -51,6 +51,17 @@ static ProxyInfoMap _proxyInfoMap;
 typedef map<string, ExceptionInfoPtr> ExceptionInfoMap;
 static ExceptionInfoMap _exceptionInfoMap;
 
+namespace
+{
+
+StreamUtil*
+streamUtil(Ice::InputStream* is)
+{
+    return reinterpret_cast<StreamUtil*>(is->getClosure());
+}
+
+}
+
 namespace IceRuby
 {
 
@@ -169,17 +180,30 @@ addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
 }
 
 //
+// PrintObjectHistory implementation
+//
+IceRuby::PrintObjectHistory::PrintObjectHistory() :
+    index(0), objects(callRuby(rb_hash_new))
+{
+    callRuby(rb_funcall, objects, rb_intern("compare_by_identity"), 0);
+}
+
+//
 // StreamUtil implementation
 //
 VALUE IceRuby::StreamUtil::_slicedDataType = Qnil;
 VALUE IceRuby::StreamUtil::_sliceInfoType = Qnil;
 
-IceRuby::StreamUtil::StreamUtil()
+IceRuby::StreamUtil::StreamUtil() :
+    _held(Qnil)
 {
+    rb_gc_register_address(&_held);
 }
 
 IceRuby::StreamUtil::~StreamUtil()
 {
+    rb_gc_unregister_address(&_held);
+
     //
     // Make sure we break any cycles among the ObjectReaders in preserved slices.
     //
@@ -213,6 +237,24 @@ IceRuby::StreamUtil::add(const ObjectReaderPtr& reader)
     _readers.insert(reader);
 }
 
+long
+IceRuby::StreamUtil::hold(VALUE value)
+{
+    if(NIL_P(_held))
+    {
+        _held = callRuby(rb_ary_new);
+    }
+    callRuby(rb_ary_push, _held, value);
+    return RARRAY_LEN(_held) - 1;
+}
+
+VALUE
+IceRuby::StreamUtil::getHeldValue(long index) const
+{
+    assert(!NIL_P(_held) && index >= 0 && index < RARRAY_LEN(_held));
+    return RARRAY_AREF(_held, index);
+}
+
 void
 IceRuby::StreamUtil::updateSlicedData()
 {
@@ -235,11 +277,13 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
     {
         _slicedDataType = callRuby(rb_path2class, "Ice::SlicedData");
         assert(!NIL_P(_slicedDataType));
+        rb_gc_register_mark_object(_slicedDataType);
     }
     if(_sliceInfoType == Qnil)
     {
         _sliceInfoType = callRuby(rb_path2class, "Ice::SliceInfo");
         assert(!NIL_P(_sliceInfoType));
+        rb_gc_register_mark_object(_sliceInfoType);
     }
 
     volatile VALUE sd = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), _slicedDataType);
@@ -421,7 +465,7 @@ IceRuby::TypeInfo::usesClasses() const
 }
 
 void
-IceRuby::TypeInfo::unmarshaled(VALUE, VALUE, void*)
+IceRuby::TypeInfo::unmarshaled(VALUE, VALUE, void*, StreamUtil*)
 {
     assert(false);
 }
@@ -696,7 +740,7 @@ IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
         break;
     }
     }
-    cb->unmarshaled(val, target, closure);
+    cb->unmarshaled(val, target, closure, streamUtil(is));
 }
 
 void
@@ -768,6 +812,12 @@ struct EnumDefinitionIterator : public IceRuby::HashIterator
         assert(enumerators.find(v) == enumerators.end());
         enumerators[v] = value;
 
+        //
+        // Pin the enumerator now: the GC cannot see the VALUEs stored in the map, and the iteration over the
+        // remaining elements can allocate and therefore compact.
+        //
+        rb_gc_register_mark_object(value);
+
         if(v > maxValue)
         {
             maxValue = v;
@@ -789,6 +839,12 @@ IceRuby::EnumInfo::EnumInfo(VALUE ident, VALUE t, VALUE e) :
 
     const_cast<Ice::Int&>(maxValue) = iter.maxValue;
     const_cast<EnumeratorMap&>(enumerators) = iter.enumerators;
+
+    //
+    // Pin the class: the GC cannot see the VALUE stored in this object, so it must never move. The enumerators are
+    // pinned by EnumDefinitionIterator.
+    //
+    rb_gc_register_mark_object(rubyClass);
 }
 
 string
@@ -853,7 +909,7 @@ IceRuby::EnumInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& c
         throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
     }
 
-    cb->unmarshaled(p->second, target, closure);
+    cb->unmarshaled(p->second, target, closure, streamUtil(is));
 }
 
 void
@@ -872,7 +928,7 @@ IceRuby::EnumInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectH
 // DataMember implementation.
 //
 void
-IceRuby::DataMember::unmarshaled(VALUE val, VALUE target, void*)
+IceRuby::DataMember::unmarshaled(VALUE val, VALUE target, void*, StreamUtil*)
 {
     callRuby(rb_ivar_set, target, rubyID, val);
 }
@@ -940,6 +996,11 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
 IceRuby::StructInfo::StructInfo(VALUE ident, VALUE t, VALUE m) :
     rubyClass(t), _nullMarshalValue(Qnil)
 {
+    //
+    // Pin the class: the GC cannot see the VALUE stored in this object, so it must never move.
+    //
+    rb_gc_register_mark_object(rubyClass);
+
     const_cast<string&>(id) = getString(ident);
 
     DataMemberList opt;
@@ -1072,7 +1133,7 @@ IceRuby::StructInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr&
         member->type->unmarshal(is, member, obj, 0, false);
     }
 
-    cb->unmarshaled(obj, target, closure);
+    cb->unmarshaled(obj, target, closure, streamUtil(is));
 }
 
 void
@@ -1286,7 +1347,7 @@ IceRuby::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPt
         return;
     }
 
-    Ice::Int sz = is->readSize();
+    Ice::Int sz = is->readAndCheckSeqSize(elementType->wireSize());
     volatile VALUE arr = createArray(sz);
 
     for(Ice::Int i = 0; i < sz; ++i)
@@ -1295,11 +1356,11 @@ IceRuby::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPt
         elementType->unmarshal(is, this, arr, cl, false);
     }
 
-    cb->unmarshaled(arr, target, closure);
+    cb->unmarshaled(arr, target, closure, streamUtil(is));
 }
 
 void
-IceRuby::SequenceInfo::unmarshaled(VALUE val, VALUE target, void* closure)
+IceRuby::SequenceInfo::unmarshaled(VALUE val, VALUE target, void* closure, StreamUtil*)
 {
 #ifdef ICE_64
     long i = static_cast<long>(reinterpret_cast<long long>(closure));
@@ -1416,7 +1477,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             const long len = RSTRING_LEN(str);
             if(s == 0 || len == 0)
             {
-                os->write(Ice::Int(0));
+                os->writeSize(0);
             }
             else
             {
@@ -1677,7 +1738,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ic
         break;
     }
     }
-    cb->unmarshaled(result, target, closure);
+    cb->unmarshaled(result, target, closure, streamUtil(is));
 }
 
 //
@@ -1857,6 +1918,15 @@ IceRuby::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallback
         //
         keyType->unmarshal(is, keyCB, Qnil, 0, false);
         assert(!NIL_P(keyCB->key));
+
+        //
+        // The callback will set the dictionary entry with the unmarshaled value, so we
+        // pass it the key through the closure. When the value type uses classes, the
+        // callback can run after this frame is gone and a raw VALUE copy of the key
+        // would go stale if GC compaction moves the key, so we pass the key's index in
+        // the stream's holding array instead.
+        //
+        void* cl;
         if (valueType->usesClasses())
         {
             // Temporarily set the entry with a Qnil value to ensure the key is not GC
@@ -1865,25 +1935,42 @@ IceRuby::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallback
             {
                 // For string keys create a frozen string to ensure that the key used
                 // in the map matches the one keep in the closure
-                keyCB->key = rb_str_new_frozen(keyCB->key);
+                keyCB->key = callRuby(rb_str_new_frozen, keyCB->key);
             }
             callRuby(rb_hash_aset, hash, keyCB->key, Qnil);
+
+            StreamUtil* util = streamUtil(is);
+            assert(util);
+            cl = reinterpret_cast<void*>(util->hold(keyCB->key));
         }
-        //
-        // The callback will set the dictionary entry with the unmarshaled value,
-        // so we pass it the key.
-        //
-        void* cl = reinterpret_cast<void*>(keyCB->key);
+        else
+        {
+            cl = reinterpret_cast<void*>(keyCB->key);
+        }
         valueType->unmarshal(is, this, hash, cl, false);
     }
 
-    cb->unmarshaled(hash, target, closure);
+    cb->unmarshaled(hash, target, closure, streamUtil(is));
 }
 
 void
-IceRuby::DictionaryInfo::unmarshaled(VALUE val, VALUE target, void* closure)
+IceRuby::DictionaryInfo::unmarshaled(VALUE val, VALUE target, void* closure, StreamUtil* util)
 {
-    volatile VALUE key = reinterpret_cast<VALUE>(closure);
+    volatile VALUE key;
+    if(valueType->usesClasses())
+    {
+        assert(util);
+#ifdef ICE_64
+        long i = static_cast<long>(reinterpret_cast<long long>(closure));
+#else
+        long i = reinterpret_cast<long>(closure);
+#endif
+        key = util->getHeldValue(i);
+    }
+    else
+    {
+        key = reinterpret_cast<VALUE>(closure);
+    }
     callRuby(rb_hash_aset, target, key, val);
 }
 
@@ -1951,7 +2038,7 @@ IceRuby::DictionaryInfo::printElement(VALUE key, VALUE value, IceUtilInternal::O
 }
 
 void
-IceRuby::DictionaryInfo::KeyCallback::unmarshaled(VALUE val, VALUE, void*)
+IceRuby::DictionaryInfo::KeyCallback::unmarshaled(VALUE val, VALUE, void*, StreamUtil*)
 {
     key = val;
 }
@@ -1988,6 +2075,10 @@ IceRuby::ClassInfo::ClassInfo(VALUE ident, bool loc) :
         const_cast<bool&>(isBase) = id == Ice::Object::ice_staticId();
     }
     const_cast<VALUE&>(typeObj) = createType(this);
+    //
+    // Pin the type object: the GC cannot see the VALUE stored in this object, so it must never move.
+    //
+    rb_gc_register_mark_object(typeObj);
 }
 
 void
@@ -2004,6 +2095,10 @@ IceRuby::ClassInfo::define(VALUE t, VALUE compact, VALUE pres, VALUE intf, VALUE
     const_cast<bool&>(interface) = RTEST(intf);
     convertDataMembers(m, const_cast<DataMemberList&>(members), const_cast<DataMemberList&>(optionalMembers), true);
     const_cast<VALUE&>(rubyClass) = t;
+    //
+    // Pin the class: the GC cannot see the VALUE stored in this object, so it must never move.
+    //
+    rb_gc_register_mark_object(rubyClass);
     const_cast<bool&>(defined) = true;
 }
 
@@ -2144,9 +2239,9 @@ IceRuby::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
     // attached to the stream keeps a reference to the callback object to ensure it lives
     // long enough.
     //
-    ReadObjectCallbackPtr rocb = new ReadObjectCallback(this, cb, target, closure);
-    StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
+    StreamUtil* util = streamUtil(is);
     assert(util);
+    ReadObjectCallbackPtr rocb = new ReadObjectCallback(this, cb, target, closure, util);
     util->add(rocb);
     is->read(patchObject, rocb.get());
 }
@@ -2166,10 +2261,10 @@ IceRuby::ClassInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObject
     }
     else
     {
-        map<VALUE, int>::iterator q = history->objects.find(value);
-        if(q != history->objects.end())
+        volatile VALUE printedIndex = callRuby(rb_hash_lookup, history->objects, value);
+        if(!NIL_P(printedIndex))
         {
-            out << "<object #" << q->second << ">";
+            out << "<object #" << FIX2INT(printedIndex) << ">";
         }
         else
         {
@@ -2208,7 +2303,7 @@ IceRuby::ClassInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObject
             }
             assert(info);
             out << "object #" << history->index << " (" << info->id << ')';
-            history->objects.insert(map<VALUE, int>::value_type(value, history->index));
+            callRuby(rb_hash_aset, history->objects, value, INT2FIX(history->index));
             ++history->index;
             out.sb();
             info->printMembers(value, out, history);
@@ -2307,6 +2402,10 @@ IceRuby::ProxyInfo::ProxyInfo(VALUE ident) :
     const_cast<string&>(id) = getString(ident);
     const_cast<bool&>(isBase) = id == "::Ice::Object";
     const_cast<VALUE&>(typeObj) = createType(this);
+    //
+    // Pin the type object: the GC cannot see the VALUE stored in this object, so it must never move.
+    //
+    rb_gc_register_mark_object(typeObj);
 }
 
 void
@@ -2328,6 +2427,10 @@ IceRuby::ProxyInfo::define(VALUE t, VALUE b, VALUE i)
     }
 
     const_cast<VALUE&>(rubyClass) = t;
+    //
+    // Pin the class: the GC cannot see the VALUE stored in this object, so it must never move.
+    //
+    rb_gc_register_mark_object(rubyClass);
 }
 
 string
@@ -2364,7 +2467,7 @@ IceRuby::ProxyInfo::variableLength() const
 int
 IceRuby::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat
@@ -2412,7 +2515,7 @@ IceRuby::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
 
     if(!proxy)
     {
-        cb->unmarshaled(Qnil, target, closure);
+        cb->unmarshaled(Qnil, target, closure, streamUtil(is));
         return;
     }
 
@@ -2422,7 +2525,7 @@ IceRuby::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
     }
 
     volatile VALUE p = createProxy(proxy, rubyClass);
-    cb->unmarshaled(p, target, closure);
+    cb->unmarshaled(p, target, closure, streamUtil(is));
 }
 
 void
@@ -2489,10 +2592,6 @@ IceRuby::ProxyInfo::destroy()
 IceRuby::ObjectWriter::ObjectWriter(VALUE object, ObjectMap* objectMap, const ClassInfoPtr& formal) :
     _object(object), _map(objectMap), _formal(formal)
 {
-    //
-    // Mark the object as in use for the lifetime of this wrapper.
-    //
-    rb_gc_register_address(&_object);
     if(!_formal || !_formal->interface)
     {
         volatile VALUE cls = CLASS_OF(object);
@@ -2501,6 +2600,12 @@ IceRuby::ObjectWriter::ObjectWriter(VALUE object, ObjectMap* objectMap, const Cl
         _info = ClassInfoPtr::dynamicCast(getType(type));
         assert(_info);
     }
+
+    //
+    // Mark the object as in use for the lifetime of this wrapper. We register last, in case the code above throws:
+    // the destructor, which unregisters the address, does not run when the constructor throws.
+    //
+    rb_gc_register_address(&_object);
 }
 
 IceRuby::ObjectWriter::~ObjectWriter()
@@ -2734,8 +2839,16 @@ IceRuby::InfoMapDestroyer::~InfoMapDestroyer()
 // ReadObjectCallback implementation.
 //
 IceRuby::ReadObjectCallback::ReadObjectCallback(const ClassInfoPtr& info, const UnmarshalCallbackPtr& cb,
-                                                VALUE target, void* closure) :
-    _info(info), _cb(cb), _target(target), _closure(closure)
+                                                VALUE target, void* closure, StreamUtil* util) :
+    _info(info),
+    _cb(cb),
+    _util(util),
+    //
+    // invoke() can run after the unmarshal frame that created target has returned, and GC compaction
+    // can move target in the meantime; hold it in the stream's holding array and recover it by index.
+    //
+    _targetIndex(util->hold(target)),
+    _closure(closure)
 {
 }
 
@@ -2763,11 +2876,11 @@ IceRuby::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
         // With debug builds we force a GC to ensure that all data members are correctly keep alive.
         rb_gc();
 #endif
-        _cb->unmarshaled(obj, _target, _closure);
+        _cb->unmarshaled(obj, _util->getHeldValue(_targetIndex), _closure, _util);
     }
     else
     {
-        _cb->unmarshaled(Qnil, _target, _closure);
+        _cb->unmarshaled(Qnil, _util->getHeldValue(_targetIndex), _closure, _util);
     }
 }
 
@@ -2826,7 +2939,6 @@ IceRuby::ExceptionInfo::print(VALUE value, IceUtilInternal::Output& out)
     }
 
     PrintObjectHistory history;
-    history.index = 0;
 
     out << "exception " << id;
     out.sb();
@@ -3120,6 +3232,10 @@ IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE preserve, VA
         }
 
         info->rubyClass = type;
+        //
+        // Pin the class: the GC cannot see the VALUE stored in this object, so it must never move.
+        //
+        rb_gc_register_mark_object(type);
 
         addExceptionInfo(info->id, info);
 
@@ -3189,7 +3305,6 @@ IceRuby_stringify(VALUE /*self*/, VALUE obj, VALUE type)
         ostringstream ostr;
         IceUtilInternal::Output out(ostr);
         PrintObjectHistory history;
-        history.index = 0;
         info->print(obj, out, &history);
 
         string str = ostr.str();

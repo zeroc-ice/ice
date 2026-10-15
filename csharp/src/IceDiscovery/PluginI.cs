@@ -133,7 +133,7 @@ namespace IceDiscovery
             {
                 _locatorAdapter.destroy();
             }
-            if(_communicator.getDefaultLocator().Equals(_locator))
+            if(_locator.Equals(_communicator.getDefaultLocator()))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
                 _communicator.setDefaultLocator(_defaultLocator);

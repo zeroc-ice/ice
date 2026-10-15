@@ -67,7 +67,12 @@ public final class HTTPNetworkProxy implements NetworkProxy
         // reading otherwise we're done.
         //
         int end = new HttpParser().isCompleteMessage(buf.b, 0, buf.b.position());
-        if(end < 0 && !buf.b.hasRemaining())
+        if(end >= 0)
+        {
+            return SocketOperation.None;
+        }
+
+        if(!buf.b.hasRemaining())
         {
             //
             // Read one more byte, we can't easily read bytes in advance
@@ -75,16 +80,22 @@ public final class HTTPNetworkProxy implements NetworkProxy
             // the data from the memory instead of the socket.
             //
             buf.resize(buf.size() + 1, true);
-            return SocketOperation.Read;
         }
-        return SocketOperation.None;
+        return SocketOperation.Read;
     }
 
     @Override
     public void finish(Buffer readBuffer, Buffer writeBuffer)
     {
         HttpParser parser = new HttpParser();
-        parser.parse(readBuffer.b, 0, readBuffer.b.position());
+        try
+        {
+            parser.parse(readBuffer.b, 0, readBuffer.b.position());
+        }
+        catch(WebSocketException ex)
+        {
+            throw new Ice.ProtocolException("malformed HTTP proxy response", ex);
+        }
         if(parser.status() != 200)
         {
             throw new Ice.ConnectFailedException();

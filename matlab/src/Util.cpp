@@ -73,20 +73,25 @@ replace(string s, string patt, string val)
 void
 getMajorMinor(mxArray* p, Ice::Byte& major, Ice::Byte& minor)
 {
+    // mxGetProperty returns a copy that the caller owns and must destroy.
     auto maj = mxGetProperty(p, 0, "major");
     assert(maj);
     if(!mxIsScalar(maj))
     {
+        mxDestroyArray(maj);
         throw std::invalid_argument("major is not a scalar");
     }
     major = static_cast<Ice::Byte>(mxGetScalar(maj));
+    mxDestroyArray(maj);
     auto min = mxGetProperty(p, 0, "minor");
     assert(min);
     if(!mxIsScalar(min))
     {
+        mxDestroyArray(min);
         throw std::invalid_argument("minor is not a scalar");
     }
     minor = static_cast<Ice::Byte>(mxGetScalar(min));
+    mxDestroyArray(min);
 }
 
 }
@@ -295,6 +300,8 @@ IceMatlab::createStringMap(const map<string, string>& m)
         params[0] = keys;
         params[1] = values;
         mexCallMATLAB(1, &r, 2, params, "containers.Map");
+        mxDestroyArray(keys);
+        mxDestroyArray(values);
     }
     return r;
 }

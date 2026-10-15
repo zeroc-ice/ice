@@ -42,6 +42,26 @@ class Client < ::TestHelper
         test(properties.getProperty("Config3") == "Config3");
         puts "ok"
 
+        print "testing createProperties with a defaults argument... "
+        # Passing nil for the optional defaults argument behaves like omitting it (no defaults).
+        properties = Ice.createProperties([], nil)
+        properties.setProperty("Foo.Bar", "1")
+        test(properties.getProperty("Foo.Bar") == "1")
+
+        # A real Properties object passed as defaults is honored.
+        defaults = Ice.createProperties()
+        defaults.setProperty("Baz.Qux", "42")
+        properties = Ice.createProperties([], defaults)
+        test(properties.getProperty("Baz.Qux") == "42")
+
+        # A non-nil, non-Properties defaults argument still raises TypeError.
+        begin
+            Ice.createProperties([], "not a properties")
+            test(false)
+        rescue TypeError
+        end
+        puts "ok"
+
         print "testing configuration file escapes... "
         properties = Ice.createProperties(["--Ice.Config=config/escapes.cfg"])
 

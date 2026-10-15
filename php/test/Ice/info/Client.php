@@ -80,6 +80,31 @@ function allTests($helper)
              ($tcpEndpoint->type() == $wsEndpointType && ($endpoint instanceof $wsEndpointInfoClass)) ||
              ($tcpEndpoint->type() == $wssEndpointType && ($endpoint instanceof $wsEndpointInfoClass)));
 
+        //
+        // Endpoint and endpoint info objects wrap native state that a PHP clone cannot copy, so they are not
+        // cloneable. With PHP 5, cloning them is a fatal error.
+        //
+        if(PHP_MAJOR_VERSION >= 7)
+        {
+            try
+            {
+                clone $endps[0];
+                test(false);
+            }
+            catch(Error $ex)
+            {
+            }
+
+            try
+            {
+                clone $tcpEndpoint;
+                test(false);
+            }
+            catch(Error $ex)
+            {
+            }
+        }
+
         $udpEndpoint = $endps[1]->getInfo();
         test($udpEndpoint instanceof $udpEndpointInfoClass);
         test($udpEndpoint->host == "udphost");
@@ -134,10 +159,31 @@ function allTests($helper)
         $connection = $base->ice_getConnection();
         $connection->setBufferSize(1024, 2048);
 
+        //
+        // Connection objects wrap native state that a PHP clone cannot copy, so they are not cloneable.
+        //
+        if(PHP_MAJOR_VERSION >= 7)
+        {
+            try
+            {
+                clone $connection;
+                test(false);
+            }
+            catch(Error $ex)
+            {
+            }
+        }
+
         $info = $connection->getInfo();
         $tcpinfo = getTCPConnectionInfo($info);
         test($tcpinfo instanceof $ipConnectionInfoClass);
         test(!$info->incoming);
+
+        //
+        // Connection info objects are plain data objects, so they can be cloned.
+        //
+        $infoClone = clone $tcpinfo;
+        test($infoClone->incoming === $tcpinfo->incoming && $infoClone->remotePort === $tcpinfo->remotePort);
         test(strlen($info->adapterName) == 0);
         test($tcpinfo->remotePort == $port);
         if($defaultHost == "127.0.0.1")

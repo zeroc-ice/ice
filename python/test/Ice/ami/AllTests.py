@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, threading, random
+import Ice, Test, sys, threading, random, functools
 
 def test(b):
     if not b:
@@ -18,6 +18,14 @@ class PingReplyI(Test.PingReply):
      def checkReceived(self):
          return self._received
 
+
+class ConnectionCallbackI:
+    # A connection callback that is neither a plain function nor a lambda: a bound method and a callable instance.
+    def callback(self, connection):
+        pass
+
+    def __call__(self, connection):
+        pass
 
 class CallbackBase:
     def __init__(self):
@@ -1190,6 +1198,19 @@ def allTests(helper, communicator, collocated):
         #
         cb = CallbackBase()
         con = p.ice_getConnection()
+
+        # setCloseCallback and setHeartbeatCallback accept any callable, and None to clear the callback.
+        for setCallback in [con.setCloseCallback, con.setHeartbeatCallback]:
+            setCallback(functools.partial(lambda c, x: None, x=1))
+            setCallback(ConnectionCallbackI().callback) # a bound method
+            setCallback(ConnectionCallbackI()) # a callable instance
+            setCallback(None)
+            try:
+                setCallback(42)
+                test(False)
+            except ValueError:
+                pass
+
         con.setCloseCallback(lambda con: cb.called())
         f = p.sleepAsync(100)
         con.close(Ice.ConnectionClose.GracefullyWithWait) # Blocks until the request completes.
@@ -1357,6 +1378,34 @@ def allTestsFuture(helper, communicator, collocated):
         test(False)
     except Test.TestIntfException:
         pass
+
+    print("ok")
+
+    sys.stdout.write("testing future timeout... ")
+    sys.stdout.flush()
+
+    # result/exception with a zero or expired timeout must raise TimeoutException
+    # instead of waiting indefinitely.
+    runningFuture = Ice.Future()
+    try:
+        runningFuture.result(0)
+        test(False)
+    except Ice.TimeoutException:
+        pass
+    try:
+        runningFuture.exception(0)
+        test(False)
+    except Ice.TimeoutException:
+        pass
+    try:
+        runningFuture.result(0.01)
+        test(False)
+    except Ice.TimeoutException:
+        pass
+
+    runningFuture.set_result(15)
+    test(runningFuture.result(0) == 15)
+    test(runningFuture.exception(0) is None)
 
     print("ok")
 
@@ -1877,6 +1926,18 @@ def allTestsFuture(helper, communicator, collocated):
         p.ice_ping()
         test(not f1.is_sent() and f1.done())
         test(not f2.is_sent() and f2.done())
+
+        # sent() must not block once the invocation is cancelled before being sent.
+        try:
+            f1.sent(2)
+            test(False)
+        except Ice.InvocationCanceledException:
+            pass
+        try:
+            f2.sent(2)
+            test(False)
+        except Ice.InvocationCanceledException:
+            pass
 
         testController.holdAdapter()
 

@@ -345,6 +345,10 @@ function allTests($helper)
                       eval("return Test_Initial2PrxHelper::uncheckedCast(\$base);");
     $initial2->opVoid(15, "test");
 
+    $p = 15;
+    $r = $initial2->supportsRequiredParams($p);
+    test($r === $initial->supportsRequiredParams() && $p == $none);
+
     echo "ok\n";
 
     echo "testing marshaling of large containers with fixed size elements... ";
@@ -633,6 +637,8 @@ function allTests($helper)
         $p1[$i] = "test1";
     }
     $p3 = $initial->opStringSeq($p1, $p2);
+    test($p2 == $p1 && $p3 == $p1);
+    $p3 = $initial2->opStringSeq(array("test0", "test1"), $p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
     $p3 = $initial->opSmallStructSeq($none, $p2);

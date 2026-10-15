@@ -79,7 +79,13 @@ public:
     void destroyFactories(TSRMLS_D);
 
     const ActiveCommunicatorPtr ac;
-    const zval zv;
+
+    //
+    // The PHP object that wraps this communicator. This is a borrowed reference: the PHP object owns this
+    // CommunicatorInfoI. handleFreeStorage clears this zval when the PHP object is destroyed, and getZval creates a
+    // new PHP object as needed.
+    //
+    zval zv;
 
 private:
 
@@ -970,6 +976,14 @@ static void
 handleFreeStorage(void* p TSRMLS_DC)
 {
     Wrapper<CommunicatorInfoIPtr>* obj = static_cast<Wrapper<CommunicatorInfoIPtr>*>(p);
+    if(obj->ptr)
+    {
+        //
+        // The CommunicatorInfoI can outlive this PHP object (the communicator map of the request holds a reference to
+        // it), so clear its borrowed reference to the object being destroyed.
+        //
+        ZVAL_NULL(&(*obj->ptr)->zv);
+    }
     delete obj->ptr;
     zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
     efree(p);
@@ -2090,6 +2104,25 @@ IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zva
 void
 IcePHP::CommunicatorInfoI::getZval(zval* z TSRMLS_DC)
 {
+    if(Z_TYPE(zv) != IS_OBJECT)
+    {
+        //
+        // The PHP object that wrapped this communicator was destroyed, create a new one for this CommunicatorInfoI.
+        //
+        if(object_init_ex(z, communicatorClassEntry) != SUCCESS)
+        {
+            runtimeError("unable to initialize communicator object" TSRMLS_CC);
+            ZVAL_NULL(z);
+            return;
+        }
+
+        Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(z TSRMLS_CC);
+        assert(!obj->ptr);
+        obj->ptr = new CommunicatorInfoIPtr(this);
+        zv = *z; // This simply copies the object's handle.
+        return;
+    }
+
     Z_TYPE_P(z) = IS_OBJECT;
     z->value.obj = zv.value.obj;
     addRef(TSRMLS_C);
@@ -2105,8 +2138,14 @@ IcePHP::CommunicatorInfoI::addRef(TSRMLS_D)
 void
 IcePHP::CommunicatorInfoI::decRef(TSRMLS_D)
 {
-    zval* p = const_cast<zval*>(&zv);
-    Z_OBJ_HT(zv)->del_ref(p TSRMLS_CC);
+    //
+    // The PHP object is already destroyed if a proxy is destroyed after it during request shutdown.
+    //
+    if(Z_TYPE(zv) == IS_OBJECT)
+    {
+        zval* p = const_cast<zval*>(&zv);
+        Z_OBJ_HT(zv)->del_ref(p TSRMLS_CC);
+    }
 }
 
 Ice::CommunicatorPtr

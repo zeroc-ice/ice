@@ -322,7 +322,12 @@ findCertificates(const string& location, const string& storeName, const string& 
             if((next = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_ANY, 0,
                                                   next)) != 0)
             {
-                certs.push_back(next);
+                //
+                // CertFindCertificateInStore frees the context passed as pPrevCertContext on the next iteration
+                // (and frees the last one when it returns null). Duplicate the context to keep an owned reference
+                // that remains valid after enumeration; these duplicates are released in destroy().
+                //
+                certs.push_back(CertDuplicateCertificateContext(next));
             }
         }
         while(next);
@@ -375,7 +380,12 @@ addCertificatesToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cer
         if(startpos != string::npos)
         {
             endpos = strbuf.find("-----END CERTIFICATE-----", startpos);
-            size = endpos - startpos + sizeof("-----END CERTIFICATE-----");
+            if(endpos == string::npos)
+            {
+                throw PluginInitializationException(__FILE__, __LINE__,
+                                                    "IceSSL: malformed PEM certificate (missing END marker):\n" + file);
+            }
+            size = endpos - startpos + sizeof("-----END CERTIFICATE-----") - 1;
         }
         else if(first)
         {

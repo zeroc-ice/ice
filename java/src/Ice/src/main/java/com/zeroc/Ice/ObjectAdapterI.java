@@ -168,10 +168,10 @@ public final class ObjectAdapterI implements ObjectAdapter
         synchronized(this)
         {
             //
-            // Wait for activation to complete. This is necessary to
-            // not get out of order locator updates.
+            // Wait for activation or a previous deactivation to complete.
+            // This is necessary to avoid out of order locator updates.
             //
-            while(_state == StateActivating)
+            while(_state == StateActivating || _state == StateDeactivating)
             {
                 try
                 {
@@ -228,6 +228,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         synchronized(this)
         {
+            assert(_state == StateDeactivating);
             _state = StateDeactivated;
             notifyAll();
         }

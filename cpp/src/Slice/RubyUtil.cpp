@@ -1338,7 +1338,9 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
             case Slice::Builtin::KindString:
             {
                 // RubyUCN available in Ruby 1.9 or greater
-                _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\x20\x1b", "", EC6UCN, 0) << "\"";
+                // Escape '#' so that '#{', '#@', and '#$' are not interpreted as interpolation in the
+                // double-quoted Ruby string literal.
+                _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\x20\x1b", "#", EC6UCN, 0) << "\"";
                 break;
             }
 

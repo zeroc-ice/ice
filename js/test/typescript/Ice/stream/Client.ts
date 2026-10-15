@@ -67,6 +67,27 @@ export class Client extends TestHelper
         }
 
         {
+            // The InputStream reads from the exact range of a Uint8Array view into a larger buffer.
+            outS = new Ice.OutputStream(communicator);
+            outS.writeInt(0x01020304);
+            const data = outS.finished();
+            const padded = new Uint8Array(data.byteLength + 8);
+            padded.fill(0xff);
+            padded.set(data, 4);
+            inS = new Ice.InputStream(communicator, padded.subarray(4, 4 + data.byteLength));
+            test(inS.readInt() === 0x01020304);
+            try
+            {
+                inS.readByte(); // no data remains within the view's range
+                test(false);
+            }
+            catch(ex)
+            {
+                test(ex instanceof Ice.UnmarshalOutOfBoundsException, ex);
+            }
+        }
+
+        {
             outS = new Ice.OutputStream(communicator);
             outS.writeBool(true);
             const data = outS.finished();
@@ -605,6 +626,58 @@ export class Client extends TestHelper
             test(dict2.size == dict.size);
             test(dict2.get("key1").s.e == Test.MyEnum.enum2);
             test(dict2.get("key2").s.e == Test.MyEnum.enum3);
+        }
+        out.writeLine("ok");
+
+        out.write("testing skipEncapsulation... ");
+        {
+            outS = new Ice.OutputStream(communicator);
+            outS.startEncapsulation();
+            outS.writeInt(42);
+            outS.endEncapsulation();
+            const data = outS.finished();
+
+            // A well-formed encapsulation is skipped, advancing to its end and returning the encoding it was
+            // written with.
+            inS = new Ice.InputStream(communicator, data);
+            const encoding = inS.skipEncapsulation();
+            test(encoding.equals(outS.getEncoding()));
+            test(inS.pos === data.length);
+
+            // An encapsulation whose declared size exceeds the remaining buffer must be rejected.
+            const bogus = data.slice();
+            new DataView(bogus.buffer, bogus.byteOffset, bogus.byteLength).setInt32(0, data.length + 100, true);
+
+            inS = new Ice.InputStream(communicator, bogus);
+            try
+            {
+                inS.skipEncapsulation();
+                test(false);
+            }
+            catch(ex)
+            {
+                test(ex instanceof Ice.UnmarshalOutOfBoundsException, ex);
+            }
+        }
+        out.writeLine("ok");
+
+        out.write("testing skip with a negative size... ");
+        {
+            outS = new Ice.OutputStream(communicator);
+            outS.writeInt(42);
+            const data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            test(inS.readInt() === 42);
+            try
+            {
+                inS.skip(-4);
+                test(false);
+            }
+            catch(ex)
+            {
+                test(ex instanceof Ice.UnmarshalOutOfBoundsException, ex);
+            }
+            test(inS.pos === data.length);
         }
         out.writeLine("ok");
     }

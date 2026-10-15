@@ -150,5 +150,33 @@ public class Client extends test.TestHelper
             test(IceUtilInternal.StringUtil.splitString("a\"b", ":") == null);
         }
         System.out.println("ok");
+
+        System.out.print("checking string matching... ");
+        System.out.flush();
+        {
+            test(IceUtilInternal.StringUtil.match("foo", "foo", false));
+            test(!IceUtilInternal.StringUtil.match("foo", "bar", false));
+
+            test(IceUtilInternal.StringUtil.match("foobar", "foo*", false));
+            test(!IceUtilInternal.StringUtil.match("foobar", "baz*", false));
+
+            // A wildcard must match at least one character unless emptyMatch is true.
+            test(!IceUtilInternal.StringUtil.match("foo", "foo*", false));
+            test(IceUtilInternal.StringUtil.match("foo", "foo*", true));
+
+            test(IceUtilInternal.StringUtil.match("foobar", "*bar", false));
+            test(!IceUtilInternal.StringUtil.match("foobar", "*baz", false));
+            test(!IceUtilInternal.StringUtil.match("bar", "*bar", false));
+            test(IceUtilInternal.StringUtil.match("bar", "*bar", true));
+
+            test(IceUtilInternal.StringUtil.match("fooXXXbar", "foo*bar", false));
+            test(!IceUtilInternal.StringUtil.match("fooXXXbaz", "foo*bar", false));
+            test(!IceUtilInternal.StringUtil.match("foobar", "foo*bar", false));
+            test(IceUtilInternal.StringUtil.match("foobar", "foo*bar", true));
+
+            test(IceUtilInternal.StringUtil.match("a", "*", false));
+            test(IceUtilInternal.StringUtil.match("foobar", "*", false));
+        }
+        System.out.println("ok");
     }
 }

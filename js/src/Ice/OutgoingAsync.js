@@ -65,6 +65,7 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         this._cnt = 0;
         this._sent = false;
         this._handler = null;
+        this._timeoutToken = undefined;
     }
 
     completedEx(ex)
@@ -165,21 +166,35 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         this._sent = true;
         if(done)
         {
-            if(this._timeoutToken)
-            {
-                this._instance.timer().cancel(this._timeoutToken);
-            }
+            this.cancelTimeoutToken();
         }
         super.markSent.call(this, done);
     }
 
+    markFinished(ok, completed)
+    {
+        this.cancelTimeoutToken();
+        super.markFinished.call(this, ok, completed);
+    }
+
     markFinishedEx(ex)
     {
-        if(this._timeoutToken)
-        {
-            this._instance.timer().cancel(this._timeoutToken);
-        }
+        this.cancelTimeoutToken();
         super.markFinishedEx.call(this, ex);
+    }
+
+    cancelTimeoutToken()
+    {
+        //
+        // 0 is a valid token. Clear it before calling timer(), which throws once the communicator is destroyed,
+        // so that a completion path running after that throw finds the token cleared and does nothing.
+        //
+        if(this._timeoutToken !== undefined)
+        {
+            const token = this._timeoutToken;
+            this._timeoutToken = undefined;
+            this._instance.timer().cancel(token);
+        }
     }
 
     handleException(ex)
@@ -570,7 +585,18 @@ class ConnectionFlushBatch extends OutgoingAsyncBase
         }
         catch(ex)
         {
-            this.completedEx(ex);
+            if(ex instanceof RetryException)
+            {
+                //
+                // If the connection is closed and sendAsyncRequest throws a RetryException, we complete this
+                // invocation with the underlying exception.
+                //
+                this.completedEx(ex.inner);
+            }
+            else
+            {
+                this.completedEx(ex);
+            }
         }
     }
 }

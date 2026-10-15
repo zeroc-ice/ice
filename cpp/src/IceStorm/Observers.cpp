@@ -103,11 +103,21 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
                 out << "error calling init on " << p->id << ", exception: " << ex;
             }
-            throw;
+
+            IceUtil::Mutex::Lock reapedLock(_reapedMutex);
+            _reaped.push_back(p->id);
         }
     }
 
-    for(vector<ObserverInfo>::iterator p = observers.begin(); p != observers.end(); ++p)
+    //
+    // Like the replicated update operations (see wait()), the initialization proceeds as long as a majority of the
+    // slaves succeeds: a slave whose init fails is evicted and reported as reaped, and the node removes it from the
+    // group on its next check(). Failing the whole initialization instead would make every election fail when a
+    // single reachable replica persistently cannot apply the initial state (for example on a local database write
+    // error), keeping the group from ever reaching the normal state.
+    //
+    vector<ObserverInfo>::iterator p = observers.begin();
+    while(p != observers.end())
     {
         try
         {
@@ -121,8 +131,25 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
                 out << "init on " << p->id << " failed with exception " << ex;
             }
-            throw;
+            int id = p->id;
+            p = observers.erase(p);
+
+            IceUtil::Mutex::Lock reapedLock(_reapedMutex);
+            _reaped.push_back(id);
+            continue;
         }
+        ++p;
+    }
+
+    // If we don't have the majority of observers we raise.
+    if(observers.size() < _majority)
+    {
+        if(_traceLevels->replication > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
+            out << "number of observers '" << observers.size() << "' is less than the majority '" << _majority << "'";
+        }
+        throw Ice::UnknownException(__FILE__, __LINE__, "too few observers");
     }
 
     _observers.swap(observers);
