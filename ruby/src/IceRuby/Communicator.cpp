@@ -28,8 +28,9 @@ static CommunicatorMap _communicatorMap;
 
 extern "C"
 void
-IceRuby_Communicator_mark(Ice::CommunicatorPtr* p)
+IceRuby_Communicator_mark(void* data)
 {
+    Ice::CommunicatorPtr* p = static_cast<Ice::CommunicatorPtr*>(data);
     assert(p);
     try
     {
@@ -45,11 +46,34 @@ IceRuby_Communicator_mark(Ice::CommunicatorPtr* p)
 
 extern "C"
 void
-IceRuby_Communicator_free(Ice::CommunicatorPtr* p)
+IceRuby_Communicator_free(void* data)
 {
+    Ice::CommunicatorPtr* p = static_cast<Ice::CommunicatorPtr*>(data);
     assert(p);
     delete p;
 }
+
+extern "C"
+void
+IceRuby_Communicator_compact(void* data)
+{
+    //
+    // Keep the map entry pointing at the wrapper's current location when GC compaction moves it.
+    //
+    Ice::CommunicatorPtr* p = static_cast<Ice::CommunicatorPtr*>(data);
+    CommunicatorMap::iterator q = _communicatorMap.find(*p);
+    if(q != _communicatorMap.end())
+    {
+        q->second = rb_gc_location(q->second);
+    }
+}
+
+//
+// The communicator wrapper is typed data because only typed data can provide a compaction callback (dcompact).
+// The structure is zero-initialized and its functions are set by initCommunicator: the layout of the reserved
+// fields differs between Ruby versions, so it is not initialized with an aggregate initializer.
+//
+static rb_data_type_t _communicatorType;
 
 namespace
 {
@@ -280,8 +304,8 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         }
         delete[] av;
 
-        VALUE result = Data_Wrap_Struct(_communicatorClass, IceRuby_Communicator_mark,
-                                        IceRuby_Communicator_free, new Ice::CommunicatorPtr(communicator));
+        VALUE result = TypedData_Wrap_Struct(_communicatorClass, &_communicatorType,
+                                             new Ice::CommunicatorPtr(communicator));
 
         CommunicatorMap::iterator p = _communicatorMap.find(communicator);
         if(p != _communicatorMap.end())
@@ -743,6 +767,11 @@ IceRuby_Communicator_flushBatchRequests(VALUE self, VALUE compress)
 void
 IceRuby::initCommunicator(VALUE iceModule)
 {
+    _communicatorType.wrap_struct_name = "Ice::Communicator";
+    _communicatorType.function.dmark = IceRuby_Communicator_mark;
+    _communicatorType.function.dfree = IceRuby_Communicator_free;
+    _communicatorType.function.dcompact = IceRuby_Communicator_compact;
+
     rb_define_module_function(iceModule, "initialize", CAST_METHOD(IceRuby_initialize), -1);
     rb_define_module_function(iceModule, "identityToString", CAST_METHOD(IceRuby_identityToString), -1);
     rb_define_module_function(iceModule, "stringToIdentity", CAST_METHOD(IceRuby_stringToIdentity), 1);
