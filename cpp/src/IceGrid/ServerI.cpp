@@ -2836,6 +2836,16 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
     _state = st;
 
     //
+    // Wake up the threads waiting for the server to leave the Activating state (adapterDeactivated() and
+    // terminated()). The successful activation path notifies explicitly in activate(), but the activation
+    // failure path (Activating -> Deactivating -> Inactive) would otherwise never notify them.
+    //
+    if(previous == Activating && _state != Activating)
+    {
+        notifyAll();
+    }
+
+    //
     // Check if some commands are done.
     //
     bool loadFailure = false;
