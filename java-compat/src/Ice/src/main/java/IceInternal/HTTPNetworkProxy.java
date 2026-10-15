@@ -88,7 +88,14 @@ public final class HTTPNetworkProxy implements NetworkProxy
     public void finish(Buffer readBuffer, Buffer writeBuffer)
     {
         HttpParser parser = new HttpParser();
-        parser.parse(readBuffer.b, 0, readBuffer.b.position());
+        try
+        {
+            parser.parse(readBuffer.b, 0, readBuffer.b.position());
+        }
+        catch(WebSocketException ex)
+        {
+            throw new Ice.ProtocolException("malformed HTTP proxy response", ex);
+        }
         if(parser.status() != 200)
         {
             throw new Ice.ConnectFailedException();
