@@ -492,7 +492,7 @@ IcePatch2Internal::readDirectory(const string& pa)
 #else
 
     struct dirent **namelist;
-    int n = scandir(path.c_str(), &namelist, 0, alphasort);
+    int n = scandir(path.c_str(), &namelist, 0, 0);
 
     if(n < 0)
     {
@@ -517,6 +517,13 @@ IcePatch2Internal::readDirectory(const string& pa)
     }
 
     free(namelist);
+
+    //
+    // Sort byte-wise like the Windows branch above. IceGrid combines this list with byte-wise sorted ranges
+    // (std::set_difference), which requires a consistent ordering; alphasort uses the locale-dependent strcoll,
+    // which can disagree.
+    //
+    sort(result.begin(), result.end());
     return result;
 
 #endif
