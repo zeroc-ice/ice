@@ -35,6 +35,11 @@ interface Initial2
     //
     optional(1) StringSeq opStringSeq(optional(0) StringSeq p0, optional(2) StringSeq p1,
                                       out optional(3) StringSeq p3);
+
+    //
+    // A required return value combined with an optional(0) out parameter, which the server never sets.
+    //
+    bool supportsRequiredParams(out optional(0) int p);
 }
 
 }
