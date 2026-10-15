@@ -23,9 +23,16 @@ class WSPingTestCase(ClientServerTestCase):
         return current.config.buildPlatform not in ["iphonesimulator", "iphoneos"]
 
     def runClientSide(self, current):
-        current.write("testing WebSocket zero-length ping/pong... ")
-        if ping_pong(current.host, current.driver.getTestPort(0), b"") != b"":
+        current.write("testing WebSocket ping/pong control frames... ")
+        host = current.host
+        port = current.driver.getTestPort(0)
+        if ping_pong(host, port, b"") != b"":
             raise RuntimeError("zero-length ping: server did not return an empty pong")
+        # The probe masks its ping payload; the server must unmask it and echo it back unchanged (RFC 6455 5.5.3).
+        payload = b"ice ping payload \x00\x01\x02\xfe\xff"
+        echoed = ping_pong(host, port, payload)
+        if echoed != payload:
+            raise RuntimeError("ping payload not echoed verbatim: sent {0!r}, got {1!r}".format(payload, echoed))
         current.writeln("ok")
 
 class InfoTestSuite(TestSuite):
