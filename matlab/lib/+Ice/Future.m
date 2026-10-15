@@ -80,8 +80,9 @@ classdef Future < IceInternal.WrapperObject
             %     completed successfully or exceptionally.
             %   timeout (double) - If provided, wait blocks up to the given
             %     number of seconds while waiting for the future to reach the
-            %     desired state. If the timeout is negative or not provided,
-            %     wait blocks indefinitely.
+            %     desired state. If the timeout is negative, infinite, or not
+            %     provided, wait blocks indefinitely. NaN is not a valid
+            %     timeout value.
             %
             % Returns (logical) - True if the future reached the desired state,
             %   false if the future has not reached the desired state or an
