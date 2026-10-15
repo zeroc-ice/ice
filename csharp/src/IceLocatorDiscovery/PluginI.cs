@@ -61,8 +61,8 @@ namespace IceLocatorDiscovery
             }
             else
             {
-                Debug.Assert(_exception != null);
-                throw _exception;
+                Debug.Assert(_exception != null); // Don't retry if the proxy didn't change
+                SetException(_exception);
             }
         }
 
