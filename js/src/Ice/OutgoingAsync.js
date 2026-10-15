@@ -570,7 +570,18 @@ class ConnectionFlushBatch extends OutgoingAsyncBase
         }
         catch(ex)
         {
-            this.completedEx(ex);
+            if(ex instanceof RetryException)
+            {
+                //
+                // If the connection is closed and sendAsyncRequest throws a RetryException, we complete this
+                // invocation with the underlying exception.
+                //
+                this.completedEx(ex.inner);
+            }
+            else
+            {
+                this.completedEx(ex);
+            }
         }
     }
 }

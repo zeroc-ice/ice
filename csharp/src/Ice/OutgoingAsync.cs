@@ -1366,6 +1366,15 @@ namespace IceInternal
                     con.sendAsyncRequest(flushBatch, comp, false, batchRequestNum);
                 }
             }
+            catch(RetryException ex)
+            {
+                //
+                // If the connection is closed and sendAsyncRequest throws a RetryException, we release the use count
+                // taken above and rethrow the underlying exception to the caller.
+                //
+                check(false);
+                throw ex.get();
+            }
             catch(Ice.LocalException)
             {
                 check(false);
