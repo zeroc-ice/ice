@@ -63,11 +63,37 @@ IceBT::TransceiverI::closing(bool initiator, const Ice::LocalException&)
 void
 IceBT::TransceiverI::close()
 {
-    if(_connection)
+    //
+    // Close the connection without holding _lock: ConnectionI::close() blocks (it makes a
+    // DisconnectProfile D-Bus call and closes the D-Bus connection). Close it even if closing
+    // the stream fails.
+    //
+    ConnectionPtr connection;
+    try
     {
-        _connection->close();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        //
+        // Flag the transceiver as closed so a connection completion that races this call
+        // closes the late-delivered fd instead of installing it.
+        //
+        _closed = true;
+        connection = _connection;
+        _connection = 0;
+        _stream->close();
     }
-    _stream->close();
+    catch(...)
+    {
+        if(connection)
+        {
+            connection->close();
+        }
+        throw;
+    }
+
+    if(connection)
+    {
+        connection->close();
+    }
 }
 
 IceInternal::SocketOperation
@@ -148,7 +174,8 @@ IceBT::TransceiverI::TransceiverI(const InstancePtr& instance, const StreamSocke
     _stream(stream),
     _connection(conn),
     _uuid(uuid),
-    _needConnect(false)
+    _needConnect(false),
+    _closed(false)
 {
 }
 
@@ -157,7 +184,8 @@ IceBT::TransceiverI::TransceiverI(const InstancePtr& instance, const string& add
     _stream(new StreamSocket(instance, INVALID_SOCKET)),
     _addr(addr),
     _uuid(uuid),
-    _needConnect(true)
+    _needConnect(true),
+    _closed(false)
 {
 }
 
@@ -168,13 +196,28 @@ IceBT::TransceiverI::~TransceiverI()
 void
 IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-    _connection = conn;
-    _stream->setFd(fd);
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        if(!_closed)
+        {
+            _connection = conn;
+            _stream->setFd(fd);
+            //
+            // Triggers a call to write() from a different thread.
+            //
+            _stream->ready(IceInternal::SocketOperationConnect, true);
+            return;
+        }
+    }
+
     //
-    // Triggers a call to write() from a different thread.
+    // The transceiver was already closed before the connection completed. We must not install the fd into the
+    // abandoned stream (nothing would ever close it), so close the socket here instead. We deliberately don't close
+    // 'conn': we run on the connection's own D-Bus thread, where a blocking close would deadlock. This leaks the
+    // connection's D-Bus connection and thread, but only on the rare race between an aborted outgoing connection and
+    // its completion.
     //
-    _stream->ready(IceInternal::SocketOperationConnect, true);
+    IceInternal::closeSocketNoThrow(fd);
 }
 
 void
