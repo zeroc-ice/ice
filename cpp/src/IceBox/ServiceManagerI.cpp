@@ -76,7 +76,7 @@ struct StartServiceInfo
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) :
     _communicator(communicator),
     _adminEnabled(false),
-    _pendingStatusChanges(false),
+    _pendingStatusChanges(0),
     _traceServiceObserver(0)
 {
 #ifndef ICE_CPP11_MAPPING
@@ -150,7 +150,7 @@ IceBox::ServiceManagerI::startService(ICE_IN(string) name, const Current&)
         {
             throw NoSuchServiceException();
         }
-        _pendingStatusChanges = true;
+        ++_pendingStatusChanges;
     }
 
     bool started = false;
@@ -192,7 +192,7 @@ IceBox::ServiceManagerI::startService(ICE_IN(string) name, const Current&)
                 break;
             }
         }
-        _pendingStatusChanges = false;
+        --_pendingStatusChanges;
         notifyAll();
     }
 }
@@ -226,7 +226,7 @@ IceBox::ServiceManagerI::stopService(ICE_IN(string) name, const Current&)
         {
             throw NoSuchServiceException();
         }
-        _pendingStatusChanges = true;
+        ++_pendingStatusChanges;
     }
 
     bool stopped = false;
@@ -268,7 +268,7 @@ IceBox::ServiceManagerI::stopService(ICE_IN(string) name, const Current&)
                 break;
             }
         }
-        _pendingStatusChanges = false;
+        --_pendingStatusChanges;
         notifyAll();
     }
 }
@@ -747,7 +747,7 @@ IceBox::ServiceManagerI::stopAll()
     //
     // First wait for any active startService/stopService calls to complete.
     //
-    while(_pendingStatusChanges)
+    while(_pendingStatusChanges > 0)
     {
         wait();
     }
