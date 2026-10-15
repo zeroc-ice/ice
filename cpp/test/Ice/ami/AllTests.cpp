@@ -814,6 +814,28 @@ public:
 };
 typedef IceUtil::Handle<CloseCallback> CloseCallbackPtr;
 
+class ReenterCloseCallback : public Ice::CloseCallback
+{
+public:
+
+    ReenterCloseCallback(const Ice::ConnectionPtr& connection) : _connection(connection)
+    {
+    }
+
+    virtual ~ReenterCloseCallback()
+    {
+        _connection->getInfo();
+    }
+
+    virtual void closed(const Ice::ConnectionPtr&)
+    {
+    }
+
+private:
+
+    const Ice::ConnectionPtr _connection;
+};
+
 class Thrower : public CallbackBase
 {
 public:
@@ -2242,6 +2264,47 @@ allTests(Test::TestHelper* helper, bool collocated)
             }
         }
         cout << "ok" << endl;
+
+        if(p->ice_getConnection() && protocol != "bt")
+        {
+            cout << "testing close callback replacement... " << flush;
+            {
+                //
+                // Replacing a close callback destroys the callback it replaces. That destructor can run user code
+                // (a language mapping may attach a finalizer to the callback), and that code may call back into the
+                // connection. It must therefore not run while the connection's mutex is held. This test deadlocks
+                // if it does.
+                //
+                struct Reenter
+                {
+                    explicit Reenter(const Ice::ConnectionPtr& con) : connection(con)
+                    {
+                    }
+
+                    ~Reenter()
+                    {
+                        static_cast<void>(connection->getInfo());
+                    }
+
+                    Ice::ConnectionPtr connection;
+                };
+
+                auto con = p->ice_connectionId("CloseCallbackReplacement")->ice_getConnection();
+                {
+                    //
+                    // The lambda is the sole owner of the Reenter object once owner goes out of scope, so replacing
+                    // the callback below destroys it. A std::function may copy the callable and destroy the copy
+                    // when it is moved or swapped (libc++ does so for callables stored inline), which only adjusts
+                    // the reference count here.
+                    //
+                    auto owner = make_shared<Reenter>(con);
+                    con->setCloseCallback([owner](const Ice::ConnectionPtr&) {});
+                }
+                con->setCloseCallback(nullptr); // destroys the previous callback, and with it the Reenter object
+                con->close(Ice::ConnectionClose::GracefullyWithWait);
+            }
+            cout << "ok" << endl;
+        }
 
         if(p->ice_getConnection() && protocol != "bt" && p->supportsAMD())
         {
@@ -4014,6 +4077,24 @@ allTests(Test::TestHelper* helper, bool collocated)
 
     if(p->ice_getConnection() && protocol != "bt")
     {
+        cout << "testing close callback replacement... " << flush;
+        {
+            //
+            // Replacing a close callback destroys the callback it replaces. That destructor can run user code
+            // (a language mapping may attach a finalizer to the callback), and that code may call back into the
+            // connection. It must therefore not run while the connection's mutex is held. This test deadlocks if
+            // it does.
+            //
+            Ice::ConnectionPtr con = p->ice_connectionId("CloseCallbackReplacement")->ice_getConnection();
+
+            // The connection holds the only reference to the callback, so replacing it below destroys it.
+            con->setCloseCallback(new ReenterCloseCallback(con));
+
+            con->setCloseCallback(0); // destroys the previous callback, which calls back into the connection
+            con->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        }
+        cout << "ok" << endl;
+
         cout << "testing graceful close connection with wait... " << flush;
         {
             //

@@ -1071,6 +1071,12 @@ Ice::ConnectionI::setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)) c
 void
 Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
 {
+    //
+    // Holds the callback this call replaces. It is declared before the lock so that it is destroyed after the lock
+    // is released: destroying a callback can run arbitrary code (a language mapping may attach a finalizer to it),
+    // and that code can call back into this connection, which would deadlock on the non-recursive connection mutex.
+    //
+    ICE_DELEGATE(CloseCallback) previous;
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
     {
@@ -1109,6 +1115,11 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
     }
     else
     {
+        //
+        // Swap rather than assign: with the C++11 mapping, assigning over _closeCallback would release the replaced
+        // callable, and with it the last reference to what it captured, here under the lock.
+        //
+        previous.swap(_closeCallback);
         _closeCallback = callback;
     }
 }
