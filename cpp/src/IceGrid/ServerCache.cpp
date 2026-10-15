@@ -737,21 +737,28 @@ void
 ServerEntry::waitImpl(int timeout)
 {
     Lock sync(*this);
-    if(timeout != 0)
+    if(timeout > 0)
+    {
+        //
+        // Wait until a single deadline: the monitor is shared with Allocatable and is also notified by allocation
+        // state changes, so waiting for the full timeout again after each wakeup could extend the wait well past
+        // the timeout.
+        //
+        const IceUtil::Time deadline = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(timeout);
+        while(_synchronizing)
+        {
+            IceUtil::Time remaining = deadline - IceUtil::Time::now(IceUtil::Time::Monotonic);
+            if(remaining <= IceUtil::Time() || !timedWait(remaining))
+            {
+                break; // Timeout
+            }
+        }
+    }
+    else if(timeout < 0)
     {
         while(_synchronizing)
         {
-            if(timeout > 0)
-            {
-                if(!timedWait(IceUtil::Time::seconds(timeout)))
-                {
-                    break; // Timeout
-                }
-            }
-            else
-            {
-                wait();
-            }
+            wait();
         }
     }
     if(_synchronizing) // If we are still synchronizing, throw SynchronizationException
