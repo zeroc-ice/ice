@@ -66,7 +66,16 @@ struct CommunicatorObject
     IceUtil::Monitor<IceUtil::Mutex>* shutdownMonitor;
     WaitForShutdownThreadPtr* shutdownThread;
     bool shutdown;
+
+    //
+    // Extra references to the Python-owning wrappers stored in the communicator's InitializationData. They ensure
+    // the final release of each wrapper - which releases Python objects - happens in communicatorDealloc with the
+    // GIL held, and not in the Instance destructor, which can run without the GIL.
+    //
     DispatcherPtr* dispatcher;
+    LoggerWrapperPtr* logger;
+    ThreadHookPtr* threadHook;
+    BatchRequestInterceptorPtr* batchRequestInterceptor;
 };
 
 }
@@ -89,6 +98,9 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->shutdownThread = 0;
     self->shutdown = false;
     self->dispatcher = 0;
+    self->logger = 0;
+    self->threadHook = 0;
+    self->batchRequestInterceptor = 0;
     return self;
 }
 
@@ -206,6 +218,9 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     Ice::InitializationData data;
     DispatcherPtr dispatcherWrapper;
+    LoggerWrapperPtr loggerWrapper;
+    ThreadHookPtr threadHookWrapper;
+    BatchRequestInterceptorPtr batchRequestInterceptorWrapper;
 
     try
     {
@@ -231,12 +246,14 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
             if(logger.get())
             {
-                data.logger = new LoggerWrapper(logger.get());
+                loggerWrapper = new LoggerWrapper(logger.get());
+                data.logger = loggerWrapper;
             }
 
             if(threadHook.get() || threadStart.get() || threadStop.get())
             {
-                data.threadHook = new ThreadHook(threadHook.get(), threadStart.get(), threadStop.get());
+                threadHookWrapper = new ThreadHook(threadHook.get(), threadStart.get(), threadStop.get());
+                data.threadHook = threadHookWrapper;
             }
 
             if(dispatcher.get())
@@ -247,7 +264,8 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
             if(batchRequestInterceptor.get())
             {
-                data.batchRequestInterceptor = new BatchRequestInterceptor(batchRequestInterceptor.get());
+                batchRequestInterceptorWrapper = new BatchRequestInterceptor(batchRequestInterceptor.get());
+                data.batchRequestInterceptor = batchRequestInterceptorWrapper;
             }
         }
 
@@ -355,6 +373,21 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         dispatcherWrapper->setCommunicator(communicator);
     }
 
+    if(loggerWrapper)
+    {
+        self->logger = new LoggerWrapperPtr(loggerWrapper);
+    }
+
+    if(threadHookWrapper)
+    {
+        self->threadHook = new ThreadHookPtr(threadHookWrapper);
+    }
+
+    if(batchRequestInterceptorWrapper)
+    {
+        self->batchRequestInterceptor = new BatchRequestInterceptorPtr(batchRequestInterceptorWrapper);
+    }
+
     return 0;
 }
 
@@ -383,6 +416,15 @@ communicatorDealloc(CommunicatorObject* self)
     delete self->communicator;
     delete self->shutdownMonitor;
     delete self->shutdownThread;
+
+    //
+    // Keep these after the communicator release above: they ensure the last release of each wrapper - which
+    // releases Python objects - runs here with the GIL held, and not in the Instance destructor.
+    //
+    delete self->dispatcher;
+    delete self->logger;
+    delete self->threadHook;
+    delete self->batchRequestInterceptor;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
