@@ -102,17 +102,22 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os,
                                       const Ice::ObjectPrxPtr& proxy,
                                       const std::string& operation)
 {
-    //
-    // No need for synchronization, no other threads are supposed
-    // to modify the queue since we set _batchStreamInUse to true.
-    //
-    assert(_batchStreamInUse);
-    _batchStream.swap(*os);
+    {
+        //
+        // Bring the request stream back and become the owner so this thread's own auto-flush below can re-enter
+        // swap(). swap() lets only _batchStreamOwner through while the stream is in use, and only after passing
+        // that gate does it read the queue's bookkeeping; no other thread can touch the queue, so the mutations
+        // below need no further synchronization.
+        //
+        Lock sync(*this);
+        assert(_batchStreamInUse);
+        _batchStream.swap(*os);
+        _batchStreamCanFlush = true;
+        _batchStreamOwner = IceUtil::ThreadControl();
+    }
 
     try
     {
-        _batchStreamCanFlush = true; // Allow flush to proceed even if the stream is marked in use.
-
         if(_maxSize > 0 && _batchStream.b.size() >= _maxSize)
         {
 #ifdef ICE_CPP11_MAPPING
@@ -149,8 +154,13 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os,
         _batchStreamCanFlush = false;
         notifyAll();
     }
-    catch(const std::exception&)
+    catch(...)
     {
+        //
+        // Restore the queue to a usable state on any exception, including a non-std::exception escaping the
+        // interceptor. Otherwise _batchStreamInUse would stay set and all future prepareBatchRequest/swap calls
+        // would block forever.
+        //
         Lock sync(*this);
         _batchStream.resize(_batchMarker);
         _batchStreamInUse = false;
@@ -177,12 +187,17 @@ int
 BatchRequestQueue::swap(OutputStream* os, bool& compress)
 {
     Lock sync(*this);
+
+    waitStreamInUse(true);
+
+    //
+    // Read the bookkeeping only after waitStreamInUse: finishBatchRequest mutates it without the lock while it
+    // owns the in-use stream, so reading _batchRequestNum before the wait would race those writes.
+    //
     if(_batchRequestNum == 0)
     {
         return 0;
     }
-
-    waitStreamInUse(true);
 
     vector<Ice::Byte> lastRequest;
     if(_batchMarker < _batchStream.b.size())
@@ -230,7 +245,11 @@ BatchRequestQueue::isEmpty()
 void
 BatchRequestQueue::waitStreamInUse(bool flush)
 {
-    while(_batchStreamInUse && !(flush && _batchStreamCanFlush))
+    //
+    // Only the thread that currently owns the in-use stream may bypass the wait to run its own auto-flush; every
+    // other caller waits for the in-progress batch request to finish.
+    //
+    while(_batchStreamInUse && !(flush && _batchStreamCanFlush && _batchStreamOwner == IceUtil::ThreadControl()))
     {
         wait();
     }
