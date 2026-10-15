@@ -223,7 +223,12 @@ namespace IceInternal
             // reading otherwise we're done.
             //
             int end = new HttpParser().isCompleteMessage(buf.b, 0, buf.b.position());
-            if(end < 0 && !buf.b.hasRemaining())
+            if(end >= 0)
+            {
+                return SocketOperation.None;
+            }
+
+            if(!buf.b.hasRemaining())
             {
                 //
                 // Read one more byte, we can't easily read bytes in advance
@@ -231,9 +236,8 @@ namespace IceInternal
                 // the data from the memory instead of the socket.
                 //
                 buf.resize(buf.size() + 1, true);
-                return SocketOperation.Read;
             }
-            return SocketOperation.None;
+            return SocketOperation.Read;
         }
 
         public void finish(Buffer readBuffer, Buffer writeBuffer)
