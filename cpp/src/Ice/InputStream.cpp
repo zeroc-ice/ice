@@ -325,7 +325,8 @@ Ice::InputStream::skipEncapsulation()
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    if(i - sizeof(Int) + sz > b.end())
+    // sz includes the 4 bytes of the size itself, which we have already read.
+    if(sz - 4 > b.end() - i)
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
