@@ -1036,6 +1036,13 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
 {
     IceUtil::Mutex::Lock sync(_subscribersMutex);
 
+    // Ignore updates for a destroyed topic: its records were removed from the database, so storing a subscriber
+    // record would leave an orphaned record that recreates the topic on restart.
+    if(_destroyed)
+    {
+        return;
+    }
+
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topic > 0)
     {
