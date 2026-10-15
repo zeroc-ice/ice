@@ -1360,10 +1360,27 @@ export async function run(communicator:Ice.Communicator, prx:Test.MyClassPrx, bi
         test(Ice.MapUtil.equals(ic.getImplicitContext().getContext(), ctx));
         test(Ice.MapUtil.equals(await p3.opContext(), ctx));
 
-        test(ic.getImplicitContext().containsKey("zero") == false);
-        const r = ic.getImplicitContext().put("zero", "ZERO");
-        test(r === undefined);
-        test(ic.getImplicitContext().get("zero") == "ZERO");
+        const implicitContext = ic.getImplicitContext();
+        test(implicitContext.containsKey("zero") == false);
+        test(implicitContext.get("zero") === "");
+        const r = implicitContext.put("zero", "ZERO");
+        test(r === "");
+        test(implicitContext.get("zero") == "ZERO");
+        test(implicitContext.put("zero", "ZERO-2") === "ZERO");
+        test(implicitContext.remove("zero") === "ZERO-2");
+        test(implicitContext.remove("zero") === "");
+        test(implicitContext.put("zero", "ZERO") === "");
+
+        // A null or undefined key is normalized to the empty-string key.
+        test(implicitContext.containsKey(null) == false);
+        test(implicitContext.containsKey(undefined) == false);
+        test(implicitContext.put(undefined, "EMPTY") === "");
+        test(implicitContext.containsKey(null) == true);
+        test(implicitContext.containsKey(undefined) == true);
+        test(implicitContext.get(null) === "EMPTY");
+        test(implicitContext.get(undefined) === "EMPTY");
+        test(implicitContext.remove(undefined) === "EMPTY");
+        test(implicitContext.containsKey("") == false);
 
         ctx = ic.getImplicitContext().getContext();
         test(Ice.MapUtil.equals(await p3.opContext(), ctx));
