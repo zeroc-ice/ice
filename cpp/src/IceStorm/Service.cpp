@@ -157,8 +157,8 @@ ServiceI::start(
         _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, 0);
         try
         {
-            TransientTopicManagerImplPtr manager = new TransientTopicManagerImpl(_instance);
-            _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(manager, topicManagerId));
+            _transientManager = new TransientTopicManagerImpl(_instance);
+            _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(_transientManager, topicManagerId));
         }
         catch(const Ice::Exception& ex)
         {
@@ -418,8 +418,8 @@ ServiceI::start(const CommunicatorPtr& communicator,
 
     try
     {
-        TransientTopicManagerImplPtr manager = new TransientTopicManagerImpl(_instance);
-        _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(manager, id));
+        _transientManager = new TransientTopicManagerImpl(_instance);
+        _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(_transientManager, id));
     }
     catch(const Ice::Exception& ex)
     {
