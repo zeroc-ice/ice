@@ -91,6 +91,12 @@ namespace Ice
                 test(fm[""] == obj3);
                 output.WriteLine("ok");
 
+                output.Write("testing findAllFacets... ");
+                adapter.addFacet(obj1, Ice.Util.stringToIdentity("id3"), "");
+                test(adapter.findAllFacets(Ice.Util.stringToIdentity("id3")).Count == 1);
+                test(adapter.findAllFacets(Ice.Util.stringToIdentity("nonexistent")).Count == 0);
+                output.WriteLine("ok");
+
                 adapter.deactivate();
 
                 output.Write("testing stringToProxy... ");

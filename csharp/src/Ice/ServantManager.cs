@@ -198,8 +198,8 @@ public sealed class ServantManager
         {
             Debug.Assert(_instance != null); // Must not be called after destruction.
 
-            Dictionary<string, Ice.Object> m = _servantMapMap[ident];
-            if(m != null)
+            Dictionary<string, Ice.Object> m;
+            if(_servantMapMap.TryGetValue(ident, out m))
             {
                 return new Dictionary<string, Ice.Object>(m);
             }
