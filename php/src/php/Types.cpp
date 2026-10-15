@@ -1607,7 +1607,7 @@ IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     array_init(&zv);
     AutoDestroy destroy(&zv);
 
-    Ice::Int sz = is->readSize();
+    Ice::Int sz = is->readAndCheckSeqSize(elementType->wireSize());
     for(Ice::Int i = 0; i < sz; ++i)
     {
 #ifdef _MSC_VER
@@ -2734,7 +2734,7 @@ IcePHP::ProxyInfo::variableLength() const
 int
 IcePHP::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat
