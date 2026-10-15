@@ -104,7 +104,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             {
                 throw new NoSuchServiceException();
             }
-            _pendingStatusChanges = true;
+            ++_pendingStatusChanges;
         }
 
         boolean started = false;
@@ -143,7 +143,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     break;
                 }
             }
-            _pendingStatusChanges = false;
+            --_pendingStatusChanges;
             notifyAll();
         }
     }
@@ -177,7 +177,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             {
                 throw new NoSuchServiceException();
             }
-            _pendingStatusChanges = true;
+            ++_pendingStatusChanges;
         }
 
         boolean stopped = false;
@@ -216,7 +216,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     break;
                 }
             }
-            _pendingStatusChanges = false;
+            --_pendingStatusChanges;
             notifyAll();
         }
     }
@@ -777,7 +777,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         //
         // First wait for any active startService/stopService calls to complete.
         //
-        while(_pendingStatusChanges)
+        while(_pendingStatusChanges > 0)
         {
             try
             {
@@ -1174,7 +1174,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
     private Ice.Logger _logger;
     private String[] _argv; // Filtered server argument vector
     private java.util.List<ServiceInfo> _services = new java.util.LinkedList<ServiceInfo>();
-    private boolean _pendingStatusChanges = false;
+    private int _pendingStatusChanges = 0;
     private Ice.Callback _observerCompletedCB;
     private java.util.HashSet<ServiceObserverPrx> _observers = new java.util.HashSet<ServiceObserverPrx>();
     private int _traceServiceObserver = 0;
