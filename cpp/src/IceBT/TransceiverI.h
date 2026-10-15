@@ -51,6 +51,7 @@ private:
     std::string _addr;
     std::string _uuid;
     bool _needConnect;
+    bool _closed;
     IceInternal::UniquePtr<Ice::Exception> _exception;
     IceUtil::Monitor<IceUtil::Mutex> _lock;
 
