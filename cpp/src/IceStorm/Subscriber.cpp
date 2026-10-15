@@ -810,6 +810,11 @@ Subscriber::error(bool dec, const Ice::Exception& e)
     IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
     if(!hardError && _state == SubscriberStateOffline && now < _next)
     {
+        // _outstanding was decremented above, so wake a waiting shutdown() like the other exit paths do.
+        if(_shutdown)
+        {
+            _lock.notify();
+        }
         return;
     }
 
