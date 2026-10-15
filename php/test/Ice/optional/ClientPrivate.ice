@@ -29,6 +29,12 @@ interface Initial2
     void opClassAndUnknownOptional(A p, optional(1) Object o);
 
     void opVoid(optional(1) int a, optional(2) string v);
+
+    //
+    // The server doesn't know the p0 parameter, so it must skip it using its encoded size.
+    //
+    optional(1) StringSeq opStringSeq(optional(0) StringSeq p0, optional(2) StringSeq p1,
+                                      out optional(3) StringSeq p3);
 }
 
 }
