@@ -634,6 +634,8 @@ function allTests($helper)
     }
     $p3 = $initial->opStringSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
+    $p3 = $initial2->opStringSeq(array("test0", "test1"), $p1, $p2);
+    test($p2 == $p1 && $p3 == $p1);
 
     $p3 = $initial->opSmallStructSeq($none, $p2);
     test($p2 == $none && $p3 == $none);
