@@ -36,6 +36,12 @@ Timer::Timer(int priority) :
 void
 Timer::destroy()
 {
+    //
+    // Destroy the tasks after the lock is released and the timer thread joined: a task's destructor can re-enter the
+    // timer via cancel(), which would deadlock while _monitor is locked.
+    //
+    set<Token> tokens;
+    map<TimerTaskPtr, IceUtil::Time, TimerTaskCompare> tasks;
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         if(_destroyed)
@@ -44,8 +50,8 @@ Timer::destroy()
         }
         _destroyed = true;
         _monitor.notify();
-        _tasks.clear();
-        _tokens.clear();
+        tasks.swap(_tasks);
+        tokens.swap(_tokens);
     }
 
     if(getThreadControl() == ThreadControl())
