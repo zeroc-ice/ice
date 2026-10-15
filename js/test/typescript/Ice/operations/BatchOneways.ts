@@ -7,7 +7,7 @@ import {Test} from "./generated";
 import {TestHelper} from "../../../Common/TestHelper";
 const test = TestHelper.test;
 
-export async function run(communicator:Ice.Communicator, prx:Test.MyClassPrx, bidir:boolean)
+export async function run(communicator:Ice.Communicator, prx:Test.MyClassPrx, bidir:boolean, helper:TestHelper)
 {
     const bs1 = new Uint8Array(10 * 1024);
     for(let i = 0; i < bs1.length; ++i)
@@ -67,4 +67,26 @@ export async function run(communicator:Ice.Communicator, prx:Test.MyClassPrx, bi
     batch.ice_ping();
     await batch.ice_flushBatchRequests();
     await batch.ice_ping();
+
+    // Nothing listens on this endpoint.
+    const unreachable = Test.MyClassPrx.uncheckedCast(
+        communicator.stringToProxy("test:" + helper.getTestEndpoint(1)).ice_batchOneway());
+
+    // Filling the batch past Ice.BatchAutoFlushSize triggers an auto-flush that cannot connect. It fails silently:
+    // the batched requests are lost, like any other oneway, and the failure is not reported to the caller that
+    // happened to fill the batch.
+    for(let i = 0; i < 11; ++i)
+    {
+        await unreachable.opByteSOneway(bs1);
+    }
+    try
+    {
+        // This flush fails the same way; by the time it does, the auto-flush above has settled too.
+        await unreachable.ice_flushBatchRequests();
+        test(false);
+    }
+    catch(ex)
+    {
+        test(ex instanceof Ice.LocalException, ex);
+    }
 }
