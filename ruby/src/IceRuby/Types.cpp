@@ -2489,10 +2489,6 @@ IceRuby::ProxyInfo::destroy()
 IceRuby::ObjectWriter::ObjectWriter(VALUE object, ObjectMap* objectMap, const ClassInfoPtr& formal) :
     _object(object), _map(objectMap), _formal(formal)
 {
-    //
-    // Mark the object as in use for the lifetime of this wrapper.
-    //
-    rb_gc_register_address(&_object);
     if(!_formal || !_formal->interface)
     {
         volatile VALUE cls = CLASS_OF(object);
@@ -2501,6 +2497,12 @@ IceRuby::ObjectWriter::ObjectWriter(VALUE object, ObjectMap* objectMap, const Cl
         _info = ClassInfoPtr::dynamicCast(getType(type));
         assert(_info);
     }
+
+    //
+    // Mark the object as in use for the lifetime of this wrapper. We register last, in case the code above throws:
+    // the destructor, which unregisters the address, does not run when the constructor throws.
+    //
+    rb_gc_register_address(&_object);
 }
 
 IceRuby::ObjectWriter::~ObjectWriter()
