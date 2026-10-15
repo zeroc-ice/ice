@@ -311,23 +311,41 @@ ReplicaSessionManager::create(const string& name,
 void
 ReplicaSessionManager::create(const InternalRegistryPrx& replica)
 {
+    ThreadPtr thread;
     {
         Lock sync(*this);
-        while(!_master) // Wait to be initialized.
+
+        //
+        // Wait until the session manager is initialized or destroyed. _master can't be used for this since it's set
+        // by the constructor; _thread is set by the other create() overload once the slave registry is ready.
+        //
+        while(!_thread && _communicator)
         {
             wait();
         }
+
+        if(!_thread)
+        {
+            return; // Destroyed before the initialization completed.
+        }
+
+        //
+        // destroy() clears _thread, keep a reference for the calls below.
+        //
+        thread = _thread;
     }
+
+    assert(_master); // A slave always has a default locator (enforced by RegistryI::startImpl).
 
     if(replica->ice_getIdentity() != _master->ice_getIdentity())
     {
-        _database->getTraceLevels()->logger->error("can only create sessions with the master replica");
+        _traceLevels->logger->error("can only create sessions with the master replica");
         return;
     }
 
-    _thread->setRegistry(replica);
-    _thread->tryCreateSession();
-    _thread->waitTryCreateSession();
+    thread->setRegistry(replica);
+    thread->tryCreateSession();
+    thread->waitTryCreateSession();
 }
 
 NodePrxSeq
@@ -365,6 +383,11 @@ ReplicaSessionManager::destroy()
         _thread = 0;
 
         _communicator = 0;
+
+        //
+        // Wake up a create(replica) call waiting for the initialization, so that it returns instead of hanging.
+        //
+        notifyAll();
     }
 
     if(thread)
