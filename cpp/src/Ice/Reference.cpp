@@ -1516,7 +1516,13 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     {
         return true;
     }
+#ifdef ICE_CPP11_MAPPING
+    else if(lexicographical_compare(rhs->_endpoints.begin(), rhs->_endpoints.end(),
+                                    _endpoints.begin(), _endpoints.end(),
+                                    Ice::TargetCompare<shared_ptr<EndpointI>, std::less>()))
+#else
     else if(rhs->_endpoints < _endpoints)
+#endif
     {
         return false;
     }
