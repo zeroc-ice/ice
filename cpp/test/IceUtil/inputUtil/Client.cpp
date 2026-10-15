@@ -114,6 +114,70 @@ Client::run(int, char**)
 
     cout << "ok" << endl;
 
+    cout << "testing command line parsing... " << flush;
+    {
+        // The argument of a required-argument option can be attached to the option or provided as the next
+        // argument.
+        Options opts;
+        opts.addOpt("d");
+        opts.addOpt("I", "", Options::NeedArg, "", Options::Repeat);
+
+        const char* argv[] = { "prog", "-I", "dir1", "-Idir2", "a.ice" };
+        Options::StringVector remaining = opts.parse(5, argv);
+        test(!opts.isSet("d"));
+        Options::StringVector dirs = opts.argVec("I");
+        test(dirs.size() == 2 && dirs[0] == "dir1" && dirs[1] == "dir2");
+        test(remaining.size() == 1 && remaining[0] == "a.ice");
+    }
+    {
+        // A required-argument option at the end of a short option cluster takes the next argument as its
+        // argument.
+        Options opts;
+        opts.addOpt("d");
+        opts.addOpt("v");
+        opts.addOpt("I", "", Options::NeedArg, "", Options::Repeat);
+
+        const char* argv[] = { "prog", "-dvI", "dir1", "a.ice" };
+        Options::StringVector remaining = opts.parse(4, argv);
+        test(opts.isSet("d"));
+        test(opts.isSet("v"));
+        Options::StringVector dirs = opts.argVec("I");
+        test(dirs.size() == 1 && dirs[0] == "dir1");
+        test(remaining.size() == 1 && remaining[0] == "a.ice");
+    }
+    {
+        // A required-argument option in the middle of a short option cluster takes the rest of the cluster as
+        // its argument.
+        Options opts;
+        opts.addOpt("d");
+        opts.addOpt("I", "", Options::NeedArg, "", Options::Repeat);
+
+        const char* argv[] = { "prog", "-dIdir1", "a.ice" };
+        Options::StringVector remaining = opts.parse(3, argv);
+        test(opts.isSet("d"));
+        Options::StringVector dirs = opts.argVec("I");
+        test(dirs.size() == 1 && dirs[0] == "dir1");
+        test(remaining.size() == 1 && remaining[0] == "a.ice");
+    }
+    {
+        // A required-argument option with no argument is an error, including at the end of a short option
+        // cluster.
+        Options opts;
+        opts.addOpt("d");
+        opts.addOpt("I", "", Options::NeedArg, "", Options::Repeat);
+
+        const char* argv[] = { "prog", "-dI" };
+        try
+        {
+            opts.parse(2, argv);
+            test(false);
+        }
+        catch(const BadOptException&)
+        {
+        }
+    }
+    cout << "ok" << endl;
+
     cout << "testing string to command line arguments... " << flush;
     vector<string> args;
 
