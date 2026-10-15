@@ -1533,32 +1533,32 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
     }
 
+    //
+    // An optional sequence with variable-length elements is encoded with an FSize: startSize() reserves the size and
+    // endSize() patches it, so both calls must depend on the same condition.
+    //
+    const bool fSize = optional && elementType->variableLength();
+
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if(fSize)
     {
-        if(elementType->variableLength())
-        {
-            sizePos = os->startSize();
-        }
-        else if(elementType->wireSize() > 1)
-        {
-            os->writeSize(sz == 0 ? 1 : sz * elementType->wireSize() + (sz > 254 ? 5 : 1));
-        }
+        sizePos = os->startSize();
+    }
+    else if(optional && elementType->wireSize() > 1)
+    {
+        os->writeSize(sz == 0 ? 1 : sz * elementType->wireSize() + (sz > 254 ? 5 : 1));
     }
 
     if(sz == 0)
     {
         os->writeSize(0);
     }
+    else if(PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType))
+    {
+        marshalPrimitiveSequence(pi, zv, os);
+    }
     else
     {
-        PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
-        if(pi)
-        {
-            marshalPrimitiveSequence(pi, zv, os);
-            return;
-        }
-
         os->writeSize(sz);
 
         zval* val;
@@ -1574,7 +1574,7 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         ZEND_HASH_FOREACH_END();
     }
 
-    if(optional && elementType->variableLength())
+    if(fSize)
     {
         os->endSize(sizePos);
     }
