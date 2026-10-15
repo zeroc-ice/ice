@@ -52,6 +52,24 @@ class InvalidSequenceFactoryException
 {
 };
 
+//
+// Converting a finite double outside the float range to float is undefined behavior; infinity and NaN are valid
+// float values.
+//
+bool
+isValidFloat(double val)
+{
+#if defined(_MSC_VER) && (_MSC_VER <= 1700)
+    if(!_finite(val))
+#else
+    if(!isfinite(val))
+#endif
+    {
+        return true;
+    }
+    return val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max();
+}
+
 }
 
 namespace IcePy
@@ -830,8 +848,8 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
         {
             if(PyLong_Check(p))
             {
-                PyLong_AsDouble(p); // Just to see if it raises an error.
-                if(PyErr_Occurred())
+                double val = PyLong_AsDouble(p);
+                if(PyErr_Occurred() || !isValidFloat(val))
                 {
                     return false;
                 }
@@ -849,14 +867,7 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
         }
         else
         {
-            // Ensure double does not exceed maximum float value before casting
-            double val = PyFloat_AsDouble(p);
-            return (val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max()) ||
-#if defined(_MSC_VER) && (_MSC_VER <= 1700)
-                !_finite(val);
-#else
-                !isfinite(val);
-#endif
+            return isValidFloat(PyFloat_AsDouble(p));
         }
 
         break;
@@ -2221,7 +2232,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 throw AbortMarshaling();
             }
 
-            float val = static_cast<float>(PyFloat_AsDouble(item));
+            double val = PyFloat_AsDouble(item);
             if(PyErr_Occurred())
             {
                 PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<float>"),
@@ -2229,7 +2240,15 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 throw AbortMarshaling();
             }
 
-            seq[static_cast<size_t>(i)] = val;
+            if(!isValidFloat(val))
+            {
+                PyErr_Format(PyExc_ValueError,
+                             STRCAST("invalid value for element %d of sequence<float>: out of range"),
+                             static_cast<int>(i));
+                throw AbortMarshaling();
+            }
+
+            seq[static_cast<size_t>(i)] = static_cast<float>(val);
         }
         os->write(seq);
         break;
