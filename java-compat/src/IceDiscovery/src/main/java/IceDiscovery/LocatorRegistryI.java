@@ -64,7 +64,7 @@ class LocatorRegistryI extends Ice._LocatorRegistryDisp
                 s.remove(adapterId);
                 if(s.isEmpty())
                 {
-                    _replicaGroups.remove(adapterId);
+                    _replicaGroups.remove(replicaGroupId);
                 }
             }
         }
