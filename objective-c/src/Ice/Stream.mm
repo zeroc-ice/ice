@@ -849,7 +849,17 @@ private:
     NSMutableData* ret = 0;
     try
     {
-        int count = is_->readSize();
+        //
+        // Bound the count by the remaining data before allocating: an enumerator is encoded as a size with
+        // the 1.1 encoding, and as a byte, short or int (depending on max, as in InputStream::readEnum) with
+        // the 1.0 encoding.
+        //
+        int minWireSize = 1;
+        if(is_->getEncoding() == Ice::Encoding_1_0)
+        {
+            minWireSize = max < 127 ? 1 : (max < 32767 ? 2 : 4);
+        }
+        int count = is_->readAndCheckSeqSize(minWireSize);
         if((ret = [[NSMutableData alloc] initWithLength:static_cast<NSUInteger>(count) * ENUM_SIZE]) == 0)
         {
             return ret;
