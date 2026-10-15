@@ -25,6 +25,13 @@ class ParamInfo : public IceUtil::Shared
 {
 public:
 
+    ParamInfo() :
+        optional(false),
+        tag(-1), // A non-optional parameter or return value has no tag.
+        pos(0)
+    {
+    }
+
     TypeInfoPtr type;
     bool optional;
     int tag;
@@ -589,7 +596,10 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret,
         ParamInfoPtr info = *p;
 
         ResultCallbackPtr cb = new ResultCallback;
-        if(_op->returnType && info->tag == _op->returnType->tag)
+        //
+        // An optional return value is represented in optionalOutParams by the returnType ParamInfo object itself.
+        //
+        if(info.get() == _op->returnType.get())
         {
             retCallback = cb;
         }
