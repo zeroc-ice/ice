@@ -34,8 +34,13 @@ class IceStormDbExportImportTestCase(IceStormTestCase):
     def runClientSide(self, current):
         testdir = current.testsuite.getPath()
 
+        # Topic names of different lengths: the marshaled key byte-order (which sorts by the
+        # length prefix first) differs from the service's decoded key comparator, so an imported
+        # database is only searchable if it was built with that same comparator.
+        topicNames = ["a", "xx", "short", "mediumname", "verylongtopicname"]
+
         current.write("creating topics... ")
-        self.runadmin(current, "create topic1 topic2 topic3")
+        self.runadmin(current, "create " + " ".join(topicNames))
         current.writeln("ok")
 
         # Shut down IceStorm to release the LMDB lock.
@@ -79,9 +84,25 @@ class IceStormDbExportImportTestCase(IceStormTestCase):
             self.icestorm[0].start(current)
 
             output = self.runadmin(current, "topics", quiet=True)
-            for topic in ["topic1", "topic2", "topic3"]:
-                if topic not in output:
+            for topic in topicNames:
+                if topic not in output.split():
                     raise RuntimeError("expected '{0}' in topics, got: {1}".format(topic, output))
+            current.writeln("ok")
+
+            # Destroy every topic and restart: destroy performs a keyed lookup of the topic's
+            # placeholder record, which only succeeds if the imported database is ordered with the
+            # service's key comparator. Otherwise the lookup misses, the records survive, and the
+            # topic resurrects on restart.
+            current.write("destroying topics and verifying they stay destroyed... ")
+            self.runadmin(current, "destroy " + " ".join(topicNames))
+            self.shutdown(current)
+            self.icestorm[0].stop(current, True)
+
+            self.icestorm[0].start(current)
+            output = self.runadmin(current, "topics", quiet=True)
+            for topic in topicNames:
+                if topic in output.split():
+                    raise RuntimeError("topic '{0}' resurrected after destroy: {1}".format(topic, output))
 
             self.shutdown(current)
             self.icestorm[0].stop(current, True)

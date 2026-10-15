@@ -9,6 +9,7 @@
 #include <Ice/ConsoleUtil.h>
 #include <IceDB/IceDB.h>
 #include <IceStorm/DBTypes.h>
+#include <IceStorm/Util.h>
 #include <fstream>
 
 using namespace std;
@@ -165,6 +166,7 @@ run(const Ice::StringSeq& args)
         dbContext.communicator = communicator;
         dbContext.encoding.major = 1;
         dbContext.encoding.minor = 1;
+        IceStormInternal::setKeyComparatorCommunicator(communicator);
 
         if(import)
         {
@@ -253,7 +255,8 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
-                    subscriberMap(txn, "subscribers", dbContext, MDB_CREATE);
+                    subscriberMap(txn, "subscribers", dbContext, MDB_CREATE,
+                                  IceStormInternal::compareSubscriberRecordKey);
 
                 for(IceStorm::SubscriberRecordDict::const_iterator q = data.subscribers.begin(); q != data.subscribers.end(); ++q)
                 {
@@ -304,7 +307,8 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
-                    subscriberMap(txn, "subscribers", dbContext, 0);
+                    subscriberMap(txn, "subscribers", dbContext, 0,
+                                  IceStormInternal::compareSubscriberRecordKey);
 
                 IceStorm::SubscriberRecordKey key;
                 IceStorm::SubscriberRecord record;
@@ -339,6 +343,12 @@ run(const Ice::StringSeq& args)
             }
             fs.write(reinterpret_cast<const char*>(stream.b.begin()), static_cast<streamsize>(stream.b.size()));
             fs.close();
+            if(fs.fail())
+            {
+                consoleErr << args[0] << ": could not write output file: " << IceUtilInternal::errorToString(errno)
+                           << endl;
+                return 1;
+            }
         }
     }
     catch(const IceUtil::Exception& ex)
