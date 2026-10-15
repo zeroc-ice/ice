@@ -622,7 +622,15 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret,
     {
         assert(Z_ISREF(args[i]));
         zval* arg = Z_REFVAL_P(&args[i]);
+        //
+        // Release the value that the by-reference out argument already holds, otherwise a reused variable leaks its
+        // previous value. Like a PHP assignment, release it only after storing the new value: releasing it can run
+        // a destructor that accesses this variable.
+        //
+        zval previous;
+        ZVAL_COPY_VALUE(&previous, arg);
         ZVAL_COPY(arg, &(*q)->zv);
+        zval_ptr_dtor(&previous);
     }
 
     if(_op->returnType)
