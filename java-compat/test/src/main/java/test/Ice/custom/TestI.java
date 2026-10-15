@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.nio.IntBuffer;
@@ -15,6 +16,7 @@ import java.nio.LongBuffer;
 import java.nio.FloatBuffer;
 import java.nio.DoubleBuffer;
 
+import test.Ice.custom.Test.AMD_TestIntf_opAMDSortedD;
 import test.Ice.custom.Test.BoolSeqHolder;
 import test.Ice.custom.Test.ByteSeqHolder;
 import test.Ice.custom.Test.C;
@@ -22,6 +24,8 @@ import test.Ice.custom.Test.CArrayHolder;
 import test.Ice.custom.Test.CListHolder;
 import test.Ice.custom.Test.CSeqHolder;
 import test.Ice.custom.Test.DSeqHolder;
+import test.Ice.custom.Test.DictClass;
+import test.Ice.custom.Test.DictException;
 import test.Ice.custom.Test.DoubleSeqHolder;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.ESeqHolder;
@@ -223,6 +227,30 @@ public final class TestI extends _TestIntfDisp
         inSeq.get(arr);
         outSeq.value = DoubleBuffer.wrap(arr);
         return DoubleBuffer.wrap(arr);
+    }
+
+    @Override
+    public DictClass
+    opDictClass(DictClass c, Ice.Current current)
+    {
+        return c;
+    }
+
+    @Override
+    public void
+    throwDictException(Map<Integer, String> d, Ice.Current current)
+        throws DictException
+    {
+        DictException ex = new DictException();
+        ex.sortedD = new TreeMap<Integer, String>(d);
+        throw ex;
+    }
+
+    @Override
+    public void
+    opAMDSortedD_async(AMD_TestIntf_opAMDSortedD cb, Map<Integer, String> d, Ice.Current current)
+    {
+        cb.ice_response(new TreeMap<Integer, String>(d));
     }
 
     @Override
