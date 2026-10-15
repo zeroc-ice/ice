@@ -197,8 +197,18 @@ public:
 
     virtual void reap(const Ice::IdentitySeq& ids, const Ice::Current& /*current*/)
     {
+        // A subscriber identity cannot be empty; an empty identity would instead match the key of the
+        // topic's placeholder record and remove the topic from the database.
+        for(Ice::IdentitySeq::const_iterator p = ids.begin(); p != ids.end(); ++p)
+        {
+            if(p->name.empty())
+            {
+                throw Ice::IllegalIdentityException(__FILE__, __LINE__, *p);
+            }
+        }
+
         NodeIPtr node = _instance->node();
-        if(!node->updateMaster(__FILE__, __LINE__))
+        if(node && !node->updateMaster(__FILE__, __LINE__))
         {
             throw ReapWouldBlock();
         }
