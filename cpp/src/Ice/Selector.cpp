@@ -1379,6 +1379,12 @@ Selector::finish(EventHandler* handler, bool closeNow)
 void
 Selector::ready(EventHandler* handler, SocketOperation status, bool value)
 {
+    //
+    // Hold the selector lock across the read-modify-write of handler->_ready. The run-loop thread reads _ready
+    // with this lock held (in startSelect/finishSelect, via EventHandlerWrapper), so updating it without the lock
+    // would be a data race.
+    //
+    Lock sync(*this);
     if(((handler->_ready & status) != 0) == value)
     {
         return; // Nothing to do if ready state already correctly set.
@@ -1393,7 +1399,6 @@ Selector::ready(EventHandler* handler, SocketOperation status, bool value)
         handler->_ready = static_cast<SocketOperation>(handler->_ready & ~status);
     }
 
-    Lock sync(*this);
     std::map<EventHandler*, EventHandlerWrapperPtr>::iterator p = _wrappers.find(handler);
     assert(p != _wrappers.end());
     p->second->checkReady();
