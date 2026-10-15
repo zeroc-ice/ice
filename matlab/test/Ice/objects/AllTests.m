@@ -8,6 +8,15 @@ classdef AllTests
             import Test.*;
 
             communicator = helper.communicator();
+
+            fprintf('testing references to instances in non-sequential order... ');
+            AllTests.testNonSequentialReferences(communicator);
+            fprintf('ok\n');
+
+            fprintf('testing reference to a missing instance with a large index... ');
+            AllTests.testMissingInstanceWithLargeIndex(communicator);
+            fprintf('ok\n');
+
             ref = ['initial:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);
             initial = InitialPrx.checkedCast(base);
@@ -328,6 +337,62 @@ classdef AllTests
             fprintf('ok\n');
 
             r = initial;
+        end
+
+        function testNonSequentialReferences(communicator)
+            % An encoding 1.0 message that references instances 3 and then 2 but only supplies instance 3 is rejected
+            % with MarshalException, and the reference to instance 3 is patched.
+            encoding = Ice.EncodingVersion(1, 0);
+            os = Ice.OutputStream(communicator, encoding);
+            os.startEncapsulation([]);
+            os.writeInt(-3); % Reference to instance 3.
+            os.writeInt(-2); % Reference to instance 2.
+            os.writeSize(1); % One pending instance.
+            os.writeInt(3);
+            os.writeBool(false); % Type ID encoded as a string.
+            os.writeString(Test.Empty.ice_staticId());
+            os.writeInt(4); % Slice size, no data members.
+            os.writeBool(false);
+            os.writeString(Ice.Value.ice_staticId());
+            os.writeInt(5);
+            os.writeSize(0); % Empty facet map of the Ice::Object slice.
+            os.writeSize(0); % No more pending instances.
+            os.endEncapsulation();
+
+            is = Ice.InputStream(communicator, encoding, os.finished());
+            is.startEncapsulation();
+            holder = IceInternal.ValueHolder();
+            is.readValue(@(v) holder.set(v), 'Ice.Value');
+            is.readValue(@(v) assert(false), 'Ice.Value');
+            try
+                is.readPendingValues();
+                assert(false);
+            catch ex
+                assert(isa(ex, 'Ice.MarshalException'));
+                assert(strcmp(ex.reason, 'index for class received, but no instance'));
+            end
+            assert(isa(holder.value, 'Test.Empty'));
+        end
+
+        function testMissingInstanceWithLargeIndex(communicator)
+            % An encoding 1.0 reference to an instance that the sender never supplies is rejected with
+            % MarshalException, regardless of how large the instance index is.
+            encoding = Ice.EncodingVersion(1, 0);
+            os = Ice.OutputStream(communicator, encoding);
+            os.startEncapsulation([]);
+            os.writeInt(-intmax('int32')); % Reference to instance index 2^31 - 1.
+            os.writeSize(0); % No pending instances.
+            os.endEncapsulation();
+
+            is = Ice.InputStream(communicator, encoding, os.finished());
+            is.startEncapsulation();
+            try
+                is.readValue(@(v) assert(false), 'Ice.Value');
+                is.readPendingValues();
+                assert(false);
+            catch ex
+                assert(isa(ex, 'Ice.MarshalException'));
+            end
         end
     end
 end

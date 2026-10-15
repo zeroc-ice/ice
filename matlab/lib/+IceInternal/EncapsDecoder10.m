@@ -19,7 +19,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 num = obj.is.readSize();
             end
 
-            if obj.patchMapLength > 0
+            if obj.patchMap.Count > 0
                 %
                 % If any entries remain in the patch map, the sender has sent an index for an object, but failed
                 % to supply the object.
@@ -251,8 +251,8 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             %
             obj.classGraphDepth = 0;
 
-            if index <= length(obj.patchMap)
-                pl = obj.patchMap{index};
+            if isKey(obj.patchMap, index)
+                pl = obj.patchMap(index);
                 for i = 1:length(pl)
                     entry = pl{i};
                     classGraphDepth = entry.classGraphDepth;
