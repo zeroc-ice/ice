@@ -84,17 +84,21 @@ public class BatchRequestQueue
     public void
     finishBatchRequest(Ice.OutputStream os, Ice.ObjectPrx proxy, String operation)
     {
-        //
-        // No need for synchronization, no other threads are supposed
-        // to modify the queue since we set _batchStreamInUse to true.
-        //
-        assert(_batchStreamInUse);
-        _batchStream.swap(os);
+        synchronized(this)
+        {
+            //
+            // Bring the request stream back and become the owner so this thread's own auto-flush below can
+            // re-enter swap(). swap() lets only _batchStreamOwner through while the stream is in use, and only
+            // after passing that gate does it read the queue's bookkeeping; no other thread can touch the queue,
+            // so the mutations below need no further synchronization.
+            //
+            assert(_batchStreamInUse);
+            _batchStream.swap(os);
+            _batchStreamOwner = Thread.currentThread();
+        }
 
         try
         {
-            _batchStreamCanFlush = true; // Allow flush to proceed even if the stream is marked in use.
-
             if(_maxSize > 0 && _batchStream.size() >= _maxSize)
             {
                 proxy.begin_ice_flushBatchRequests(); // Auto flush
@@ -123,7 +127,7 @@ public class BatchRequestQueue
             {
                 _batchStream.resize(_batchMarker);
                 _batchStreamInUse = false;
-                _batchStreamCanFlush = false;
+                _batchStreamOwner = null;
                 notifyAll();
             }
         }
@@ -144,12 +148,16 @@ public class BatchRequestQueue
     synchronized public int
     swap(Ice.OutputStream os, Ice.BooleanHolder compress)
     {
+        waitStreamInUse(true);
+
+        //
+        // Read the bookkeeping only after waitStreamInUse: finishBatchRequest mutates it without the lock while it
+        // owns the in-use stream, so reading _batchRequestNum before the wait would race those writes.
+        //
         if(_batchRequestNum == 0)
         {
             return 0;
         }
-
-        waitStreamInUse(true);
 
         byte[] lastRequest = null;
         if(_batchMarker < _batchStream.size())
@@ -203,8 +211,11 @@ public class BatchRequestQueue
         // to be interrupted. Instead the interrupted status is saved and
         // restored.
         //
+        // Only the thread that currently owns the in-use stream may bypass the wait to run its own auto-flush;
+        // every other caller waits for the in-progress batch request to finish.
+        //
         boolean interrupted = false;
-        while(_batchStreamInUse && !(flush && _batchStreamCanFlush))
+        while(_batchStreamInUse && !(flush && _batchStreamOwner == Thread.currentThread()))
         {
             try
             {
@@ -239,7 +250,14 @@ public class BatchRequestQueue
     private Ice.BatchRequestInterceptor _interceptor;
     private Ice.OutputStream _batchStream;
     private boolean _batchStreamInUse;
-    private boolean _batchStreamCanFlush;
+
+    //
+    // While finishBatchRequest holds the in-use stream, this is its thread: the only thread allowed to re-enter
+    // swap() (for its own auto-flush). A null owner means no thread may flush the in-use stream, so other threads
+    // wait for _batchStreamInUse to clear.
+    //
+    private Thread _batchStreamOwner;
+
     private int _batchRequestNum;
     private int _batchMarker;
     private boolean _batchCompress;
