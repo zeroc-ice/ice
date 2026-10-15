@@ -3996,6 +3996,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleTypeInfoAlloc;
     typeInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_typeInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _typeInfoHandlers.clone_obj = 0;
     _typeInfoHandlers.free_obj = handleTypeInfoFreeStorage;
     _typeInfoHandlers.offset = XtOffsetOf(Wrapper<TypeInfoPtr>, zobj);
 
@@ -4006,6 +4008,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleExceptionInfoAlloc;
     exceptionInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_exceptionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _exceptionInfoHandlers.clone_obj = 0;
     _exceptionInfoHandlers.free_obj = handleExceptionInfoFreeStorage;
     _exceptionInfoHandlers.offset = XtOffsetOf(Wrapper<ExceptionInfoPtr>, zobj);
 

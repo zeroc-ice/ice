@@ -4074,6 +4074,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleTypeInfoAlloc;
     typeInfoClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
     memcpy(&_typeInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _typeInfoHandlers.clone_obj = 0;
 
     //
     // Register the IcePHP_ExceptionInfo class.
@@ -4082,6 +4084,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleExceptionInfoAlloc;
     exceptionInfoClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
     memcpy(&_exceptionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _exceptionInfoHandlers.clone_obj = 0;
 
 #ifdef ICEPHP_USE_NAMESPACES
     REGISTER_NS_STRING_CONSTANT("Ice", "None", const_cast<char*>(_unsetGUID.c_str()), CONST_CS|CONST_PERSISTENT);
