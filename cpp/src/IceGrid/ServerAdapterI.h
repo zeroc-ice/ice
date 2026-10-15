@@ -16,6 +16,10 @@ typedef IceUtil::Handle<NodeI> NodeIPtr;
 
 class ServerI;
 
+//
+// Lock order: the ServerI mutex is always acquired before the ServerAdapterI mutex, never after. ServerAdapterI
+// must not call ServerI while holding its own mutex.
+//
 class ServerAdapterI : public Adapter, public IceUtil::Mutex
 {
 public:
