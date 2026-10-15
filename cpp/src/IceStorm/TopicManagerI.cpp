@@ -481,9 +481,17 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
     for(TopicContentSeq::const_iterator q = content.begin(); q != content.end(); ++q)
     {
         string name = identityToTopicName(q->id);
-        map<string, TopicImplPtr>::const_iterator r = _topics.find(name);
+        map<string, TopicImplPtr>::iterator r = _topics.find(name);
         if(r == _topics.end())
         {
+            installTopic(name, q->id, true, q->records);
+        }
+        else if(r->second->destroyed())
+        {
+            // A topic destroyed on this replica can linger in _topics until the next reap. Since a destroyed
+            // TopicImpl has no servants and ignores replicated updates, we can't reuse it: install a fresh
+            // topic from the content instead.
+            _topics.erase(r);
             installTopic(name, q->id, true, q->records);
         }
         else
