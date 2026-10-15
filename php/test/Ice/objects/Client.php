@@ -175,6 +175,7 @@ class MyObjectFactory implements Ice_ObjectFactory
 function allTests($helper)
 {
     global $NS;
+    global $Ice_Encoding_1_0;
 
     echo "testing stringToProxy... ";
     flush();
@@ -373,6 +374,24 @@ function allTests($helper)
     $v3 = $initial->opValueMap($v1, $v2);
     test($v2["l"]->data == "l");
     test($v3["l"]->data == "l");
+
+    //
+    // With the 1.0 encoding, the class values of a dictionary are unmarshaled after all the dictionary keys.
+    //
+    $v1 = array();
+    for($k = 0; $k < 10; $k++)
+    {
+        $v1["key" . $k] = new Test_L();
+        $v1["key" . $k]->data = "l" . $k;
+    }
+    $v2 = null;
+    $v3 = $initial->ice_encodingVersion($Ice_Encoding_1_0)->opValueMap($v1, $v2);
+    test(count($v2) == 10 && count($v3) == 10);
+    for($k = 0; $k < 10; $k++)
+    {
+        test($v2["key" . $k]->data == "l" . $k);
+        test($v3["key" . $k]->data == "l" . $k);
+    }
 
     echo "ok\n";
 
