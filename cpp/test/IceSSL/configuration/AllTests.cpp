@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "../../src/Ice/SSL/SecureTransportUtil.h" // For loadCertificateChain
+#include "../../src/Ice/SSL/AppleSSLUtil.h" // For loadCertificateChain
 #include "../../src/Ice/UniqueRef.h"
 #include "Ice/Ice.h"
 #include "Test.h"
@@ -167,7 +167,7 @@ public:
             if (resolved)
             {
                 IceInternal::UniqueRef<CFArrayRef> certs(
-                    Ice::SSL::SecureTransport::loadCertificateChain(*resolved, "", "", "", "password"));
+                    Ice::SSL::Apple::loadCertificateChain(*resolved, "", "", "", "password"));
                 SecIdentityRef identity =
                     static_cast<SecIdentityRef>(const_cast<void*>(CFArrayGetValueAtIndex(certs.get(), 0)));
                 CFRetain(identity);
@@ -482,11 +482,16 @@ testCertificateVerification(
     try
     {
         server->ice_ping();
+#if !defined(__APPLE__)
+        // On Apple platforms, Network.framework does not support optional client certificate
+        // authentication (VerifyPeer=1 behaves like VerifyPeer=0 for client certificates).
+        // The server does not request the client certificate, so it cannot reject untrusted ones.
         test(false);
+#endif
     }
     catch (const ConnectionLostException&)
     {
-        // Expected.
+        // Expected on non-Apple platforms.
     }
     catch (const LocalException& ex)
     {
@@ -872,7 +877,7 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
     }
     cout << "ok" << endl;
 }
-#elif defined(ICE_USE_SECURE_TRANSPORT)
+#elif defined(ICE_USE_APPLE_SSL)
 void
 testFindCert(const string& factoryRef, const string& defaultDir, const Ice::PropertiesPtr& defaultProps, bool p12)
 {
@@ -914,7 +919,7 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
         initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
 
         // Use TrustOnly to ensure the peer has picked the expected certificate.
-#    ifndef ICE_USE_SECURE_TRANSPORT_IOS
+#    ifndef ICE_USE_APPLE_SSL_IOS
         initData.properties->setProperty("IceSSL.TrustOnly", "CN=ca1.server");
 #    endif
         CommunicatorPtr comm = initialize(initData);
@@ -928,7 +933,7 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
         d["IceSSL.FindCert"] = serverFindCertProperties[i];
 
         // Use TrustOnly to ensure the peer has picked the expected certificate.
-#    ifndef ICE_USE_SECURE_TRANSPORT_IOS
+#    ifndef ICE_USE_APPLE_SSL_IOS
         d["IceSSL.TrustOnly"] = "CN=ca1.client";
 #    endif
         optional<Test::ServerPrx> server = fact->createServer(d);
@@ -1209,7 +1214,7 @@ testCAsDirectory(const string& factoryRef, const string& defaultDir, const Ice::
 void
 testCAsDirectory(const string&, const string&, const Ice::PropertiesPtr&, bool)
 {
-    // Not supported with Schannel and SecureTransport.
+    // Not supported with Schannel and Apple SSL.
 }
 #endif
 
@@ -1343,7 +1348,7 @@ testDerCertificates(const string&, const Ice::PropertiesPtr&, bool)
 }
 #endif
 
-#ifdef ICE_USE_SECURE_TRANSPORT_IOS
+#ifdef ICE_USE_APPLE_SSL_IOS
 void
 testTrustOnly(const string&, const Ice::PropertiesPtr&, bool)
 {
@@ -2295,7 +2300,7 @@ testCrlRevocation(const string&, const string&, const Ice::PropertiesPtr&, bool)
 }
 #endif
 
-#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_APPLE_SSL_MACOS)
 void
 testOcspRevocation(const string& factoryRef, const string& defaultDir, const Ice::PropertiesPtr& defaultProps, bool p12)
 {
@@ -2323,8 +2328,8 @@ testOcspRevocation(const string& factoryRef, const string& defaultDir, const Ice
     comm->destroy();
 
     // Now check with a revoked certificate and RevocationCheck=0 to disable revocation checks
-#    ifndef ICE_USE_SECURE_TRANSPORT
-    // With secure transport there is no reliable way to disable revocation checks
+#    ifndef ICE_USE_APPLE_SSL
+    // With Apple SSL there is no reliable way to disable revocation checks
     initData.properties = createClientProps(defaultProps, p12, "", "ca4/ca4");
     initData.properties->setProperty("IceSSL.RevocationCheck", "0");
     comm = initialize(initData);
@@ -2382,8 +2387,8 @@ testOcspRevocation(const string& factoryRef, const string& defaultDir, const Ice
     comm->destroy();
 
     // Repeat with RevocationCheck=1 to only check the end cert
-#    ifndef ICE_USE_SECURE_TRANSPORT
-    // SecureTransport always checks the whole chain for revocation
+#    ifndef ICE_USE_APPLE_SSL
+    // Apple SSL always checks the whole chain for revocation
     initData.properties = createClientProps(defaultProps, p12, "", "ca4/ca4");
     initData.properties->setProperty("IceSSL.RevocationCheck", "1");
     initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");

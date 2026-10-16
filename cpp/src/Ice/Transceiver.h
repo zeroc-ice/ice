@@ -25,7 +25,7 @@ namespace IceInternal
         virtual SocketOperation write(Buffer&) = 0;
         virtual SocketOperation read(Buffer&) = 0;
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         virtual bool startWrite(Buffer&) = 0;
         virtual void finishWrite(Buffer&) = 0;
         virtual void startRead(Buffer&) = 0;

@@ -23,7 +23,7 @@ namespace IceInternal
         virtual NativeInfoPtr getNativeInfo() = 0;
         virtual void close() = 0;
         virtual EndpointIPtr listen() = 0;
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         virtual void startAccept() = 0;
         virtual void finishAccept() = 0;
 #endif

@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "SecureTransportUtil.h"
+#include "AppleSSLUtil.h"
 #include "../Base64.h"
 #include "../FileUtil.h"
 #include "../UniqueRef.h"
@@ -15,7 +15,7 @@
 using namespace Ice;
 using namespace IceInternal;
 using namespace Ice::SSL;
-using namespace Ice::SSL::SecureTransport;
+using namespace Ice::SSL::Apple;
 using namespace std;
 
 #if defined(__clang__)
@@ -46,7 +46,7 @@ namespace
         return data.release();
     }
 
-#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+#if defined(ICE_USE_APPLE_SSL_MACOS)
     // Map alternative name alias to its types.
     const char* certificateAlternativeNameTypes[] =
         {"", "Email Address", "DNS Name", "", "Directory Name", "", "URI", "IP Address"};
@@ -178,7 +178,7 @@ namespace
 }
 
 string
-Ice::SSL::SecureTransport::sslErrorToString(CFErrorRef err)
+Ice::SSL::Apple::sslErrorToString(CFErrorRef err)
 {
     ostringstream os;
     if (err)
@@ -190,11 +190,11 @@ Ice::SSL::SecureTransport::sslErrorToString(CFErrorRef err)
 }
 
 string
-Ice::SSL::SecureTransport::sslErrorToString(OSStatus status)
+Ice::SSL::Apple::sslErrorToString(OSStatus status)
 {
     ostringstream os;
     os << "(error: " << status;
-#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+#if defined(ICE_USE_APPLE_SSL_MACOS)
     UniqueRef<CFStringRef> s(SecCopyErrorMessageString(status, nullptr));
     if (s)
     {
@@ -205,7 +205,7 @@ Ice::SSL::SecureTransport::sslErrorToString(OSStatus status)
     return os.str();
 }
 
-#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+#if defined(ICE_USE_APPLE_SSL_MACOS)
 namespace
 {
     //
@@ -564,6 +564,67 @@ namespace
         return identity.release();
     }
 
+    //
+    // SecItemImport returns the imported items as a heterogeneous array, and when the certificate and its private
+    // key are already in the keychain it can return only the certificates, without a SecIdentityRef. Returns the
+    // chain the SSL transport expects, the identity followed by the other certificates, resolving the identity
+    // from the keychain when the import did not return one.
+    //
+    CFArrayRef createIdentityChain(CFArrayRef items, SecKeychainRef keychain, const string& file)
+    {
+        UniqueRef<SecIdentityRef> identity;
+        UniqueRef<CFMutableArrayRef> certificates(CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
+        CFIndex count = CFArrayGetCount(items);
+        for (CFIndex i = 0; i < count; ++i)
+        {
+            CFTypeRef item = CFArrayGetValueAtIndex(items, i);
+            if (!identity && CFGetTypeID(item) == SecIdentityGetTypeID())
+            {
+                identity.retain(static_cast<SecIdentityRef>(const_cast<void*>(item)));
+            }
+            else if (CFGetTypeID(item) == SecCertificateGetTypeID())
+            {
+                CFArrayAppendValue(certificates.get(), item);
+            }
+            // Keys and other items are not part of the chain.
+        }
+
+        if (!identity)
+        {
+            // The identity is the certificate whose private key is in the keychain.
+            OSStatus err = errSecItemNotFound;
+            for (CFIndex i = 0; i < CFArrayGetCount(certificates.get()); ++i)
+            {
+                auto cert =
+                    static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(certificates.get(), i)));
+                err = SecIdentityCreateWithCertificate(keychain, cert, &identity.get());
+                if (err == noErr && identity)
+                {
+                    CFArrayRemoveValueAtIndex(certificates.get(), i);
+                    break;
+                }
+                identity.reset();
+            }
+
+            if (!identity)
+            {
+                ostringstream os;
+                os << "SSL transport: could not find the identity for the certificate in '" << file
+                   << "': the keychain has no private key for it";
+                if (err != noErr && err != errSecItemNotFound)
+                {
+                    os << ":\n" << sslErrorToString(err);
+                }
+                throw CertificateReadException(__FILE__, __LINE__, os.str());
+            }
+        }
+
+        UniqueRef<CFMutableArrayRef> chain(CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
+        CFArrayAppendValue(chain.get(), identity.get());
+        CFArrayAppendArray(chain.get(), certificates.get(), CFRangeMake(0, CFArrayGetCount(certificates.get())));
+        return chain.release();
+    }
+
 } // anonymous namespace end
 
 #else
@@ -658,9 +719,9 @@ namespace
 // Imports a certificate (it might contain an identity or certificate depending on the format).
 //
 CFArrayRef
-Ice::SSL::SecureTransport::loadCertificateChain(
+Ice::SSL::Apple::loadCertificateChain(
     const string& file,
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+#if defined(ICE_USE_APPLE_SSL_IOS)
     const string& /*keyFile*/,
     const string& /*keychainPath*/,
     const string& /*keychainPassword*/,
@@ -672,7 +733,7 @@ Ice::SSL::SecureTransport::loadCertificateChain(
     const string& password)
 {
     UniqueRef<CFArrayRef> chain;
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+#if defined(ICE_USE_APPLE_SSL_IOS)
     UniqueRef<CFDataRef> cert(readCertFile(file));
 
     UniqueRef<CFMutableDictionaryRef> settings(
@@ -712,7 +773,8 @@ Ice::SSL::SecureTransport::loadCertificateChain(
     UniqueRef<SecKeychainRef> keychain(openKeychain(keychainPath, keychainPassword));
     if (keyFile.empty())
     {
-        chain.reset(loadKeychainItems(file, kSecItemTypeUnknown, keychain.get(), password));
+        UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeUnknown, keychain.get(), password));
+        chain.reset(createIdentityChain(items.get(), keychain.get(), file));
     }
     else
     {
@@ -740,9 +802,9 @@ Ice::SSL::SecureTransport::loadCertificateChain(
 }
 
 CFArrayRef
-Ice::SSL::SecureTransport::loadCACertificates(const string& file)
+Ice::SSL::Apple::loadCACertificates(const string& file)
 {
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+#if defined(ICE_USE_APPLE_SSL_IOS)
     return loadCerts(file);
 #else
     UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, nullptr, ""));
@@ -762,13 +824,10 @@ Ice::SSL::SecureTransport::loadCACertificates(const string& file)
 }
 
 CFArrayRef
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
-Ice::SSL::SecureTransport::findCertificateChain(const string&, const string&, const string& value)
+#if defined(ICE_USE_APPLE_SSL_IOS)
+Ice::SSL::Apple::findCertificateChain(const string&, const string&, const string& value)
 #else
-Ice::SSL::SecureTransport::findCertificateChain(
-    const string& keychainPath,
-    const string& keychainPassword,
-    const string& value)
+Ice::SSL::Apple::findCertificateChain(const string& keychainPath, const string& keychainPassword, const string& value)
 #endif
 {
     //
@@ -784,7 +843,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
     UniqueRef<CFMutableDictionaryRef> query(
         CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
 
-#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+#if defined(ICE_USE_APPLE_SSL_MACOS)
     UniqueRef<SecKeychainRef> keychain(openKeychain(keychainPath, keychainPassword));
     const void* values[] = {keychain.get()};
     UniqueRef<CFArrayRef> searchList(CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
@@ -926,7 +985,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
     // identity.
     //
     UniqueRef<SecIdentityRef> identity;
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+#if defined(ICE_USE_APPLE_SSL_IOS)
 
     //
     // SecIdentityCreateWithCertificate isn't supported on iOS so we lookup the identity
@@ -988,7 +1047,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
     return items.release();
 }
 
-#ifdef ICE_USE_SECURE_TRANSPORT_IOS
+#ifdef ICE_USE_APPLE_SSL_IOS
 string
 Ice::SSL::getSubjectName(SecCertificateRef)
 {

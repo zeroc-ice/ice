@@ -2,20 +2,23 @@
 
 #include "Ice/Config.h"
 
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-
-#    include "HashUtil.h"
-#    include "Ice/InputStream.h"
-#    include "Ice/LocalExceptions.h"
-#    include "Ice/OutputStream.h"
-#    include "Network.h"
-#    include "ProtocolInstance.h"
+#include "HashUtil.h"
+#include "Ice/InputStream.h"
+#include "Ice/LocalExceptions.h"
+#include "Ice/OutputStream.h"
+#include "Network.h"
+#include "ProtocolInstance.h"
+#include "TcpConnector.h"
+#include "TcpEndpointI.h"
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include "apple/NetworkFrameworkAcceptor.h"
+#    include "apple/NetworkFrameworkConnector.h"
+#else
 #    include "TcpAcceptor.h"
-#    include "TcpConnector.h"
-#    include "TcpEndpointI.h"
-
 #    include "TcpTransceiver.h"
-#    include <utility>
+#endif
+
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -166,15 +169,46 @@ IceInternal::TcpEndpointI::transceiver() const
 }
 
 AcceptorPtr
-IceInternal::TcpEndpointI::acceptor(const string&, const optional<Ice::SSL::ServerAuthenticationOptions>&) const
+IceInternal::TcpEndpointI::acceptor(
+    [[maybe_unused]] const string& adapterName,
+    [[maybe_unused]] const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
 {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    // A plain TCP listener: the object adapter's server authentication options only apply to its SSL endpoints,
+    // which use secureAcceptor.
+    return make_shared<NetworkFrameworkAcceptor>(
+        static_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
+        _instance,
+        _host,
+        _port,
+        adapterName,
+        nullopt);
+#else
     return make_shared<TcpAcceptor>(
         static_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
         _instance,
         _host,
         _port);
+#endif
 }
 
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+AcceptorPtr
+IceInternal::TcpEndpointI::secureAcceptor(
+    const string& adapterName,
+    const Ice::SSL::ServerAuthenticationOptions& serverAuthenticationOptions) const
+{
+    return make_shared<NetworkFrameworkAcceptor>(
+        static_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
+        _instance,
+        _host,
+        _port,
+        adapterName,
+        serverAuthenticationOptions);
+}
+#endif
+
+#if !defined(ICE_USE_NETWORK_FRAMEWORK)
 TcpEndpointIPtr
 IceInternal::TcpEndpointI::endpoint(const TcpAcceptorPtr& acceptor) const
 {
@@ -188,6 +222,23 @@ IceInternal::TcpEndpointI::endpoint(const TcpAcceptorPtr& acceptor) const
         return make_shared<TcpEndpointI>(_instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
     }
 }
+#endif
+
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+TcpEndpointIPtr
+IceInternal::TcpEndpointI::endpoint(const NetworkFrameworkAcceptorPtr& acceptor) const
+{
+    int port = acceptor->effectivePort();
+    if (_port == port)
+    {
+        return dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this());
+    }
+    else
+    {
+        return make_shared<TcpEndpointI>(_instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
+    }
+}
+#endif
 
 string
 IceInternal::TcpEndpointI::options() const
@@ -364,7 +415,11 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
 ConnectorPtr
 IceInternal::TcpEndpointI::createConnector(const Address& address, const NetworkProxyPtr& proxy) const
 {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    return make_shared<NetworkFrameworkConnector>(_instance, address, proxy, _sourceAddr, _timeout, _connectionId);
+#else
     return make_shared<TcpConnector>(_instance, address, proxy, _sourceAddr, _timeout, _connectionId);
+#endif
 }
 
 IPEndpointIPtr
@@ -408,4 +463,3 @@ IceInternal::TcpEndpointFactory::clone(const ProtocolInstancePtr& instance) cons
 {
     return make_shared<TcpEndpointFactory>(instance);
 }
-#endif

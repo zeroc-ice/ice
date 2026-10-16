@@ -103,10 +103,10 @@ unescape-ldflags = $(subst -framework+,-framework$(space),$1)
 Ice_system_libs := -ldl
 
 # Frameworks for macos
-Ice[macosx]_system_libs := -framework Security -framework CoreFoundation
+Ice[macosx]_system_libs := -framework Security -framework CoreFoundation -framework Network
 
 # Frameworks requires for iphoneos
-Ice[iphoneos]_system_libs := -framework CFNetwork -framework UIKit -framework Foundation -framework Security
+Ice[iphoneos]_system_libs := -framework CFNetwork -framework UIKit -framework Foundation -framework Security -framework Network
 IceIAP[iphoneos]_system_libs := -framework ExternalAccessory
 
 # Same frameworks as iphoneos for iphonesimulator

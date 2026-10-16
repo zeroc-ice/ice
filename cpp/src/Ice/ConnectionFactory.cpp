@@ -1213,7 +1213,7 @@ IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(
     }
 }
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
 bool
 IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
 {

@@ -82,7 +82,7 @@ namespace Ice
                   compress(comp),
                   requestId(0),
                   adopted(false)
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
                   ,
                   isSent(false),
                   invokeSent(false),
@@ -101,7 +101,7 @@ namespace Ice
                   compress(comp),
                   requestId(rid),
                   adopted(false)
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
                   ,
                   isSent(false),
                   invokeSent(false),
@@ -122,7 +122,7 @@ namespace Ice
             bool compress;
             int requestId;
             bool adopted;
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
             bool isSent;
             bool invokeSent;
             bool receivedReply;
@@ -193,7 +193,7 @@ namespace Ice
         //
         // Operations from EventHandler
         //
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         bool startAsync(IceInternal::SocketOperation);
         bool finishAsync(IceInternal::SocketOperation);
 #endif
