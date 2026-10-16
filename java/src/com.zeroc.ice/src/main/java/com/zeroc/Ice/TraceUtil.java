@@ -146,7 +146,6 @@ final class TraceUtil {
             out.write("\nmode = " + (int) mode + ' ');
             switch (OperationMode.values()[mode]) {
                 case Normal -> out.write("(normal)");
-                case Nonmutating -> out.write("(nonmutating)");
                 case Idempotent -> out.write("(idempotent)");
                 default -> out.write("(unknown)");
             }
