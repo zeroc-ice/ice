@@ -12,7 +12,6 @@
 #include "Ice/CtrlCHandler.h"
 #include "Ice/StringUtil.h"
 
-#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <mutex>
@@ -73,7 +72,6 @@ namespace
                       "-d, --debug              Print debug messages.\n"
                       "--depend-xml             Generate dependencies in XML format.\n"
                       "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
-                      "--validate               Validate command line options.\n"
                       "--all                    Generate code for Slice definitions in included files.\n"
                       "--list-generated         Emit list of generated files in XML format.\n";
     }
@@ -111,7 +109,6 @@ namespace
         IceInternal::Options opts;
         opts.addOpt("h", "help");
         opts.addOpt("v", "version");
-        opts.addOpt("", "validate");
         opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
         opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
         opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
@@ -122,8 +119,6 @@ namespace
         opts.addOpt("d", "debug");
         opts.addOpt("", "all");
 
-        bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
-
         vector<string> sliceFiles;
         try
         {
@@ -132,10 +127,7 @@ namespace
         catch (const IceInternal::BadOptException& e)
         {
             consoleErr << argv[0] << ": error: " << e.what() << endl;
-            if (!validate)
-            {
-                usage(argv[0]);
-            }
+            usage(argv[0]);
             return EXIT_FAILURE;
         }
 
@@ -172,30 +164,17 @@ namespace
         }
 
         string output = opts.optArg("output-dir");
-
         bool dependXML = opts.isSet("depend-xml");
-
         string dependFile = opts.optArg("depend-file");
-
         bool debug = opts.isSet("debug");
-
         bool all = opts.isSet("all");
-
         bool listGenerated = opts.isSet("list-generated");
 
         if (sliceFiles.empty())
         {
             consoleErr << argv[0] << ": error: no input file" << endl;
-            if (!validate)
-            {
-                usage(argv[0]);
-            }
+            usage(argv[0]);
             return EXIT_FAILURE;
-        }
-
-        if (validate)
-        {
-            return EXIT_SUCCESS;
         }
 
         int status = EXIT_SUCCESS;
