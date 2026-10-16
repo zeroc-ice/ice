@@ -1243,13 +1243,7 @@ public final class InputStream {
      * @return The optional proxy, if present and non-null; otherwise {@code Optional.empty()}.
      */
     public <T extends ObjectPrx> Optional<T> readProxy(int tag, Function<ObjectPrx, T> cast) {
-        if (readOptional(tag, OptionalFormat.FSize)) {
-            skip(4);
-            ObjectPrx proxy = readProxy();
-            return proxy == null ? Optional.empty() : Optional.of(cast.apply(proxy));
-        } else {
-            return Optional.empty();
-        }
+        return readProxy(tag).map(cast);
     }
 
     /**
