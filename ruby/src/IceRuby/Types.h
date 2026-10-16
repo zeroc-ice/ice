@@ -422,9 +422,7 @@ namespace IceRuby
     public:
         static ProxyInfoPtr create(VALUE);
 
-        // TODO: the 2nd and 3rd parameters are dead code, and should be removed in 3.9.
-        // They cannot be removed yet because slice2rb generated code which passes them in.
-        void define(VALUE, VALUE, VALUE);
+        void define(VALUE);
 
         std::string getId() const final;
 
