@@ -272,6 +272,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         return super.finished(ok, invoke);
     }
 
+    @SuppressWarnings("deprecation") // For 'Nonmutating'
     private int handleRetryAfterException(LocalException ex) {
         // Clear the request handler
         _proxy._getRequestHandlerCache().clearCachedRequestHandler(_handler);

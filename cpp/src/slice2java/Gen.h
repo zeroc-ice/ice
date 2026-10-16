@@ -84,14 +84,12 @@ namespace Slice
             IceInternal::Output& out,
             const OperationPtr& p,
             const std::vector<std::string>& params,
-            const ExceptionList& throws,
-            const std::optional<DocComment>& dc);
+            const ExceptionList& throws);
 
         static void writeAsyncIceInvokeMethods(
             IceInternal::Output& out,
             const OperationPtr& p,
-            const std::vector<std::string>& params,
-            const std::optional<DocComment>& dc);
+            const std::vector<std::string>& params);
 
         static void writeIceIHelperMethods(
             IceInternal::Output& out,
@@ -148,6 +146,9 @@ namespace Slice
             const DataMemberList& members,
             const std::string& package);
 
+        /// Generate a 'Deprecated' annotation on the provided element if it has the 'deprecated' metadata.
+        static void writeDeprecatedAnnotation(IceInternal::Output& out, const ContainedPtr& contained);
+
         //
         // Handle doc comments.
         //
@@ -165,7 +166,6 @@ namespace Slice
             IceInternal::Output& out,
             const OperationPtr& p,
             const std::string& package,
-            const std::optional<DocComment>& dc,
             bool async,
             const std::string& contextParam);
         static void writeServantOpDocComment(
