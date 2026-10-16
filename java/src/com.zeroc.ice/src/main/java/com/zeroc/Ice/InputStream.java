@@ -631,7 +631,7 @@ public final class InputStream {
      * @param <T> The serializable type.
      * @param tag The numeric tag associated with the value.
      * @param cl The class for the serializable type.
-     * @return The optional value (if any).
+     * @return The deserialized Java object, if present and non-empty; otherwise {@code Optional.empty()}.
      */
     public <T extends Serializable> Optional<T> readSerializable(int tag, Class<T> cl) {
         if (readOptional(tag, OptionalFormat.VSize)) {
