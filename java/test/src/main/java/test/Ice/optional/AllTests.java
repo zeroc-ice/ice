@@ -1045,6 +1045,53 @@ public class AllTests {
             in.startEncapsulation();
             in.endEncapsulation();
         }
+
+        {
+            // An optional proxy that is set but holds a null proxy should be read as an empty Optional.
+            os = new OutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, OptionalFormat.FSize);
+            int pos = os.startSize();
+            os.writeProxy((ObjectPrx) null);
+            os.endSize(pos);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+
+            in = new InputStream(communicator, inEncaps);
+            in.startEncapsulation();
+            test(!in.readProxy(2).isPresent());
+            in.endEncapsulation();
+
+            in = new InputStream(communicator, inEncaps);
+            in.startEncapsulation();
+            Optional<MyInterfacePrx> optPrx = in.readProxy(2, obj -> {
+                test(obj != null); // the cast function is not called for a null proxy
+                return MyInterfacePrx.uncheckedCast(obj);
+            });
+            test(!optPrx.isPresent());
+            in.endEncapsulation();
+
+            inv = initial.ice_invoke("opMyInterfaceProxy", OperationMode.Normal, inEncaps);
+            in = new InputStream(communicator, inv.outParams);
+            in.startEncapsulation();
+            test(!in.readProxy(1).isPresent());
+            test(!in.readProxy(3).isPresent());
+            in.endEncapsulation();
+
+            // A required null proxy reads as null without calling the cast function.
+            os = new OutputStream(communicator);
+            os.startEncapsulation();
+            os.writeProxy((ObjectPrx) null);
+            os.endEncapsulation();
+            in = new InputStream(communicator, os.finished());
+            in.startEncapsulation();
+            MyInterfacePrx nullPrx = in.readProxy(obj -> {
+                test(obj != null);
+                return MyInterfacePrx.uncheckedCast(obj);
+            });
+            test(nullPrx == null);
+            in.endEncapsulation();
+        }
         out.println("ok");
 
         out.print("testing optional parameters and sequences... ");
@@ -1586,6 +1633,25 @@ public class AllTests {
 
             in = new InputStream(communicator, inv.outParams);
             in.startEncapsulation();
+            in.endEncapsulation();
+
+            // An optional serializable that is set but holds an empty sequence (the encoding of a null object)
+            // should be read as an unset optional.
+            os = new OutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, OptionalFormat.VSize);
+            os.writeSize(0);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            in = new InputStream(communicator, inEncaps);
+            in.startEncapsulation();
+            test(!in.readSerializable(2, SerializableClass.class).isPresent());
+            in.endEncapsulation();
+            inv = initial.ice_invoke("opSerializable", OperationMode.Normal, inEncaps);
+            in = new InputStream(communicator, inv.outParams);
+            in.startEncapsulation();
+            test(!in.readSerializable(1, SerializableClass.class).isPresent());
+            test(!in.readSerializable(3, SerializableClass.class).isPresent());
             in.endEncapsulation();
         }
         out.println("ok");
