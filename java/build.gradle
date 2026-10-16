@@ -43,6 +43,9 @@ subprojects {
                              << "-Xlint:all,-rawtypes,-exports,-serial,-try,-missing-explicit-ctor,-deprecation"
         options.encoding = "UTF-8"
         options.deprecation = true
+        if (System.getenv("WARNINGS_AS_ERRORS") == "yes") {
+            options.compilerArgs << "-Werror"
+        }
     }
 }
 
