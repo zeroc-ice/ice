@@ -1635,7 +1635,7 @@ public class AllTests {
             in.startEncapsulation();
             in.endEncapsulation();
 
-            // An optional serializable that is set but holds an empty sequence (the encoding of a null object),
+            // An optional serializable that is set but holds an empty sequence (the encoding of a null object)
             // should be read as an unset optional.
             os = new OutputStream(communicator);
             os.startEncapsulation();
