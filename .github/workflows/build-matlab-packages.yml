@@ -22,6 +22,9 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+
 jobs:
   build-matlab-packages:
     strategy:
@@ -35,6 +38,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -44,9 +49,11 @@ jobs:
 
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
         run: |
-          "IceToolboxVersion=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "ICE_TOOLBOX_VERSION=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "IceToolboxVersion=$env:ICE_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "ICE_TOOLBOX_VERSION=$env:ICE_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         shell: pwsh
 
       - name: Build Linux MATLAB ToolBox
@@ -57,6 +64,7 @@ jobs:
 
       - name: Build Windows MATLAB ToolBox
         run: MSBuild /p:Configuration=Release /p:Platform=x64 /t:BuildDist matlab\msbuild\ice.proj
+        shell: pwsh
         if: runner.os == 'Windows'
 
       - name: Collect Files To Sign
@@ -83,6 +91,7 @@ jobs:
 
       - name: Package Windows MATLAB ToolBox
         run: MSBuild /p:Configuration=Release /p:Platform=x64 /t:Package matlab\msbuild\ice.proj
+        shell: pwsh
         if: runner.os == 'Windows'
 
       - name: Upload Artifacts

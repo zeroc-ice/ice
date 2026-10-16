@@ -21,6 +21,10 @@ on:
         required: false
         type: boolean
         default: false
+
+permissions:
+  contents: read
+
 jobs:
   build-slice-compilers:
     strategy:
@@ -44,6 +48,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -78,6 +84,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: ice
+          persist-credentials: false
 
       - name: Download All slice2java Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -95,21 +102,23 @@ jobs:
 
           # Copy the slice2java binaries to the staging path.
           cp -v artifacts/slice2java-macos-arm64/slice2java "$SLICE2JAVA_STAGING_PATH/macos-arm64/"
-          chmod +x $SLICE2JAVA_STAGING_PATH/macos-arm64/slice2java
+          chmod +x "$SLICE2JAVA_STAGING_PATH/macos-arm64/slice2java"
           cp -v artifacts/slice2java-linux-x64/slice2java "$SLICE2JAVA_STAGING_PATH/linux-x64/"
-          chmod +x $SLICE2JAVA_STAGING_PATH/linux-x64/slice2java
+          chmod +x "$SLICE2JAVA_STAGING_PATH/linux-x64/slice2java"
           cp -v artifacts/slice2java-linux-arm64/slice2java "$SLICE2JAVA_STAGING_PATH/linux-arm64/"
-          chmod +x $SLICE2JAVA_STAGING_PATH/linux-arm64/slice2java
+          chmod +x "$SLICE2JAVA_STAGING_PATH/linux-arm64/slice2java"
           cp -v artifacts/slice2java-windows-x64/slice2java.exe "$SLICE2JAVA_STAGING_PATH/windows-x64/"
 
           for component in DataStorm Glacier2 Ice IceBox IceGrid IceStorm; do
-            mkdir -p $SLICE2JAVA_STAGING_PATH/slice/$component
-            cp -v ice/slice/$component/*.ice $SLICE2JAVA_STAGING_PATH/slice/$component
+            mkdir -p "$SLICE2JAVA_STAGING_PATH/slice/$component"
+            cp -v "ice/slice/$component/"*.ice "$SLICE2JAVA_STAGING_PATH/slice/$component"
           done
 
       - name: Update Ice Version
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
         run: |
-          sed -i "s/^sliceToolsVersion = .*/sliceToolsVersion = ${{ inputs.ice_version }}/" tools/slice-tools/gradle.properties
+          sed -i "s/^sliceToolsVersion = .*/sliceToolsVersion = ${ICE_VERSION}/" tools/slice-tools/gradle.properties
         working-directory: ice/java
         if: ${{ inputs.ice_version != '' }}
 

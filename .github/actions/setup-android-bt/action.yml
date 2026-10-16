@@ -23,11 +23,14 @@ runs:
   steps:
     - name: Record the emulator serials
       shell: bash
+      env:
+        BT_CLIENT: ${{ inputs.client }}
+        BT_SERVER: ${{ inputs.server }}
       run: |
         # Exported up front rather than after bonding, so the diagnostics step still knows which
         # devices to query when one of the steps below is what failed.
-        echo "BT_CLIENT=${{ inputs.client }}" >> "$GITHUB_ENV"
-        echo "BT_SERVER=${{ inputs.server }}" >> "$GITHUB_ENV"
+        echo "BT_CLIENT=$BT_CLIENT" >> "$GITHUB_ENV"
+        echo "BT_SERVER=$BT_SERVER" >> "$GITHUB_ENV"
 
     - name: Build the btbond APK
       shell: bash
@@ -53,7 +56,7 @@ runs:
         # Match the system image setup-android installed.
         if [ "$(uname -m)" = "aarch64" ]; then ARCH="arm64-v8a"; else ARCH="x86_64"; fi
         python3 scripts/Controller.py --android --bt-emulators \
-          --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
+          --bt-client="$BT_CLIENT" --bt-server="$BT_SERVER" \
           --bt-image="system-images;$ANDROID_PLATFORM;google_apis;$ARCH"
 
     - name: Prepare and bond the two emulators
@@ -67,10 +70,10 @@ runs:
         # enables Bluetooth, bonds them, and prints the server's address. Progress and the
         # per-device setup_{client,server}.log contents go to stderr.
         BT_ADDR=$(python3 scripts/Controller.py --android --bt-prepare \
-          --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
+          --bt-client="$BT_CLIENT" --bt-server="$BT_SERVER" \
           --bt-setup="$BTBOND_APK")
         [ -n "$BT_ADDR" ] || { echo "no server Bluetooth address"; exit 1; }
-        echo "server (${{ inputs.server }}) Bluetooth address = $BT_ADDR"
+        echo "server ($BT_SERVER) Bluetooth address = $BT_ADDR"
         echo "BT_ADDR=$BT_ADDR" >> "$GITHUB_ENV"
 
     - name: Start the server-side process controller
@@ -81,6 +84,6 @@ runs:
         # the client reaches it as --server=server. --controller-app installs and starts the
         # on-device controller app up front.
         nohup python3 ../scripts/Controller.py --id=server --android --controller-app \
-          --device="${{ inputs.server }}" --host-bt="$BT_ADDR" > "$GITHUB_WORKSPACE/controller.log" 2>&1 &
+          --device="$BT_SERVER" --host-bt="$BT_ADDR" > "$GITHUB_WORKSPACE/controller.log" 2>&1 &
         sleep 10
         kill -0 $! 2>/dev/null || { echo "server controller exited early"; cat "$GITHUB_WORKSPACE/controller.log"; exit 1; }
