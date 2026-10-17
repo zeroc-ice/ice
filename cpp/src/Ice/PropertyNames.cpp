@@ -390,9 +390,6 @@ const Property IceGridPropsData[] =
     Property{"Registry.Trace.Replica", "0", false, false, nullptr},
     Property{"Registry.Trace.Server", "0", false, false, nullptr},
     Property{"Registry.Trace.Session", "0", false, false, nullptr},
-    Property{"Registry.Trace.Subscriber", "0", false, false, nullptr},
-    Property{"Registry.Trace.Topic", "0", false, false, nullptr},
-    Property{"Registry.Trace.TopicManager", "0", false, false, nullptr},
     Property{"Registry.UserAccounts", "", false, false, nullptr}
 };
 
@@ -402,7 +399,7 @@ const PropertyArray PropertyNames::IceGridProps
     .prefixOnly=false,
     .isOptIn=true,
     .properties=IceGridPropsData,
-    .length=60
+    .length=57
 };
 
 const PropertyArray PropertyNames::IceGridGUIProps
@@ -468,7 +465,6 @@ const Property IceStormPropsData[] =
     Property{"Send.QueueSizeMaxPolicy", "", false, false, nullptr},
     Property{"Send.Timeout", "60000", false, false, nullptr},
     Property{"TopicManager", "", false, false, &PropertyNames::ObjectAdapterProps},
-    Property{"TopicManager.Proxy", "", false, false, &PropertyNames::ProxyProps},
     Property{"Trace.Election", "0", false, false, nullptr},
     Property{"Trace.Replication", "0", false, false, nullptr},
     Property{"Trace.Subscriber", "0", false, false, nullptr},
@@ -483,7 +479,7 @@ const PropertyArray PropertyNames::IceStormProps
     .prefixOnly=false,
     .isOptIn=true,
     .properties=IceStormPropsData,
-    .length=25
+    .length=24
 };
 
 const Property IceStormAdminPropsData[] =
