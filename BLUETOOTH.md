@@ -120,7 +120,8 @@ serves the server side, and a second `bluetoothd` on a private D-Bus bus serves 
 
 ```bash
 sudo apt-get install -y bluez bluez-test-tools bluez-tools
-modinfo hci_vhci > /dev/null 2>&1 || sudo apt-get install -y "linux-modules-extra-$(uname -r)"   # some kernels ship it there
+# Ubuntu kernels before 7.0 ship the Bluetooth modules in linux-modules-extra
+if (( $(uname -r | cut -d. -f1) < 7 )); then sudo apt-get install -y "linux-modules-extra-$(uname -r)"; fi
 for m in bluetooth rfcomm bnep hci_vhci; do sudo modprobe "$m"; done   # l2cap is built into bluetooth.ko
 ```
 
