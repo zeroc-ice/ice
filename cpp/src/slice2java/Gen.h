@@ -147,7 +147,7 @@ namespace Slice
             const std::string& package);
 
         /// Generate a 'Deprecated' annotation on the provided element if it has the 'deprecated' metadata.
-        static void writeDeprecatedAnnotation(IceInternal::Output& out, const ContainedPtr& contained);
+        static void writeDeprecatedAnnotation(IceInternal::Output& out, const ContainedPtr& p);
 
         //
         // Handle doc comments.
