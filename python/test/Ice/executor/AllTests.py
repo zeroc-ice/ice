@@ -107,9 +107,10 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
 
     adapter = communicator.createObjectAdapter("")
     collocated = adapter.addWithUUID(Ice.Object())
-    collocated.ice_pingAsync().result()
-    executor = Executor.Executor.instance()
-    test(executor is not None and executor.lastConnection is None)
+    f = collocated.ice_pingAsync()
+    assert isinstance(f, Ice.InvocationFuture)
+    f.result()
+    test(Executor.Executor.instance().lastConnection is None)
     adapter.destroy()
 
     print("ok")
