@@ -2454,7 +2454,7 @@ IcePy::GetConnectionAsyncCallback::setFuture(PyObject* future)
     //
     if (_responseReceived)
     {
-        PyObjectHandle pyConn{_connection ? createConnection(_connection, _communicator) : Py_NewRef(Py_None)};
+        PyObjectHandle pyConn{_connection ? createConnection(_connection, _communicator) : Py_None};
         assert(pyConn.get());
         PyObjectHandle tmp{callMethod(future, "set_result", pyConn.get())};
         PyErr_Clear();
@@ -2485,7 +2485,7 @@ IcePy::GetConnectionAsyncCallback::response(const Ice::ConnectionPtr& conn)
         return;
     }
 
-    PyObjectHandle pyConn{conn ? createConnection(conn, _communicator) : Py_NewRef(Py_None)};
+    PyObjectHandle pyConn{conn ? createConnection(conn, _communicator) : Py_None};
     PyObjectHandle tmp{callMethod(_future, "set_result", pyConn.get())};
     PyErr_Clear();
 
