@@ -15,13 +15,15 @@ class Executor:
         self._calls = []
         self._terminated = False
         self._cond = threading.Condition()
+        self.lastConnection: Ice.Connection | None = None
         self._thread = threading.Thread(target=self.run)
         self._thread.start()
         Executor._instance = self
 
-    def execute(self, call: Callable[[], None], connection: Ice.Connection):
+    def execute(self, call: Callable[[], None], connection: Ice.Connection | None):
         with self._cond:
             self._calls.append(call)
+            self.lastConnection = connection
             if len(self._calls) == 1:
                 self._cond.notify()
 
