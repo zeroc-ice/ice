@@ -55,11 +55,11 @@ class PlainServer extends Communicator implements Server {
         into.deactivationTimeout = from.deactivationTimeout;
     }
 
+    @SuppressWarnings("deprecation") // For 'DbEnvDescriptor' & 'DistributionDescriptor'
     public static ServerDescriptor newServerDescriptor() {
         return new ServerDescriptor(
             new LinkedList<AdapterDescriptor>(),
-            new PropertySetDescriptor(
-                new String[0], new LinkedList<PropertyDescriptor>()),
+            new PropertySetDescriptor(new String[0], new LinkedList<PropertyDescriptor>()),
             new DbEnvDescriptor[0],
             new String[0],
             "",
@@ -78,11 +78,11 @@ class PlainServer extends Communicator implements Server {
             "");
     }
 
+    @SuppressWarnings("deprecation") // For 'DbEnvDescriptor' & 'DistributionDescriptor'
     public static IceBoxDescriptor newIceBoxDescriptor() {
         return new IceBoxDescriptor(
             new LinkedList<AdapterDescriptor>(),
-            new PropertySetDescriptor(
-                new String[0], new LinkedList<PropertyDescriptor>()),
+            new PropertySetDescriptor(new String[0], new LinkedList<PropertyDescriptor>()),
             new DbEnvDescriptor[0],
             new String[0],
             "",

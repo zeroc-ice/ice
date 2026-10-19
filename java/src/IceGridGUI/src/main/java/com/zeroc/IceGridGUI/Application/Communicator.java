@@ -468,12 +468,12 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
         }
 
         @Override
+        @SuppressWarnings("deprecation") // For 'DbEnvDescriptor'
         void newChild() {
             ServiceDescriptor serviceDescriptor =
                 new ServiceDescriptor(
                     new LinkedList<AdapterDescriptor>(),
-                    new PropertySetDescriptor(
-                        new String[0], new LinkedList<PropertyDescriptor>()),
+                    new PropertySetDescriptor(new String[0], new LinkedList<PropertyDescriptor>()),
                     new DbEnvDescriptor[0],
                     new String[0],
                     "",
