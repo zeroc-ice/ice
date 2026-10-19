@@ -117,10 +117,12 @@ public class AllTests {
                         _background.ice_twoway().ice_ping();
                     }
                     _background.op();
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException ex) {}
                 } catch (LocalException ex) {}
+
+                // Sleep after a failure too: reconnecting in a tight loop overflows the server's accept queue.
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException ex) {}
             }
         }
 
