@@ -286,7 +286,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.inc();
     for (const auto& base : bases)
     {
-        InterfaceDefPtr def = base;
         _out << nl << "include " << getAbsolute(base) << "Prx_mixin";
     }
     for (const auto& op : ops)
@@ -296,7 +295,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             fixedOpName.insert(0, "_");
         }
-        TypePtr ret = op->returnType();
         ParameterList paramList = op->parameters();
         string inParams;
 
