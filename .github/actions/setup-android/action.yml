@@ -45,7 +45,7 @@ runs:
         sdkmanager_install() {
           for attempt in 1 2 3; do
             sdkmanager "$1" && return
-            echo "sdkmanager failed to install $1 (attempt $attempt of 3)"
+            echo "::notice::sdkmanager failed to install $1 (attempt $attempt of 3)"
           done
           return 1
         }
