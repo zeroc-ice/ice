@@ -119,7 +119,8 @@ and the server side, and BlueZ allows one registration per UUID **per daemon** (
 serves the server side, and a second `bluetoothd` on a private D-Bus bus serves the client.
 
 ```bash
-sudo apt-get install -y "linux-modules-extra-$(uname -r)" bluez bluez-test-tools bluez-tools
+sudo apt-get install -y bluez bluez-test-tools bluez-tools
+modinfo hci_vhci > /dev/null 2>&1 || sudo apt-get install -y "linux-modules-extra-$(uname -r)"   # some kernels ship it there
 for m in bluetooth rfcomm bnep hci_vhci; do sudo modprobe "$m"; done   # l2cap is built into bluetooth.ko
 ```
 

@@ -13,11 +13,13 @@ runs:
     - name: Install the Bluetooth modules and BlueZ
       shell: bash
       run: |
-        # hci_vhci.ko and friends live in linux-modules-extra, which the runner images don't
-        # install. btvirt is in bluez-test-tools; bt-agent is in bluez-tools.
+        # The 6.x azure kernels ship hci_vhci.ko and friends in linux-modules-extra, which the runner
+        # images don't install; from 7.0 they are in linux-modules, which comes with the kernel. The
+        # modinfo check can go once no arm64 runner image boots a 6.x kernel.
+        # btvirt is in bluez-test-tools; bt-agent is in bluez-tools.
         sudo apt-get update -qq
-        sudo apt-get install -y \
-          "linux-modules-extra-$(uname -r)" bluez bluez-test-tools bluez-tools
+        modinfo hci_vhci > /dev/null 2>&1 || sudo apt-get install -y "linux-modules-extra-$(uname -r)"
+        sudo apt-get install -y bluez bluez-test-tools bluez-tools
 
     - name: Load the modules
       shell: bash
