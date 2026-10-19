@@ -1562,7 +1562,8 @@ classDiagram
 
 - Metadata can now be applied to Slice enumerators.
 
-- Added `["deprecated"]` as an alias for the `["deprecate"]` metadata.
+- Added the `["deprecated"]` metadata, which replaces `["deprecate"]`. The Slice compilers still accept
+  `["deprecate"]` for backward compatibility.
 
 - Removed the `["protected"]` metadata. This was primarily for classes with operations, which are no longer allowed.
 
