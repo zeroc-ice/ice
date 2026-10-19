@@ -16,7 +16,7 @@ def tcp(host: str, port: int = 12010) -> str:
     return f"tcp -h {host} -p {port}"
 
 
-LOOPBACK = tcp("127.0.0.1")
+BACKEND_ENDPOINT = tcp("127.0.0.1")
 
 
 # The test driver runs this script without registering it in sys.modules, which @dataclass requires, so the records
@@ -137,15 +137,15 @@ def loopbackTests() -> list[FilterTest]:
             filters={"Category.Accept": 'foo "a cat with spaces"'},
             accepted=[
                 # The category is listed.
-                f"foo/helloA:{LOOPBACK}",
+                f"foo/helloA:{BACKEND_ENDPOINT}",
                 # The category is listed; a quoted entry of the filter can contain spaces.
-                f'"a cat with spaces/helloB":{LOOPBACK}',
+                f'"a cat with spaces/helloB":{BACKEND_ENDPOINT}',
             ],
             rejected=[
                 # The category is not listed.
-                f"nocat/helloC:{LOOPBACK}",
+                f"nocat/helloC:{BACKEND_ENDPOINT}",
                 # A category must match a listed one in full: being part of "a cat with spaces" is not enough.
-                f"cat/helloD:{LOOPBACK}",
+                f"cat/helloD:{BACKEND_ENDPOINT}",
             ],
         ),
         FilterTest(
@@ -160,10 +160,10 @@ def loopbackTests() -> list[FilterTest]:
             rejected=[
                 # The adapter id filter only applies to indirect proxies, so the "*" reject rule is what rejects
                 # these direct proxies.
-                f"foo/helloA:{LOOPBACK}",
-                f'"a cat with spaces/helloB":{LOOPBACK}',
-                f"nocat/helloC:{LOOPBACK}",
-                f"cat/helloD:{LOOPBACK}",
+                f"foo/helloA:{BACKEND_ENDPOINT}",
+                f'"a cat with spaces/helloB":{BACKEND_ENDPOINT}',
+                f"nocat/helloC:{BACKEND_ENDPOINT}",
+                f"cat/helloD:{BACKEND_ENDPOINT}",
                 # The adapter id is not listed.
                 "helloE @ bar",
             ],
@@ -173,21 +173,21 @@ def loopbackTests() -> list[FilterTest]:
             filters={"Identity.Accept": 'myident cata/fooa "a funny id/that might mess it up"'},
             accepted=[
                 # The identity is listed, without a category.
-                f"myident:{LOOPBACK}",
+                f"myident:{BACKEND_ENDPOINT}",
                 # The identity is listed, with its category.
-                f"cata/fooa:{LOOPBACK}",
+                f"cata/fooa:{BACKEND_ENDPOINT}",
                 # The identity is listed; a quoted entry of the filter can contain spaces and a slash.
-                f'"a funny id/that might mess it up":{LOOPBACK}',
+                f'"a funny id/that might mess it up":{BACKEND_ENDPOINT}',
             ],
             rejected=[
                 # The identity is not listed.
-                f'"a cat with spaces/helloB":{LOOPBACK}',
-                f"nocat/helloC:{LOOPBACK}",
-                f"cat/helloD:{LOOPBACK}",
+                f'"a cat with spaces/helloB":{BACKEND_ENDPOINT}',
+                f"nocat/helloC:{BACKEND_ENDPOINT}",
+                f"cat/helloD:{BACKEND_ENDPOINT}",
                 # An identity must match a listed one in both category and name: each of these matches only one.
-                f"baz/myident:{LOOPBACK}",
-                f"cata/foo:{LOOPBACK}",
-                f"cat/fooa:{LOOPBACK}",
+                f"baz/myident:{BACKEND_ENDPOINT}",
+                f"cata/foo:{BACKEND_ENDPOINT}",
+                f"cat/fooa:{BACKEND_ENDPOINT}",
             ],
         ),
         FilterTest(
@@ -200,8 +200,8 @@ def loopbackTests() -> list[FilterTest]:
             },
             accepted=[
                 # The category is listed.
-                f"mycat/fooa:{LOOPBACK}",
-                f'"a sec cat/fooa":{LOOPBACK}',
+                f"mycat/fooa:{BACKEND_ENDPOINT}",
+                f'"a sec cat/fooa":{BACKEND_ENDPOINT}',
                 # The category is listed, even though the adapter id is not.
                 "mycat/foo @ jimbo",
                 # The adapter id is listed.
@@ -209,18 +209,18 @@ def loopbackTests() -> list[FilterTest]:
                 # The identity is listed, even though the adapter id is not; the filter entry escapes the quote.
                 'a"nother @ jimbo',
                 # The identity is listed.
-                f"myident:{LOOPBACK}",
-                f"cata/fooa:{LOOPBACK}",
-                f'"a funny id/that might mess it up":{LOOPBACK}',
+                f"myident:{BACKEND_ENDPOINT}",
+                f"cata/fooa:{BACKEND_ENDPOINT}",
+                f'"a funny id/that might mess it up":{BACKEND_ENDPOINT}',
             ],
             rejected=[
                 # Neither the category nor the identity is listed, and a direct proxy has no adapter id.
-                f'"a cat with spaces/helloB":{LOOPBACK}',
-                f"nocat/helloC:{LOOPBACK}",
-                f"cat/helloD:{LOOPBACK}",
-                f"baz/myident:{LOOPBACK}",
-                f"cata/foo:{LOOPBACK}",
-                f"cat/fooa:{LOOPBACK}",
+                f'"a cat with spaces/helloB":{BACKEND_ENDPOINT}',
+                f"nocat/helloC:{BACKEND_ENDPOINT}",
+                f"cat/helloD:{BACKEND_ENDPOINT}",
+                f"baz/myident:{BACKEND_ENDPOINT}",
+                f"cata/foo:{BACKEND_ENDPOINT}",
+                f"cat/fooa:{BACKEND_ENDPOINT}",
                 # None of the category, identity, and adapter id is listed.
                 "hiscatA @ jimbo",
             ],
@@ -245,21 +245,21 @@ def loopbackTests() -> list[FilterTest]:
             ],
             rejected=[
                 # Direct proxies, rejected by the "*" reject rule.
-                f'"a cat with spaces/helloB":{LOOPBACK}',
-                f"nocat/helloC:{LOOPBACK}",
-                f"cat/helloD:{LOOPBACK}",
-                f"baz/myident:{LOOPBACK}",
-                f"cata/foo:{LOOPBACK}",
-                f"cat/fooa:{LOOPBACK}",
+                f'"a cat with spaces/helloB":{BACKEND_ENDPOINT}',
+                f"nocat/helloC:{BACKEND_ENDPOINT}",
+                f"cat/helloD:{BACKEND_ENDPOINT}",
+                f"baz/myident:{BACKEND_ENDPOINT}",
+                f"cata/foo:{BACKEND_ENDPOINT}",
+                f"cat/fooa:{BACKEND_ENDPOINT}",
                 # Direct proxies, rejected by the "*" reject rule even though their category is listed.
-                f"mycat/fooa:{LOOPBACK}",
-                f'"a sec cat/fooa":{LOOPBACK}',
+                f"mycat/fooa:{BACKEND_ENDPOINT}",
+                f'"a sec cat/fooa":{BACKEND_ENDPOINT}',
                 # Indirect, but none of the category, identity, and adapter id is listed.
                 "hiscatA @ jimbo",
                 # Direct proxies, rejected by the "*" reject rule even though their identity is listed.
-                f"myident:{LOOPBACK}",
-                f"cata/fooa:{LOOPBACK}",
-                f'"a funny id/that might mess it up":{LOOPBACK}',
+                f"myident:{BACKEND_ENDPOINT}",
+                f"cata/fooa:{BACKEND_ENDPOINT}",
+                f'"a funny id/that might mess it up":{BACKEND_ENDPOINT}',
             ],
         ),
         FilterTest(
@@ -267,7 +267,7 @@ def loopbackTests() -> list[FilterTest]:
             filters={"Address.Accept": "12[7].0.0.*"},
             accepted=[
                 # The 7 after the 12 prefix is in the range [7].
-                f"hello:{LOOPBACK}",
+                f"hello:{BACKEND_ENDPOINT}",
             ],
             rejected=[
                 # The 8 and the 6 after the 12 prefix are not.
@@ -279,14 +279,14 @@ def loopbackTests() -> list[FilterTest]:
             # A rule must match the host in full, so 12[7] does not match 127.0.0.1.
             "address filter without a trailing wildcard matches the whole host",
             filters={"Address.Accept": "12[7]"},
-            rejected=[f"hello:{LOOPBACK}"],
+            rejected=[f"hello:{BACKEND_ENDPOINT}"],
         ),
         FilterTest(
             # A rule without any wildcard is not a suffix match, so the reject rule 7.0.0.1 does not reject
             # 127.0.0.1.
             "address filter without a wildcard is not a suffix match",
             filters={"Address.Reject": "7.0.0.1"},
-            accepted=[f"hello:{LOOPBACK}"],
+            accepted=[f"hello:{BACKEND_ENDPOINT}"],
         ),
         FilterTest(
             # A wildcard followed by a trailing numeric range matches when any alignment of the wildcard reaches the
@@ -294,7 +294,7 @@ def loopbackTests() -> list[FilterTest]:
             # dot is the correct alignment. The range must match right after a dot, so 127.0.0.x does not match.
             "address filter with a wildcard followed by a trailing numeric range",
             filters={"Address.Accept": "*.[0-255]"},
-            accepted=[f"hello:{LOOPBACK}"],
+            accepted=[f"hello:{BACKEND_ENDPOINT}"],
             rejected=[f"hello:{tcp('127.0.0.x')}"],
         ),
         FilterTest(
@@ -302,14 +302,14 @@ def loopbackTests() -> list[FilterTest]:
             # of the host and lies in the 0-9 range.
             "address filter with a wildcard followed by a single-digit numeric range",
             filters={"Address.Accept": "*[0-9]"},
-            accepted=[f"hello:{LOOPBACK}"],
+            accepted=[f"hello:{BACKEND_ENDPOINT}"],
         ),
         FilterTest(
             # A rule ending with a numeric range followed by a wildcard is a prefix match: 12[0-255]* matches
             # 127.0.0.1, with the range matching the number right after the 12 prefix.
             "address filter with a numeric range followed by a trailing wildcard",
             filters={"Address.Accept": "12[0-255]*"},
-            accepted=[f"hello:{LOOPBACK}"],
+            accepted=[f"hello:{BACKEND_ENDPOINT}"],
             rejected=[
                 # There is no number after the 12 prefix for the range to match.
                 f"hello:{tcp('12x.0.0.1')}",
@@ -329,7 +329,7 @@ def loopbackTests() -> list[FilterTest]:
             filters={"Address.Accept": "*aa*aa*aa*aa*aa*aa*aab *7.*.1"},
             accepted=[
                 # Matches the second rule, *7.*.1.
-                f"hello:{LOOPBACK}",
+                f"hello:{BACKEND_ENDPOINT}",
             ],
             rejected=[
                 # A host of only 'a' characters has no 'b' for the first rule to end on, and no digits for the second.
@@ -344,7 +344,7 @@ def loopbackTests() -> list[FilterTest]:
             accepted=[f"hello:{tcp('localhost')}", f"hello:{tcp('LOCALHOST')}"],
             rejected=[
                 # The rules match the host as written, without resolving it, so 127.0.0.1 is not localhost.
-                f"hello:{LOOPBACK}",
+                f"hello:{BACKEND_ENDPOINT}",
             ],
         ),
         FilterTest(
@@ -358,8 +358,8 @@ def loopbackTests() -> list[FilterTest]:
             ],
             rejected=[
                 # The 127.0.0.1 endpoint matches, whether it comes first or last.
-                f"hello:{LOOPBACK}:{tcp('127.0.0.2')}",
-                f"hello:{tcp('127.0.0.2')}:{LOOPBACK}",
+                f"hello:{BACKEND_ENDPOINT}:{tcp('127.0.0.2')}",
+                f"hello:{tcp('127.0.0.2')}:{BACKEND_ENDPOINT}",
             ],
         ),
         FilterTest(
@@ -382,7 +382,7 @@ def loopbackTests() -> list[FilterTest]:
             accepted=[
                 # The host is listed.
                 f"hello:{tcp('localhost')}",
-                f"hello:{LOOPBACK}",
+                f"hello:{BACKEND_ENDPOINT}",
                 # The trailing dot is stripped, so the host matches localhost.
                 f"hello:{tcp('localhost.')}",
             ],
@@ -398,7 +398,7 @@ def loopbackTests() -> list[FilterTest]:
             filters={"Address.Reject": "badhost.example.com *.internal.example.com"},
             accepted=[
                 # The host matches no reject rule.
-                f"hello:{LOOPBACK}",
+                f"hello:{BACKEND_ENDPOINT}",
             ],
             rejected=[
                 # The trailing dot is stripped, so the host matches badhost.example.com.
@@ -414,7 +414,7 @@ def loopbackTests() -> list[FilterTest]:
             filters={"Address.Reject": "badhost.example.com."},
             accepted=[
                 # The host does not match the reject rule.
-                f"hello:{LOOPBACK}",
+                f"hello:{BACKEND_ENDPOINT}",
             ],
             rejected=[
                 f"hello:{tcp('badhost.example.com')}",
@@ -463,7 +463,7 @@ def loopbackTests() -> list[FilterTest]:
             filters={"Address.Reject": "*.invalid"},
             accepted=[
                 # The host does not match the reject rule.
-                f"hello:{LOOPBACK}",
+                f"hello:{BACKEND_ENDPOINT}",
             ],
             rejected=[f"hello:{tcp('a' * 300)}"],
         ),
@@ -519,7 +519,7 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
                 # "*" matches every host.
                 f"helloA:{tcp(fqdn)}",
                 f"helloB:{tcp(hostname)}",
-                f"helloC:{LOOPBACK}",
+                f"helloC:{BACKEND_ENDPOINT}",
             ],
         ),
         FilterTest(
@@ -527,9 +527,9 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
             filters={"Address.Accept": "127.0.0.1 localhost"},
             accepted=[
                 # The host is listed; the identity plays no part in address rules.
-                f"localhost:{LOOPBACK}",
+                f"localhost:{BACKEND_ENDPOINT}",
                 f"localhost/127.0.0.1:{tcp('localhost')}",
-                f"hello:{LOOPBACK}",
+                f"hello:{BACKEND_ENDPOINT}",
                 f"hello/somecat:{tcp('localhost')}",
             ],
             rejected=[
@@ -547,7 +547,7 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
             filters={"Address.Accept": "127.0.0.1:12010 localhost:12010"},
             accepted=[
                 # The host and the port are listed.
-                f"hello3:{LOOPBACK}",
+                f"hello3:{BACKEND_ENDPOINT}",
                 f"hello4:{tcp('localhost')}",
             ],
             rejected=[
@@ -565,7 +565,7 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
                 # The host matches no reject rule.
                 f"hello5:{tcp(hostname)}",
                 # The port is outside the rejected ranges.
-                f"hello3:{LOOPBACK}",
+                f"hello3:{BACKEND_ENDPOINT}",
                 f"hello4:{tcp('localhost')}",
             ],
             rejected=[
@@ -580,7 +580,7 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
             accepted=[
                 # Any host, on the listed port.
                 f"hello5:{tcp(hostname)}",
-                f"hello3:{LOOPBACK}",
+                f"hello3:{BACKEND_ENDPOINT}",
                 f"hello4:{tcp('localhost')}",
             ],
             rejected=[
@@ -607,7 +607,7 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
             accepted=[
                 # The host does not end with the domain.
                 f"hello:{tcp(hostname)}",
-                f"bar:{LOOPBACK}",
+                f"bar:{BACKEND_ENDPOINT}",
             ],
             rejected=[
                 # The fully qualified name ends with the domain.
@@ -619,12 +619,12 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
             filters={"Address.Accept": "127.0.0.1", "Address.Reject": fqdn},
             accepted=[
                 # The host matches the accept rule and not the reject rule.
-                f"bar:{LOOPBACK}",
+                f"bar:{BACKEND_ENDPOINT}",
             ],
             rejected=[
                 # The fully qualified name endpoint matches the reject rule. It also fails the accept rule, which
                 # every endpoint must match.
-                f"hello:{tcp(fqdn)}:{LOOPBACK}",
+                f"hello:{tcp(fqdn)}:{BACKEND_ENDPOINT}",
             ],
         ),
         FilterTest(
@@ -632,11 +632,11 @@ def hostNameTests(host: HostNames) -> list[FilterTest]:
             filters={"ProxySizeMax": "53"},
             accepted=[
                 # The stringified proxy is within the limit.
-                f"hello:{LOOPBACK} -t infinite",
+                f"hello:{BACKEND_ENDPOINT} -t infinite",
             ],
             rejected=[
                 # The 60-character identity alone exceeds the limit.
-                f"012345678901234567890123456789012345678901234567890123456789:{LOOPBACK}",
+                f"012345678901234567890123456789012345678901234567890123456789:{BACKEND_ENDPOINT}",
             ],
         ),
     ]
