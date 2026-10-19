@@ -46,6 +46,7 @@ runs:
           for attempt in 1 2 3; do
             sdkmanager "$1" && return
             echo "::notice::sdkmanager failed to install $1 (attempt $attempt of 3)"
+            sleep 5
           done
           return 1
         }
