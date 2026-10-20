@@ -3761,55 +3761,6 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
     string package = getPackage(p);
     string typeS = typeToString(p, TypeModeIn, package);
 
-    //
-    // We cannot allocate an array of a generic type, such as
-    //
-    // arr = new Map<String, String>[sz];
-    //
-    // Attempting to compile this code results in a "generic array creation" error
-    // message. This problem can occur when the sequence's element type is a
-    // dictionary, or when the element type is a nested sequence that uses a custom
-    // mapping.
-    //
-    // The solution is to rewrite the code as follows:
-    //
-    // arr = (Map<String, String>[])new Map[sz];
-    //
-    // Unfortunately, this produces an unchecked warning during compilation, so we
-    // annotate the read() method to suppress the warning.
-    //
-    // A simple test is to look for a "<" character in the content type, which
-    // indicates the use of a generic type.
-    //
-    bool suppressUnchecked = false;
-
-    string instanceType, formalType;
-    bool customType = getSequenceTypes(p, "", MetadataList(), instanceType, formalType);
-
-    if (!customType)
-    {
-        //
-        // Determine sequence depth.
-        //
-        TypePtr origContent = p->type();
-        SequencePtr s = dynamic_pointer_cast<Sequence>(origContent);
-        while (s)
-        {
-            //
-            // Stop if the inner sequence type has a custom or serializable type.
-            //
-            if (hasTypeMetadata(s))
-            {
-                break;
-            }
-            origContent = s->type();
-            s = dynamic_pointer_cast<Sequence>(origContent);
-        }
-
-        string origContentS = typeToString(origContent, TypeModeIn, package);
-        suppressUnchecked = origContentS.find('<') != string::npos;
-    }
-
     open(helper, p->file());
     Output& out = output();
 
@@ -3817,7 +3768,7 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
 
     out << sp;
     writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
-    //TODOHERE
+    out << nl << R"(@SuppressWarnings("deprecation"))";
     out << nl << "public final class " << name << "Helper";
     out << sb;
 
@@ -3833,6 +3784,10 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
     writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, false);
     out << eb;
 
+    // Java doesn't allow allocating an array of a generic type (fails with "generic array creation").
+    // For example: `arr = new Map<String, String>[sz];`. This happens when the element type is a
+    // dictionary, or a nested sequence using `java:type` metadata. The solution is to instead do:
+    // `arr = (Map<String, String>[])new Map[sz];`, but this triggers lints we need to suppress.
     out << sp;
     out << nl << "/**";
     out << nl << " * Unmarshals a list of {@code " << name << "} from an input stream.";
@@ -3840,10 +3795,7 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << " * @param istr the input stream";
     out << nl << " * @return the list";
     out << nl << " */";
-    if (suppressUnchecked)
-    {
-        out << nl << "@SuppressWarnings(\"unchecked\")";
-    }
+    out << nl << R"(@SuppressWarnings({"rawtypes", "unchecked"}))";
     out << nl << "public static " << typeS << " read(com.zeroc.Ice.InputStream istr)";
     out << sb;
     out << nl << "final " << typeS << " v;";
@@ -3954,7 +3906,7 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << sp;
     writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
-    //TODOHERE
+    out << nl << R"(@SuppressWarnings("deprecation"))";
     out << nl << "public final class " << name << "Helper";
     out << sb;
 
