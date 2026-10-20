@@ -1,0 +1,1 @@
+- The IceGrid source code now builds against Expat 2.9.0 without deprecation warnings, on all platforms.
