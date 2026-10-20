@@ -89,6 +89,21 @@ decoding bug.
   Tracing is off by default, the detail stays in the server's log, and clients only get a generic error.
 - The plain transports (`tcp`, `udp`, `ws`, `bt`) are unauthenticated and unencrypted by design. The secure variants
   (`ssl`, `wss`, `bts`) are the answer; adding authentication to the plain ones is not.
+- Memory or CPU spent decoding a message that `Ice.MessageSizeMax` already bounds, such as a large request context or
+  a compressed message (the uncompressed size is checked against the limit before anything is allocated). Report it
+  only if the cost escapes that bound.
+- Certificate revocation checking is off by default (`IceSSL.RevocationCheck=0`, and cache-only when enabled). Many
+  deployments use private CAs without OCSP or CRL distribution points.
+- WebSocket masks and `Sec-WebSocket-Key` values come from `std::random_device`. Neither is a secret: the key is a
+  handshake nonce, and the mask defends against browser cache poisoning, which does not apply to native Ice clients.
+- A UDP server replies to the source address of the last datagram it received, so a spoofed datagram can redirect
+  replies. UDP is documented as an insecure transport.
+- Glacier2 forwards the client's request context to the permissions verifiers on purpose. The reserved `_con.*`
+  connection keys are removed first.
+- DataStorm sample history grows without bound when a writer sets `clearHistory` to `Never` and leaves the sample
+  count and lifetime unlimited. That is a configuration choice.
+- The parsers of the `icegridadmin` and `icestormadmin` command-line tools read input from a trusted local operator.
+- Cleanup that is skipped only when a fatal exception (for example `std::bad_alloc`) escapes.
 - Races at the idle-timeout boundary of a connection. A connection only reaches that boundary after receiving nothing,
   not even a heartbeat, for a full idle timeout; the outcome is a closed connection that the client re-establishes.
 - Assemblies loaded through the C# Slice loader cache cannot be unloaded (see `AGENTS.md`).
