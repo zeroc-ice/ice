@@ -16,4 +16,7 @@ public class Large implements Serializable {
     public double d8;
     public double d9;
     public double d10;
+
+    @java.io.Serial
+    private static final long serialVersionUID = 0L;
 }
