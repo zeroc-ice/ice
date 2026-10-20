@@ -2076,7 +2076,7 @@ Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p, const op
         writeSeeAlso(out, comment->seeAlso());
 
         const StringList& deprecated = comment->deprecated();
-        if (!deprecated.empty())
+        if (!deprecated.empty() && generatedType != "skeleton interface")
         {
             out << nl << " * @deprecated ";
             writeDocCommentLines(out, deprecated);

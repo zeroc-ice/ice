@@ -42,6 +42,10 @@ subprojects {
         options.compilerArgs << "-Xdoclint:all,-missing"
                              << "-Xlint:all,-rawtypes,-exports,-try,-missing-explicit-ctor"
         options.encoding = "UTF-8"
+        if (System.getenv("WARNINGS_AS_ERRORS") == "yes") {
+            // Treat all warnings as errors, but don't stop compilation at the first error.
+            options.compilerArgs << "-Werror" << "-XDshould-stop.ifError=FLOW"
+        }
     }
 }
 
