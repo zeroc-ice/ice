@@ -233,6 +233,147 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     [(True, 'hello:tcp -h 127.0.0.1 -p 12010'),
                     (False, 'hello:tcp -h 128.0.0.1 -p 12010'),
                     (False, 'hello:tcp -h 126.0.0.1 -p 12010')], []),
+                # A rule must match the host in full, so 12[7] does not match 127.0.0.1.
+                ('testing address filter without a trailing wildcard matches the whole host',
+                    ('12[7]', '', '', '', '', ''),
+                    [(False, 'hello:tcp -h 127.0.0.1 -p 12010')], []),
+                # A rule without any wildcard is not a suffix match, so the reject rule 7.0.0.1 does not
+                # reject 127.0.0.1.
+                ('testing address filter without a wildcard is not a suffix match',
+                    ('', '7.0.0.1', '', '', '', ''),
+                    [(True, 'hello:tcp -h 127.0.0.1 -p 12010')], []),
+                # A wildcard followed by a trailing numeric range matches when any alignment of the wildcard
+                # reaches the end of the host: for 127.0.0.1, the first two dots leave part of the host
+                # unmatched and only the last dot is the correct alignment. The range must match right after a
+                # dot, so 127.0.0.x does not match.
+                ('testing address filter with a wildcard followed by a trailing numeric range',
+                    ('*.[0-255]', '', '', '', '', ''),
+                    [(True, 'hello:tcp -h 127.0.0.1 -p 12010'),
+                    (False, 'hello:tcp -h 127.0.0.x -p 12010')], []),
+                # Same with the numeric range directly after the wildcard: only the final 1 of 127.0.0.1 ends
+                # at the end of the host and lies in the 0-9 range.
+                ('testing address filter with a wildcard followed by a single-digit numeric range',
+                    ('*[0-9]', '', '', '', '', ''),
+                    [(True, 'hello:tcp -h 127.0.0.1 -p 12010')], []),
+                # A rule ending with a numeric range followed by a wildcard is a prefix match: 12[0-255]*
+                # matches 127.0.0.1, with the range matching the number right after the 12 prefix.
+                ('testing address filter with a numeric range followed by a trailing wildcard',
+                    ('12[0-255]*', '', '', '', '', ''),
+                    [(True, 'hello:tcp -h 127.0.0.1 -p 12010'),
+                    (False, 'hello:tcp -h 12x.0.0.1 -p 12010')], []),
+                # A digit run too long to fit in an int does not match a numeric range: the scan skips the run,
+                # finds no other number in the host, and the rule does not match. The leading letter keeps the
+                # host from being rejected outright as a non-canonical IPv4 address before the rule is checked.
+                ('testing address filter numeric range against a long digit run',
+                    ('*[0-9]', '', '', '', '', ''),
+                    [(False, 'hello:tcp -h a' + '9' * 254 + ' -p 12010')], []),
+                # A rule with many wildcard segments stays fast even when every alignment of the wildcards has
+                # to be tried before concluding that the host does not match.
+                ('testing address filter with many wildcard segments',
+                    ('*aa*aa*aa*aa*aa*aa*aab *7.*.1', '', '', '', '', ''),
+                    [(False, 'hello:tcp -h ' + 'a' * 255 + ' -p 12010'),
+                    (True, 'hello:tcp -h 127.0.0.1 -p 12010')], []),
+                # Host names are case-insensitive: an accept rule matches the host regardless of the case of
+                # either the rule or the host.
+                ('testing address filter accept rule is case-insensitive',
+                    ('LocalHost', '', '', '', '', ''),
+                    [(True, 'hello:tcp -h localhost -p 12010'),
+                    (True, 'hello:tcp -h LOCALHOST -p 12010'),
+                    (False, 'hello:tcp -h 127.0.0.1 -p 12010')], []),
+                # A reject rule matches a proxy as soon as one of its endpoints matches: extra endpoints that
+                # do not match the rule do not get the proxy accepted.
+                ('testing address filter reject rule against a multi-endpoint proxy',
+                    ('', '127.0.0.1', '', '', '', ''),
+                    [(False, 'hello:tcp -h 127.0.0.1 -p 12010:tcp -h 127.0.0.2 -p 12010'),
+                    (False, 'hello:tcp -h 127.0.0.2 -p 12010:tcp -h 127.0.0.1 -p 12010'),
+                    (True, 'hello:tcp -h localhost -p 12010')], []),
+                # Same for a reject rule: a case variation of the host still matches the rule.
+                ('testing address filter reject rule is case-insensitive',
+                    ('', 'badhost.example.com', '', '', '', ''),
+                    [(False, 'hello:tcp -h BadHost.Example.COM -p 12010'),
+                    (True, 'hello:tcp -h localhost -p 12010')], []),
+                # A non-canonical spelling of an IPv4 address (octal or hexadecimal parts, leading zeros, fewer
+                # than four parts, a single number) is rejected outright when filters are configured: the
+                # resolver accepts these spellings as aliases for an address that string-based rules spell
+                # differently.
+                ('testing address filter against non-canonical hosts',
+                    ('localhost 127.0.0.1', '', '', '', '', ''),
+                    [(True, 'hello:tcp -h localhost -p 12010'),
+                    (True, 'hello:tcp -h 127.0.0.1 -p 12010'),
+                    (False, 'hello:tcp -h 127.000.000.001 -p 12010'),
+                    (False, 'hello:tcp -h localhost.example.com -p 12010')], []),
+                ('testing address filter reject rule against a trailing-dot host',
+                    ('', 'badhost.example.com *.internal.example.com', '', '', '', ''),
+                    [(False, 'hello:tcp -h badhost.example.com. -p 12010'),
+                    (False, 'hello:tcp -h db.internal.example.com. -p 12010'),
+                    (True, 'hello:tcp -h 127.0.0.1 -p 12010')], []),
+                # A rule written with a trailing dot is stripped like the host, so both spellings of the rule
+                # match both spellings of the host.
+                ('testing address filter reject rule written with a trailing dot',
+                    ('', 'badhost.example.com.', '', '', '', ''),
+                    [(False, 'hello:tcp -h badhost.example.com -p 12010'),
+                    (False, 'hello:tcp -h badhost.example.com. -p 12010'),
+                    (True, 'hello:tcp -h 127.0.0.1 -p 12010')], []),
+                # The non-canonical spellings are rejected even though none of them matches the reject rule as
+                # a string: without the outright rejection, each would be accepted and the resolver would
+                # connect it to the very address the rule rejects.
+                ('testing address filter reject rule against non-canonical IPv4 literals',
+                    ('', '127.0.0.1', '', '', '', ''),
+                    [(False, 'hello:tcp -h 127.000.000.001 -p 12010'),
+                    (False, 'hello:tcp -h 0x7f000001 -p 12010'),
+                    (False, 'hello:tcp -h 2130706433 -p 12010'),
+                    (False, 'hello:tcp -h 127.1 -p 12010'),
+                    (False, 'hello:tcp -h 0177.0.0.1 -p 12010'),
+                    (False, 'hello:tcp -h 0x.0.0.1 -p 12010'),
+                    (False, 'hello:tcp -h 127.0.0.1. -p 12010'),
+                    (True, 'hello:tcp -h localhost -p 12010')], []),
+                # The outright rejection of non-canonical spellings applies only when an address filter is
+                # configured: with just a size limit, the proxy is matched against no address rule, so the
+                # spelling of the host does not matter.
+                ('testing proxy size limit alone allows non-canonical hosts',
+                    ('', '', '100', '', '', ''),
+                    [(True, 'hello:tcp -h 127.1 -p 12010')], []),
+                # A proxy with an endpoint host longer than 255 characters is rejected outright, even when no
+                # reject rule matches it: no legal host name or IP address is that long.
+                ('testing address filter rejects an oversized host',
+                    ('', '*.invalid', '', '', '', ''),
+                    [(False, 'hello:tcp -h ' + 'a' * 300 + ' -p 12010'),
+                    (True, 'hello:tcp -h 127.0.0.1 -p 12010')], []),
+                # An endpoint with no host is rejected outright: Ice resolves it to the loopback address, yet
+                # it matches no address rule, so without the rejection a reject rule for loopback would not
+                # catch a proxy that connects to loopback. The same accepted IP endpoint flips to rejected once
+                # the host-less endpoint is added alongside it. The host-less endpoint is written in opaque
+                # form (a tcp endpoint with an empty host and port 12010) because the client would otherwise
+                # fill in its default host when parsing it.
+                ('testing address filter rejects an endpoint with no host',
+                    ('', '127.0.0.1', '', '', '', ''),
+                    [(True, 'hello:tcp -h localhost -p 12010'),
+                    (False, 'hello:opaque -t 1 -e 1.1 -v AOouAAD/////AA=='),
+                    (False, 'hello:tcp -h localhost -p 12010:opaque -t 1 -e 1.1 -v AOouAAD/////AA==')], []),
+                # A host containing a space or a control character is rejected outright: no legal host name
+                # contains one, and the rules match the host extracted from the endpoint string, which stops at
+                # the first space. The hosts 'localhost x' and 'local\x01host' are written in opaque form, which
+                # carries them verbatim.
+                ('testing address filter rejects a host with a space or a control character',
+                    ('localhost', '', '', '', '', ''),
+                    [(True, 'hello:tcp -h localhost -p 12010'),
+                    (False, 'hello:opaque -t 1 -e 1.1 -v C2xvY2FsaG9zdCB46i4AAP////8A'),
+                    (False, 'hello:opaque -t 1 -e 1.1 -v CmxvY2FsAWhvc3TqLgAA/////wA=')], []),
+                # A proxy with a non-IP endpoint (here an opaque endpoint of an unknown transport) is rejected
+                # outright: the address rules describe IP hosts and ports, so an endpoint they cannot interpret
+                # is rejected rather than admitted unchecked. The same accepted IP endpoint flips to rejected
+                # once the non-IP endpoint is added alongside it.
+                ('testing address filter rejects a non-IP endpoint',
+                    ('', '127.0.0.1', '', '', '', ''),
+                    [(True, 'hello:tcp -h localhost -p 12010'),
+                    (False, 'hello:tcp -h localhost -p 12010:opaque -t 99 -v ABCD')], []),
+                # Without any address filter, the host checks above do not apply: an unrestricted
+                # configuration keeps accepting these endpoints.
+                ('testing no address filter allows any host',
+                    ('', '', '', '', '', ''),
+                    [(True, 'hello:tcp -h 127.1 -p 12010'),
+                    (True, 'hello:opaque -t 1 -e 1.1 -v AOouAAD/////AA=='),
+                    (True, 'hello:tcp -h localhost -p 12010:opaque -t 99 -v ABCD')], []),
                 ])
 
         if not limitedTests:
