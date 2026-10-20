@@ -119,7 +119,7 @@ public class AllTests {
                     _background.op();
                 } catch (LocalException ex) {}
 
-                // Sleep after a failure too: reconnecting in a tight loop overflows the server's accept queue.
+                // A tight reconnect loop overflows the server's accept queue.
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException ex) {}
