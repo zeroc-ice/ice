@@ -265,12 +265,9 @@ public class MainActivity extends Activity {
                 if (state != BluetoothDevice.BOND_BONDED) {
                     Log.i(TAG, "bond state=" + state + ", createBond()...");
                     dev.createBond();
-                    // Read the state once per poll, and let the read that ends the loop be the
-                    // verdict. After a Secure Connections pairing the stack derives an LE key from
-                    // the new BR/EDR link key, and while it does the framework reports the device
-                    // as BOND_BONDING again (transport LE) for a few hundred milliseconds. A re-read
-                    // after the loop can land in that window and fail a bond that succeeded. The
-                    // RFCOMM connect below only needs the BR/EDR key, stored before BONDED is seen.
+                    // Read the state once per poll, and let the read that ends the loop be the verdict.
+                    // After a Secure Connections pairing the stack derives an LE key from the new BR/EDR link key,
+                    // and while it does the framework reports the device as BOND_BONDING again for a few hundred ms.
                     long deadline = System.currentTimeMillis() + 60000;
                     while (state != BluetoothDevice.BOND_BONDED
                         && System.currentTimeMillis() < deadline) {
