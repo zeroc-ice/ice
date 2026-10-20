@@ -5,7 +5,7 @@
 #
 # Two trees are built from the same checkout:
 #
-#   /src            The checkout. C++ (sources and tests), Python, PHP, Java, C# and JavaScript, built with
+#   /src            The checkout. C++ (sources and tests), Python, PHP, Ruby, Java, C# and JavaScript, built with
 #                   OPTIMIZE=no: debug info, no optimization, and asserts enabled. Run tests from here, for example
 #                   `python3 cpp/allTests.py --filter=Ice/stream`, or `python3 allTests.py --filter=...` in another
 #                   language directory.
@@ -13,8 +13,7 @@
 #                   UndefinedBehaviorSanitizer. Use it to confirm memory-safety findings:
 #                   `python3 /opt/ice-asan/cpp/allTests.py --filter=Ice/stream`.
 #
-# Swift (Apple platforms only) and MATLAB (proprietary) are not built. Ruby is not built either: Ice for Ruby
-# requires Ruby 3.4, and Ubuntu 24.04 ships 3.2.
+# Swift (Apple platforms only) and MATLAB (proprietary) are not built.
 
 # The image Ice's Linux CI uses (packaging/deb/docker/Dockerfile), with all C++, Python and PHP build dependencies.
 # The tag is the release channel of main (CHANNEL in config/version.env).
@@ -47,6 +46,28 @@ RUN set -eux; \
     rm "$tarball"; \
     node --version
 
+# Ruby 3.4, the minimum Ice for Ruby supports; Ubuntu 24.04 ships Ruby 3.2. This is the ruby/ruby-builder build that
+# ruby/setup-ruby installs in CI. It is not relocatable, so it goes in the same prefix as on the CI runners. To update
+# it, change RUBY_VERSION and the two SHA-256 digests listed on the release page.
+ARG RUBY_VERSION=3.4.11
+RUN set -eux; \
+    case "$(uname -m)" in \
+      x86_64) arch=x64; sha256=e3d114c546332243f84755aa277ba1e1781deba686050d729d2806d3766baf25 ;; \
+      aarch64) arch=arm64; sha256=cb16027d1db27dcf550dfd03486b8f7ef7b0a75e5127caa15bb3dd05e40a6eda ;; \
+      *) exit 1 ;; \
+    esac; \
+    tarball="ruby-$RUBY_VERSION-ubuntu-24.04-$arch.tar.gz"; \
+    cd /tmp; \
+    curl -fsSLO "https://github.com/ruby/ruby-builder/releases/download/ruby-$RUBY_VERSION/$tarball"; \
+    echo "$sha256  $tarball" | sha256sum -c -; \
+    mkdir -p "/opt/hostedtoolcache/Ruby/$RUBY_VERSION"; \
+    tar -xzf "$tarball" -C "/opt/hostedtoolcache/Ruby/$RUBY_VERSION"; \
+    rm "$tarball"; \
+    ln -s "/opt/hostedtoolcache/Ruby/$RUBY_VERSION/$arch" /opt/ruby; \
+    /opt/ruby/bin/ruby --version
+
+ENV PATH=/opt/ruby/bin:$PATH
+
 # scanner contract: the checkout lives inside the image, at /src
 COPY . /src
 WORKDIR /src
@@ -59,6 +80,7 @@ RUN make -j"$(nproc)" -C cpp srcs tests
 
 RUN make -j"$(nproc)" -C python \
     && make -j"$(nproc)" -C php \
+    && make -j"$(nproc)" -C ruby \
     && make -C java \
     && make -C csharp \
     && make -C js
@@ -81,7 +103,7 @@ RUN make -j"$(nproc)" -C /opt/ice-asan/cpp \
       srcs tests
 
 # A few cheap suites per mapping, to show the image works. Failures are reported but do not fail the build.
-RUN for lang in cpp python php java csharp js; do \
+RUN for lang in cpp python php ruby java csharp js; do \
       (cd /src/$lang && python3 allTests.py --filter='Ice/(operations|stream|exceptions)' --continue) \
         || echo "WARNING: $lang tests reported failures"; \
     done; \

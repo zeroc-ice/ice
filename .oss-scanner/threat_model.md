@@ -57,7 +57,9 @@ The image has two builds, described at the top of `/src/.oss-scanner/Dockerfile`
 
 - `/src`: every buildable mapping, debug build with asserts enabled. Each language directory has an `allTests.py`;
   run one suite with, for example, `python3 /src/cpp/allTests.py --filter=Ice/stream`. Tests start a server and a
-  client on localhost ports from 12010, so run one suite at a time.
+  client on localhost ports from 12010, so run one suite at a time. Without a network, suites that use multicast
+  (`Ice/udp`, IceDiscovery) or listen on all interfaces (`-h *`, for example `Ice/exceptions` and
+  `IceSSL/configuration`) fail during setup; those failures are environmental, not findings.
 - `/opt/ice-asan`: C++ only, with AddressSanitizer and UndefinedBehaviorSanitizer. Use it to confirm memory-safety
   findings: `python3 /opt/ice-asan/cpp/allTests.py --filter=Ice/stream`. Leak detection is off by default
   (`ASAN_OPTIONS`); re-enable it only when a leak is the finding.
