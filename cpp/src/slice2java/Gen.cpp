@@ -2394,6 +2394,11 @@ Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
+        out << nl << R"(@SuppressWarnings("serial"))";
+    }
+    else
+    {
+        out << nl << R"(@SuppressWarnings({"deprecation", "serial"}))";
     }
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
@@ -2684,6 +2689,11 @@ Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
+        out << nl << R"(@SuppressWarnings("serial"))";
+    }
+    else
+    {
+        out << nl << R"(@SuppressWarnings({"deprecation", "serial"}))";
     }
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
@@ -2954,6 +2964,11 @@ Slice::TypesVisitor::visitStructStart(const StructPtr& p)
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
+        out << nl << R"(@SuppressWarnings("serial"))";
+    }
+    else
+    {
+        out << nl << R"(@SuppressWarnings({"deprecation", "serial"}))";
     }
 
     out << nl << "public final class " << p->mappedName() << " implements java.lang.Cloneable, java.io.Serializable";
@@ -3582,6 +3597,10 @@ Slice::TypesVisitor::visitEnum(const EnumPtr& p)
     {
         out << nl << "@Deprecated";
     }
+    else
+    {
+        out << nl << R"(@SuppressWarnings("deprecation"))";
+    }
 
     out << nl << "public enum " << name;
     out << sb;
@@ -3814,6 +3833,7 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
 
     out << sp;
     writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
+    //TODOHERE
     out << nl << "public final class " << name << "Helper";
     out << sb;
 
@@ -3950,6 +3970,7 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << sp;
     writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
+    //TODOHERE
     out << nl << "public final class " << name << "Helper";
     out << sb;
 
@@ -4081,6 +4102,10 @@ Slice::TypesVisitor::visitConst(const ConstPtr& p)
     {
         out << nl << "@Deprecated";
     }
+    else
+    {
+        out << nl << R"(@SuppressWarnings("deprecation"))";
+    }
 
     out << nl << "public interface " << p->mappedName();
     out << sb;
@@ -4109,6 +4134,10 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
+    }
+    else
+    {
+        out << nl << R"(@SuppressWarnings("deprecation"))";
     }
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << p->mappedName() << "Prx extends ";
@@ -4298,6 +4327,10 @@ Slice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     {
         outi << nl << "@Deprecated";
     }
+    else
+    {
+        outi << nl << R"(@SuppressWarnings("deprecation"))";
+    }
     outi << nl << "public class " << prxIName;
     outi << " extends com.zeroc.Ice._ObjectPrxFactoryMethods<" << prxName << ">";
     outi << " implements " << prxName;
@@ -4399,6 +4432,7 @@ Slice::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     writeDocComment(out, p, "skeleton interface");
 
+    out << nl << R"(@SuppressWarnings("deprecation"))";
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << name << " extends ";
     if (bases.empty())
