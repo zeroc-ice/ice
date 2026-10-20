@@ -2075,15 +2075,18 @@ Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p, const op
     {
         writeSeeAlso(out, comment->seeAlso());
 
-        const StringList& deprecated = comment->deprecated();
-        if (!deprecated.empty() && generatedType != "skeleton interface")
+        if (generatedType != "skeleton interface")
         {
-            out << nl << " * @deprecated ";
-            writeDocCommentLines(out, deprecated);
-        }
-        else if (comment->isDeprecated())
-        {
-            out << nl << " * @deprecated";
+            const StringList& deprecated = comment->deprecated();
+            if (!deprecated.empty())
+            {
+                out << nl << " * @deprecated ";
+                writeDocCommentLines(out, deprecated);
+            }
+            else if (comment->isDeprecated())
+            {
+                out << nl << " * @deprecated";
+            }
         }
     }
 
