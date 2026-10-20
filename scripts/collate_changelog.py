@@ -8,8 +8,8 @@ The generated section headings are derived from the fragment locations (changelo
 contents are inserted verbatim. This script does not touch git and does not update the table of contents: review the
 result, reorder entries as needed, regenerate the TOC in your editor, and commit.
 
-CHANGELOG-3.7.md uses one heading level less than the changelogs of Ice 3.8 and later ('# Changes in Ice 3.7.12',
-'## C++ Changes'), so this version of the script reads and generates headings one level up.
+CHANGELOG-3.7.md's headings are '# Changes in Ice <version>', '## <Language> Changes' and '## Ice Service Changes' with
+'### <Service>' subsections; this script reads and generates those levels.
 """
 
 import argparse

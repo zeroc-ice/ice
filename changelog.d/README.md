@@ -63,6 +63,7 @@ It fails when `CHANGELOG-<major>.<minor>.md` doesn't exist; use `--file` to coll
 touch git: review the diff, reorder entries as needed, regenerate the table of contents in your editor, and commit.
 Use `--dry-run` to preview the collated sections.
 
-`CHANGELOG-3.7.md` uses one heading level less than the changelogs of Ice 3.8 and later (`# Changes in Ice 3.7.12`,
-`## C++ Changes`, `### IceGrid`), and the 3.7 version of the script generates headings to match. When the version
-section already has entries, the collated sections follow them: merge the duplicate section headings by hand.
+In `CHANGELOG-3.7.md`, each release is a `# Changes in Ice <version>` section, with `## <Language> Changes` sections
+and, under `## Ice Service Changes`, a `### <Service>` subsection per service; the script generates headings to match.
+When the version section already has entries, the collated sections follow them: merge the duplicate section headings
+by hand.
