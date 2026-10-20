@@ -261,17 +261,25 @@ public class MainActivity extends Activity {
                 }
             } else if ("client".equals(mode)) {
                 BluetoothDevice dev = adapter.getRemoteDevice(peer);
-                if (dev.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    Log.i(TAG, "bond state=" + dev.getBondState() + ", createBond()...");
+                int state = dev.getBondState();
+                if (state != BluetoothDevice.BOND_BONDED) {
+                    Log.i(TAG, "bond state=" + state + ", createBond()...");
                     dev.createBond();
+                    // Read the state once per poll, and let the read that ends the loop be the
+                    // verdict. After a Secure Connections pairing the stack derives an LE key from
+                    // the new BR/EDR link key, and while it does the framework reports the device
+                    // as BOND_BONDING again (transport LE) for a few hundred milliseconds. A re-read
+                    // after the loop can land in that window and fail a bond that succeeded. The
+                    // RFCOMM connect below only needs the BR/EDR key, stored before BONDED is seen.
                     long deadline = System.currentTimeMillis() + 60000;
-                    while (dev.getBondState() != BluetoothDevice.BOND_BONDED
+                    while (state != BluetoothDevice.BOND_BONDED
                         && System.currentTimeMillis() < deadline) {
                         Thread.sleep(1000);
+                        state = dev.getBondState();
                     }
-                    Log.i(TAG, "final bond state=" + dev.getBondState());
-                    if (dev.getBondState() != BluetoothDevice.BOND_BONDED) {
-                        result(mode, false, "bond failed state=" + dev.getBondState());
+                    Log.i(TAG, "final bond state=" + state);
+                    if (state != BluetoothDevice.BOND_BONDED) {
+                        result(mode, false, "bond failed state=" + state);
                         return;
                     }
                 }
