@@ -73,6 +73,10 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
                         throw invalid_argument("expected number");
                     }
                     r.end = value;
+                    if(r.end < r.start)
+                    {
+                        throw invalid_argument("range lower bound is greater than its upper bound");
+                    }
                     ws(istr);
                     if(!istr.eof())
                     {
@@ -1057,6 +1061,10 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
                     }
                     else if(addr[current] == '[')
                     {
+                        if(inGroup)
+                        {
+                            throw invalid_argument("unexpected '[' in group");
+                        }
                         // ??? what does it mean if current == mark?
                         if(current != mark)
                         {
