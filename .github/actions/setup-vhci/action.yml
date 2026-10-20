@@ -1,7 +1,8 @@
 name: Setup virtual Bluetooth controllers
 description: >
   Brings up a pair of bonded virtual Bluetooth controllers and starts the server-side process
-  controller, so the C++ IceBT transport can be tested on a single runner. Linux arm64 only.
+  controller, so the C++ IceBT transport can be tested on a single runner. Linux only, and arm64
+  only on 6.x kernels.
 
   Exports BT_ADDR, the server controller's address. Pointing the client at the second bluetoothd is
   left to the caller, which scopes DBUS_SYSTEM_BUS_ADDRESS to the test steps that want it. The steps
