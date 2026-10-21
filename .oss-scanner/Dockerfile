@@ -85,21 +85,20 @@ RUN make -j"$(nproc)" -C python \
     && make -C csharp \
     && make -C js
 
-# The Slice compilers run during the build and are sanitized too:
-#  - strict_memcmp=0: the system libmcpp (the Slice preprocessor) calls memcmp with a length past the end of its
-#    buffer, though the comparison stops before the end. Third-party, and Slice input is trusted.
-#  - detect_leaks=0: the compilers exit without freeing everything.
-ENV ASAN_OPTIONS=detect_leaks=0:strict_memcmp=0:abort_on_error=1:symbolize=1 \
+# The Slice compilers are built first and without sanitizers: they compile trusted input, the system libmcpp they
+# use (the Slice preprocessor) trips AddressSanitizer's memcmp check, and they exit without freeing everything. The
+# sanitized build below then finds them up to date, so they stay unsanitized when tests or Slice files are rebuilt.
+RUN make -j"$(nproc)" -C /opt/ice-asan/cpp $(cd /opt/ice-asan/cpp && ls -d src/slice2*)
+
+ENV ASAN_OPTIONS=abort_on_error=1:symbolize=1 \
     UBSAN_OPTIONS=print_stacktrace=1
 
-# The Slice compilers are normally linked statically, which AddressSanitizer does not support, so
-# fully_static_ldflags is cleared. The UBSan vptr check is disabled because it makes a plugin reference the typeinfo
-# of the classes it uses, and plugins (such as IceGrid registry plugins) are linked with --no-undefined while that
-# typeinfo lives in the executable that loads them.
+# The UBSan vptr check is disabled because it makes a plugin reference the typeinfo of the classes it uses, and plugins
+# (such as IceGrid registry plugins) are linked with --no-undefined while that typeinfo lives in the executable that
+# loads them.
 RUN make -j"$(nproc)" -C /opt/ice-asan/cpp \
       CXXFLAGS="-fsanitize=address,undefined -fno-sanitize=vptr -fno-omit-frame-pointer -O1" \
       LDFLAGS="-fsanitize=address,undefined -fno-sanitize=vptr" \
-      fully_static_ldflags= \
       srcs tests
 
 # A few cheap suites per mapping, to show the image works. Failures are reported but do not fail the build.

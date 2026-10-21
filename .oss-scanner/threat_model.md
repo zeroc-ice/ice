@@ -74,13 +74,15 @@ In order of exposure:
 The image has two builds, described at the top of `/src/.oss-scanner/Dockerfile`:
 
 - `/src`: every buildable language mapping, debug build with asserts enabled. Each language directory has an
-  `allTests.py`; run one test with, for example, `python3 /src/cpp/allTests.py --filter=Ice/stream`. Tests start a
-  server and a client on localhost ports from 12010, so run one test at a time. Without a network, tests that use
-  multicast (`Ice/udp`, IceDiscovery) or listen on all interfaces (`-h *`, for example `Ice/exceptions` and
-  `IceSSL/configuration`) fail during setup; those failures are environmental, not findings.
+  `allTests.py`; run one test with, for example, `python3 /src/cpp/allTests.py --filter=Ice/stream`, or a whole
+  mapping with `--workers=<count>`, which runs tests in parallel, each worker on its own port range. Without a
+  network, tests that use multicast (`Ice/udp`, IceDiscovery) or listen on all interfaces (`-h *`, for example
+  `Ice/exceptions` and `IceSSL/configuration`) fail during setup; those failures are environmental, not findings.
 - `/opt/ice-asan`: C++ only, with AddressSanitizer and UndefinedBehaviorSanitizer. Use it to confirm memory-safety
-  findings: `python3 /opt/ice-asan/cpp/allTests.py --filter=Ice/stream`. Leak detection is off by default
-  (`ASAN_OPTIONS`); re-enable it only when a leak is the finding.
+  findings: `python3 /opt/ice-asan/cpp/allTests.py --filter=Ice/stream`. To rebuild it after a change, pass the
+  sanitizer flags the Dockerfile uses, or the link fails:
+  `make -C /opt/ice-asan/cpp CXXFLAGS="-fsanitize=address,undefined -fno-sanitize=vptr -fno-omit-frame-pointer -O1"
+  LDFLAGS="-fsanitize=address,undefined -fno-sanitize=vptr" srcs tests`.
 
 The tests under `cpp/test` (and `csharp/test`, `java/test`, ...) are the best examples of how to stand up a
 server and client. A reproducer that sends raw bytes over a socket to a test server is the most convincing form for an
