@@ -187,14 +187,12 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
         }
         else
         {
+            out << nl << param << " = " << stream << ".readProxy(";
             if (isOptional)
             {
-                out << nl << param << " = " << stream << ".readProxy(" << tag << ", " << typeS << "::uncheckedCast);";
+                out << tag << ", ";
             }
-            else
-            {
-                out << nl << param << " = " << typeS << ".uncheckedCast(" << stream << ".readProxy());";
-            }
+            out << typeS << "::uncheckedCast);";
         }
         return;
     }
@@ -1802,8 +1800,8 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
     // If this is an optional data member, generate a closing brace to balance out the 'if' check.
     if (isOptional)
     {
-        // A set-but-null value received from the wire is unmarshaled as an unset member.
-        // The only types which can be expressed as null on the wire are proxies and sequences of serializable types.
+        // A set-but-null proxy received from the wire is unmarshaled as an unset member,
+        // and so is a set-but-empty byte sequence (when marked with 'java:serialize' metadata).
         if (Slice::isProxyType(type) || (sequenceType && sequenceType->hasMetadata("java:serializable")))
         {
             out << nl << "_" << member->mappedName() << " = " << memberName << " != null;";
