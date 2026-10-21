@@ -1767,9 +1767,12 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
         }
         else if (optionalFormat == "VSize")
         {
-            if (sequenceType && sequenceType->type()->minWireSize() > 1)
+            if (sequenceType)
             {
-                out << nl << stream << ".skipSize();";
+                if (sequenceType->type()->minWireSize() > 1)
+                {
+                    out << nl << stream << ".skipSize();";
+                }
             }
             else if (!dynamic_pointer_cast<Builtin>(type))
             {
