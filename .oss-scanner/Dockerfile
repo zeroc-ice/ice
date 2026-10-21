@@ -85,9 +85,9 @@ RUN make -j"$(nproc)" -C python \
     && make -C csharp \
     && make -C js
 
-# The Slice compilers are built first and without sanitizers: they compile trusted input, the system libmcpp they
-# use (the Slice preprocessor) trips AddressSanitizer's memcmp check, and they exit without freeing everything. The
-# sanitized build below then finds them up to date, so they stay unsanitized when tests or Slice files are rebuilt.
+# The Slice compilers are built first and without sanitizers: they compile trusted input, and the system libmcpp they
+# use (the Slice preprocessor) trips AddressSanitizer's memcmp check and leaks a few allocations. The sanitized build
+# below then finds them up to date, so they stay unsanitized when tests or Slice files are rebuilt.
 RUN make -j"$(nproc)" -C /opt/ice-asan/cpp $(cd /opt/ice-asan/cpp && ls -d src/slice2*)
 
 ENV ASAN_OPTIONS=abort_on_error=1:symbolize=1 \
