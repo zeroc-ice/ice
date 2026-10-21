@@ -598,7 +598,7 @@ public final class InputStream {
      *
      * @param <T> The serializable type.
      * @param cl The class for the serializable type.
-     * @return The deserialized Java object.
+     * @return The deserialized Java object, or {@code null} if the encoded sequence is empty.
      */
     public <T extends Serializable> T readSerializable(Class<T> cl) {
         int sz = readAndCheckSeqSize(1);
@@ -631,11 +631,11 @@ public final class InputStream {
      * @param <T> The serializable type.
      * @param tag The numeric tag associated with the value.
      * @param cl The class for the serializable type.
-     * @return The optional value (if any).
+     * @return The deserialized Java object, if present and non-empty; otherwise {@code Optional.empty()}.
      */
     public <T extends Serializable> Optional<T> readSerializable(int tag, Class<T> cl) {
         if (readOptional(tag, OptionalFormat.VSize)) {
-            return Optional.of(readSerializable(cl));
+            return Optional.ofNullable(readSerializable(cl));
         } else {
             return Optional.empty();
         }
@@ -1215,19 +1215,20 @@ public final class InputStream {
      * @return The extracted proxy.
      */
     public <T extends ObjectPrx> T readProxy(Function<ObjectPrx, T> cast) {
-        return cast.apply(readProxy());
+        ObjectPrx proxy = readProxy();
+        return proxy == null ? null : cast.apply(proxy);
     }
 
     /**
      * Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The optional proxy, if present and non-null; otherwise {@code Optional.empty()}.
      */
     public Optional<ObjectPrx> readProxy(int tag) {
         if (readOptional(tag, OptionalFormat.FSize)) {
             skip(4);
-            return Optional.of(readProxy());
+            return Optional.ofNullable(readProxy());
         } else {
             return Optional.empty();
         }
@@ -1239,16 +1240,10 @@ public final class InputStream {
      * @param <T> The proxy type.
      * @param tag The numeric tag associated with the value.
      * @param cast The uncheckedCast function to call on the unmarshaled proxy to obtain the correct proxy type.
-     * @return The optional value (if any).
+     * @return The optional proxy, if present and non-null; otherwise {@code Optional.empty()}.
      */
-    public <T extends ObjectPrx> Optional<T> readProxy(
-            int tag, Function<ObjectPrx, T> cast) {
-        if (readOptional(tag, OptionalFormat.FSize)) {
-            skip(4);
-            return Optional.of(readProxy(cast));
-        } else {
-            return Optional.empty();
-        }
+    public <T extends ObjectPrx> Optional<T> readProxy(int tag, Function<ObjectPrx, T> cast) {
+        return readProxy(tag).map(cast);
     }
 
     /**
