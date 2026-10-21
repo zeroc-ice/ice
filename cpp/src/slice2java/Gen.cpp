@@ -1801,7 +1801,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
     if (isOptional)
     {
         // A set-but-null proxy received from the wire is unmarshaled as an unset member,
-        // and so is a set-but-empty byte sequence (when marked with 'java:serialize' metadata).
+        // and so is a set-but-empty byte sequence (when marked with 'java:serializable' metadata).
         if (Slice::isProxyType(type) || (sequenceType && sequenceType->hasMetadata("java:serializable")))
         {
             out << nl << "_" << member->mappedName() << " = " << memberName << " != null;";

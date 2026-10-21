@@ -409,8 +409,7 @@ public class AllTests {
         os.writeValue(oo1);
         os.endEncapsulation();
         byte[] inEncaps = os.finished();
-        Object.Ice_invokeResult inv =
-            initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+        Object.Ice_invokeResult inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
         test(inv.returnValue);
         InputStream in = new InputStream(communicator, inv.outParams);
         in.startEncapsulation();
@@ -476,7 +475,6 @@ public class AllTests {
             test(!mo.value.hasSer());
             test(!mo.value.optionalSer().isPresent());
 
-            // The server unmarshals and marshals the instance with the same generated code.
             MultiOptional mo2 = (MultiOptional) initial.pingPong(nullMembers);
             test(!mo2.hasJ());
             test(!mo2.hasOprx());
