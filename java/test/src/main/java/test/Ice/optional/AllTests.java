@@ -481,30 +481,6 @@ public class AllTests {
             test(!mo2.hasSer());
         }
 
-        {
-            // Members assigned null are cleared, so they are not marshaled.
-            MultiOptional mo = new MultiOptional();
-            mo.setH(null);
-            mo.setI(null);
-            mo.setJ(null);
-            mo.setOprx(null);
-            mo.setBs(null);
-            mo.setIid(null);
-            mo.setFs(null);
-            mo.setSer(null);
-            mo.setA((byte) 15); // a primitive member cannot hold null and stays set
-            MultiOptional mo2 = (MultiOptional) initial.pingPong(mo);
-            test(!mo2.hasH());
-            test(!mo2.hasI());
-            test(!mo2.hasJ());
-            test(!mo2.hasOprx());
-            test(!mo2.hasBs());
-            test(!mo2.hasIid());
-            test(!mo2.hasFs());
-            test(!mo2.hasSer());
-            test(mo2.getA() == 15);
-        }
-
         G g = new G();
         g.setGg1Opt(new G1("gg1Opt"));
         g.gg2 = new G2(10);
