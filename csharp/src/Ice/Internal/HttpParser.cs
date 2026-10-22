@@ -473,12 +473,12 @@ internal sealed class HttpParser
                     {
                         throw new WebSocketException("malformed version");
                     }
-                    if (_versionMajor == -1)
+                    // Each component of the HTTP version is a single digit (RFC 9112, section 2.3).
+                    if (_versionMajor != -1)
                     {
-                        _versionMajor = 0;
+                        throw new WebSocketException("malformed version");
                     }
-                    _versionMajor *= 10;
-                    _versionMajor += (int)(c - '0');
+                    _versionMajor = c - '0';
                     break;
                 }
                 case State.VersionMinor:
@@ -514,12 +514,12 @@ internal sealed class HttpParser
                     {
                         throw new WebSocketException("malformed version");
                     }
-                    if (_versionMinor == -1)
+                    // Each component of the HTTP version is a single digit (RFC 9112, section 2.3).
+                    if (_versionMinor != -1)
                     {
-                        _versionMinor = 0;
+                        throw new WebSocketException("malformed version");
                     }
-                    _versionMinor *= 10;
-                    _versionMinor += c - '0';
+                    _versionMinor = c - '0';
                     break;
                 }
                 case State.Response:
@@ -575,6 +575,11 @@ internal sealed class HttpParser
                     if (_status == -1)
                     {
                         _status = 0;
+                    }
+                    else if (_status >= 100)
+                    {
+                        // A status code has three digits (RFC 9110, section 15).
+                        throw new WebSocketException("malformed response status");
                     }
                     _status *= 10;
                     _status += c - '0';
