@@ -27,9 +27,6 @@ module errors
     const long abcHolder = 0;
 }
 
-// Ensure that every kind of named Slice element is checked for reserved suffixes and illegal underscores.
-// Each kind is exercised once with a reserved suffix, and once with an illegal underscore.
-
 module Modules
 {
     module ModuleHolder {}              // Error: 'Holder' suffix is reserved
