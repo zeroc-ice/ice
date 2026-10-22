@@ -6,3 +6,37 @@ Reserved.ice:24: illegal identifier 'Helper': 'Helper' suffix is reserved
 Reserved.ice:25: illegal identifier 'abcHelper': 'Helper' suffix is reserved
 Reserved.ice:26: illegal identifier 'Holder': 'Holder' suffix is reserved
 Reserved.ice:27: illegal identifier 'abcHolder': 'Holder' suffix is reserved
+Reserved.ice:32: illegal identifier 'ModuleHolder': 'Holder' suffix is reserved
+Reserved.ice:33: illegal leading underscore in identifier '_Module'
+Reserved.ice:38: illegal identifier 'ClassPtr': 'Ptr' suffix is reserved
+Reserved.ice:39: illegal trailing underscore in identifier 'Class_'
+Reserved.ice:41: illegal identifier 'DeclHelper': 'Helper' suffix is reserved
+Reserved.ice:42: illegal double underscore in identifier 'De__cl'
+Reserved.ice:47: illegal identifier 'InterfacePrx': 'Prx' suffix is reserved
+Reserved.ice:48: illegal leading underscore in identifier '_Interface'
+Reserved.ice:50: illegal identifier 'DeclHolder': 'Holder' suffix is reserved
+Reserved.ice:51: illegal trailing underscore in identifier 'Decl_'
+Reserved.ice:56: illegal identifier 'ExceptionHelper': 'Helper' suffix is reserved
+Reserved.ice:57: illegal double underscore in identifier 'Exce__ption'
+Reserved.ice:62: illegal identifier 'StructPtr': 'Ptr' suffix is reserved
+Reserved.ice:63: illegal leading underscore in identifier '_Struct'
+Reserved.ice:68: illegal identifier 'SequenceHelper': 'Helper' suffix is reserved
+Reserved.ice:69: illegal trailing underscore in identifier 'Sequence_'
+Reserved.ice:74: illegal identifier 'DictionaryHolder': 'Holder' suffix is reserved
+Reserved.ice:75: illegal double underscore in identifier 'Dictio__nary'
+Reserved.ice:80: illegal identifier 'EnumPrx': 'Prx' suffix is reserved
+Reserved.ice:81: illegal leading underscore in identifier '_Enum'
+Reserved.ice:86: illegal identifier 'EnumeratorPtr': 'Ptr' suffix is reserved
+Reserved.ice:87: illegal trailing underscore in identifier 'Enumerator_'
+Reserved.ice:92: illegal identifier 'ConstantPrx': 'Prx' suffix is reserved
+Reserved.ice:93: illegal double underscore in identifier 'Cons__tant'
+Reserved.ice:100: illegal identifier 'memberHolder': 'Holder' suffix is reserved
+Reserved.ice:101: illegal leading underscore in identifier '_member'
+Reserved.ice:106: illegal identifier 'memberPrx': 'Prx' suffix is reserved
+Reserved.ice:107: illegal trailing underscore in identifier 'member_'
+Reserved.ice:112: illegal identifier 'memberPtr': 'Ptr' suffix is reserved
+Reserved.ice:113: illegal double underscore in identifier 'mem__ber'
+Reserved.ice:121: illegal identifier 'opHelper': 'Helper' suffix is reserved
+Reserved.ice:122: illegal trailing underscore in identifier 'op_'
+Reserved.ice:124: illegal identifier 'paramHolder': 'Holder' suffix is reserved
+Reserved.ice:125: illegal double underscore in identifier 'pa__ram'
