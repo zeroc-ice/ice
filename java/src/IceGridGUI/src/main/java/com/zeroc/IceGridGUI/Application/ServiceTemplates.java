@@ -57,12 +57,12 @@ class ServiceTemplates extends Templates {
     }
 
     @Override
+    @SuppressWarnings("deprecation") // For 'DbEnvDescriptor'
     public void newTemplateService() {
         ServiceDescriptor sd =
             new ServiceDescriptor(
                 new LinkedList<AdapterDescriptor>(),
-                new PropertySetDescriptor(
-                    new String[0], new LinkedList<PropertyDescriptor>()),
+                new PropertySetDescriptor(new String[0], new LinkedList<PropertyDescriptor>()),
                 new DbEnvDescriptor[0],
                 new String[0],
                 "",

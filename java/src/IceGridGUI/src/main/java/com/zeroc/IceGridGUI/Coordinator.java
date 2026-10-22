@@ -2982,6 +2982,7 @@ public class Coordinator {
         return _liveDeploymentRoot;
     }
 
+    @SuppressWarnings("deprecation") // For 'DistributionDescriptor'
     private void newApplication() {
         ApplicationDescriptor desc =
             new ApplicationDescriptor(
