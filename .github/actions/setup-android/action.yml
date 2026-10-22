@@ -39,12 +39,24 @@ runs:
     - name: Configure Android SDK
       shell: bash
       run: |
+        # sdkmanager doesn't check the length of what it downloads, so a connection that drops early leaves a
+        # truncated archive and the install fails with "Error on ZipFile unknown archive". A second attempt checks
+        # the leftover file against the package's checksum and downloads it again.
+        sdkmanager_install() {
+          for attempt in 1 2 3; do
+            sdkmanager "$1" && return
+            echo "::notice::sdkmanager failed to install $1 (attempt $attempt of 3)"
+            sleep 5
+          done
+          return 1
+        }
+
         # Install a toolset new enough (22.0) to properly support Android 37.0 SDK.
         # See: https://github.com/actions/runner-images/issues/14484
         # Note: we can remove this workaround once runners ship 'cmdline-tools' 20.0 or newer. When testing its removal
         # check the AVD ini: it must say target=android-37.0. It if says target=android-0, it hasn't been fixed yet.
         echo "$ANDROID_HOME/cmdline-tools/22.0/bin" >> $GITHUB_PATH
-        sdkmanager "cmdline-tools;22.0"
+        sdkmanager_install "cmdline-tools;22.0"
         test -x "$ANDROID_HOME/cmdline-tools/22.0/bin/avdmanager"
         # platform-tools, build-tools, and platforms are pre-installed on GitHub runners.
         # We only need to install the system image; sdkmanager installs the emulator a given image depends on.
@@ -53,4 +65,4 @@ runs:
         else
           ARCH="x86_64"
         fi
-        sdkmanager "system-images;$ANDROID_PLATFORM;google_apis;$ARCH"
+        sdkmanager_install "system-images;$ANDROID_PLATFORM;google_apis;$ARCH"

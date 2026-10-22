@@ -142,14 +142,10 @@ final class TraceUtil {
         printIdentityFacetOperation(out, stream);
 
         try {
-            byte mode = stream.readByte();
-            out.write("\nmode = " + (int) mode + ' ');
-            switch (OperationMode.values()[mode]) {
-                case Normal -> out.write("(normal)");
-                case Nonmutating -> out.write("(nonmutating)");
-                case Idempotent -> out.write("(idempotent)");
-                default -> out.write("(unknown)");
-            }
+            int modeValue = stream.readByte() & 0xFF;
+            OperationMode mode = OperationMode.valueOf(modeValue);
+            String modeName = mode != null ? mode.name().toLowerCase(java.util.Locale.ROOT) : "unknown";
+            out.write("\nmode = " + modeValue + " (" + modeName + ")");
 
             int sz = stream.readSize();
             out.write("\ncontext = ");

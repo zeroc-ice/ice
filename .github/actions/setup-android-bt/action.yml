@@ -3,8 +3,8 @@ description: >
   Prepares a pair of Android emulators for IceBT testing. The emulator ships a userspace virtual
   Bluetooth controller (Netsim/Rootcanal) that does RFCOMM between emulators, which is what lets
   the Java side be tested without hardware. (The C++ side instead uses the runner's own kernel
-  stack -- see setup-vhci -- which needs modules only the arm64 image has.) This boots two
-  emulators, bonds them, and starts the server-side process controller, leaving the client for
+  stack -- see setup-vhci -- which needs modules that 6.x kernels ship only for arm64.) This boots
+  two emulators, bonds them, and starts the server-side process controller, leaving the client for
   allTests.py.
   Requires setup-android (SDK, KVM, PATH, $ANDROID_PLATFORM) and a build that produced Python
   Ice and the Java tests.

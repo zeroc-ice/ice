@@ -187,14 +187,12 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
         }
         else
         {
+            out << nl << param << " = " << stream << ".readProxy(";
             if (isOptional)
             {
-                out << nl << param << " = " << stream << ".readProxy(" << tag << ", " << typeS << "::uncheckedCast);";
+                out << tag << ", ";
             }
-            else
-            {
-                out << nl << param << " = " << typeS << ".uncheckedCast(" << stream << ".readProxy());";
-            }
+            out << typeS << "::uncheckedCast);";
         }
         return;
     }
@@ -1748,6 +1746,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
     const TypePtr& type = member->type();
     const bool isOptional = member->isOptional();
     const bool forStruct = (bool)dynamic_pointer_cast<Struct>(member->container());
+    const auto sequenceType = dynamic_pointer_cast<Sequence>(type);
     const string stream = forStruct ? "" : "istr_";
     assert(!isOptional || !forStruct);           // optional members aren't allowed in structs.
     assert(!isOptional || !type->isClassType()); // optional class types aren't allowed.
@@ -1766,9 +1765,9 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
         }
         else if (optionalFormat == "VSize")
         {
-            if (auto seq = dynamic_pointer_cast<Sequence>(type))
+            if (sequenceType)
             {
-                if (seq->type()->minWireSize() > 1)
+                if (sequenceType->type()->minWireSize() > 1)
                 {
                     out << nl << stream << ".skipSize();";
                 }
@@ -1801,6 +1800,12 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
     // If this is an optional data member, generate a closing brace to balance out the 'if' check.
     if (isOptional)
     {
+        // A set-but-null proxy received from the wire is unmarshaled as an unset member,
+        // and so is a set-but-empty byte sequence (when marked with 'java:serializable' metadata).
+        if (Slice::isProxyType(type) || (sequenceType && sequenceType->hasMetadata("java:serializable")))
+        {
+            out << nl << "_" << member->mappedName() << " = " << memberName << " != null;";
+        }
         out << eb;
     }
 }
@@ -3293,7 +3298,6 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     const bool isOptional = p->isOptional();
     const TypePtr type = p->type();
     const BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-    const bool classType = type->isClassType();
 
     const MetadataList& metadata = p->getMetadata();
     const string s = typeToString(type, TypeModeMember, getPackage(contained), metadata, true, false);
@@ -3365,7 +3369,9 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << sb;
         if (isOptional)
         {
-            out << nl << "_" << name << " = true;";
+            // Primitives can never be null, so the flag will always be set to true for them.
+            bool isPrimitive = b && b->kind() < Builtin::KindString;
+            out << nl << "_" << name << " = " << (isPrimitive ? "true" : name + " != null") << ';';
         }
         out << nl << "this." << name << " = " << name << ';';
         out << eb;
@@ -3442,11 +3448,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << sb;
             out << nl << "if (_" << name << ')';
             out << sb;
-            if (classType)
-            {
-                out << nl << "return java.util.Optional.ofNullable(" << name << ");";
-            }
-            else if (b && b->kind() == Builtin::KindInt)
+            if (b && b->kind() == Builtin::KindInt)
             {
                 out << nl << "return java.util.OptionalInt.of(" << name << ");";
             }

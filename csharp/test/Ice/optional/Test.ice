@@ -90,7 +90,6 @@ module Test
         optional(28) IntMyInterfacePrxDict imipd;
 
         optional(29) BoolSeq bos;
-        optional(30) Object* plainProxy;
     }
 
     class A

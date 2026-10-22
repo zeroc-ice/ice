@@ -102,4 +102,17 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
 
     print("ok")
 
+    sys.stdout.write("testing executor connection for collocated invocations... ")
+    sys.stdout.flush()
+
+    adapter = communicator.createObjectAdapter("")
+    collocated = adapter.addWithUUID(Ice.Object())
+    f = collocated.ice_pingAsync()
+    assert isinstance(f, Ice.InvocationFuture)
+    f.result()
+    test(Executor.Executor.instance().lastConnection is None)
+    adapter.destroy()
+
+    print("ok")
+
     p.shutdown()
