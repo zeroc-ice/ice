@@ -810,7 +810,7 @@ exit 0
 %postun -n %{?nameprefix}icegrid
 %if "%{_prefix}" == "/usr"
   %systemd_postun_with_restart icegridnode.service
-  %systemd_postun_with_restart icegriregistry.service
+  %systemd_postun_with_restart icegridregistry.service
 %endif
 /sbin/ldconfig
 exit 0
