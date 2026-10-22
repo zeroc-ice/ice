@@ -33,8 +33,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com:zeroc-ice/ice.git'
-                    url = 'https://github.com:zeroc-ice/ice'
+                    connection = 'scm:git:https://github.com/zeroc-ice/ice.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/zeroc-ice/ice.git'
+                    url = 'https://github.com/zeroc-ice/ice'
                 }
             }
         }
