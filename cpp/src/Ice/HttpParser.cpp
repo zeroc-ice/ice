@@ -555,13 +555,18 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                 {
                     throw WebSocketException("malformed response status");
                 }
+                // A status code has three digits and does not start with 0 (RFC 9110, section 15). Without a leading
+                // 0, any digit after the third one makes the value exceed 999.
                 if (_status == -1)
                 {
+                    if (c == '0')
+                    {
+                        throw WebSocketException("malformed response status");
+                    }
                     _status = 0;
                 }
                 else if (_status >= 100)
                 {
-                    // A status code has three digits (RFC 9110, section 15).
                     throw WebSocketException("malformed response status");
                 }
                 _status *= 10;
