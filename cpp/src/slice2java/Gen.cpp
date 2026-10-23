@@ -1916,8 +1916,7 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
 void
 Slice::JavaVisitor::writeDeprecatedAnnotation(IceInternal::Output& out, const ContainedPtr& p)
 {
-    const optional<DocComment>& dc = p->docComment();
-    if (dc && dc->isDeprecated())
+    if (p->isDeprecated())
     {
         out << nl << "@Deprecated";
     }
