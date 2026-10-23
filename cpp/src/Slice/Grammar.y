@@ -65,7 +65,6 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 
 %{
 
-#include "Ice/UUID.h"
 #include "Parser.h"
 #include "GrammarUtil.h"
 
