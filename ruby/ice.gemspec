@@ -30,6 +30,7 @@ eos
                      Dir['scripts/*']
   spec.homepage    = 'https://zeroc.com'
   spec.metadata    = {
+    'documentation_uri' => 'https://code.zeroc.com/ice/main/api/ruby/index.html',
     'source_code_uri' => 'https://github.com/zeroc-ice/ice',
     'bug_tracker_uri' => 'https://github.com/zeroc-ice/ice/issues',
     'changelog_uri' => 'https://github.com/zeroc-ice/ice/blob/main/CHANGELOG.md'
