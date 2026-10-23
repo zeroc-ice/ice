@@ -10,6 +10,8 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#include <climits>
+
 using namespace std;
 using namespace Test;
 using namespace Test::Sub;
@@ -1370,6 +1372,28 @@ allTests(Test::TestHelper* helper)
         }
         catch(const Ice::UnmarshalOutOfBoundsException&)
         {
+        }
+    }
+    cout << "ok" << endl;
+
+    cout << "testing class reference validation... " << flush;
+    {
+        // The encoding 1.0 encodes a class reference as the negated instance index, and INT_MIN cannot be negated.
+        Ice::OutputStream out(communicator, Ice::Encoding_1_0);
+        out.write(static_cast<Ice::Int>(INT_MIN));
+        out.finished(data);
+
+        Ice::InputStream in(communicator, Ice::Encoding_1_0, data);
+        Ice::ValuePtr value;
+        try
+        {
+            in.read(value);
+            in.readPendingValues();
+            test(false);
+        }
+        catch(const Ice::MarshalException& ex)
+        {
+            test(ex.reason == "invalid object id");
         }
     }
     cout << "ok" << endl;
