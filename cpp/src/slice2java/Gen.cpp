@@ -1327,13 +1327,13 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
     Output& out,
     const OperationPtr& p,
     const vector<string>& params,
-    const ExceptionList& throws,
-    const optional<DocComment>& dc)
+    const ExceptionList& throws)
 {
     const string name = p->mappedName();
     const string package = getPackage(p->parentInterface());
 
     const string resultType = getResultType(p, package, false);
+    const optional<DocComment>& dc = p->docComment();
 
     const string contextParamName = getEscapedParamName(p->parameters(), "context");
     const string contextDoc = "@param " + contextParamName + " the Context map to send with the invocation";
@@ -1345,7 +1345,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
 
     // Generate a synchronous version of this operation which doesn't takes a context parameter.
     out << sp;
-    writeProxyOpDocComment(out, p, package, dc, false, "");
+    writeProxyOpDocComment(out, p, package, false, "");
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -1363,7 +1363,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
 
     // Generate a synchronous version of this operation which takes a context parameter.
     out << sp;
-    writeProxyOpDocComment(out, p, package, dc, false, contextDoc);
+    writeProxyOpDocComment(out, p, package, false, contextDoc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -1410,14 +1410,11 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
 }
 
 void
-Slice::JavaVisitor::writeAsyncIceInvokeMethods(
-    Output& out,
-    const OperationPtr& p,
-    const vector<string>& params,
-    const optional<DocComment>& dc)
+Slice::JavaVisitor::writeAsyncIceInvokeMethods(Output& out, const OperationPtr& p, const vector<string>& params)
 {
     const string name = p->mappedName();
     const string package = getPackage(p->parentInterface());
+    const optional<DocComment>& dc = p->docComment();
 
     const string resultType = getResultType(p, package, true);
     const string futureType = "java.util.concurrent.CompletableFuture<" + resultType + ">";
@@ -1430,7 +1427,7 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
 
     // Generate an overload of '<NAME>Async' that doesn't take a context parameter.
     out << sp;
-    writeProxyOpDocComment(out, p, package, dc, true, "");
+    writeProxyOpDocComment(out, p, package, true, "");
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -1442,7 +1439,7 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
 
     // Generate an overload of '<NAME>Async' that takes a context parameter.
     out << sp;
-    writeProxyOpDocComment(out, p, package, dc, true, contextDoc);
+    writeProxyOpDocComment(out, p, package, true, contextDoc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -2115,10 +2112,10 @@ Slice::JavaVisitor::writeProxyOpDocComment(
     Output& out,
     const OperationPtr& p,
     const string& package,
-    const optional<DocComment>& dc,
     bool async,
     const string& contextParam)
 {
+    const optional<DocComment>& dc = p->docComment();
     if (!dc)
     {
         return;
@@ -4294,7 +4291,6 @@ Slice::TypesVisitor::visitOperation(const OperationPtr& p)
     const vector<string> params = getParamsProxy(p, package, false);
     const vector<string> paramsOpt = getParamsProxy(p, package, true);
     const bool sendsOptionals = p->sendsOptionals();
-    const optional<DocComment>& dc = p->docComment();
 
     // Arrange exceptions into most-derived to least-derived order. If we don't
     // do this, a base exception handler can appear before a derived exception
@@ -4304,19 +4300,19 @@ Slice::TypesVisitor::visitOperation(const OperationPtr& p)
     throws.sort(Slice::DerivedToBaseCompare());
 
     // Synchronous methods with required parameters.
-    writeSyncIceInvokeMethods(out, p, params, throws, dc);
+    writeSyncIceInvokeMethods(out, p, params, throws);
     if (sendsOptionals)
     {
         // Synchronous methods using optional parameters (if any).
-        writeSyncIceInvokeMethods(out, p, paramsOpt, throws, dc);
+        writeSyncIceInvokeMethods(out, p, paramsOpt, throws);
     }
 
     // Asynchronous methods with required parameters.
-    writeAsyncIceInvokeMethods(out, p, params, dc);
+    writeAsyncIceInvokeMethods(out, p, params);
     if (sendsOptionals)
     {
         // Asynchronous methods with optional parameters.
-        writeAsyncIceInvokeMethods(out, p, paramsOpt, dc);
+        writeAsyncIceInvokeMethods(out, p, paramsOpt);
     }
 
     writeIceIHelperMethods(out, p, !throws.empty(), false);
