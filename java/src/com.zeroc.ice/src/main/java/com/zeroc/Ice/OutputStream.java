@@ -505,7 +505,7 @@ public final class OutputStream {
      * @param v The byte sequence to write to the stream.
      */
     public void writeByteSeq(int tag, byte[] v) {
-        if (writeOptional(tag, OptionalFormat.VSize)) {
+        if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
             writeByteSeq(v);
         }
     }
@@ -566,7 +566,7 @@ public final class OutputStream {
      * @param v The serializable object to write.
      */
     public void writeSerializable(int tag, Serializable v) {
-        if (writeOptional(tag, OptionalFormat.VSize)) {
+        if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
             writeSerializable(v);
         }
     }
@@ -653,7 +653,7 @@ public final class OutputStream {
      * @param v The boolean sequence to write to the stream.
      */
     public void writeBoolSeq(int tag, boolean[] v) {
-        if (writeOptional(tag, OptionalFormat.VSize)) {
+        if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
             writeBoolSeq(v);
         }
     }
@@ -729,8 +729,8 @@ public final class OutputStream {
      * @param v The short sequence to write to the stream.
      */
     public void writeShortSeq(int tag, short[] v) {
-        if (writeOptional(tag, OptionalFormat.VSize)) {
-            writeSize(v == null || v.length == 0 ? 1 : v.length * 2 + (v.length > 254 ? 5 : 1));
+        if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
+            writeSize(v.length == 0 ? 1 : v.length * 2 + (v.length > 254 ? 5 : 1));
             writeShortSeq(v);
         }
     }
@@ -836,8 +836,8 @@ public final class OutputStream {
      * @param v The int sequence to write to the stream.
      */
     public void writeIntSeq(int tag, int[] v) {
-        if (writeOptional(tag, OptionalFormat.VSize)) {
-            writeSize(v == null || v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
+        if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
+            writeSize(v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
             writeIntSeq(v);
         }
     }
@@ -932,8 +932,8 @@ public final class OutputStream {
      * @param v The long sequence to write to the stream.
      */
     public void writeLongSeq(int tag, long[] v) {
-        if (writeOptional(tag, OptionalFormat.VSize)) {
-            writeSize(v == null || v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
+        if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
+            writeSize(v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
             writeLongSeq(v);
         }
     }
@@ -1028,8 +1028,8 @@ public final class OutputStream {
      * @param v The float sequence to write to the stream.
      */
     public void writeFloatSeq(int tag, float[] v) {
-        if (writeOptional(tag, OptionalFormat.VSize)) {
-            writeSize(v == null || v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
+        if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
+            writeSize(v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
             writeFloatSeq(v);
         }
     }
@@ -1124,8 +1124,8 @@ public final class OutputStream {
      * @param v The double sequence to write to the stream.
      */
     public void writeDoubleSeq(int tag, double[] v) {
-        if (writeOptional(tag, OptionalFormat.VSize)) {
-            writeSize(v == null || v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
+        if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
+            writeSize(v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
             writeDoubleSeq(v);
         }
     }
@@ -1221,7 +1221,7 @@ public final class OutputStream {
      * @param v The string to write to the stream.
      */
     public void writeString(int tag, String v) {
-        if (writeOptional(tag, OptionalFormat.VSize)) {
+        if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
             writeString(v);
         }
     }
@@ -1262,7 +1262,7 @@ public final class OutputStream {
      * @param v The string sequence to write to the stream.
      */
     public void writeStringSeq(int tag, String[] v) {
-        if (writeOptional(tag, OptionalFormat.FSize)) {
+        if (v != null && writeOptional(tag, OptionalFormat.FSize)) {
             int pos = startSize();
             writeStringSeq(v);
             endSize(pos);
@@ -1303,7 +1303,7 @@ public final class OutputStream {
      * @param v The proxy to write to the stream.
      */
     public void writeProxy(int tag, ObjectPrx v) {
-        if (writeOptional(tag, OptionalFormat.FSize)) {
+        if (v != null && writeOptional(tag, OptionalFormat.FSize)) {
             int pos = startSize();
             writeProxy(v);
             endSize(pos);

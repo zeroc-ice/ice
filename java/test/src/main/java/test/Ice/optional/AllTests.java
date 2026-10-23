@@ -1183,6 +1183,77 @@ public class AllTests {
             test(nullPrx == null);
             in.endEncapsulation();
         }
+
+        {
+            // Passing null to a tagged write writes nothing: the value is encoded as unset.
+            os = new OutputStream(communicator);
+            os.startEncapsulation();
+            os.endEncapsulation();
+            final int emptyEncapsSize = os.finished().length;
+
+            os = new OutputStream(communicator);
+            os.startEncapsulation();
+            os.writeProxy(1, (ObjectPrx) null);
+            os.writeString(2, (String) null);
+            os.writeByteSeq(3, (byte[]) null);
+            os.writeIntSeq(4, (int[]) null);
+            os.writeStringSeq(5, (String[]) null);
+            FixedStruct.ice_write(os, 6, (FixedStruct) null);
+            VarStruct.ice_write(os, 7, (VarStruct) null);
+            MyEnum.ice_write(os, 8, (MyEnum) null);
+            FixedStructSeqHelper.write(os, 9, (FixedStruct[]) null);
+            SmallStructListHelper.write(os, 10, (List<SmallStruct>) null);
+            IntIntDictHelper.write(os, 11, (Map<Integer, Integer>) null);
+            os.writeSerializable(12, (SerializableClass) null);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            test(inEncaps.length == emptyEncapsSize);
+
+            in = new InputStream(communicator, inEncaps);
+            in.startEncapsulation();
+            test(!in.readOptional(1, OptionalFormat.FSize));
+            in.endEncapsulation();
+
+            Initial.OpMyInterfaceProxyResult rPrx = initial.opMyInterfaceProxy((MyInterfacePrx) null);
+            test(!rPrx.returnValue.isPresent() && !rPrx.p3.isPresent());
+            rPrx = initial.opMyInterfaceProxyAsync((MyInterfacePrx) null).join();
+            test(!rPrx.returnValue.isPresent() && !rPrx.p3.isPresent());
+
+            Initial.OpStringResult rString = initial.opString((String) null);
+            test(!rString.returnValue.isPresent() && !rString.p3.isPresent());
+
+            Initial.OpMyEnumResult rEnum = initial.opMyEnum((MyEnum) null);
+            test(!rEnum.returnValue.isPresent() && !rEnum.p3.isPresent());
+
+            Initial.OpFixedStructResult rFixedStruct = initial.opFixedStruct((FixedStruct) null);
+            test(!rFixedStruct.returnValue.isPresent() && !rFixedStruct.p3.isPresent());
+
+            Initial.OpVarStructResult rVarStruct = initial.opVarStruct((VarStruct) null);
+            test(!rVarStruct.returnValue.isPresent() && !rVarStruct.p3.isPresent());
+
+            Initial.OpByteSeqResult rByteSeq = initial.opByteSeq((byte[]) null);
+            test(!rByteSeq.returnValue.isPresent() && !rByteSeq.p3.isPresent());
+
+            Initial.OpIntSeqResult rIntSeq = initial.opIntSeq((int[]) null);
+            test(!rIntSeq.returnValue.isPresent() && !rIntSeq.p3.isPresent());
+
+            Initial.OpStringSeqResult rStringSeq = initial.opStringSeq((String[]) null);
+            test(!rStringSeq.returnValue.isPresent() && !rStringSeq.p3.isPresent());
+
+            Initial.OpFixedStructSeqResult rFixedStructSeq = initial.opFixedStructSeq((FixedStruct[]) null);
+            test(!rFixedStructSeq.returnValue.isPresent() && !rFixedStructSeq.p3.isPresent());
+
+            Initial.OpSmallStructListResult rSmallStructList = initial.opSmallStructList((List<SmallStruct>) null);
+            test(!rSmallStructList.returnValue.isPresent() && !rSmallStructList.p3.isPresent());
+
+            Initial.OpIntIntDictResult rIntIntDict = initial.opIntIntDict((Map<Integer, Integer>) null);
+            test(!rIntIntDict.returnValue.isPresent() && !rIntIntDict.p3.isPresent());
+
+            if (supportsJavaSerializable) {
+                Initial.OpSerializableResult rSerializable = initial.opSerializable((SerializableClass) null);
+                test(!rSerializable.returnValue.isPresent() && !rSerializable.p3.isPresent());
+            }
+        }
         out.println("ok");
 
         out.print("testing optional parameters and sequences... ");
