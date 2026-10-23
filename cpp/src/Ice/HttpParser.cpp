@@ -526,7 +526,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                 // TODO: Is reason string optional?
                 if (c == CR)
                 {
-                    if (_status == -1)
+                    if (_status < 100)
                     {
                         throw WebSocketException("malformed response status");
                     }
@@ -535,7 +535,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                 }
                 else if (c == LF)
                 {
-                    if (_status == -1)
+                    if (_status < 100)
                     {
                         throw WebSocketException("malformed response status");
                     }
@@ -544,7 +544,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                 }
                 else if (c == ' ')
                 {
-                    if (_status == -1)
+                    if (_status < 100)
                     {
                         throw WebSocketException("malformed response status");
                     }

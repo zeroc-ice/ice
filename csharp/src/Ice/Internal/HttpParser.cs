@@ -543,7 +543,7 @@ internal sealed class HttpParser
                     // TODO: Is reason string optional?
                     if (c == CR)
                     {
-                        if (_status == -1)
+                        if (_status < 100)
                         {
                             throw new WebSocketException("malformed response status");
                         }
@@ -552,7 +552,7 @@ internal sealed class HttpParser
                     }
                     else if (c == LF)
                     {
-                        if (_status == -1)
+                        if (_status < 100)
                         {
                             throw new WebSocketException("malformed response status");
                         }
@@ -561,7 +561,7 @@ internal sealed class HttpParser
                     }
                     else if (c == ' ')
                     {
-                        if (_status == -1)
+                        if (_status < 100)
                         {
                             throw new WebSocketException("malformed response status");
                         }
