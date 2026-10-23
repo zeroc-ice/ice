@@ -34,13 +34,17 @@ runs:
 
     - name: Set OS version output
       id: os-version
+      env:
+        LINUX_VERSION: ${{ steps.linux-version.outputs.version }}
+        MACOS_VERSION: ${{ steps.macos-version.outputs.version }}
+        WINDOWS_VERSION: ${{ steps.windows-version.outputs.version }}
       run: |
         if [ "$RUNNER_OS" == "Linux" ]; then
-          echo "version=${{ steps.linux-version.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "version=$LINUX_VERSION" >> "$GITHUB_OUTPUT"
         elif [ "$RUNNER_OS" == "macOS" ]; then
-          echo "version=${{ steps.macos-version.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "version=$MACOS_VERSION" >> "$GITHUB_OUTPUT"
         elif [ "$RUNNER_OS" == "Windows" ]; then
-          echo "version=${{ steps.windows-version.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "version=$WINDOWS_VERSION" >> "$GITHUB_OUTPUT"
         fi
       shell: bash
 

@@ -19,15 +19,18 @@ inputs:
 
 runs:
   using: "composite"
+  # flags is a shell fragment, such as "--languages='cpp,swift' --controller-app", so the steps expand it in place.
   steps:
     - name: Test
       working-directory: ${{ inputs.working_directory }}
+      # zizmor: ignore[template-injection]
       run: python3 allTests.py --debug ${{ inputs.all == 'true' && '--all' || '' }} --keep-logs --continue --workers=${{ inputs.workers }} --export-xml=test-report.xml ${{ inputs.flags }}
       shell: bash
       if: runner.os == 'macOS'
 
     - name: Test
       working-directory: ${{ inputs.working_directory }}
+      # zizmor: ignore[template-injection]
       run: |
         ulimit -c unlimited
         python3 allTests.py --debug ${{ inputs.all == 'true' && '--all' || '' }} --keep-logs --continue --workers=${{ inputs.workers }} --export-xml=test-report.xml ${{ inputs.flags }}
@@ -36,6 +39,7 @@ runs:
 
     - name: Test
       working-directory: ${{ inputs.working_directory }}
+      # zizmor: ignore[template-injection]
       run: python allTests.py --debug ${{ inputs.all == 'true' && '--all' || '' }} --keep-logs --continue --workers=${{ inputs.workers }} --export-xml=test-report.xml ${{ inputs.flags }}
       shell: powershell
       if: runner.os == 'Windows'
