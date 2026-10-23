@@ -64,6 +64,9 @@ public class Client extends TestHelper {
 
         MyClass obj;
         boolean called;
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class TestObjectReader extends Value {
@@ -81,6 +84,9 @@ public class Client extends TestHelper {
 
         MyClass obj;
         boolean called;
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class CustomSliceLoader implements SliceLoader {

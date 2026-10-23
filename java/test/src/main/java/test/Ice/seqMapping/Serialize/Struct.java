@@ -10,4 +10,7 @@ public class Struct implements Serializable {
     public Object o2;
     public String s;
     public String s2;
+
+    @java.io.Serial
+    private static final long serialVersionUID = 0L;
 }

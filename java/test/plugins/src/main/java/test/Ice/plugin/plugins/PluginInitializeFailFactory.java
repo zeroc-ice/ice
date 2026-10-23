@@ -13,8 +13,7 @@ public class PluginInitializeFailFactory implements PluginFactory {
     }
 
     @Override
-    public Plugin create(
-            Communicator communicator, String name, String[] args) {
+    public Plugin create(Communicator communicator, String name, String[] args) {
         return new PluginInitializeFail();
     }
 

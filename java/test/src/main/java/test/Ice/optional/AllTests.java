@@ -1991,6 +1991,9 @@ public class AllTests {
         public void _iceWrite(OutputStream out) {
             assert false;
         }
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class BObjectReader extends Value {
@@ -2012,6 +2015,9 @@ public class AllTests {
         public void _iceWrite(OutputStream out) {
             assert false;
         }
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class CObjectReader extends Value {
@@ -2036,6 +2042,9 @@ public class AllTests {
         public void _iceWrite(OutputStream out) {
             assert false;
         }
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class DObjectWriter extends Value {
@@ -2070,6 +2079,9 @@ public class AllTests {
             out.endSlice();
             out.endValue();
         }
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class DObjectReader extends Value {
@@ -2110,6 +2122,9 @@ public class AllTests {
         }
 
         private Wrapper<A> a = new Wrapper<>();
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class FObjectReader extends Value {
@@ -2137,6 +2152,9 @@ public class AllTests {
         }
 
         private F _f;
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     public static class CustomSliceLoader implements SliceLoader {
