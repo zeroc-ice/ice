@@ -259,9 +259,14 @@ TopicManagerImpl::TopicManagerImpl(const PersistentInstancePtr& instance) :
         {
             IceDB::ReadWriteTxn txn(_instance->dbEnv());
 
-            // Ensure that the llu counter is present in the log.
-            LogUpdate empty = {0, 0};
-            _instance->lluMap().put(txn, lluDbKey, empty);
+            // Ensure that the llu counter is present in the log, without overwriting the last value persisted by a
+            // previous run.
+            LogUpdate llu;
+            if(!_instance->lluMap().get(txn, lluDbKey, llu))
+            {
+                LogUpdate empty = {0, 0};
+                _instance->lluMap().put(txn, lluDbKey, empty);
+            }
 
             // Recreate each of the topics.
             SubscriberRecordKey k;
@@ -481,9 +486,17 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
     for(TopicContentSeq::const_iterator q = content.begin(); q != content.end(); ++q)
     {
         string name = identityToTopicName(q->id);
-        map<string, TopicImplPtr>::const_iterator r = _topics.find(name);
+        map<string, TopicImplPtr>::iterator r = _topics.find(name);
         if(r == _topics.end())
         {
+            installTopic(name, q->id, true, q->records);
+        }
+        else if(r->second->destroyed())
+        {
+            // A topic destroyed on this replica can linger in _topics until the next reap. Since a destroyed
+            // TopicImpl has no servants and ignores replicated updates, we can't reuse it: install a fresh
+            // topic from the content instead.
+            _topics.erase(r);
             installTopic(name, q->id, true, q->records);
         }
         else

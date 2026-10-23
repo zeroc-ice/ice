@@ -233,7 +233,11 @@ public class InputStream {
         case .VSize:
             try skip(readSize())
         case .FSize:
-            try skip(read())
+            let sz: Int32 = try read()
+            if sz < 0 {
+                throw MarshalException(reason: "invalid negative size for optional field")
+            }
+            try skip(sz)
         case .Class:
             try read(UnknownSlicedValue.self, cb: nil)
         }
@@ -293,6 +297,7 @@ public class InputStream {
     ///
     /// - parameter _: `Int32` - The number of bytes to skip.
     public func skip(_ count: Int32) throws {
+        precondition(count >= 0, "skip count is negative")
         try changePos(offset: Int(count))
     }
 
@@ -693,14 +698,14 @@ public extension InputStream {
                 return try read()
             } else if enumMaxValue < 32767 {
                 let v: Int16 = try read()
-                guard v <= UInt8.max else {
-                    throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
+                guard 0 <= v && v <= UInt8.max else {
+                    throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is out of range for UInt8")
                 }
                 return UInt8(v)
             } else {
                 let v: Int32 = try read()
-                guard v <= UInt8.max else {
-                    throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
+                guard 0 <= v && v <= UInt8.max else {
+                    throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is out of range for UInt8")
                 }
                 return UInt8(v)
             }
@@ -1124,7 +1129,7 @@ private class EncapsDecoder10: EncapsDecoder {
         // Object references are encoded as a negative integer in 1.0.
         //
         var index: Int32 = try stream.read()
-        if index > 0 {
+        if index > 0 || index == Int32.min {
             throw MarshalException(reason: "invalid object id")
         }
         index = -index

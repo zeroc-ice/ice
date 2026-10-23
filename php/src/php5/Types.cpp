@@ -1594,32 +1594,32 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
     }
 
+    //
+    // An optional sequence with variable-length elements is encoded with an FSize: startSize() reserves the size and
+    // endSize() patches it, so both calls must depend on the same condition.
+    //
+    const bool fSize = optional && elementType->variableLength();
+
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if(fSize)
     {
-        if(elementType->variableLength())
-        {
-            sizePos = os->startSize();
-        }
-        else if(elementType->wireSize() > 1)
-        {
-            os->writeSize(sz == 0 ? 1 : sz * elementType->wireSize() + (sz > 254 ? 5 : 1));
-        }
+        sizePos = os->startSize();
+    }
+    else if(optional && elementType->wireSize() > 1)
+    {
+        os->writeSize(sz == 0 ? 1 : sz * elementType->wireSize() + (sz > 254 ? 5 : 1));
     }
 
     if(sz == 0)
     {
         os->writeSize(0);
     }
+    else if(PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType))
+    {
+        marshalPrimitiveSequence(pi, zv, os TSRMLS_CC);
+    }
     else
     {
-        PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
-        if(pi)
-        {
-            marshalPrimitiveSequence(pi, zv, os TSRMLS_CC);
-            return;
-        }
-
         HashPosition pos;
         zend_hash_internal_pointer_reset_ex(arr, &pos);
 
@@ -1639,7 +1639,7 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         }
     }
 
-    if(optional && elementType->variableLength())
+    if(fSize)
     {
         os->endSize(sizePos);
     }
@@ -1673,7 +1673,7 @@ IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     array_init(zv);
     AutoDestroy destroy(zv);
 
-    Ice::Int sz = is->readSize();
+    Ice::Int sz = is->readAndCheckSeqSize(elementType->wireSize());
     for(Ice::Int i = 0; i < sz; ++i)
     {
         //
@@ -2820,7 +2820,7 @@ IcePHP::ProxyInfo::variableLength() const
 int
 IcePHP::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat
@@ -4074,6 +4074,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleTypeInfoAlloc;
     typeInfoClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
     memcpy(&_typeInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _typeInfoHandlers.clone_obj = 0;
 
     //
     // Register the IcePHP_ExceptionInfo class.
@@ -4082,6 +4084,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleExceptionInfoAlloc;
     exceptionInfoClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
     memcpy(&_exceptionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _exceptionInfoHandlers.clone_obj = 0;
 
 #ifdef ICEPHP_USE_NAMESPACES
     REGISTER_NS_STRING_CONSTANT("Ice", "None", const_cast<char*>(_unsetGUID.c_str()), CONST_CS|CONST_PERSISTENT);

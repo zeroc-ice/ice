@@ -15,6 +15,7 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/Router.h>
 #include <Ice/OutgoingAsync.h>
+#include <Ice/RequestHandler.h> // For RetryException
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <Ice/UUID.h>
@@ -145,6 +146,15 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
             }
             con->sendAsyncRequest(flushBatch, compress, false, batchRequestNum);
         }
+    }
+    catch(const RetryException& ex)
+    {
+        //
+        // If the connection is closed and sendAsyncRequest throws a RetryException, we release the use count taken
+        // above and rethrow the underlying exception to the caller.
+        //
+        check(false);
+        ex.get()->ice_throw();
     }
     catch(const LocalException&)
     {

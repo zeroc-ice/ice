@@ -2779,6 +2779,10 @@ namespace Ice
                 if(_encapsStack != null)
                 {
                     _encapsCache = _encapsCache.next;
+                    //
+                    // Detach the reused node from the cache: as the outermost encapsulation it has no next.
+                    //
+                    _encapsStack.next = null;
                 }
                 else
                 {

@@ -696,6 +696,11 @@ IceUtilInternal::Options::parse(const StringVector& args)
                         argDone = true;
                         break;
                     }
+
+                    // This option is the last character in the cluster and its argument is the next argv element,
+                    // consumed by the "if(!argDone)" code below. Reset argDone in case a preceding no-argument
+                    // option in this cluster set it (for example "-dI dir").
+                    argDone = false;
                 }
                 else
                 {

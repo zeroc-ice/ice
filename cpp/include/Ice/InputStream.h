@@ -397,7 +397,8 @@ public:
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-        if(i - sizeof(Int) + sz > b.end())
+        // sz includes the 4 bytes of the size itself, which we have already read.
+        if(sz - 4 > b.end() - i)
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
@@ -465,7 +466,8 @@ public:
         {
             throwEncapsulationException(__FILE__, __LINE__);
         }
-        if(i - sizeof(Ice::Int) + sz > b.end())
+        // sz includes the 4 bytes of the size itself, which we have already read.
+        if(sz - 4 > b.end() - i)
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
@@ -505,7 +507,8 @@ public:
         {
             throwEncapsulationException(__FILE__, __LINE__);
         }
-        if(i - sizeof(Int) + sz > b.end())
+        // sz includes the 4 bytes of the size itself, which we have already read.
+        if(sz - 4 > b.end() - i)
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
@@ -1148,7 +1151,7 @@ public:
      */
     void skip(size_type size)
     {
-        if(i + size > b.end())
+        if(size > static_cast<size_type>(b.end() - i))
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }

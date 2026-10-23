@@ -1366,6 +1366,15 @@ namespace IceInternal
                     con.sendAsyncRequest(flushBatch, comp, false, batchRequestNum);
                 }
             }
+            catch(RetryException ex)
+            {
+                //
+                // If the connection is closed and sendAsyncRequest throws a RetryException, we release the use count
+                // taken above and rethrow the underlying exception to the caller.
+                //
+                check(false);
+                throw ex.get();
+            }
             catch(Ice.LocalException)
             {
                 check(false);
@@ -1422,7 +1431,19 @@ namespace IceInternal
         {
             if(_cancellationToken.CanBeCanceled)
             {
-                _cancellationToken.Register(outgoing.cancel);
+                CancellationTokenRegistration registration = _cancellationToken.Register(outgoing.cancel);
+
+                //
+                // Dispose of the registration when the task of this TaskCompletionSource completes; otherwise, a
+                // long-lived cancellation token would retain a reference to every invocation created with it. We
+                // continue with (and don't wait for) this task because waiting for it would mark its exception as
+                // observed, and a faulted invocation would no longer reach TaskScheduler.UnobservedTaskException.
+                //
+                this.Task.ContinueWith((t, state) => ((CancellationTokenRegistration)state).Dispose(),
+                                       registration,
+                                       CancellationToken.None,
+                                       TaskContinuationOptions.None,
+                                       TaskScheduler.Default);
             }
         }
 

@@ -533,6 +533,8 @@ IcePHP::connectionInit(TSRMLS_D)
     ce.create_object = handleConnectionAlloc;
     connectionClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
     memcpy(&_connectionHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _connectionHandlers.clone_obj = 0;
     _connectionHandlers.compare_objects = handleConnectionCompare;
     zend_class_implements(connectionClassEntry TSRMLS_CC, 1, interface);
 

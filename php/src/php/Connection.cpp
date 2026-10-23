@@ -565,6 +565,8 @@ IcePHP::connectionInit(void)
     ce.create_object = handleConnectionAlloc;
     connectionClassEntry = zend_register_internal_class(&ce);
     memcpy(&_connectionHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _connectionHandlers.clone_obj = 0;
 #if PHP_VERSION_ID >= 80000
     _connectionHandlers.compare = handleConnectionCompare;
 #else

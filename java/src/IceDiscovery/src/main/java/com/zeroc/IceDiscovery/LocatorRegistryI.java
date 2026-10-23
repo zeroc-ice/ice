@@ -64,7 +64,7 @@ class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry
                 s.remove(adapterId);
                 if(s.isEmpty())
                 {
-                    _replicaGroups.remove(adapterId);
+                    _replicaGroups.remove(replicaGroupId);
                 }
             }
         }

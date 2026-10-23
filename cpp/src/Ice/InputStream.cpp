@@ -20,6 +20,7 @@
 #include <Ice/SlicedData.h>
 #include <Ice/StringConverter.h>
 #include <iterator>
+#include <climits>
 
 #ifndef ICE_UNALIGNED
 #   if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
@@ -324,7 +325,8 @@ Ice::InputStream::skipEncapsulation()
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    if(i - sizeof(Int) + sz > b.end())
+    // sz includes the 4 bytes of the size itself, which we have already read.
+    if(sz - 4 > b.end() - i)
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
@@ -1950,7 +1952,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
     //
     Int index;
     _stream->read(index);
-    if(index > 0)
+    if(index > 0 || index == INT_MIN)
     {
         throw MarshalException(__FILE__, __LINE__, "invalid object id");
     }

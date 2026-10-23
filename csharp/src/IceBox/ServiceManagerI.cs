@@ -82,7 +82,7 @@ class ServiceManagerI : ServiceManagerDisp_
             {
                 throw new NoSuchServiceException();
             }
-            _pendingStatusChanges = true;
+            ++_pendingStatusChanges;
         }
 
         bool started = false;
@@ -121,7 +121,7 @@ class ServiceManagerI : ServiceManagerDisp_
                     break;
                 }
             }
-            _pendingStatusChanges = false;
+            --_pendingStatusChanges;
             System.Threading.Monitor.PulseAll(this);
         }
     }
@@ -154,7 +154,7 @@ class ServiceManagerI : ServiceManagerDisp_
             {
                 throw new NoSuchServiceException();
             }
-            _pendingStatusChanges = true;
+            ++_pendingStatusChanges;
         }
 
         bool stopped = false;
@@ -192,7 +192,7 @@ class ServiceManagerI : ServiceManagerDisp_
                     break;
                 }
             }
-            _pendingStatusChanges = false;
+            --_pendingStatusChanges;
             System.Threading.Monitor.PulseAll(this);
         }
     }
@@ -731,7 +731,7 @@ class ServiceManagerI : ServiceManagerDisp_
             //
             // First wait for any active startService/stopService calls to complete.
             //
-            while(_pendingStatusChanges)
+            while(_pendingStatusChanges > 0)
             {
                 System.Threading.Monitor.Wait(this);
             }
@@ -1050,7 +1050,7 @@ class ServiceManagerI : ServiceManagerDisp_
     private Ice.Logger _logger;
     private string[] _argv; // Filtered server argument vector
     private List<ServiceInfo> _services = new List<ServiceInfo>();
-    private bool _pendingStatusChanges = false;
+    private int _pendingStatusChanges = 0;
     private Dictionary<ServiceObserverPrx, bool> _observers = new Dictionary<ServiceObserverPrx, bool>();
     private int _traceServiceObserver = 0;
 }

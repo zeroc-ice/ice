@@ -64,6 +64,13 @@ const float ConstZeroF = 0;
 const float ConstZeroDotF = 0.0;
 const double ConstZeroD = 0;
 const double ConstZeroDotD = 0;
+const long ConstLongAbove2Pow53 = 9007199254740993;
+const long ConstLongNearMin = -9223372036854775807;
+
+struct StructLong
+{
+    long above2Pow53 = 9007199254740993;
+}
 
 struct Struct2
 {
