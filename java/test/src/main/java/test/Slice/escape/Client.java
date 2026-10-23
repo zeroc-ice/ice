@@ -49,6 +49,9 @@ public class Client extends TestHelper {
 
     public static class notifyI extends _notify {
         public notifyI() {}
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     public static class finalizeServantI implements _finalize {

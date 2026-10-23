@@ -2075,15 +2075,18 @@ Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p, const op
     {
         writeSeeAlso(out, comment->seeAlso());
 
-        const StringList& deprecated = comment->deprecated();
-        if (!deprecated.empty())
+        if (generatedType != "skeleton interface")
         {
-            out << nl << " * @deprecated ";
-            writeDocCommentLines(out, deprecated);
-        }
-        else if (comment->isDeprecated())
-        {
-            out << nl << " * @deprecated";
+            const StringList& deprecated = comment->deprecated();
+            if (!deprecated.empty())
+            {
+                out << nl << " * @deprecated ";
+                writeDocCommentLines(out, deprecated);
+            }
+            else if (comment->isDeprecated())
+            {
+                out << nl << " * @deprecated";
+            }
         }
     }
 
@@ -2395,6 +2398,7 @@ Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << nl << "@Deprecated";
     }
+    out << nl << R"(@SuppressWarnings("serial"))";
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     if (p->compactId() != -1)
@@ -2685,6 +2689,7 @@ Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         out << nl << "@Deprecated";
     }
+    out << nl << R"(@SuppressWarnings("serial"))";
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public class " << name << " extends ";
@@ -2955,6 +2960,7 @@ Slice::TypesVisitor::visitStructStart(const StructPtr& p)
     {
         out << nl << "@Deprecated";
     }
+    out << nl << R"(@SuppressWarnings("serial"))";
 
     out << nl << "public final class " << p->mappedName() << " implements java.lang.Cloneable, java.io.Serializable";
     out << sb;
@@ -3758,55 +3764,6 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
     string package = getPackage(p);
     string typeS = typeToString(p, TypeModeIn, package);
 
-    //
-    // We cannot allocate an array of a generic type, such as
-    //
-    // arr = new Map<String, String>[sz];
-    //
-    // Attempting to compile this code results in a "generic array creation" error
-    // message. This problem can occur when the sequence's element type is a
-    // dictionary, or when the element type is a nested sequence that uses a custom
-    // mapping.
-    //
-    // The solution is to rewrite the code as follows:
-    //
-    // arr = (Map<String, String>[])new Map[sz];
-    //
-    // Unfortunately, this produces an unchecked warning during compilation, so we
-    // annotate the read() method to suppress the warning.
-    //
-    // A simple test is to look for a "<" character in the content type, which
-    // indicates the use of a generic type.
-    //
-    bool suppressUnchecked = false;
-
-    string instanceType, formalType;
-    bool customType = getSequenceTypes(p, "", MetadataList(), instanceType, formalType);
-
-    if (!customType)
-    {
-        //
-        // Determine sequence depth.
-        //
-        TypePtr origContent = p->type();
-        SequencePtr s = dynamic_pointer_cast<Sequence>(origContent);
-        while (s)
-        {
-            //
-            // Stop if the inner sequence type has a custom or serializable type.
-            //
-            if (hasTypeMetadata(s))
-            {
-                break;
-            }
-            origContent = s->type();
-            s = dynamic_pointer_cast<Sequence>(origContent);
-        }
-
-        string origContentS = typeToString(origContent, TypeModeIn, package);
-        suppressUnchecked = origContentS.find('<') != string::npos;
-    }
-
     open(helper, p->file());
     Output& out = output();
 
@@ -3814,6 +3771,7 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
 
     out << sp;
     writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
+    out << nl << R"(@SuppressWarnings("deprecation"))";
     out << nl << "public final class " << name << "Helper";
     out << sb;
 
@@ -3829,6 +3787,10 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
     writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, false);
     out << eb;
 
+    // Java doesn't allow allocating an array of a generic type (fails with "generic array creation").
+    // For example: `arr = new Map<String, String>[sz];`. This happens when the element type is a
+    // dictionary, or a nested sequence using `java:type` metadata. The solution is to instead do:
+    // `arr = (Map<String, String>[])new Map[sz];`, but this triggers lints we need to suppress.
     out << sp;
     out << nl << "/**";
     out << nl << " * Unmarshals a list of {@code " << name << "} from an input stream.";
@@ -3836,10 +3798,7 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << " * @param istr the input stream";
     out << nl << " * @return the list";
     out << nl << " */";
-    if (suppressUnchecked)
-    {
-        out << nl << "@SuppressWarnings(\"unchecked\")";
-    }
+    out << nl << R"(@SuppressWarnings({"rawtypes", "unchecked"}))";
     out << nl << "public static " << typeS << " read(com.zeroc.Ice.InputStream istr)";
     out << sb;
     out << nl << "final " << typeS << " v;";
@@ -3950,6 +3909,7 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << sp;
     writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
+    out << nl << R"(@SuppressWarnings("deprecation"))";
     out << nl << "public final class " << name << "Helper";
     out << sb;
 
@@ -4399,6 +4359,7 @@ Slice::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     writeDocComment(out, p, "skeleton interface");
 
+    out << nl << R"(@SuppressWarnings("deprecation"))";
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << name << " extends ";
     if (bases.empty())

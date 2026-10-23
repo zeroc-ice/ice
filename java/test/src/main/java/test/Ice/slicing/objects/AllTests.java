@@ -91,6 +91,9 @@ public class AllTests {
         }
 
         static int counter;
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class PreservedI extends Preserved {
@@ -99,6 +102,9 @@ public class AllTests {
         }
 
         static int counter;
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class Wrapper<T> {
