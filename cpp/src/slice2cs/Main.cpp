@@ -43,7 +43,7 @@ usage(const string& n)
                   "-UNAME                   Remove any definition for NAME.\n"
                   "-IDIR                    Put DIR in the include file search path.\n"
                   "--output-dir DIR         Create files in the directory DIR.\n"
-                  "--icerpc VERSION         Generate code for use with IceRPC C# VERSION (0.6 or 0.7) instead of Ice.\n"
+                  "--icerpc VERSION         Generate code for IceRPC C# VERSION (0.6, 0.7 or 0.8) instead of Ice.\n"
                   "-d, --debug              Print debug messages.\n"
                   "--depend                 Generate Makefile dependencies.\n"
                   "--depend-xml             Generate dependencies in XML format.\n"
@@ -124,13 +124,13 @@ compile(const vector<string>& argv)
     if (opts.isSet("icerpc"))
     {
         string version = opts.optArg("icerpc");
-        if (version == "0.6")
+        if (version == "0.6" || version == "0.7")
         {
             genMode = Slice::GenMode::IceRpc06;
         }
-        else if (version == "0.7")
+        else if (version == "0.8")
         {
-            genMode = Slice::GenMode::IceRpc07;
+            genMode = Slice::GenMode::IceRpc08;
         }
         else
         {
