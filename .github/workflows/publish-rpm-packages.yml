@@ -75,6 +75,7 @@ jobs:
           fi
 
       - name: Create RPM repository
+        shell: bash
         run: |
           if [ "${QUALITY}" = "stable" ]; then
             UPLOAD_PATH="ice/${CHANNEL}/${DISTRIBUTION}"
@@ -82,9 +83,30 @@ jobs:
             UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}/${DISTRIBUTION}"
           fi
 
-          echo "Syncing current repository from S3..."
-          mkdir -p "${DISTRIBUTION}"
-          aws s3 sync "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" "${DISTRIBUTION}"
+          repo_dirs=(x86_64 aarch64 SRPMS)
+
+          # Published packages are listed rather than downloaded, and create-rpm-repo.sh reuses their metadata. The only
+          # packages downloaded are published ones it has to read: those staged again, so the published copy wins, and
+          # those the metadata doesn't list, left by a publish interrupted before its metadata upload.
+          echo "Fetching the current repository metadata from S3..."
+          mkdir -p "${DISTRIBUTION}" published
+          aws s3 sync "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" "${DISTRIBUTION}" --exclude "*" --include "*/repodata/*"
+          find staging -name "*.rpm" -printf "%f\n" | sort -u > staged.txt
+          for dir in "${repo_dirs[@]}"; do
+            aws s3api list-objects-v2 \
+              --bucket "${S3_DOWNLOADS_BUCKET}" \
+              --prefix "${UPLOAD_PATH}/${dir}/" \
+              --delimiter / \
+              --output json | jq -r '.Contents[]?.Key | select(endswith(".rpm")) | split("/") | last' | sort > "published/${dir}.txt"
+            if [ -f "${DISTRIBUTION}/${dir}/repodata/repomd.xml" ]; then
+              zcat "${DISTRIBUTION}/${dir}"/repodata/*-primary.xml.gz | sed -n 's/.*<location [^>]*href="\([^"]*\)".*/\1/p' | sort > listed.txt
+            else
+              : > listed.txt
+            fi
+            { comm -12 staged.txt "published/${dir}.txt"; comm -23 "published/${dir}.txt" listed.txt; } | sort -u | while read -r name; do
+              aws s3 cp "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/${dir}/${name}" "${DISTRIBUTION}/${dir}/${name}"
+            done
+          done
 
           echo "Creating/updating repository with new RPMs..."
           docker_args=(
@@ -92,20 +114,22 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace"
             -e GPG_KEY="${GPG_KEY}"
             -e GPG_KEY_ID="${GPG_KEY_ID}"
-            ghcr.io/zeroc-ice/rpm-repo-builder:${CHANNEL}
+            "ghcr.io/zeroc-ice/rpm-repo-builder:${CHANNEL}"
           )
           docker run "${docker_args[@]}" /workspace/ice/packaging/rpm/create-rpm-repo.sh \
             --staging /workspace/staging/ \
-            --repository "/workspace/${DISTRIBUTION}"
+            --repository "/workspace/${DISTRIBUTION}" \
+            --published /workspace/published
 
-          echo "Uploading updated repository to S3..."
-          # We add the repo package to --exclude to avoid deleting it, this package is built by
-          # the build-rpm-ice-repo-packages workflow
-          aws s3 sync \
-            "${DISTRIBUTION}" \
-            "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" \
-            --delete \
-            --exclude "ice-repo-*.noarch.rpm"
+          # The packages go first, so the metadata never lists a package that is not uploaded yet.
+          echo "Uploading the new packages, then the updated metadata, to S3..."
+          aws s3 sync "${DISTRIBUTION}" "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" --exclude "*/repodata/*"
+          for dir in "${repo_dirs[@]}"; do
+            aws s3 sync \
+              "${DISTRIBUTION}/${dir}/repodata" \
+              "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/${dir}/repodata" \
+              --delete
+          done
         env:
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}
