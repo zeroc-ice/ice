@@ -66,7 +66,7 @@
     <StringProperty
         Name="IceRpcVersion"
         DisplayName="IceRpc Version"
-        Description="The IceRPC C# version targeted by the generated code (0.6 or 0.7). Defaults to 0.6.">
+        Description="The IceRPC C# version targeted by the generated code (0.6, 0.7, or 0.8). Defaults to 0.6.">
         <StringProperty.DataSource>
             <DataSource
                 Persistence="ProjectFile"
