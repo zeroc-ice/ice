@@ -4,8 +4,8 @@
 #
 # --staging specifies the directory containing the built RPM packages.
 # --repository specifies the directory of the repository. Each of its x86_64, aarch64, and SRPMS directories holds the
-#   current metadata, if any, and the published copy of each staged package that is already published. The other
-#   published packages are not needed: their metadata entries are reused.
+#   current metadata, if any, and a copy of each published package that is staged again or that the metadata doesn't
+#   list. The other published packages are not needed: their metadata entries are reused.
 # --published specifies a directory with one file per repository directory (x86_64.txt, aarch64.txt, and SRPMS.txt)
 #   listing the file names of the packages currently published in it.
 #

@@ -85,8 +85,9 @@ jobs:
 
           repo_dirs=(x86_64 aarch64 SRPMS)
 
-          # Published packages are listed rather than downloaded, and create-rpm-repo.sh reuses their metadata. A staged
-          # package that is already published keeps its published copy, the only package downloaded.
+          # Published packages are listed rather than downloaded, and create-rpm-repo.sh reuses their metadata. The only
+          # packages downloaded are published ones it has to read: those staged again, so the published copy wins, and
+          # those the metadata doesn't list, left by a publish interrupted before its metadata upload.
           echo "Fetching the current repository metadata from S3..."
           mkdir -p "${DISTRIBUTION}" published
           aws s3 sync "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" "${DISTRIBUTION}" --exclude "*" --include "*/repodata/*"
@@ -97,7 +98,12 @@ jobs:
               --prefix "${UPLOAD_PATH}/${dir}/" \
               --delimiter / \
               --output json | jq -r '.Contents[]?.Key | select(endswith(".rpm")) | split("/") | last' | sort > "published/${dir}.txt"
-            comm -12 staged.txt "published/${dir}.txt" | while read -r name; do
+            if [ -f "${DISTRIBUTION}/${dir}/repodata/repomd.xml" ]; then
+              zcat "${DISTRIBUTION}/${dir}"/repodata/*-primary.xml.gz | sed -n 's/.*<location [^>]*href="\([^"]*\)".*/\1/p' | sort > listed.txt
+            else
+              : > listed.txt
+            fi
+            { comm -12 staged.txt "published/${dir}.txt"; comm -23 "published/${dir}.txt" listed.txt; } | sort -u | while read -r name; do
               aws s3 cp "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/${dir}/${name}" "${DISTRIBUTION}/${dir}/${name}"
             done
           done
