@@ -3424,22 +3424,25 @@ class iOSSimulatorProcessController(RemoteProcessController):
         RemoteProcessController.__init__(self, current, None)
         self.simulatorID: str | None = None
 
-        # Pick the last iOS simulator runtime in the list (assumed to be the latest). Each runtime supports only
-        # some of the device types Xcode knows about, so take an iPhone from the runtime's own list: the newest
-        # standard model, named "iPhone <number>", rather than a Pro, a Plus, or a new form factor.
+        # Pick the newest iOS simulator runtime (the list is assumed to be sorted oldest first) that supports a
+        # standard iPhone model, named "iPhone <number>", and the newest such model. A runtime can support only a
+        # new form factor, and each supports only some of the device types Xcode knows about.
         sys.stdout.write("searching for latest iOS simulator runtime... ")
         sys.stdout.flush()
         runtimes = json.loads(run("xcrun simctl list runtimes --json"))["runtimes"]
-        iosRuntimes = [r for r in runtimes if r["name"].startswith("iOS ") and r["isAvailable"]]
-        if not iosRuntimes:
-            raise RuntimeError("couldn't find an iOS simulator runtime, please install one")
-        runtime = iosRuntimes[-1]
+        for runtime in reversed(runtimes):
+            if not runtime["name"].startswith("iOS ") or not runtime["isAvailable"]:
+                continue
+            iphones = {}
+            for deviceType in runtime["supportedDeviceTypes"]:
+                match = re.fullmatch(r"iPhone (\d+)", deviceType["name"])
+                if match:
+                    iphones[int(match[1])] = deviceType
+            if iphones:
+                break
+        else:
+            raise RuntimeError("couldn't find an iOS simulator runtime with a standard iPhone, please install one")
         self.runtimeID: str = runtime["identifier"]
-        iphones = {}
-        for deviceType in runtime["supportedDeviceTypes"]:
-            match = re.fullmatch(r"iPhone (\d+)", deviceType["name"])
-            if match:
-                iphones[int(match[1])] = deviceType
         iphone = iphones[max(iphones)]
         self.deviceTypeID: str = iphone["identifier"]
         print(f"{self.runtimeID} ({iphone['name']})")
