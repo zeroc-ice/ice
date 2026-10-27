@@ -3425,7 +3425,8 @@ class iOSSimulatorProcessController(RemoteProcessController):
         self.simulatorID: str | None = None
 
         # Pick the last iOS simulator runtime in the list (assumed to be the latest). Each runtime supports only
-        # some of the device types Xcode knows about, so take an iPhone from the runtime's own list.
+        # some of the device types Xcode knows about, so take an iPhone from the runtime's own list: the newest
+        # standard model, named "iPhone <number>", rather than a Pro, a Plus, or a new form factor.
         sys.stdout.write("searching for latest iOS simulator runtime... ")
         sys.stdout.flush()
         runtimes = json.loads(run("xcrun simctl list runtimes --json"))["runtimes"]
@@ -3434,7 +3435,12 @@ class iOSSimulatorProcessController(RemoteProcessController):
             raise RuntimeError("couldn't find an iOS simulator runtime, please install one")
         runtime = iosRuntimes[-1]
         self.runtimeID: str = runtime["identifier"]
-        iphone = [t for t in runtime["supportedDeviceTypes"] if t["productFamily"] == "iPhone"][0]
+        iphones = {}
+        for deviceType in runtime["supportedDeviceTypes"]:
+            match = re.fullmatch(r"iPhone (\d+)", deviceType["name"])
+            if match:
+                iphones[int(match[1])] = deviceType
+        iphone = iphones[max(iphones)]
         self.deviceTypeID: str = iphone["identifier"]
         print(f"{self.runtimeID} ({iphone['name']})")
 
