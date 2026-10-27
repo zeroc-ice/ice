@@ -274,15 +274,12 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
             if (marshal)
             {
                 out << nl;
+                out << "if (" << param << " != null && ";
                 if (optionalMapping)
                 {
-                    out << "if (" << param << " != null && " << param << ".isPresent() && " << stream
-                        << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << param << ".isPresent() && ";
                 }
-                else
-                {
-                    out << "if (" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
-                }
+                out << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
 
                 if (elemType->isVariableLength())
@@ -298,7 +295,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                     string s = optionalMapping ? param + ".get()" : param;
                     if (sz > 1)
                     {
-                        out << nl << "final int optSize = " << s << " == null ? 0 : ";
+                        out << nl << "final int optSize = ";
 
                         // Check the local metadata before checking metadata on the sequence definition.
                         if (hasMetadata("java:type", metadata))
@@ -441,10 +438,10 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << "if (";
+            out << nl << "if (" << param << " != null && ";
             if (optionalMapping)
             {
-                out << param << " != null && " << param << ".isPresent() && ";
+                out << param << ".isPresent() && ";
             }
             out << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(dict) << "))" << sb;
 
@@ -456,7 +453,7 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
             else
             {
                 const size_t sz = keyT->minWireSize() + valueT->minWireSize();
-                out << nl << "final int optSize = " << d << " == null ? 0 : " << d << ".size();";
+                out << nl << "final int optSize = " << d << ".size();";
                 out << nl << stream << ".writeSize((optSize * " << sz << ") + (optSize > 254 ? 5 : 1));";
             }
             writeDictionaryMarshalUnmarshalCode(out, package, dict, d, marshal, iter, true, customStream, metadata);
@@ -3244,7 +3241,7 @@ Slice::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << " */";
     out << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << name << " v)";
     out << sb;
-    out << nl << "if (ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (v != null && ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     if (p->isVariableLength())
     {
@@ -3711,7 +3708,7 @@ Slice::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << " */";
     out << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << name << " v)";
     out << sb;
-    out << nl << "if (ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (v != null && ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     out << nl << "ice_write(ostr, v);";
     out << eb;
@@ -3836,7 +3833,7 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << typeS << " v)";
     out << sb;
-    out << nl << "if (ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (v != null && ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     if (p->type()->isVariableLength())
     {
@@ -3851,8 +3848,7 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
         const size_t sz = p->type()->minWireSize();
         if (sz > 1)
         {
-            out << nl << "final int optSize = v == null ? 0 : ";
-            out << (mappedToCustomType ? "v.size();" : "v.length;");
+            out << nl << "final int optSize = " << (mappedToCustomType ? "v.size();" : "v.length;");
             out << nl << "ostr.writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
         }
         writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
@@ -3969,7 +3965,7 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << formalType << " v)";
     out << sb;
-    out << nl << "if (ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (v != null && ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     TypePtr keyType = p->keyType();
     TypePtr valueType = p->valueType();
@@ -3982,7 +3978,7 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     else
     {
         const size_t sz = keyType->minWireSize() + valueType->minWireSize();
-        out << nl << "final int optSize = v == null ? 0 : v.size();";
+        out << nl << "final int optSize = v.size();";
         out << nl << "ostr.writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
         writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
     }
