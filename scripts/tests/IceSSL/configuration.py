@@ -7,6 +7,7 @@ from Util import (
     Client,
     ClientServerTestCase,
     CppMapping,
+    CSharpMapping,
     Darwin,
     Driver,
     Server,
@@ -20,15 +21,19 @@ certsPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", 
 
 
 class ConfigurationTestCase(ClientServerTestCase):
-    def setupServerSide(self, current: Driver.Current) -> None:
-        # Nothing to do if we're not running this test with the C++ mapping
-        if not isinstance(self.getMapping(), CppMapping):
-            return
+    def usesRevocationServers(self) -> bool:
+        # The C++ revocation tests fetch CRLs and OCSP responses over HTTP only with Schannel and SecureTransport;
+        # OpenSSL reads the CRL files directly. .NET fetches them on every platform.
+        mapping = self.getMapping()
+        if isinstance(mapping, CSharpMapping):
+            return True
+        return isinstance(mapping, CppMapping) and (isinstance(platform, Windows) or isinstance(platform, Darwin))
 
+    def setupServerSide(self, current: Driver.Current) -> None:
         self.crlServer = None
         self.ocspServer = None
 
-        if isinstance(platform, Windows) or isinstance(platform, Darwin):
+        if self.usesRevocationServers():
             from scripts.tests.IceSSL import revocationutil
 
             # Create and start the CRL server for revocation tests.
@@ -38,6 +43,10 @@ class ConfigurationTestCase(ClientServerTestCase):
             # Create and start the CRL server for revocation tests.
             self.ocspServer = revocationutil.createOCSPServer("127.0.0.1", 20002, certsPath)
             self.ocspServer.start()
+
+        # The keychain and hashed CA directory setup below is only used by the C++ tests.
+        if not isinstance(self.getMapping(), CppMapping):
+            return
 
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
             # Create Find.keychain for IceSSL.FindCert tests on macOS. The default cert-import path no
@@ -56,14 +65,13 @@ class ConfigurationTestCase(ClientServerTestCase):
                 shutil.copyfile(certFile, f"{certsPath}/{out}.0")
 
     def teardownServerSide(self, current: Driver.Current, success: bool) -> None:
-        # Nothing to do if we're not running this test with the C++ mapping
-        if not isinstance(self.getMapping(), CppMapping):
-            return
-
         if self.crlServer:
             self.crlServer.shutdown()
         if self.ocspServer:
             self.ocspServer.shutdown()
+
+        if not isinstance(self.getMapping(), CppMapping):
+            return
 
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
             findKeychain = os.path.join(certsPath, "Find.keychain")
