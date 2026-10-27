@@ -29,6 +29,9 @@ jobs:
   build:
     name: "Publish DEB Packages for ${{ matrix.distribution }}"
     runs-on: ubuntu-24.04
+    # Each publish uploads the whole repository as it synced it down, so two must not overlap.
+    concurrency:
+      group: publish-deb-${{ inputs.quality }}-${{ inputs.channel }}-${{ matrix.distribution }}
     strategy:
       matrix:
         distribution: [debian12, debian13, ubuntu22.04, ubuntu24.04]
