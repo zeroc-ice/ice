@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JACOCO_VERSION=0.8.12
+JACOCO_VERSION=0.8.16
 
 if [ "$(basename "$(pwd)")" != "java" ]; then
     echo "This script must be run from the 'java' directory."
@@ -10,15 +10,15 @@ fi
 make -C ../cpp srcs
 make
 
-if [ ! -f org.jacoco.cli-nodeps.jar ]; then
-    wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/$JACOCO_VERSION/org.jacoco.cli-$JACOCO_VERSION-nodeps.jar -O org.jacoco.cli-nodeps.jar
+if [ ! -f org.jacoco.cli-$JACOCO_VERSION-nodeps.jar ]; then
+    wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/$JACOCO_VERSION/org.jacoco.cli-$JACOCO_VERSION-nodeps.jar -O org.jacoco.cli-$JACOCO_VERSION-nodeps.jar
 fi
 
-if [ ! -f org.jacoco.agent-runtime.jar ]; then
-    wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/$JACOCO_VERSION/org.jacoco.agent-$JACOCO_VERSION-runtime.jar -O org.jacoco.agent-runtime.jar
+if [ ! -f org.jacoco.agent-$JACOCO_VERSION-runtime.jar ]; then
+    wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/$JACOCO_VERSION/org.jacoco.agent-$JACOCO_VERSION-runtime.jar -O org.jacoco.agent-$JACOCO_VERSION-runtime.jar
 fi
 
-python3 allTests.py --all --workers=4 --debug --jacoco $(pwd)/org.jacoco.agent-runtime.jar
+python3 allTests.py --all --workers=4 --debug --jacoco $(pwd)/org.jacoco.agent-$JACOCO_VERSION-runtime.jar
 
 # We don't want any coverage for generated code. We remove their class files and any inner classes.
 jacocoArgs=()
@@ -53,4 +53,4 @@ IFS=$'\n'; set -f
 coverageFiles=($(find . -name \*.jacoco.exec))
 unset IFS; set +f
 
-java -jar org.jacoco.cli-nodeps.jar report "${coverageFiles[@]}" "${jacocoArgs[@]}" --html coverage
+java -jar org.jacoco.cli-$JACOCO_VERSION-nodeps.jar report "${coverageFiles[@]}" "${jacocoArgs[@]}" --html coverage
