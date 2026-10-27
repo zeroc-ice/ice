@@ -1820,7 +1820,7 @@ IcePy::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr&
         return;
     }
 
-    Ice::Int sz = is->readSize();
+    Ice::Int sz = is->readAndCheckSeqSize(elementType->wireSize());
     PyObjectHandle result = sm->createContainer(sz);
 
     if(!result.get())
@@ -3700,7 +3700,7 @@ IcePy::ProxyInfo::variableLength() const
 int
 IcePy::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat

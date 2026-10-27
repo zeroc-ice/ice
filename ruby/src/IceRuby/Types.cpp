@@ -1286,7 +1286,7 @@ IceRuby::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPt
         return;
     }
 
-    Ice::Int sz = is->readSize();
+    Ice::Int sz = is->readAndCheckSeqSize(elementType->wireSize());
     volatile VALUE arr = createArray(sz);
 
     for(Ice::Int i = 0; i < sz; ++i)
@@ -2364,7 +2364,7 @@ IceRuby::ProxyInfo::variableLength() const
 int
 IceRuby::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat
