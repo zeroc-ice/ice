@@ -21,6 +21,10 @@ repositories are not touched by the prune: their packages, indices, and database
 removes expired nightly packages during publish.
 Run `nightly-release` with `publish` false to build nightly artifacts without changing the repositories.
 
+The RPM publish updates each repository's metadata rather than rebuilding it: the entry of every published package is
+reused by file name, so a published package is never replaced. To replace one anyway, delete the package and its
+directory's `repodata/` in S3 first; the next publish rebuilds the metadata from every package.
+
 The scheduler dispatches `nightly-release` for branches that contain this split workflow. Maintenance branches that
 have not received the workflow yet continue to use their branch-local `build-release` orchestration.
 

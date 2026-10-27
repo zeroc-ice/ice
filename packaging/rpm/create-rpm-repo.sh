@@ -4,10 +4,11 @@
 #
 # --staging specifies the directory containing the built RPM packages.
 # --repository specifies the directory of the repository. Each of its x86_64, aarch64, and SRPMS directories holds the
-#   current metadata, if any, and a copy of each published package that is staged again or that the metadata doesn't
-#   list. The other published packages are not needed: their metadata entries are reused.
+#   current metadata, if any, and a copy of each published package that the metadata doesn't list. The other published
+#   packages are not needed: their metadata entries are reused.
 # --published specifies a directory with one file per repository directory (x86_64.txt, aarch64.txt, and SRPMS.txt)
-#   listing the file names of the packages currently published in it.
+#   listing the file names of the packages currently published in it. A staged package with a published name is
+#   skipped, so the published copy wins.
 #
 # The GPG key used to sign the repository must be provided via the GPG_KEY environment variable,
 # and the key ID via GPG_KEY_ID.
@@ -83,6 +84,23 @@ update_metadata() {
   gpg --detach-sign --armor --yes --batch "$dir/repodata/repomd.xml"
 }
 
+# Copies staged packages into a repository directory, except those already in it or published.
+copy_packages() {
+  local dir="$1"
+  shift
+  mkdir -p "$dir"
+  for rpm in "$@"; do
+    local name
+    name="$(basename "$rpm")"
+    if [[ -f "$dir/$name" ]] || grep -qxF "$name" "$PUBLISHED/$(basename "$dir").txt"; then
+      echo "Skipping existing: $name"
+      continue
+    fi
+    echo "Copying: $name"
+    cp "$rpm" "$dir/$name"
+  done
+}
+
 ARCHES=(x86_64 aarch64)
 NOARCH_RPMS=()
 
@@ -101,37 +119,14 @@ for arch in "${ARCHES[@]}"; do
   # Add noarch RPMs
   rpms+=("${NOARCH_RPMS[@]}")
 
-  # Create architecture-specific repo dir
-  mkdir -p "$REPODIR/$arch"
-
-  for rpm in "${rpms[@]}"; do
-    target="$REPODIR/$arch/$(basename "$rpm")"
-    if [[ -f "$target" ]]; then
-      echo "Skipping existing: $(basename "$rpm")"
-      continue
-    fi
-    echo "Copying: $(basename "$rpm")"
-    cp "$rpm" "$target"
-  done
-
+  copy_packages "$REPODIR/$arch" "${rpms[@]}"
   update_metadata "$REPODIR/$arch"
 done
 
 # Process source RPMs
 echo "Processing SRPMS (source RPMs)..."
 mapfile -t srpms < <(find "$STAGING" -type f -name "*.src.rpm")
-mkdir -p "$REPODIR/SRPMS"
-
-for srpm in "${srpms[@]}"; do
-  target="$REPODIR/SRPMS/$(basename "$srpm")"
-  if [[ -f "$target" ]]; then
-    echo "Skipping existing: $(basename "$srpm")"
-    continue
-  fi
-  echo "Copying: $(basename "$srpm")"
-  cp "$srpm" "$target"
-done
-
+copy_packages "$REPODIR/SRPMS" "${srpms[@]}"
 update_metadata "$REPODIR/SRPMS"
 
 echo "Repository sync and signing complete."
