@@ -1190,7 +1190,6 @@ def allTests(helper, communicator, collocated):
         #
         cb = CallbackBase()
         con = p.ice_getConnection()
-
         con.setCloseCallback(lambda con: cb.called())
         f = p.sleepAsync(100)
         con.close(Ice.ConnectionClose.GracefullyWithWait) # Blocks until the request completes.

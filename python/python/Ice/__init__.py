@@ -263,8 +263,8 @@ class InvocationFuture(Future):
 
     def sent(self, timeout=None):
         with self._condition:
-            # Stop waiting once the invocation is sent, or once it is cancelled or fails, since it might then never
-            # be sent. A successful response can be delivered before the sent notification: keep waiting for it.
+            # A cancelled or failed invocation may never be sent. A successful response can arrive before the sent
+            # notification: keep waiting for it.
             if not self._wait(timeout, lambda: not self._sent and self._state != Future.StateCancelled and
                               self._exception is None):
                 raise TimeoutException()
