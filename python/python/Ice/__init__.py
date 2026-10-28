@@ -180,7 +180,7 @@ class Future(FutureBase):
         # Must be called with _condition acquired
 
         while testFn():
-            if timeout:
+            if timeout is not None:
                 start = time.time()
                 self._condition.wait(timeout)
                 # Subtract the elapsed time so far from the timeout
@@ -263,7 +263,10 @@ class InvocationFuture(Future):
 
     def sent(self, timeout=None):
         with self._condition:
-            if not self._wait(timeout, lambda: not self._sent):
+            # A cancelled or failed invocation may never be sent. A successful response can arrive before the sent
+            # notification: keep waiting for it.
+            if not self._wait(timeout, lambda: not self._sent and self._state != Future.StateCancelled and
+                              self._exception is None):
                 raise TimeoutException()
             if self._state == Future.StateCancelled:
                 raise InvocationCanceledException()
