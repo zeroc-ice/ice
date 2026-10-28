@@ -1,7 +1,8 @@
 name: Setup virtual Bluetooth controllers
 description: >
   Brings up a pair of bonded virtual Bluetooth controllers and starts the server-side process
-  controller, so the C++ IceBT transport can be tested on a single runner. Linux arm64 only.
+  controller, so the C++ IceBT transport can be tested on a single runner. Linux only, and arm64
+  only on 6.x kernels.
 
   Exports BT_ADDR, the server controller's address. Pointing the client at the second bluetoothd is
   left to the caller, which scopes DBUS_SYSTEM_BUS_ADDRESS to the test steps that want it. The steps
@@ -13,11 +14,15 @@ runs:
     - name: Install the Bluetooth modules and BlueZ
       shell: bash
       run: |
-        # hci_vhci.ko and friends live in linux-modules-extra, which the runner images don't
-        # install. btvirt is in bluez-test-tools; bt-agent is in bluez-tools.
+        # Ubuntu kernels before 7.0 ship hci_vhci.ko and friends in linux-modules-extra, which the
+        # runner images don't install; from 7.0 they are in linux-modules, which comes with the kernel.
+        # The version check can go once no arm64 runner image boots a 6.x kernel.
+        # btvirt is in bluez-test-tools; bt-agent is in bluez-tools.
         sudo apt-get update -qq
-        sudo apt-get install -y \
-          "linux-modules-extra-$(uname -r)" bluez bluez-test-tools bluez-tools
+        if (( $(uname -r | cut -d. -f1) < 7 )); then
+          sudo apt-get install -y "linux-modules-extra-$(uname -r)"
+        fi
+        sudo apt-get install -y bluez bluez-test-tools bluez-tools
 
     - name: Load the modules
       shell: bash

@@ -26,14 +26,20 @@ eos
   spec.files       = ['ice.gemspec'] +
                      Dir['dist/lib/**/*.rb'] +
                      Dir['dist/ice/**/*.*'] +
-                     Dir['dist/IceRuby/*.*']
+                     Dir['dist/IceRuby/*.*'] +
                      Dir['scripts/*']
   spec.homepage    = 'https://zeroc.com'
+  spec.metadata    = {
+    'documentation_uri' => 'https://code.zeroc.com/ice/main/api/ruby/index.html',
+    'source_code_uri' => 'https://github.com/zeroc-ice/ice',
+    'bug_tracker_uri' => 'https://github.com/zeroc-ice/ice/issues',
+    'changelog_uri' => 'https://github.com/zeroc-ice/ice/blob/main/CHANGELOG.md'
+  }
   spec.license     = 'GPL-2.0-only'
   spec.required_ruby_version = '>= 3.4.0'
   spec.require_paths = ['lib', 'dist/lib']
   spec.extensions = ['extconf.rb']
-  spec.rdoc_options = ['--exclude=ext/IceRuby/.*\.o$' '--exclude=IceRuby\.(bundle|so)$' '--exclude=scripts/slice2rb$']
+  spec.rdoc_options = ['--exclude=ext/IceRuby/.*\.o$', '--exclude=IceRuby\.(bundle|so)$', '--exclude=scripts/slice2rb$']
   spec.executables   = ['slice2rb']
   spec.bindir        = 'scripts'
 end

@@ -95,7 +95,7 @@ function(slice2cpp_generate target)
       message(FATAL_ERROR
         "slice2cpp_generate: '${option}' is managed by slice2cpp_generate and cannot be passed in "
         "OPTIONS; use INCLUDE_DIRS, HEADER_OUTPUT_DIR or INCLUDE_DIR instead.")
-    elseif(option MATCHES "^(-h|--help|-v|--version|--validate)$" OR option MATCHES "\\.ice$")
+    elseif(option MATCHES "^(-h|--help|-v|--version)$" OR option MATCHES "\\.ice$")
       message(FATAL_ERROR
         "slice2cpp_generate: OPTIONS takes slice2cpp options that affect code generation; "
         "'${option}' suppresses generation or names an input file.")

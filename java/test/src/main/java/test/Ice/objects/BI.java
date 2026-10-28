@@ -14,4 +14,7 @@ public final class BI extends B {
     public void ice_postUnmarshal() {
         postUnmarshalInvoked = true;
     }
+
+    @java.io.Serial
+    private static final long serialVersionUID = 0L;
 }

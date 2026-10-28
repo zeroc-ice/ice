@@ -40,9 +40,12 @@ subprojects {
 
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xdoclint:all,-missing"
-                             << "-Xlint:all,-rawtypes,-exports,-serial,-try,-missing-explicit-ctor,-deprecation"
+                             << "-Xlint:all,-rawtypes,-exports,-try,-missing-explicit-ctor"
         options.encoding = "UTF-8"
-        options.deprecation = true
+        if (System.getenv("WARNINGS_AS_ERRORS") == "yes") {
+            // Treat all warnings as errors, but don't stop compilation at the first error.
+            options.compilerArgs << "-Werror" << "-XDshould-stop.ifError=FLOW"
+        }
     }
 }
 

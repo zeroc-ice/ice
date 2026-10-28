@@ -60,12 +60,9 @@ for key in $keys; do
     # - nightly.20250821, nightly-20250821, nightly20250821
     # - pre.20250821, pre-20250821
     # - dev.20250821, dev-20250821
-    # - bare date like 20250821 in filename
     date_part=""
     if [[ "$key" =~ (nightly|pre|dev)[.-]?([0-9]{8}) ]]; then
         date_part="${BASH_REMATCH[2]}"
-    elif [[ "$key" =~ ([0-9]{8}) ]]; then
-        date_part="${BASH_REMATCH[1]}"
     fi
 
     if [[ -n "$date_part" ]]; then

@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -170,6 +171,48 @@ public class AllTests {
         test(Arrays.equals(mo1.getBos(), new boolean[]{false, true, false}));
 
         test(mo1.getSer().equals(new SerializableClass(58)));
+
+        {
+            // Assigning null to an optional member clears it: an optional member is never "set to null".
+            MultiOptional mo = new MultiOptional();
+            mo.setJ(null);
+            test(!mo.hasJ());
+            test(!mo.optionalJ().isPresent());
+            try {
+                mo.getJ();
+                test(false);
+            } catch (NoSuchElementException ex) {
+                // expected
+            }
+            mo.setOprx(null);
+            test(!mo.hasOprx());
+            test(!mo.optionalOprx().isPresent());
+            mo.setSer(null);
+            test(!mo.hasSer());
+            test(!mo.optionalSer().isPresent());
+
+            // The same holds for every other member type that can hold null.
+            mo.setH(null);
+            test(!mo.hasH());
+            test(!mo.optionalH().isPresent());
+            mo.setI(null);
+            test(!mo.hasI());
+            mo.setBs(null);
+            test(!mo.hasBs());
+            mo.setIid(null);
+            test(!mo.hasIid());
+            mo.setFs(null);
+            test(!mo.hasFs());
+            test(!mo.optionalFs().isPresent());
+
+            // Assigning a value sets the member again.
+            mo.setJ(MyInterfacePrx.createProxy(communicator, "test"));
+            test(mo.hasJ());
+            mo.setH("");
+            test(mo.hasH() && mo.getH().isEmpty());
+            mo.setJ(null);
+            test(!mo.hasJ());
+        }
 
         out.println("ok");
 
@@ -366,8 +409,7 @@ public class AllTests {
         os.writeValue(oo1);
         os.endEncapsulation();
         byte[] inEncaps = os.finished();
-        Object.Ice_invokeResult inv =
-            initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+        Object.Ice_invokeResult inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
         test(inv.returnValue);
         InputStream in = new InputStream(communicator, inv.outParams);
         in.startEncapsulation();
@@ -389,6 +431,55 @@ public class AllTests {
         in.endEncapsulation();
         test(cb.value != null);
         customSliceLoader.setEnabled(false);
+
+        {
+            // Optional proxy members that are set but hold a null proxy, and an optional serializable member that is
+            // set but holds an empty sequence (the encoding of a null object), are unmarshaled as unset members.
+            // The generated code never marshals such members, so this instance writes them by hand.
+            MultiOptional nullMembers = new MultiOptional() {
+                @Override
+                protected void _iceWriteImpl(OutputStream ostr) {
+                    ostr.startSlice(ice_staticId(), -1, true);
+                    ostr.writeOptional(10, OptionalFormat.FSize); // j
+                    int pos = ostr.startSize();
+                    ostr.writeProxy((ObjectPrx) null);
+                    ostr.endSize(pos);
+                    ostr.writeOptional(11, OptionalFormat.FSize); // oprx
+                    pos = ostr.startSize();
+                    ostr.writeProxy((ObjectPrx) null);
+                    ostr.endSize(pos);
+                    ostr.writeOptional(30, OptionalFormat.VSize); // ser
+                    ostr.writeSize(0);
+                    ostr.endSlice();
+                }
+            };
+
+            os = new OutputStream(communicator);
+            os.startEncapsulation();
+            os.writeValue(nullMembers);
+            os.writePendingValues();
+            os.endEncapsulation();
+            inEncaps = os.finished();
+
+            in = new InputStream(communicator, inEncaps);
+            in.startEncapsulation();
+            final Wrapper<MultiOptional> mo = new Wrapper<>();
+            in.readValue(v -> mo.value = v, MultiOptional.class);
+            in.readPendingValues();
+            in.endEncapsulation();
+            test(mo.value != null);
+            test(!mo.value.hasJ());
+            test(!mo.value.optionalJ().isPresent());
+            test(!mo.value.hasOprx());
+            test(!mo.value.optionalOprx().isPresent());
+            test(!mo.value.hasSer());
+            test(!mo.value.optionalSer().isPresent());
+
+            MultiOptional mo2 = (MultiOptional) initial.pingPong(nullMembers);
+            test(!mo2.hasJ());
+            test(!mo2.hasOprx());
+            test(!mo2.hasSer());
+        }
 
         G g = new G();
         g.setGg1Opt(new G1("gg1Opt"));
@@ -1045,6 +1136,53 @@ public class AllTests {
             in.startEncapsulation();
             in.endEncapsulation();
         }
+
+        {
+            // An optional proxy that is set but holds a null proxy should be read as an empty Optional.
+            os = new OutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, OptionalFormat.FSize);
+            int pos = os.startSize();
+            os.writeProxy((ObjectPrx) null);
+            os.endSize(pos);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+
+            in = new InputStream(communicator, inEncaps);
+            in.startEncapsulation();
+            test(!in.readProxy(2).isPresent());
+            in.endEncapsulation();
+
+            in = new InputStream(communicator, inEncaps);
+            in.startEncapsulation();
+            Optional<MyInterfacePrx> optPrx = in.readProxy(2, obj -> {
+                test(obj != null); // the cast function is not called for a null proxy
+                return MyInterfacePrx.uncheckedCast(obj);
+            });
+            test(!optPrx.isPresent());
+            in.endEncapsulation();
+
+            inv = initial.ice_invoke("opMyInterfaceProxy", OperationMode.Normal, inEncaps);
+            in = new InputStream(communicator, inv.outParams);
+            in.startEncapsulation();
+            test(!in.readProxy(1).isPresent());
+            test(!in.readProxy(3).isPresent());
+            in.endEncapsulation();
+
+            // A required null proxy reads as null without calling the cast function.
+            os = new OutputStream(communicator);
+            os.startEncapsulation();
+            os.writeProxy((ObjectPrx) null);
+            os.endEncapsulation();
+            in = new InputStream(communicator, os.finished());
+            in.startEncapsulation();
+            MyInterfacePrx nullPrx = in.readProxy(obj -> {
+                test(obj != null);
+                return MyInterfacePrx.uncheckedCast(obj);
+            });
+            test(nullPrx == null);
+            in.endEncapsulation();
+        }
         out.println("ok");
 
         out.print("testing optional parameters and sequences... ");
@@ -1587,6 +1725,25 @@ public class AllTests {
             in = new InputStream(communicator, inv.outParams);
             in.startEncapsulation();
             in.endEncapsulation();
+
+            // An optional serializable that is set but holds an empty sequence (the encoding of a null object)
+            // should be read as an unset optional.
+            os = new OutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, OptionalFormat.VSize);
+            os.writeSize(0);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            in = new InputStream(communicator, inEncaps);
+            in.startEncapsulation();
+            test(!in.readSerializable(2, SerializableClass.class).isPresent());
+            in.endEncapsulation();
+            inv = initial.ice_invoke("opSerializable", OperationMode.Normal, inEncaps);
+            in = new InputStream(communicator, inv.outParams);
+            in.startEncapsulation();
+            test(!in.readSerializable(1, SerializableClass.class).isPresent());
+            test(!in.readSerializable(3, SerializableClass.class).isPresent());
+            in.endEncapsulation();
         }
         out.println("ok");
 
@@ -1834,6 +1991,9 @@ public class AllTests {
         public void _iceWrite(OutputStream out) {
             assert false;
         }
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class BObjectReader extends Value {
@@ -1855,6 +2015,9 @@ public class AllTests {
         public void _iceWrite(OutputStream out) {
             assert false;
         }
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class CObjectReader extends Value {
@@ -1879,6 +2042,9 @@ public class AllTests {
         public void _iceWrite(OutputStream out) {
             assert false;
         }
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class DObjectWriter extends Value {
@@ -1913,6 +2079,9 @@ public class AllTests {
             out.endSlice();
             out.endValue();
         }
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class DObjectReader extends Value {
@@ -1953,6 +2122,9 @@ public class AllTests {
         }
 
         private Wrapper<A> a = new Wrapper<>();
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     private static class FObjectReader extends Value {
@@ -1980,6 +2152,9 @@ public class AllTests {
         }
 
         private F _f;
+
+        @java.io.Serial
+        private static final long serialVersionUID = 0L;
     }
 
     public static class CustomSliceLoader implements SliceLoader {

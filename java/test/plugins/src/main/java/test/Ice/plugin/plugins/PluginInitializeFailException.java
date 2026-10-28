@@ -9,4 +9,7 @@ public class PluginInitializeFailException extends RuntimeException {
     public PluginInitializeFailException() {
         super("PluginInitializeFailException");
     }
+
+    @java.io.Serial
+    private static final long serialVersionUID = 0L;
 }

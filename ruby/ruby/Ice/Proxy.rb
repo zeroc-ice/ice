@@ -3,7 +3,7 @@
 module Ice
 
     T_ObjectPrx = Ice.__declareProxy('::Ice::Object')
-    T_ObjectPrx.defineProxy(ObjectPrx, nil, [])
+    T_ObjectPrx.defineProxy(ObjectPrx)
 
     # Provide some common functionality for proxy classes
     module Proxy_mixin

@@ -557,13 +557,11 @@ Slice::pluralKindOf(const ContainedPtr& p)
 bool
 Slice::isProxyType(const TypePtr& type)
 {
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if (builtin && builtin->kind() == Builtin::KindObjectProxy)
+    if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
-        return true;
+        return builtin->kind() == Builtin::KindObjectProxy;
     }
-
-    if (dynamic_pointer_cast<InterfaceDecl>(type))
+    else if (dynamic_pointer_cast<InterfaceDecl>(type))
     {
         return true;
     }

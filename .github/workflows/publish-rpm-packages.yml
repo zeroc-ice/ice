@@ -34,6 +34,9 @@ jobs:
   build:
     name: "Publish RPM Packages for ${{ matrix.distribution }}"
     runs-on: 'ubuntu-24.04'
+    # Each publish rebuilds the repository metadata from the previous one's, so two must not overlap.
+    concurrency:
+      group: publish-rpm-${{ inputs.quality }}-${{ inputs.channel }}-${{ matrix.distribution }}
     strategy:
       matrix:
         include:
@@ -81,6 +84,7 @@ jobs:
           fi
 
       - name: Create RPM repository
+        shell: bash
         run: |
           if [ "${QUALITY}" = "stable" ]; then
             UPLOAD_PATH="ice/${CHANNEL}/${DISTRIBUTION}"
@@ -88,9 +92,32 @@ jobs:
             UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}/${DISTRIBUTION}"
           fi
 
-          echo "Syncing current repository from S3..."
-          mkdir -p "${DISTRIBUTION}"
-          aws s3 sync "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" "${DISTRIBUTION}"
+          repo_dirs=(x86_64 aarch64 SRPMS)
+
+          # create-rpm-repo.sh reuses the metadata entries of the published packages. The only ones downloaded are those
+          # the metadata doesn't list, for createrepo_c to read: a publish interrupted before its metadata upload leaves
+          # such packages.
+          echo "Fetching the current repository metadata from S3..."
+          mkdir -p "${DISTRIBUTION}" published
+          aws s3 sync "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" "${DISTRIBUTION}" --exclude "*" --include "*/repodata/*"
+          for dir in "${repo_dirs[@]}"; do
+            aws s3api list-objects-v2 \
+              --bucket "${S3_DOWNLOADS_BUCKET}" \
+              --prefix "${UPLOAD_PATH}/${dir}/" \
+              --delimiter / \
+              --output json | jq -r '.Contents[]?.Key | select(endswith(".rpm")) | split("/") | last' | sort > "published/${dir}.txt"
+            # Only the primary that repomd.xml names counts: an interrupted metadata upload can leave another one.
+            repomd="${DISTRIBUTION}/${dir}/repodata/repomd.xml"
+            if [ -f "${repomd}" ]; then
+              primary=$(sed -n '/<data type="primary">/,/<\/data>/s/.*<location href="\([^"]*\)".*/\1/p' "${repomd}")
+              zcat "${DISTRIBUTION}/${dir}/${primary}" | sed -n 's/.*<location [^>]*href="\([^"]*\)".*/\1/p' | sort > listed.txt
+            else
+              : > listed.txt
+            fi
+            comm -23 "published/${dir}.txt" listed.txt | while read -r name; do
+              aws s3 cp "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/${dir}/${name}" "${DISTRIBUTION}/${dir}/${name}"
+            done
+          done
 
           echo "Creating/updating repository with new RPMs..."
           docker_args=(
@@ -102,16 +129,20 @@ jobs:
           )
           docker run "${docker_args[@]}" /workspace/ice/packaging/rpm/create-rpm-repo.sh \
             --staging /workspace/staging/ \
-            --repository "/workspace/${DISTRIBUTION}"
+            --repository "/workspace/${DISTRIBUTION}" \
+            --published /workspace/published
 
-          echo "Uploading updated repository to S3..."
-          # We add the repo package to --exclude to avoid deleting it, this package is built by
-          # the build-rpm-ice-repo-packages workflow
-          aws s3 sync \
-            "${DISTRIBUTION}" \
-            "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" \
-            --delete \
-            --exclude "ice-repo-*.noarch.rpm"
+          # The packages go first, so the metadata never lists a package that is not uploaded yet. In each repodata/,
+          # repomd.xml follows the files it names and the files it no longer names go last, so the metadata in S3 always
+          # loads, even when the upload is interrupted.
+          echo "Uploading the new packages, then the updated metadata, to S3..."
+          aws s3 sync "${DISTRIBUTION}" "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}" --exclude "*/repodata/*"
+          for dir in "${repo_dirs[@]}"; do
+            repodata="s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/${dir}/repodata"
+            aws s3 sync "${DISTRIBUTION}/${dir}/repodata" "${repodata}" --exclude "repomd.xml*"
+            aws s3 sync "${DISTRIBUTION}/${dir}/repodata" "${repodata}" --exclude "*" --include "repomd.xml*"
+            aws s3 sync "${DISTRIBUTION}/${dir}/repodata" "${repodata}" --delete
+          done
         env:
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}

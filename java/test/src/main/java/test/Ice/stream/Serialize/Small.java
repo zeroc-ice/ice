@@ -7,4 +7,7 @@ import java.io.Serializable;
 // Fewer than 254 bytes when serialized.
 public class Small implements Serializable {
     public int i;
+
+    @java.io.Serial
+    private static final long serialVersionUID = 0L;
 }

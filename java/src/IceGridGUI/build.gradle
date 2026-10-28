@@ -15,9 +15,9 @@ if(os == "Mac OS X") {
 // Don't generate javadoc
 javadoc.enabled = false
 
-// Disable deprecation warnings caused by JGoodies
+// Disable deprecation and serialization warnings
 tasks.withType(JavaCompile) {
-    options.deprecation = false
+    options.compilerArgs << "-Xlint:-deprecation,-serial"
 }
 
 dependencies {

@@ -3419,33 +3419,36 @@ class iOSSimulatorDevice:
 
 class iOSSimulatorProcessController(RemoteProcessController):
     device = "iOSSimulatorProcessController"
-    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-15"
 
     def __init__(self, current: Driver.Current):
         RemoteProcessController.__init__(self, current, None)
         self.simulatorID: str | None = None
-        self.runtimeID: str | None = None
-        # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
-        try:
-            sys.stdout.write("searching for latest iOS simulator runtime... ")
-            sys.stdout.flush()
 
-            availableRuntimes = run("xcrun simctl list runtimes").split("\n")
-            for r in availableRuntimes:
-                m = re.search(r"iOS .* \(.*\) - (.*)", r)
-                if m:
-                    self.runtimeID = m.group(1)
-        except Exception:
-            pass
-
-        if self.runtimeID:
-            print(f"{self.runtimeID}")
+        # Pick the newest iOS simulator runtime (the list is assumed to be sorted oldest first) that supports a
+        # standard iPhone model, named "iPhone <number>", and the newest such model. A runtime can support only a
+        # new form factor, and each supports only some of the device types Xcode knows about.
+        sys.stdout.write("searching for latest iOS simulator runtime... ")
+        sys.stdout.flush()
+        runtimes = json.loads(run("xcrun simctl list runtimes --json"))["runtimes"]
+        for runtime in reversed(runtimes):
+            if not runtime["name"].startswith("iOS ") or not runtime["isAvailable"]:
+                continue
+            iphones = {}
+            for deviceType in runtime["supportedDeviceTypes"]:
+                match = re.fullmatch(r"iPhone (\d+)", deviceType["name"])
+                if match:
+                    iphones[int(match[1])] = deviceType
+            if iphones:
+                break
         else:
-            raise RuntimeError("couldn't find an iOS simulator runtime, please install one")
+            raise RuntimeError("couldn't find an iOS simulator runtime with a standard iPhone, please install one")
+        self.runtimeID: str = runtime["identifier"]
+        iphone = iphones[max(iphones)]
+        self.deviceTypeID: str = iphone["identifier"]
+        print(f"{self.runtimeID} ({iphone['name']})")
 
     def __str__(self) -> str:
-        assert self.runtimeID is not None
-        return "iOS Simulator ({})".format(self.runtimeID.replace("com.apple.CoreSimulator.SimRuntime.", "").strip())
+        return "iOS Simulator ({})".format(self.runtimeID.replace("com.apple.CoreSimulator.SimRuntime.", ""))
 
     def getControllerIdentity(self, current: Driver.Current) -> Any:
         mapping = current.getTestCase().getMapping()
@@ -3478,7 +3481,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
             sys.stdout.flush()
             # Simulators created by us are deleted in destroy().
             self.simulatorID = run(
-                'xcrun simctl create "{0}" {1} {2}'.format(self.device, self.deviceID, self.runtimeID)
+                'xcrun simctl create "{0}" {1} {2}'.format(self.device, self.deviceTypeID, self.runtimeID)
             )
             print(f"{self.simulatorID}")
 

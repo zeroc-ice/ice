@@ -2248,20 +2248,8 @@ IceRuby::ProxyInfo::ProxyInfo(VALUE ident) : rubyClass(Qnil), typeObj(Qnil)
 }
 
 void
-IceRuby::ProxyInfo::define(VALUE t, VALUE b, VALUE i)
+IceRuby::ProxyInfo::define(VALUE t)
 {
-    if (!NIL_P(b))
-    {
-        assert(dynamic_pointer_cast<ProxyInfo>(getType(b)));
-    }
-
-    volatile VALUE arr = callRuby(rb_check_array_type, i);
-    assert(!NIL_P(arr));
-    for (int n = 0; n < RARRAY_LEN(arr); ++n)
-    {
-        assert(dynamic_pointer_cast<ProxyInfo>(getType(RARRAY_AREF(arr, n))));
-    }
-
     const_cast<VALUE&>(rubyClass) = t;
     // Pin the class: the GC cannot see the VALUE stored in this object, so it must never move.
     rb_gc_register_mark_object(rubyClass);
@@ -2949,14 +2937,14 @@ IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE 
 }
 
 extern "C" VALUE
-IceRuby_TypeInfo_defineProxy(VALUE self, VALUE type, VALUE base, VALUE interfaces)
+IceRuby_TypeInfo_defineProxy(VALUE self, VALUE type)
 {
     ICE_RUBY_TRY
     {
         ProxyInfoPtr info = dynamic_pointer_cast<ProxyInfo>(getType(self));
         assert(info);
 
-        info->define(type, base, interfaces);
+        info->define(type);
         rb_define_const(type, "ICE_TYPE", self);
         rb_define_const(type, "ICE_ID", createString(info->id));
     }
@@ -3085,7 +3073,7 @@ IceRuby::initTypes(VALUE iceModule)
     rb_define_module_function(iceModule, "__defineException", CAST_METHOD(IceRuby_defineException), 4);
 
     rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 5);
-    rb_define_method(_typeInfoClass, "defineProxy", CAST_METHOD(IceRuby_TypeInfo_defineProxy), 3);
+    rb_define_method(_typeInfoClass, "defineProxy", CAST_METHOD(IceRuby_TypeInfo_defineProxy), 1);
 
     rb_define_module_function(iceModule, "__stringify", CAST_METHOD(IceRuby_stringify), 2);
     rb_define_module_function(iceModule, "__stringifyException", CAST_METHOD(IceRuby_stringifyException), 1);

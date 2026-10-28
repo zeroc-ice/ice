@@ -345,11 +345,11 @@ final class HttpParser {
                     } else if (c < '0' || c > '9') {
                         throw new WebSocketException("malformed version");
                     }
-                    if (_versionMajor == -1) {
-                        _versionMajor = 0;
+                    // Each component of the HTTP version is a single digit (RFC 9112, section 2.3).
+                    if (_versionMajor != -1) {
+                        throw new WebSocketException("malformed version");
                     }
-                    _versionMajor *= 10;
-                    _versionMajor += c - '0';
+                    _versionMajor = c - '0';
                     break;
                 }
                 case VersionMinor: {
@@ -374,11 +374,11 @@ final class HttpParser {
                     } else if (c < '0' || c > '9') {
                         throw new WebSocketException("malformed version");
                     }
-                    if (_versionMinor == -1) {
-                        _versionMinor = 0;
+                    // Each component of the HTTP version is a single digit (RFC 9112, section 2.3).
+                    if (_versionMinor != -1) {
+                        throw new WebSocketException("malformed version");
                     }
-                    _versionMinor *= 10;
-                    _versionMinor += c - '0';
+                    _versionMinor = c - '0';
                     break;
                 }
                 case Response: {
@@ -397,19 +397,19 @@ final class HttpParser {
                 case ResponseStatus: {
                     // TODO: Is reason string optional?
                     if (c == CR) {
-                        if (_status == -1) {
+                        if (_status < 100) {
                             throw new WebSocketException("malformed response status");
                         }
                         _state = State.ResponseLF;
                         break;
                     } else if (c == LF) {
-                        if (_status == -1) {
+                        if (_status < 100) {
                             throw new WebSocketException("malformed response status");
                         }
                         _state = State.HeaderFieldStart;
                         break;
                     } else if (c == ' ') {
-                        if (_status == -1) {
+                        if (_status < 100) {
                             throw new WebSocketException("malformed response status");
                         }
                         _state = State.ResponseReasonStart;
@@ -417,8 +417,15 @@ final class HttpParser {
                     } else if (c < '0' || c > '9') {
                         throw new WebSocketException("malformed response status");
                     }
+                    // A status code has three digits and does not start with 0 (RFC 9110, section 15). Without a
+                    // leading 0, any digit after the third one makes the value exceed 999.
                     if (_status == -1) {
+                        if (c == '0') {
+                            throw new WebSocketException("malformed response status");
+                        }
                         _status = 0;
+                    } else if (_status >= 100) {
+                        throw new WebSocketException("malformed response status");
                     }
                     _status *= 10;
                     _status += c - '0';
