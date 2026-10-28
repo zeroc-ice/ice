@@ -214,6 +214,7 @@ jobs:
             config: "Python312"
             working_directory: "python"
             build_cpp_and_python: true
+            skip_lto: true
             python_version: "3.12"
             python_tests: true
 
@@ -238,6 +239,7 @@ jobs:
             config: "Python313"
             working_directory: "python"
             build_cpp_and_python: true
+            skip_lto: true
             python_version: "3.13"
             python_tests: true
 
