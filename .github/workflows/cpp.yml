@@ -40,6 +40,13 @@ jobs:
 
   clang-tidy:
     runs-on: ubuntu-24.04
+    env:
+      # clang-tidy doesn't use the objects, so skip the LTO that Ubuntu's dpkg-buildflags turn on.
+      DEB_BUILD_MAINT_OPTIONS: optimize=-lto
+      CTCACHE_CLANG_TIDY: clang-tidy-19
+      CTCACHE_DIR: ${{ github.workspace }}/.ctcache
+      # Hash comments too, so that removing a NOLINT re-checks the file.
+      CTCACHE_KEEP_COMMENTS: 1
     steps:
       - name: Checkout Ice
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -53,6 +60,7 @@ jobs:
           prefix: clang-tidy
 
       - name: Install clang-tidy
+        id: clang-tidy
         run: |
           # This LLVM script will add the relevant LLVM PPA: https://apt.llvm.org/
           wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
@@ -61,12 +69,30 @@ jobs:
           sudo apt-get install -y clang-tidy-19
           rm /tmp/llvm.sh
           clang-tidy-19 --version
+          echo "version=$(clang-tidy-19 --version | sed -nE 's/.*LLVM version ([0-9.]+).*/\1/p')" >> $GITHUB_OUTPUT
 
       - name: Install bear
         run: |
           sudo apt-get update
           sudo apt-get install -y bear
           bear --version
+
+      - name: Install ctcache
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: matus-chochlik/ctcache
+          ref: 857b14271d3ded5511c2e6a60f2dc20c1e4b5680
+          path: ctcache
+
+      # Only PRs reuse results: main pushes check every file, since ctcache's g++ -E digest misses `__clang__` blocks
+      # and comments on directive lines. ctcache doesn't hash the clang-tidy binary, so its version goes in the key.
+      - name: Restore clang-tidy cache
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CTCACHE_DIR }}
+          key: ctcache-clang-tidy-${{ steps.clang-tidy.outputs.version }}-${{ github.sha }}
+          restore-keys: ctcache-clang-tidy-${{ steps.clang-tidy.outputs.version }}-
 
       - name: Build Ice
         timeout-minutes: 90
@@ -92,7 +118,7 @@ jobs:
         working-directory: cpp
         run: |
           echo "Running clang-tidy on ${{ steps.glob.outputs.paths }}"
-          run-clang-tidy-19 -j$(nproc) -quiet ${{ steps.glob.outputs.paths }}
+          run-clang-tidy-19 -j$(nproc) -quiet -clang-tidy-binary "$GITHUB_WORKSPACE/ctcache/clang-tidy" ${{ steps.glob.outputs.paths }}
 
       - name: Select files to check for IcePy
         uses: tj-actions/glob@2deae40528141fc53131606d56b4e4ce2a486b29 # v22.0.2
@@ -106,4 +132,11 @@ jobs:
         working-directory: python
         run: |
           echo "Running clang-tidy on ${{ steps.globpy.outputs.paths }}"
-          run-clang-tidy-19 -j$(nproc) -quiet ${{ steps.globpy.outputs.paths }}
+          run-clang-tidy-19 -j$(nproc) -quiet -clang-tidy-binary "$GITHUB_WORKSPACE/ctcache/clang-tidy" ${{ steps.globpy.outputs.paths }}
+
+      - name: Save clang-tidy cache
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CTCACHE_DIR }}
+          key: ctcache-clang-tidy-${{ steps.clang-tidy.outputs.version }}-${{ github.sha }}
