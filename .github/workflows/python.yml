@@ -50,7 +50,15 @@ jobs:
         working-directory: python
         run: uv sync --group dev
 
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: pyright
+
       - name: Build Ice for Python
+        # Pyright only needs the built module, so skip the LTO that Ubuntu's dpkg-buildflags turn on.
+        env:
+          DEB_BUILD_MAINT_OPTIONS: optimize=-lto
         run: |
           make -C cpp srcs
           make -C python
