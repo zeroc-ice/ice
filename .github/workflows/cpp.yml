@@ -85,9 +85,8 @@ jobs:
           path: ctcache
 
       # ctcache doesn't hash the clang-tidy binary, so its version goes in the key.
-      - name: Restore clang-tidy cache
-        id: restore-ctcache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Setup clang-tidy cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CTCACHE_DIR }}
           key: ctcache-clang-tidy-${{ steps.clang-tidy.outputs.version }}-${{ github.sha }}
@@ -132,10 +131,3 @@ jobs:
         run: |
           echo "Running clang-tidy on ${{ steps.globpy.outputs.paths }}"
           run-clang-tidy-19 -j$(nproc) -quiet -clang-tidy-binary "$GITHUB_WORKSPACE/ctcache/clang-tidy" ${{ steps.globpy.outputs.paths }}
-
-      - name: Save clang-tidy cache
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ env.CTCACHE_DIR }}
-          key: ${{ steps.restore-ctcache.outputs.cache-primary-key }}
