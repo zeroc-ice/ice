@@ -76,7 +76,7 @@ jobs:
           sudo apt-get install -y clang-tidy-19
           rm /tmp/llvm.sh
           clang-tidy-19 --version
-          echo "version=$(clang-tidy-19 --version | sed -nE 's/.*LLVM version ([0-9.]+).*/\1/p')" >> $GITHUB_OUTPUT
+          echo "version=$(clang-tidy-19 --version | sed -nE 's/.*LLVM version ([0-9.]+).*/\1/p')" >> "$GITHUB_OUTPUT"
 
       - name: Install bear
         run: |
@@ -90,6 +90,7 @@ jobs:
           repository: matus-chochlik/ctcache
           ref: 857b14271d3ded5511c2e6a60f2dc20c1e4b5680
           path: ctcache
+          persist-credentials: false
 
       # Only PRs reuse results: main pushes check every file, since ctcache's g++ -E digest misses `__clang__` blocks
       # and comments on directive lines. ctcache doesn't hash the clang-tidy binary, so its version goes in the key.
