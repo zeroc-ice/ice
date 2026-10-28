@@ -39,15 +39,6 @@
         TaskFactory="$(_IceSliceToolsTaskFactory)"
         AssemblyFile="$(_IceSliceToolsAssembly)"/>
 
-    <PropertyGroup>
-        <EnableDefaultSliceCompileItems Condition="'$(EnableDefaultSliceCompileItems)' == ''">true</EnableDefaultSliceCompileItems>
-    </PropertyGroup>
-
-    <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
-        <SliceCompile Condition="'$(EnableDefaultSliceCompileItems)' == 'true'" Include="**\*.ice"
-                      Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);@(SliceCompile)"/>
-    </ItemGroup>
-
     <ItemGroup>
         <PropertyPageSchema Include="$(MSBuildThisFileDirectory)ProjectItemsSchema.xaml" />
         <PropertyPageSchema Include="$(MSBuildThisFileDirectory)SliceCompile.Cpp.xaml">
