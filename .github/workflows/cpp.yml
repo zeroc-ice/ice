@@ -84,7 +84,7 @@ jobs:
           ref: 857b14271d3ded5511c2e6a60f2dc20c1e4b5680
           path: ctcache
 
-      # Only PRs reuse results: main pushes check every file, since ctcache's g++ -E digest misses `__clang__` blocks
+      # Only PRs reuse results: pushes check every file, since ctcache's g++ -E digest misses `__clang__` blocks
       # and comments on directive lines. ctcache doesn't hash the clang-tidy binary, so its version goes in the key.
       - name: Restore clang-tidy cache
         if: github.event_name == 'pull_request'
@@ -135,7 +135,7 @@ jobs:
           run-clang-tidy-19 -j$(nproc) -quiet -clang-tidy-binary "$GITHUB_WORKSPACE/ctcache/clang-tidy" ${{ steps.globpy.outputs.paths }}
 
       - name: Save clang-tidy cache
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.event_name == 'push'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CTCACHE_DIR }}
