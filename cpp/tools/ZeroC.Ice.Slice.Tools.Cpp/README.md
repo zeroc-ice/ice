@@ -19,23 +19,15 @@ will automatically add the task to the project build.
 
 ## Configuring Slice Compilation
 
-By default, all `.ice` files in the project directory and its subdirectories are included in the build. You can
-disable this behavior by setting `EnableDefaultSliceCompileItems` to `false`.
-
-For example, to disable automatic inclusion of Slice files, add the following to your `.vcxproj` file:
-
-```xml
-<PropertyGroup>
-  <EnableDefaultSliceCompileItems>false</EnableDefaultSliceCompileItems>
-</PropertyGroup>
-```
-
-To manually specify which `.ice` files to compile, use the `SliceCompile` item type. This is useful when you want to
-compile Slice files from a directory outside the project directory:
+The task compiles the Slice files listed as `SliceCompile` items in your `.vcxproj` file. Unlike in a C# project,
+`.ice` files in the project directory are not included by default. When you add a `.ice` file to a C++ project in
+Visual Studio, Visual Studio adds it as a `SliceCompile` item. You can also add `SliceCompile` items to the project
+file yourself, including for Slice files from a directory outside the project directory:
 
 ```xml
 <ItemGroup>
-  <SliceCompile Include="../slice/Greeter.ice" />
+  <SliceCompile Include="Greeter.ice" />
+  <SliceCompile Include="../slice/Callback.ice" />
 </ItemGroup>
 ```
 
