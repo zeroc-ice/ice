@@ -849,7 +849,7 @@ private:
     NSMutableData* ret = 0;
     try
     {
-        int count = is_->readSize();
+        int count = is_->readAndCheckSeqSize(1);
         if((ret = [[NSMutableData alloc] initWithLength:static_cast<NSUInteger>(count) * ENUM_SIZE]) == 0)
         {
             return ret;
