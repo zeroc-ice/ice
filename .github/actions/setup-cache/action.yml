@@ -52,7 +52,9 @@ runs:
         key: ${{ inputs.prefix }}-${{ runner.os }}-${{ steps.os-version.outputs.version }}-${{ runner.arch }}-${{ github.sha }}
         restore-keys: |
           ${{ inputs.prefix }}-${{ runner.os }}-${{ steps.os-version.outputs.version }}-${{ runner.arch }}
-        max-size: 1G
+        # Large enough for the fat LTO objects of the Linux release builds; evict-old-files trims every other
+        # job's cache to what it used.
+        max-size: 3G
         evict-old-files: job
         variant: ${{ runner.os == 'Windows' && 'ccache' || 'ccache' }}
         save: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
