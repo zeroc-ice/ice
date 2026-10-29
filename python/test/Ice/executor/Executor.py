@@ -12,34 +12,36 @@ import Ice
 
 class Executor:
     def __init__(self):
-        self._calls = []
+        self._calls: list[tuple[Callable[[], None], Ice.Connection | None]] = []
         self._terminated = False
         self._cond = threading.Condition()
-        self.lastConnection: Ice.Connection | None = None
+        # The connection of the call the executor thread is running.
+        self.currentConnection: Ice.Connection | None = None
         self._thread = threading.Thread(target=self.run)
         self._thread.start()
         Executor._instance = self
 
     def execute(self, call: Callable[[], None], connection: Ice.Connection | None):
         with self._cond:
-            self._calls.append(call)
-            self.lastConnection = connection
+            self._calls.append((call, connection))
             if len(self._calls) == 1:
                 self._cond.notify()
 
     def run(self):
         while True:
             call = None
+            connection = None
             with self._cond:
                 while not self._terminated and len(self._calls) == 0:
                     self._cond.wait()
                 if len(self._calls) > 0:
-                    call = self._calls.pop(0)
+                    call, connection = self._calls.pop(0)
                 elif self._terminated:
                     # Terminate only once all calls are executed.
                     return
 
             if call:
+                self.currentConnection = connection
                 try:
                     call()
                 except Exception:
