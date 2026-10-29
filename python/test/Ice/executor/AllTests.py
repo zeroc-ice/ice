@@ -90,15 +90,20 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     b = [random.randint(0, 255) for _ in range(0, 1024)]
     seq = bytes(b)
 
-    f = None
+    futures: list[Ice.InvocationFuture] = []
     while True:
         f = p.opWithPayloadAsync(seq)
         assert isinstance(f, Ice.InvocationFuture)
         f.add_done_callback(cb.payload)
+        futures.append(f)
         if not f.is_sent_synchronously():
             break
     testController.resumeAdapter()
-    f.result()
+
+    # The server can dispatch these requests out of order, so wait for all of them: a reply that arrives after
+    # the last one would reach the executor during the next test.
+    for f in futures:
+        f.result()
 
     print("ok")
 
