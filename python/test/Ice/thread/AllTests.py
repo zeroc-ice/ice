@@ -56,4 +56,25 @@ def allTests(helper, communicator):
 
     print("ok")
 
+    sys.stdout.write("testing invalid initialization data callbacks... ")
+    sys.stdout.flush()
+
+    # A rejected callback must not lose any reference to the objects held by the initialization data.
+    invalid = object()
+    validThreadStart = TestI.ThreadHook().threadStart
+    for field in ["threadHook", "threadStart", "threadStop", "dispatcher", "batchRequestInterceptor"]:
+        initData = Ice.InitializationData()
+        setattr(initData, field, invalid)
+        if field == "threadStop":
+            initData.threadStart = validThreadStart
+        refCounts = [sys.getrefcount(invalid), sys.getrefcount(validThreadStart)]
+        try:
+            Ice.initialize(initData)
+            test(False)
+        except Ice.InitializationException:
+            pass
+        test([sys.getrefcount(invalid), sys.getrefcount(validThreadStart)] == refCounts)
+
+    print("ok")
+
     factory.shutdown()
