@@ -1278,7 +1278,12 @@ extern "C"
 static PyObject*
 communicatorGetWrapper(CommunicatorObject* self, PyObject* /*args*/)
 {
-    assert(self->wrapper);
+    if(!self->wrapper)
+    {
+        // The wrapper is cleared when the communicator is destroyed.
+        setPythonException(Ice::CommunicatorDestroyedException(__FILE__, __LINE__));
+        return 0;
+    }
     Py_INCREF(self->wrapper);
     return self->wrapper;
 }
@@ -1892,13 +1897,16 @@ IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
 PyObject*
 IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
 {
+    //
+    // The map entry is erased when the communicator object is deallocated, and the wrapper is cleared when the
+    // communicator is destroyed.
+    //
     CommunicatorMap::iterator p = _communicatorMap.find(communicator);
-    assert(p != _communicatorMap.end());
-    CommunicatorObject* obj = reinterpret_cast<CommunicatorObject*>(p->second);
-    if(obj->wrapper)
+    if(p != _communicatorMap.end() && reinterpret_cast<CommunicatorObject*>(p->second)->wrapper)
     {
-        Py_INCREF(obj->wrapper);
-        return obj->wrapper;
+        PyObject* wrapper = reinterpret_cast<CommunicatorObject*>(p->second)->wrapper;
+        Py_INCREF(wrapper);
+        return wrapper;
     }
     else
     {
