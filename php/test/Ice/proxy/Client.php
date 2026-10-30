@@ -12,6 +12,21 @@ function currentEncodingToString()
                  eval("return Ice_encodingVersionToString(Ice_currentEncoding());");
 }
 
+function createProxyWithTemporaryCommunicator()
+{
+    global $NS;
+    $c = $NS ? eval("return Ice\\initialize();") : eval("return Ice_initialize();");
+    return $c->stringToProxy("test:tcp -h 127.0.0.1 -p 10000");
+}
+
+function registerTemporaryCommunicator($id)
+{
+    global $NS;
+    $register = $NS ? "Ice\\register" : "Ice_register";
+    $c = $NS ? eval("return Ice\\initialize();") : eval("return Ice_initialize();");
+    test($register($c, $id));
+}
+
 function allTests($helper)
 {
     global $NS;
@@ -854,6 +869,38 @@ function allTests($helper)
     test($c->isShutdown());
     $c->waitForShutdown();
     $c->destroy();
+    echo "ok\n";
+
+    echo "testing communicator object lifetime... ";
+    flush();
+    {
+        //
+        // A proxy returns a working communicator after the variable that held its communicator is gone.
+        //
+        $proxy = createProxyWithTemporaryCommunicator();
+        $c = $proxy->ice_getCommunicator();
+        test($c != null);
+        test($c->stringToProxy("test") != null);
+        test($proxy->ice_getCommunicator() === $c);
+        $c->destroy();
+
+        //
+        // find returns a working communicator after the PHP object of the registered communicator is destroyed.
+        //
+        $find = $NS ? "Ice\\find" : "Ice_find";
+        registerTemporaryCommunicator("lifetime");
+        $proxies = array();
+        for($i = 0; $i < 10; $i++)
+        {
+            $proxies[] = $communicator->stringToProxy("test" . $i);
+        }
+        $c = $find("lifetime");
+        test($c != null);
+        test($c->stringToProxy("test") != null);
+        test($find("lifetime") === $c);
+        $c->destroy();
+        test($find("lifetime") == null);
+    }
     echo "ok\n";
 
     return $cl;

@@ -46,8 +46,23 @@ dictionary<int, string> D;
 
 ["java:type:java.util.LinkedList<java.util.List<String>>"] sequence<StringSeq> StringSeqSeq;
 
+class DictClass
+{
+    ["java:type:java.util.TreeMap<Integer,String>:java.util.SortedMap<Integer,String>"] D sortedD;
+}
+
+exception DictException
+{
+    ["java:type:java.util.TreeMap<Integer,String>:java.util.SortedMap<Integer,String>"] D sortedD;
+}
+
 interface TestIntf
 {
+    DictClass opDictClass(DictClass c);
+    void throwDictException(D d) throws DictException;
+    ["marshaled-result", "java:type:java.util.TreeMap<Integer,String>:java.util.SortedMap<Integer,String>"]
+    D opMarshaledSortedD(D d);
+
     CSeq opCSeq(CSeq inSeq, out CSeq outSeq);
     CArray opCArray(CArray inSeq, out CArray outSeq);
     CList opCList(CList inSeq, out CList outSeq);

@@ -621,6 +621,52 @@ allTests(Test::TestHelper* helper)
     }
 
     {
+        cout << "testing variable cycle detection... " << flush;
+
+        //
+        // Self-referential and cyclic variables must be rejected with a DeploymentException.
+        //
+        ApplicationDescriptor app;
+        app.name = "CycleApp";
+        app.variables["cycle"] = "${cycle}";
+        app.variables["cycle1"] = "${cycle2}";
+        app.variables["cycle2"] = "${cycle1}";
+
+        ServerDescriptorPtr server = new ServerDescriptor();
+        server->id = "CycleServer";
+        server->exe = "${cycle}";
+        server->pwd = ".";
+        server->activation = "on-demand";
+
+        NodeDescriptor node;
+        node.servers.push_back(server);
+        app.nodes["localnode"] = node;
+
+        try
+        {
+            admin->addApplication(app);
+            test(false);
+        }
+        catch(const DeploymentException& ex)
+        {
+            test(ex.reason.find("circular dependency in variable `cycle'") != string::npos);
+        }
+
+        server->exe = "${cycle1}";
+        try
+        {
+            admin->addApplication(app);
+            test(false);
+        }
+        catch(const DeploymentException& ex)
+        {
+            test(ex.reason.find("circular dependency in variable `cycle1'") != string::npos);
+        }
+
+        cout << "ok" << endl;
+    }
+
+    {
         cout << "testing node add... " << flush;
 
         ApplicationDescriptor testApp;

@@ -197,8 +197,18 @@ public:
 
     virtual void reap(const Ice::IdentitySeq& ids, const Ice::Current& /*current*/)
     {
+        // A subscriber identity cannot be empty; an empty identity would instead match the key of the
+        // topic's placeholder record and remove the topic from the database.
+        for(Ice::IdentitySeq::const_iterator p = ids.begin(); p != ids.end(); ++p)
+        {
+            if(p->name.empty())
+            {
+                throw Ice::IllegalIdentityException(__FILE__, __LINE__, *p);
+            }
+        }
+
         NodeIPtr node = _instance->node();
-        if(!node->updateMaster(__FILE__, __LINE__))
+        if(node && !node->updateMaster(__FILE__, __LINE__))
         {
             throw ReapWouldBlock();
         }
@@ -505,6 +515,12 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
     TraceLevelsPtr traceLevels = _instance->traceLevels();
 
     IceUtil::Mutex::Lock sync(_subscribersMutex);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
@@ -561,6 +577,9 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
     catch(const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
+        // The subscriber was created (and its publisher servant registered) before the transaction; remove
+        // it so a retry with the same subscriber identity is not rejected with AlreadyRegisteredException.
+        subscriber->destroy();
         throw; // will become UnknownException in caller
     }
 
@@ -631,6 +650,11 @@ TopicImpl::link(const TopicPrx& topic, Ice::Int cost)
     }
 
     IceUtil::Mutex::Lock sync(_subscribersMutex);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
 
     Ice::Identity id = topic->ice_getIdentity();
 
@@ -796,7 +820,6 @@ TopicImpl::destroy()
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
-    _destroyed = true;
 
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topic > 0)
@@ -805,9 +828,12 @@ TopicImpl::destroy()
         out << _name << ": destroy";
     }
 
-    // destroyInternal clears out the topic content.
+    // destroyInternal clears out the topic content. Mark the topic destroyed only once its database
+    // transaction has committed, so a failed commit leaves the topic intact and still destroyable.
     LogUpdate llu = {0,0};
-    _instance->observers()->destroyTopic(destroyInternal(llu, true), _name);
+    LogUpdate destroyLLU = destroyInternal(llu, true);
+    _destroyed = true;
+    _instance->observers()->destroyTopic(destroyLLU, _name);
 
     _observer.detach();
 }
@@ -1079,6 +1105,9 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
     catch(const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
+        // The subscriber was created (and its publisher servant registered) before the transaction; remove
+        // it so a later replica sync does not fail re-registering the same subscriber identity.
+        subscriber->destroy();
         throw; // will become UnknownException in caller
     }
 
@@ -1153,7 +1182,6 @@ TopicImpl::observerDestroyTopic(const LogUpdate& llu)
     {
         return;
     }
-    _destroyed = true;
 
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topic > 0)
@@ -1162,7 +1190,11 @@ TopicImpl::observerDestroyTopic(const LogUpdate& llu)
         out << _name << ": destroyed";
         out << " llu: " << llu.generation << "/" << llu.iteration;
     }
+
+    // Mark the topic destroyed only once its database transaction has committed, so a failed commit leaves the topic
+    // intact and still destroyable.
     destroyInternal(llu, false);
+    _destroyed = true;
 }
 
 Ice::ObjectPtr

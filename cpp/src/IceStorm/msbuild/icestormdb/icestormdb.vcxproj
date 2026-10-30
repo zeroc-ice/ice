@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\IceStormDB.cpp" />
+    <ClCompile Include="..\..\SubscriberRecordKeyCompare.cpp" />
     <ClCompile Include="Win32\Debug\DBTypes.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
