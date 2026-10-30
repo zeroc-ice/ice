@@ -1,0 +1,1 @@
+- Fixed a bug where a non-empty optional `sequence<string>` was marshaled incorrectly.
