@@ -41,4 +41,14 @@
             <OutputDir>$(MSBuildProjectDirectory)\generated</OutputDir>
         </SliceCompile>
     </ItemDefinitionGroup>
+
+    <!--
+    The default items are included in the .props, the way the .NET SDK includes its default Compile items, so that a
+    SliceCompile Update or Remove in the project file applies to them. The conditions can test properties set later,
+    in the project file or in the .targets, because MSBuild evaluates all properties before any item.
+    -->
+    <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
+        <SliceCompile Condition="'$(EnableDefaultSliceCompileItems)' == 'true'" Include="**\*.ice"
+                      Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)"/>
+    </ItemGroup>
 </Project>

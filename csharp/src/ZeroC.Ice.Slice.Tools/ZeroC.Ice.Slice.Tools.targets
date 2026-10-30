@@ -48,11 +48,6 @@
         <EnableDefaultSliceCompileItems Condition="'$(EnableDefaultSliceCompileItems)' == ''">true</EnableDefaultSliceCompileItems>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
-        <SliceCompile Condition="'$(EnableDefaultSliceCompileItems)' == 'true'" Include="**\*.ice"
-                      Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);@(SliceCompile)"/>
-    </ItemGroup>
-
     <ItemGroup>
         <PropertyPageSchema Include="$(MSBuildThisFileDirectory)ProjectItemsSchema.xaml" />
         <!-- This capability is used to apply the Slice property page designer -->
@@ -73,7 +68,10 @@
       </SliceCompile>
     </ItemGroup>
 
-    <!-- When enable default items is true, *.ice and *.d files are included as None items we remove them here -->
+    <!--
+    When enable default items is true, *.ice and *.d files are included as None items we remove them here. This can't
+    be done next to the default SliceCompile items: the SDK adds its default None items after a package's .props.
+    -->
     <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
       <None Remove="**\*.ice"/>
       <None Remove="**\SliceCompile.*.d"/>
@@ -84,6 +82,28 @@
 
         <Error Text="_IceSliceToolsPath is set to a non-existing directory: `$(_IceSliceToolsPath)'. Did you forget to build the slice2cs compiler?"
            Condition="!Exists('$(_IceSliceToolsPath)')" />
+
+        <!--
+        Like the .NET SDK does for duplicate Compile items (NETSDK1022), reject a file listed more than once, typically
+        an explicit Include of a file that is already a default item. It would otherwise be compiled once per item.
+        Design-time builds continue on errors and use the deduplicated items, as the SDK does, so that the project
+        still gets IntelliSense while the error is reported.
+        -->
+        <ItemGroup Condition="'$(EnableDefaultItems)' == 'true' And '$(EnableDefaultSliceCompileItems)' == 'true'">
+            <_SliceCompileFullPath Include="@(SliceCompile->'%(FullPath)')" />
+            <_SliceCompileDuplicate Include="%(_SliceCompileFullPath.Identity)"
+                                    Condition="'@(_SliceCompileFullPath->Count())' &gt; 1" />
+        </ItemGroup>
+
+        <Error Text="Duplicate 'SliceCompile' items were included. ZeroC.Ice.Slice.Tools includes the '.ice' files in your project directory as 'SliceCompile' items by default. Remove these items from your project file, use 'Update' instead of 'Include' to set their metadata, or set the 'EnableDefaultSliceCompileItems' property to 'false' if you want to include them explicitly in your project file. The duplicate items were: @(_SliceCompileDuplicate->'%(Identity)', '; ')"
+           Condition="'@(_SliceCompileDuplicate)' != ''"
+           ContinueOnError="$(ContinueOnError)" />
+
+        <ItemGroup Condition="'$(DesignTimeBuild)' == 'true' And '@(_SliceCompileDuplicate)' != ''">
+            <_SliceCompileDeduplicated Include="@(SliceCompile->Distinct())" />
+            <SliceCompile Remove="@(SliceCompile)" />
+            <SliceCompile Include="@(_SliceCompileDeduplicated)" />
+        </ItemGroup>
 
         <MakeDir Directories="%(SliceCompile.OutputDir)"/>
 
