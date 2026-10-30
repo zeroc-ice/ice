@@ -8,6 +8,9 @@ on:
     # The branches below must be a subset of the branches above
     branches: ["main"]
 
+permissions:
+  contents: read
+
 jobs:
   whitespace-validation:
     name: Validate trailing whitespace and consecutive empty lines
@@ -15,8 +18,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Run whitespace validation
-        uses: zeroc-ice/github-actions/@main
+        uses: zeroc-ice/github-actions@main
         with:
           whitespace_patterns: "'*'"

@@ -1,0 +1,6 @@
+self-hosted-runner:
+  # The GitHub-hosted larger runners this repository uses; actionlint only knows the standard labels.
+  labels:
+    - linux-latest-copilot
+    # One runner image per Xcode release.
+    - xcode-*

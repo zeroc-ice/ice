@@ -1,0 +1,27 @@
+rules:
+  # actionlint rejects the `$/` syntax this audit recommends: https://github.com/rhysd/actionlint/issues/711
+  self-repository:
+    disable: true
+
+  # Every reusable workflow is in this repository, so inheriting secrets crosses no trust boundary.
+  secrets-inherit:
+    disable: true
+
+  # zizmor can't see the trigger that runs a composite action; dangerous-triggers flags any workflow whose trigger
+  # would make these writes exploitable.
+  github-env:
+    ignore:
+      - action.yml
+
+  # These publish with API keys until trusted publishers are configured on nuget.org and PyPI.
+  use-trusted-publishing:
+    ignore:
+      - publish-nuget-packages.yml
+      - publish-pip-packages.yml
+      - publish-third-party-windows-packages.yml
+
+  unpinned-uses:
+    config:
+      policies:
+        # Our own actions follow their default branch.
+        zeroc-ice/*: ref-pin

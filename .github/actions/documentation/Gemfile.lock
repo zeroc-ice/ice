@@ -1,0 +1,16 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    yard (0.9.45)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  yard
+
+CHECKSUMS
+  yard (0.9.45) sha256=52e211493f7cb8a3ebf7e104a25a1e73937a3103092545d34cb88fafebb3dc51
+
+BUNDLED WITH
+   2.6.9
