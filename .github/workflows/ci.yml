@@ -506,7 +506,7 @@ jobs:
         if: matrix.config == 'release' && runner.os == 'macOS'
 
       - name: Upload test logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-logs-${{ matrix.config }}-${{ matrix.os }}
           path: ${{ '.' }}/**/*.log
@@ -524,7 +524,7 @@ jobs:
         shell: bash
 
       - name: Upload Linux crash dump reports
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: crash-dumps-${{ matrix.config }}-${{ matrix.os }}
           path: ${{ github.workspace }}/LinuxDumpReports/*
@@ -532,7 +532,7 @@ jobs:
         if: runner.os == 'Linux' && always()
 
       - name: Upload macOS crash diagnostics
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: crash-diagnostics-${{ matrix.config }}-${{ matrix.os }}
           path: ~/Library/Logs/DiagnosticReports/*.ips
@@ -555,7 +555,7 @@ jobs:
               -v
 
       - name: Upload Windows crash dump reports
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: crash-dumps-${{ matrix.config }}-${{ matrix.os }}
           path: ${{ github.workspace }}/LocalDumpReports/*
