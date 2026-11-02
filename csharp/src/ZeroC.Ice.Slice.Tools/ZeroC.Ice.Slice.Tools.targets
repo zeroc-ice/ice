@@ -69,8 +69,8 @@
     </ItemGroup>
 
     <!--
-    When enable default items is true, *.ice and *.d files are included as None items we remove them here. This can't
-    be done next to the default SliceCompile items: the SDK adds its default None items after a package's .props.
+    The SDK includes the *.ice files as None items. We remove them because the .props already includes them as
+    SliceCompile items. The SliceCompile.*.d files are dependency files that the build writes to OutputDir.
     -->
     <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
       <None Remove="**\*.ice"/>
@@ -87,7 +87,9 @@
         Like the .NET SDK does for duplicate Compile items (NETSDK1022), reject a file listed more than once, typically
         an explicit Include of a file that is already a default item. It would otherwise be compiled once per item.
         Design-time builds continue on errors and use the deduplicated items, as the SDK does, so that the project
-        still gets IntelliSense while the error is reported.
+        still gets IntelliSense while the error is reported. Unlike the SDK, which compares item specs, both compare
+        full paths: "./a.ice" or "sub/b.ice" names the same file as the default item "a.ice" or "sub\b.ice", and would
+        otherwise be compiled twice, to two output directories when its metadata differs.
         -->
         <ItemGroup Condition="'$(EnableDefaultItems)' == 'true' And '$(EnableDefaultSliceCompileItems)' == 'true'">
             <_SliceCompileFullPath Include="@(SliceCompile->'%(FullPath)')" />
@@ -100,7 +102,7 @@
            ContinueOnError="$(ContinueOnError)" />
 
         <ItemGroup Condition="'$(DesignTimeBuild)' == 'true' And '@(_SliceCompileDuplicate)' != ''">
-            <_SliceCompileDeduplicated Include="@(SliceCompile->Distinct())" />
+            <_SliceCompileDeduplicated Include="@(SliceCompile->'%(FullPath)'->Distinct())" />
             <SliceCompile Remove="@(SliceCompile)" />
             <SliceCompile Include="@(_SliceCompileDeduplicated)" />
         </ItemGroup>
