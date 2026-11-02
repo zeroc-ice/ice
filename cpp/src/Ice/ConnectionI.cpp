@@ -1120,10 +1120,6 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
     }
     else
     {
-        //
-        // Swap rather than assign: with the C++11 mapping, assigning over _closeCallback would release the replaced
-        // callable, and with it the last reference to what it captured, here under the lock.
-        //
         previous.swap(_closeCallback);
         _closeCallback = callback;
     }

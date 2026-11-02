@@ -2291,12 +2291,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         {
             cout << "testing close and heartbeat callback replacement... " << flush;
             {
-                //
-                // Replacing a close or heartbeat callback destroys the callback it replaces. That destructor can run
-                // user code (a language mapping may attach a finalizer to the callback), and that code may call back
-                // into the connection. It must therefore not run while the connection's mutex is held: relocking the
-                // mutex there makes getInfo throw ThreadLockedException, which terminates the process.
-                //
+                // Replacing a callback destroys the previous one, and its destructor may call back into the connection.
                 struct Reenter
                 {
                     explicit Reenter(const Ice::ConnectionPtr& con) : connection(con)
@@ -2313,12 +2308,6 @@ allTests(Test::TestHelper* helper, bool collocated)
 
                 auto con = p->ice_connectionId("CloseCallbackReplacement")->ice_getConnection();
                 {
-                    //
-                    // The lambda is the sole owner of the Reenter object once owner goes out of scope, so replacing
-                    // the callback below destroys it. A std::function may copy the callable and destroy the copy
-                    // when it is moved or swapped (libc++ does so for callables stored inline), which only adjusts
-                    // the reference count here.
-                    //
                     auto owner = make_shared<Reenter>(con);
                     con->setCloseCallback([owner](const Ice::ConnectionPtr&) {});
                 }
@@ -4106,12 +4095,7 @@ allTests(Test::TestHelper* helper, bool collocated)
     {
         cout << "testing close and heartbeat callback replacement... " << flush;
         {
-            //
-            // Replacing a close or heartbeat callback destroys the callback it replaces. That destructor can run
-            // user code (a language mapping may attach a finalizer to the callback), and that code may call back
-            // into the connection. It must therefore not run while the connection's mutex is held: relocking the
-            // mutex there makes getInfo throw ThreadLockedException.
-            //
+            // Replacing a callback destroys the previous one, and its destructor may call back into the connection.
             Ice::ConnectionPtr con = p->ice_connectionId("CloseCallbackReplacement")->ice_getConnection();
 
             // The connection holds the only reference to the callback, so replacing it below destroys it.
