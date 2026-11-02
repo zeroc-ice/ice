@@ -814,6 +814,50 @@ public:
 };
 typedef IceUtil::Handle<CloseCallback> CloseCallbackPtr;
 
+class ReenterCloseCallback : public Ice::CloseCallback
+{
+public:
+
+    ReenterCloseCallback(const Ice::ConnectionPtr& connection) : _connection(connection)
+    {
+    }
+
+    virtual ~ReenterCloseCallback()
+    {
+        _connection->getInfo();
+    }
+
+    virtual void closed(const Ice::ConnectionPtr&)
+    {
+    }
+
+private:
+
+    const Ice::ConnectionPtr _connection;
+};
+
+class ReenterHeartbeatCallback : public Ice::HeartbeatCallback
+{
+public:
+
+    ReenterHeartbeatCallback(const Ice::ConnectionPtr& connection) : _connection(connection)
+    {
+    }
+
+    virtual ~ReenterHeartbeatCallback()
+    {
+        _connection->getInfo();
+    }
+
+    virtual void heartbeat(const Ice::ConnectionPtr&)
+    {
+    }
+
+private:
+
+    const Ice::ConnectionPtr _connection;
+};
+
 class Thrower : public CallbackBase
 {
 public:
@@ -2242,6 +2286,41 @@ allTests(Test::TestHelper* helper, bool collocated)
             }
         }
         cout << "ok" << endl;
+
+        if(p->ice_getConnection() && protocol != "bt")
+        {
+            cout << "testing close and heartbeat callback replacement... " << flush;
+            {
+                // Replacing a callback destroys the previous one, and its destructor may call back into the connection.
+                struct Reenter
+                {
+                    explicit Reenter(const Ice::ConnectionPtr& con) : connection(con)
+                    {
+                    }
+
+                    ~Reenter()
+                    {
+                        static_cast<void>(connection->getInfo());
+                    }
+
+                    Ice::ConnectionPtr connection;
+                };
+
+                auto con = p->ice_connectionId("CloseCallbackReplacement")->ice_getConnection();
+                {
+                    auto owner = make_shared<Reenter>(con);
+                    con->setCloseCallback([owner](const Ice::ConnectionPtr&) {});
+                }
+                con->setCloseCallback(nullptr); // destroys the previous callback, and with it the Reenter object
+                {
+                    auto owner = make_shared<Reenter>(con);
+                    con->setHeartbeatCallback([owner](const Ice::ConnectionPtr&) {});
+                }
+                con->setHeartbeatCallback(nullptr);
+                con->close(Ice::ConnectionClose::GracefullyWithWait);
+            }
+            cout << "ok" << endl;
+        }
 
         if(p->ice_getConnection() && protocol != "bt" && p->supportsAMD())
         {
@@ -4014,6 +4093,21 @@ allTests(Test::TestHelper* helper, bool collocated)
 
     if(p->ice_getConnection() && protocol != "bt")
     {
+        cout << "testing close and heartbeat callback replacement... " << flush;
+        {
+            // Replacing a callback destroys the previous one, and its destructor may call back into the connection.
+            Ice::ConnectionPtr con = p->ice_connectionId("CloseCallbackReplacement")->ice_getConnection();
+
+            // The connection holds the only reference to the callback, so replacing it below destroys it.
+            con->setCloseCallback(new ReenterCloseCallback(con));
+
+            con->setCloseCallback(0); // destroys the previous callback, which calls back into the connection
+            con->setHeartbeatCallback(new ReenterHeartbeatCallback(con));
+            con->setHeartbeatCallback(0);
+            con->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        }
+        cout << "ok" << endl;
+
         cout << "testing graceful close connection with wait... " << flush;
         {
             //

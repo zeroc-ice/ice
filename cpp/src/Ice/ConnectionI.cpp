@@ -1060,17 +1060,28 @@ Ice::ConnectionI::end_heartbeat(const AsyncResultPtr& r)
 void
 Ice::ConnectionI::setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)) callback)
 {
+    //
+    // Destroy the replaced callback after the lock is released, as in setCloseCallback.
+    //
+    ICE_DELEGATE(HeartbeatCallback) previous;
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
     {
         return;
     }
+    previous.swap(_heartbeatCallback);
     _heartbeatCallback = callback;
 }
 
 void
 Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
 {
+    //
+    // Holds the callback this call replaces. It is declared before the lock so that it is destroyed after the lock
+    // is released: destroying a callback can run arbitrary code (a language mapping may attach a finalizer to it),
+    // and that code can call back into this connection, which must not relock the connection mutex.
+    //
+    ICE_DELEGATE(CloseCallback) previous;
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
     {
@@ -1109,6 +1120,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
     }
     else
     {
+        previous.swap(_closeCallback);
         _closeCallback = callback;
     }
 }
