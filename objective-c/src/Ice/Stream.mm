@@ -799,11 +799,11 @@ private:
     {
         if(is_->getEncoding() == Ice::Encoding_1_0)
         {
-            if(max <= 0x7f)
+            if(max < 127)
             {
                 val = [self readByte];
             }
-            else if(max <= 0x7fff)
+            else if(max < 32767)
             {
                 val = [self readShort];
             }
@@ -1863,11 +1863,11 @@ private:
     {
         if(os_->getEncoding() == Ice::Encoding_1_0)
         {
-            if(max <= 0x7f)
+            if(max < 127)
             {
                 os_->write(static_cast<Ice::Byte>(v));
             }
-            else if(max <= 0x7fff)
+            else if(max < 32767)
             {
                 os_->write(static_cast<Ice::Short>(v));
             }
