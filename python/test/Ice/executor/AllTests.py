@@ -3,7 +3,7 @@
 import random
 import sys
 import threading
-from typing import cast
+from typing import cast, override
 
 import Executor
 from generated.test.Ice.executor import Test
@@ -49,6 +49,13 @@ class Callback:
             test(isinstance(f.exception(), Ice.CommunicatorDestroyedException))
         else:
             test(Executor.Executor.isExecutorThread())
+
+
+class CollocatedI(Ice.Object):
+    @override
+    def ice_ping(self, current: Ice.Current):
+        test(Executor.Executor.isExecutorThread())
+        test(Executor.Executor.instance().currentConnection is None)
 
 
 def allTests(helper: TestHelper, communicator: Ice.Communicator):
@@ -106,11 +113,10 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     sys.stdout.flush()
 
     adapter = communicator.createObjectAdapter("")
-    collocated = adapter.addWithUUID(Ice.Object())
+    collocated = adapter.addWithUUID(CollocatedI())
     f = collocated.ice_pingAsync()
     assert isinstance(f, Ice.InvocationFuture)
     f.result()
-    test(Executor.Executor.instance().lastConnection is None)
     adapter.destroy()
 
     print("ok")
