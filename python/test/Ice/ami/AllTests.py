@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, threading, random
+import Ice, Test, sys, threading, random, functools
 
 def test(b):
     if not b:
@@ -18,6 +18,14 @@ class PingReplyI(Test.PingReply):
      def checkReceived(self):
          return self._received
 
+
+class ConnectionCallbackI:
+    # A connection callback that is neither a plain function nor a lambda: a bound method and a callable instance.
+    def callback(self, connection):
+        pass
+
+    def __call__(self, connection):
+        pass
 
 class CallbackBase:
     def __init__(self):
@@ -1190,6 +1198,19 @@ def allTests(helper, communicator, collocated):
         #
         cb = CallbackBase()
         con = p.ice_getConnection()
+
+        # setCloseCallback and setHeartbeatCallback accept any callable, and None to clear the callback.
+        for setCallback in [con.setCloseCallback, con.setHeartbeatCallback]:
+            setCallback(functools.partial(lambda c, x: None, x=1))
+            setCallback(ConnectionCallbackI().callback) # a bound method
+            setCallback(ConnectionCallbackI()) # a callable instance
+            setCallback(None)
+            try:
+                setCallback(42)
+                test(False)
+            except ValueError:
+                pass
+
         con.setCloseCallback(lambda con: cb.called())
         f = p.sleepAsync(100)
         con.close(Ice.ConnectionClose.GracefullyWithWait) # Blocks until the request completes.
