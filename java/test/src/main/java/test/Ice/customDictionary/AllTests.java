@@ -525,6 +525,13 @@ public class AllTests {
             test(Arrays.equals(r.returnValue.get().get(E.E3), array3));
         }
 
+        {
+            TestIntf.OpOptEStringSeqLinkedDictResult r = prx.opOptEStringSeqLinkedDict(java.util.Optional.empty());
+            test(!r.returnValue.isPresent() && !r.outDict.isPresent());
+            r = prx.opOptEStringSeqLinkedDict((Map<E, String[]>)null);
+            test(!r.returnValue.isPresent() && !r.outDict.isPresent());
+        }
+
         out.println("ok");
         out.print("testing custom dictionaries with marshal result... ");
         out.flush();

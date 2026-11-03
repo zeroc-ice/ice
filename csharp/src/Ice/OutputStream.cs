@@ -811,7 +811,7 @@ public sealed class OutputStream
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v.Length == 0 ? 1 : (v.Length * 2) + (v.Length > 254 ? 5 : 1));
+            writeSize((v.Length * 2) + (v.Length > 254 ? 5 : 1));
             writeShortSeq(v);
         }
     }
@@ -961,7 +961,7 @@ public sealed class OutputStream
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v.Length == 0 ? 1 : (v.Length * 4) + (v.Length > 254 ? 5 : 1));
+            writeSize((v.Length * 4) + (v.Length > 254 ? 5 : 1));
             writeIntSeq(v);
         }
     }
@@ -1104,7 +1104,7 @@ public sealed class OutputStream
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v.Length == 0 ? 1 : (v.Length * 8) + (v.Length > 254 ? 5 : 1));
+            writeSize((v.Length * 8) + (v.Length > 254 ? 5 : 1));
             writeLongSeq(v);
         }
     }
@@ -1247,7 +1247,7 @@ public sealed class OutputStream
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v.Length == 0 ? 1 : (v.Length * 4) + (v.Length > 254 ? 5 : 1));
+            writeSize((v.Length * 4) + (v.Length > 254 ? 5 : 1));
             writeFloatSeq(v);
         }
     }
@@ -1390,7 +1390,7 @@ public sealed class OutputStream
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v.Length == 0 ? 1 : (v.Length * 8) + (v.Length > 254 ? 5 : 1));
+            writeSize((v.Length * 8) + (v.Length > 254 ? 5 : 1));
             writeDoubleSeq(v);
         }
     }

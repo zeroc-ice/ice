@@ -730,7 +730,7 @@ public final class OutputStream {
      */
     public void writeShortSeq(int tag, short[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
-            writeSize(v.length == 0 ? 1 : v.length * 2 + (v.length > 254 ? 5 : 1));
+            writeSize(v.length * 2 + (v.length > 254 ? 5 : 1));
             writeShortSeq(v);
         }
     }
@@ -837,7 +837,7 @@ public final class OutputStream {
      */
     public void writeIntSeq(int tag, int[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
-            writeSize(v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
+            writeSize(v.length * 4 + (v.length > 254 ? 5 : 1));
             writeIntSeq(v);
         }
     }
@@ -933,7 +933,7 @@ public final class OutputStream {
      */
     public void writeLongSeq(int tag, long[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
-            writeSize(v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
+            writeSize(v.length * 8 + (v.length > 254 ? 5 : 1));
             writeLongSeq(v);
         }
     }
@@ -1029,7 +1029,7 @@ public final class OutputStream {
      */
     public void writeFloatSeq(int tag, float[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
-            writeSize(v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
+            writeSize(v.length * 4 + (v.length > 254 ? 5 : 1));
             writeFloatSeq(v);
         }
     }
@@ -1125,7 +1125,7 @@ public final class OutputStream {
      */
     public void writeDoubleSeq(int tag, double[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
-            writeSize(v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
+            writeSize(v.length * 8 + (v.length > 254 ? 5 : 1));
             writeDoubleSeq(v);
         }
     }

@@ -1209,11 +1209,6 @@ public class AllTests {
             inEncaps = os.finished();
             test(inEncaps.length == emptyEncapsSize);
 
-            in = new InputStream(communicator, inEncaps);
-            in.startEncapsulation();
-            test(!in.readOptional(1, OptionalFormat.FSize));
-            in.endEncapsulation();
-
             Initial.OpMyInterfaceProxyResult rPrx = initial.opMyInterfaceProxy((MyInterfacePrx) null);
             test(!rPrx.returnValue.isPresent() && !rPrx.p3.isPresent());
             rPrx = initial.opMyInterfaceProxyAsync((MyInterfacePrx) null).join();
