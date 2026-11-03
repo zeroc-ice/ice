@@ -528,7 +528,7 @@ public class AllTests {
         {
             TestIntf.OpOptEStringSeqLinkedDictResult r = prx.opOptEStringSeqLinkedDict(java.util.Optional.empty());
             test(!r.returnValue.isPresent() && !r.outDict.isPresent());
-            r = prx.opOptEStringSeqLinkedDict((Map<E, String[]>)null);
+            r = prx.opOptEStringSeqLinkedDict((Map<E, String[]>) null);
             test(!r.returnValue.isPresent() && !r.outDict.isPresent());
         }
 
