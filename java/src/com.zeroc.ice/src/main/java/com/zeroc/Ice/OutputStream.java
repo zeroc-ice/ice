@@ -491,6 +491,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The optional byte sequence to write to the stream.
+     *     Passing {@code null} is equivalent to passing an empty optional.
      */
     public void writeByteSeq(int tag, Optional<byte[]> v) {
         if (v != null && v.isPresent()) {
@@ -503,6 +504,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The byte sequence to write to the stream.
+     *     Passing {@code null} marshals this as an unset optional (nothing is written).
      */
     public void writeByteSeq(int tag, byte[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
@@ -639,6 +641,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The optional boolean sequence to write to the stream.
+     *     Passing {@code null} is equivalent to passing an empty optional.
      */
     public void writeBoolSeq(int tag, Optional<boolean[]> v) {
         if (v != null && v.isPresent()) {
@@ -651,6 +654,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The boolean sequence to write to the stream.
+     *     Passing {@code null} marshals this as an unset optional (nothing is written).
      */
     public void writeBoolSeq(int tag, boolean[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
@@ -715,6 +719,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The optional short sequence to write to the stream.
+     *     Passing {@code null} is equivalent to passing an empty optional.
      */
     public void writeShortSeq(int tag, Optional<short[]> v) {
         if (v != null && v.isPresent()) {
@@ -727,6 +732,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The short sequence to write to the stream.
+     *     Passing {@code null} marshals this as an unset optional (nothing is written).
      */
     public void writeShortSeq(int tag, short[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
@@ -822,6 +828,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The optional int sequence to write to the stream.
+     *     Passing {@code null} is equivalent to passing an empty optional.
      */
     public void writeIntSeq(int tag, Optional<int[]> v) {
         if (v != null && v.isPresent()) {
@@ -834,6 +841,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The int sequence to write to the stream.
+     *     Passing {@code null} marshals this as an unset optional (nothing is written).
      */
     public void writeIntSeq(int tag, int[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
@@ -918,6 +926,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The optional long sequence to write to the stream.
+     *     Passing {@code null} is equivalent to passing an empty optional.
      */
     public void writeLongSeq(int tag, Optional<long[]> v) {
         if (v != null && v.isPresent()) {
@@ -930,6 +939,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The long sequence to write to the stream.
+     *     Passing {@code null} marshals this as an unset optional (nothing is written).
      */
     public void writeLongSeq(int tag, long[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
@@ -1014,6 +1024,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The optional float sequence to write to the stream.
+     *     Passing {@code null} is equivalent to passing an empty optional.
      */
     public void writeFloatSeq(int tag, Optional<float[]> v) {
         if (v != null && v.isPresent()) {
@@ -1026,6 +1037,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The float sequence to write to the stream.
+     *     Passing {@code null} marshals this as an unset optional (nothing is written).
      */
     public void writeFloatSeq(int tag, float[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
@@ -1110,6 +1122,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The optional double sequence to write to the stream.
+     *     Passing {@code null} is equivalent to passing an empty optional.
      */
     public void writeDoubleSeq(int tag, Optional<double[]> v) {
         if (v != null && v.isPresent()) {
@@ -1122,6 +1135,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The double sequence to write to the stream.
+     *     Passing {@code null} marshals this as an unset optional (nothing is written).
      */
     public void writeDoubleSeq(int tag, double[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.VSize)) {
@@ -1248,6 +1262,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The optional string sequence to write to the stream.
+     *     Passing {@code null} is equivalent to passing an empty optional.
      */
     public void writeStringSeq(int tag, Optional<String[]> v) {
         if (v != null && v.isPresent()) {
@@ -1260,6 +1275,7 @@ public final class OutputStream {
      *
      * @param tag The optional tag.
      * @param v The string sequence to write to the stream.
+     *     Passing {@code null} marshals this as an unset optional (nothing is written).
      */
     public void writeStringSeq(int tag, String[] v) {
         if (v != null && writeOptional(tag, OptionalFormat.FSize)) {
