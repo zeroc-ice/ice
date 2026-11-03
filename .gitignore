@@ -119,6 +119,8 @@ cpp/test/Slice/errorDetection/tmp
 
 **/objs-*/
 **/build-*/
+# The build-* composite actions are sources, not build output.
+!.github/actions/build-*/
 
 .classpath
 .project

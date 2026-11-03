@@ -18,6 +18,9 @@ on:
 env:
   STABLE_REF: "v3.8.2-binary-compat"
 
+permissions:
+  contents: read
+
 jobs:
   compat:
     name: compat on ${{ matrix.os }}
@@ -31,12 +34,14 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: head
+          persist-credentials: false
 
       - name: Checkout stable (${{ env.STABLE_REF }})
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.STABLE_REF }}
           path: stable
+          persist-credentials: false
 
       - name: macOS FQDN Fix
         uses: ./head/.github/actions/macos-fqdn
@@ -153,12 +158,12 @@ jobs:
           echo "HEAD version: ${HEAD_VER}"
           echo ""
           echo "=== HEAD Java JARs ==="
-          ls -la head/java/lib/*-${HEAD_VER}.jar
+          ls -la head/java/lib/*-"${HEAD_VER}".jar
           echo ""
           echo "=== Stable Java JARs BEFORE swap ==="
           ls -la stable/java/lib/
           echo ""
-          for jar in head/java/lib/*-${HEAD_VER}.jar; do
+          for jar in head/java/lib/*-"${HEAD_VER}".jar; do
             name=$(basename "$jar" | sed "s/${HEAD_VER}/${STABLE_VER}/")
             echo "Copying: $jar -> stable/java/lib/${name}"
             cp -v "$jar" "stable/java/lib/${name}"

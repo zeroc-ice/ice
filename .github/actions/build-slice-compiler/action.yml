@@ -15,15 +15,19 @@ runs:
   steps:
     - name: Build on Windows
       if: runner.os == 'Windows'
+      env:
+        COMPILER_NAME: ${{ inputs.compiler_name }}
       run: |
         nuget restore cpp/msbuild/ice.slnx
-        MSBuild /m cpp/msbuild/ice.slnx /p:Configuration=Release /p:Platform=x64 /t:${{ inputs.compiler_name }}
-      shell: cmd
+        MSBuild /m cpp/msbuild/ice.slnx /p:Configuration=Release /p:Platform=x64 /t:$env:COMPILER_NAME
+      shell: pwsh
 
     - name: Build on Linux/macOS
       if: runner.os != 'Windows'
+      env:
+        COMPILER_NAME: ${{ inputs.compiler_name }}
       run: |
-        make -C cpp OPTIMIZE=yes V=1 ${{ inputs.compiler_name }}
+        make -C cpp OPTIMIZE=yes V=1 "$COMPILER_NAME"
       shell: bash
 
     - name: Sign Compiler Artifact

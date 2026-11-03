@@ -6,13 +6,21 @@ on:
     # Run 3.8 binary compat test at 5:00 AM UTC (after nightly release at 3:00 AM)
     - cron: "0 5 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   dispatch-compat-nightly:
     if: github.repository == 'zeroc-ice/ice'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Dispatch binary compat test for 3.8 (5:00 UTC)
         if: github.event.schedule == '0 5 * * *'
