@@ -12,6 +12,10 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build:
     name: "Build for ${{ matrix.distribution }}-${{ matrix.arch }}"
@@ -26,11 +30,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: ice
+          persist-credentials: false
 
       - name: Load version info
         run: |
           source ice/config/version.env
-          echo "CHANNEL=$CHANNEL" >> $GITHUB_ENV
+          echo "CHANNEL=$CHANNEL" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -43,14 +48,18 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build RPM packages
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
+          GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
+          GPG_KEY_ID: ${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
-            -e ICE_VERSION="${{ inputs.ice_version }}" \
-            -e GIT_TAG="${{ github.ref_name }}" \
-            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}" \
-            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
-            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }}:${CHANNEL} \
+            -e ICE_VERSION="${ICE_VERSION}" \
+            -e GIT_TAG="${GITHUB_REF_NAME}" \
+            -e GPG_KEY="${GPG_KEY}" \
+            -e GPG_KEY_ID="${GPG_KEY_ID}" \
+            "ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }}:${CHANNEL}" \
             /workspace/ice/packaging/rpm/build-package.sh
 
       - name: Upload Artifacts

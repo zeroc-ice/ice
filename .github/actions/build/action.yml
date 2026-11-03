@@ -28,9 +28,12 @@ inputs:
 
 runs:
   using: "composite"
+  # build_flags and msbuild_command are shell fragments, such as "OPTIMIZE=no PLATFORMS='macosx iphonesimulator'" and
+  # "dotnet msbuild", so the steps expand them in place.
   steps:
     # macOS and Linux
     - name: Build C++ and Python
+      # zizmor: ignore[template-injection]
       run: |
         make ${{ inputs.build_flags }} -C cpp srcs
         make -C python
@@ -38,6 +41,7 @@ runs:
       if: (runner.os == 'macOS' || runner.os == 'Linux') && inputs.build_cpp_and_python == 'true'
     - name: Build
       working-directory: ${{ inputs.working_directory }}
+      # zizmor: ignore[template-injection]
       run: make ${{ inputs.build_flags }}
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
@@ -54,6 +58,7 @@ runs:
 
     # Windows
     - name: Build C++ and Python
+      # zizmor: ignore[template-injection]
       run: |
         msbuild /m ${{ inputs.build_flags }} /t:BuildDist cpp/msbuild/ice.proj
         msbuild /m ${{ inputs.build_flags }} python/msbuild/ice.proj
@@ -62,6 +67,7 @@ runs:
 
     - name: Build
       working-directory: ${{ inputs.working_directory }}
+      # zizmor: ignore[template-injection]
       run: ${{ inputs.msbuild_command }} ${{ inputs.build_flags }} ${{ inputs.msbuild_project }}
       shell: powershell
       if: runner.os == 'Windows'

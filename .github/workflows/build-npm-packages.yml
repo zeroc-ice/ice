@@ -22,6 +22,9 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+
 jobs:
   build-slice-compilers:
     strategy:
@@ -45,6 +48,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -79,6 +84,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: ice
+          persist-credentials: false
 
       - name: Setup Node
         uses: ./ice/.github/actions/setup-node
@@ -99,17 +105,17 @@ jobs:
 
           # Copy the slice2js binaries to the staging path.
           cp -v artifacts/slice2js-macos-arm64/slice2js "$SLICE2JS_STAGING_PATH/macos-arm64/"
-          chmod +x $SLICE2JS_STAGING_PATH/macos-arm64/slice2js
+          chmod +x "$SLICE2JS_STAGING_PATH/macos-arm64/slice2js"
           cp -v artifacts/slice2js-linux-x64/slice2js "$SLICE2JS_STAGING_PATH/linux-x64/"
-          chmod +x $SLICE2JS_STAGING_PATH/linux-x64/slice2js
+          chmod +x "$SLICE2JS_STAGING_PATH/linux-x64/slice2js"
           cp -v artifacts/slice2js-linux-arm64/slice2js "$SLICE2JS_STAGING_PATH/linux-arm64/"
-          chmod +x $SLICE2JS_STAGING_PATH/linux-arm64/slice2js
+          chmod +x "$SLICE2JS_STAGING_PATH/linux-arm64/slice2js"
           cp -v artifacts/slice2js-windows-x64/slice2js.exe "$SLICE2JS_STAGING_PATH/windows-x64/"
 
           # Copy the slice2js binary to the cpp/bin directory to avoid rebuilding it.
           mkdir -p ice/cpp/bin
-          cp -v artifacts/slice2js-linux-x64/slice2js $GITHUB_WORKSPACE/ice/cpp/bin/slice2js
-          chmod +x $GITHUB_WORKSPACE/ice/cpp/bin/slice2js
+          cp -v artifacts/slice2js-linux-x64/slice2js "$GITHUB_WORKSPACE/ice/cpp/bin/slice2js"
+          chmod +x "$GITHUB_WORKSPACE/ice/cpp/bin/slice2js"
 
       - name: Build JS
         run: make srcs
@@ -117,12 +123,16 @@ jobs:
 
       - name: Update Version - @zeroc/ice
         working-directory: ice/js/packages/ice
-        run: npm version ${{ inputs.ice_version }}
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
+        run: npm version "$ICE_VERSION"
         if: ${{ inputs.ice_version != '' }}
 
       - name: Update Version - @zeroc/slice2js
         working-directory: ice/js/packages/slice2js
-        run: npm version ${{ inputs.ice_version }}
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
+        run: npm version "$ICE_VERSION"
         if: ${{ inputs.ice_version != '' }}
 
       - name: Pack npm - @zeroc/ice

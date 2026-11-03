@@ -8,6 +8,10 @@ on:
         required: false
         default: "nightly"
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build:
     name: "Build Ice Repo DEB packages for ${{ matrix.distribution }}"
@@ -21,11 +25,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: ice
+          persist-credentials: false
 
       - name: Load version info
         run: |
           source ice/config/version.env
-          echo "CHANNEL=$CHANNEL" >> $GITHUB_ENV
+          echo "CHANNEL=$CHANNEL" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -38,16 +43,20 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build DEB packages
+        env:
+          QUALITY: ${{ inputs.quality }}
+          GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
+          GPG_KEY_ID: ${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
-            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}" \
-            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
-            ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }}:${CHANNEL} \
+            -e GPG_KEY="${GPG_KEY}" \
+            -e GPG_KEY_ID="${GPG_KEY_ID}" \
+            "ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }}:${CHANNEL}" \
             /workspace/ice/packaging/deb/build-repo-package.sh \
             --distribution "${{ matrix.distribution }}" \
             --channel "${CHANNEL}" \
-            --quality "${{ inputs.quality }}"
+            --quality "${QUALITY}"
 
       - name: Sync DEB packages to S3
         run: |

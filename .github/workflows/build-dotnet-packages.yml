@@ -21,6 +21,10 @@ on:
         required: false
         type: boolean
         default: false
+
+permissions:
+  contents: read
+
 jobs:
   build-slice-compilers:
     strategy:
@@ -44,6 +48,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -71,6 +77,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
@@ -94,8 +102,10 @@ jobs:
 
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
         run: |
-          "IcePackageVersion=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "IcePackageVersion=$env:ICE_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         shell: pwsh
 
       # Build .NET assemblies.

@@ -12,6 +12,9 @@ on:
         description: "The Ice version to build"
         required: false
 
+permissions:
+  contents: read
+
 jobs:
   build-sdist:
     runs-on: ubuntu-24.04
@@ -19,6 +22,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -33,7 +38,9 @@ jobs:
           python3 -m pip install toml
 
       - name: Update PYPI Version
-        run: python3 packaging/pypi/update_version.py ${{ inputs.ice_version }} python/pyproject.toml
+        env:
+          ICE_VERSION: ${{ inputs.ice_version }}
+        run: python3 packaging/pypi/update_version.py "$ICE_VERSION" python/pyproject.toml
         if: inputs.ice_version != ''
 
       - name: Build Source Distribution
@@ -74,6 +81,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
