@@ -3,12 +3,12 @@ name: Lint Workflows
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: ["3.8"]
     paths:
       - ".github/**"
       - ".gitignore"
   pull_request:
-    branches: ["main"]
+    branches: ["3.8"]
     paths:
       - ".github/**"
       - ".gitignore"
