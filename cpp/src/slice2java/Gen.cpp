@@ -1333,7 +1333,6 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
     const string package = getPackage(p->parentInterface());
 
     const string resultType = getResultType(p, package, false);
-    const optional<DocComment>& dc = p->docComment();
 
     const string contextParamName = getEscapedParamName(p->parameters(), "context");
     const string contextDoc = "@param " + contextParamName + " the Context map to send with the invocation";
@@ -2318,7 +2317,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const StringList& seeAlso)
 }
 
 void
-Slice::JavaVisitor::writeParamDocComments(IceInternal::Output& out, const DataMemberList& members)
+Slice::JavaVisitor::writeParamDocComments(Output& out, const DataMemberList& members)
 {
     bool first = true;
     for (const auto& member : members)
