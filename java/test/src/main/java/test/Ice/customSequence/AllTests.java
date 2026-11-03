@@ -240,7 +240,7 @@ public class AllTests {
         {
             TestIntf.OpOptASeqLocalTypeResult r = t.opOptASeqLocalType(java.util.Optional.empty());
             test(!r.returnValue.isPresent() && !r.outSeq.isPresent());
-            r = t.opOptASeqLocalType((List<A>)null);
+            r = t.opOptASeqLocalType((List<A>) null);
             test(!r.returnValue.isPresent() && !r.outSeq.isPresent());
         }
 
