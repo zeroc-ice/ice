@@ -1,4 +1,4 @@
-#line 2 "src/Slice/Scanner.cpp"
+#line 1 "src/Slice/Scanner.cpp"
 // Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ScannerConfig.h"
@@ -11,7 +11,7 @@
 
 // NOLINTBEGIN
 
-#line 15 "src/Slice/Scanner.cpp"
+#line 14 "src/Slice/Scanner.cpp"
 
 #define  YY_INT_ALIGNED long int
 
@@ -1193,7 +1193,7 @@ static const flex_int32_t yy_rule_linenum[51] =
       210,  211,  223,  224,  232,  243,  253,  261,  279,  302,
       330,  335,  339,  344,  350,  351,  356,  362,  387,  392,
       398,  399,  414,  419,  427,  432,  438,  448,  453,  457,
-      462,  468,  481,  514,  524,  527,  541,  542,  548,  562
+      462,  468,  481,  516,  528,  531,  545,  546,  552,  566
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1257,7 +1257,7 @@ namespace
 #define YY_USER_ACTION preAction();
 #define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 1261 "src/Slice/Scanner.cpp"
+#line 1260 "src/Slice/Scanner.cpp"
 #line 68 "src/Slice/Scanner.l"
   /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
   /* Instructs flex to not suppress any warnings when generating the scanner. */
@@ -1284,7 +1284,7 @@ namespace
 
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
-#line 1288 "src/Slice/Scanner.cpp"
+#line 1287 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define C_COMMENT 1
@@ -1575,7 +1575,7 @@ YY_DECL
 
   /* ========== Literals ========== */
   /* Matches the start of a double-quoted string literal. */
-#line 1579 "src/Slice/Scanner.cpp"
+#line 1578 "src/Slice/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -2136,6 +2136,8 @@ case 43:
 YY_RULE_SETUP
 #line 481 "src/Slice/Scanner.l"
 {
+    setLocation(yylloc);
+
     StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
@@ -2170,8 +2172,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 514 "src/Slice/Scanner.l"
+#line 516 "src/Slice/Scanner.l"
 {
+    setLocation(yylloc);
+
     StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylval = ident;
@@ -2182,14 +2186,14 @@ YY_RULE_SETUP
 /* Matches and consumes any whitespace, except for newlines. */
 case 45:
 YY_RULE_SETUP
-#line 524 "src/Slice/Scanner.l"
+#line 528 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches and consumes newlines, but only when the scanner isn't in a sub-scanner. */
 case 46:
 /* rule 46 can match eol */
 YY_RULE_SETUP
-#line 527 "src/Slice/Scanner.l"
+#line 531 "src/Slice/Scanner.l"
 {
     nextLine(yyleng);
 }
@@ -2205,12 +2209,12 @@ YY_RULE_SETUP
    * If we see a BOM in any other state, we emit an error and throw it away. */
 case 47:
 YY_RULE_SETUP
-#line 541 "src/Slice/Scanner.l"
+#line 545 "src/Slice/Scanner.l"
 { /* do nothing */ }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 542 "src/Slice/Scanner.l"
+#line 546 "src/Slice/Scanner.l"
 {
     currentUnit->error("encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files");
 }
@@ -2220,7 +2224,7 @@ YY_RULE_SETUP
 case 49:
 /* rule 49 can match eol */
 YY_RULE_SETUP
-#line 548 "src/Slice/Scanner.l"
+#line 552 "src/Slice/Scanner.l"
 {
     stringstream s;
     s << "illegal input character: '\\";
@@ -2237,7 +2241,7 @@ YY_RULE_SETUP
    * This is the lowest priority rule in the scanner, and is only active while not in a sub-scanner. */
 case 50:
 YY_RULE_SETUP
-#line 562 "src/Slice/Scanner.l"
+#line 566 "src/Slice/Scanner.l"
 {
     setLocation(yylloc);
     return yytext[0];
@@ -2245,10 +2249,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 567 "src/Slice/Scanner.l"
+#line 571 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2252 "src/Slice/Scanner.cpp"
+#line 2255 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SLICE):
 case YY_STATE_EOF(METADATA):
@@ -3251,7 +3255,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 567 "src/Slice/Scanner.l"
+#line 571 "src/Slice/Scanner.l"
 
 
 // NOLINTEND

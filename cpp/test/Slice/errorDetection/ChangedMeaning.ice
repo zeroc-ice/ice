@@ -190,3 +190,16 @@ module Test
         int X; // Changed meaning
     }
 }
+
+module BraceOnNextLine
+{
+    class H {}
+
+    module Inner
+    {
+        sequence<H> HSeq;
+        class H // Changed meaning
+        {
+        }
+    }
+}

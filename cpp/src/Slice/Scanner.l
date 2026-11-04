@@ -478,6 +478,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* ========== Identifiers and Keywords ========== */
 
 {identifier}[[:space:]]*"(" {
+    setLocation(yylloc);
+
     StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
@@ -511,6 +513,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
 {identifier} {
+    setLocation(yylloc);
+
     StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylval = ident;
