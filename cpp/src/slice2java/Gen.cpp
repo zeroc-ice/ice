@@ -1675,19 +1675,9 @@ Slice::JavaVisitor::writeMarshalServantResults(
 }
 
 void
-Slice::JavaVisitor::writeThrowsClause(
-    Output& out,
-    const string& package,
-    const ExceptionList& throws,
-    const OperationPtr& op)
+Slice::JavaVisitor::writeThrowsClause(Output& out, const string& package, const ExceptionList& throws)
 {
-    if (op && (op->hasMetadata("java:UserException")))
-    {
-        out.inc();
-        out << nl << "throws com.zeroc.Ice.UserException";
-        out.dec();
-    }
-    else if (throws.size() > 0)
+    if (throws.size() > 0)
     {
         out.inc();
         out << nl << "throws ";
@@ -4406,14 +4396,14 @@ Slice::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         {
             out << nl << "java.util.concurrent.CompletionStage<" << getDispatchResultType(op, package, true) << "> "
                 << opName << "Async" << spar << params << currentParam << epar;
-            writeThrowsClause(out, package, throws, op);
+            writeThrowsClause(out, package, throws);
             out << ';';
         }
         else
         {
             out << nl << getDispatchResultType(op, package, false) << ' ' << opName << spar << params << currentParam
                 << epar;
-            writeThrowsClause(out, package, throws, op);
+            writeThrowsClause(out, package, throws);
             out << ';';
         }
     }
@@ -4438,7 +4428,7 @@ Slice::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         string opName = op->mappedName();
         out << sp;
 
-        bool throwsUserException = !op->throws().empty() || op->hasMetadata("java:UserException");
+        bool throwsUserException = !op->throws().empty();
 
         out << nl << "/**";
         out << nl << " * Dispatches the operation " << opName << ".";

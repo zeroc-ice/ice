@@ -19,8 +19,7 @@ final class ObserverMiddleware implements Object {
     }
 
     @Override
-    public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-        throws UserException {
+    public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) throws UserException {
         DispatchObserver observer = _communicatorObserver.getDispatchObserver(request.current, request.size);
 
         if (observer != null) {

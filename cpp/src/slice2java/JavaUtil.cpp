@@ -773,13 +773,6 @@ Slice::Java::validateJavaMetadata(const UnitPtr& unit)
     };
     knownMetadata.emplace("java:type", std::move(typeInfo));
 
-    // "java:UserException"
-    MetadataInfo userExceptionInfo = {
-        .validOn = {typeid(Operation)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-    };
-    knownMetadata.emplace("java:UserException", std::move(userExceptionInfo));
-
     // Pass this information off to the parser's metadata validation logic.
     Slice::validateMetadata(unit, "java", std::move(knownMetadata));
 }
