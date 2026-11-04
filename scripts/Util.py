@@ -3488,7 +3488,15 @@ class iOSSimulatorProcessController(RemoteProcessController):
         if not simulator.isBooted():
             sys.stdout.write("launching simulator... ")
             sys.stdout.flush()
-            run('xcrun simctl boot "{0}"'.format(self.device))
+            # Booting right after a shutdown, as restartControllerApp does, can fail for a few seconds.
+            for attempt in range(20):
+                try:
+                    run('xcrun simctl boot "{0}"'.format(self.device))
+                    break
+                except RuntimeError:
+                    if attempt == 19:
+                        raise
+                    time.sleep(1.0)
             print("ok")
 
             sys.stdout.write("waiting for simulator to boot... ")
