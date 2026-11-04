@@ -4,18 +4,18 @@
 module All::Good::Here
 {
     module Okay {}
-    module Holder {}            // Error: 'Holder' suffix is reserved
+    module Helper {}            // Error: 'Helper' suffix is reserved
 
-    module Okay::Holder {}      // Error: 'Holder' suffix is reserved
+    module Okay::Helper {}      // Error: 'Helper' suffix is reserved
 }
 
 // Case where the module chain is broken.
 module An::__Iceberg::Ahead      // Error: illegal leading underscore
 {
     module Okay {}
-    module Holder {}            // Error: 'Holder' suffix is reserved
+    module Helper {}            // Error: 'Helper' suffix is reserved
 
-    module Okay::Holder {}      // Error: 'Holder' suffix is reserved
+    module Okay::Helper {}      // Error: 'Helper' suffix is reserved
 }
 
 // Ensure that each module segment is individually checked for errors.

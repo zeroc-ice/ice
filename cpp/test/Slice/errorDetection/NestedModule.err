@@ -1,8 +1,8 @@
-NestedModule.ice:7: illegal identifier 'Holder': 'Holder' suffix is reserved
-NestedModule.ice:9: illegal identifier 'Holder': 'Holder' suffix is reserved
+NestedModule.ice:7: illegal identifier 'Helper': 'Helper' suffix is reserved
+NestedModule.ice:9: illegal identifier 'Helper': 'Helper' suffix is reserved
 NestedModule.ice:13: illegal leading underscore in identifier '__Iceberg'
-NestedModule.ice:16: illegal identifier 'Holder': 'Holder' suffix is reserved
-NestedModule.ice:18: illegal identifier 'Holder': 'Holder' suffix is reserved
+NestedModule.ice:16: illegal identifier 'Helper': 'Helper' suffix is reserved
+NestedModule.ice:18: illegal identifier 'Helper': 'Helper' suffix is reserved
 NestedModule.ice:22: illegal identifier 'APtr': 'Ptr' suffix is reserved
 NestedModule.ice:22: illegal identifier 'BPrx': 'Prx' suffix is reserved
 NestedModule.ice:22: illegal identifier 'CHelper': 'Helper' suffix is reserved

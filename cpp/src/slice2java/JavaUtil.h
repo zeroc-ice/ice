@@ -11,7 +11,6 @@ namespace Slice::Java
     enum TypeMode
     {
         TypeModeIn,
-        TypeModeOut,
         TypeModeMember,
         TypeModeReturn
     };

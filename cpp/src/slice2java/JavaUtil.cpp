@@ -366,45 +366,29 @@ Slice::Java::typeToString(
         return "java.util.Optional<" + typeToObjectString(type, mode, package, metadata, formal) + ">";
     }
 
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
+    if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
     {
         return getUnqualified(cl, package);
     }
-
-    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if (proxy)
+    else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
     {
         return getUnqualified(proxy, package) + "Prx";
     }
-
-    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if (dict)
+    else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
     {
         string instanceType, formalType;
         getDictionaryTypes(dict, package, metadata, instanceType, formalType);
         return formal ? formalType : instanceType;
     }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if (seq)
+    else if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
         string instanceType, formalType;
         getSequenceTypes(seq, package, metadata, instanceType, formalType);
         return formal ? formalType : instanceType;
     }
-
-    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
-    if (contained)
+    else if (auto contained = dynamic_pointer_cast<Contained>(type))
     {
-        if (mode == TypeModeOut)
-        {
-            return getUnqualified(contained, package) + "Holder";
-        }
-        else
-        {
-            return getUnqualified(contained, package);
-        }
+        return getUnqualified(contained, package);
     }
 
     return "???";
@@ -430,8 +414,7 @@ Slice::Java::typeToObjectString(
         "com.zeroc.Ice.ObjectPrx",
         "com.zeroc.Ice.Value"};
 
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if (builtin && mode != TypeModeOut)
+    if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
         return builtinTable[builtin->kind()];
     }
