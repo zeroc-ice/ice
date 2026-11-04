@@ -59,14 +59,14 @@ module Ice
     ["cpp:type:std::list<LogMessage>"]
     sequence<LogMessage> LogMessageSeq;
 
-    /// Represents an Ice object that receives the log messages of a communicator's logger. {@link LoggerAdmin} calls
-    /// this object after {@link LoggerAdmin::attachRemoteLogger} attaches it.
+    /// Receives the log messages that a {@link LoggerAdmin} forwards from the logger of its communicator, once
+    /// {@link LoggerAdmin::attachRemoteLogger} attaches this object.
     interface RemoteLogger
     {
-        /// Receives the prefix of the local logger and the log messages it logged before this remote logger was
-        /// attached. {@link LoggerAdmin} calls this operation once, after {@link LoggerAdmin::attachRemoteLogger}
-        /// attaches this remote logger.
-        /// @param prefix The prefix of the local logger.
+        /// Initializes this remote logger with the prefix and the most recent log messages of the logger of the
+        /// communicator that hosts the {@link LoggerAdmin}. That {@link LoggerAdmin} calls this operation once,
+        /// after {@link LoggerAdmin::attachRemoteLogger} attaches this remote logger.
+        /// @param prefix The prefix of that logger.
         /// @param logMessages The most recent log messages cached by {@link LoggerAdmin} that match the filters given
         /// to {@link LoggerAdmin::attachRemoteLogger}, oldest first, up to its `messageMax`. This sequence is empty
         /// when `messageMax` is 0.
@@ -85,8 +85,8 @@ module Ice
     {
     }
 
-    /// Represents the admin facet that allows an Ice application to attach its {@link RemoteLogger} to the local
-    /// logger of an Ice communicator.
+    /// Provides remote access to the log messages of a communicator's logger. An Ice application attaches a
+    /// {@link RemoteLogger} to receive them, or calls {@link getLog} to retrieve the cached ones.
     interface LoggerAdmin
     {
         /// Attaches a {@link RemoteLogger} object to the local logger, then calls {@link RemoteLogger::init} on
