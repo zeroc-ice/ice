@@ -235,7 +235,12 @@ public class AllTests {
             test(r.returnValue.get().equals(list));
             test(r.outSeq.get().equals(list));
 
-            r = t.opOptASeqLocalType(java.util.Optional.empty());
+        }
+
+        {
+            TestIntf.OpOptASeqLocalTypeResult r = t.opOptASeqLocalType(java.util.Optional.empty());
+            test(!r.returnValue.isPresent() && !r.outSeq.isPresent());
+            r = t.opOptASeqLocalType((List<A>) null);
             test(!r.returnValue.isPresent() && !r.outSeq.isPresent());
         }
 
