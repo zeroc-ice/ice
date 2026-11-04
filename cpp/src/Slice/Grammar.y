@@ -508,6 +508,8 @@ type_id
 // ----------------------------------------------------------------------
 : type definition_name
 {
+    // Locate the member or parameter by its name, not by its type.
+    @$ = @2;
     auto type = dynamic_pointer_cast<Type>($1);
     auto ident = dynamic_pointer_cast<StringTok>($2);
     $$ = make_shared<TypeStringTok>(type, ident->v);
@@ -549,6 +551,8 @@ optional_type_id
 // ----------------------------------------------------------------------
 : optional type_id
 {
+    // Locate the member or parameter by its name, not by its 'optional' tag.
+    @$ = @2;
     auto m = dynamic_pointer_cast<OptionalDefTok>($1);
     auto ts = dynamic_pointer_cast<TypeStringTok>($2);
     m->type = ts->type;
@@ -616,10 +620,13 @@ class_name
 // ----------------------------------------------------------------------
 : ICE_CLASS ICE_IDENTIFIER
 {
+    // Locate the class by its name, not by the 'class' keyword.
+    @$ = @2;
     $$ = $2;
 }
 | ICE_CLASS keyword
 {
+    @$ = @2;
     auto ident = dynamic_pointer_cast<StringTok>($2);
     currentUnit->error("keyword '" + ident->v + "' cannot be used as class name");
     $$ = $2; // Dummy
@@ -631,6 +638,8 @@ class_id
 // ----------------------------------------------------------------------
 : ICE_CLASS definition_name_open integer_constant ')'
 {
+    // Locate the class by its name, not by the 'class' keyword.
+    @$ = @2;
     auto integer = dynamic_pointer_cast<IntegerTok>($3);
     int32_t id = -1;
 
@@ -976,10 +985,13 @@ interface_id
 // ----------------------------------------------------------------------
 : ICE_INTERFACE ICE_IDENTIFIER
 {
+    // Locate the interface by its name, not by the 'interface' keyword.
+    @$ = @2;
     $$ = $2;
 }
 | ICE_INTERFACE keyword
 {
+    @$ = @2;
     auto ident = dynamic_pointer_cast<StringTok>($2);
     currentUnit->error("keyword '" + ident->v + "' cannot be used as interface name");
     $$ = $2; // Dummy
