@@ -3488,7 +3488,15 @@ class iOSSimulatorProcessController(RemoteProcessController):
         if not simulator.isBooted():
             sys.stdout.write("launching simulator... ")
             sys.stdout.flush()
-            run('xcrun simctl boot "{0}"'.format(self.device))
+            # Booting right after a shutdown, as restartControllerApp does, can fail for a few seconds.
+            for attempt in range(20):
+                try:
+                    run('xcrun simctl boot "{0}"'.format(self.device))
+                    break
+                except RuntimeError:
+                    if attempt == 19:
+                        raise
+                    time.sleep(1.0)
             print("ok")
 
             sys.stdout.write("waiting for simulator to boot... ")
@@ -3524,17 +3532,11 @@ class iOSSimulatorProcessController(RemoteProcessController):
     def restartControllerApp(self, current: Driver.Current, ident: Any) -> None:
         # We reboot the simulator if the controller fails to start. Terminating the controller app
         # with simctl terminate doesn't always work, it can hang if the controller app died because
-        # of the springboard watchdog.
-        run('xcrun simctl shutdown "{0}"'.format(self.device))
-        nRetry = 0
-        while nRetry < 20:
-            try:
-                run('xcrun simctl boot "{0}"'.format(self.device))
-                break
-            except Exception:
-                time.sleep(1.0)
-                nRetry += 1
-        run('xcrun simctl launch "{0}" {1}'.format(self.device, ident.name))
+        # of the springboard watchdog. If the previous start failed, the simulator can already be
+        # shut down and the controller app not installed.
+        if iOSSimulatorDevice(self.device).isBooted():
+            run('xcrun simctl shutdown "{0}"'.format(self.device))
+        self.startControllerApp(current, ident)
 
     def stopControllerApp(self, ident: Any) -> None:
         controllerBundleIdentifier = ident.name
