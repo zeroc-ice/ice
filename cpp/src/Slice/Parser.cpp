@@ -2760,23 +2760,6 @@ Slice::InterfaceDef::createOperation(
         bool hasConflictingIdentifier = doesNameConflict(name, "operation", _contents);
         reportIllegalSuffixOrUnderscore(name);
 
-        // Check whether enclosing interface has the same name.
-        if (name == this->name())
-        {
-            ostringstream os;
-            os << "interface name '" << name << "' cannot be used as operation name";
-            unit()->error(os.str());
-            hasConflictingIdentifier = true;
-        }
-        else if (IceInternal::toLower(name) == IceInternal::toLower(this->name()))
-        {
-            ostringstream os;
-            os << "operation '" << name << "' differs only in capitalization from enclosing interface name '"
-               << this->name() << "'";
-            unit()->error(os.str());
-            hasConflictingIdentifier = true;
-        }
-
         // Check whether any base has an operation with the same name already
         for (const auto& baseInterface : _bases)
         {
