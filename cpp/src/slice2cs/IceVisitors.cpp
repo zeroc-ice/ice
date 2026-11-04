@@ -1005,6 +1005,7 @@ Slice::Ice::TypesVisitor::visitConst(const ConstPtr& p)
     _out << nl << accessModifier(p) << " abstract class " << p->mappedName();
     _out << sb;
     writeIceDocComment(_out, p);
+    emitObsoleteAttribute(p);
     emitAttributes(p);
     _out << nl << accessModifier(p) << " const " << typeToString(p->type(), "") << " value = ";
     writeConstantValue(_out, p->type(), p->valueType(), p->value(), getNamespace(p));
@@ -1097,6 +1098,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     notes << "Use the methods of this interface to invoke operations on a remote Ice object that implements <c>"
           << p->name() << "</c>.";
     writeIceDocComment(_out, p, "proxy interface", notes.str());
+    emitObsoleteAttribute(p);
     _out << nl << accessModifier(p) << " partial interface " << p->mappedName() << "Prx : ";
 
     vector<string> baseInterfaces;
@@ -1137,6 +1139,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     ostringstream summary;
     summary << "Helper class for proxy <see cref=\"" << name << "Prx\" />.";
     writeIceHelperDocComment(_out, p, summary.str(), "proxy helper class");
+    emitObsoleteAttribute(p);
     _out << nl << accessModifier(p) << " sealed partial class " << name << "PrxHelper : "
          << "Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
@@ -1993,7 +1996,6 @@ Slice::Ice::SkeletonVisitor::visitOperation(const OperationPtr& op)
         amd,
         true);
 
-    emitObsoleteAttribute(op);
     _out << nl << retS << " " << opName;
     _out.spar("(", amd); // use newlines for AMD because it's much longer.
     _out << params << epar << ";";
