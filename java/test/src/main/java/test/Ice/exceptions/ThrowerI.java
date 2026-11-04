@@ -97,9 +97,9 @@ public final class ThrowerI implements Thrower {
     }
 
     @Override
-    public void throwUndeclaredC(int a, int b, int c, Current current)
-        throws UserException {
-        throw new C(a, b, c);
+    public void throwUndeclaredC(int a, int b, int c, Current current) {
+        // Not possible in Java.
+        throw new UnknownUserException("dummy");
     }
 
     @Override
