@@ -69,10 +69,13 @@ runs:
 
         # Pin the emulator to 37.2.12: 37.2.13 can segfault in its GL context cleanup when an emulator reboots, which
         # the Bluetooth setup does. Remove once a fixed release ships, see https://github.com/zeroc-ice/ice/issues/6984.
-        # sdkmanager only installs the latest emulator, so replace the one it installed with the archived build.
+        # sdkmanager only installs the latest emulator, so replace the one it installed with the archived build. Keep its
+        # package.xml, which the archive lacks: without it, avdmanager doesn't see the emulator and won't create an AVD.
         curl -fsSL --retry 3 -o "$RUNNER_TEMP/emulator.zip" \
           https://dl.google.com/android/repository/emulator-linux_x64-16428233.zip
         echo "b08fc43d8608d2955f607f1b287beb525041e730086bdca3af152accac3af9c1  $RUNNER_TEMP/emulator.zip" | sha256sum -c -
+        mv "$ANDROID_HOME/emulator/package.xml" "$RUNNER_TEMP/emulator-package.xml"
         rm -rf "$ANDROID_HOME/emulator"
         unzip -q "$RUNNER_TEMP/emulator.zip" -d "$ANDROID_HOME"
+        mv "$RUNNER_TEMP/emulator-package.xml" "$ANDROID_HOME/emulator/package.xml"
         rm "$RUNNER_TEMP/emulator.zip"
