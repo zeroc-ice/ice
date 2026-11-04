@@ -6,7 +6,6 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.DispatchException;
 import com.zeroc.Ice.TimeoutException;
 import com.zeroc.Ice.UnknownUserException;
-import com.zeroc.Ice.UserException;
 
 import test.Ice.exceptions.Test.A;
 import test.Ice.exceptions.Test.B;
