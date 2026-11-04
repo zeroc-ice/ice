@@ -58,23 +58,21 @@ runs:
         echo "$ANDROID_HOME/cmdline-tools/22.0/bin" >> $GITHUB_PATH
         sdkmanager_install "cmdline-tools;22.0"
         test -x "$ANDROID_HOME/cmdline-tools/22.0/bin/avdmanager"
-
-        # Pin the emulator to 37.2.12: 37.2.13 can segfault in its GL context cleanup when an emulator reboots, which
-        # the Bluetooth setup does. Remove once a fixed release ships, see https://github.com/zeroc-ice/ice/issues/6984.
-        # sdkmanager only installs the latest emulator, so unzip the archived build before installing the system image;
-        # the build's source.properties satisfies the image's dependency on the emulator.
-        curl -fsSL --retry 3 -o "$RUNNER_TEMP/emulator.zip" \
-          https://dl.google.com/android/repository/emulator-linux_x64-16428233.zip
-        echo "b08fc43d8608d2955f607f1b287beb525041e730086bdca3af152accac3af9c1  $RUNNER_TEMP/emulator.zip" | sha256sum -c -
-        rm -rf "$ANDROID_HOME/emulator"
-        unzip -q "$RUNNER_TEMP/emulator.zip" -d "$ANDROID_HOME"
-        rm "$RUNNER_TEMP/emulator.zip"
-
         # platform-tools, build-tools, and platforms are pre-installed on GitHub runners.
-        # We only need to install the system image.
+        # We only need to install the system image; sdkmanager installs the emulator a given image depends on.
         if [ "$(uname -m)" = "aarch64" ]; then
           ARCH="arm64-v8a"
         else
           ARCH="x86_64"
         fi
         sdkmanager_install "system-images;$ANDROID_PLATFORM;google_apis;$ARCH"
+
+        # Pin the emulator to 37.2.12: 37.2.13 can segfault in its GL context cleanup when an emulator reboots, which
+        # the Bluetooth setup does. Remove once a fixed release ships, see https://github.com/zeroc-ice/ice/issues/6984.
+        # sdkmanager only installs the latest emulator, so replace the one it installed with the archived build.
+        curl -fsSL --retry 3 -o "$RUNNER_TEMP/emulator.zip" \
+          https://dl.google.com/android/repository/emulator-linux_x64-16428233.zip
+        echo "b08fc43d8608d2955f607f1b287beb525041e730086bdca3af152accac3af9c1  $RUNNER_TEMP/emulator.zip" | sha256sum -c -
+        rm -rf "$ANDROID_HOME/emulator"
+        unzip -q "$RUNNER_TEMP/emulator.zip" -d "$ANDROID_HOME"
+        rm "$RUNNER_TEMP/emulator.zip"
