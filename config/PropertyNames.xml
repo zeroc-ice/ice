@@ -286,9 +286,6 @@
         <property name="Registry.Trace.Replica" languages="cpp" default="0" />
         <property name="Registry.Trace.Server" languages="cpp" default="0" />
         <property name="Registry.Trace.Session" languages="cpp" default="0" />
-        <property name="Registry.Trace.Subscriber" languages="cpp" default="0" />
-        <property name="Registry.Trace.Topic" languages="cpp" default="0" />
-        <property name="Registry.Trace.TopicManager" languages="cpp" default="0" />
         <property name="Registry.UserAccounts" languages="cpp" />
     </section>
 
@@ -350,7 +347,6 @@
         <property name="Send.QueueSizeMaxPolicy" languages="cpp" />
         <property name="Send.Timeout" languages="cpp" default="60000" />
         <property name="TopicManager" class="ObjectAdapter" languages="cpp" />
-        <property name="TopicManager.Proxy" class="Proxy" languages="cpp" />
         <property name="Trace.Election" languages="cpp" default="0" />
         <property name="Trace.Replication" languages="cpp" default="0" />
         <property name="Trace.Subscriber" languages="cpp" default="0" />
