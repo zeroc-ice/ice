@@ -12,6 +12,7 @@ module OK
     const long PtrA = 0;
     const long HelperA = 0;
     const long aIce = 0;
+    const long AHolder = 0;             // 'Holder' used to be a reserved suffix
 }
 
 module errors
