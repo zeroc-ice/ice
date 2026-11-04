@@ -113,10 +113,8 @@ namespace Slice
             const std::string& param);
 
         /// Generate a throws clause containing only checked exceptions.
-        static void writeThrowsClause(
-            IceInternal::Output& out,
-            const std::string& package,
-            const ExceptionList& throws);
+        static void
+        writeThrowsClause(IceInternal::Output& out, const std::string& package, const ExceptionList& throws);
 
         //
         // Marshal/unmarshal a data member.
