@@ -28,7 +28,9 @@ IcePy::AdoptThread::~AdoptThread()
 }
 
 IcePy::ThreadHook::ThreadHook(PyObject* threadNotification, PyObject* threadStart, PyObject* threadStop) :
-    _threadNotification(threadNotification), _threadStart(threadStart), _threadStop(threadStop)
+    _threadNotification(incRef(threadNotification)),
+    _threadStart(incRef(threadStart)),
+    _threadStop(incRef(threadStop))
 {
     if(threadNotification)
     {
@@ -50,10 +52,6 @@ IcePy::ThreadHook::ThreadHook(PyObject* threadNotification, PyObject* threadStar
     {
         throw Ice::InitializationException(__FILE__, __LINE__, "threadStop must be a callable");
     }
-
-    Py_XINCREF(threadNotification);
-    Py_XINCREF(threadStart);
-    Py_XINCREF(threadStop);
 }
 
 void
