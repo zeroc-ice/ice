@@ -1170,9 +1170,8 @@ Slice::JavaVisitor::writeMarshaledResultType(
     }
     for (const auto& outParam : outParams)
     {
-        out << (typeToString(outParam->type(), package, outParam->getMetadata(), true, outParam->isOptional()) + " " +
-                outParam->mappedName());
-
+        string typeS = typeToString(outParam->type(), package, outParam->getMetadata(), true, outParam->isOptional());
+        out << (typeS + " " + outParam->mappedName());
         hasOpt = hasOpt || outParam->isOptional();
     }
     out << currentParam << epar;
