@@ -11,8 +11,8 @@ module OK
     const long prx = 0;
     const long PtrA = 0;
     const long HelperA = 0;
-    const long HolderA = 0;
     const long aIce = 0;
+    const long AHolder = 0;
 }
 
 module errors
@@ -23,13 +23,11 @@ module errors
     const long abcPtr = 0;
     const long Helper = 0;
     const long abcHelper = 0;
-    const long Holder = 0;
-    const long abcHolder = 0;
 }
 
 module Modules
 {
-    module ModuleHolder {}              // Error: 'Holder' suffix is reserved
+    module ModuleHelper {}              // Error: 'Helper' suffix is reserved
     module _Module {}                   // Error: illegal leading underscore
 }
 
@@ -47,7 +45,7 @@ module Interfaces
     interface InterfacePrx {}           // Error: 'Prx' suffix is reserved
     interface _Interface {}             // Error: illegal leading underscore
 
-    interface DeclHolder;               // Error: 'Holder' suffix is reserved
+    interface DeclHelper;               // Error: 'Helper' suffix is reserved
     interface Decl_;                    // Error: illegal trailing underscore
 }
 
@@ -71,7 +69,7 @@ module Sequences
 
 module Dictionaries
 {
-    dictionary<int, int> DictionaryHolder;  // Error: 'Holder' suffix is reserved
+    dictionary<int, int> DictionaryHelper;  // Error: 'Helper' suffix is reserved
     dictionary<int, int> Dictio__nary;      // Error: illegal double underscore
 }
 
@@ -97,7 +95,7 @@ module DataMembers
 {
     class C
     {
-        int memberHolder;               // Error: 'Holder' suffix is reserved
+        int memberHelper;               // Error: 'Helper' suffix is reserved
         int _member;                    // Error: illegal leading underscore
     }
 
@@ -121,7 +119,7 @@ module Operations
         void opHelper();                // Error: 'Helper' suffix is reserved
         void op_();                     // Error: illegal trailing underscore
 
-        void op1(int paramHolder);      // Error: 'Holder' suffix is reserved
+        void op1(int paramHelper);      // Error: 'Helper' suffix is reserved
         void op2(out int pa__ram);      // Error: illegal double underscore
     }
 }

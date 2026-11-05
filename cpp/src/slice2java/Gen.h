@@ -113,12 +113,8 @@ namespace Slice
             const std::string& param);
 
         /// Generate a throws clause containing only checked exceptions.
-        /// @remark \p op is provided only when we want to check for the 'java:UserException' metadata.
-        static void writeThrowsClause(
-            IceInternal::Output& out,
-            const std::string& package,
-            const ExceptionList& throws,
-            const OperationPtr& op = nullptr);
+        static void
+        writeThrowsClause(IceInternal::Output& out, const std::string& package, const ExceptionList& throws);
 
         //
         // Marshal/unmarshal a data member.

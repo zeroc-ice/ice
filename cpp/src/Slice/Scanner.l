@@ -326,21 +326,21 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* ========== Comments ========== */
 
   /* Matches and records a triple-slash style doc-comment. */
-<*>"///".* {
+<INITIAL,SLICE,PREPROCESS,METADATA>"///".* {
     currentUnit->appendToDocComment(yytext + 3);
 }
 
   /* Matches and consumes a C++ style comment. */
-<*>"//".* {}
+<INITIAL,SLICE,PREPROCESS,METADATA>"//".* {}
 
   /* Matches the start of a C style doc-comment, and switches the scanner to the C_DOC_COMMENT state.
    * Specifically we match a forward slash and 2 stars when they are _not_ followed by either a '/' or '*' character. */
-<*>"/**"/[^/*] {
+<INITIAL,SLICE,PREPROCESS,METADATA>"/**"/[^/*] {
     pushState(C_DOC_COMMENT);
 }
 
   /* Matches the start of a C style comment, and switches the scanner to the C_COMMENT state. */
-<*>"/*" {
+<INITIAL,SLICE,PREPROCESS,METADATA>"/*" {
     pushState(C_COMMENT);
 }
 
