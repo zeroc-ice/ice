@@ -8,13 +8,6 @@
 
 namespace Slice::Java
 {
-    enum TypeMode
-    {
-        TypeModeIn,
-        TypeModeMember,
-        TypeModeReturn
-    };
-
     [[nodiscard]] std::string getResultType(const OperationPtr& op, const std::string& package, bool object);
 
     /// Returns a vector of this operation's parameters with each of them formatted as 'paramType paramName'.
@@ -64,7 +57,6 @@ namespace Slice::Java
 
     [[nodiscard]] std::string typeToString(
         const TypePtr& type,
-        TypeMode mode,
         const std::string& package = std::string(),
         const MetadataList& metadata = MetadataList(),
         bool formal = true,
@@ -74,7 +66,6 @@ namespace Slice::Java
     /// For all other types, this function delegates to typeToString.
     [[nodiscard]] std::string typeToObjectString(
         const TypePtr& type,
-        TypeMode mode,
         const std::string& package = std::string(),
         const MetadataList& metadata = MetadataList(),
         bool formal = true);

@@ -110,7 +110,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
         stream = marshal ? "ostr" : "istr";
     }
 
-    string typeS = typeToString(type, TypeModeIn, package, metadata);
+    string typeS = typeToString(type, package, metadata);
 
     if (type->isClassType())
     {
@@ -469,7 +469,7 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
             const string d = "optDict";
             out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(dict) << "))";
             out << sb;
-            out << nl << typeToString(dict, TypeModeIn, package, metadata) << ' ' << d << ';';
+            out << nl << typeToString(dict, package, metadata) << ' ' << d << ';';
 
             if (usesVariableLengthTypes)
             {
@@ -495,8 +495,8 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
 
         if (marshal)
         {
-            const string keyS = typeToObjectString(keyT, TypeModeIn, package);
-            const string valueS = typeToObjectString(valueT, TypeModeIn, package);
+            const string keyS = typeToObjectString(keyT, package);
+            const string valueS = typeToObjectString(valueT, package);
 
             out << nl << "if (" << param << " == null)";
             out << sb;
@@ -514,8 +514,8 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
         }
         else
         {
-            string keyS = typeToString(keyT, TypeModeIn, package);
-            string valueS = typeToString(valueT, TypeModeIn, package);
+            string keyS = typeToString(keyT, package);
+            string valueS = typeToString(valueT, package);
 
             out << nl << param << " = new " << instanceType << "();";
             out << nl << "int sz" << iterS << " = " << stream << ".readSize();";
@@ -527,7 +527,7 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
                 out << nl << "final " << keyS << " key;";
                 writeMarshalUnmarshalCode(out, package, keyT, false, false, 0, "key", false, iter, customStream);
 
-                valueS = typeToObjectString(valueT, TypeModeIn, package);
+                valueS = typeToObjectString(valueT, package);
                 ostringstream patchParams;
                 patchParams << "value -> " << param << ".put(key, value), " << valueS << ".class";
                 writeMarshalUnmarshalCode(
@@ -577,7 +577,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
         stream = marshal ? "ostr" : "istr";
     }
 
-    string typeS = typeToString(seq, TypeModeIn, package);
+    string typeS = typeToString(seq, package);
 
     // Check for the serializable metadata to get rid of this case first.
     if (seq->hasMetadata("java:serializable"))
@@ -674,7 +674,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
         origContent = s->type();
         s = dynamic_pointer_cast<Sequence>(origContent);
     }
-    string origContentS = typeToString(origContent, TypeModeIn, package);
+    string origContentS = typeToString(origContent, package);
 
     TypePtr type = seq->type();
 
@@ -701,7 +701,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
             out << eb << " else";
             out << sb;
             out << nl << stream << ".writeSize(" << param << ".size());";
-            string ctypeS = typeToString(type, TypeModeIn, package);
+            string ctypeS = typeToString(type, package);
             out << nl << "for (" << ctypeS << " elem : " << param << ')';
             out << sb;
             writeMarshalUnmarshalCode(out, package, type, false, false, 0, "elem", true, iter, customStream);
@@ -947,8 +947,7 @@ Slice::JavaVisitor::writeResultType(
             }
         }
         out << nl << "public "
-            << typeToString(ret, TypeModeIn, package, op->getMetadata(), true, op->returnIsOptional()) << ' ' << retval
-            << ';';
+            << typeToString(ret, package, op->getMetadata(), true, op->returnIsOptional()) << ' ' << retval << ';';
         out << sp;
     }
 
@@ -968,7 +967,7 @@ Slice::JavaVisitor::writeResultType(
         }
 
         string typeString =
-            typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, outParam->isOptional());
+            typeToString(outParam->type(), package, outParam->getMetadata(), true, outParam->isOptional());
 
         out << nl << "public " << typeString << ' ' << outParam->mappedName() << ';';
         out << sp;
@@ -1041,7 +1040,6 @@ Slice::JavaVisitor::writeResultType(
             out
                 << (typeToString(
                         ret,
-                        TypeModeIn,
                         package,
                         op->getMetadata(),
                         true,
@@ -1053,7 +1051,6 @@ Slice::JavaVisitor::writeResultType(
             out
                 << (typeToString(
                         outParam->type(),
-                        TypeModeIn,
                         package,
                         outParam->getMetadata(),
                         true,
@@ -1168,7 +1165,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     out << nl << "public " << opName << "MarshaledResult" << spar;
     if (ret)
     {
-        out << (typeToString(ret, TypeModeIn, package, op->getMetadata(), true, op->returnIsOptional()) + " " + retval);
+        out << (typeToString(ret, package, op->getMetadata(), true, op->returnIsOptional()) + " " + retval);
         hasOpt = op->returnIsOptional();
     }
     for (const auto& outParam : outParams)
@@ -1176,7 +1173,6 @@ Slice::JavaVisitor::writeMarshaledResultType(
         out
             << (typeToString(
                     outParam->type(),
-                    TypeModeIn,
                     package,
                     outParam->getMetadata(),
                     true,
@@ -1237,13 +1233,12 @@ Slice::JavaVisitor::writeMarshaledResultType(
         out << nl << "public " << opName << "MarshaledResult" << spar;
         if (ret)
         {
-            out << (typeToString(ret, TypeModeIn, package, op->getMetadata(), true, false) + " " + retval);
+            out << (typeToString(ret, package, op->getMetadata(), true, false) + " " + retval);
         }
         for (const auto& outParam : outParams)
         {
-            out
-                << (typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, false) + " " +
-                    outParam->mappedName());
+            const string outName = outParam->mappedName();
+            out << (typeToString(outParam->type(), package, outParam->getMetadata(), true, false) + " " + outName);
         }
 
         out << currentParam << epar;
@@ -1919,7 +1914,7 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
             StructPtr st = dynamic_pointer_cast<Struct>(t);
             if (st)
             {
-                string memberType = typeToString(st, TypeModeMember, package, member->getMetadata());
+                string memberType = typeToString(st, package, member->getMetadata());
                 out << nl << "this." << member->mappedName() << " = new " << memberType << "();";
             }
         }
@@ -2487,8 +2482,7 @@ Slice::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 for (const auto& member : requiredMembers)
                 {
                     string memberName = member->mappedName();
-                    string memberType =
-                        typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
+                    string memberType = typeToString(member->type(), package, member->getMetadata(), true, false);
                     parameters.push_back(memberType + " " + memberName);
                 }
                 out << parameters << epar;
@@ -2544,8 +2538,7 @@ Slice::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             for (const auto& member : allDataMembers)
             {
                 string memberName = member->mappedName();
-                string memberType =
-                    typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
+                string memberType = typeToString(member->type(), package, member->getMetadata(), true, false);
                 parameters.push_back(memberType + " " + memberName);
             }
             out << parameters << epar;
@@ -2776,8 +2769,7 @@ Slice::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 for (const auto& member : requiredMembers)
                 {
                     string memberName = member->mappedName();
-                    string memberType =
-                        typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
+                    string memberType = typeToString(member->type(), package, member->getMetadata(), true, false);
                     parameters.push_back(memberType + " " + memberName);
                 }
                 out << parameters << epar;
@@ -2825,8 +2817,7 @@ Slice::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             for (const auto& member : allDataMembers)
             {
                 string memberName = member->mappedName();
-                string memberType =
-                    typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
+                string memberType = typeToString(member->type(), package, member->getMetadata(), true, false);
                 parameters.push_back(memberType + " " + memberName);
             }
             out << parameters << epar;
@@ -2981,7 +2972,7 @@ Slice::TypesVisitor::visitStructEnd(const StructPtr& p)
     int iter;
 
     string name = p->mappedName();
-    string typeS = typeToString(p, TypeModeIn, package);
+    string typeS = typeToString(p, package);
 
     out << sp;
     writeDocComment(out, "Constructs a {@code " + name + "}.");
@@ -3000,8 +2991,7 @@ Slice::TypesVisitor::visitStructEnd(const StructPtr& p)
         for (const auto& member : members)
         {
             string memberName = member->mappedName();
-            string memberType =
-                typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
+            string memberType = typeToString(member->type(), package, member->getMetadata(), true, false);
             parameters.push_back(memberType + " " + memberName);
             paramNames.push_back(memberName);
         }
@@ -3303,7 +3293,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     const BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
 
     const MetadataList& metadata = p->getMetadata();
-    const string s = typeToString(type, TypeModeMember, getPackage(contained), metadata, true, false);
+    const string s = typeToString(type, getPackage(contained), metadata, true, false);
 
     Output& out = output();
 
@@ -3406,7 +3396,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << nl << "_" << name << " = false;";
             out << eb;
 
-            const string optType = typeToString(type, TypeModeMember, getPackage(contained), metadata, true, true);
+            const string optType = typeToString(type, getPackage(contained), metadata, true, true);
 
             out << sp;
             writeDocComment(out, p);
@@ -3520,8 +3510,7 @@ Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             if (!hasTypeMetadata(seq, metadata))
             {
-                string elem =
-                    typeToString(seq->type(), TypeModeMember, getPackage(contained), MetadataList(), true, false);
+                string elem = typeToString(seq->type(), getPackage(contained), MetadataList(), true, false);
 
                 //
                 // Indexed getter.
@@ -3761,7 +3750,7 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
     string name = p->mappedName();
     string helper = getUnqualified(p) + "Helper";
     string package = getPackage(p);
-    string typeS = typeToString(p, TypeModeIn, package);
+    string typeS = typeToString(p, package);
 
     open(helper, p->file());
     Output& out = output();
@@ -3898,7 +3887,7 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     string name = p->mappedName();
     string helper = getUnqualified(p) + "Helper";
     string package = getPackage(p);
-    string formalType = typeToString(p, TypeModeIn, package, MetadataList(), true);
+    string formalType = typeToString(p, package, MetadataList(), true);
 
     open(helper, p->file());
     Output& out = output();
@@ -4043,7 +4032,7 @@ Slice::TypesVisitor::visitConst(const ConstPtr& p)
     out << nl << "public interface " << p->mappedName();
     out << sb;
     out << nl << "/** The value of Slice constant '" << p->scoped() << "' */";
-    out << nl << typeToString(type, TypeModeIn, package) << " value = ";
+    out << nl << typeToString(type, package) << " value = ";
     writeConstantValue(out, type, p->valueType(), p->value(), package);
     out << ';' << eb;
     close();
@@ -4491,8 +4480,7 @@ Slice::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
                 }
                 else
                 {
-                    const string typeS =
-                        typeToString(paramType, TypeModeIn, package, param->getMetadata(), true, param->isOptional());
+                    string typeS = typeToString(paramType, package, param->getMetadata(), true, param->isOptional());
                     out << nl << typeS << " iceP_" << param->mappedName() << ';';
                 }
             }
@@ -4528,7 +4516,7 @@ Slice::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             for (const auto& value : values)
             {
                 string typeString =
-                    typeToString(value->type(), TypeModeIn, package, value->getMetadata(), true, value->isOptional());
+                    typeToString(value->type(), package, value->getMetadata(), true, value->isOptional());
 
                 out << nl;
                 out << typeString << " iceP_" << value->mappedName() << " = icePP_" << value->mappedName() << ".value;";

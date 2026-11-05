@@ -82,15 +82,15 @@ Slice::Java::getResultType(const OperationPtr& op, const string& package, bool o
         {
             if (optional)
             {
-                return typeToString(type, TypeModeReturn, package, op->getMetadata(), true, true);
+                return typeToString(type, package, op->getMetadata(), true, true);
             }
             else if (object)
             {
-                return typeToObjectString(type, TypeModeReturn, package, op->getMetadata(), true);
+                return typeToObjectString(type, package, op->getMetadata(), true);
             }
             else
             {
-                return typeToString(type, TypeModeReturn, package, op->getMetadata(), true, false);
+                return typeToString(type, package, op->getMetadata(), true, false);
             }
         }
         else
@@ -108,7 +108,6 @@ Slice::Java::getParamsProxy(const OperationPtr& op, const string& package, bool 
     {
         const string typeString = typeToString(
             param->type(),
-            TypeModeIn,
             package,
             param->getMetadata(),
             true,
@@ -182,7 +181,7 @@ Slice::Java::computeDefaultSerialVersionUID(const ContainedPtr& p)
     for (const auto& member : members)
     {
         const MetadataList& metadata = member->getMetadata();
-        const string typeString = typeToString(member->type(), TypeModeMember, "", metadata);
+        const string typeString = typeToString(member->type(), "", metadata);
         os << member->mappedName() << ":" << typeString << ",";
     }
 
@@ -294,7 +293,6 @@ Slice::Java::getOptionalFormat(const TypePtr& type)
 string
 Slice::Java::typeToString(
     const TypePtr& type,
-    TypeMode mode,
     const string& package,
     const MetadataList& metadata,
     bool formal,
@@ -326,7 +324,6 @@ Slice::Java::typeToString(
 
     if (!type)
     {
-        assert(mode == TypeModeReturn);
         return "void";
     }
 
@@ -363,7 +360,7 @@ Slice::Java::typeToString(
 
     if (optional)
     {
-        return "java.util.Optional<" + typeToObjectString(type, mode, package, metadata, formal) + ">";
+        return "java.util.Optional<" + typeToObjectString(type, package, metadata, formal) + ">";
     }
 
     if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
@@ -397,7 +394,6 @@ Slice::Java::typeToString(
 string
 Slice::Java::typeToObjectString(
     const TypePtr& type,
-    TypeMode mode,
     const string& package,
     const MetadataList& metadata,
     bool formal)
@@ -419,7 +415,7 @@ Slice::Java::typeToObjectString(
         return builtinTable[builtin->kind()];
     }
 
-    return typeToString(type, mode, package, metadata, formal, false);
+    return typeToString(type, package, metadata, formal, false);
 }
 
 bool
@@ -491,8 +487,8 @@ Slice::Java::getDictionaryTypes(
     //
     // Get the types of the key and value.
     //
-    string keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package, MetadataList(), true);
-    string valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package, MetadataList(), true);
+    string keyTypeStr = typeToObjectString(dict->keyType(), package, MetadataList(), true);
+    string valueTypeStr = typeToObjectString(dict->valueType(), package, MetadataList(), true);
 
     //
     // Collect metadata for a custom type.
@@ -544,13 +540,13 @@ Slice::Java::getSequenceTypes(
         if (formalType.empty())
         {
             formalType =
-                "java.util.List<" + typeToObjectString(seq->type(), TypeModeIn, package, MetadataList(), true) + ">";
+                "java.util.List<" + typeToObjectString(seq->type(), package, MetadataList(), true) + ">";
         }
         return true;
     }
 
     // The default mapping is a native array.
-    instanceType = formalType = typeToString(seq->type(), TypeModeIn, package, metadata, true, false) + "[]";
+    instanceType = formalType = typeToString(seq->type(), package, metadata, true, false) + "[]";
     return false;
 }
 
@@ -562,7 +558,7 @@ Slice::Java::javaLinkFormatter(const string& rawLink, const ContainedPtr& source
 
     if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
     {
-        mappedLink = typeToObjectString(builtinTarget, TypeModeIn);
+        mappedLink = typeToObjectString(builtinTarget);
     }
     else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
     {
