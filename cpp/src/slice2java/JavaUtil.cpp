@@ -106,12 +106,8 @@ Slice::Java::getParamsProxy(const OperationPtr& op, const string& package, bool 
     vector<string> params;
     for (const auto& param : op->inParameters())
     {
-        const string typeString = typeToString(
-            param->type(),
-            package,
-            param->getMetadata(),
-            true,
-            optionalMapping && param->isOptional());
+        const string typeString =
+            typeToString(param->type(), package, param->getMetadata(), true, optionalMapping && param->isOptional());
         params.push_back(typeString + ' ' + (internal ? "iceP_" : "") + param->mappedName());
     }
     return params;
@@ -392,11 +388,7 @@ Slice::Java::typeToString(
 }
 
 string
-Slice::Java::typeToObjectString(
-    const TypePtr& type,
-    const string& package,
-    const MetadataList& metadata,
-    bool formal)
+Slice::Java::typeToObjectString(const TypePtr& type, const string& package, const MetadataList& metadata, bool formal)
 {
     static const char* builtinTable[] = {
         "java.lang.Byte",
@@ -539,8 +531,7 @@ Slice::Java::getSequenceTypes(
         assert(!instanceType.empty());
         if (formalType.empty())
         {
-            formalType =
-                "java.util.List<" + typeToObjectString(seq->type(), package, MetadataList(), true) + ">";
+            formalType = "java.util.List<" + typeToObjectString(seq->type(), package, MetadataList(), true) + ">";
         }
         return true;
     }

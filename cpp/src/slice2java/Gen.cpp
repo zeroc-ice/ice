@@ -946,8 +946,8 @@ Slice::JavaVisitor::writeResultType(
                 out << nl << " */";
             }
         }
-        out << nl << "public "
-            << typeToString(ret, package, op->getMetadata(), true, op->returnIsOptional()) << ' ' << retval << ';';
+        out << nl << "public " << typeToString(ret, package, op->getMetadata(), true, op->returnIsOptional()) << ' '
+            << retval << ';';
         out << sp;
     }
 
@@ -1170,14 +1170,8 @@ Slice::JavaVisitor::writeMarshaledResultType(
     }
     for (const auto& outParam : outParams)
     {
-        out
-            << (typeToString(
-                    outParam->type(),
-                    package,
-                    outParam->getMetadata(),
-                    true,
-                    outParam->isOptional()) +
-                " " + outParam->mappedName());
+        out << (typeToString(outParam->type(), package, outParam->getMetadata(), true, outParam->isOptional()) + " " +
+                outParam->mappedName());
 
         hasOpt = hasOpt || outParam->isOptional();
     }
