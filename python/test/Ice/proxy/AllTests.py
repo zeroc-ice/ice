@@ -355,15 +355,23 @@ def allTests(helper, communicator, collocated):
 
     test(base.ice_getCommunicator() == communicator)
 
-    # ice_getCommunicator returns None once the communicator is destroyed, including after the communicator object
-    # itself is garbage collected.
+    # ice_getCommunicator raises CommunicatorDestroyedException once the communicator is destroyed, including after
+    # the communicator object itself is garbage collected.
     comm = Ice.initialize()
     p = comm.stringToProxy("test")
     comm.destroy()
-    test(p.ice_getCommunicator() is None)
+    try:
+        p.ice_getCommunicator()
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass
     del comm
     gc.collect()
-    test(p.ice_getCommunicator() is None)
+    try:
+        p.ice_getCommunicator()
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass
 
     print("ok")
 

@@ -2353,6 +2353,11 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     }
 
     assert(result);
+    PyObjectHandle communicator = getCommunicatorWrapper(_communicator);
+    if(!communicator.get())
+    {
+        return 0;
+    }
     AsyncResultObject* obj = asyncResultNew(&AsyncResultType, 0, 0);
     if(!obj)
     {
@@ -2361,7 +2366,7 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     obj->result = new Ice::AsyncResultPtr(result);
     obj->invocation = new InvocationPtr(this);
     obj->proxy = incRef(_pyProxy);
-    obj->communicator = getCommunicatorWrapper(_communicator);
+    obj->communicator = communicator.release();
     return reinterpret_cast<PyObject*>(obj);
 }
 
@@ -2596,6 +2601,10 @@ IcePy::NewAsyncInvocation::invoke(PyObject* args, PyObject* kwds)
     //
 
     PyObjectHandle communicatorObj = getCommunicatorWrapper(_communicator);
+    if(!communicatorObj.get())
+    {
+        return 0;
+    }
 
     PyObjectHandle asyncResultObj = createAsyncResult(result, _pyProxy, 0, communicatorObj.get());
     if(!asyncResultObj.get())
@@ -3272,6 +3281,11 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
     }
 
     assert(result);
+    PyObjectHandle communicator = getCommunicatorWrapper(_prx->ice_getCommunicator());
+    if(!communicator.get())
+    {
+        return 0;
+    }
     AsyncResultObject* obj = asyncResultNew(&AsyncResultType, 0, 0);
     if(!obj)
     {
@@ -3280,7 +3294,7 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
     obj->result = new Ice::AsyncResultPtr(result);
     obj->invocation = new InvocationPtr(this);
     obj->proxy = incRef(_pyProxy);
-    obj->communicator = getCommunicatorWrapper(_prx->ice_getCommunicator());
+    obj->communicator = communicator.release();
     return reinterpret_cast<PyObject*>(obj);
 }
 

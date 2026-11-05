@@ -1902,20 +1902,14 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
     // communicator is destroyed.
     //
     CommunicatorMap::iterator p = _communicatorMap.find(communicator);
-    if(p != _communicatorMap.end() && reinterpret_cast<CommunicatorObject*>(p->second)->wrapper)
+    if(p == _communicatorMap.end() || !reinterpret_cast<CommunicatorObject*>(p->second)->wrapper)
     {
-        PyObject* wrapper = reinterpret_cast<CommunicatorObject*>(p->second)->wrapper;
-        Py_INCREF(wrapper);
-        return wrapper;
+        setPythonException(Ice::CommunicatorDestroyedException(__FILE__, __LINE__));
+        return 0;
     }
-    else
-    {
-        //
-        // Communicator must have been destroyed already.
-        //
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    PyObject* wrapper = reinterpret_cast<CommunicatorObject*>(p->second)->wrapper;
+    Py_INCREF(wrapper);
+    return wrapper;
 }
 
 extern "C"
