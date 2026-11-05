@@ -76,8 +76,7 @@ Example:
 </ItemGroup>
 ```
 
-You set this metadata on the `SliceCompile` item. For a Slice file included by default, use `Update`; including it
-again with `Include` is an error, because the file would be compiled twice. For example:
+You set this metadata on the `SliceCompile` item. For a Slice file included by default, use `Update`. For example:
 
 ```xml
 <ItemGroup>

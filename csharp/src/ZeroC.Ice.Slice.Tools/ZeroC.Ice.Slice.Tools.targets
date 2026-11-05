@@ -84,12 +84,10 @@
            Condition="!Exists('$(_IceSliceToolsPath)')" />
 
         <!--
-        Like the .NET SDK does for duplicate Compile items (NETSDK1022), reject a file listed more than once, typically
-        an explicit Include of a file that is already a default item. It would otherwise be compiled once per item.
-        Design-time builds continue on errors and use the deduplicated items, as the SDK does, so that the project
-        still gets IntelliSense while the error is reported. Unlike the SDK, which compares item specs, both compare
-        full paths: "./a.ice" or "sub/b.ice" names the same file as the default item "a.ice" or "sub\b.ice", and would
-        otherwise be compiled twice, to two output directories when its metadata differs.
+        A file listed more than once, typically an explicit Include of a default item, would be compiled once per item,
+        so this is an error, as duplicate Compile items are in the .NET SDK (NETSDK1022). Design-time builds continue
+        on the error with the deduplicated items so that IntelliSense keeps working. Items are compared by full path:
+        "./a.ice" and "sub/b.ice" name the same files as the default items "a.ice" and "sub\b.ice".
         -->
         <ItemGroup Condition="'$(EnableDefaultItems)' == 'true' And '$(EnableDefaultSliceCompileItems)' == 'true'">
             <_SliceCompileFullPath Include="@(SliceCompile->'%(FullPath)')" />
