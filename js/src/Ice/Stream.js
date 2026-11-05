@@ -1488,16 +1488,13 @@ class InputStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        const encoding = new Ice.EncodingVersion();
-        encoding._read(this);
-        try
-        {
-            this._buf.position = this._buf.position + sz - 6;
-        }
-        catch(ex)
+        if(sz - 4 > this._buf.remaining)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
+        const encoding = new Ice.EncodingVersion();
+        encoding._read(this);
+        this._buf.position = this._buf.position + sz - 6;
         return encoding;
     }
 
