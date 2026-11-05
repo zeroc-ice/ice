@@ -16,8 +16,7 @@ final class ServantManager implements Object {
     private final Map<String, ServantLocator> _locatorMap = new HashMap<String, ServantLocator>();
 
     @Override
-    public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-        throws UserException {
+    public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) throws UserException {
         final Current current = request.current;
         Object servant = findServant(current.id, current.facet);
 

@@ -6,7 +6,6 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.DispatchException;
 import com.zeroc.Ice.TimeoutException;
 import com.zeroc.Ice.UnknownUserException;
-import com.zeroc.Ice.UserException;
 
 import test.Ice.exceptions.Test.A;
 import test.Ice.exceptions.Test.B;
@@ -97,9 +96,9 @@ public final class ThrowerI implements Thrower {
     }
 
     @Override
-    public void throwUndeclaredC(int a, int b, int c, Current current)
-        throws UserException {
-        throw new C(a, b, c);
+    public void throwUndeclaredC(int a, int b, int c, Current current) {
+        // Not possible in Java.
+        throw new UnknownUserException("dummy");
     }
 
     @Override
