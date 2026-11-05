@@ -253,6 +253,9 @@
     <Project Path="../test/IceUtil/inputUtil/msbuild/client/client.csproj" />
   </Folder>
   <Folder Name="/tests/Slice/" />
+  <Folder Name="/tests/Slice/deprecated/">
+    <Project Path="../test/Slice/deprecated/msbuild/client/client.csproj" />
+  </Folder>
   <Folder Name="/tests/Slice/escape/">
     <Project Path="../test/Slice/escape/msbuild/client/client.csproj" />
   </Folder>
