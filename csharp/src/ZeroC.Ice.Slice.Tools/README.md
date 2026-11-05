@@ -46,6 +46,14 @@ compile Slice files from a directory outside the project directory:
 </ItemGroup>
 ```
 
+To exclude a Slice file that is included by default, use `Remove`:
+
+```xml
+<ItemGroup>
+  <SliceCompile Remove="Internal.ice" />
+</ItemGroup>
+```
+
 ### Metadata for `SliceCompile` Items
 
 Each `SliceCompile` item can have metadata attributes that customize the compilation:
@@ -65,6 +73,14 @@ Example:
     <AdditionalOptions>-DFOO</AdditionalOptions>
     <OutputDir>$(IntermediateOutputPath)Generated</OutputDir>
   </SliceCompile>
+</ItemGroup>
+```
+
+You set this metadata on the `SliceCompile` item. For a Slice file included by default, use `Update`. For example:
+
+```xml
+<ItemGroup>
+  <SliceCompile Update="Greeter.ice" OutputDir="$(MSBuildProjectDirectory)/greeter" />
 </ItemGroup>
 ```
 
