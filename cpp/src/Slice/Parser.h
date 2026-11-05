@@ -1122,7 +1122,10 @@ namespace Slice
 
         [[nodiscard]] std::string currentFile() const;
         [[nodiscard]] const std::string& topLevelFile() const;
+        /// Returns the last line of the rule the parser is reducing, which is where the grammar action it is running
+        /// reports diagnostics. Diagnostics raised while scanning or outside the parser pass their own line.
         [[nodiscard]] int currentLine() const;
+        void setCurrentLine(int line);
 
         int setCurrentFile(std::string currentFile, int lineNumber);
         [[nodiscard]] int currentIncludeLevel() const;
@@ -1132,8 +1135,10 @@ namespace Slice
         void setSeenDefinition();
 
         void error(std::string_view message);
+        void error(int line, std::string_view message);
         void error(std::string_view file, int line, std::string_view message);
         void warning(WarningCategory category, std::string_view message) const;
+        void warning(int line, WarningCategory category, std::string_view message) const;
         void warning(std::string_view file, int line, WarningCategory category, std::string_view message) const;
 
         [[nodiscard]] ContainerPtr currentContainer() const;
@@ -1192,6 +1197,7 @@ namespace Slice
         std::string _currentDocComment;
         int _currentIncludeLevel{0};
         std::string _topLevelFile;
+        int _currentLine{0};
         std::stack<DefinitionContextPtr> _definitionContextStack;
         StringList _includeFiles;
         std::stack<ContainerPtr> _containerStack;

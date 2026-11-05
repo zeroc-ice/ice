@@ -93,4 +93,32 @@ module Test
     /// Unterminated link tag: {@link CommentDummy
     /// But whitespace around the identifier is fine: {@link CommentDummy }
     exception UnterminatedLink {}
+
+    /// Test that warnings are reported on the line of the definition's name, not on the line of its opening brace.
+    /// @param foo Not real.
+    struct BraceOnNextLine
+    {
+        int x;
+    }
+
+    /// @param foo Not real.
+    class ClassBraceOnNextLine
+    {
+    }
+
+    /// @param foo Not real.
+    exception ExceptionBraceOnNextLine
+    {
+    }
+
+    /// @param foo Not real.
+    enum EnumBraceOnNextLine
+    {
+        Enumerator
+    }
+
+    /// @param foo Not real.
+    interface InterfaceBraceOnNextLine
+    {
+    }
 }
