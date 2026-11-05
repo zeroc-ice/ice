@@ -27,8 +27,7 @@ public final class ErrorObserverMiddleware implements Object {
     }
 
     @Override
-    public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-        throws UserException {
+    public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) throws UserException {
         try {
             return _next.dispatch(request)
                 .exceptionally(

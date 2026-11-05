@@ -5,7 +5,6 @@ package test.Ice.exceptions;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.DispatchException;
 import com.zeroc.Ice.TimeoutException;
-import com.zeroc.Ice.UserException;
 
 import test.Ice.exceptions.Test.A;
 import test.Ice.exceptions.Test.AsyncThrower;
@@ -26,8 +25,7 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<Boolean> supportsUndeclaredExceptionsAsync(
-            Current current) {
+    public CompletionStage<Boolean> supportsUndeclaredExceptionsAsync(Current current) {
         return CompletableFuture.completedFuture(true);
     }
 
@@ -46,8 +44,7 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<Void> throwAorDasAorDAsync(int a, Current current)
-        throws A, D {
+    public CompletionStage<Void> throwAorDasAorDAsync(int a, Current current) throws A, D {
         CompletableFuture<Void> r = new CompletableFuture<>();
         if (a > 0) {
             A ex = new A();
@@ -62,8 +59,7 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<Void> throwBasAAsync(int a, int b, Current current)
-        throws A {
+    public CompletionStage<Void> throwBasAAsync(int a, int b, Current current) throws A {
         B ex = new B();
         ex.aMem = a;
         ex.bMem = b;
@@ -71,8 +67,7 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<Void> throwBasBAsync(int a, int b, Current current)
-        throws B {
+    public CompletionStage<Void> throwBasBAsync(int a, int b, Current current) throws B {
         B ex = new B();
         ex.aMem = a;
         ex.bMem = b;
@@ -80,8 +75,7 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<Void> throwCasAAsync(int a, int b, int c, Current current)
-        throws A {
+    public CompletionStage<Void> throwCasAAsync(int a, int b, int c, Current current) throws A {
         CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
@@ -92,8 +86,7 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<Void> throwCasBAsync(int a, int b, int c, Current current)
-        throws B {
+    public CompletionStage<Void> throwCasBAsync(int a, int b, int c, Current current) throws B {
         CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
@@ -104,8 +97,7 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<Void> throwCasCAsync(int a, int b, int c, Current current)
-        throws C {
+    public CompletionStage<Void> throwCasCAsync(int a, int b, int c, Current current) throws C {
         CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
@@ -125,8 +117,7 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<Void> throwUndeclaredBAsync(
-            int a, int b, Current current) {
+    public CompletionStage<Void> throwUndeclaredBAsync(int a, int b, Current current) {
         CompletableFuture<Void> r = new CompletableFuture<>();
         B ex = new B();
         ex.aMem = a;
@@ -136,13 +127,14 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<Void> throwUndeclaredCAsync(
-            int a, int b, int c, Current current) throws UserException {
+    public CompletionStage<Void> throwUndeclaredCAsync(int a, int b, int c, Current current) {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
         ex.bMem = b;
         ex.cMem = c;
-        throw ex;
+        r.completeExceptionally(ex);
+        return r;
     }
 
     @Override
@@ -163,8 +155,7 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<byte[]> throwMemoryLimitExceptionAsync(
-            byte[] seq, Current current) {
+    public CompletionStage<byte[]> throwMemoryLimitExceptionAsync(byte[] seq, Current current) {
         //
         // 20KB is over the configured 10KB message size max.
         //
@@ -179,8 +170,7 @@ public final class AMDThrowerI implements AsyncThrower {
     }
 
     @Override
-    public CompletionStage<Void> throwDispatchExceptionAsync(
-            byte replyStatus, Current current) {
+    public CompletionStage<Void> throwDispatchExceptionAsync(byte replyStatus, Current current) {
         CompletableFuture<Void> r = new CompletableFuture<>();
         // We convert the signed byte into a positive int.
         r.completeExceptionally(new DispatchException(replyStatus & 0xFF));
