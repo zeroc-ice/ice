@@ -278,6 +278,8 @@ IcePHP::endpointInit(void)
     ce.create_object = handleEndpointAlloc;
     endpointClassEntry = zend_register_internal_class(&ce);
     memcpy(&_endpointHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _endpointHandlers.clone_obj = 0;
     _endpointHandlers.free_obj = handleEndpointFreeStorage;
     _endpointHandlers.offset   = XtOffsetOf(Wrapper<Ice::EndpointPtr>, zobj);
     zend_class_implements(endpointClassEntry, 1, endpointInterface);
@@ -293,6 +295,8 @@ IcePHP::endpointInit(void)
     ce.create_object = handleEndpointInfoAlloc;
     endpointInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _endpointInfoHandlers.clone_obj = 0;
     _endpointInfoHandlers.free_obj = handleEndpointInfoFreeStorage;
     _endpointInfoHandlers.offset   = XtOffsetOf(Wrapper<Ice::EndpointInfoPtr>, zobj);
     zend_declare_property_long(endpointInfoClassEntry, STRCAST("timeout"), sizeof("timeout") - 1, 0,

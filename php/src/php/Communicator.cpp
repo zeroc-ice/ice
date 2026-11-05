@@ -85,6 +85,12 @@ public:
     void destroyFactories(void);
 
     const ActiveCommunicatorPtr ac;
+
+    //
+    // The PHP object that wraps this communicator. This is a borrowed reference: the PHP object owns this
+    // CommunicatorInfoI. handleFreeStorage clears this zval when the PHP object is destroyed, and getZval creates a
+    // new PHP object as needed.
+    //
     zval zv;
 
 private:
@@ -1034,6 +1040,15 @@ handleFreeStorage(zend_object* object)
 {
     Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::fetch(object);
     assert(obj);
+
+    if(obj->ptr)
+    {
+        //
+        // The CommunicatorInfoI can outlive this PHP object (the communicator map of the request holds a reference to
+        // it), so clear its borrowed reference to the object being destroyed.
+        //
+        ZVAL_UNDEF(&(*obj->ptr)->zv);
+    }
 
     delete obj->ptr;
     zend_object_std_dtor(object);
@@ -2175,8 +2190,27 @@ IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zva
 void
 IcePHP::CommunicatorInfoI::getZval(zval* z)
 {
-    ZVAL_COPY_VALUE(z, &zv);
-    addRef();
+    if(Z_ISUNDEF(zv))
+    {
+        //
+        // The PHP object that wrapped this communicator was destroyed, create a new one for this CommunicatorInfoI.
+        //
+        if(object_init_ex(z, communicatorClassEntry) != SUCCESS)
+        {
+            runtimeError("unable to initialize communicator object");
+            ZVAL_NULL(z);
+            return;
+        }
+
+        Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(z);
+        assert(!obj->ptr);
+        obj->ptr = new CommunicatorInfoIPtr(this);
+        ZVAL_COPY_VALUE(&zv, z);
+    }
+    else
+    {
+        ZVAL_COPY(z, &zv);
+    }
 }
 
 void
@@ -2188,7 +2222,13 @@ IcePHP::CommunicatorInfoI::addRef(void)
 void
 IcePHP::CommunicatorInfoI::decRef(void)
 {
-    Z_DELREF_P(&zv);
+    //
+    // The PHP object is already destroyed if a proxy is destroyed after it during request shutdown.
+    //
+    if(!Z_ISUNDEF(zv))
+    {
+        Z_DELREF_P(&zv);
+    }
 }
 
 Ice::CommunicatorPtr

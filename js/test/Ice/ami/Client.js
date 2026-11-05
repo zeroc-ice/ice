@@ -61,6 +61,28 @@
                 await b1.ice_flushBatchRequests();
                 test(await p.waitForBatch(1));
             }
+
+            if(await p.ice_getConnection() !== null)
+            {
+                //
+                // Flushing the batch requests of a closed connection fails with the connection's exception.
+                //
+                test(await p.opBatchCount() == 0);
+                const conn = await p.ice_getConnection();
+                const b1 = Test.TestIntfPrx.uncheckedCast(conn.createProxy(p.ice_getIdentity()).ice_batchOneway());
+                await b1.opBatch();
+                await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                try
+                {
+                    await conn.flushBatchRequests();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.ConnectionManuallyClosedException, ex);
+                }
+                test(await p.opBatchCount() == 0);
+            }
             out.writeLine("ok");
 
             out.write("testing batch requests with communicator... ");
@@ -167,6 +189,7 @@
                     // Safari WebSocket implementation accepts lots of data before apply backpresure
                     // making this test very slow.
                     await testController.holdAdapter();
+                    const requests = [];
                     try
                     {
                         r1 = p.op();
@@ -174,6 +197,7 @@
                         while(true)
                         {
                             r2 = p.opWithPayload(seq);
+                            requests.push(r2);
                             if(r2.sentSynchronously())
                             {
                                 await Ice.Promise.delay(0);
@@ -207,6 +231,8 @@
                     await r2;
                     test(r2.isSent());
                     test(r2.isCompleted());
+
+                    await Promise.all(requests);
 
                     test(r1.operation == "op");
                     test(r2.operation == "opWithPayload");
@@ -264,9 +290,11 @@
                 await testController.holdAdapter();
                 const seq = new Uint8Array(new Array(100000));
                 let r;
+                const requests = [];
                 while(true)
                 {
                     r = p.opWithPayload(seq);
+                    requests.push(r);
                     if(r.sentSynchronously())
                     {
                         await Ice.Promise.delay(0);
@@ -293,7 +321,7 @@
                 r2.cancel();
 
                 await testController.resumeAdapter();
-                await p.ice_ping();
+                await Promise.all(requests);
 
                 test(!r1.isSent() && r1.isCompleted());
                 test(!r2.isSent() && r2.isCompleted());

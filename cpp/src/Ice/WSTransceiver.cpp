@@ -1347,6 +1347,18 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 _pingPayload.clear();
                 _pingPayload.resize(_readPayloadLength);
                 memcpy(&_pingPayload[0], _readI, _pingPayload.size());
+                if(_incoming)
+                {
+                    //
+                    // A client masks its frames (RFC 6455 5.3), so unmask the ping payload here, just like the
+                    // data path does in postRead. Otherwise the pong we echo back carries the still-masked bytes
+                    // instead of the original ping payload (RFC 6455 5.5.3).
+                    //
+                    for(size_t i = 0; i < _pingPayload.size(); ++i)
+                    {
+                        _pingPayload[i] ^= _readMask[i % 4];
+                    }
+                }
             }
 
             _readI += _readPayloadLength;
@@ -1471,15 +1483,39 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         else if(_state == StatePongPending)
         {
             prepareWriteHeader(OP_PONG, _pingPayload.size());
-            if(_pingPayload.size() > static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i))
+
+            //
+            // A zero-length ping (the common keep-alive case) leaves _pingPayload empty. Guard the copy so we
+            // never form &_pingPayload[0] on an empty vector, which is undefined behavior and aborts under
+            // hardened standard libraries (_GLIBCXX_ASSERTIONS, MSVC debug iterators, libc++ hardening).
+            //
+            if(!_pingPayload.empty())
             {
-                size_t pos = static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin());
-                _writeBuffer.b.resize(pos + _pingPayload.size());
-                _writeBuffer.i = _writeBuffer.b.begin() + pos;
+                if(_pingPayload.size() > static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i))
+                {
+                    size_t pos = static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin());
+                    _writeBuffer.b.resize(pos + _pingPayload.size());
+                    _writeBuffer.i = _writeBuffer.b.begin() + pos;
+                }
+                if(_incoming)
+                {
+                    // Server-to-client frames are not masked (RFC 6455 5.1).
+                    memcpy(_writeBuffer.i, &_pingPayload[0], _pingPayload.size());
+                    _writeBuffer.i += _pingPayload.size();
+                }
+                else
+                {
+                    //
+                    // Client-to-server frames are masked with _writeMask, like the OP_DATA and OP_CLOSE paths;
+                    // prepareWriteHeader set FLAG_MASKED, so the payload must be masked to match (RFC 6455 5.5.3).
+                    //
+                    for(size_t i = 0; i < _pingPayload.size(); ++i)
+                    {
+                        *_writeBuffer.i++ = static_cast<Ice::Byte>(_pingPayload[i] ^ _writeMask[i % 4]);
+                    }
+                }
+                _pingPayload.clear();
             }
-            memcpy(_writeBuffer.i, &_pingPayload[0], _pingPayload.size());
-            _writeBuffer.i += _pingPayload.size();
-            _pingPayload.clear();
 
             _writeBuffer.b.resize(static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin()));
             _writeState = WriteStateControlFrame;

@@ -1533,32 +1533,32 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
     }
 
+    //
+    // An optional sequence with variable-length elements is encoded with an FSize: startSize() reserves the size and
+    // endSize() patches it, so both calls must depend on the same condition.
+    //
+    const bool fSize = optional && elementType->variableLength();
+
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if(fSize)
     {
-        if(elementType->variableLength())
-        {
-            sizePos = os->startSize();
-        }
-        else if(elementType->wireSize() > 1)
-        {
-            os->writeSize(sz == 0 ? 1 : sz * elementType->wireSize() + (sz > 254 ? 5 : 1));
-        }
+        sizePos = os->startSize();
+    }
+    else if(optional && elementType->wireSize() > 1)
+    {
+        os->writeSize(sz == 0 ? 1 : sz * elementType->wireSize() + (sz > 254 ? 5 : 1));
     }
 
     if(sz == 0)
     {
         os->writeSize(0);
     }
+    else if(PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType))
+    {
+        marshalPrimitiveSequence(pi, zv, os);
+    }
     else
     {
-        PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
-        if(pi)
-        {
-            marshalPrimitiveSequence(pi, zv, os);
-            return;
-        }
-
         os->writeSize(sz);
 
         zval* val;
@@ -1574,7 +1574,7 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         ZEND_HASH_FOREACH_END();
     }
 
-    if(optional && elementType->variableLength())
+    if(fSize)
     {
         os->endSize(sizePos);
     }
@@ -2343,13 +2343,18 @@ IcePHP::DictionaryInfo::KeyCallback::unmarshaled(zval* zv, zval*, void*)
     ZVAL_COPY(&key, zv);
 }
 
+//
+// Hold a reference to the key: with a class value type, unmarshaled() can be called after unmarshal() returns (when
+// the pending class instances are read), by which time the KeyCallback that owned the key is gone.
+//
 IcePHP::DictionaryInfo::ValueCallback::ValueCallback(zval* k)
 {
-    ZVAL_COPY_VALUE(&key, k);
+    ZVAL_COPY(&key, k);
 }
 
 IcePHP::DictionaryInfo::ValueCallback::~ValueCallback()
 {
+    zval_ptr_dtor(&key);
 }
 
 void
@@ -3991,6 +3996,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleTypeInfoAlloc;
     typeInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_typeInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _typeInfoHandlers.clone_obj = 0;
     _typeInfoHandlers.free_obj = handleTypeInfoFreeStorage;
     _typeInfoHandlers.offset = XtOffsetOf(Wrapper<TypeInfoPtr>, zobj);
 
@@ -4001,6 +4008,8 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     ce.create_object = handleExceptionInfoAlloc;
     exceptionInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_exceptionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
+    _exceptionInfoHandlers.clone_obj = 0;
     _exceptionInfoHandlers.free_obj = handleExceptionInfoFreeStorage;
     _exceptionInfoHandlers.offset = XtOffsetOf(Wrapper<ExceptionInfoPtr>, zobj);
 

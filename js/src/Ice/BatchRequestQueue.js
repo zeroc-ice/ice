@@ -5,11 +5,13 @@
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
 require("../Ice/Debug");
+require("../Ice/Exception");
 require("../Ice/Protocol");
 require("../Ice/Stream");
 
 const OutputStream = Ice.OutputStream;
 const Debug = Ice.Debug;
+const LocalException = Ice.LocalException;
 const Protocol = Ice.Protocol;
 
 const udpOverhead = 20 + 8;
@@ -58,7 +60,18 @@ class BatchRequestQueue
         {
             if(this._maxSize > 0 && this._batchStream.size >= this._maxSize)
             {
-                proxy.ice_flushBatchRequests(); // Auto flush
+                //
+                // Auto flush. We don't wait for the flush to complete, and we discard local exceptions. Any other
+                // error is a bug, and we rethrow it: the resulting unhandled promise rejection terminates the
+                // process in Node.js.
+                //
+                proxy.ice_flushBatchRequests().catch(ex =>
+                    {
+                        if(!(ex instanceof LocalException))
+                        {
+                            throw ex;
+                        }
+                    });
             }
 
             Debug.assert(this._batchMarker < this._batchStream.size);

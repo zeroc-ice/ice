@@ -58,6 +58,7 @@ PersistentInstance::PersistentInstance(
         dbContext.communicator = communicator;
         dbContext.encoding.minor = 1;
         dbContext.encoding.major = 1;
+        setKeyComparatorCommunicator(communicator);
 
         IceDB::ReadWriteTxn txn(_dbEnv);
 
@@ -80,6 +81,7 @@ PersistentInstance::destroy()
 {
     _dbEnv.close();
     dbContext.communicator = 0;
+    setKeyComparatorCommunicator(0);
 
     Instance::destroy();
 }

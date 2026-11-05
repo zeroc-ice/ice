@@ -2460,11 +2460,11 @@ Slice::JavaCompatGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     {
         out << nl << "if(" << v << " == null)";
         out << sb;
-        out << nl << "ostr.writeSize(0);";
+        out << nl << stream << ".writeSize(0);";
         out << eb;
         out << nl << "else";
         out << sb;
-        out << nl << "ostr.writeSize(" << v << ".size());";
+        out << nl << stream << ".writeSize(" << v << ".size());";
         string keyObjectS = typeToObjectString(key, TypeModeIn, package);
         string valueObjectS = typeToObjectString(value, TypeModeIn, package);
         out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> e : " << v
@@ -4454,11 +4454,11 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     {
         out << nl << "if(" << v << " == null)";
         out << sb;
-        out << nl << "ostr.writeSize(0);";
+        out << nl << stream << ".writeSize(0);";
         out << eb;
         out << nl << "else";
         out << sb;
-        out << nl << "ostr.writeSize(" << v << ".size());";
+        out << nl << stream << ".writeSize(" << v << ".size());";
         string keyObjectS = typeToObjectString(key, TypeModeIn, package);
         string valueObjectS = typeToObjectString(value, TypeModeIn, package);
         out << nl;
