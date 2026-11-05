@@ -36,7 +36,8 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Input Arguments
             %     args - Argument vector. Any Ice-related options in this vector are used to set the communicator
-            %       properties.
+            %       properties. When args is non-empty, the communicator also loads the configuration files named by
+            %       --Ice.Config or, without this option, by the ICE_CONFIG environment variable.
             %       empty string array (default) | string array | cell array of character vectors
             %
             %   Input Name-Value Arguments

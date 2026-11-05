@@ -35,6 +35,19 @@ extern "C"
         }
     }
 
+    mxArray* Ice_createEmptyProperties(void** r)
+    {
+        try
+        {
+            *r = new shared_ptr<Ice::Properties>(Ice::createProperties());
+            return createEmptyArray();
+        }
+        catch (...)
+        {
+            return convertException(std::current_exception());
+        }
+    }
+
     mxArray* Ice_Properties_unref(void* self)
     {
         delete reinterpret_cast<shared_ptr<Ice::Properties>*>(self);

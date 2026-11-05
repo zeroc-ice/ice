@@ -127,6 +127,7 @@ extern "C"
     ICE_MATLAB_API mxArray* Ice_SimpleFuture_check(void*);
 
     ICE_MATLAB_API mxArray* Ice_createProperties(mxArray*, void*, void**);
+    ICE_MATLAB_API mxArray* Ice_createEmptyProperties(void**);
     ICE_MATLAB_API mxArray* Ice_Properties_unref(void*);
     ICE_MATLAB_API mxArray* Ice_Properties_getProperty(void*, const char*);
     ICE_MATLAB_API mxArray* Ice_Properties_getIceProperty(void*, const char*);
