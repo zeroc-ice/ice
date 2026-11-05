@@ -20,7 +20,7 @@
 #define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
 // Newer bison versions allow to disable stack resizing by defining yyoverflow.
-#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
+#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(&yylloc, a)
 
 }
 
@@ -29,28 +29,32 @@
 // Defines the rule bison uses to reduce token locations. Bison asks that the macro should
 // be one-line, and treatable as a single statement when followed by a semi-colon.
 // `N` is the number of tokens that are being combined, and (Cur) is their combined location.
-#define YYLLOC_DEFAULT(Cur, Rhs, N)                               \
-do                                                                \
-    if (N == 1)                                                   \
-    {                                                             \
-        (Cur) = (YYRHSLOC((Rhs), 1));                             \
-    }                                                             \
-    else                                                          \
-    {                                                             \
-        if (N)                                                    \
-        {                                                         \
-            (Cur).firstLine = (YYRHSLOC((Rhs), 1)).firstLine;     \
-            (Cur).firstColumn = (YYRHSLOC((Rhs), 1)).firstColumn; \
-        }                                                         \
-        else                                                      \
-        {                                                         \
-            (Cur).firstLine = (YYRHSLOC((Rhs), 0)).lastLine;      \
-            (Cur).firstColumn = (YYRHSLOC((Rhs), 0)).lastColumn;  \
-        }                                                         \
-        (Cur).filename = (YYRHSLOC((Rhs), N)).filename;           \
-        (Cur).lastLine = (YYRHSLOC((Rhs), N)).lastLine;           \
-        (Cur).lastColumn = (YYRHSLOC((Rhs), N)).lastColumn;       \
-    }                                                             \
+// Bison expands it right before each action runs, so it also records the rule's last line as the unit's current line.
+#define YYLLOC_DEFAULT(Cur, Rhs, N)                                   \
+do                                                                    \
+{                                                                     \
+    if (N == 1)                                                       \
+    {                                                                 \
+        (Cur) = (YYRHSLOC((Rhs), 1));                                 \
+    }                                                                 \
+    else                                                              \
+    {                                                                 \
+        if (N)                                                        \
+        {                                                             \
+            (Cur).firstLine = (YYRHSLOC((Rhs), 1)).firstLine;         \
+            (Cur).firstColumn = (YYRHSLOC((Rhs), 1)).firstColumn;     \
+        }                                                             \
+        else                                                          \
+        {                                                             \
+            (Cur).firstLine = (YYRHSLOC((Rhs), 0)).lastLine;          \
+            (Cur).firstColumn = (YYRHSLOC((Rhs), 0)).lastColumn;      \
+        }                                                             \
+        (Cur).filename = (YYRHSLOC((Rhs), N)).filename;               \
+        (Cur).lastLine = (YYRHSLOC((Rhs), N)).lastLine;               \
+        (Cur).lastColumn = (YYRHSLOC((Rhs), N)).lastColumn;           \
+    }                                                                 \
+    currentUnit->setCurrentLine((Cur).lastLine);                      \
+}                                                                     \
 while(0)
 
 }
@@ -101,10 +105,10 @@ using namespace std;
 using namespace Slice;
 
 void
-slice_error(const char* s)
+slice_error(const TokenContext* location, const char* s)
 {
     // We want 'unit' to emit the error so its error count is incremented.
-    currentUnit->error(s);
+    currentUnit->error(location->firstLine, s);
 }
 
 namespace
@@ -133,7 +137,7 @@ namespace
 %}
 
 // Directs Bison to generate a re-entrant parser.
-%define api.pure
+%define api.pure full
 // Specifies what type to back the tokens with (their semantic values).
 %define api.value.type {Slice::GrammarBasePtr}
 // Enables Bison's token location tracking functionality.

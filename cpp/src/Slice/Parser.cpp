@@ -4449,7 +4449,13 @@ Slice::Unit::topLevelFile() const
 int
 Slice::Unit::currentLine() const
 {
-    return slice_lineno;
+    return _currentLine;
+}
+
+void
+Slice::Unit::setCurrentLine(int line)
+{
+    _currentLine = line;
 }
 
 int
@@ -4543,7 +4549,7 @@ Slice::Unit::setCurrentFile(string currentFile, int lineNumber)
             DefinitionContextPtr dc = currentDefinitionContext();
             if (dc && dc->seenDefinition())
             {
-                error("'#include' directives must come before any Slice definitions in a file");
+                error(slice_lineno, "'#include' directives must come before any Slice definitions in a file");
             }
 
             if (++_currentIncludeLevel == 1)
@@ -4631,6 +4637,12 @@ Slice::Unit::error(string_view message)
 }
 
 void
+Slice::Unit::error(int line, string_view message)
+{
+    error(currentFile(), line, message);
+}
+
+void
 Slice::Unit::error(string_view file, int line, string_view message)
 {
     emitError(file, line, message);
@@ -4641,6 +4653,12 @@ void
 Slice::Unit::warning(WarningCategory category, string_view message) const
 {
     warning(currentFile(), currentLine(), category, message);
+}
+
+void
+Slice::Unit::warning(int line, WarningCategory category, string_view message) const
+{
+    warning(currentFile(), line, category, message);
 }
 
 void
