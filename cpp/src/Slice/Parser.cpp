@@ -132,7 +132,7 @@ namespace
         bool isValid = true;
 
         // check the identifier for reserved suffixes
-        static const string suffixBlacklist[] = {"Helper", "Holder", "Prx", "Ptr"};
+        static const string suffixBlacklist[] = {"Helper", "Prx", "Ptr"};
         for (const auto& i : suffixBlacklist)
         {
             if (name.find(i, name.size() - i.size()) != string::npos)
