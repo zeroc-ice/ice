@@ -541,6 +541,10 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
     }
 
     PyObjectHandle communicatorObj = getCommunicatorWrapper(*self->communicator);
+    if(!communicatorObj.get())
+    {
+        return 0;
+    }
     PyObjectHandle asyncResultObj =
         createAsyncResult(result, 0, reinterpret_cast<PyObject*>(self), communicatorObj.get());
     if(!asyncResultObj.get())
@@ -633,6 +637,10 @@ connectionBeginFlushBatchRequests(ConnectionObject* self, PyObject* args, PyObje
     }
 
     PyObjectHandle communicator = getCommunicatorWrapper(*self->communicator);
+    if(!communicator.get())
+    {
+        return 0;
+    }
     return createAsyncResult(result, 0, reinterpret_cast<PyObject*>(self), communicator.get());
 }
 
@@ -834,6 +842,10 @@ connectionBeginHeartbeat(ConnectionObject* self, PyObject* args, PyObject* kwds)
     }
 
     PyObjectHandle communicator = getCommunicatorWrapper(*self->communicator);
+    if(!communicator.get())
+    {
+        return 0;
+    }
     return createAsyncResult(result, 0, reinterpret_cast<PyObject*>(self), communicator.get());
 }
 

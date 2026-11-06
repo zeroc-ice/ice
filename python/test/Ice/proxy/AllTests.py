@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, threading
+import Ice, Test, sys, threading, gc
 
 def test(b):
     if not b:
@@ -354,6 +354,24 @@ def allTests(helper, communicator, collocated):
     sys.stdout.flush()
 
     test(base.ice_getCommunicator() == communicator)
+
+    # ice_getCommunicator raises CommunicatorDestroyedException once the communicator is destroyed, including after
+    # the communicator object itself is garbage collected.
+    comm = Ice.initialize()
+    p = comm.stringToProxy("test")
+    comm.destroy()
+    try:
+        p.ice_getCommunicator()
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass
+    del comm
+    gc.collect()
+    try:
+        p.ice_getCommunicator()
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass
 
     print("ok")
 
