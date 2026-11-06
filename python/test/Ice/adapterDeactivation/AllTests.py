@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, gc, Ice, Test
+import sys, Ice, Test
 
 def test(b):
     if not b:
