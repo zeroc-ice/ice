@@ -17,7 +17,7 @@ public:
     void close() override;
     IceInternal::SocketOperation write(IceInternal::Buffer&) final;
     IceInternal::SocketOperation read(IceInternal::Buffer&) final;
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
     bool startWrite(IceInternal::Buffer&) final;
     void finishWrite(IceInternal::Buffer&) final;
     void startRead(IceInternal::Buffer&) final;

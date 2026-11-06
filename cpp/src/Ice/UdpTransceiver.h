@@ -9,6 +9,10 @@
 
 namespace IceInternal
 {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    // State shared between the transceiver and the dispatch sources that complete its asynchronous operations.
+    struct UdpAsyncState;
+#endif
 
     class UdpTransceiver final : public Transceiver,
                                  public NativeInfo,
@@ -39,7 +43,7 @@ namespace IceInternal
         EndpointIPtr bind() final;
         SocketOperation write(Buffer&) final;
         SocketOperation read(Buffer&) final;
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         bool startWrite(Buffer&) final;
         void finishWrite(Buffer&) final;
         void startRead(Buffer&) final;
@@ -83,6 +87,11 @@ namespace IceInternal
         AsyncInfo _write;
         Address _readAddr;
         socklen_t _readAddrLen;
+#elif defined(ICE_USE_NETWORK_FRAMEWORK)
+        // The completions are posted through this native info rather than the transceiver (which is the NativeInfo
+        // holding the socket), so that the dispatch blocks never reference the transceiver.
+        NativeInfoPtr _nativeInfo;
+        std::shared_ptr<UdpAsyncState> _async;
 #endif
     };
 }

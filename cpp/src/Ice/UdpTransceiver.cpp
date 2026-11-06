@@ -10,14 +10,385 @@
 #include "ProtocolInstance.h"
 #include "UdpEndpointI.h"
 
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include "apple/ObjectRef.h"
+
+#    include <dispatch/dispatch.h>
+#    include <mutex>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+
+//
+// On Apple platforms the thread pool is driven by the completion-based selector: an operation is started with
+// startRead/startWrite and posts one completion through the NativeInfo once it is done. UDP keeps the BSD socket of
+// the other platforms and uses a small adapter to complete the operations: the outstanding receive or send is
+// attempted right away and, when the socket is not ready, a dispatch source waits for its readiness and performs
+// the operation from its event handler. A completion is only posted once a datagram was received or sent, or a
+// terminal error occurred, never for readiness alone. Nothing is received before Ice asks for it, so the kernel
+// socket buffer provides the buffering and drops the datagrams a server does not read.
+//
+// The sources and their handlers only use this state (never the transceiver): they can outlive it. The socket is
+// closed by the cancellation handler of the last source, once their event handlers can no longer run, as dispatch
+// requires; without sources, close() closes it directly.
+//
+struct IceInternal::UdpAsyncState
+{
+    UdpAsyncState(SOCKET socket, NativeInfoPtr info)
+        : fd(socket),
+          nativeInfo(std::move(info)),
+          queue(DispatchRef<dispatch_queue_t>::adopt(dispatch_queue_create("com.zeroc.ice.udp", DISPATCH_QUEUE_SERIAL)))
+    {
+    }
+
+    UdpAsyncState(const UdpAsyncState&) = delete;
+    UdpAsyncState& operator=(const UdpAsyncState&) = delete;
+
+    std::mutex mutex;
+    SOCKET fd;
+    NativeInfoPtr nativeInfo;
+
+    // The sources retain the queue while they are alive. The state owns the queue so that it is released even when
+    // the transceiver constructor throws after creating the state.
+    const DispatchRef<dispatch_queue_t> queue;
+
+    // The wrappers only release the sources: cancelSource resumes and cancels a source first, and the cancellation
+    // handler of the last source closes the socket.
+    DispatchRef<dispatch_source_t> readSource;
+    bool readArmed{false};
+    DispatchRef<dispatch_source_t> writeSource;
+    bool writeArmed{false};
+    int activeSources{0};
+    bool closed{false};
+
+    // Outstanding connect: the thread pool expects a completion for SocketOperationConnect once the socket is
+    // writable.
+    bool connectPending{false};
+
+    // Outstanding receive into [readData, readData + readSize): readCount bytes received, or readError.
+    bool readPending{false};
+    char* readData{nullptr};
+    size_t readSize{0};
+    ssize_t readCount{0};
+    int readError{0};
+    bool readFrom{false}; // recvfrom (server) rather than recv (connected client socket).
+    Address readAddr;
+    socklen_t readAddrLen{0};
+
+    // Outstanding send of the datagram [writeData, writeData + writeSize).
+    bool writePending{false};
+    const char* writeData{nullptr};
+    size_t writeSize{0};
+    int writeError{0};
+    bool writeTo{false}; // sendto the peer address (server) rather than send (connected client socket).
+    Address writeAddr;
+    socklen_t writeAddrLen{0};
+};
+
+namespace
+{
+    // The functions below run with the state mutex held, on an Ice thread or on the dispatch queue.
+
+    // Attempts the outstanding receive. Returns false when the socket is not readable yet.
+    bool tryRead(UdpAsyncState& state)
+    {
+        if (!state.readPending)
+        {
+            return true;
+        }
+
+        if (!state.closed)
+        {
+            while (true)
+            {
+                ssize_t ret;
+                if (state.readFrom)
+                {
+                    memset(&state.readAddr.saStorage, 0, sizeof(sockaddr_storage));
+                    state.readAddrLen = static_cast<socklen_t>(sizeof(sockaddr_storage));
+                    ret = recvfrom(state.fd, state.readData, state.readSize, 0, &state.readAddr.sa, &state.readAddrLen);
+                }
+                else
+                {
+                    ret = recv(state.fd, state.readData, state.readSize, 0);
+                }
+
+                if (ret == SOCKET_ERROR)
+                {
+                    if (interrupted())
+                    {
+                        continue;
+                    }
+                    if (wouldBlock())
+                    {
+                        return false;
+                    }
+                    state.readError = getSocketErrno();
+                }
+                else
+                {
+                    state.readCount = ret;
+                }
+                break;
+            }
+        }
+        else
+        {
+            state.readError = ECANCELED;
+        }
+
+        state.readPending = false;
+        state.nativeInfo->completed(SocketOperationRead);
+        return true;
+    }
+
+    // Attempts the outstanding send. Returns false when the socket is not writable yet.
+    bool tryWrite(UdpAsyncState& state)
+    {
+        if (!state.writePending)
+        {
+            return true;
+        }
+
+        if (!state.closed)
+        {
+            while (true)
+            {
+                ssize_t ret;
+                if (state.writeTo)
+                {
+                    ret =
+                        sendto(state.fd, state.writeData, state.writeSize, 0, &state.writeAddr.sa, state.writeAddrLen);
+                }
+                else
+                {
+                    ret = send(state.fd, state.writeData, state.writeSize, 0);
+                }
+
+                if (ret == SOCKET_ERROR)
+                {
+                    if (interrupted())
+                    {
+                        continue;
+                    }
+                    if (wouldBlock())
+                    {
+                        return false;
+                    }
+                    // ENOBUFS means the local send buffer is momentarily full, a routine transient condition on
+                    // macOS during bursts: drop the datagram like write() does (UDP is best-effort).
+                    if (!noBuffers())
+                    {
+                        state.writeError = getSocketErrno();
+                    }
+                }
+                break;
+            }
+        }
+        else
+        {
+            state.writeError = ECANCELED;
+        }
+
+        state.writePending = false;
+        state.nativeInfo->completed(SocketOperationWrite);
+        return true;
+    }
+
+    void completeConnect(UdpAsyncState& state)
+    {
+        if (state.connectPending)
+        {
+            state.connectPending = false;
+            state.nativeInfo->completed(SocketOperationConnect);
+        }
+    }
+
+    // Suspends a source from its own event handler; the suspension takes effect once the handler returns.
+    void disarm(dispatch_source_t source, bool& armed)
+    {
+        if (source && armed)
+        {
+            dispatch_suspend(source);
+            armed = false;
+        }
+    }
+
+    void cancelHandler(const shared_ptr<UdpAsyncState>& state)
+    {
+        // The socket is closed once the last source is cancelled: its event handler can no longer run.
+
+        lock_guard lock(state->mutex);
+        if (--state->activeSources == 0)
+        {
+            closeSocketNoThrow(state->fd);
+            state->fd = INVALID_SOCKET;
+        }
+    }
+
+    // Waits for the socket to be readable, then performs the outstanding receive. The state is taken by value:
+    // the blocks capture a copy of this parameter, and must not capture a reference to the transceiver's member.
+    void armRead(shared_ptr<UdpAsyncState> state) // NOLINT(performance-unnecessary-value-param)
+    {
+        if (!state->readSource)
+        {
+            state->readSource = DispatchRef<dispatch_source_t>::adopt(dispatch_source_create(
+                DISPATCH_SOURCE_TYPE_READ,
+                static_cast<uintptr_t>(state->fd),
+                0,
+                state->queue.get()));
+            ++state->activeSources;
+            dispatch_source_set_event_handler(state->readSource.get(), ^{
+              lock_guard lock(state->mutex);
+              if (state->closed)
+              {
+                  // Cancellation lets a handler that already started finish: close() completed the operations and
+                  // released the sources, nothing is left to do.
+                  return;
+              }
+              if (tryRead(*state))
+              {
+                  disarm(state->readSource.get(), state->readArmed);
+              }
+            });
+            dispatch_source_set_cancel_handler(state->readSource.get(), ^{
+              cancelHandler(state);
+            });
+        }
+        if (!state->readArmed)
+        {
+            dispatch_resume(state->readSource.get());
+            state->readArmed = true;
+        }
+    }
+
+    // Waits for the socket to be writable, then completes the connect or performs the outstanding send. The state
+    // is taken by value, see armRead.
+    void armWrite(shared_ptr<UdpAsyncState> state) // NOLINT(performance-unnecessary-value-param)
+    {
+        if (!state->writeSource)
+        {
+            state->writeSource = DispatchRef<dispatch_source_t>::adopt(dispatch_source_create(
+                DISPATCH_SOURCE_TYPE_WRITE,
+                static_cast<uintptr_t>(state->fd),
+                0,
+                state->queue.get()));
+            ++state->activeSources;
+            dispatch_source_set_event_handler(state->writeSource.get(), ^{
+              lock_guard lock(state->mutex);
+              if (state->closed)
+              {
+                  return; // See the read event handler.
+              }
+              completeConnect(*state);
+              if (tryWrite(*state))
+              {
+                  disarm(state->writeSource.get(), state->writeArmed);
+              }
+            });
+            dispatch_source_set_cancel_handler(state->writeSource.get(), ^{
+              cancelHandler(state);
+            });
+        }
+        if (!state->writeArmed)
+        {
+            dispatch_resume(state->writeSource.get());
+            state->writeArmed = true;
+        }
+    }
+
+    // Cancels a source, then releases it; a suspended source must be resumed first, dispatch cannot cancel or
+    // release it otherwise. Releasing alone would not stop the source: its cancellation is a separate operation.
+    void cancelSource(DispatchRef<dispatch_source_t>& source, bool& armed)
+    {
+        if (source)
+        {
+            if (!armed)
+            {
+                dispatch_resume(source.get());
+                armed = true;
+            }
+            dispatch_source_cancel(source.get());
+            source.reset();
+        }
+    }
+
+    // Completes the outstanding operations (the thread pool waits for their completions before it finishes the
+    // connection) and closes the socket: through the cancellation handler of the last source once the event
+    // handlers can no longer run, or directly when there is no source. Idempotent.
+    void closeState(const shared_ptr<UdpAsyncState>& state)
+    {
+        lock_guard lock(state->mutex);
+        if (state->closed)
+        {
+            return;
+        }
+        state->closed = true;
+
+        completeConnect(*state);
+        tryRead(*state);
+        tryWrite(*state);
+
+        if (state->activeSources > 0)
+        {
+            cancelSource(state->readSource, state->readArmed);
+            cancelSource(state->writeSource, state->writeArmed);
+        }
+        else if (state->fd != INVALID_SOCKET)
+        {
+            closeSocketNoThrow(state->fd);
+            state->fd = INVALID_SOCKET;
+        }
+    }
+
+    // Unlike the Network.cpp helpers, these do not close the socket when the option cannot be set or read: the
+    // socket may have dispatch sources and its closure belongs to closeState.
+    void setSocketBufferSize(SOCKET fd, int option, int size)
+    {
+        if (setsockopt(fd, SOL_SOCKET, option, &size, static_cast<socklen_t>(sizeof(int))) == SOCKET_ERROR)
+        {
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
+        }
+    }
+
+    int getSocketBufferSize(SOCKET fd, int option)
+    {
+        int size = option == SO_RCVBUF ? getRecvBufferSizeNoThrow(fd) : getSendBufferSizeNoThrow(fd);
+        if (size == 0)
+        {
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
+        }
+        return size;
+    }
+
+    socklen_t addressLength(const Address& addr)
+    {
+        if (addr.saStorage.ss_family == AF_INET)
+        {
+            return static_cast<socklen_t>(sizeof(sockaddr_in));
+        }
+        else if (addr.saStorage.ss_family == AF_INET6)
+        {
+            return static_cast<socklen_t>(sizeof(sockaddr_in6));
+        }
+        return 0; // No peer has sent a datagram yet.
+    }
+}
+
+#endif
+
 NativeInfoPtr
 IceInternal::UdpTransceiver::getNativeInfo()
 {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    return _nativeInfo;
+#else
     return shared_from_this();
+#endif
 }
 
 #if defined(ICE_USE_IOCP)
@@ -43,6 +414,14 @@ IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeB
     if (_state == StateNeedConnect)
     {
         _state = StateConnectPending;
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+        // The thread pool waits for the Connect completion: post it once the socket is writable.
+        {
+            lock_guard lock(_async->mutex);
+            _async->connectPending = true;
+            armWrite(_async);
+        }
+#endif
         return SocketOperationConnect;
     }
     else if (_state <= StateConnectPending)
@@ -73,7 +452,11 @@ IceInternal::UdpTransceiver::close()
     // bind()'s catch reset _fd.
     if (_fd != INVALID_SOCKET)
     {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+        closeState(_async);
+#else
         closeSocketNoThrow(_fd);
+#endif
         _fd = INVALID_SOCKET;
     }
 }
@@ -451,6 +834,121 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
     buf.b.resize(ret);
     buf.i = buf.b.end();
 }
+#elif defined(ICE_USE_NETWORK_FRAMEWORK)
+bool
+IceInternal::UdpTransceiver::startWrite(Buffer& buf)
+{
+    assert(buf.i == buf.b.begin());
+    assert(_fd != INVALID_SOCKET && _state >= StateConnected);
+
+    // The caller is supposed to check the send size before by calling checkSendSize
+    assert(min(_maxPacketSize, _sndSize - _udpOverhead) >= static_cast<int>(buf.b.size()));
+
+    lock_guard lock(_async->mutex);
+    _async->writeTo = _state != StateConnected;
+    if (_async->writeTo)
+    {
+        _async->writeAddr = _peerAddr;
+        _async->writeAddrLen = addressLength(_peerAddr);
+        if (_async->writeAddrLen == 0)
+        {
+            // No peer has sent a datagram yet.
+            throw SocketException(__FILE__, __LINE__, 0);
+        }
+    }
+    _async->writePending = true;
+    _async->writeData = reinterpret_cast<const char*>(&*buf.i);
+    _async->writeSize = buf.b.size();
+    _async->writeError = 0;
+
+    if (!tryWrite(*_async))
+    {
+        armWrite(_async);
+    }
+    return true; // The datagram is sent whole by this operation.
+}
+
+void
+IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
+{
+    if (_fd == INVALID_SOCKET || _state < StateConnected)
+    {
+        return;
+    }
+
+    lock_guard lock(_async->mutex);
+    if (_async->writeError != 0)
+    {
+        errno = _async->writeError;
+        if (errno == ECANCELED || connectionLost())
+        {
+            throw ConnectionLostException(__FILE__, __LINE__, errno, addrToString(_peerAddr));
+        }
+        else
+        {
+            throw SocketException(__FILE__, __LINE__, errno);
+        }
+    }
+
+    buf.i = buf.b.end();
+}
+
+void
+IceInternal::UdpTransceiver::startRead(Buffer& buf)
+{
+    assert(_fd != INVALID_SOCKET);
+
+    const auto packetSize = static_cast<size_t>(min(_maxPacketSize, _rcvSize - _udpOverhead));
+    buf.b.resize(packetSize);
+    buf.i = buf.b.begin();
+
+    lock_guard lock(_async->mutex);
+    _async->readPending = true;
+    _async->readData = reinterpret_cast<char*>(&*buf.i);
+    _async->readSize = packetSize;
+    _async->readCount = 0;
+    _async->readError = 0;
+    _async->readFrom = _state != StateConnected;
+
+    if (!tryRead(*_async))
+    {
+        armRead(_async);
+    }
+}
+
+void
+IceInternal::UdpTransceiver::finishRead(Buffer& buf)
+{
+    lock_guard lock(_async->mutex);
+    ssize_t count = _async->readCount;
+    if (_async->readError != 0)
+    {
+        errno = _async->readError;
+        if (recvTruncated())
+        {
+            // The message was truncated and the whole buffer is filled. We ignore
+            // this error here, it will be detected at the connection level when
+            // the Ice message size is checked against the buffer size.
+            count = static_cast<ssize_t>(buf.b.size());
+        }
+        else if (errno == ECANCELED || connectionLost())
+        {
+            throw ConnectionLostException(__FILE__, __LINE__, errno, addrToString(_peerAddr));
+        }
+        else
+        {
+            throw SocketException(__FILE__, __LINE__, errno);
+        }
+    }
+
+    if (_state == StateNotConnected)
+    {
+        _peerAddr = _async->readAddr;
+    }
+
+    buf.b.resize(static_cast<size_t>(count));
+    buf.i = buf.b.end();
+}
 #endif
 
 string
@@ -594,6 +1092,14 @@ IceInternal::UdpTransceiver::setBufferSize(int rcvSize, int sndSize)
 {
     assert(_fd != INVALID_SOCKET);
 
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    // The socket may have dispatch sources: the helpers must not close it on failure (see setSocketBufferSize).
+    auto getRecvBufferSize = [](SOCKET fd) { return getSocketBufferSize(fd, SO_RCVBUF); };
+    auto setRecvBufferSize = [](SOCKET fd, int size) { setSocketBufferSize(fd, SO_RCVBUF, size); };
+    auto getSendBufferSize = [](SOCKET fd) { return getSocketBufferSize(fd, SO_SNDBUF); };
+    auto setSendBufferSize = [](SOCKET fd, int size) { setSocketBufferSize(fd, SO_SNDBUF, size); };
+#endif
+
     try
     {
         // The default size is the size currently configured on the socket. We don't set the buffer size when the
@@ -649,8 +1155,15 @@ IceInternal::UdpTransceiver::setBufferSize(int rcvSize, int sndSize)
     }
     catch (const SocketException&)
     {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+        // The socket is still open: complete the outstanding operations for the thread pool and close the socket
+        // through its sources, if any. The connection is closed by the caller with this exception.
+        closeState(_async);
+        _fd = INVALID_SOCKET;
+#else
         // The failing call closed the fd.
         clearFd();
+#endif
         throw;
     }
 }
@@ -681,6 +1194,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     int rcvSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.RcvSize");
     int sndSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.SndSize");
     _fd = createSocket(true, _addr);
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    _nativeInfo = make_shared<NativeInfo>(INVALID_SOCKET);
+    _async = make_shared<UdpAsyncState>(_fd, _nativeInfo);
+#endif
 
     // Sets _rcvSize and _sndSize:
     setBufferSize(rcvSize, sndSize);
@@ -756,6 +1273,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     int rcvSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.RcvSize");
     int sndSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.SndSize");
     _fd = createServerSocket(true, _addr, instance->protocolSupport());
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    _nativeInfo = make_shared<NativeInfo>(INVALID_SOCKET);
+    _async = make_shared<UdpAsyncState>(_fd, _nativeInfo);
+#endif
 
     // Sets _rcvSize and _sndSize:
     setBufferSize(rcvSize, sndSize);

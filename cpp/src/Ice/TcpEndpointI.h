@@ -40,6 +40,14 @@ namespace IceInternal
         [[nodiscard]] TransceiverPtr transceiver() const final;
         [[nodiscard]] AcceptorPtr
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
+
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+        // Creates the acceptor of an SSL endpoint: Network.framework configures TLS on the listener, so the SSL
+        // endpoint asks its TCP delegate for a listener with the given options. acceptor() creates a plain listener
+        // and ignores the object adapter's options, which only concern its SSL endpoints.
+        [[nodiscard]] AcceptorPtr
+        secureAcceptor(const std::string& adapterName, const Ice::SSL::ServerAuthenticationOptions&) const;
+#endif
         [[nodiscard]] std::string options() const final;
 
         bool operator==(const Ice::Endpoint&) const final;
@@ -48,6 +56,9 @@ namespace IceInternal
         [[nodiscard]] std::size_t hash() const noexcept final;
 
         [[nodiscard]] TcpEndpointIPtr endpoint(const TcpAcceptorPtr&) const;
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+        [[nodiscard]] TcpEndpointIPtr endpoint(const NetworkFrameworkAcceptorPtr&) const;
+#endif
 
         using IPEndpointI::connectionId;
 

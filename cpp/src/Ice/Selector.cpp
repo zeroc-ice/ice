@@ -6,9 +6,8 @@
 #include "Ice/LoggerUtil.h"
 #include "Instance.h"
 
-#ifdef ICE_USE_CFSTREAM
-#    include <CoreFoundation/CFStream.h>
-#    include <CoreFoundation/CoreFoundation.h>
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include <dispatch/dispatch.h>
 #endif
 
 #include <chrono>
@@ -771,361 +770,85 @@ Selector::updateSelectorForEventHandler(
     checkReady(handler);
 }
 
-#elif defined(ICE_USE_CFSTREAM)
+#elif defined(ICE_USE_NETWORK_FRAMEWORK)
 
-namespace
-{
-    void selectorInterrupt(void* info) { reinterpret_cast<Selector*>(info)->processInterrupt(); }
+//
+// Completion-based selector for Apple Network.framework.
+//
+// This follows the same pattern as the IOCP selector: the ThreadPool calls
+// getNextHandler() which blocks until a completion is posted. Network.framework
+// dispatch blocks call completed() to post completions to the queue.
+//
 
-    void
-    eventHandlerSocketCallback(CFSocketRef, CFSocketCallBackType callbackType, CFDataRef, const void* d, void* info)
-    {
-        if (callbackType == kCFSocketReadCallBack)
-        {
-            reinterpret_cast<EventHandlerWrapper*>(info)->readyCallback(SocketOperationRead);
-        }
-        else if (callbackType == kCFSocketWriteCallBack)
-        {
-            reinterpret_cast<EventHandlerWrapper*>(info)->readyCallback(SocketOperationWrite);
-        }
-        else if (callbackType == kCFSocketConnectCallBack)
-        {
-            reinterpret_cast<EventHandlerWrapper*>(info)->readyCallback(
-                SocketOperationConnect,
-                d ? *reinterpret_cast<const SInt32*>(d) : 0);
-        }
-    }
-
-    CFOptionFlags toCFCallbacks(SocketOperation op)
-    {
-        CFOptionFlags cbs = 0;
-        if (op & SocketOperationRead)
-        {
-            cbs |= kCFSocketReadCallBack;
-        }
-        if (op & SocketOperationWrite)
-        {
-            cbs |= kCFSocketWriteCallBack;
-        }
-        if (op & SocketOperationConnect)
-        {
-            cbs |= kCFSocketConnectCallBack;
-        }
-        return cbs;
-    }
-}
-
-EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& selector)
-    : _handler(handler->shared_from_this()),
-      _streamNativeInfo(dynamic_pointer_cast<StreamNativeInfo>(handler->getNativeInfo())),
-      _selector(selector),
-      _ready(SocketOperationNone),
-      _finish(false)
-{
-    if (_streamNativeInfo)
-    {
-        _streamNativeInfo->initStreams(this);
-    }
-    else if (handler->getNativeInfo())
-    {
-        SOCKET fd = handler->getNativeInfo()->fd();
-        CFSocketContext ctx = {0, this, 0, 0, 0};
-        _socket.reset(CFSocketCreateWithNative(
-            kCFAllocatorDefault,
-            fd,
-            kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack,
-            eventHandlerSocketCallback,
-            &ctx));
-
-        // Disable automatic re-enabling of callbacks and closing of the native socket.
-        CFSocketSetSocketFlags(_socket.get(), 0);
-        CFSocketDisableCallBacks(
-            _socket.get(),
-            kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
-        _source.reset(CFSocketCreateRunLoopSource(kCFAllocatorDefault, _socket.get(), 0));
-    }
-}
-
-EventHandlerWrapper::~EventHandlerWrapper() = default;
+Selector::Selector(const InstancePtr& instance) : _instance(instance) {}
 
 void
-EventHandlerWrapper::updateRunLoop()
+Selector::setup(int)
 {
-    SocketOperation op = _handler->_registered;
-    assert(!op || !_finish);
-
-    if (_socket)
-    {
-        CFSocketDisableCallBacks(
-            _socket.get(),
-            kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
-        if (op)
-        {
-            CFSocketEnableCallBacks(_socket.get(), toCFCallbacks(op));
-        }
-
-        if (op && !CFRunLoopContainsSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode))
-        {
-            CFRunLoopAddSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode);
-        }
-        else if (!op && CFRunLoopContainsSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode))
-        {
-            CFRunLoopRemoveSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode);
-        }
-
-        if (_finish)
-        {
-            CFSocketInvalidate(_socket.get());
-        }
-    }
-    else
-    {
-        SocketOperation readyOp = _streamNativeInfo->registerWithRunLoop(op);
-        if (!(op & (SocketOperationWrite | SocketOperationConnect)) || _ready & SocketOperationWrite)
-        {
-            _streamNativeInfo->unregisterFromRunLoop(SocketOperationWrite, false);
-        }
-
-        if (!(op & (SocketOperationRead | SocketOperationConnect)) || _ready & SocketOperationRead)
-        {
-            _streamNativeInfo->unregisterFromRunLoop(SocketOperationRead, false);
-        }
-
-        if (readyOp)
-        {
-            ready(readyOp, 0);
-        }
-
-        if (_finish)
-        {
-            _streamNativeInfo->closeStreams();
-        }
-    }
-}
-
-void
-EventHandlerWrapper::readyCallback(SocketOperation op, int error)
-{
-    _selector.ready(this, op, error);
-}
-
-void
-EventHandlerWrapper::ready(SocketOperation op, int error)
-{
-    if (!_socket)
-    {
-        //
-        // Unregister the stream from the runloop as soon as we got the callback. This is
-        // required to allow thread pool thread to perform read/write operations on the
-        // stream (which can't be used from another thread than the run loop thread if
-        // it's registered with a run loop).
-        //
-        op = _streamNativeInfo->unregisterFromRunLoop(op, error != 0);
-    }
-
-    op = static_cast<SocketOperation>(_handler->_registered & op);
-    if (!op || _ready & op)
-    {
-        return;
-    }
-
-    if (_socket)
-    {
-        if (op & SocketOperationConnect)
-        {
-            _streamNativeInfo->setConnectError(error);
-        }
-    }
-
-    _ready = static_cast<SocketOperation>(_ready | op);
-    checkReady();
-}
-
-bool
-EventHandlerWrapper::checkReady()
-{
-    if ((_ready | _handler->_ready) & ~_handler->_disabled & _handler->_registered)
-    {
-        _selector.addReadyHandler(shared_from_this());
-        return false;
-    }
-    else
-    {
-        return _handler->getNativeInfo() && !_finish;
-    }
-}
-
-SocketOperation
-EventHandlerWrapper::readyOp()
-{
-    assert(!(~_handler->_registered & _ready));
-    SocketOperation op = static_cast<SocketOperation>(~_handler->_disabled & (_ready | _handler->_ready));
-    _ready = static_cast<SocketOperation>(~op & _ready);
-    return op;
-}
-
-bool
-EventHandlerWrapper::update(SocketOperation remove, SocketOperation add)
-{
-    SocketOperation previous = _handler->_registered;
-    _handler->_registered = static_cast<SocketOperation>(_handler->_registered & ~remove);
-    _handler->_registered = static_cast<SocketOperation>(_handler->_registered | add);
-    if (previous == _handler->_registered)
-    {
-        return false;
-    }
-
-    // Clear ready flags which might not be valid anymore.
-    _ready = static_cast<SocketOperation>(_ready & _handler->_registered);
-    return _handler->getNativeInfo() != nullptr;
-}
-
-bool
-EventHandlerWrapper::finish()
-{
-    _finish = true;
-    _ready = SocketOperationNone;
-    _handler->_registered = SocketOperationNone;
-    return _handler->getNativeInfo() != nullptr;
-}
-
-Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroyed(false)
-{
-    CFRunLoopSourceContext ctx;
-    memset(&ctx, 0, sizeof(CFRunLoopSourceContext));
-    ctx.info = this;
-    ctx.perform = selectorInterrupt;
-    _source.reset(CFRunLoopSourceCreate(0, 0, &ctx));
-    _runLoop = 0;
-
-    _thread = std::thread(
-        [this]
-        {
-            run();
-
-#    if TARGET_IPHONE_SIMULATOR != 0
-            //
-            // Workaround for CFSocket bug where the CFSocketManager thread crashes if an
-            // invalidated socket is being processed for reads/writes. We add this sleep
-            // mostly to prevent spurious crashes with testing. This bug is very unlikely
-            // to be hit otherwise.
-            //
-            this_thread::sleep_for(100ms);
-#    endif
-        });
-
-    unique_lock lock(_mutex);
-    _conditionVariable.wait(lock, [this] { return _runLoop != 0; });
+    _semaphore = DispatchRef<dispatch_semaphore_t>::adopt(dispatch_semaphore_create(0));
+    _completionToken = make_shared<SelectorCompletionToken>();
 }
 
 void
 Selector::destroy()
 {
-    thread t;
+    // Invalidate the completion token before releasing resources. This prevents
+    // Network.framework async callbacks from calling completed() on a destroyed Selector.
+    if (_completionToken)
     {
-        unique_lock lock(_mutex);
-
-        //
-        // Make sure any pending changes are processed to ensure remaining
-        // streams/sockets are closed.
-        //
-        _destroyed = true;
-        CFRunLoopSourceSignal(_source.get());
-        CFRunLoopWakeUp(_runLoop);
-
-        while (!_changes.empty())
-        {
-            CFRunLoopSourceSignal(_source.get());
-            CFRunLoopWakeUp(_runLoop);
-            _conditionVariable.wait(lock);
-        }
-        t = std::move(_thread);
+        lock_guard lock(_completionToken->mutex);
+        _completionToken->valid = false;
     }
 
-    if (t.joinable())
-    {
-        t.join();
-    }
-
-    lock_guard lock(_mutex);
-    _source.reset(0);
-
-    // assert(_wrappers.empty());
-    _readyHandlers.clear();
-    _selectedHandlers.clear();
+    _semaphore.reset();
 }
 
 void
 Selector::initialize(EventHandler* handler)
 {
-    lock_guard lock(_mutex);
-    _wrappers[handler] = make_shared<EventHandlerWrapper>(handler, *this);
+    NativeInfoPtr nativeInfo = handler->getNativeInfo();
+    if (nativeInfo)
+    {
+        nativeInfo->initialize(this, handler, _completionToken);
+    }
 }
 
 void
 Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation add)
 {
-    lock_guard lock(_mutex);
-    const EventHandlerWrapperPtr& wrapper = _wrappers[handler];
-    if (wrapper->update(remove, add))
+    handler->_registered = static_cast<SocketOperation>(handler->_registered & ~remove);
+    handler->_registered = static_cast<SocketOperation>(handler->_registered | add);
+
+    if (add & SocketOperationConnect && !(handler->_pending & SocketOperationConnect))
     {
-        _changes.insert(wrapper);
-        _conditionVariable.notify_one();
+        handler->_pending = static_cast<SocketOperation>(handler->_pending | SocketOperationConnect);
+        completed(handler, SocketOperationConnect);
+    }
+    if (add & SocketOperationRead && !(handler->_pending & SocketOperationRead))
+    {
+        handler->_pending = static_cast<SocketOperation>(handler->_pending | SocketOperationRead);
+        completed(handler, SocketOperationRead);
+    }
+    if (add & SocketOperationWrite && !(handler->_pending & SocketOperationWrite))
+    {
+        handler->_pending = static_cast<SocketOperation>(handler->_pending | SocketOperationWrite);
+        completed(handler, SocketOperationWrite);
     }
 }
 
 void
-Selector::enable(EventHandler* handler, SocketOperation op)
+Selector::finish(EventHandler* handler)
 {
-    lock_guard lock(_mutex);
-    if (!(handler->_disabled & op))
-    {
-        return;
-    }
-    handler->_disabled = static_cast<SocketOperation>(handler->_disabled & ~op);
-
-    if (handler->_registered & op)
-    {
-        _wrappers[handler]->checkReady();
-    }
-}
-
-void
-Selector::disable(EventHandler* handler, SocketOperation op)
-{
-    lock_guard lock(_mutex);
-    if (handler->_disabled & op)
-    {
-        return;
-    }
-    handler->_disabled = static_cast<SocketOperation>(handler->_disabled | op);
-}
-
-bool
-Selector::finish(EventHandler* handler, bool closeNow)
-{
-    lock_guard lock(_mutex);
-    std::map<EventHandler*, EventHandlerWrapperPtr>::iterator p = _wrappers.find(handler);
-    assert(p != _wrappers.end());
-    EventHandlerWrapperPtr wrapper = p->second;
-    if (wrapper->finish())
-    {
-        _changes.insert(wrapper);
-        _conditionVariable.notify_one();
-    }
-    _wrappers.erase(p);
-    return closeNow;
+    handler->_registered = SocketOperationNone;
+    handler->_finish = false;
 }
 
 void
 Selector::ready(EventHandler* handler, SocketOperation status, bool value)
 {
-    // Hold _mutex across the read-modify-write of handler->_ready. The run-loop thread reads _ready under _mutex
-    // (in startSelect/finishSelect, via EventHandlerWrapper), so updating it unlocked here would be a data race.
-    lock_guard lock(_mutex);
     if (((handler->_ready & status) != 0) == value)
     {
-        return; // Nothing to do if ready state already correctly set.
+        return;
     }
 
     if (value)
@@ -1136,137 +859,47 @@ Selector::ready(EventHandler* handler, SocketOperation status, bool value)
     {
         handler->_ready = static_cast<SocketOperation>(handler->_ready & ~status);
     }
-
-    std::map<EventHandler*, EventHandlerWrapperPtr>::iterator p = _wrappers.find(handler);
-    assert(p != _wrappers.end());
-    p->second->checkReady();
 }
 
-void
-Selector::startSelect()
+EventHandler*
+Selector::getNextHandler(SocketOperation& status, size_t& count, int& error, int timeout)
 {
+    long result;
+    if (timeout > 0)
+    {
+        result = dispatch_semaphore_wait(
+            _semaphore.get(),
+            dispatch_time(DISPATCH_TIME_NOW, static_cast<int64_t>(timeout) * static_cast<int64_t>(NSEC_PER_SEC)));
+    }
+    else
+    {
+        result = dispatch_semaphore_wait(_semaphore.get(), DISPATCH_TIME_FOREVER);
+    }
+
+    if (result != 0)
+    {
+        throw SelectorTimeoutException();
+    }
+
     lock_guard lock(_mutex);
+    assert(!_completionQueue.empty());
+    CompletionEntry entry = _completionQueue.front();
+    _completionQueue.pop_front();
 
-    //
-    // Re-enable callbacks for previously selected handlers.
-    //
-    vector<pair<EventHandlerWrapperPtr, SocketOperation>>::const_iterator p;
-    for (p = _selectedHandlers.begin(); p != _selectedHandlers.end(); ++p)
-    {
-        if (p->first->checkReady())
-        {
-            _changes.insert(p->first);
-        }
-    }
-    _selectedHandlers.clear();
+    status = entry.operation;
+    count = 0;
+    error = 0;
+    return entry.handler;
 }
 
 void
-Selector::finishSelect(std::vector<std::pair<EventHandler*, SocketOperation>>& handlers)
-{
-    lock_guard lock(_mutex);
-    handlers.clear();
-    for (set<EventHandlerWrapperPtr>::const_iterator p = _readyHandlers.begin(); p != _readyHandlers.end(); ++p)
-    {
-        SocketOperation op = (*p)->readyOp();
-        if (op)
-        {
-            _selectedHandlers.push_back(pair<EventHandlerWrapperPtr, SocketOperation>(*p, op));
-            handlers.push_back(pair<EventHandler*, SocketOperation>((*p)->_handler.get(), op));
-        }
-    }
-    _readyHandlers.clear();
-}
-
-void
-Selector::select(int timeout)
-{
-    //
-    // Wait for handlers to be ready.
-    //
-    unique_lock lock(_mutex);
-    while (!_destroyed)
-    {
-        while (!_changes.empty())
-        {
-            CFRunLoopSourceSignal(_source.get());
-            CFRunLoopWakeUp(_runLoop);
-
-            _conditionVariable.wait(lock);
-        }
-
-        if (_readyHandlers.empty())
-        {
-            if (timeout > 0)
-            {
-                if (_conditionVariable.wait_for(lock, chrono::seconds(timeout)) == cv_status::no_timeout)
-                {
-                    break;
-                }
-                throw SelectorTimeoutException();
-            }
-            else
-            {
-                _conditionVariable.wait(lock);
-            }
-        }
-
-        if (_changes.empty())
-        {
-            break;
-        }
-    }
-}
-
-void
-Selector::processInterrupt()
-{
-    lock_guard lock(_mutex);
-    if (!_changes.empty())
-    {
-        for (set<EventHandlerWrapperPtr>::const_iterator p = _changes.begin(); p != _changes.end(); ++p)
-        {
-            (*p)->updateRunLoop();
-        }
-        _changes.clear();
-        _conditionVariable.notify_one();
-    }
-    if (_destroyed)
-    {
-        CFRunLoopStop(_runLoop);
-    }
-}
-
-void
-Selector::run()
+Selector::completed(EventHandler* handler, SocketOperation op)
 {
     {
         lock_guard lock(_mutex);
-        _runLoop = CFRunLoopGetCurrent();
-        _conditionVariable.notify_one();
+        _completionQueue.push_back({handler, op});
     }
-
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode);
-    CFRunLoopRun();
-    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode);
-}
-
-void
-Selector::ready(EventHandlerWrapper* wrapper, SocketOperation op, int error)
-{
-    lock_guard lock(_mutex);
-    wrapper->ready(op, error);
-}
-
-void
-Selector::addReadyHandler(EventHandlerWrapperPtr wrapper)
-{
-    // Called from ready()
-    _readyHandlers.insert(wrapper);
-    if (_readyHandlers.size() == 1)
-    {
-        _conditionVariable.notify_one();
-    }
+    dispatch_semaphore_signal(_semaphore.get());
 }
 
 #endif

@@ -14,9 +14,9 @@ public:
 
     void close() override;
     IceInternal::EndpointIPtr listen() override;
-#ifdef ICE_USE_IOCP
-    virtual void startAccept();
-    virtual void finishAccept();
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
+    void startAccept() override;
+    void finishAccept() override;
 #endif
     IceInternal::TransceiverPtr accept() override;
     [[nodiscard]] std::string protocol() const override;
