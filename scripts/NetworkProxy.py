@@ -232,10 +232,8 @@ class HttpConnection(BaseConnection):
             self.socket.sendall(self.response(False))
             return
 
-        # Deliberately fragment the successful CONNECT response so the first read the Ice client performs
-        # returns fewer than the 7 bytes it initially asks for. This exercises the proxy transport's
-        # partial-read handling: a correct endRead keeps reading until the response is complete, whereas a
-        # buggy one treats the short first read as a complete response and fails the connection.
+        # Send the successful CONNECT response in two parts so that the first read the Ice client performs returns
+        # fewer than the 7 bytes it initially asks for.
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         data = self.response(True)
         self.socket.sendall(data[:4])
