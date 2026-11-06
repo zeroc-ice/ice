@@ -2146,8 +2146,6 @@ Slice::Ice::SkeletonVisitor::visitOperation(const OperationPtr& op)
 void
 Slice::Ice::SkeletonVisitor::writeDispatch(const InterfaceDefPtr& p)
 {
-    string ns = getNamespace(p);
-
     OperationList allOps = p->allOperations();
     if (!allOps.empty())
     {
@@ -2168,7 +2166,7 @@ Slice::Ice::SkeletonVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << sb;
         for (const auto& op : allOps)
         {
-            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->parentInterface(), ns, skeletonPrefix())
+            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->parentInterface(), "", skeletonPrefix())
                  << ".iceD_" << removeEscapePrefix(op->mappedName()) << "Async(this, request),";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
