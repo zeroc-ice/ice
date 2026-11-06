@@ -59,8 +59,8 @@ module Ice
     ["cpp:type:std::list<LogMessage>"]
     sequence<LogMessage> LogMessageSeq;
 
-    /// Receives the log messages that the Logger admin facet of a communicator forwards from the logger of that
-    /// communicator, once {@link LoggerAdmin::attachRemoteLogger} attaches this object.
+    /// Receives the log messages sent by the Logger admin facet of a communicator.
+    /// @see LoggerAdmin#attachRemoteLogger
     interface RemoteLogger
     {
         /// Initializes this remote logger with the prefix and the most recent log messages of the logger of the
