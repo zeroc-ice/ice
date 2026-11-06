@@ -41,8 +41,12 @@ IceInternal::NetworkFrameworkAcceptor::close()
     nw_listener_cancel(_listener.get());
     dispatch_semaphore_wait(semaphore.get(), DISPATCH_TIME_FOREVER);
 
-    // Release the queued connections no transceiver adopted.
+    // Releasing an unstarted accepted connection does not close its socket; it must be cancelled first.
     lock_guard lock(_acceptState->mutex);
+    for (const auto& connection : _acceptState->connections)
+    {
+        nw_connection_cancel(connection.get());
+    }
     _acceptState->connections.clear();
 
     // If startAccept() is waiting for a connection, signal the completion so the thread pool

@@ -4,8 +4,16 @@
 #include "Test.h"
 #include "TestHelper.h"
 
+#include <chrono>
 #include <stdexcept>
 #include <thread>
+
+#if defined(__APPLE__) && TARGET_OS_IPHONE == 0
+#    include <arpa/inet.h>
+#    include <libproc.h>
+#    include <sys/socket.h>
+#    include <unistd.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -17,6 +25,119 @@ namespace
     {
         return info->underlying ? getUnderlying(info->underlying) : info;
     }
+
+#if defined(__APPLE__) && TARGET_OS_IPHONE == 0
+    /// Returns the number of accepted TCP sockets with the specified local port.
+    size_t countAcceptedSockets(int port)
+    {
+        int bytes = proc_pidinfo(getpid(), PROC_PIDLISTFDS, 0, nullptr, 0);
+        test(bytes > 0);
+        vector<proc_fdinfo> descriptors(static_cast<size_t>(bytes) / sizeof(proc_fdinfo) + 16);
+        bytes = proc_pidinfo(
+            getpid(),
+            PROC_PIDLISTFDS,
+            0,
+            descriptors.data(),
+            static_cast<int>(descriptors.size() * sizeof(proc_fdinfo)));
+        test(bytes > 0);
+        descriptors.resize(static_cast<size_t>(bytes) / sizeof(proc_fdinfo));
+
+        size_t count = 0;
+        for (const auto& descriptor : descriptors)
+        {
+            if (descriptor.proc_fdtype == PROX_FDTYPE_SOCKET)
+            {
+                sockaddr_in local{};
+                sockaddr_in peer{};
+                socklen_t localSize = sizeof(local);
+                socklen_t peerSize = sizeof(peer);
+                if (getsockname(descriptor.proc_fd, reinterpret_cast<sockaddr*>(&local), &localSize) == 0 &&
+                    local.sin_family == AF_INET && ntohs(local.sin_port) == port &&
+                    getpeername(descriptor.proc_fd, reinterpret_cast<sockaddr*>(&peer), &peerSize) == 0)
+                {
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
+    /// Waits for the specified number of accepted sockets at a listener's port.
+    bool waitForAcceptedSockets(int port, size_t expected)
+    {
+        const auto deadline = chrono::steady_clock::now() + chrono::seconds(5);
+        while (countAcceptedSockets(port) != expected)
+        {
+            if (chrono::steady_clock::now() >= deadline)
+            {
+                return false;
+            }
+            this_thread::sleep_for(chrono::milliseconds(10));
+        }
+        return true;
+    }
+
+    /// Checks that destroying a held adapter releases connections it has not adopted.
+    void testQueuedConnections(const CommunicatorPtr& communicator)
+    {
+        for (const auto* protocol : {"tcp", "ssl"})
+        {
+            for (bool activated : {false, true})
+            {
+                for (bool closeClients : {false, true})
+                {
+                    cout << "testing " << protocol << " queued connections on "
+                         << (activated ? "activated then held" : "never activated") << " adapter with "
+                         << (closeClients ? "closed" : "open") << " clients... " << flush;
+                    auto adapter = communicator->createObjectAdapterWithEndpoints(
+                        "QueuedConnections",
+                        string(protocol) + " -h 127.0.0.1 -p 0");
+                    if (activated)
+                    {
+                        adapter->activate();
+                        adapter->hold();
+                        adapter->waitForHold();
+                    }
+                    auto info =
+                        dynamic_pointer_cast<IPEndpointInfo>(getUnderlying(adapter->getEndpoints()[0]->getInfo()));
+                    test(info);
+                    sockaddr_in address{};
+                    address.sin_len = sizeof(address);
+                    address.sin_family = AF_INET;
+                    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+                    address.sin_port = htons(static_cast<uint16_t>(info->port));
+
+                    vector<int> clients;
+                    for (int i = 0; i < 4; ++i)
+                    {
+                        int fd = socket(AF_INET, SOCK_STREAM, 0);
+                        test(fd >= 0);
+                        test(connect(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == 0);
+                        clients.push_back(fd);
+                    }
+                    test(waitForAcceptedSockets(info->port, clients.size()));
+                    if (closeClients)
+                    {
+                        for (int fd : clients)
+                        {
+                            close(fd);
+                        }
+                    }
+                    adapter->destroy();
+                    test(waitForAcceptedSockets(info->port, 0));
+                    if (!closeClients)
+                    {
+                        for (int fd : clients)
+                        {
+                            close(fd);
+                        }
+                    }
+                    cout << "ok" << endl;
+                }
+            }
+        }
+    }
+#endif
 }
 
 void
@@ -24,6 +145,10 @@ allTests(Test::TestHelper* helper)
 {
     CommunicatorPtr communicator = helper->communicator();
     TestIntfPrx obj(communicator, "test:" + helper->getTestEndpoint());
+
+#if defined(__APPLE__) && TARGET_OS_IPHONE == 0
+    testQueuedConnections(communicator);
+#endif
 
     {
         if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "ssl" &&
