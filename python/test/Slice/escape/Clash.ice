@@ -78,4 +78,6 @@ module Test
     {
         void op();
     }
+
+    interface Foo { void Foo(); }
 }
