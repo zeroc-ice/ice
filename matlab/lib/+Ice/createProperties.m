@@ -23,5 +23,9 @@ function [properties, remArgs] = createProperties(args, defaults)
         args (1, :) string = string.empty
         defaults Ice.Properties {mustBeScalarOrEmpty} = Ice.Properties.empty
     end
-    [properties, remArgs] = Ice.Properties(args, defaults);
+    if nargin == 0
+        [properties, remArgs] = Ice.Properties();
+    else
+        [properties, remArgs] = Ice.Properties(args, defaults);
+    end
 end
