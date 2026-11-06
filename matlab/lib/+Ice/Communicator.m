@@ -36,8 +36,8 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Input Arguments
             %     args - Argument vector. Any Ice-related options in this vector are used to set the communicator
-            %       properties. When args is non-empty, the communicator creates its properties with
-            %       Ice.Properties(args, Properties), which also loads configuration files.
+            %       properties. When you supply args, even an empty array, the communicator creates its properties
+            %       with Ice.Properties(args, Properties), which also loads configuration files.
             %       empty string array (default) | string array | cell array of character vectors
             %
             %   Input Name-Value Arguments
@@ -58,7 +58,7 @@ classdef Communicator < IceInternal.WrapperObject
                 options.SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance
             end
 
-            if ~isempty(args)
+            if nargin > 0
                 options.Properties = Ice.Properties(args, options.Properties);
             end
 

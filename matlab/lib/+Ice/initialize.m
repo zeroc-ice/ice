@@ -25,24 +25,18 @@ function communicator = initialize(varargin)
         error('Ice:ArgumentException', 'Too many arguments to Ice.initialize');
     end
 
-    args = string.empty;
-    initData = [];
-
-    if nargin == 1
-        if isa(varargin{1}, 'cell')
-            args = varargin{1}; % keep cell array
-        elseif isa(varargin{1}, 'string')
-            args = varargin{1};
-        elseif isa(varargin{1}, 'Ice.InitializationData')
-            initData = varargin{1};
+    if nargin == 0
+        communicator = Ice.Communicator();
+    elseif isa(varargin{1}, 'cell') || isa(varargin{1}, 'string')
+        communicator = Ice.Communicator(varargin{1});
+    elseif isa(varargin{1}, 'Ice.InitializationData')
+        initData = varargin{1};
+        if isempty(initData)
+            communicator = Ice.Communicator();
         else
-            error('Ice:ArgumentException', 'Unexpected argument to Ice.initialize');
+            communicator = Ice.Communicator(Properties = initData.Properties, SliceLoader = initData.SliceLoader);
         end
-    end
-
-    if isempty(initData)
-        communicator = Ice.Communicator(args);
     else
-        communicator = Ice.Communicator(Properties = initData.Properties, SliceLoader = initData.SliceLoader);
+        error('Ice:ArgumentException', 'Unexpected argument to Ice.initialize');
     end
 end

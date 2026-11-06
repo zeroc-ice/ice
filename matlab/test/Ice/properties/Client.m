@@ -35,10 +35,22 @@ function client(args)
     communicator = Ice.Communicator();
     assert(isempty(communicator.getProperties().getProperty('Ice.Trace.Network')));
     communicator.destroy();
+    communicator = Ice.Communicator(Properties = Ice.Properties());
+    assert(isempty(communicator.getProperties().getProperty('Ice.Trace.Network')));
+    communicator.destroy();
+    communicator = Ice.initialize();
+    assert(isempty(communicator.getProperties().getProperty('Ice.Trace.Network')));
+    communicator.destroy();
 
     % With an argument vector that has no --Ice.Config option, Ice loads the file named by ICE_CONFIG.
     props = Ice.Properties(string.empty);
     assert(strcmp(props.getProperty('Ice.Trace.Network'), '1'));
+    communicator = Ice.Communicator(string.empty);
+    assert(strcmp(communicator.getProperties().getProperty('Ice.Trace.Network'), '1'));
+    communicator.destroy();
+    communicator = Ice.initialize(string.empty);
+    assert(strcmp(communicator.getProperties().getProperty('Ice.Trace.Network'), '1'));
+    communicator.destroy();
     communicator = Ice.Communicator("--Ice.Trace.Protocol=2");
     assert(strcmp(communicator.getProperties().getProperty('Ice.Trace.Network'), '1'));
     communicator.destroy();
