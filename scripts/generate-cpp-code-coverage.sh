@@ -27,8 +27,7 @@ case "$1" in
         echo "Generates one code coverage report for the libraries in lib and the executables in bin. Of the Slice"
         echo "compilers, the report includes only slice2cpp, the one the C++ build and tests run."
         echo "The script builds the current working directory with code coverage instrumentation, runs the tests, and"
-        echo "generates the report in coverage/html. A test failure doesn't stop the report: the script generates it"
-        echo "and then exits with the test status."
+        echo "generates the report in coverage/html."
         echo ""
         echo "example:"
         echo "  cd cpp && ../scripts/generate-cpp-code-coverage.sh"
@@ -62,8 +61,7 @@ make distclean
 make "-j$ncpu"
 
 echo "Running tests..."
-test_status=0
-python3 allTests.py --all --workers="$ncpu" || test_status=$?
+python3 allTests.py --all --workers="$ncpu"
 
 echo "Merging coverage data..."
 xcrun llvm-profdata merge -o coverage/default.profdata coverage/*.profraw
@@ -89,5 +87,3 @@ xcrun llvm-cov show "$@" -instr-profile=coverage/default.profdata -format=html -
 xcrun llvm-cov report "$@" -instr-profile=coverage/default.profdata -ignore-filename-regex="$ignore" \
     > coverage/report.txt
 echo "Coverage report generated in coverage/html/index.html"
-
-exit "$test_status"

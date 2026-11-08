@@ -28,13 +28,11 @@ jobs:
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
 
-      # The script generates the report even when a test fails, so the steps below run unless the build failed.
       - name: Generate C++ Coverage
         working-directory: ./cpp
         run: ../scripts/generate-cpp-code-coverage.sh
 
       - name: Write C++ Coverage Summary
-        if: ${{ !cancelled() && hashFiles('cpp/coverage/report.txt') != '' }}
         working-directory: ./cpp
         run: |
           {
@@ -55,7 +53,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        if: ${{ !cancelled() && hashFiles('cpp/coverage/report.txt') != '' && github.ref == 'refs/heads/main' }}
+        if: github.ref == 'refs/heads/main'
 
   generate-csharp-coverage-report:
     if: github.repository == 'zeroc-ice/ice'
