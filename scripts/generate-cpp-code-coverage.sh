@@ -10,11 +10,24 @@ export LDFLAGS="-fprofile-instr-generate"
 export LLVM_PROFILE_FILE="${PWD}/coverage/%m.profraw"
 export OPTIMIZE=no
 
-# The llvm tools come from the selected Xcode, so this script is macOS only.
-if [ "$(uname)" != "Darwin" ]; then
-    echo "This script is only supported on macOS"
-    exit 1
-fi
+case "$(uname)" in
+    Darwin)
+        ncpu=$(sysctl -n hw.ncpu)
+        llvm_profdata() { xcrun llvm-profdata "$@"; }
+        llvm_cov() { xcrun llvm-cov "$@"; }
+        ;;
+    Linux)
+        ncpu=$(nproc)
+        # The instrumentation flags are clang's, and the llvm tools on the PATH must match its version.
+        export CXX=clang++
+        llvm_profdata() { llvm-profdata "$@"; }
+        llvm_cov() { llvm-cov "$@"; }
+        ;;
+    *)
+        echo "This script is only supported on macOS and Linux"
+        exit 1
+        ;;
+esac
 
 usage() {
     echo "usage: $0 [-h|--help]"
@@ -34,6 +47,8 @@ case "$1" in
         echo "example:"
         echo "  cd cpp && ../scripts/generate-cpp-code-coverage.sh"
         echo "  open coverage/html/index.html"
+        echo ""
+        echo "On Linux, the script builds with clang++ and needs llvm-profdata and llvm-cov of the same version."
         exit 0
         ;;
     "")
@@ -57,7 +72,6 @@ fi
 rm -rf coverage
 
 echo "Building with code coverage..."
-ncpu=$(sysctl -n hw.ncpu)
 # distclean, unlike clean, also removes the Slice compilers, so they're rebuilt with instrumentation.
 make distclean
 make "-j$ncpu"
@@ -66,14 +80,14 @@ echo "Running tests..."
 python3 allTests.py --all --workers="$ncpu"
 
 echo "Merging coverage data..."
-xcrun llvm-profdata merge -o coverage/default.profdata coverage/*.profraw
+llvm_profdata merge -o coverage/default.profdata coverage/*.profraw
 rm -f coverage/*.profraw
 
 # Each library once, through its versioned file rather than its symlinks, only the executables in bin, and the test
 # executables and plugins. The report leaves out the test code itself, but the tests instantiate header templates and
 # inline functions that the libraries don't.
 set --
-for object in lib/lib*.dylib bin/* $(find test -path '*/build/*' -type f); do
+for object in lib/lib*.dylib lib/*/lib*.so* bin/* $(find test -path '*/build/*' -type f); do
     case "$object" in
         # The other Slice compilers are exercised by the builds and tests of their own language mappings.
         bin/slice2cpp) ;;
@@ -87,8 +101,8 @@ done
 echo "Generating coverage report..."
 # Clang instruments the Homebrew headers too, since they aren't system headers.
 ignore="^(/opt/homebrew|${PWD}/(test|.*/generated))/"
-xcrun llvm-cov show "$@" -instr-profile=coverage/default.profdata -format=html -ignore-filename-regex="$ignore" \
+llvm_cov show "$@" -instr-profile=coverage/default.profdata -format=html -ignore-filename-regex="$ignore" \
     -output-dir=coverage/html
-xcrun llvm-cov report "$@" -instr-profile=coverage/default.profdata -ignore-filename-regex="$ignore" \
+llvm_cov report "$@" -instr-profile=coverage/default.profdata -ignore-filename-regex="$ignore" \
     > coverage/report.txt
 echo "Coverage report generated in coverage/html/index.html"

@@ -11,7 +11,15 @@ permissions:
 jobs:
   generate-cpp-coverage-report:
     if: github.repository == 'zeroc-ice/ice'
-    runs-on: xcode-27
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: xcode-27
+            platform: macos
+          - os: ubuntu-24.04
+            platform: linux
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -20,6 +28,10 @@ jobs:
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
+
+      - name: Install clang and the llvm tools
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y clang llvm
 
       - name: Setup Python
         uses: ./.github/actions/setup-python
@@ -47,7 +59,77 @@ jobs:
       # report may be updated without changing the size of the files. S3 does not offer a hash based sync.
       - name: Sync Coverage Report to S3
         working-directory: ./cpp/coverage/html
-        run: aws s3 sync . "s3://${AWS_S3_CODE_BUCKET}/ice/main/coverage/cpp/macos" --delete
+        run: aws s3 sync . "s3://${AWS_S3_CODE_BUCKET}/ice/main/coverage/cpp/${PLATFORM}" --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
+          AWS_DEFAULT_REGION: us-east-1
+          PLATFORM: ${{ matrix.platform }}
+        if: github.ref == 'refs/heads/main'
+
+  generate-cpp-windows-coverage-report:
+    if: github.repository == 'zeroc-ice/ice'
+    runs-on: windows-2022
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
+      - name: Install testing dependencies from pip
+        run: python -m pip install passlib cryptography numpy
+
+      # Static coverage instrumentation needs every module linked with /PROFILE, and link.exe reads extra options
+      # from the LINK environment variable.
+      - name: Build
+        working-directory: ./cpp
+        run: msbuild /m /p:Platform=x64 /p:Configuration=Debug msbuild/ice.proj
+        env:
+          LINK: /PROFILE
+
+      # Instrumented modules report to the collector of their session, so the tests run as usual.
+      - name: Generate C++ Coverage
+        working-directory: ./cpp
+        run: |
+          $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+          # The instrumented modules load static_covrun64.dll from the PATH.
+          $env:PATH = "$vsPath\Common7\IDE\Extensions\Microsoft\CodeCoverage.Console;$env:PATH"
+          $session = "cpp-coverage"
+
+          # libexpat is a third-party DLL, and slice2cpp is the only Slice compiler the C++ tests run.
+          $modules = Get-ChildItem bin\x64\Debug\* -Include *.dll, *.exe -Exclude libexpat*.dll |
+            Where-Object { $_.Name -notlike "slice2*" -or $_.Name -eq "slice2cpp.exe" }
+          foreach ($module in $modules) {
+            Microsoft.CodeCoverage.Console instrument --session-id $session --settings msbuild\coverage.runsettings --nologo $module.FullName
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+          Microsoft.CodeCoverage.Console collect --session-id $session --server-mode --background --settings msbuild\coverage.runsettings --output coverage.cobertura.xml --output-format cobertura --nologo
+          python allTests.py --all --workers=4 --platform=x64 --config=Debug
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Microsoft.CodeCoverage.Console shutdown $session --nologo
+
+      - name: Generate C++ Coverage Report
+        uses: danielpalme/ReportGenerator-GitHub-Action@861674232075b2c6bd1405a04c4bb9b150653e81 # 5.5.12
+        with:
+          reports: cpp/coverage.cobertura.xml
+          targetdir: cpp-coverage-report
+          reporttypes: Html;MarkdownSummaryGithub
+          license: ${{ secrets.REPORT_GENERATOR_LICENSE }}
+
+      - name: Write C++ Coverage Summary
+        run: Get-Content cpp-coverage-report\SummaryGithub.md | Add-Content $env:GITHUB_STEP_SUMMARY
+
+      - name: Sync Coverage Report to S3
+        working-directory: ./cpp-coverage-report
+        run: aws s3 sync . "s3://$env:AWS_S3_CODE_BUCKET/ice/main/coverage/cpp/windows" --delete --exclude SummaryGithub.md
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
