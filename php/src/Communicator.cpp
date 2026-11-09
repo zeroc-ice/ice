@@ -97,6 +97,10 @@ namespace
 
     // Protects _registeredCommunicators
     std::mutex _registeredCommunicatorsMutex;
+
+    // Runs the reap tasks of registered communicators. Created by the first Ice_register call with an expiration time,
+    // not at module startup: PHP-FPM and Apache prefork start the module in a parent process and then fork their
+    // workers, and a forked worker would not have the timer's thread.
     IceInternal::TimerPtr _timer{nullptr};
 
     // This map is stored in the "global" variables for each PHP request and holds the communicators that have been
@@ -1065,6 +1069,10 @@ ZEND_FUNCTION(Ice_register)
         // convert it to milliseconds.
         info->ac->expires = std::chrono::milliseconds(static_cast<int64_t>(expires * 60 * 1000));
         info->ac->lastAccess = std::chrono::steady_clock::now();
+        if (!_timer)
+        {
+            _timer = make_shared<IceInternal::Timer>();
+        }
         info->ac->reapTask = make_shared<ReapCommunicatorTimerTask>(info->ac);
         _timer->scheduleRepeated(info->ac->reapTask, info->ac->expires / 2);
     }
@@ -1537,8 +1545,6 @@ IcePHP::communicatorInit(void)
             return false;
         }
     }
-
-    _timer = make_shared<IceInternal::Timer>();
 
     return true;
 }

@@ -5,6 +5,12 @@ class Client extends TestHelper
 {
     function run($args)
     {
+        // Runs before this process registers a communicator with an expiration time: a process forked after that
+        // inherits a timer without its thread.
+        if (function_exists('pcntl_fork')) {
+            $this->testForkedProcess();
+        }
+
         $communicator = Ice\initialize();
         Ice\register($communicator, "Hello1", 1);
         // Register the same communicator with a second Id and a different expiration time. The last expiration time
@@ -85,5 +91,25 @@ class Client extends TestHelper
         // A second call returns the same re-wrapped communicator.
         test($proxy->ice_getCommunicator() === $comm);
         $comm->destroy();
+    }
+
+    // A process forked after the Ice extension is loaded, as PHP-FPM and Apache prefork do with their workers, expires
+    // the communicators it registers and exits normally.
+    private function testForkedProcess()
+    {
+        $pid = pcntl_fork();
+        test($pid != -1);
+        if ($pid == 0) {
+            // Ends the child if it hangs on exit. PHP can install its own SIGALRM handler, which would not.
+            pcntl_signal(SIGALRM, SIG_DFL);
+            pcntl_alarm(30);
+            Ice\register(Ice\initialize(), "Forked", 0.016); // Expires after ~1s.
+            sleep(2);
+            exit(Ice\find("Forked") == null ? 0 : 1);
+        }
+
+        test(pcntl_waitpid($pid, $status) == $pid);
+        test(pcntl_wifexited($status));
+        test(pcntl_wexitstatus($status) == 0);
     }
 }
