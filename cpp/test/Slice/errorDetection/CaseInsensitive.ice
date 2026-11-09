@@ -19,16 +19,11 @@ module Test
         void ice_isa();
     }
 
-    module m1
-    {}
-    module m1
-    {}
-    module M1
-    {}
-    module c1
-    {}
-    module C1
-    {}
+    module m1 {}
+    module m1 {}
+    module M1 {}
+    module c1 {}
+    module C1 {}
 
     interface i3
     {
@@ -38,12 +33,8 @@ module Test
 
     interface i4
     {
+        void i4();
         void I4();
-    }
-
-    interface i5
-    {
-        void i5();
     }
 
     interface i6

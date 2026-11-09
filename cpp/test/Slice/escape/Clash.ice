@@ -54,4 +54,7 @@ module Clash
         short istr;
         int ostr;
     }
+
+    ["cpp:identifier:foo"]
+    interface Foo { void Foo(); }
 }

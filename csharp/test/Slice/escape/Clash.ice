@@ -59,4 +59,6 @@ module Clash
         int ostr;
         string cause;
     }
+
+    interface Foo { void Foo(); }
 }
