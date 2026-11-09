@@ -1,4 +1,4 @@
-R	270728112006Z	260625112017Z	1000	unknown	/CN=ca4.i1/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
-R	270728112016Z	260625112017Z	1001	unknown	/CN=ca4.server_revoked/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
-V	270728112016Z		1002	unknown	/CN=ca4.server_unknown/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
-V	270728112017Z		1003	unknown	/CN=ca4.server/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
+R	271212155910Z	261109155911Z	1000	unknown	/CN=ca4.i1/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
+R	271212155910Z	261109155911Z	1001	unknown	/CN=ca4.server_revoked/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
+V	271212155911Z		1002	unknown	/CN=ca4.server_unknown/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
+V	271212155911Z		1003	unknown	/CN=ca4.server/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com

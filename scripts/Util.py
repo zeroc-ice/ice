@@ -3608,7 +3608,7 @@ class BrowserProcessController(RemoteProcessController):
         # The Selenium WebDriver used to drive the browser, when one is configured.
         self.driver: Any = None
         try:
-            httpServerCmd = "node node_modules/http-server/bin/http-server -p 8080 dist"
+            httpServerCmd = "node node_modules/http-server/bin/http-server -p 8081 dist"
             cwd = current.getTestCase().getMapping().getPath()
             self.httpServer = Expect.Expect(httpServerCmd, cwd=cwd)
             self.httpServer.expect("Available on:")
@@ -3643,7 +3643,7 @@ class BrowserProcessController(RemoteProcessController):
             cport = "15003"
         else:
             protocol = "http"
-            port = "8080"
+            port = "8081"
             cport = "15002"
         url = "{0}://{5}:{1}/{2}/controller.html?port={3}&worker={4}".format(
             protocol, port, testsuite, cport, current.config.worker, self.host

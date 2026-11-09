@@ -36,12 +36,13 @@ class ConfigurationTestCase(ClientServerTestCase):
         if self.usesRevocationServers():
             from scripts.tests.IceSSL import revocationutil
 
-            # Create and start the CRL server for revocation tests.
+            # The CRL server serves the certs directory: the ca3 CRLs and the ca4 issuer certificate.
             self.crlServer = revocationutil.createCRLServer("127.0.0.1", 20001, certsPath)
             self.crlServer.start()
 
-            # Create and start the CRL server for revocation tests.
-            self.ocspServer = revocationutil.createOCSPServer("127.0.0.1", 20002, certsPath)
+            # The ca4 certificates name the OCSP responder as http://localhost:8080. macOS trustd refuses to fetch
+            # OCSP responses from an IP literal or from a port other than 80 or 8080.
+            self.ocspServer = revocationutil.createOCSPServer("127.0.0.1", 8080, certsPath)
             self.ocspServer.start()
 
         # The keychain and hashed CA directory setup below is only used by the C++ tests.
