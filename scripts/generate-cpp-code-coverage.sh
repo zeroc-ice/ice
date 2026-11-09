@@ -13,13 +13,17 @@ export OPTIMIZE=no
 case "$(uname)" in
     Darwin)
         ncpu=$(sysctl -n hw.ncpu)
+        build() { make "-j$ncpu"; }
         llvm_profdata() { xcrun llvm-profdata "$@"; }
         llvm_cov() { xcrun llvm-cov "$@"; }
         ;;
     Linux)
         ncpu=$(nproc)
-        # The instrumentation flags are clang's, and the llvm tools on the PATH must match its version.
+        # The instrumentation flags are clang's, and the llvm tools on the PATH must match its version. The Debian
+        # rules prefix CXX with the target triple, which clang doesn't install, so the build sets the platform's
+        # compiler directly.
         export CXX=clang++
+        build() { make "-j$ncpu" "$(dpkg --print-architecture)_cxx=clang++"; }
         llvm_profdata() { llvm-profdata "$@"; }
         llvm_cov() { llvm-cov "$@"; }
         ;;
@@ -74,7 +78,7 @@ rm -rf coverage
 echo "Building with code coverage..."
 # distclean, unlike clean, also removes the Slice compilers, so they're rebuilt with instrumentation.
 make distclean
-make "-j$ncpu"
+build
 
 echo "Running tests..."
 python3 allTests.py --all --workers="$ncpu"

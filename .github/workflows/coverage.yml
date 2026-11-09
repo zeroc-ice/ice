@@ -103,8 +103,9 @@ jobs:
           $env:PATH = "$vsPath\Common7\IDE\Extensions\Microsoft\CodeCoverage.Console;$env:PATH"
           $session = "cpp-coverage"
 
-          # libexpat is a third-party DLL, and slice2cpp is the only Slice compiler the C++ tests run.
-          $modules = Get-ChildItem bin\x64\Debug\* -Include *.dll, *.exe -Exclude libexpat*.dll |
+          # bzip2 and libexpat are third-party DLLs, and the other Slice compilers are exercised by the builds and tests
+          # of their own language mappings.
+          $modules = Get-ChildItem bin\x64\Debug\* -Include *.dll, *.exe -Exclude bzip2*.dll, libexpat*.dll |
             Where-Object { $_.Name -notlike "slice2*" -or $_.Name -eq "slice2cpp.exe" }
           foreach ($module in $modules) {
             Microsoft.CodeCoverage.Console instrument --session-id $session --settings msbuild\coverage.runsettings --nologo $module.FullName
