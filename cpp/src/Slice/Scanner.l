@@ -526,6 +526,13 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* ========== Others ========== */
 
+  /* Matches EOF in every state without its own EOF rule. EOF doesn't run 'YY_USER_ACTION', so this sets the
+   * location of the end-of-file token to the scanner's current position. */
+<<EOF>> {
+    *yylloc = TokenContext{yylineno, yylineno, yycolno, yycolno, yyfilename};
+    yyterminate();
+}
+
   /* Handles UTF-8 BOMs.
    * The scanner has a special 'INITIAL' state, which it enters whenever it hits the start of a file.
    * This occurs when parsing initially begins, but also when we see the start of an '#include'd file.

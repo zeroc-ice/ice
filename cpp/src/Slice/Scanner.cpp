@@ -1156,7 +1156,7 @@ static const flex_int32_t yy_rule_linenum[51] =
       209,  210,  224,  225,  233,  243,  253,  261,  279,  300,
       326,  331,  335,  340,  346,  347,  352,  358,  383,  388,
       394,  395,  410,  417,  425,  430,  436,  445,  450,  454,
-      459,  465,  478,  511,  521,  524,  538,  539,  547,  561
+      459,  465,  478,  511,  521,  524,  545,  546,  554,  568
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -2155,6 +2155,17 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 /* ========== Others ========== */
+/* Matches EOF in every state without its own EOF rule. EOF doesn't run 'YY_USER_ACTION', so this sets the
+   * location of the end-of-file token to the scanner's current position. */
+case YY_STATE_EOF(INITIAL):
+case YY_STATE_EOF(SLICE):
+case YY_STATE_EOF(METADATA):
+#line 532 "src/Slice/Scanner.l"
+{
+    *yylloc = TokenContext{yylineno, yylineno, yycolno, yycolno, yyfilename};
+    yyterminate();
+}
+	YY_BREAK
 /* Handles UTF-8 BOMs.
    * The scanner has a special 'INITIAL' state, which it enters whenever it hits the start of a file.
    * This occurs when parsing initially begins, but also when we see the start of an '#include'd file.
@@ -2165,12 +2176,12 @@ YY_RULE_SETUP
    * If we see a BOM in any other state, we emit an error and throw it away. */
 case 47:
 YY_RULE_SETUP
-#line 538 "src/Slice/Scanner.l"
+#line 545 "src/Slice/Scanner.l"
 { /* do nothing */ }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 539 "src/Slice/Scanner.l"
+#line 546 "src/Slice/Scanner.l"
 {
     currentUnit->error(
         yylineno,
@@ -2182,7 +2193,7 @@ YY_RULE_SETUP
 case 49:
 /* rule 49 can match eol */
 YY_RULE_SETUP
-#line 547 "src/Slice/Scanner.l"
+#line 554 "src/Slice/Scanner.l"
 {
     stringstream s;
     s << "illegal input character: '\\";
@@ -2199,21 +2210,17 @@ YY_RULE_SETUP
    * This is the lowest priority rule in the scanner, and is only active while not in a sub-scanner. */
 case 50:
 YY_RULE_SETUP
-#line 561 "src/Slice/Scanner.l"
+#line 568 "src/Slice/Scanner.l"
 {
     return yytext[0];
 }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 565 "src/Slice/Scanner.l"
+#line 572 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2212 "src/Slice/Scanner.cpp"
-case YY_STATE_EOF(INITIAL):
-case YY_STATE_EOF(SLICE):
-case YY_STATE_EOF(METADATA):
-	yyterminate();
+#line 2223 "src/Slice/Scanner.cpp"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -3212,7 +3219,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 565 "src/Slice/Scanner.l"
+#line 572 "src/Slice/Scanner.l"
 
 
 // NOLINTEND
