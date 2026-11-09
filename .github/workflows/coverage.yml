@@ -105,8 +105,12 @@ jobs:
 
           # bzip2 and libexpat are third-party DLLs, and the other Slice compilers are exercised by the builds and tests
           # of their own language mappings.
-          $modules = Get-ChildItem bin\x64\Debug\* -Include *.dll, *.exe -Exclude bzip2*.dll, libexpat*.dll |
-            Where-Object { $_.Name -notlike "slice2*" -or $_.Name -eq "slice2cpp.exe" }
+          $modules = @(Get-ChildItem bin\x64\Debug\* -Include *.dll, *.exe -Exclude bzip2*.dll, libexpat*.dll |
+            Where-Object { $_.Name -notlike "slice2*" -or $_.Name -eq "slice2cpp.exe" })
+          # The test executables and plugins instantiate header templates and inline functions that the Ice modules
+          # don't. The runsettings leave out the test code itself.
+          $modules += Get-ChildItem test -Recurse -Include *.dll, *.exe -Exclude bzip2*.dll, libexpat*.dll |
+            Where-Object { $_.DirectoryName -like "*\x64\Debug" }
           foreach ($module in $modules) {
             Microsoft.CodeCoverage.Console instrument --session-id $session --settings msbuild\coverage.runsettings --nologo $module.FullName
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
