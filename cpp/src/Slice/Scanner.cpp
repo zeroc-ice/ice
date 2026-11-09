@@ -1631,7 +1631,7 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 /* Matches as many escaped backslashes or other valid string characters as possible. Invalid characters are
-   * characters representing newlines, and ASCII control characters. Double quotes and single-backslashes are matched
+   * characters representing newlines and ASCII control characters. Double quotes and single backslashes are matched
    * by other rules in the 'STRING_LITERAL' start-condition. */
 case 2:
 #line 143 "src/Slice/Scanner.l"
