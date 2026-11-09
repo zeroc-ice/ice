@@ -3617,6 +3617,15 @@ class BrowserProcessController(RemoteProcessController):
             cwd = current.getTestCase().getMapping().getPath()
             self.httpsServer = Expect.Expect(httpsServerCmd, cwd=cwd)
             self.httpsServer.expect("Available on:")
+
+            if current.config.browser == "Chrome":
+                from selenium import webdriver
+
+                options = webdriver.ChromeOptions()
+                options.add_argument("--headless")
+                # The https and wss servers present certificates signed by the test CA, which Chrome doesn't trust.
+                options.accept_insecure_certs = True
+                self.driver = webdriver.Chrome(options=options)
         except Exception:
             self.destroy(current.driver)
             raise
@@ -3689,10 +3698,12 @@ class BrowserProcessController(RemoteProcessController):
             return RemoteProcessController.getController(self, current)
         except RuntimeError as ex:
             if self.driver:
+                from selenium.webdriver.common.by import By
+
                 # Print out the client & server console element values
                 for element in ["clientConsole", "serverConsole"]:
                     try:
-                        console = self.driver.find_element_by_id(element).get_attribute("value")
+                        console = self.driver.find_element(By.ID, element).get_attribute("value")
                         if len(console) > 0:
                             print("controller {0} value:\n{1}".format(element, console))
                     except Exception as exc:
@@ -4825,12 +4836,15 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
         def usage(cls) -> None:
             print("")
             print("JavaScript mapping options:")
-            print("--browser=<name>      Run with the given browser.")
+            print("--browser=<name>      Run in a browser: Chrome (headless, driven by Selenium) or Manual.")
             print("--worker              Run with Web workers enabled.")
             print("--coverage            Collect code coverage using c8. Only supported for Node.js.")
 
         def __init__(self, options: list[Option] = []):
             Mapping.Config.__init__(self, options)
+
+            if self.browser not in ["", "Chrome", "Manual"]:
+                raise RuntimeError(f"unsupported browser `{self.browser}'")
 
             if self.browser and self.protocol == "tcp":
                 self.protocol = "ws"

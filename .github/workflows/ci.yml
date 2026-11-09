@@ -98,6 +98,13 @@ jobs:
             test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
             working_directory: "cpp"
 
+          # JavaScript in headless Chrome
+          - os: ubuntu-24.04
+            config: "browser"
+            build_flags: "LANGUAGES='cpp python js'"
+            test_flags: "--languages=js --browser=Chrome"
+            skip_lto: true
+
           # MATLAB
           - os: ubuntu-24.04
             config: "matlab"
@@ -337,6 +344,11 @@ jobs:
 
       - name: Install testing dependencies from pip
         run: python3 -m pip install passlib cryptography numpy
+        shell: bash
+
+      - name: Install Selenium
+        if: matrix.config == 'browser'
+        run: python3 -m pip install selenium
         shell: bash
 
       # Boots and bonds the emulator pair and starts the server-side process controller, so the
