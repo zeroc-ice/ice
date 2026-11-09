@@ -23,7 +23,8 @@
    ```shell
    pip install passlib
    ```
-5. [Ice for Python][python build instructions] is required for running the JavaScript tests in a web browser.
+5. [Ice for Python][python build instructions] is required for running the JavaScript tests in a web browser. Running
+   them in a browser driven by Selenium also requires the Python module `selenium`.
 
 ## Build Roadmap
 
@@ -92,10 +93,25 @@ python allTests.py --browser Manual
 Then open the test page http://127.0.0.1:8080/start using a web browser with ES6 support, such as a recent version of
 Chrome, Firefox, Microsoft Edge, or Safari.
 
+To run them in a browser driven by Selenium instead, use `--browser Chrome`, `--browser Firefox`, or `--browser Safari`.
+The test driver starts the browser and loads each test in it. Chrome and Firefox run headless. CI runs the tests in all
+three browsers on macOS.
+
+```shell
+pip install selenium
+python allTests.py --browser Chrome
+```
+
+Safari also requires remote automation, enabled once with `safaridriver --enable`.
+
 ### Secure WebSocket Tests
 
-To run browser tests over secure WebSocket (WSS), you need to trust the test server certificate from the
-[certs](../certs) directory.
+To run browser tests over secure WebSocket (WSS) in Safari or with `--browser Manual`, you need to trust the test CA
+certificate `cacert.pem` from the [certs](../certs) directory. On macOS:
+
+```shell
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ../certs/cacert.pem
+```
 
 ## Creating the NPM Package
 

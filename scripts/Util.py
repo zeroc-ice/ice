@@ -2671,47 +2671,28 @@ class BrowserProcessController(RemoteProcessController):
             self.httpServer = Expect.Expect(cmd, cwd=cwd)
             self.httpServer.expect("listening on ports")
 
-            if current.config.browser.startswith("Remote:"):
+            # The https and wss servers present certificates signed by the test CA. Chrome and Firefox accept them
+            # with accept_insecure_certs; Safari doesn't support it and requires the test CA to be trusted instead.
+            if current.config.browser == "Chrome":
                 from selenium import webdriver
-                from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-                (driver, capabilities, port) = current.config.browser.split(":")
-                self.driver = webdriver.Remote("http://localhost:{0}".format(port),
-                                               desired_capabilities=getattr(DesiredCapabilities, capabilities),
-                                               keep_alive=True)
+
+                options = webdriver.ChromeOptions()
+                options.add_argument("--headless")
+                options.accept_insecure_certs = True
+                self.driver = webdriver.Chrome(options=options)
+            elif current.config.browser == "Firefox":
+                from selenium import webdriver
+
+                options = webdriver.FirefoxOptions()
+                options.add_argument("-headless")
+                options.accept_insecure_certs = True
+                self.driver = webdriver.Firefox(options=options)
+            elif current.config.browser == "Safari":
+                from selenium import webdriver
+
+                self.driver = webdriver.Safari()
             elif current.config.browser != "Manual":
-                from selenium import webdriver
-                if current.config.browser.find(":") > 0:
-                    (driver, port) = current.config.browser.split(":")
-                else:
-                    (driver, port) = (current.config.browser, 0)
-
-                if not hasattr(webdriver, driver):
-                    raise RuntimeError("unknown browser `{0}'".format(driver))
-
-                if driver == "Firefox":
-                    if isinstance(platform, Linux) and os.environ.get("DISPLAY", "") != ":1" and os.environ.get("USER", "") == "ubuntu":
-                        current.writeln("error: DISPLAY is unset, setting it to :1")
-                        os.environ["DISPLAY"] = ":1"
-
-                    #
-                    # We need to specify a profile for Firefox. This profile only provides the cert8.db which
-                    # contains our Test CA cert. It should be possible to avoid this by setting the webdriver
-                    # acceptInsecureCerts capability but it's only supported by latest Firefox releases.
-                    #
-                    profilepath = os.path.join(current.driver.getComponent().getSourceDir(), "scripts", "selenium", "firefox")
-                    options = webdriver.FirefoxOptions()
-                    options.set_preference("profile", profilepath)
-                    self.driver = webdriver.Firefox(options=options)
-                elif driver == "Ie":
-                    # Make sure we start with a clean cache
-                    options = webdriver.IeOptions()
-                    options.ensure_clean_session = True
-                    self.driver = webdriver.Ie(options=options)
-                elif driver == "Safari" and int(port) > 0:
-                    service = webdriver.SafariService(port=port, reuse_service=True)
-                    self.driver = webdriver.Safari(service=service)
-                else:
-                    self.driver = getattr(webdriver, driver)()
+                raise RuntimeError("unknown browser `{0}'".format(current.config.browser))
         except:
             self.destroy(current.driver)
             raise
@@ -2787,10 +2768,12 @@ class BrowserProcessController(RemoteProcessController):
             return RemoteProcessController.getController(self, current)
         except RuntimeError as ex:
             if self.driver:
+                from selenium.webdriver.common.by import By
+
                 # Print out the client & server console element values
                 for element in ["clientConsole", "serverConsole"]:
                     try:
-                        console = self.driver.find_element_by_id(element).get_attribute('value')
+                        console = self.driver.find_element(By.ID, element).get_attribute('value')
                         if len(console) > 0:
                             print("controller {0} value:\n{1}".format(element, console))
                     except Exception as exc:
@@ -3808,7 +3791,7 @@ class JavaScriptMapping(JavaScriptMixin,Mapping):
         def usage(self):
             print("")
             print("JavaScript mapping options:")
-            print("--browser=<name>      Run with the given browser.")
+            print("--browser=<name>      Run in a browser driven by Selenium (Chrome, Firefox, or Safari), or Manual.")
             print("--worker              Run with Web workers enabled.")
 
         def __init__(self, options=[]):
