@@ -1993,7 +1993,6 @@ Slice::Ice::SkeletonVisitor::visitOperation(const OperationPtr& op)
         amd,
         true);
 
-    emitObsoleteAttribute(op);
     _out << nl << retS << " " << opName;
     _out.spar("(", amd); // use newlines for AMD because it's much longer.
     _out << params << epar << ";";
