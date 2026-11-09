@@ -81,7 +81,8 @@ for object in lib/lib*.dylib bin/*; do
 done
 
 echo "Generating coverage report..."
-ignore='.*/(generated|test)/.*'
+# Clang instruments the Homebrew headers too, since they aren't system headers.
+ignore='(/opt/homebrew|.*/(generated|test))/.*'
 xcrun llvm-cov show "$@" -instr-profile=coverage/default.profdata -format=html -ignore-filename-regex="$ignore" \
     -output-dir=coverage/html
 xcrun llvm-cov report "$@" -instr-profile=coverage/default.profdata -ignore-filename-regex="$ignore" \
