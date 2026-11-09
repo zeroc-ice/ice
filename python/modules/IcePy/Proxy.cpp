@@ -1949,6 +1949,10 @@ proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kw
     }
 
     PyObjectHandle communicatorObj = getCommunicatorWrapper(*self->communicator);
+    if(!communicatorObj.get())
+    {
+        return 0;
+    }
     PyObjectHandle asyncResultObj =
         createAsyncResult(result, reinterpret_cast<PyObject*>(self), 0, communicatorObj.get());
     if(!asyncResultObj.get())
@@ -2030,6 +2034,10 @@ proxyBeginIceGetConnection(ProxyObject* self, PyObject* args, PyObject* kwds)
     }
 
     PyObjectHandle communicator = getCommunicatorWrapper(*self->communicator);
+    if(!communicator.get())
+    {
+        return 0;
+    }
     return createAsyncResult(result, reinterpret_cast<PyObject*>(self), 0, communicator.get());
 }
 
@@ -2150,6 +2158,10 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
     }
 
     PyObjectHandle communicatorObj = getCommunicatorWrapper(*self->communicator);
+    if(!communicatorObj.get())
+    {
+        return 0;
+    }
     PyObjectHandle asyncResultObj =
         createAsyncResult(result, reinterpret_cast<PyObject*>(self), 0, communicatorObj.get());
     if(!asyncResultObj.get())
@@ -2229,6 +2241,10 @@ proxyBeginIceFlushBatchRequests(ProxyObject* self, PyObject* args, PyObject* kwd
     }
 
     PyObjectHandle communicator = getCommunicatorWrapper(*self->communicator);
+    if(!communicator.get())
+    {
+        return 0;
+    }
     return createAsyncResult(result, reinterpret_cast<PyObject*>(self), 0, communicator.get());
 }
 
