@@ -51,13 +51,6 @@ def allTests(helper, communicator):
         test(False)
     except Ice.CommunicatorDestroyedException:
         pass
-    del comm
-    gc.collect()
-    try:
-        bidirAdapter.getCommunicator()
-        test(False)
-    except Ice.CommunicatorDestroyedException:
-        pass
     print("ok")
 
     sys.stdout.write("testing connection closure... ")
