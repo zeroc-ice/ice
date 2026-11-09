@@ -98,11 +98,10 @@ jobs:
             test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
             working_directory: "cpp"
 
-          # JavaScript in Chrome, Firefox, and Safari. The test step runs Chrome; Firefox and Safari have their own steps.
+          # JavaScript in Chrome, Firefox, and Safari, each in its own test step.
           - os: xcode-27
             config: "browser"
             build_flags: "LANGUAGES='cpp python js'"
-            test_flags: "--languages=js --browser=Chrome"
 
           # MATLAB
           - os: ubuntu-24.04
@@ -366,6 +365,7 @@ jobs:
         uses: ./.github/actions/setup-vhci
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
+        if: matrix.config != 'browser'
         uses: ./.github/actions/test
         timeout-minutes: 45
         # Scoped to this step rather than exported from setup-vhci into $GITHUB_ENV: there it would
@@ -462,6 +462,13 @@ jobs:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: "${{ matrix.test_flags }} --load-slice --language=python"
         if: matrix.python_tests == true
+
+      - name: Test ${{ matrix.config }} in Chrome on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 30
+        with:
+          flags: "--languages=js --browser=Chrome"
+        if: matrix.config == 'browser'
 
       - name: Test ${{ matrix.config }} in Firefox on ${{ matrix.os }}
         uses: ./.github/actions/test
