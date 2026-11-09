@@ -13,7 +13,7 @@ function communicator = initialize(varargin)
     %       communicator. Not compatible with initData.
     %       string array | cell array of character vectors
     %     initData - An optional initialization data. Not compatible with args.
-    %       Ice.InitializationData scalar | empty array of Ice.InitializationData
+    %       Ice.InitializationData scalar
     %
     %   Output Arguments
     %     communicator - The new communicator.
@@ -29,13 +29,9 @@ function communicator = initialize(varargin)
         communicator = Ice.Communicator();
     elseif isa(varargin{1}, 'cell') || isa(varargin{1}, 'string')
         communicator = Ice.Communicator(varargin{1});
-    elseif isa(varargin{1}, 'Ice.InitializationData')
+    elseif isa(varargin{1}, 'Ice.InitializationData') && isscalar(varargin{1})
         initData = varargin{1};
-        if isempty(initData)
-            communicator = Ice.Communicator();
-        else
-            communicator = Ice.Communicator(Properties = initData.Properties, SliceLoader = initData.SliceLoader);
-        end
+        communicator = Ice.Communicator(Properties = initData.Properties, SliceLoader = initData.SliceLoader);
     else
         error('Ice:ArgumentException', 'Unexpected argument to Ice.initialize');
     end

@@ -39,7 +39,7 @@ extern "C"
     {
         try
         {
-            *r = new shared_ptr<Ice::Properties>(Ice::createProperties());
+            *r = new shared_ptr<Ice::Properties>(make_shared<Ice::Properties>());
             return createEmptyArray();
         }
         catch (...)
