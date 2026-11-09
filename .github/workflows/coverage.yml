@@ -11,8 +11,6 @@ permissions:
 jobs:
   generate-cpp-coverage-report:
     if: github.repository == 'zeroc-ice/ice'
-    # macOS 26.7.2 refuses the IceSSL OCSP test's revocation fetches; back to macos-26 once
-    # https://github.com/zeroc-ice/ice/issues/7013 is fixed.
     runs-on: xcode-27
     steps:
       - name: Checkout repository
