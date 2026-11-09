@@ -86,11 +86,14 @@ def twoways(helper: TestHelper, p: Test.MyInterfacePrx) -> None:
     test(Test.ss5 == "\\u0041\\")
     test(Test.ss5 == literals[27])
 
+    test(Test.ss6 == "\t")
+    test(Test.ss6 == literals[28])
+
     test(Test.su0 == Test.su1)
     test(Test.su0 == Test.su2)
-    test(Test.su0 == literals[28])
     test(Test.su0 == literals[29])
     test(Test.su0 == literals[30])
+    test(Test.su0 == literals[31])
 
     #
     # ice_ping

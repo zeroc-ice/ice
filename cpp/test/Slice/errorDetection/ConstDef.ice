@@ -138,5 +138,5 @@ module Test
     const string surrogatePair = "\uD83C\uDF4C";        // surrogate pair not allow in slice
 
     // Tabs (as well as vertical tabs and form feeds) can appear unescaped in a string literal.
-    const string rawTab = "a   b"; // OK
+    const string rawTab = "a	b"; // OK
 }

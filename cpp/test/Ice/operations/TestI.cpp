@@ -694,6 +694,7 @@ MyDerivedInterfaceI::opStringLiterals(const Ice::Current&)
     data.push_back(Test::ss3);
     data.push_back(Test::ss4);
     data.push_back(Test::ss5);
+    data.push_back(Test::ss6);
 
     data.push_back(Test::su0);
     data.push_back(Test::su1);
@@ -736,6 +737,7 @@ MyDerivedInterfaceI::opWStringLiterals(const Ice::Current&)
     data.push_back(Test::wss3);
     data.push_back(Test::wss4);
     data.push_back(Test::wss5);
+    data.push_back(Test::wss6);
 
     data.push_back(Test::wsu0);
     data.push_back(Test::wsu1);
