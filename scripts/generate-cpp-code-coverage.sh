@@ -24,9 +24,9 @@ case "$1" in
     -h|--help)
         usage
         echo ""
-        echo "Generates one code coverage report for the libraries in lib and the executables in bin. Of the Slice"
-        echo "compilers, the report includes only slice2cpp, the one the C++ build and tests run. The report also"
-        echo "counts the header code that only the tests use, but not the test code itself."
+        echo "Generates one code coverage report for the libraries in lib and the executables in bin, including the"
+        echo "Slice compilers. The report also counts the header code that only the tests use, but not the test code"
+        echo "itself."
         echo "The script builds the current working directory with code coverage instrumentation, runs the tests, and"
         echo "generates the report in coverage/html."
         echo ""
@@ -73,11 +73,6 @@ rm -f coverage/*.profraw
 # inline functions that the libraries don't.
 set --
 for object in lib/lib*.dylib bin/* $(find test -path '*/build/*' -type f); do
-    case "$object" in
-        # slice2cpp is the only Slice compiler the C++ build and tests run.
-        bin/slice2cpp) ;;
-        bin/slice2*) continue ;;
-    esac
     if [ -f "$object" ] && [ ! -L "$object" ] && [ -x "$object" ]; then
         set -- "$@" -object "$object"
     fi
