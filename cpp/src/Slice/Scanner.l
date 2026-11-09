@@ -235,7 +235,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     return ICE_STRING_LITERAL;
 }
 
-  /* Matches an unescaped carriage return in a string literal, and issues an error. But we otherwise continue */
+  /* Matches an unescaped carriage return in a string literal, and issues an error. But we otherwise continue. */
 <STRING_LITERAL>\r {
     currentUnit->error("encountered un-escaped CR while scanning a string literal; use '\\r' instead.");
 }

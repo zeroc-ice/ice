@@ -1763,7 +1763,7 @@ YY_RULE_SETUP
     return ICE_STRING_LITERAL;
 }
 	YY_BREAK
-/* Matches an unescaped carriage return in a string literal, and issues an error. But we otherwise continue */
+/* Matches an unescaped carriage return in a string literal, and issues an error. But we otherwise continue. */
 case 16:
 YY_RULE_SETUP
 #line 240 "src/Slice/Scanner.l"
