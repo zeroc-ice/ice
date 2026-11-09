@@ -139,7 +139,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
    * characters representing newlines, and ASCII control characters. Double quotes and single-backslashes are matched
    * by other rules in the 'STRING_LITERAL' start-condition. */
 <STRING_LITERAL>"\\\\"+                        |
-<STRING_LITERAL>[^\x0-\x8\xE-\x1f\x7F\\\r\n"]+ {
+<STRING_LITERAL>[^\x0-\x8\xE-\x1F\x7F\\\r\n"]+ {
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
@@ -237,7 +237,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches an unescaped carriage return in a string literal, and issues an error. But we otherwise continue */
 <STRING_LITERAL>\r {
-    currentUnit->error("encountered un-escaped CR while scanning a string literal.");
+    currentUnit->error("encountered un-escaped CR while scanning a string literal; use '\\r' instead.");
 }
 
   /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
