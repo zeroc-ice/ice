@@ -20,7 +20,7 @@ authorityKeyIdentifier = keyid:always,issuer
 keyUsage = critical, digitalSignature, nonRepudiation, keyEncipherment
 extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
-authorityInfoAccess = OCSP;URI:http://127.0.0.1:20002, caIssuers;URI:http://127.0.0.1:20001/ca4/ca4_cert.der
+authorityInfoAccess = OCSP;URI:http://localhost:8080, caIssuers;URI:http://127.0.0.1:20001/ca4/ca4_cert.der
 
 [ alt_names ]
 IP.1  = 127.0.0.1

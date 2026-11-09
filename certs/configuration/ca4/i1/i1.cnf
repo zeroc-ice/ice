@@ -43,4 +43,4 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer
 basicConstraints = critical, CA:true
 keyUsage = critical, digitalSignature, cRLSign, keyCertSign
-authorityInfoAccess = OCSP;URI:http://127.0.0.1:20002, caIssuers;URI:http://127.0.0.1:20001/ca4/ca4_cert.der
+authorityInfoAccess = OCSP;URI:http://localhost:8080, caIssuers;URI:http://127.0.0.1:20001/ca4/ca4_cert.der
