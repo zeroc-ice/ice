@@ -98,12 +98,11 @@ jobs:
             test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
             working_directory: "cpp"
 
-          # JavaScript in headless Chrome
-          - os: ubuntu-24.04
+          # JavaScript in Chrome, Firefox, and Safari. The test step runs Chrome; Firefox and Safari have their own steps.
+          - os: xcode-27
             config: "browser"
             build_flags: "LANGUAGES='cpp python js'"
             test_flags: "--languages=js --browser=Chrome"
-            skip_lto: true
 
           # MATLAB
           - os: ubuntu-24.04
@@ -346,9 +345,12 @@ jobs:
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
 
-      - name: Install Selenium
+      # Safari, unlike Chrome and Firefox, can't be told to accept the test CA's certificates, so trust the test CA.
+      - name: Setup browser testing
         if: matrix.config == 'browser'
-        run: python3 -m pip install selenium
+        run: |
+          python3 -m pip install selenium
+          sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain certs/common/ca/ca_cert.pem
         shell: bash
 
       # Boots and bonds the emulator pair and starts the server-side process controller, so the
@@ -460,6 +462,20 @@ jobs:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: "${{ matrix.test_flags }} --load-slice --language=python"
         if: matrix.python_tests == true
+
+      - name: Test ${{ matrix.config }} in Firefox on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 30
+        with:
+          flags: "--languages=js --browser=Firefox"
+        if: matrix.config == 'browser'
+
+      - name: Test ${{ matrix.config }} in Safari on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 30
+        with:
+          flags: "--languages=js --browser=Safari"
+        if: matrix.config == 'browser'
 
       - name: Generate API Reference
         uses: ./.github/actions/documentation

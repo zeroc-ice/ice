@@ -3618,14 +3618,26 @@ class BrowserProcessController(RemoteProcessController):
             self.httpsServer = Expect.Expect(httpsServerCmd, cwd=cwd)
             self.httpsServer.expect("Available on:")
 
+            # The https and wss servers present certificates signed by the test CA. Chrome and Firefox accept them
+            # with accept_insecure_certs; Safari doesn't support it and requires the test CA to be trusted instead.
             if current.config.browser == "Chrome":
                 from selenium import webdriver
 
                 options = webdriver.ChromeOptions()
                 options.add_argument("--headless")
-                # The https and wss servers present certificates signed by the test CA, which Chrome doesn't trust.
                 options.accept_insecure_certs = True
                 self.driver = webdriver.Chrome(options=options)
+            elif current.config.browser == "Firefox":
+                from selenium import webdriver
+
+                options = webdriver.FirefoxOptions()
+                options.add_argument("-headless")
+                options.accept_insecure_certs = True
+                self.driver = webdriver.Firefox(options=options)
+            elif current.config.browser == "Safari":
+                from selenium import webdriver
+
+                self.driver = webdriver.Safari()
         except Exception:
             self.destroy(current.driver)
             raise
@@ -4836,14 +4848,14 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
         def usage(cls) -> None:
             print("")
             print("JavaScript mapping options:")
-            print("--browser=<name>      Run in a browser: Chrome (headless, driven by Selenium) or Manual.")
+            print("--browser=<name>      Run in a browser driven by Selenium (Chrome, Firefox, or Safari), or Manual.")
             print("--worker              Run with Web workers enabled.")
             print("--coverage            Collect code coverage using c8. Only supported for Node.js.")
 
         def __init__(self, options: list[Option] = []):
             Mapping.Config.__init__(self, options)
 
-            if self.browser not in ["", "Chrome", "Manual"]:
+            if self.browser not in ["", "Chrome", "Firefox", "Safari", "Manual"]:
                 raise RuntimeError(f"unsupported browser `{self.browser}'")
 
             if self.browser and self.protocol == "tcp":
