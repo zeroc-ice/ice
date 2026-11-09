@@ -203,3 +203,26 @@ module BraceOnNextLine
         }
     }
 }
+
+module ElementsCanHaveTheSameNameAsTheirContainer
+{
+    interface IFoo
+    {
+        void IFoo();
+    }
+
+    class CFoo
+    {
+        string CFoo;
+    }
+
+    exception EFoo
+    {
+        string EFoo;
+    }
+
+    struct SFoo
+    {
+        string SFoo;
+    }
+}

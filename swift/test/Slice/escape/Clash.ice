@@ -52,4 +52,6 @@ module Clash
         short istr;
         int ostr;
     }
+
+    interface Foo { void Foo(); }
 }
