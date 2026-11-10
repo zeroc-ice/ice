@@ -67,6 +67,10 @@ extern "C"
 
 #include "php.h"
 
+#if PHP_VERSION_ID < 70000
+#   error "Ice for PHP requires PHP 7 or later"
+#endif
+
 #ifdef _WIN32
 #   pragma warning( default : 4018)
 #endif
