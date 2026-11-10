@@ -1204,11 +1204,11 @@ namespace
     int scanPosition(const char* s);
     SourceSpan positionSpan();
     SourceSpan matchSpan();
-    void endLocation(SourceSpan* location);
-    void locateIdentifierOpen(SourceSpan* location);
+    void endSpan(SourceSpan* span);
+    void trimToIdentifier(SourceSpan* span);
 
     void initScanner();
-    void preAction(SourceSpan* location);
+    void preAction(SourceSpan* span);
     void pushState(int newState);
     void popState();
 
@@ -1761,7 +1761,7 @@ YY_RULE_SETUP
 #line 233 "src/Slice/Scanner.l"
 {
     popState();
-    endLocation(yylloc);
+    endSpan(yylloc);
     currentUnit->error(*yylloc, "encountered un-escaped EOL while scanning a string literal.");
     nextLine();
     return ICE_STRING_LITERAL;
@@ -1798,7 +1798,7 @@ YY_RULE_SETUP
 #line 261 "src/Slice/Scanner.l"
 {
     popState();
-    endLocation(yylloc);
+    endSpan(yylloc);
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
@@ -1810,7 +1810,7 @@ case YY_STATE_EOF(STRING_LITERAL):
 #line 271 "src/Slice/Scanner.l"
 {
     popState();
-    endLocation(yylloc);
+    endSpan(yylloc);
 
     currentUnit->error(*yylloc, "encountered EOF while scanning a string literal");
     return ICE_STRING_LITERAL;
@@ -2100,7 +2100,7 @@ YY_RULE_SETUP
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
     *yylval = ident;
-    locateIdentifierOpen(yylloc);
+    trimToIdentifier(yylloc);
     if (*yytext == '\\')
     {
         if (checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
@@ -2157,7 +2157,7 @@ YY_RULE_SETUP
 	YY_BREAK
 /* ========== Others ========== */
 /* Matches EOF in every state without its own EOF rule. EOF doesn't run 'YY_USER_ACTION', so this sets the
-   * location of the end-of-file token to the scanner's current position. */
+   * span of the end-of-file token to the scanner's current position. */
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SLICE):
 case YY_STATE_EOF(METADATA):
@@ -3318,18 +3318,18 @@ namespace
         return span;
     }
 
-    void endLocation(SourceSpan* location)
+    void endSpan(SourceSpan* span)
     {
-        location->lastLine = yylineno;
-        location->lastColumn = yycolno;
+        span->lastLine = yylineno;
+        span->lastColumn = yycolno;
     }
 
-    // Ends the location of an 'identifier(' token at its identifier, so that it is the span of a name, and moves the
-    // scanner past any newlines between the identifier and the parenthesis.
-    void locateIdentifierOpen(SourceSpan* location)
+    // Trims the span of an 'identifier(' token to its identifier, and moves the scanner past any newlines between the
+    // identifier and the parenthesis.
+    void trimToIdentifier(SourceSpan* span)
     {
         string_view text{yytext, static_cast<size_t>(yyleng)};
-        location->lastColumn = location->firstColumn + static_cast<int>(text.find_first_of(" \t\v\n\r\f("));
+        span->lastColumn = span->firstColumn + static_cast<int>(text.find_first_of(" \t\v\n\r\f("));
 
         auto newlines = static_cast<int>(count(text.begin(), text.end(), '\n'));
         if (newlines > 0)
@@ -3375,14 +3375,14 @@ namespace
     }
 
     // This function is always called directly after a match has been made, but directly before its action block is run.
-    void preAction(SourceSpan* location)
+    void preAction(SourceSpan* span)
     {
         yycolno += yyleng;
 
-        // A string literal is scanned in pieces; its location starts at the opening quote and ends at the closing one.
+        // A string literal is scanned in pieces; its span starts at the opening quote and ends at the closing one.
         if (YY_START != STRING_LITERAL)
         {
-            *location = matchSpan();
+            *span = matchSpan();
         }
 
         // We only use the 'INITIAL' state to consume BOMs, which can only validly be the first match in a file. This

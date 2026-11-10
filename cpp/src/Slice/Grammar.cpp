@@ -151,10 +151,10 @@ using namespace std;
 using namespace Slice;
 
 void
-slice_error(const SourceSpan* location, const char* s)
+slice_error(const SourceSpan* span, const char* s)
 {
     // We want 'unit' to emit the error so its error count is incremented.
-    currentUnit->error(*location, s);
+    currentUnit->error(*span, s);
 }
 
 namespace
@@ -2427,7 +2427,7 @@ yyreduce:
   case 50: /* class_name: "class keyword" "identifier"  */
 #line 626 "src/Slice/Grammar.y"
 {
-    // The location of a class name is its identifier's, like its value.
+    // The span of a class name is its identifier's, like its value.
     yyval = yyvsp[0];
     (yyloc) = (yylsp[0]);
 }
@@ -2864,7 +2864,7 @@ yyreduce:
   case 77: /* interface_id: "interface keyword" "identifier"  */
 #line 1015 "src/Slice/Grammar.y"
 {
-    // The location of an interface ID is its identifier's, like its value.
+    // The span of an interface ID is its identifier's, like its value.
     yyval = yyvsp[0];
     (yyloc) = (yylsp[0]);
 }

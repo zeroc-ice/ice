@@ -101,10 +101,10 @@ using namespace std;
 using namespace Slice;
 
 void
-slice_error(const SourceSpan* location, const char* s)
+slice_error(const SourceSpan* span, const char* s)
 {
     // We want 'unit' to emit the error so its error count is incremented.
-    currentUnit->error(*location, s);
+    currentUnit->error(*span, s);
 }
 
 namespace
@@ -624,7 +624,7 @@ class_name
 // ----------------------------------------------------------------------
 : ICE_CLASS ICE_IDENTIFIER
 {
-    // The location of a class name is its identifier's, like its value.
+    // The span of a class name is its identifier's, like its value.
     $$ = $2;
     @$ = @2;
 }
@@ -1013,7 +1013,7 @@ interface_id
 // ----------------------------------------------------------------------
 : ICE_INTERFACE ICE_IDENTIFIER
 {
-    // The location of an interface ID is its identifier's, like its value.
+    // The span of an interface ID is its identifier's, like its value.
     $$ = $2;
     @$ = @2;
 }
