@@ -683,6 +683,52 @@ newSessionCallbacksAreInvoked(Test::TestHelper* helper, const string& certificat
 }
 
 void
+serverCertificateSelectionCallbackInvokedOncePerConnection(Test::TestHelper* helper, const string& certificatesPath)
+{
+    cout << "server certificate selection callback is invoked once per connection... " << flush;
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
+        certificatesPath + "/ca1/server.p12",
+        "",
+        getKeyChainPath(certificatesPath),
+        keychainPassword,
+        password);
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    try
+    {
+        atomic<int> invocations{0};
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
+            .serverCertificateSelectionCallback = [&invocations, serverCertificateChain](const string&)
+            {
+                ++invocations;
+                CFRetain(serverCertificateChain);
+                return serverCertificateChain;
+            }};
+        Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+
+        // Each client communicator establishes a new connection, which performs one TLS handshake.
+        for (int i = 1; i <= 3; ++i)
+        {
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .trustedRootCertificates = trustedRootCertificates};
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
+            obj->ice_ping();
+            test(invocations == i);
+        }
+    }
+    catch (...)
+    {
+        CFRelease(serverCertificateChain);
+        CFRelease(trustedRootCertificates);
+        throw;
+    }
+    CFRelease(serverCertificateChain);
+    CFRelease(trustedRootCertificates);
+    cout << "ok" << endl;
+}
+
+void
 serverCertificateSelectionCallbackFailure(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server certificate selection callback failure... " << flush;
@@ -1243,6 +1289,7 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& defaultDir
     newSessionCallbacksAreInvoked(helper, certificatesPath);
 
     serverHotCertificateReload(helper, certificatesPath);
+    serverCertificateSelectionCallbackInvokedOncePerConnection(helper, certificatesPath);
     serverCertificateSelectionCallbackFailure(helper, certificatesPath);
     certificateSelectionCallbackReturnsCertificateOnly(helper, certificatesPath);
     configurationExceptionsArePreserved(helper, certificatesPath);

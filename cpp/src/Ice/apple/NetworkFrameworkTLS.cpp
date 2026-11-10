@@ -11,7 +11,14 @@
 #    include "Ice/SSL/ConnectionInfo.h"
 #    include "ObjectRef.h"
 
+#    include <Block.h>
 #    include <Security/Security.h>
+
+#    include <cassert>
+#    include <chrono>
+#    include <map>
+#    include <mutex>
+#    include <vector>
 
 using namespace std;
 using namespace Ice;
@@ -57,6 +64,153 @@ namespace
         }
         return SecRef<sec_identity_t>::adopt(sec_identity_create_with_certificates(identity, intermediates.get()));
     }
+
+    // Selects the server identity of the TLS handshakes of a listener with the server certificate selection
+    // callback, calling the callback once per handshake.
+    //
+    // Network.framework invokes the challenge block twice for the same handshake when the client's ClientHello is
+    // already buffered when the handshake starts, which is common with local clients; the second invocation can
+    // start before the first one completes, and the handshake uses whichever completion arrives first. Without
+    // deduplication the application callback runs twice per connection, and two different answers (for example
+    // during a certificate reload) race. The invocations of the same handshake share the same metadata object,
+    // which identifies the handshake here; it is retained while cached, so its address cannot be reused by another
+    // handshake in the meantime.
+    class ServerIdentitySelection
+    {
+    public:
+        explicit ServerIdentitySelection(shared_ptr<const ServerConfiguration> configuration)
+            : _configuration(std::move(configuration))
+        {
+        }
+
+        void select(sec_protocol_metadata_t metadata, sec_protocol_challenge_complete_t complete)
+        {
+            {
+                unique_lock lock(_mutex);
+                prune();
+                auto p = _handshakes.find(metadata);
+                if (p == _handshakes.end())
+                {
+                    _handshakes.emplace(metadata, Handshake{SecRef<sec_protocol_metadata_t>::retain(metadata)});
+                }
+                else if (!p->second.selected)
+                {
+                    // The first invocation is still running the application callback: it completes this one.
+                    p->second.waiting.push_back(Block_copy(complete));
+                    return;
+                }
+                else
+                {
+                    // The second invocation of a handshake whose identity is already selected.
+                    SecRef<sec_identity_t> selected = std::move(p->second.identity);
+                    _handshakes.erase(p);
+                    lock.unlock();
+                    complete(selected.get());
+                    return;
+                }
+            }
+
+            SecRef<sec_identity_t> identity = selectIdentity();
+
+            vector<sec_protocol_challenge_complete_t> waiting;
+            {
+                lock_guard lock(_mutex);
+                auto p = _handshakes.find(metadata);
+                assert(p != _handshakes.end());
+                if (p->second.waiting.empty())
+                {
+                    // Keep the identity for a second invocation that has not started yet.
+                    p->second.selected = true;
+                    p->second.identity = SecRef<sec_identity_t>::retain(identity.get());
+                    p->second.selectedTime = chrono::steady_clock::now();
+                }
+                else
+                {
+                    waiting.swap(p->second.waiting);
+                    _handshakes.erase(p);
+                }
+            }
+
+            complete(identity.get());
+            for (auto waitingComplete : waiting)
+            {
+                waitingComplete(identity.get());
+                Block_release(waitingComplete);
+            }
+        }
+
+    private:
+        struct Handshake
+        {
+            explicit Handshake(SecRef<sec_protocol_metadata_t> handshakeMetadata)
+                : metadata(std::move(handshakeMetadata))
+            {
+            }
+
+            SecRef<sec_protocol_metadata_t> metadata;
+            bool selected{false};
+            SecRef<sec_identity_t> identity;
+            chrono::steady_clock::time_point selectedTime;
+            vector<sec_protocol_challenge_complete_t> waiting; // Copied blocks, released once called.
+        };
+
+        // The block runs on a dispatch thread, where an escaping exception terminates the process: a failing
+        // certificate selection (for example a reload that cannot read the new certificate) fails this handshake
+        // instead.
+        [[nodiscard]] SecRef<sec_identity_t> selectIdentity() const
+        {
+            try
+            {
+                return createIdentity(
+                    _configuration->options.serverCertificateSelectionCallback(_configuration->adapterName),
+                    "server certificate selection callback");
+            }
+            catch (const std::exception& ex)
+            {
+                Warning out(_configuration->logger);
+                out << "SSL transport: the server certificate selection callback failed:\n" << ex.what();
+            }
+            catch (...)
+            {
+                Warning out(_configuration->logger);
+                out << "SSL transport: the server certificate selection callback failed";
+            }
+            return {};
+        }
+
+        // Removes the handshakes that were invoked only once and selected more than the retention ago. The second
+        // invocation is issued together with the first one, so the retention only needs to cover scheduling delays;
+        // if a second invocation ever came later, the callback would simply run again for that handshake. Pruning
+        // runs from select, so an idle listener keeps its last entries until the next handshake or until it is
+        // released. Must be called with _mutex locked.
+        void prune()
+        {
+            auto now = chrono::steady_clock::now();
+            if (now - _lastPrune < retention)
+            {
+                return;
+            }
+            _lastPrune = now;
+            for (auto p = _handshakes.begin(); p != _handshakes.end();)
+            {
+                if (p->second.selected && now - p->second.selectedTime >= retention)
+                {
+                    p = _handshakes.erase(p);
+                }
+                else
+                {
+                    ++p;
+                }
+            }
+        }
+
+        static constexpr chrono::seconds retention{5};
+
+        const shared_ptr<const ServerConfiguration> _configuration;
+        mutex _mutex;
+        map<sec_protocol_metadata_t, Handshake> _handshakes;
+        chrono::steady_clock::time_point _lastPrune;
+    };
 
     // The certificate chain the peer presented, from the handshake metadata: sec_trust_copy_ref only provides the
     // leaf certificate, the intermediates are needed to evaluate the trust.
@@ -276,34 +430,15 @@ IceInternal::NetworkFrameworkTLS::configureServerTLS(
     {
         // The TLS options are configured once and shared by all the connections the listener accepts. The server
         // identity is selected from a challenge block, which runs for each TLS handshake: the certificate selection
-        // callback is invoked per connection and a reloaded certificate is picked up without recreating the
-        // listener.
+        // callback is invoked once per connection (see ServerIdentitySelection) and a reloaded certificate is
+        // picked up without recreating the listener.
         if (authOptions.serverCertificateSelectionCallback)
         {
+            auto selection = make_shared<ServerIdentitySelection>(configuration);
             sec_protocol_options_set_challenge_block(
                 options.get(),
-                ^(sec_protocol_metadata_t, sec_protocol_challenge_complete_t complete) {
-                  // The block runs on a dispatch thread, where an escaping exception terminates the process: a
-                  // failing certificate selection (for example a reload that cannot read the new certificate)
-                  // fails this handshake instead.
-                  SecRef<sec_identity_t> identity;
-                  try
-                  {
-                      identity = createIdentity(
-                          configuration->options.serverCertificateSelectionCallback(configuration->adapterName),
-                          "server certificate selection callback");
-                  }
-                  catch (const std::exception& ex)
-                  {
-                      Warning out(configuration->logger);
-                      out << "SSL transport: the server certificate selection callback failed:\n" << ex.what();
-                  }
-                  catch (...)
-                  {
-                      Warning out(configuration->logger);
-                      out << "SSL transport: the server certificate selection callback failed";
-                  }
-                  complete(identity.get());
+                ^(sec_protocol_metadata_t metadata, sec_protocol_challenge_complete_t complete) {
+                  selection->select(metadata, complete);
                 },
                 dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
         }
