@@ -58,6 +58,11 @@ jobs:
             test_flags: "--config=cpp11-shared"
             working_directory: cpp
 
+          # JavaScript in Chrome, Firefox, and Safari, each in its own test step.
+          - os: macos-26
+            config: browser
+            build_flags: "LANGUAGES='cpp python js'"
+
           # MATLAB
           - os: ubuntu-24.04
             config: "matlab"
@@ -126,12 +131,42 @@ jobs:
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
 
+      # Safari, unlike Chrome and Firefox, can't be told to accept the test CA's certificates, so trust the test CA.
+      - name: Setup browser testing
+        if: matrix.config == 'browser'
+        run: |
+          python3 -m pip install selenium
+          sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain certs/cacert.pem
+        shell: bash
+
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
+        if: matrix.config != 'browser'
         uses: ./.github/actions/test
         timeout-minutes: 45
         with:
           flags: "--all ${{ matrix.test_flags }}"
           working_directory: ${{ matrix.working_directory || '.' }}
+
+      - name: Test ${{ matrix.config }} in Chrome on ${{ matrix.os }}
+        if: matrix.config == 'browser'
+        uses: ./.github/actions/test
+        timeout-minutes: 30
+        with:
+          flags: "--all --languages=js --browser=Chrome"
+
+      - name: Test ${{ matrix.config }} in Firefox on ${{ matrix.os }}
+        if: ${{ !cancelled() && matrix.config == 'browser' }}
+        uses: ./.github/actions/test
+        timeout-minutes: 30
+        with:
+          flags: "--all --languages=js --browser=Firefox"
+
+      - name: Test ${{ matrix.config }} in Safari on ${{ matrix.os }}
+        if: ${{ !cancelled() && matrix.config == 'browser' }}
+        uses: ./.github/actions/test
+        timeout-minutes: 30
+        with:
+          flags: "--all --languages=js --browser=Safari"
 
       - name: Cross Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
