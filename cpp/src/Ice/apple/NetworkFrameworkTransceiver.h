@@ -159,6 +159,13 @@ namespace IceInternal
         bool _incoming{false};
         std::string _adapterName;
     };
+
+    // Creates the parameters of the Network.framework TCP and TLS connections and listeners. Every connection gets
+    // the TCP options the BSD-socket transports set on their sockets: Nagle's algorithm disabled and keepalive
+    // enabled with the system default timings. The connections a listener accepts inherit the listener's options.
+    // configureTLS configures the TLS protocol, or is NW_PARAMETERS_DISABLE_PROTOCOL for plain TCP; it is invoked
+    // synchronously. Returns null if Network.framework cannot create the parameters.
+    NetworkRef<nw_parameters_t> createTcpParameters(nw_parameters_configure_protocol_block_t configureTLS);
 }
 
 #endif

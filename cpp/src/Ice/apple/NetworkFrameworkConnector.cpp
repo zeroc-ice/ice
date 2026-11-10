@@ -63,8 +63,7 @@ namespace
 TransceiverPtr
 IceInternal::NetworkFrameworkConnector::connect()
 {
-    auto parameters = NetworkRef<nw_parameters_t>::adopt(
-        nw_parameters_create_secure_tcp(NW_PARAMETERS_DISABLE_PROTOCOL, NW_PARAMETERS_DEFAULT_CONFIGURATION));
+    NetworkRef<nw_parameters_t> parameters = createTcpParameters(NW_PARAMETERS_DISABLE_PROTOCOL);
     if (!parameters)
     {
         throw ConnectFailedException(__FILE__, __LINE__, 0);

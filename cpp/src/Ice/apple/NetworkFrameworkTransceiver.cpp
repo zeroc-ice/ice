@@ -70,6 +70,16 @@ namespace
     }
 }
 
+NetworkRef<nw_parameters_t>
+IceInternal::createTcpParameters(nw_parameters_configure_protocol_block_t configureTLS)
+{
+    return NetworkRef<nw_parameters_t>::adopt(
+        nw_parameters_create_secure_tcp(configureTLS, ^(nw_protocol_options_t tcpOptions) {
+          nw_tcp_options_set_no_delay(tcpOptions, true);
+          nw_tcp_options_set_enable_keepalive(tcpOptions, true);
+        }));
+}
+
 IceInternal::NetworkFrameworkTransceiver::AsyncState::AsyncState(NativeInfoPtr info) : nativeInfo(std::move(info)) {}
 
 IceInternal::NetworkFrameworkTransceiver::NetworkFrameworkTransceiver(

@@ -238,22 +238,19 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
             adapterName,
             instance->logger());
         __block exception_ptr error;
-        parameters = NetworkRef<nw_parameters_t>::adopt(nw_parameters_create_secure_tcp(
-            ^(nw_protocol_options_t tlsOptions) {
-              error = NetworkFrameworkTLS::configureServerTLS(tlsOptions, configuration);
-            },
-            NW_PARAMETERS_DEFAULT_CONFIGURATION));
+        parameters = createTcpParameters(^(nw_protocol_options_t tlsOptions) {
+          error = NetworkFrameworkTLS::configureServerTLS(tlsOptions, configuration);
+        });
 
         if (error)
         {
-            // Set by the configure block, which nw_parameters_create_secure_tcp invoked synchronously.
+            // Set by the configure block, which createTcpParameters invoked synchronously.
             rethrow_exception(error);
         }
     }
     else
     {
-        parameters = NetworkRef<nw_parameters_t>::adopt(
-            nw_parameters_create_secure_tcp(NW_PARAMETERS_DISABLE_PROTOCOL, NW_PARAMETERS_DEFAULT_CONFIGURATION));
+        parameters = createTcpParameters(NW_PARAMETERS_DISABLE_PROTOCOL);
     }
 
     if (!parameters)

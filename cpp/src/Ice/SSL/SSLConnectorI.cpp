@@ -50,15 +50,14 @@ Ice::SSL::ConnectorI::connect()
     auto localVerifyRejected = make_shared<atomic<bool>>(false);
     __block exception_ptr error;
 
-    auto parameters = IceInternal::NetworkRef<nw_parameters_t>::adopt(nw_parameters_create_secure_tcp(
-        ^(nw_protocol_options_t tlsOptions) {
+    IceInternal::NetworkRef<nw_parameters_t> parameters =
+        IceInternal::createTcpParameters(^(nw_protocol_options_t tlsOptions) {
           error = IceInternal::NetworkFrameworkTLS::configureClientTLS(tlsOptions, configuration, localVerifyRejected);
-        },
-        NW_PARAMETERS_DEFAULT_CONFIGURATION));
+        });
 
     if (error)
     {
-        // Set by the configure block, which nw_parameters_create_secure_tcp invoked synchronously.
+        // Set by the configure block, which createTcpParameters invoked synchronously.
         rethrow_exception(error);
     }
     if (!parameters)
