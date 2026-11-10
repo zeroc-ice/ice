@@ -155,14 +155,14 @@ jobs:
           flags: "--all --languages=js --browser=Chrome"
 
       - name: Test ${{ matrix.config }} in Firefox on ${{ matrix.os }}
-        if: matrix.config == 'browser'
+        if: ${{ !cancelled() && matrix.config == 'browser' }}
         uses: ./.github/actions/test
         timeout-minutes: 30
         with:
           flags: "--all --languages=js --browser=Firefox"
 
       - name: Test ${{ matrix.config }} in Safari on ${{ matrix.os }}
-        if: matrix.config == 'browser'
+        if: ${{ !cancelled() && matrix.config == 'browser' }}
         uses: ./.github/actions/test
         timeout-minutes: 30
         with:
