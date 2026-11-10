@@ -2720,7 +2720,7 @@ class BrowserProcessController(RemoteProcessController):
             cport = "15003"
         else:
             protocol = "http"
-            port = "8080"
+            port = "8081"
             cport = "15002"
         url = "{0}://{5}:{1}/test/{2}/controller.html?port={3}&worker={4}".format(protocol,
                                                                                   port,
@@ -2750,7 +2750,7 @@ class BrowserProcessController(RemoteProcessController):
                         if ident in self.processControllerProxies:
                             prx = self.processControllerProxies[ident]
                             break
-                        print("Please load http://{0}:8080/start".format(self.host))
+                        print("Please load http://{0}:8081/start".format(self.host))
                         self.cond.wait(5)
 
                 try:

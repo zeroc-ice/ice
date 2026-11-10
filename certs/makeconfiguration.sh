@@ -168,12 +168,14 @@ jks_trust() {
     done
 }
 
-# The CRL distribution point / authority information access extension blocks (the test serves these
-# over HTTP from scripts/tests/IceSSL/revocationutil.py on ports 20001/20002).
+# The CRL distribution point / authority information access extension blocks. The test serves these over
+# HTTP from scripts/tests/IceSSL/revocationutil.py: the CRLs and issuer certificates on 127.0.0.1:20001, the
+# OCSP responder on localhost:8080. macOS trustd refuses to fetch OCSP responses from an IP literal or from
+# a port other than 80 or 8080.
 ca3_crldp="crlDistributionPoints = URI:http://127.0.0.1:20001/ca3.crl.pem"
 cai3_crldp="crlDistributionPoints = URI:http://127.0.0.1:20001/cai3.crl.pem"
-ca4_aia="authorityInfoAccess = OCSP;URI:http://127.0.0.1:20002, caIssuers;URI:http://127.0.0.1:20001/cacert4.der"
-cai4_aia="authorityInfoAccess = OCSP;URI:http://127.0.0.1:20002, caIssuers;URI:http://127.0.0.1:20001/cai4.der"
+ca4_aia="authorityInfoAccess = OCSP;URI:http://localhost:8080, caIssuers;URI:http://127.0.0.1:20001/cacert4.der"
+cai4_aia="authorityInfoAccess = OCSP;URI:http://localhost:8080, caIssuers;URI:http://127.0.0.1:20001/cai4.der"
 
 generate_configuration() {
     pushd configuration > /dev/null

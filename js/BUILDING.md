@@ -90,7 +90,7 @@ to load the provided URL in the browser:
 python allTests.py --browser Manual
 ```
 
-Then open the test page http://127.0.0.1:8080/start using a web browser with ES6 support, such as a recent version of
+Then open the test page http://127.0.0.1:8081/start using a web browser with ES6 support, such as a recent version of
 Chrome, Firefox, Microsoft Edge, or Safari.
 
 To run them in a browser driven by Selenium instead, use `--browser Chrome`, `--browser Firefox`, or `--browser Safari`.
