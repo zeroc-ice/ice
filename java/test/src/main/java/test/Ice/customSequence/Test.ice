@@ -97,7 +97,9 @@ module Test
         optional(1) IntBuffer opOptIntBufferSeq(optional(2) IntBuffer inSeq, out optional(3) IntBuffer outSeq);
         optional(1) LongBuffer opOptLongBufferSeq(optional(2) LongBuffer inSeq, out optional(3) LongBuffer outSeq);
         optional(1) FloatBuffer opOptFloatBufferSeq(optional(2) FloatBuffer inSeq, out optional(3) FloatBuffer outSeq);
-        optional(1) DoubleBuffer opOptDoubleBufferSeq(optional(2) DoubleBuffer inSeq, out optional(3) DoubleBuffer outSeq);
+        optional(1) DoubleBuffer opOptDoubleBufferSeq(
+            optional(2) DoubleBuffer inSeq,
+            out optional(3) DoubleBuffer outSeq);
 
         void shutdown();
     }

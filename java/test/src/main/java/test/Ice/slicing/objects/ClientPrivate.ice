@@ -94,7 +94,8 @@ module Test
     }
 
     exception PreservedException
-    {}
+    {
+    }
 
     ["format:sliced"]
     interface TestIntf

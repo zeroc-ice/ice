@@ -67,7 +67,6 @@ module and
             ["php:identifier:_global"] echo global,
             ["php:identifier:_include"] optional(require_once) function* include,
             ["php:identifier:_new"] out endfor new,
-            ["php:identifier:_static"] out optional(2) endforeach static
-        ) throws endif, endwhile;
+            ["php:identifier:_static"] out optional(2) endforeach static) throws endif, endwhile;
     }
 }

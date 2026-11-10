@@ -25,8 +25,7 @@ module Test
         {
             ["amd"] ["python:identifier:_elif"] void elif(
                 ["python:identifier:_else"] int else,
-                ["python:identifier:_except"] out int except
-            );
+                ["python:identifier:_except"] out int except);
         }
 
         ["python:identifier:_exec"]
@@ -65,15 +64,14 @@ module Test
                 ["python:identifier:_while"] del* while,
                 ["python:identifier:_yield"] exec* yield,
                 ["python:identifier:_or"] if* or,
-                ["python:identifier:_global"] int global
-            ) throws is;
+                ["python:identifier:_global"] int global) throws is;
         }
 
         ["python:identifier:_import"]
         sequence<assert> import;
 
         ["python:identifier:_in"]
-        dictionary<string,assert> in;
+        dictionary<string, assert> in;
 
         ["python:identifier:_lambda"]
         const int lambda = 0;

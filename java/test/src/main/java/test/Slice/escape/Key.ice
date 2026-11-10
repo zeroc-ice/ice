@@ -23,8 +23,7 @@ module abstract
         ["java:identifier:myCheckedCast"]
         ["amd"] void checkedCast(
             ["java:identifier:escaped_clone"] int clone,
-            ["java:identifier:escaped_continue"] out int continue
-        );
+            ["java:identifier:escaped_continue"] out int continue);
     }
 
     ["java:identifier:_default"]
@@ -62,8 +61,7 @@ module abstract
             ["java:identifier:escaped_null"] notify null,
             ["java:identifier:escaped_package"] finalize* package,
             ["java:identifier:escaped_return"] default* return,
-            ["java:identifier:escaped_super"] int super
-            ) throws hashCode, clone;
+            ["java:identifier:escaped_super"] int super) throws hashCode, clone;
     }
 
     ["java:identifier:escaped_for"] sequence<assert> for;

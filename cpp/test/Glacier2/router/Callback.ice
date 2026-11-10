@@ -16,8 +16,7 @@ module Test
     {
         void callback();
 
-        void callbackEx()
-            throws CallbackException;
+        void callbackEx() throws CallbackException;
 
         ["amd"] int concurrentCallback(int number);
 
@@ -30,8 +29,7 @@ module Test
     {
         ["amd"] void initiateCallback(CallbackReceiver* proxy);
 
-        ["amd"] void initiateCallbackEx(CallbackReceiver* proxy)
-            throws CallbackException;
+        ["amd"] void initiateCallbackEx(CallbackReceiver* proxy) throws CallbackException;
 
         ["amd"] int initiateConcurrentCallback(int number, CallbackReceiver* proxy);
 

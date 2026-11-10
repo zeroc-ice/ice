@@ -96,8 +96,7 @@ module IceStorm
         /// @throws AlreadySubscribed Thrown when @p subscriber is already subscribed.
         /// @throws BadQoS Thrown when @p theQoS is unavailable or invalid.
         /// @see #unsubscribe
-        Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber)
-            throws AlreadySubscribed, BadQoS;
+        Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber) throws AlreadySubscribed, BadQoS;
 
         /// Unsubscribes the provided @p subscriber from this topic.
         /// @param subscriber A proxy to an existing subscriber. This proxy is never null.

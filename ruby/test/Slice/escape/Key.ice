@@ -55,8 +55,7 @@ module BEGIN
         END for(
             ["ruby:identifier:_freeze"] display freeze,
             ["ruby:identifier:_if"] break* if,
-            ["ruby:identifier:_methods"] int methods
-        ) throws nil;
+            ["ruby:identifier:_methods"] int methods) throws nil;
     }
 
     ["ruby:identifier:_rescue"]

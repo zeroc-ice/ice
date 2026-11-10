@@ -56,8 +56,7 @@ module await
             break internal,
             ["js:identifier:_new"] typeof* new,
             ["js:identifier:_null"] delete null,
-            int override
-        ) throws fixed, foreach;
+            int override) throws fixed, foreach;
     }
 
     ["js:identifier:_while"]
@@ -76,14 +75,16 @@ module await
     interface optionalParams
     {
         ["js:identifier:_in"]
-        optional(1) break in(optional(2) var goto,
+        optional(1) break in(
+            optional(2) var goto,
             ["js:identifier:_if"] optional(3) explicit* if,
             optional(5) while internal,
             out optional(7) string namespace,
             ["js:identifier:_null"] out optional(8) explicit* null);
 
         ["amd"] ["js:identifier:_continue"]
-        optional(1) break continue(optional(2) var goto,
+        optional(1) break continue(
+            optional(2) var goto,
             ["js:identifier:_if"] optional(3) explicit* if,
             optional(5) while internal,
             out optional(7) string namespace,

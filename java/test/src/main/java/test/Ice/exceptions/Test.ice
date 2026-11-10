@@ -8,7 +8,8 @@
 module Test
 {
     interface Empty
-    {}
+    {
+    }
 
     interface Thrower;
 

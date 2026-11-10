@@ -89,20 +89,16 @@ module Test
     interface Custom
     {
         ByteString opByteString1(ByteString b1, out ByteString b2);
-        ["python:tuple"] ByteString opByteString2(["python:list"] ByteString b1,
-            ["python:list"] out ByteString b2);
+        ["python:tuple"] ByteString opByteString2(["python:list"] ByteString b1, ["python:list"] out ByteString b2);
 
         ByteList opByteList1(ByteList b1, out ByteList b2);
-        ["python:list"] ByteList opByteList2(["python:tuple"] ByteList b1,
-            ["python:tuple"] out ByteList b2);
+        ["python:list"] ByteList opByteList2(["python:tuple"] ByteList b1, ["python:tuple"] out ByteList b2);
 
         StringList opStringList1(StringList s1, out StringList s2);
-        ["python:tuple"] StringList opStringList2(["python:tuple"] StringList s1,
-            ["python:tuple"] out StringList s2);
+        ["python:tuple"] StringList opStringList2(["python:tuple"] StringList s1, ["python:tuple"] out StringList s2);
 
         StringTuple opStringTuple1(StringTuple s1, out StringTuple s2);
-        ["python:list"] StringTuple opStringTuple2(["python:list"] StringTuple s1,
-            ["python:list"] out StringTuple s2);
+        ["python:list"] StringTuple opStringTuple2(["python:list"] StringTuple s1, ["python:list"] out StringTuple s2);
 
         void sendS(S val);
         void sendC(C val);

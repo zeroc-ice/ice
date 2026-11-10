@@ -107,8 +107,7 @@ module Ice
             RemoteLogger* prx,
             LogMessageTypeSeq messageTypes,
             StringSeq traceCategories,
-            int messageMax)
-            throws RemoteLoggerAlreadyAttachedException;
+            int messageMax) throws RemoteLoggerAlreadyAttachedException;
 
         /// Detaches a {@link RemoteLogger} object from the local logger.
         /// @param prx A proxy to the remote logger. This facet uses only the identity of this proxy.

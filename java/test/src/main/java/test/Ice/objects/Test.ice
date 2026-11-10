@@ -53,23 +53,25 @@ module Test
 
     // Exercise empty class with non-empty base
     class G extends Base
-    {}
+    {
+    }
 
     sequence<Base> BaseSeq;
 
     class CompactExt;
 
     class Compact(1)
-    {}
+    {
+    }
 
     const int CompactExtId = 789;
 
     class CompactExt(CompactExtId) extends Compact
-    {}
+    {
+    }
 
     module Inner
     {
-
         class A
         {
             ::Test::A theA;
@@ -82,7 +84,6 @@ module Test
 
         module Sub
         {
-
             class A
             {
                 ::Test::Inner::A theA;
@@ -227,10 +228,12 @@ module Test
     }
 
     class Empty
-    {}
+    {
+    }
 
     class AlsoEmpty
-    {}
+    {
+    }
 
     interface UnexpectedObjectExceptionTest
     {
