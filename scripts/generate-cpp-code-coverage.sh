@@ -52,7 +52,8 @@ case "$1" in
         echo "  cd cpp && ../scripts/generate-cpp-code-coverage.sh"
         echo "  open coverage/html/index.html"
         echo ""
-        echo "On Linux, the script builds with clang++ and needs llvm-profdata and llvm-cov of the same version."
+        echo "On Linux, the script supports only Debian and Ubuntu. It builds with clang++ and needs llvm-profdata and"
+        echo "llvm-cov of the same version."
         exit 0
         ;;
     "")

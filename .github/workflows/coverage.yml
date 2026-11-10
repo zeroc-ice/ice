@@ -95,6 +95,9 @@ jobs:
         with:
           reports: cpp/coverage/coverage.cobertura.xml
           targetdir: cpp-coverage-report
+          # The parsers' #line paths are relative to cpp, but the compiler resolves them against the msbuild project
+          # directory; ReportGenerator maps such missing files to the source directory.
+          sourcedirs: cpp
           reporttypes: Html;TextSummary
           license: ${{ secrets.REPORT_GENERATOR_LICENSE }}
 
