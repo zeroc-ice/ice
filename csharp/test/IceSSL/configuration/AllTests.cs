@@ -2295,8 +2295,8 @@ public class AllTests
                     "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
                     "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
                     "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\",L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Client",
-                    "THUMBPRINT:'91 3E 4E BF A5 D3 8F 50 69 6F 72 9E 6F 26 23 BD F1 31 7D F0'",
-                    "SUBJECTKEYID:'E3 6D D0 B7 A9 FA 66 70 52 55 01 86 A1 48 57 49 F0 03 5D 54'",
+                    "THUMBPRINT:'CA 08 B3 AC AD 46 28 4F C2 06 7C 8F 84 D4 45 37 4A 10 75 FB'",
+                    "SUBJECTKEYID:'D3 43 C3 5D D8 9B 09 1A EF D7 58 95 18 90 A9 B7 AE F3 76 C8'",
                 };
 
                 string[] serverFindCertProperties = new string[]
@@ -2304,8 +2304,8 @@ public class AllTests
                     "SUBJECTDN:'CN=Server, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
                     "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
                     "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Server",
-                    "THUMBPRINT:'53 AA 97 73 59 BD 46 92 4F 78 79 A8 68 B9 15 82 40 60 2A DE'",
-                    "SUBJECTKEYID:'7A C6 C0 D0 4C DE 61 B1 FB 5C 3D 58 84 8F 74 CE 4B 8A 1B 5C'",
+                    "THUMBPRINT:'75 2B 3E 00 BD 37 2B F7 30 43 BA EA 53 29 C6 CD FE 63 D5 52'",
+                    "SUBJECTKEYID:'E8 51 46 75 11 82 9D D6 75 FE F6 AA 73 FE 84 15 8C 3F B3 F3'",
                 };
 
                 string[] failFindCertProperties = new string[]
