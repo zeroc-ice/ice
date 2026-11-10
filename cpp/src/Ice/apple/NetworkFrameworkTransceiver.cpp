@@ -165,10 +165,7 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer& readBuffer, Buffer&
                 }
                 else
                 {
-                    throw ConnectionLostException(
-                        __FILE__,
-                        __LINE__,
-                        "connection lost (TLS error " + to_string(result.error) + ")");
+                    throw ConnectionLostException(__FILE__, __LINE__);
                 }
             }
             // A reset by the peer (for example a server that accepts then closes an over-limit connection)
