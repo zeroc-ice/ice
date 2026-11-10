@@ -131,6 +131,9 @@ namespace
     /// @param kindString A string describing what the integer is being used for ("tag", "compact id", etc.).
     ///                   It is only used to emit a more descriptive error message.
     bool checkIntegerBounds(const IntegerTokPtr& token, const SourceSpan& span, string_view kindString);
+
+    /// Returns the empty span at the end of @p span.
+    [[nodiscard]] SourceSpan endOf(const SourceSpan& span);
 }
 
 %}
@@ -610,7 +613,7 @@ struct_def
     auto st = dynamic_pointer_cast<Struct>($3);
     if (st->dataMembers().empty())
     {
-        currentUnit->error(@6, "struct '" + st->name() + "' must have at least one member");
+        currentUnit->error(st->span(), "struct '" + st->name() + "' must have at least one member");
     }
     $$ = st;
 }
@@ -777,7 +780,7 @@ data_members
 }
 | metadata data_member
 {
-    currentUnit->error(@2, "';' missing after definition");
+    currentUnit->error(endOf(@2), "';' missing after definition");
 }
 | %empty
 {
@@ -1135,7 +1138,7 @@ operations
 }
 | metadata operation
 {
-    currentUnit->error(@2, "';' missing after definition");
+    currentUnit->error(endOf(@2), "';' missing after definition");
 }
 | %empty
 {
@@ -1247,7 +1250,7 @@ enum_def
     auto enumerators = dynamic_pointer_cast<EnumeratorListTok>($5);
     if (enumerators->v.empty())
     {
-        currentUnit->error(@6, "enum '" + en->name() + "' must have at least one enumerator");
+        currentUnit->error(en->span(), "enum '" + en->name() + "' must have at least one enumerator");
     }
     currentUnit->popContainer();
     $$ = en;
@@ -1819,5 +1822,10 @@ namespace
         {
             return true;
         }
+    }
+
+    SourceSpan endOf(const SourceSpan& span)
+    {
+        return {span.filename, span.lastLine, span.lastColumn, span.lastLine, span.lastColumn};
     }
 }
