@@ -21,7 +21,9 @@ class ConfigurationTestCase(ClientServerTestCase):
             from scripts.tests.IceSSL import revocationutil
             self.crlServer = revocationutil.createCRLServer('127.0.0.1', 20001, certsPath)
             self.crlServer.start()
-            self.ocspServer = revocationutil.createOCSPServer('127.0.0.1', 20002, certsPath)
+            # The ca4 certificates name the OCSP responder as http://localhost:8080. macOS trustd refuses to fetch
+            # OCSP responses from an IP literal or from a port other than 80 or 8080.
+            self.ocspServer = revocationutil.createOCSPServer('127.0.0.1', 8080, certsPath)
             self.ocspServer.start()
 
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":

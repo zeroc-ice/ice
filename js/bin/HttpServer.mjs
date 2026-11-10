@@ -235,16 +235,16 @@ function Init() {
                     req.on("data", () => {});
                     req.on("end", () => {
                         req.url = url.parse(req.url, true);
-                        req.url.protocol = port == 8080 ? "http" : "https";
+                        req.url.protocol = port == 8081 ? "http" : "https";
                         this.processRequest(req, res);
                     });
                 });
                 server.listen(port, host);
             };
 
-            createServerHandler(httpServer, 8080, "0.0.0.0");
+            createServerHandler(httpServer, 8081, "0.0.0.0");
             createServerHandler(httpsServer, 9090, "0.0.0.0");
-            console.log("listening on ports 8080 (http) and 9090 (https)...");
+            console.log("listening on ports 8081 (http) and 9090 (https)...");
         }
     }
 
