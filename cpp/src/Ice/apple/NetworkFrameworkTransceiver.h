@@ -20,7 +20,6 @@
 #include <memory>
 #include <mutex>
 #include <string>
-#include <vector>
 
 namespace IceInternal
 {
@@ -45,7 +44,11 @@ namespace IceInternal
 
             struct ReadResult
             {
-                std::vector<std::byte> data; // Empty on error.
+                // The received content, null on error and when the peer closed the connection. The transceiver
+                // copies it into the connection's buffer; the block that receives it cannot, because the buffer can
+                // be gone by the time a late block runs.
+                DispatchRef<dispatch_data_t> data;
+                size_t size{0}; // The size of data, 0 when data is null.
                 int error{0};
             };
 

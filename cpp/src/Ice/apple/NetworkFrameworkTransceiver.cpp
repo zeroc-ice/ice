@@ -56,7 +56,7 @@ namespace
     void cancel(AsyncState& state)
     {
         complete(state, state.connect, SocketOperationConnect, AsyncState::ConnectResult{ECANCELED, false});
-        complete(state, state.read, SocketOperationRead, AsyncState::ReadResult{{}, ECANCELED});
+        complete(state, state.read, SocketOperationRead, AsyncState::ReadResult{{}, 0, ECANCELED});
         complete(state, state.write, SocketOperationWrite, AsyncState::WriteResult{0, ECANCELED});
     }
 
@@ -67,6 +67,26 @@ namespace
             return {ECONNREFUSED, false};
         }
         return {nw_error_get_error_code(error), nw_error_get_error_domain(error) == nw_error_domain_tls};
+    }
+
+    // Copies count bytes of data, starting at offset, to destination. The content Network.framework delivers can be
+    // made of several discontiguous regions; they are copied in place, without flattening data first.
+    void copyData(dispatch_data_t data, size_t offset, std::byte* destination, size_t count)
+    {
+        const size_t end = offset + count;
+        dispatch_data_apply(data, ^bool(dispatch_data_t, size_t regionOffset, const void* region, size_t regionSize) {
+          const size_t regionEnd = regionOffset + regionSize;
+          if (regionEnd > offset)
+          {
+              const size_t from = max(offset, regionOffset);
+              const size_t to = min(end, regionEnd);
+              memcpy(
+                  destination + (from - offset),
+                  static_cast<const std::byte*>(region) + (from - regionOffset),
+                  to - from);
+          }
+          return regionEnd < end; // Stop once the last requested byte is copied.
+        });
     }
 }
 
@@ -369,18 +389,16 @@ IceInternal::NetworkFrameworkTransceiver::startRead(Buffer& buf)
         static_cast<uint32_t>(length), // maximum bytes
         ^(dispatch_data_t content, nw_content_context_t, bool, nw_error_t error) {
           // The result is built before the state is locked.
-          __block AsyncState::ReadResult result;
+          AsyncState::ReadResult result;
           if (error)
           {
               result.error = nw_error_get_error_code(error);
           }
-          else if (content)
+          else if (content && dispatch_data_get_size(content) > 0)
           {
-              dispatch_data_apply(content, ^bool(dispatch_data_t, size_t, const void* buffer, size_t size) {
-                auto* bytes = static_cast<const std::byte*>(buffer);
-                result.data.insert(result.data.end(), bytes, bytes + size);
-                return true;
-              });
+              // The block only borrows content: the result keeps its own reference until finishRead copies it.
+              result.size = dispatch_data_get_size(content);
+              result.data = DispatchRef<dispatch_data_t>::retain(content);
           }
           // Otherwise the peer closed the connection gracefully: finishRead reports the empty result as a
           // connection loss without an error code, like the BSD transports do for recv returning 0.
@@ -406,15 +424,15 @@ IceInternal::NetworkFrameworkTransceiver::finishRead(Buffer& buf)
         throw ConnectionLostException(__FILE__, __LINE__, result.error);
     }
 
-    if (result.data.empty())
+    if (!result.data)
     {
         throw ConnectionLostException(__FILE__, __LINE__);
     }
 
     size_t remaining = static_cast<size_t>(buf.b.end() - buf.i);
-    size_t count = min(result.data.size(), remaining); // Never more than requested.
+    size_t count = min(result.size, remaining); // Never more than requested.
 
-    memcpy(&*buf.i, result.data.data(), count);
+    copyData(result.data.get(), 0, &*buf.i, count);
     buf.i += count;
 
     if (_state == StateProxyRead)
