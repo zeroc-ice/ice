@@ -90,8 +90,7 @@ module Test
         // in-line marshaling.
         ["java:type:java.util.ArrayList<A>"] optional(1) ASeq opOptASeqLocalType(
             ["java:type:java.util.ArrayList<A>"] optional(2) ASeq inSeq,
-            ["java:type:java.util.ArrayList<A>"] out optional(3) ASeq outSeq
-        );
+            ["java:type:java.util.ArrayList<A>"] out optional(3) ASeq outSeq);
 
         optional(1) ByteBuffer opOptByteBufferSeq(optional(2) ByteBuffer inSeq, out optional(3) ByteBuffer outSeq);
         optional(1) ShortBuffer opOptShortBufferSeq(optional(2) ShortBuffer inSeq, out optional(3) ShortBuffer outSeq);

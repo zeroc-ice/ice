@@ -77,47 +77,40 @@ module Test
         opOptLongFloatLinkedDict(optional(2) LongFloatLinkedDict inDict, out optional(3) LongFloatLinkedDict outDict);
         optional(1) StringDoubleLinkedDict opOptStringDoubleLinkedDict(
             optional(2) StringDoubleLinkedDict inDict,
-            out optional(3) StringDoubleLinkedDict outDict
-        );
+            out optional(3) StringDoubleLinkedDict outDict);
 
         optional(1) AIntDict opOptAIntDict(optional(2) AIntDict inDict, out optional(3) AIntDict outDict);
         optional(1) AIntLinkedDict
         opOptAIntLinkedDict(optional(2) AIntLinkedDict inDict, out optional(3) AIntLinkedDict outDict);
         optional(1) AIntFormalLinkedDict opOptAIntFormalLinkedDict(
             optional(2) AIntFormalLinkedDict inDict,
-            out optional(3) AIntFormalLinkedDict outDict
-        );
+            out optional(3) AIntFormalLinkedDict outDict);
 
         optional(1) StringEDict opOptStringEDict(optional(2) StringEDict inDict, out optional(3) StringEDict outDict);
         optional(1) StringELinkedDict
         opOptStringELinkedDict(optional(2) StringELinkedDict inDict, out optional(3) StringELinkedDict outDict);
         optional(1) StringEFormalLinkedDict opOptStringEFormalLinkedDict(
             optional(2) StringEFormalLinkedDict inDict,
-            out optional(3) StringEFormalLinkedDict outDict
-        );
+            out optional(3) StringEFormalLinkedDict outDict);
 
         optional(1) EStringSeqDict
         opOptEStringSeqDict(optional(2) EStringSeqDict inDict, out optional(3) EStringSeqDict outDict);
         optional(1) EStringSeqLinkedDict opOptEStringSeqLinkedDict(
             optional(2) EStringSeqLinkedDict inDict,
-            out optional(3) EStringSeqLinkedDict outDict
-        );
+            out optional(3) EStringSeqLinkedDict outDict);
         optional(1) EStringSeqFormalLinkedDict opOptEStringSeqFormalLinkedDict(
             optional(2) EStringSeqFormalLinkedDict inDict,
-            out optional(3) EStringSeqFormalLinkedDict outDict
-        );
+            out optional(3) EStringSeqFormalLinkedDict outDict);
 
         ["marshaled-result"] ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"]
         AIntDict opMAIntFormalLinkedDict(
             ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"] AIntDict inDict,
-            ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"] out AIntDict outDict
-        );
+            ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"] out AIntDict outDict);
 
         ["marshaled-result"] ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"]
         optional(1) EStringSeqDict opMOptEStringSeqFormalLinkedDict(
             ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"] optional(2) EStringSeqDict inDict,
-            ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"] out optional(3) EStringSeqDict outDict
-        );
+            ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"] out optional(3) EStringSeqDict outDict);
 
         void shutdown();
     }

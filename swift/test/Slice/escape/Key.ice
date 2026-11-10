@@ -58,8 +58,7 @@ module import
             do* mutable,
             ["swift:identifier:foo"] break* namespace,
             switch not,
-            long or
-        ) throws return, as;
+            long or) throws return, as;
     }
 
     ["swift:identifier:`fileprivate`"]

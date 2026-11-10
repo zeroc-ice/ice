@@ -78,8 +78,7 @@ module await
             ["js:identifier:_if"] optional(3) explicit* if,
             optional(5) while internal,
             out optional(7) string namespace,
-            ["js:identifier:_null"] out optional(8) explicit* null
-        );
+            ["js:identifier:_null"] out optional(8) explicit* null);
 
         ["amd"] ["js:identifier:_continue"]
         optional(1) break continue(
@@ -87,8 +86,7 @@ module await
             ["js:identifier:_if"] optional(3) explicit* if,
             optional(5) while internal,
             out optional(7) string namespace,
-            ["js:identifier:_null"] out optional(8) explicit* null
-        );
+            ["js:identifier:_null"] out optional(8) explicit* null);
     }
 
     ["js:identifier:_public"]

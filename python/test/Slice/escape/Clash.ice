@@ -29,8 +29,7 @@ module Test
             string result,
             string istr,
             string ostr,
-            optional(1) string proxy
-        );
+            optional(1) string proxy);
         void opOut(
             out string context,
             out string current,
@@ -42,8 +41,7 @@ module Test
             out string result,
             out string istr,
             out string ostr,
-            out optional(1) string proxy
-        );
+            out optional(1) string proxy);
         void opField(field name, field value);
     }
 
