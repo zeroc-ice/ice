@@ -475,14 +475,14 @@ jobs:
         timeout-minutes: 30
         with:
           flags: "--languages=js --browser=Firefox"
-        if: matrix.config == 'browser'
+        if: ${{ !cancelled() && matrix.config == 'browser' }}
 
       - name: Test ${{ matrix.config }} in Safari on ${{ matrix.os }}
         uses: ./.github/actions/test
         timeout-minutes: 30
         with:
           flags: "--languages=js --browser=Safari"
-        if: matrix.config == 'browser'
+        if: ${{ !cancelled() && matrix.config == 'browser' }}
 
       - name: Generate API Reference
         uses: ./.github/actions/documentation
