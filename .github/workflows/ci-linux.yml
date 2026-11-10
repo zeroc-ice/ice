@@ -159,30 +159,52 @@ jobs:
           username: zeroc-ice
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and test C++ (${{ matrix.config }})
+      - name: Build and test (${{ matrix.config }})
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/ice" \
-            -w /ice/cpp \
+            -w /ice \
             ghcr.io/zeroc-ice/ice-${{ matrix.image_type }}-builder-${{ matrix.distribution }}:${CHANNEL} \
             bash -c "
               set -ex
-              make CONFIGS=${{ matrix.config }} -j\$(nproc) srcs
-              make CONFIGS=${{ matrix.config }} -j\$(nproc) tests
+
+              # The native language mappings built and tested in addition to C++. Each one is compiled
+              # against the interpreter the distribution ships, which is what the distribution packages
+              # target. Ice for Python and Ice for PHP use the C++98 mapping, so they are only built in
+              # the shared configuration.
+              languages='${{ matrix.config == 'shared' && 'python php' || '' }}'
+
+              make CONFIGS=${{ matrix.config }} -j\$(nproc) -C cpp srcs
+              make CONFIGS=${{ matrix.config }} -j\$(nproc) -C cpp tests
+              for lang in \$languages; do
+                make -j\$(nproc) -C \$lang PYTHON=python3
+              done
 
               # The --rfilter option excludes tests matching the regex. These tests are excluded because
               # they require dependencies or permissions not available in the Docker builder images:
               # - IceUtil/priority, Ice/threadPoolPriority: require CAP_SYS_NICE for thread priorities
               # - Glacier2/*: require the passlib Python module
               # - IceSSL/configuration: requires the openssl CLI tool
-              python3 allTests.py --config=${{ matrix.config }} --workers=4 --debug --continue \
-                --rfilter='IceUtil/priority|Ice/threadPoolPriority|Glacier2/|IceSSL/configuration'
+              rfilter='IceUtil/priority|Ice/threadPoolPriority|Glacier2/|IceSSL/configuration'
+
+              # Every test suite runs even if an earlier one fails, so that a C++ failure does not hide the
+              # results of the other mappings; the step fails at the end if any suite failed.
+              status=0
+              (cd cpp && python3 allTests.py --config=${{ matrix.config }} --workers=4 --debug --continue \
+                --rfilter=\$rfilter) || status=1
+              for lang in \$languages; do
+                (cd \$lang && python3 allTests.py --workers=4 --debug --continue --rfilter=\$rfilter) || status=1
+              done
+              exit \$status
             "
 
       - name: Upload test logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-logs-${{ matrix.config }}-${{ matrix.distribution }}-${{ matrix.arch }}
-          path: cpp/**/*.log
+          path: |
+            cpp/**/*.log
+            python/**/*.log
+            php/**/*.log
           if-no-files-found: ignore
         if: always()
