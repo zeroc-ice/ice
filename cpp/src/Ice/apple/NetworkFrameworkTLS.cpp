@@ -385,8 +385,9 @@ IceInternal::NetworkFrameworkTLS::configureClientTLS(
 
     try
     {
-        // The server name, for SNI.
-        if (!host.empty())
+        // The server name, for SNI, which does not allow IP addresses (RFC 6066). The certificate verification still
+        // checks the host, IP address or not, through the SSL policy.
+        if (!host.empty() && !isIpAddress(host))
         {
             sec_protocol_options_set_tls_server_name(options.get(), host.c_str());
         }
