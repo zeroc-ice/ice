@@ -1604,10 +1604,6 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         else if (_state == StatePongPending)
         {
             prepareWriteHeader(OP_PONG, _pingPayload.size());
-
-            // A zero-length ping (the common keep-alive case) leaves _pingPayload empty. Guard the copy so we
-            // never form &_pingPayload[0] on an empty vector, which is undefined behavior and aborts under
-            // hardened standard libraries (_GLIBCXX_ASSERTIONS, MSVC debug iterators, libc++ hardening).
             if (!_pingPayload.empty())
             {
                 if (_pingPayload.size() > static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i))
