@@ -11,7 +11,15 @@ permissions:
 jobs:
   generate-cpp-coverage-report:
     if: github.repository == 'zeroc-ice/ice'
-    runs-on: xcode-27
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: xcode-27
+            platform: macos
+          - os: ubuntu-24.04
+            platform: linux
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -20,6 +28,10 @@ jobs:
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
+
+      - name: Install clang and the llvm tools
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y clang llvm
 
       - name: Setup Python
         uses: ./.github/actions/setup-python
@@ -47,7 +59,57 @@ jobs:
       # report may be updated without changing the size of the files. S3 does not offer a hash based sync.
       - name: Sync Coverage Report to S3
         working-directory: ./cpp/coverage/html
-        run: aws s3 sync . "s3://${AWS_S3_CODE_BUCKET}/ice/3.8/coverage/cpp/macos" --delete
+        run: aws s3 sync . "s3://${AWS_S3_CODE_BUCKET}/ice/3.8/coverage/cpp/${PLATFORM}" --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
+          AWS_DEFAULT_REGION: us-east-1
+          PLATFORM: ${{ matrix.platform }}
+        if: github.ref == 'refs/heads/3.8'
+
+  generate-cpp-windows-coverage-report:
+    if: github.repository == 'zeroc-ice/ice'
+    runs-on: windows-2022
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
+      - name: Install testing dependencies from pip
+        run: python -m pip install passlib cryptography numpy
+
+      - name: Generate C++ Coverage
+        working-directory: ./cpp
+        run: ../scripts/generate-cpp-code-coverage.ps1
+
+      - name: Generate C++ Coverage Report
+        uses: danielpalme/ReportGenerator-GitHub-Action@861674232075b2c6bd1405a04c4bb9b150653e81 # 5.5.12
+        with:
+          reports: cpp/coverage/coverage.cobertura.xml
+          targetdir: cpp-coverage-report
+          # The parsers' #line paths are relative to cpp, but the compiler resolves them against the msbuild project
+          # directory; ReportGenerator maps such missing files to the source directory.
+          sourcedirs: cpp
+          reporttypes: Html;TextSummary
+          license: ${{ secrets.REPORT_GENERATOR_LICENSE }}
+
+      - name: Write C++ Coverage Summary
+        # Only the totals, which end at the first blank line: the per-class rows exceed the step summary's size limit.
+        run: |
+          $totals = (Get-Content cpp-coverage-report\Summary.txt -Raw) -split '\r?\n\r?\n', 2
+          '```', $totals[0], '```' | Add-Content $env:GITHUB_STEP_SUMMARY
+
+      - name: Sync Coverage Report to S3
+        working-directory: ./cpp-coverage-report
+        run: aws s3 sync . "s3://$env:AWS_S3_CODE_BUCKET/ice/3.8/coverage/cpp/windows" --delete --exclude Summary.txt
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
