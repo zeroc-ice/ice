@@ -135,6 +135,12 @@ namespace IceInternal
         [[nodiscard]] std::string describe() const;
         [[nodiscard]] static State toState(SocketOperation);
 
+        // Fills buf from the read-ahead data, as far as both go, and releases the data once it is all consumed.
+        void consumeReadAhead(Buffer& buf);
+
+        // Reports to the thread pool whether read-ahead data is available, when that changed since the last report.
+        void updateReadReady();
+
         const ProtocolInstancePtr _instance;
         const NetworkProxyPtr _proxy;
         const Address _addr; // The destination address, only used with a network proxy.
@@ -144,6 +150,21 @@ namespace IceInternal
         const DispatchRef<dispatch_queue_t> _dispatchQueue;
         const std::shared_ptr<AsyncState> _async;
         State _state{StateNeedsConnect};
+
+        // The bytes a receive delivered beyond what the connection asked for: _readAhead holds the received content
+        // and the unconsumed bytes are [_readAheadOffset, _readAheadSize). read() serves them before a new receive
+        // is started, so a receive can deliver several messages at once. Only the connection's thread pool threads
+        // use them, serialized by the connection, never the blocks.
+        DispatchRef<dispatch_data_t> _readAhead;
+        size_t _readAheadOffset{0};
+        size_t _readAheadSize{0};
+
+        // The number of bytes the pending or last receive was started for, see finishRead.
+        size_t _readLength{0};
+
+        // The read readiness last reported through the NativeInfo, true while read-ahead data is available. It lets
+        // the thread pool dispatch the buffered messages without starting a receive. See updateReadReady.
+        bool _readReady{false};
 
         std::string _desc;
         bool _secure;

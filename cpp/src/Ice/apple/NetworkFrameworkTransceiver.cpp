@@ -37,6 +37,14 @@ namespace
         return host + ":" + to_string(port);
     }
 
+    // How many bytes a receive asks for when the connection needs fewer: the surplus is kept for the next reads, so
+    // one receive (one dispatch block and one thread pool completion) can deliver several small messages instead of
+    // two receives for each message (its header, then its body). 64 KiB holds several maximum-size TLS records and
+    // many small requests or replies, and bounds what a connection keeps buffered, in particular while it does not
+    // read, for example when its adapter is held. Larger needs, such as the body of a large message, are requested
+    // with their full length.
+    constexpr size_t readAheadSize = 64 * 1024;
+
     // The functions below are called with the state mutex held.
 
     // Completes the operation with its result and posts its completion to the selector, unless the operation was
@@ -283,6 +291,12 @@ IceInternal::NetworkFrameworkTransceiver::close()
     // Cancelling is distinct from releasing the connection, which the transceiver does when it is destroyed.
     nw_connection_cancel(_connection.get());
 
+    // The connection reads nothing more. The read readiness is left as is: the thread pool does not read a closed
+    // connection, and a transceiver closed before it got a connection is not registered with a thread pool.
+    _readAhead.reset();
+    _readAheadOffset = 0;
+    _readAheadSize = 0;
+
     lock_guard lock(_async->mutex);
     cancel(*_async);
 }
@@ -302,13 +316,14 @@ IceInternal::NetworkFrameworkTransceiver::write(Buffer& buf)
 SocketOperation
 IceInternal::NetworkFrameworkTransceiver::read(Buffer& buf)
 {
-    // Network.framework doesn't support synchronous reads. Return SocketOperationRead to
-    // trigger the async read path (startRead/finishRead) when more data is needed.
-    if (buf.i == buf.b.end())
+    // Network.framework has no synchronous receive: read() only serves the data a previous receive read ahead, and
+    // returns SocketOperationRead to start a receive (startRead/finishRead) when the buffer needs more.
+    if (_readAhead && buf.i != buf.b.end())
     {
-        return SocketOperationNone;
+        consumeReadAhead(buf);
+        updateReadReady();
     }
-    return SocketOperationRead;
+    return buf.i == buf.b.end() ? SocketOperationNone : SocketOperationRead;
 }
 
 bool
@@ -376,7 +391,15 @@ IceInternal::NetworkFrameworkTransceiver::startRead(Buffer& buf)
 {
     assert(_state == StateProxyRead || _state == StateConnected);
     assert(buf.b.end() - buf.i > 0);
+    // The thread pool reads instead of starting a receive while read-ahead data is available, see updateReadReady.
+    assert(!_readAhead);
     size_t length = static_cast<size_t>(buf.b.end() - buf.i);
+    _readLength = length;
+
+    // The proxy handshake receives exactly what it asks for: it only advances in finishRead, where endRead sizes the
+    // buffer for the next step, so nothing that follows the proxy response is received before the connection reads
+    // it as its own data.
+    size_t maximum = _state == StateConnected ? max(length, readAheadSize) : length;
 
     {
         lock_guard lock(_async->mutex);
@@ -385,8 +408,8 @@ IceInternal::NetworkFrameworkTransceiver::startRead(Buffer& buf)
     auto async = _async; // See initialize.
     nw_connection_receive(
         _connection.get(),
-        1,                             // minimum bytes
-        static_cast<uint32_t>(length), // maximum bytes
+        1,                              // minimum bytes
+        static_cast<uint32_t>(maximum), // maximum bytes
         ^(dispatch_data_t content, nw_content_context_t, bool, nw_error_t error) {
           // The result is built before the state is locked.
           AsyncState::ReadResult result;
@@ -429,11 +452,23 @@ IceInternal::NetworkFrameworkTransceiver::finishRead(Buffer& buf)
         throw ConnectionLostException(__FILE__, __LINE__);
     }
 
+    // No more than startRead was asked for, even when the buffer has more room now: a WSTransceiver shrinks the buffer
+    // to the end of the current frame for startRead only, and the bytes of the next frame must stay in the read-ahead
+    // data for it to parse.
     size_t remaining = static_cast<size_t>(buf.b.end() - buf.i);
-    size_t count = min(result.size, remaining); // Never more than requested.
+    size_t count = min(result.size, min(remaining, _readLength));
 
     copyData(result.data.get(), 0, &*buf.i, count);
     buf.i += count;
+
+    if (count < result.size)
+    {
+        assert(_state == StateConnected);
+        _readAhead = std::move(result.data);
+        _readAheadOffset = count;
+        _readAheadSize = result.size;
+        updateReadReady();
+    }
 
     if (_state == StateProxyRead)
     {
@@ -586,6 +621,40 @@ IceInternal::NetworkFrameworkTransceiver::toState(SocketOperation operation)
             return StateProxyWrite;
         default:
             return StateProxyConnected;
+    }
+}
+
+void
+IceInternal::NetworkFrameworkTransceiver::consumeReadAhead(Buffer& buf)
+{
+    assert(_readAhead);
+    size_t count = min(_readAheadSize - _readAheadOffset, static_cast<size_t>(buf.b.end() - buf.i));
+    copyData(_readAhead.get(), _readAheadOffset, &*buf.i, count);
+    buf.i += count;
+    _readAheadOffset += count;
+    if (_readAheadOffset == _readAheadSize)
+    {
+        _readAhead.reset();
+        _readAheadOffset = 0;
+        _readAheadSize = 0;
+    }
+}
+
+void
+IceInternal::NetworkFrameworkTransceiver::updateReadReady()
+{
+    // While the read readiness is set, the thread pool calls message() to read the connection instead of starting
+    // a receive (ThreadPool::startMessage and finishMessage), and it does so only while the connection registers
+    // reads: a connection that is held, or that reached its maximum number of dispatches, leaves the data buffered.
+    // The readiness must be clear whenever read() needs a receive, otherwise the thread pool would keep calling
+    // message() without ever starting one. Only the transitions are reported, as reporting locks the thread pool.
+    // A WSTransceiver layered on this transceiver also sets the readiness for the frames it buffers; it clears it
+    // itself when it needs more data, which it only does once this transceiver's read() needs a receive.
+    bool ready = static_cast<bool>(_readAhead);
+    if (ready != _readReady)
+    {
+        _readReady = ready;
+        _nativeInfo->ready(SocketOperationRead, ready);
     }
 }
 
