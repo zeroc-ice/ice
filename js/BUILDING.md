@@ -19,7 +19,8 @@
 2. The Slice-to-JavaScript compiler (`slice2js`).
 3. The Ice for C++ test suite, for running JavaScript client tests against the C++ servers.
 4. Python 3.12 is required for running the tests. The Glacier2 test also requires the `passlib` Python package.
-5. Ice for Python is required for running the JavaScript tests in a web browser.
+5. Ice for Python is required for running the JavaScript tests in a web browser. Running them in a browser driven by
+   Selenium also requires the `selenium` Python package.
 
 ## Build Roadmap
 
@@ -84,11 +85,28 @@ prompt, execute:
 python allTests.py --all
 ```
 
-To run the JavaScript tests in a web browser, use the `--browser Manual` and follow the instructions
+To run the JavaScript tests in a web browser, use `--browser Manual` and follow the instructions
 to load the provided URL in the browser.
 
 ```shell
 python allTests.py --all --browser Manual
+```
+
+To run them in a browser driven by Selenium instead, use `--browser Chrome`, `--browser Firefox`, or `--browser Safari`.
+The test driver starts the browser and loads each test in it. Chrome and Firefox run headless. CI runs the tests in all
+three browsers on macOS.
+
+```shell
+python -m pip install selenium
+python allTests.py --all --browser Chrome
+```
+
+Safari also requires remote automation, enabled once with `safaridriver --enable`, and the test CA,
+`certs/common/ca/ca_cert.pem`, trusted in the system keychain:
+
+```shell
+sudo safaridriver --enable
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ../certs/common/ca/ca_cert.pem
 ```
 
 ## Creating the NPM Packages

@@ -98,6 +98,11 @@ jobs:
             test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
             working_directory: "cpp"
 
+          # JavaScript in Chrome, Firefox, and Safari, each in its own test step.
+          - os: xcode-27
+            config: "browser"
+            build_flags: "LANGUAGES='cpp python js'"
+
           # MATLAB
           - os: ubuntu-24.04
             config: "matlab"
@@ -339,6 +344,14 @@ jobs:
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
 
+      # Safari, unlike Chrome and Firefox, can't be told to accept the test CA's certificates, so trust the test CA.
+      - name: Setup browser testing
+        if: matrix.config == 'browser'
+        run: |
+          python3 -m pip install selenium
+          sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain certs/common/ca/ca_cert.pem
+        shell: bash
+
       # Boots and bonds the emulator pair and starts the server-side process controller, so the
       # test step below only has to run the client.
       - name: Setup Android Bluetooth
@@ -352,6 +365,7 @@ jobs:
         uses: ./.github/actions/setup-vhci
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
+        if: matrix.config != 'browser'
         uses: ./.github/actions/test
         timeout-minutes: 45
         # Scoped to this step rather than exported from setup-vhci into $GITHUB_ENV: there it would
@@ -448,6 +462,27 @@ jobs:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: "${{ matrix.test_flags }} --load-slice --language=python"
         if: matrix.python_tests == true
+
+      - name: Test ${{ matrix.config }} in Chrome on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 30
+        with:
+          flags: "--languages=js --browser=Chrome"
+        if: matrix.config == 'browser'
+
+      - name: Test ${{ matrix.config }} in Firefox on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 30
+        with:
+          flags: "--languages=js --browser=Firefox"
+        if: ${{ !cancelled() && matrix.config == 'browser' }}
+
+      - name: Test ${{ matrix.config }} in Safari on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 30
+        with:
+          flags: "--languages=js --browser=Safari"
+        if: ${{ !cancelled() && matrix.config == 'browser' }}
 
       - name: Generate API Reference
         uses: ./.github/actions/documentation
