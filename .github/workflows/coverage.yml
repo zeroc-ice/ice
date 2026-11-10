@@ -95,15 +95,18 @@ jobs:
         with:
           reports: cpp/coverage/coverage.cobertura.xml
           targetdir: cpp-coverage-report
-          reporttypes: Html;MarkdownSummaryGithub
+          reporttypes: Html;TextSummary
           license: ${{ secrets.REPORT_GENERATOR_LICENSE }}
 
       - name: Write C++ Coverage Summary
-        run: Get-Content cpp-coverage-report\SummaryGithub.md | Add-Content $env:GITHUB_STEP_SUMMARY
+        # Only the totals, which end at the first blank line: the per-class rows exceed the step summary's size limit.
+        run: |
+          $totals = (Get-Content cpp-coverage-report\Summary.txt -Raw) -split '\r?\n\r?\n', 2
+          '```', $totals[0], '```' | Add-Content $env:GITHUB_STEP_SUMMARY
 
       - name: Sync Coverage Report to S3
         working-directory: ./cpp-coverage-report
-        run: aws s3 sync . "s3://$env:AWS_S3_CODE_BUCKET/ice/main/coverage/cpp/windows" --delete --exclude SummaryGithub.md
+        run: aws s3 sync . "s3://$env:AWS_S3_CODE_BUCKET/ice/main/coverage/cpp/windows" --delete --exclude Summary.txt
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
