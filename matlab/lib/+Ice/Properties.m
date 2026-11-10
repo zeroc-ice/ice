@@ -41,7 +41,8 @@ classdef Properties < IceInternal.WrapperObject
             %       set in a configuration file and through a command-line argument, the command-line setting takes
             %       precedence. When there is no --Ice.Config argument and Ice.Config is not already set (for example
             %       via defaults), the constructor loads the configuration files specified by the ICE_CONFIG
-            %       environment variable.
+            %       environment variable. When you omit args, the constructor creates an empty property set and loads
+            %       no configuration file.
             %       empty string array (default) | string array | cell array of character vectors
             %     defaults - A property set used to initialize the default state of the new property set. Settings in
             %       configuration files and the argument vector override these defaults.
@@ -58,7 +59,12 @@ classdef Properties < IceInternal.WrapperObject
                 defaults Ice.Properties {mustBeScalarOrEmpty} = Ice.Properties.empty
                 impl = libpointer('voidPtr') % internal
             end
-            if isNull(impl)
+            if nargin == 0
+                % Ice.Properties() matches createProperties() in the other language mappings, whereas an argument
+                % vector, even an empty one, makes Ice load the configuration files named by ICE_CONFIG.
+                IceInternal.Util.call('Ice_createEmptyProperties', impl);
+                remArgs = string.empty(1, 0);
+            elseif isNull(impl)
                 if isempty(defaults)
                     defaultsImpl = libpointer('voidPtr');
                 else

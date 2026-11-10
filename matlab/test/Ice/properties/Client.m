@@ -21,6 +21,48 @@ function client(args)
     communicator.destroy();
     fprintf('ok\n');
 
+    fprintf("testing ICE_CONFIG... ");
+    configDir = fullfile(fileparts(mfilename('fullpath')), 'config');
+    previousIceConfig = getenv('ICE_CONFIG');
+    restoreIceConfig = onCleanup(@() setenv('ICE_CONFIG', previousIceConfig));
+    setenv('ICE_CONFIG', fullfile(configDir, 'iceConfigEnv.cfg'));
+
+    % Without an argument vector, Ice does not load the file named by ICE_CONFIG.
+    props = Ice.Properties();
+    assert(isempty(props.getProperty('Ice.Trace.Network')));
+    props = Ice.createProperties();
+    assert(isempty(props.getProperty('Ice.Trace.Network')));
+    communicator = Ice.Communicator();
+    assert(isempty(communicator.getProperties().getProperty('Ice.Trace.Network')));
+    communicator.destroy();
+    communicator = Ice.Communicator(Properties = Ice.Properties());
+    assert(isempty(communicator.getProperties().getProperty('Ice.Trace.Network')));
+    communicator.destroy();
+    communicator = Ice.initialize();
+    assert(isempty(communicator.getProperties().getProperty('Ice.Trace.Network')));
+    communicator.destroy();
+
+    % With an argument vector that has no --Ice.Config option, Ice loads the file named by ICE_CONFIG.
+    props = Ice.Properties(string.empty);
+    assert(strcmp(props.getProperty('Ice.Trace.Network'), '1'));
+    communicator = Ice.Communicator(string.empty);
+    assert(strcmp(communicator.getProperties().getProperty('Ice.Trace.Network'), '1'));
+    communicator.destroy();
+    communicator = Ice.initialize(string.empty);
+    assert(strcmp(communicator.getProperties().getProperty('Ice.Trace.Network'), '1'));
+    communicator.destroy();
+    communicator = Ice.Communicator("--Ice.Trace.Protocol=2");
+    assert(strcmp(communicator.getProperties().getProperty('Ice.Trace.Network'), '1'));
+    communicator.destroy();
+
+    % --Ice.Config replaces ICE_CONFIG.
+    communicator = Ice.Communicator("--Ice.Config=" + fullfile(configDir, 'iceConfigOption.cfg'));
+    assert(strcmp(communicator.getProperties().getProperty('Ice.Trace.Protocol'), '1'));
+    assert(isempty(communicator.getProperties().getProperty('Ice.Trace.Network')));
+    communicator.destroy();
+    clear restoreIceConfig;
+    fprintf('ok\n');
+
     fprintf("testing load properties exception... ");
     props = Ice.Properties();
     try
