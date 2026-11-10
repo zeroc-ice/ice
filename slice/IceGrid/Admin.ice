@@ -837,7 +837,8 @@ module IceGrid
             NodeObserver* nodeObs,
             ApplicationObserver* appObs,
             AdapterObserver* adptObs,
-            ObjectObserver* objObs) throws ObserverAlreadyRegisteredException;
+            ObjectObserver* objObs
+        ) throws ObserverAlreadyRegisteredException;
 
         /// Sets the observer identities that receive notifications when the state of the registry or nodes changes.
         /// This operation should be used by clients that are using a bidirectional connection to communicate with the
@@ -853,7 +854,8 @@ module IceGrid
             Ice::Identity nodeObs,
             Ice::Identity appObs,
             Ice::Identity adptObs,
-            Ice::Identity objObs) throws ObserverAlreadyRegisteredException;
+            Ice::Identity objObs
+        ) throws ObserverAlreadyRegisteredException;
 
         /// Acquires an exclusive lock to start updating the registry applications.
         /// @return The current serial.

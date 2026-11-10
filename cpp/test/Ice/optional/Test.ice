@@ -242,14 +242,16 @@ module Test
 
         ["cpp:array"] optional(1) SmallStructList opSmallStructList(
             ["cpp:array"] optional(2) SmallStructList p1,
-            ["cpp:array"] out optional(3) SmallStructList p3);
+            ["cpp:array"] out optional(3) SmallStructList p3
+        );
 
         ["cpp:array"] optional(1) FixedStructSeq
         opFixedStructSeq(["cpp:array"] optional(2) FixedStructSeq p1, ["cpp:array"] out optional(3) FixedStructSeq p3);
 
         ["cpp:array"] optional(1) FixedStructList opFixedStructList(
             ["cpp:array"] optional(2) FixedStructList p1,
-            ["cpp:array"] out optional(3) FixedStructList p3);
+            ["cpp:array"] out optional(3) FixedStructList p3
+        );
 
         optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
 

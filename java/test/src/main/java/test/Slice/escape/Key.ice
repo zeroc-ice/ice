@@ -60,7 +60,8 @@ module abstract
             ["java:identifier:escaped_null"] notify null,
             ["java:identifier:escaped_package"] finalize* package,
             ["java:identifier:escaped_return"] default* return,
-            ["java:identifier:escaped_super"] int super) throws hashCode, clone;
+            ["java:identifier:escaped_super"] int super
+        ) throws hashCode, clone;
     }
 
     ["java:identifier:escaped_for"] sequence<assert> for;

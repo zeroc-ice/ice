@@ -27,7 +27,8 @@ module Clash
             string istr,
             string ostr,
             optional(1) string proxy,
-            optional(2) int obj);
+            optional(2) int obj
+        );
         void opOut(
             out string context,
             out string current,
@@ -40,7 +41,8 @@ module Clash
             out string istr,
             out string ostr,
             out optional(1) string proxy,
-            out optional(2) int obj);
+            out optional(2) int obj
+        );
     }
 
     class Cls

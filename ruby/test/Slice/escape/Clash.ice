@@ -26,7 +26,8 @@ module Clash
             string result,
             string istr,
             string ostr,
-            optional(1) string proxy);
+            optional(1) string proxy
+        );
         void opOut(
             out string context,
             out string current,
@@ -38,7 +39,8 @@ module Clash
             out string result,
             out string istr,
             out string ostr,
-            out optional(1) string proxy);
+            out optional(1) string proxy
+        );
 
         // A parameter whose mapped name lower-cases to "context" must not clash with the synthesized
         // trailing "context" parameter of the generated proxy method.

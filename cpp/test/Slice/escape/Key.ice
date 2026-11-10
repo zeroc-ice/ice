@@ -70,7 +70,8 @@ module and
             ["cpp:identifier:escaped_mutable"] do* mutable,
             ["cpp:identifier:escaped_namespace"] break* namespace,
             ["cpp:identifier:escaped_not"] switch not,
-            ["cpp:identifier:escaped_or"] int or) throws return, sizeof;
+            ["cpp:identifier:escaped_or"] int or
+        ) throws return, sizeof;
     }
 
     ["cpp:identifier:escaped_template"]

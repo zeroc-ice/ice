@@ -253,7 +253,8 @@ module Test
             optional(2) int p3,
             out int p4,
             out optional(3) int p5,
-            out optional(4) int p6);
+            out optional(4) int p6
+        );
 
         G opG(G g);
 

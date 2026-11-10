@@ -197,7 +197,8 @@ module IceGrid
             string replicaName,
             out AdapterPrxDict adapters,
             out int activateTimeout,
-            out int deactivateTimeout) throws DeploymentException;
+            out int deactivateTimeout
+        ) throws DeploymentException;
 
         /// Load the given server and ensure the server won't be restarted. If the server resources weren't already
         /// created (property files, etc), they will be created. If the server can't be updated without a restart, a
@@ -207,7 +208,8 @@ module IceGrid
             string replicaName,
             out AdapterPrxDict adapters,
             out int activateTimeout,
-            out int deactivateTimeout) throws DeploymentException;
+            out int deactivateTimeout
+        ) throws DeploymentException;
 
         /// Destroy the given server.
         ["amd"] idempotent void destroyServer(string name, string uuid, int revision, string replicaName)

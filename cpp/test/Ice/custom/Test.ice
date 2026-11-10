@@ -147,7 +147,8 @@ module Test
 
         ["cpp:type:std::deque<std::byte>"] ByteSeq opByteSeq(
             ["cpp:type:std::deque<std::byte>"] ByteSeq inSeq,
-            ["cpp:type:std::deque<std::byte>"] out ByteSeq outSeq);
+            ["cpp:type:std::deque<std::byte>"] out ByteSeq outSeq
+        );
 
         ByteList opByteList(ByteList inSeq, out ByteList outSeq);
 
@@ -156,25 +157,29 @@ module Test
 
         ["cpp:type:std::deque<std::string>"] StringSeq opStringSeq(
             ["cpp:type:std::deque<std::string>"] StringSeq inSeq,
-            ["cpp:type:std::deque<std::string>"] out StringSeq outSeq);
+            ["cpp:type:std::deque<std::string>"] out StringSeq outSeq
+        );
 
         StringList opStringList(StringList inSeq, out StringList outSeq);
 
         ["cpp:type:std::deque<::Test::Fixed>"] FixedSeq opFixedSeq(
             ["cpp:type:std::deque<::Test::Fixed>"] FixedSeq inSeq,
-            ["cpp:type:std::deque<::Test::Fixed>"] out FixedSeq outSeq);
+            ["cpp:type:std::deque<::Test::Fixed>"] out FixedSeq outSeq
+        );
 
         FixedList opFixedList(FixedList inSeq, out FixedList outSeq);
 
         ["cpp:type:std::deque<::Test::Variable>"] VariableSeq opVariableSeq(
             ["cpp:type:std::deque<::Test::Variable>"] VariableSeq inSeq,
-            ["cpp:type:std::deque<::Test::Variable>"] out VariableSeq outSeq);
+            ["cpp:type:std::deque<::Test::Variable>"] out VariableSeq outSeq
+        );
 
         VariableList opVariableList(VariableList inSeq, out VariableList outSeq);
 
         ["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq opStringStringDictSeq(
             ["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq inSeq,
-            ["cpp:type:std::deque<::Test::StringStringDict>"] out StringStringDictSeq outSeq);
+            ["cpp:type:std::deque<::Test::StringStringDict>"] out StringStringDictSeq outSeq
+        );
 
         StringStringDictList opStringStringDictList(StringStringDictList inSeq, out StringStringDictList outSeq);
 
@@ -185,13 +190,15 @@ module Test
 
         ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq opDPrxSeq(
             ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq inSeq,
-            ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] out DPrxSeq outSeq);
+            ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] out DPrxSeq outSeq
+        );
 
         DPrxList opDPrxList(DPrxList inSeq, out DPrxList outSeq);
 
         ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq opCSeq(
             ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq inSeq,
-            ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] out CSeq outSeq);
+            ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] out CSeq outSeq
+        );
 
         CList opCList(CList inSeq, out CList outSeq);
 
@@ -201,13 +208,15 @@ module Test
 
         ["cpp:type:::Test::CustomMap< int64_t, int64_t>"] LongLongDict opVarDict(
             ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict idict,
-            ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] out StringIntDict odict);
+            ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] out StringIntDict odict
+        );
 
         ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 
         ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq opBoolBuffer(
             ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq inS,
-            ["cpp:type:::Test::CustomBuffer<bool>"] out BoolSeq outS);
+            ["cpp:type:::Test::CustomBuffer<bool>"] out BoolSeq outS
+        );
 
         BufferStruct opBufferStruct(BufferStruct s);
 

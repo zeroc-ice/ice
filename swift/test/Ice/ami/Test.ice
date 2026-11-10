@@ -36,7 +36,8 @@ module Test
             out int eight,
             out int nine,
             out int ten,
-            out int eleven);
+            out int eleven
+        );
         int opBatchCount();
         bool waitForBatch(int count);
         void closeConnection();
