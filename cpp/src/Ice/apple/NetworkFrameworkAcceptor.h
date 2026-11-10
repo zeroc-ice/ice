@@ -61,6 +61,9 @@ namespace IceInternal
         uint16_t _port;
         bool _secure{false};
 
+        /// Whether listen() started the listener; only a started listener reports the cancelled state to close().
+        bool _listenerStarted{false};
+
         //
         // Shared state for accepted connections — accessed by dispatch blocks
         // and the Ice thread pool. Protected by its own mutex.
@@ -70,6 +73,19 @@ namespace IceInternal
             std::mutex mutex;
             std::deque<NetworkRef<nw_connection_t>> connections; // Owned until a transceiver adopts them.
             bool waiting{false};
+
+            /// The last state reported by the listener's state changed handler; invalid until the listener reports
+            /// its first state after nw_listener_start.
+            nw_listener_state_t listenerState{nw_listener_state_invalid};
+
+            /// The POSIX error code reported with the last waiting or failed state, or 0 if none was reported.
+            int listenerError{0};
+
+            /// Whether accept() has already reported the failure of the listener.
+            bool listenerFailureReported{false};
+
+            /// Notified each time the listener reports a new state.
+            std::condition_variable listenerStateChanged;
         };
         std::shared_ptr<AcceptState> _acceptState;
     };

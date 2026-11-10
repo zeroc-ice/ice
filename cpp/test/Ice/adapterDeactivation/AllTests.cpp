@@ -487,6 +487,21 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
+    cout << "testing object adapter creation with an address not assigned to a local interface... " << flush;
+    {
+        // 192.0.2.1 belongs to TEST-NET-1 (RFC 5737), a range reserved for documentation that hosts do not configure
+        // on their interfaces: the adapter cannot bind it.
+        try
+        {
+            communicator->createObjectAdapterWithEndpoints("Adpt3", "default -h 192.0.2.1 -p 0");
+            test(false);
+        }
+        catch (const Ice::SocketException&)
+        {
+        }
+    }
+    cout << "ok" << endl;
+
     cout << "deactivating object adapter in the server... " << flush;
     obj->deactivate();
     cout << "ok" << endl;

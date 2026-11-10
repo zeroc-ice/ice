@@ -30,19 +30,18 @@ IceInternal::NetworkFrameworkAcceptor::close()
     // Cancel the listener and wait for it to reach the cancelled state, its terminal state: the listening port is
     // released before close() returns, so that it can be reused right away (for example when an adapter is destroyed
     // and recreated). Cancelling is distinct from releasing the listener, which the acceptor does when destroyed.
-    auto semaphore = DispatchRef<dispatch_semaphore_t>::adopt(dispatch_semaphore_create(0));
-    dispatch_semaphore_t cancelled = semaphore.get(); // Signaled before the wait below returns.
-    nw_listener_set_state_changed_handler(_listener.get(), ^(nw_listener_state_t state, nw_error_t) {
-      if (state == nw_listener_state_cancelled)
-      {
-          dispatch_semaphore_signal(cancelled);
-      }
-    });
+    // A listener that was never started has no queue and never reports the cancelled state.
     nw_listener_cancel(_listener.get());
-    dispatch_semaphore_wait(semaphore.get(), DISPATCH_TIME_FOREVER);
+
+    unique_lock lock(_acceptState->mutex);
+    if (_listenerStarted)
+    {
+        _acceptState->listenerStateChanged.wait(
+            lock,
+            [this] { return _acceptState->listenerState == nw_listener_state_cancelled; });
+    }
 
     // Releasing an unstarted accepted connection does not close its socket; it must be cancelled first.
-    lock_guard lock(_acceptState->mutex);
     for (const auto& connection : _acceptState->connections)
     {
         nw_connection_cancel(connection.get());
@@ -62,31 +61,25 @@ EndpointIPtr
 IceInternal::NetworkFrameworkAcceptor::listen()
 {
     //
-    // Synchronization state for waiting until the listener is ready.
+    // Record every state change: listen(), close() and accept() all rely on the recorded state, and a failure after
+    // the listener is ready must reach a pending accept.
     //
-    struct ListenState
-    {
-        std::mutex mutex;
-        std::condition_variable cv;
-        bool signaled{false};
-        int error{0};
-    };
-    auto listenState = make_shared<ListenState>();
-
-    //
-    // Set state changed handler to detect when the listener is ready.
-    //
+    auto acceptState = _acceptState;
+    NativeInfoPtr nativeInfo = _nativeInfo;
     nw_listener_set_state_changed_handler(_listener.get(), ^(nw_listener_state_t state, nw_error_t error) {
-      if (state == nw_listener_state_ready || state == nw_listener_state_failed)
+      lock_guard lock(acceptState->mutex);
+      acceptState->listenerState = state;
+      if (state == nw_listener_state_waiting || state == nw_listener_state_failed)
       {
-          lock_guard lock(listenState->mutex);
-          listenState->signaled = true;
-          if (state == nw_listener_state_failed)
-          {
-              listenState->error = error ? nw_error_get_error_code(error) : EADDRINUSE;
-          }
-          listenState->cv.notify_one();
+          acceptState->listenerError =
+              error && nw_error_get_error_domain(error) == nw_error_domain_posix ? nw_error_get_error_code(error) : 0;
       }
+      if (state == nw_listener_state_failed && acceptState->waiting)
+      {
+          acceptState->waiting = false;
+          nativeInfo->completed(SocketOperationRead);
+      }
+      acceptState->listenerStateChanged.notify_all();
     });
 
     //
@@ -94,8 +87,6 @@ IceInternal::NetworkFrameworkAcceptor::listen()
     // the nw_connection and, if the acceptor is waiting for a connection,
     // signals the selector so the thread pool can pick it up.
     //
-    auto acceptState = _acceptState;
-    NativeInfoPtr nativeInfo = _nativeInfo;
     nw_listener_set_new_connection_handler(_listener.get(), ^(nw_connection_t connection) {
       // The connection is borrowed from Network.framework: retain it until a transceiver adopts it.
       lock_guard lock(acceptState->mutex);
@@ -112,21 +103,27 @@ IceInternal::NetworkFrameworkAcceptor::listen()
     //
     nw_listener_set_queue(_listener.get(), _dispatchQueue.get());
     nw_listener_start(_listener.get());
+    _listenerStarted = true;
 
     {
-        unique_lock lock(listenState->mutex);
-        listenState->cv.wait(lock, [&] { return listenState->signaled; });
-    }
+        unique_lock lock(_acceptState->mutex);
+        _acceptState->listenerStateChanged.wait(
+            lock,
+            [this] { return _acceptState->listenerState != nw_listener_state_invalid; });
 
-    if (listenState->error != 0)
-    {
-        throw SocketException(__FILE__, __LINE__, listenState->error);
+        // A listener that cannot bind its local endpoint, for example an address not assigned to any local
+        // interface, reports the waiting state and would only become ready if the address became available later.
+        // Like bind() with BSD sockets, report this as an immediate failure; close() cancels the listener.
+        if (_acceptState->listenerState != nw_listener_state_ready)
+        {
+            int error = _acceptState->listenerError;
+            if (error == 0)
+            {
+                error = _acceptState->listenerState == nw_listener_state_waiting ? EADDRNOTAVAIL : EADDRINUSE;
+            }
+            throw SocketException(__FILE__, __LINE__, error);
+        }
     }
-
-    //
-    // Clear the state changed handler — we no longer need it for the listen flow.
-    //
-    nw_listener_set_state_changed_handler(_listener.get(), nullptr);
 
     //
     // Retrieve the actual port assigned by the OS (important for port 0).
@@ -141,11 +138,12 @@ void
 IceInternal::NetworkFrameworkAcceptor::startAccept()
 {
     lock_guard lock(_acceptState->mutex);
-    if (!_acceptState->connections.empty())
+    if (!_acceptState->connections.empty() ||
+        (_acceptState->listenerState == nw_listener_state_failed && !_acceptState->listenerFailureReported))
     {
         //
-        // A connection is already queued — signal immediately so the
-        // thread pool picks it up without waiting.
+        // A connection is already queued, or the listener failed — signal
+        // immediately so the thread pool picks it up without waiting.
         //
         _nativeInfo->completed(SocketOperationRead);
     }
@@ -174,6 +172,13 @@ IceInternal::NetworkFrameworkAcceptor::accept()
         lock_guard lock(_acceptState->mutex);
         if (_acceptState->connections.empty())
         {
+            // Report the failure of the listener once: it cannot accept new connections anymore, and further
+            // accepts wait for close() instead of completing immediately again.
+            if (_acceptState->listenerState == nw_listener_state_failed && !_acceptState->listenerFailureReported)
+            {
+                _acceptState->listenerFailureReported = true;
+                throw SocketException(__FILE__, __LINE__, _acceptState->listenerError);
+            }
             throw SocketException(__FILE__, __LINE__, 0);
         }
         connection = std::move(_acceptState->connections.front());
