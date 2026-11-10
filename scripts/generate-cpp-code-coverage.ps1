@@ -3,10 +3,11 @@
 Generates a code coverage report for the C++ modules and executables with Microsoft.CodeCoverage.Console.
 
 .DESCRIPTION
-Builds the C++ source tree in the current working directory with coverage instrumentation, runs the tests, and writes
-the coverage data in Cobertura format to coverage\coverage.cobertura.xml. Of the Slice compilers, the report includes
-only slice2cpp: the others are exercised by the builds and tests of their own language mappings, which the script
-doesn't run. The report also counts the header code that only the tests use, but not the test code itself.
+Builds the C++ source tree in the current working directory with coverage instrumentation, runs the tests, writes
+the coverage data in Cobertura format to coverage\coverage.cobertura.xml, and cleans the build. Of the Slice compilers,
+the report includes only slice2cpp: the others are exercised by the builds and tests of their own language mappings,
+which the script doesn't run. The report also counts the header code that only the tests use, but not the test code
+itself.
 
 Run it from a Developer PowerShell for Visual Studio, so msbuild is on the PATH. Microsoft.CodeCoverage.Console ships
 with Visual Studio Enterprise. Visual Studio opens the Cobertura file, and ReportGenerator turns it into HTML.
@@ -69,6 +70,9 @@ try {
     # Stop the collector before reporting a test failure, so it doesn't outlive the script.
     Microsoft.CodeCoverage.Console shutdown $session --nologo
     if ($LASTEXITCODE -ne 0) { throw "stopping the coverage collector failed" }
+    # The instrumented modules don't load without the coverage runtime, and MSBuild sees them as up to date.
+    msbuild /m /p:Platform=x64 /p:Configuration=Debug /t:Clean msbuild\ice.proj
+    if ($LASTEXITCODE -ne 0) { throw "msbuild clean failed" }
     if ($testsExitCode -ne 0) { throw "tests failed" }
 }
 finally {
