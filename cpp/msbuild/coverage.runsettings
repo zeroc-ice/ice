@@ -12,6 +12,8 @@
               </Include>
               <Exclude>
                 <Source>.*\\generated\\.*</Source>
+                <!-- The generated Slice sources go to each project's intermediate directory under msbuild. -->
+                <Source>.*\\msbuild\\.*</Source>
               </Exclude>
             </Sources>
           </CodeCoverage>
