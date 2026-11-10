@@ -28,7 +28,7 @@ case "$(uname)" in
         llvm_cov() { llvm-cov "$@"; }
         ;;
     *)
-        echo "This script is only supported on macOS and Linux"
+        echo "This script is only supported on macOS and Linux; on Windows, use generate-cpp-code-coverage.ps1"
         exit 1
         ;;
 esac
