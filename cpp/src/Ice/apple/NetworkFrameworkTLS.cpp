@@ -309,13 +309,12 @@ IceInternal::NetworkFrameworkTLS::configureServerTLS(
         }
 
         // Network.framework only supports binary peer authentication: required or not requested
-        // (sec_protocol_options_set_peer_authentication_optional is API_UNAVAILABLE on all platforms). When a
-        // client certificate is required, Network.framework enforces it at the protocol level, before the verify
-        // block runs, so clients without a certificate are rejected right away. IceSSL.VerifyPeer=1 (try to
-        // authenticate) therefore cannot be implemented faithfully: it is treated as "not required", the server
-        // does not request a client certificate. Clients without a certificate can connect, which is the primary
-        // behavior, but a certificate a client has is not verified. The trust rules still apply to such connections
-        // once the handshake completed, see NetworkFrameworkTransceiver::setPeerVerifier.
+        // (sec_protocol_options_set_peer_authentication_optional is API_UNAVAILABLE on all platforms), which is why
+        // the Apple SSL engine rejects IceSSL.VerifyPeer=1. When a client certificate is required, Network.framework
+        // enforces it at the protocol level, before the verify block runs, so clients without a certificate are
+        // rejected right away. When it is not required, the server does not request a client certificate; the trust
+        // rules still apply to such connections once the handshake completed, see
+        // NetworkFrameworkTransceiver::setPeerVerifier.
         if (authOptions.clientCertificateRequired)
         {
             sec_protocol_options_set_peer_authentication_required(options.get(), true);

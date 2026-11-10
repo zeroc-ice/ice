@@ -378,6 +378,23 @@ testCertificateVerification(
     }
     fact->destroyServer(server);
 
+#if defined(ICE_USE_APPLE_SSL)
+    // Network.framework cannot request an optional client certificate, so IceSSL.VerifyPeer=1 is rejected.
+    {
+        InitializationData verifyPeer1InitData;
+        verifyPeer1InitData.properties = createClientProps(defaultProps, p12, "", "ca1/ca1");
+        verifyPeer1InitData.properties->setProperty("IceSSL.VerifyPeer", "1");
+        try
+        {
+            initialize(verifyPeer1InitData);
+            test(false);
+        }
+        catch (const InitializationException&)
+        {
+            // Expected.
+        }
+    }
+#else
     // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
     d = createServerProps(defaultProps, p12, "ca1/server", "");
     d["IceSSL.VerifyPeer"] = "1";
@@ -419,6 +436,7 @@ testCertificateVerification(
         test(false);
     }
     fact->destroyServer(server);
+#endif
 
     // Test IceSSL.VerifyPeer=2. This should fail because the client does not supply a certificate.
     d = createServerProps(defaultProps, p12, "ca1/server", "");
@@ -445,6 +463,7 @@ testCertificateVerification(
     fact->destroyServer(server);
     comm->destroy();
 
+#if !defined(ICE_USE_APPLE_SSL)
     // Test IceSSL.VerifyPeer=1. This should fail because the client doesn't trust the server's CA.
     initData.properties = createClientProps(defaultProps, p12, "", "");
     initData.properties->setProperty("IceSSL.VerifyPeer", "1");
@@ -482,16 +501,11 @@ testCertificateVerification(
     try
     {
         server->ice_ping();
-#if !defined(__APPLE__)
-        // On Apple platforms, Network.framework does not support optional client certificate
-        // authentication (VerifyPeer=1 behaves like VerifyPeer=0 for client certificates).
-        // The server does not request the client certificate, so it cannot reject untrusted ones.
         test(false);
-#endif
     }
     catch (const ConnectionLostException&)
     {
-        // Expected on non-Apple platforms.
+        // Expected.
     }
     catch (const LocalException& ex)
     {
@@ -500,6 +514,7 @@ testCertificateVerification(
     }
     fact->destroyServer(server);
     comm->destroy();
+#endif
 
     // This should succeed because the self signed certificate used by the server is trusted.
     initData.properties = createClientProps(defaultProps, p12, "", "ca2/ca2");

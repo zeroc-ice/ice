@@ -7,8 +7,8 @@ import TestCommon
 class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
-        // Accept SSL clients that don't present a certificate.
-        properties.setProperty(key: "IceSSL.VerifyPeer", value: "1")
+        // Don't request a client certificate, to test the connection info of a peer without a certificate.
+        properties.setProperty(key: "IceSSL.VerifyPeer", value: "0")
         let communicator = try initialize(properties)
         defer {
             communicator.destroy()

@@ -222,6 +222,18 @@ Apple::SSLEngine::initialize()
 {
     Ice::SSL::SSLEngine::initialize();
 
+    // Network.framework can either require a client certificate or not request one: it cannot request an optional
+    // client certificate. Rejecting the setting is safer than silently picking one of the two other behaviors.
+    if (getVerifyPeer() == 1)
+    {
+        throw InitializationException(
+            __FILE__,
+            __LINE__,
+            "SSL transport: IceSSL.VerifyPeer=1 is not supported on Apple platforms because Network.framework cannot "
+            "request an optional client certificate; set IceSSL.VerifyPeer to 2 to require a client certificate, or "
+            "to 0 to not request one");
+    }
+
     const PropertiesPtr properties = getProperties();
 
     //
