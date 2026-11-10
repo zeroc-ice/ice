@@ -256,7 +256,14 @@ void
 HTTPNetworkProxy::finish(Buffer& readBuffer, Buffer&)
 {
     HttpParser parser;
-    parser.parse(readBuffer.b.begin(), readBuffer.b.end());
+    try
+    {
+        parser.parse(readBuffer.b.begin(), readBuffer.b.end());
+    }
+    catch(const WebSocketException& ex)
+    {
+        throw Ice::ProtocolException(__FILE__, __LINE__, "malformed HTTP proxy response: " + ex.reason);
+    }
     if(parser.status() != 200)
     {
         throw Ice::ConnectFailedException(__FILE__, __LINE__);
