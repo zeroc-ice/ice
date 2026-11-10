@@ -189,9 +189,6 @@ namespace
         // -C keep comments
         args.emplace_back("-C");
 
-        // -k keep horizontal whitespace, so that a token's column is the same as in the source file
-        args.emplace_back("-k");
-
         // UTF-8 encoding
         args.emplace_back("-e");
         args.emplace_back("en_us.utf8");

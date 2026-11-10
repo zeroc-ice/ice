@@ -172,7 +172,8 @@ namespace Slice
     // ----------------------------------------------------------------------
 
     /// A range of text in a Slice file. Lines are counted from 1. Columns are byte offsets within a line, counted
-    /// from 0, and `lastColumn` is one past the last character of the range.
+    /// from 0, and `lastColumn` is one past the last character of the range. Columns are measured after
+    /// preprocessing, which replaces each run of spaces, tabs, and comments between two tokens with a single space.
     struct SourceSpan
     {
         std::string filename;
