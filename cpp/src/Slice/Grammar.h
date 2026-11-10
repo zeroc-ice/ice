@@ -48,7 +48,7 @@ extern int slice_debug;
 #line 9 "src/Slice/Grammar.y"
 
 
-// Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
+// Included first to get 'SourceSpan' which we need to define YYLTYPE before flex does.
 #include "GrammarUtil.h"
 
 // I must set the initial stack depth to the maximum stack depth to
@@ -127,7 +127,7 @@ typedef Slice::GrammarBasePtr YYSTYPE;
 #endif
 
 /* Location type.  */
-typedef Slice::TokenContext YYLTYPE;
+typedef Slice::SourceSpan YYLTYPE;
 
 
 

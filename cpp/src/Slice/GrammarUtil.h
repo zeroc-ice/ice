@@ -31,10 +31,16 @@ namespace Slice
 
     struct TypeStringTok final : public GrammarBase
     {
-        TypeStringTok(TypePtr type, std::string name) : type(std::move(type)), name(std::move(name)) {}
+        TypeStringTok(TypePtr type, std::string name, SourceSpan nameSpan)
+            : type(std::move(type)),
+              name(std::move(name)),
+              nameSpan(std::move(nameSpan))
+        {
+        }
 
         const TypePtr type;
         const std::string name;
+        const SourceSpan nameSpan;
     };
 
     struct IntegerTok final : public GrammarBase
@@ -94,6 +100,7 @@ namespace Slice
 
         TypePtr type;
         std::string name;
+        SourceSpan nameSpan;
         const bool isOptional{false};
         const std::int32_t tag{0};
     };
@@ -101,16 +108,8 @@ namespace Slice
     struct ClassIdTok final : public GrammarBase
     {
         std::string v;
+        SourceSpan span;
         std::int32_t t{0};
-    };
-
-    struct TokenContext
-    {
-        int firstLine;
-        int lastLine;
-        int firstColumn;
-        int lastColumn;
-        std::string filename;
     };
 
     using StringTokPtr = std::shared_ptr<StringTok>;

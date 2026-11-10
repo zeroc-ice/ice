@@ -18,6 +18,7 @@
 #include "GrammarUtil.h"
 #include "Grammar.h"
 
+#include <algorithm>
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -31,26 +32,25 @@ namespace Slice
     using StringTokenMap = map<string, int>;
     StringTokenMap keywordMap;
 
-    int checkKeyword(string& identifier);
+    int checkKeyword(string& identifier, const SourceSpan& span);
     int checkIsScoped(const string& identifier);
 }
 
 // Stores the scanner's current column position. Flex also automatically
 // generates 'yylineno', which stores the scanner's current line number.
 int yycolno = 0;
-// Stores a copy of the filename that the scanner is currently scanning.
-string yyfilename;
 
 namespace
 {
     void nextLine(int count = 1);
     int scanPosition(const char* s);
-    void setLocation(TokenContext* location);
-    void startLocation(TokenContext* location);
-    void endLocation(TokenContext* location);
+    SourceSpan positionSpan();
+    SourceSpan matchSpan();
+    void endLocation(SourceSpan* location);
+    void locateIdentifierOpen(SourceSpan* location);
 
     void initScanner();
-    void preAction(TokenContext* location);
+    void preAction(SourceSpan* location);
     void pushState(int newState);
     void popState();
 
@@ -179,7 +179,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     int64_t value = std::stoll((yytext + 1), nullptr, 8);
     if (value > 255)
     {
-        currentUnit->error(yylineno, "octal escape sequence out of range: '\\" + string(yytext + 1) + "'");
+        currentUnit->error(matchSpan(), "octal escape sequence out of range: '\\" + string(yytext + 1) + "'");
     }
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -199,7 +199,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches an empty hexadecimal escape value. */
 <STRING_LITERAL>"\\x" {
-    currentUnit->error(yylineno, "no hex digit in hex escape sequence");
+    currentUnit->error(matchSpan(), "no hex digit in hex escape sequence");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
 }
@@ -211,7 +211,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     if (codePoint <= 0xdfff && codePoint >= 0xd800)
     {
         currentUnit->error(
-            yylineno,
+            matchSpan(),
             "a universal character name cannot designate a surrogate: '" + string(yytext) + "'");
     }
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -222,7 +222,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a universal character code that isn't the correct size, or uses incorrect characters. */
 <STRING_LITERAL>"\\u"{hex}{0,3}[g-zG-Z]* |
 <STRING_LITERAL>"\\U"{hex}{0,7}[g-zG-Z]* {
-    currentUnit->error(yylineno, "unknown escape sequence in string literal: '" + string(yytext) + "'");
+    currentUnit->error(matchSpan(), "unknown escape sequence in string literal: '" + string(yytext) + "'");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
@@ -232,7 +232,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <STRING_LITERAL>\n {
     popState();
     endLocation(yylloc);
-    currentUnit->error(yylineno, "encountered un-escaped EOL while scanning a string literal.");
+    currentUnit->error(*yylloc, "encountered un-escaped EOL while scanning a string literal.");
     nextLine();
     return ICE_STRING_LITERAL;
 }
@@ -240,7 +240,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
    * it only matches 2 characters (the lowest any match), and it's beneath the others. */
 <STRING_LITERAL>"\\". {
-    currentUnit->warning(yylineno, All, "unknown escape sequence in string literal: '" + string{yytext} + "'");
+    currentUnit->warning(matchSpan(), All, "unknown escape sequence in string literal: '" + string{yytext} + "'");
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     // Escape the entire sequence.
@@ -250,7 +250,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches a dangling backslash, with nothing to escape. This rule is mostly included for grammar completeness. */
 <STRING_LITERAL>\\ {
-    currentUnit->warning(yylineno, All, "dangling backslash in string literal");
+    currentUnit->warning(matchSpan(), All, "dangling backslash in string literal");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
 }
@@ -271,7 +271,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     popState();
     endLocation(yylloc);
 
-    currentUnit->error(yylineno, "encountered EOF while scanning a string literal");
+    currentUnit->error(*yylloc, "encountered EOF while scanning a string literal");
     return ICE_STRING_LITERAL;
 }
 
@@ -285,12 +285,12 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     }
     catch (const std::out_of_range&)
     {
-        currentUnit->error(yylineno, "integer constant '" + string(yytext) + "' out of range");
+        currentUnit->error(matchSpan(), "integer constant '" + string(yytext) + "' out of range");
         itp->v = INT64_MAX;
     }
     catch (const std::invalid_argument&)
     {
-        currentUnit->error(yylineno, "invalid integer constant '" + string(yytext) + "'");
+        currentUnit->error(matchSpan(), "invalid integer constant '" + string(yytext) + "'");
         itp->v = INT64_MAX;
     }
     return ICE_INTEGER_LITERAL;
@@ -310,11 +310,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     ftp->v = strtod(literal.c_str(), 0);
     if ((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-        currentUnit->error(yylineno, "floating-point constant '" + string{yytext} + "' too large (overflow)");
+        currentUnit->error(matchSpan(), "floating-point constant '" + string{yytext} + "' too large (overflow)");
     }
     else if (ftp->v == 0 && errno == ERANGE)
     {
-        currentUnit->error(yylineno, "floating-point constant '" + string{yytext} + "' too small (underflow)");
+        currentUnit->error(matchSpan(), "floating-point constant '" + string{yytext} + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
 }
@@ -367,7 +367,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
 <C_COMMENT,C_DOC_COMMENT><<EOF>> {
-    currentUnit->error(yylineno, "encountered EOF while scanning a comment");
+    currentUnit->error(positionSpan(), "encountered EOF while scanning a comment");
     if (YY_START == C_DOC_COMMENT)
     {
         currentUnit->setDocComment(yytext);
@@ -386,7 +386,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a line preprocessor directive, but missing a line number. */
 <*>^{preprocessor_prefix}line {
     pushState(PREPROCESS);
-    currentUnit->error(yylineno, "missing line number in line preprocessor directive");
+    currentUnit->error(matchSpan(), "missing line number in line preprocessor directive");
 }
 
   /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
@@ -408,7 +408,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
    * found while scanning a preprocessor directive. */
 <PREPROCESS>[^[:space:]]+ {
     currentUnit->error(
-        yylineno,
+        matchSpan(),
         "encountered unexpected token while scanning preprocessor directive: '" + string(yytext) + "'");
 }
 
@@ -464,7 +464,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <METADATA>[^[:space:]\"\],\n]+ {
     ostringstream msg;
     msg << "invalid tokens in metadata: '" << yytext << "' (maybe you forgot to wrap it in quotes?)";
-    currentUnit->error(yylineno, msg.str());
+    currentUnit->error(matchSpan(), msg.str());
 
     StringTokPtr str = make_shared<StringTok>();
     str->literal = yytext;
@@ -479,22 +479,23 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
     *yylval = ident;
+    locateIdentifierOpen(yylloc);
     if (*yytext == '\\')
     {
         if (checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
         {
-            currentUnit->error(yylineno, "Operation identifiers cannot be scoped: '" + (ident->v) + "'");
+            currentUnit->error(*yylloc, "Operation identifiers cannot be scoped: '" + (ident->v) + "'");
         }
         return ICE_IDENT_OPEN;
     }
-    int st = checkKeyword(ident->v);
+    int st = checkKeyword(ident->v, *yylloc);
     if (st == ICE_IDENTIFIER)
     {
         return ICE_IDENT_OPEN;
     }
     else if (st == ICE_SCOPED_IDENTIFIER)
     {
-        currentUnit->error(yylineno, "Operation identifiers cannot be scoped: '" + (ident->v) + "'");
+        currentUnit->error(*yylloc, "Operation identifiers cannot be scoped: '" + (ident->v) + "'");
         return ICE_IDENT_OPEN;
     }
     else if (st == ICE_OPTIONAL)
@@ -511,7 +512,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylval = ident;
-    return *yytext == '\\' ? checkIsScoped(ident->v) : checkKeyword(ident->v);
+    return *yytext == '\\' ? checkIsScoped(ident->v) : checkKeyword(ident->v, *yylloc);
 }
 
   /* ========== Whitespace ========== */
@@ -529,7 +530,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches EOF in every state without its own EOF rule. EOF doesn't run 'YY_USER_ACTION', so this sets the
    * location of the end-of-file token to the scanner's current position. */
 <<EOF>> {
-    *yylloc = TokenContext{yylineno, yylineno, yycolno, yycolno, yyfilename};
+    *yylloc = positionSpan();
     yyterminate();
 }
 
@@ -544,7 +545,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <INITIAL>{bom} { /* do nothing */ }
 <SLICE,PREPROCESS,METADATA>{bom} {
     currentUnit->error(
-        yylineno,
+        matchSpan(),
         "encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files");
 }
 
@@ -558,7 +559,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
     s << "'";
 
-    currentUnit->error(yylineno, s.str());
+    currentUnit->error(matchSpan(), s.str());
     return BAD_TOKEN;
 }
 
@@ -578,7 +579,7 @@ namespace Slice
     // If the identifier is a keyword, return the
     // corresponding keyword token; otherwise, return
     // an identifier token.
-    int checkKeyword(string& identifier)
+    int checkKeyword(string& identifier, const SourceSpan& span)
     {
         const auto pos = keywordMap.find(identifier);
         if (pos != keywordMap.end())
@@ -586,7 +587,7 @@ namespace Slice
             if (pos->first != identifier)
             {
                 currentUnit->error(
-                    yylineno,
+                    span,
                     "illegal identifier: '" + identifier + "' differs from keyword '" + pos->first +
                     "' only in capitalization");
                 identifier = pos->first;
@@ -641,35 +642,49 @@ namespace
                 }
                 else
                 {
-                    currentUnit->error(yylineno, "mismatched quotations in line directive");
+                    currentUnit->error(matchSpan(), "mismatched quotations in line directive");
                     line = line.substr(1);
                 }
             }
             lineTypeCode = currentUnit->setCurrentFile(line, newLineNumber);
-            yyfilename = string(line);
         }
         yylineno = newLineNumber;
         return lineTypeCode;
     }
 
-    void setLocation(TokenContext* location)
+    // Returns an empty span at the scanner's position.
+    SourceSpan positionSpan()
     {
-        startLocation(location);
-        endLocation(location);
+        return {currentUnit->currentFile(), yylineno, yycolno, yylineno, yycolno};
     }
 
-    void startLocation(TokenContext* location)
+    // Returns the span of the text the scanner just matched, which must not contain a newline.
+    SourceSpan matchSpan()
     {
-        location->firstLine = yylineno;
-        // The string has already been scanned, so the scanner is positioned at the end of it.
-        location->firstColumn = yycolno - yyleng;
-        location->filename = yyfilename;
+        SourceSpan span = positionSpan();
+        span.firstColumn -= yyleng;
+        return span;
     }
 
-    void endLocation(TokenContext* location)
+    void endLocation(SourceSpan* location)
     {
         location->lastLine = yylineno;
         location->lastColumn = yycolno;
+    }
+
+    // Ends the location of an 'identifier(' token at its identifier, so that it is the span of a name, and moves the
+    // scanner past any newlines between the identifier and the parenthesis.
+    void locateIdentifierOpen(SourceSpan* location)
+    {
+        string_view text{yytext, static_cast<size_t>(yyleng)};
+        location->lastColumn = location->firstColumn + static_cast<int>(text.find_first_of(" \t\v\n\r\f("));
+
+        auto newlines = static_cast<int>(count(text.begin(), text.end(), '\n'));
+        if (newlines > 0)
+        {
+            nextLine(newlines);
+            yycolno = static_cast<int>(text.size() - text.rfind('\n') - 1);
+        }
     }
 
     // This function is always called once, right before scanning begins.
@@ -708,14 +723,14 @@ namespace
     }
 
     // This function is always called directly after a match has been made, but directly before its action block is run.
-    void preAction(TokenContext* location)
+    void preAction(SourceSpan* location)
     {
         yycolno += yyleng;
 
         // A string literal is scanned in pieces; its location starts at the opening quote and ends at the closing one.
         if (YY_START != STRING_LITERAL)
         {
-            setLocation(location);
+            *location = matchSpan();
         }
 
         // We only use the 'INITIAL' state to consume BOMs, which can only validly be the first match in a file. This
@@ -759,7 +774,7 @@ namespace
     // This function is called whenever the scanner encounters an unrecoverable error.
     void yynoreturn fatalError(const char* msg)
     {
-        cerr << yyfilename << ":" << yylineno << ":" << yycolno << ": fatal error: " << msg << endl
+        cerr << currentUnit->currentFile() << ":" << yylineno << ":" << yycolno << ": fatal error: " << msg << endl
              << "\tlast matched text: '" << yytext << "'" << endl
              << "\tlast scanner state: '" << YY_START << "'" << endl;
         exit(YY_EXIT_FAILURE);

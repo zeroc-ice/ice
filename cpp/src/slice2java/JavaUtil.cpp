@@ -662,7 +662,7 @@ Slice::Java::validateJavaMetadata(const UnitPtr& unit)
         .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
             const string msg = "'java:package' is deprecated; use 'java:identifier' to remap modules instead";
-            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
+            p->unit()->warning(metadata->span(), Deprecated, msg);
 
             if (auto element = dynamic_pointer_cast<Contained>(p); element && element->hasMetadata("java:identifier"))
             {

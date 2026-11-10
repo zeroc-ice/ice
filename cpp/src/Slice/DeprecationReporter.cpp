@@ -36,7 +36,7 @@ namespace
                 ostringstream msg;
                 msg << source->kindOf() << " '" << source->name() << "' " << usePhrase << " deprecated "
                     << contained->kindOf() << " '" << contained->name() + "'";
-                p->unit()->warning(source->file(), source->line(), Deprecated, msg.str());
+                p->unit()->warning(source->span(), Deprecated, msg.str());
             }
         }
     }
