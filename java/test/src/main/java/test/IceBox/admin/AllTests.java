@@ -24,7 +24,7 @@ public class AllTests {
     public static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
 
-        String ref = "DemoIceBox/admin:default -p 9996 -t 10000";
+        String ref = "DemoIceBox/admin:default -p 9990 -t 10000";
         ObjectPrx admin = communicator.stringToProxy(ref);
 
         TestFacetPrx facet = null;
