@@ -20,9 +20,8 @@ module and
     ["cpp:identifier:escaped_break"]
     interface break
     {
-        ["amd", "cpp:identifier:escaped_case"] void case(
-            ["cpp:identifier:escaped_catch"] int catch,
-            ["cpp:identifier:escaped_try"] out int try);
+        ["amd", "cpp:identifier:escaped_case"] void
+        case(["cpp:identifier:escaped_catch"] int catch, ["cpp:identifier:escaped_try"] out int try);
 
         ["cpp:identifier:escaped_explicit"] void explicit();
     }

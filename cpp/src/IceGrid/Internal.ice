@@ -130,12 +130,9 @@ module IceGrid
         ["cpp:const"] idempotent long getOffsetFromEnd(string filename, int lines) throws FileNotAvailableException;
 
         /// Read lines (or @p size many bytes) at the specified position from the given file.
-        ["cpp:const"] idempotent bool read(
-            string filename,
-            long pos,
-            int size,
-            out long newPos,
-            out Ice::StringSeq lines) throws FileNotAvailableException;
+        ["cpp:const"] idempotent bool
+        read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
+            throws FileNotAvailableException;
     }
 
     interface Server extends FileReader

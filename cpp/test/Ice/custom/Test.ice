@@ -126,29 +126,24 @@ module Test
     {
         ["cpp:array"] ShortSeq opShortArray(["cpp:array"] ShortSeq inSeq, ["cpp:array"] out ShortSeq outSeq);
 
-        ["cpp:array"] DoubleSeq opDoubleArray(
-            bool padding,
-            ["cpp:array"] DoubleSeq inSeq,
-            ["cpp:array"] out DoubleSeq outSeq);
+        ["cpp:array"] DoubleSeq
+        opDoubleArray(bool padding, ["cpp:array"] DoubleSeq inSeq, ["cpp:array"] out DoubleSeq outSeq);
 
         ["cpp:array"] BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, ["cpp:array"] out BoolSeq outSeq);
 
         ["cpp:array"] ByteList opByteArray(["cpp:array"] ByteList inSeq, ["cpp:array"] out ByteList outSeq);
 
-        ["cpp:array"] VariableList opVariableArray(
-            ["cpp:array"] VariableList inSeq,
-            ["cpp:array"] out VariableList outSeq);
+        ["cpp:array"] VariableList
+        opVariableArray(["cpp:array"] VariableList inSeq, ["cpp:array"] out VariableList outSeq);
 
-        ["cpp:type:std::deque<bool>"] BoolSeq opBoolSeq(
-            ["cpp:type:std::deque<bool>"] BoolSeq inSeq,
-            ["cpp:type:std::deque<bool>"] out BoolSeq outSeq);
+        ["cpp:type:std::deque<bool>"] BoolSeq
+        opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, ["cpp:type:std::deque<bool>"] out BoolSeq outSeq);
 
         BoolList opBoolList(BoolList inSeq, out BoolList outSeq);
 
         BoolDequeList opBoolDequeList(BoolDequeList inSeq, out BoolDequeList outSeq);
-        ["cpp:array"] BoolDequeList opBoolDequeListArray(
-            ["cpp:array"] BoolDequeList inSeq,
-            ["cpp:array"] out BoolDequeList outSeq);
+        ["cpp:array"] BoolDequeList
+        opBoolDequeListArray(["cpp:array"] BoolDequeList inSeq, ["cpp:array"] out BoolDequeList outSeq);
 
         ["cpp:type:std::deque<std::byte>"] ByteSeq opByteSeq(
             ["cpp:type:std::deque<std::byte>"] ByteSeq inSeq,
@@ -156,9 +151,8 @@ module Test
 
         ByteList opByteList(ByteList inSeq, out ByteList outSeq);
 
-        ["cpp:type:MyByteSeq"] ByteSeq opMyByteSeq(
-            ["cpp:type:MyByteSeq"] ByteSeq inSeq,
-            ["cpp:type:MyByteSeq"] out ByteSeq outSeq);
+        ["cpp:type:MyByteSeq"] ByteSeq
+        opMyByteSeq(["cpp:type:MyByteSeq"] ByteSeq inSeq, ["cpp:type:MyByteSeq"] out ByteSeq outSeq);
 
         ["cpp:type:std::deque<std::string>"] StringSeq opStringSeq(
             ["cpp:type:std::deque<std::string>"] StringSeq inSeq,
@@ -184,9 +178,8 @@ module Test
 
         StringStringDictList opStringStringDictList(StringStringDictList inSeq, out StringStringDictList outSeq);
 
-        ["cpp:type:std::deque<::Test::E>"] ESeq opESeq(
-            ["cpp:type:std::deque<::Test::E>"] ESeq inSeq,
-            ["cpp:type:std::deque<::Test::E>"] out ESeq outSeq);
+        ["cpp:type:std::deque<::Test::E>"] ESeq
+        opESeq(["cpp:type:std::deque<::Test::E>"] ESeq inSeq, ["cpp:type:std::deque<::Test::E>"] out ESeq outSeq);
 
         EList opEList(EList inSeq, out EList outSeq);
 

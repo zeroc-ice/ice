@@ -111,11 +111,13 @@ module Test
         FloatSeq1 opFloatSeq(FloatSeq1 v1, out FloatSeq2 v2);
         DoubleSeq1 opDoubleSeq(DoubleSeq1 v1, out DoubleSeq2 v2);
 
-        ["python:memoryview:CustomFactory.myBogusArrayNotExistsFactory:array.array"] BoolSeq1 opBogusArrayNotExistsFactory();
+        ["python:memoryview:CustomFactory.myBogusArrayNotExistsFactory:array.array"] BoolSeq1
+        opBogusArrayNotExistsFactory();
         ["python:memoryview:CustomFactory.myBogusArrayThrowFactory:array.array"] BoolSeq1 opBogusArrayThrowFactory();
         ["python:memoryview:CustomFactory.myBogusArrayType:array.array"] BoolSeq1 opBogusArrayType();
         ["python:memoryview:CustomFactory.myBogusArrayNoneFactory:array.array"] BoolSeq1 opBogusArrayNoneFactory();
-        ["python:memoryview:CustomFactory.myBogusArraySignatureFactory:array.array"] BoolSeq1 opBogusArraySignatureFactory();
+        ["python:memoryview:CustomFactory.myBogusArraySignatureFactory:array.array"] BoolSeq1
+        opBogusArraySignatureFactory();
         ["python:memoryview:CustomFactory.myNoCallableFactory:array.array"] BoolSeq1 opBogusArrayNoCallableFactory();
 
         D opD(D d);

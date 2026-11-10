@@ -20,9 +20,8 @@ module import
     ["swift:identifier:`break`"]
     interface break
     {
-        ["amd"] ["swift:identifier:`case`"] void case(
-            ["swift:identifier:`class`"] int \class,
-            ["swift:identifier:`try`"] out int try);
+        ["amd"] ["swift:identifier:`case`"] void
+        case(["swift:identifier:`class`"] int \class, ["swift:identifier:`try`"] out int try);
     }
 
     ["swift:identifier:`switch`"]

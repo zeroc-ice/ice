@@ -21,9 +21,8 @@ module abstract
     interface catch
     {
         ["java:identifier:myCheckedCast"]
-        ["amd"] void checkedCast(
-            ["java:identifier:escaped_clone"] int clone,
-            ["java:identifier:escaped_continue"] out int continue);
+        ["amd"] void
+        checkedCast(["java:identifier:escaped_clone"] int clone, ["java:identifier:escaped_continue"] out int continue);
     }
 
     ["java:identifier:_default"]

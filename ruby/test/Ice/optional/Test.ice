@@ -226,15 +226,13 @@ module Test
 
         optional(1) SmallStructSeq opSmallStructSeq(optional(2) SmallStructSeq p1, out optional(3) SmallStructSeq p3);
 
-        optional(1) SmallStructList opSmallStructList(
-            optional(2) SmallStructList p1,
-            out optional(3) SmallStructList p3);
+        optional(1) SmallStructList
+        opSmallStructList(optional(2) SmallStructList p1, out optional(3) SmallStructList p3);
 
         optional(1) FixedStructSeq opFixedStructSeq(optional(2) FixedStructSeq p1, out optional(3) FixedStructSeq p3);
 
-        optional(1) FixedStructList opFixedStructList(
-            optional(2) FixedStructList p1,
-            out optional(3) FixedStructList p3);
+        optional(1) FixedStructList
+        opFixedStructList(optional(2) FixedStructList p1, out optional(3) FixedStructList p3);
 
         optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
 
@@ -251,17 +249,15 @@ module Test
         void opVoid();
 
         ["marshaled-result"] optional(1) SmallStruct opMStruct1();
-        ["marshaled-result"] optional(1) SmallStruct opMStruct2(
-            optional(2) SmallStruct p1,
-            out optional(3) SmallStruct p2);
+        ["marshaled-result"] optional(1) SmallStruct
+        opMStruct2(optional(2) SmallStruct p1, out optional(3) SmallStruct p2);
 
         ["marshaled-result"] optional(1) StringSeq opMSeq1();
         ["marshaled-result"] optional(1) StringSeq opMSeq2(optional(2) StringSeq p1, out optional(3) StringSeq p2);
 
         ["marshaled-result"] optional(1) StringIntDict opMDict1();
-        ["marshaled-result"] optional(1) StringIntDict opMDict2(
-            optional(2) StringIntDict p1,
-            out optional(3) StringIntDict p2);
+        ["marshaled-result"] optional(1) StringIntDict
+        opMDict2(optional(2) StringIntDict p1, out optional(3) StringIntDict p2);
 
         bool supportsJavaSerializable();
     }
