@@ -370,10 +370,8 @@ IceInternal::NetworkFrameworkTransceiver::startRead(Buffer& buf)
                 return true;
               });
           }
-          else
-          {
-              result.error = ECONNRESET; // No content and no error: the peer closed the connection.
-          }
+          // Otherwise the peer closed the connection gracefully: finishRead reports the empty result as a
+          // connection loss without an error code, like the BSD transports do for recv returning 0.
 
           lock_guard lock(async->mutex);
           complete(*async, async->read, SocketOperationRead, std::move(result));
