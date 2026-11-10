@@ -169,10 +169,15 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer& readBuffer, Buffer&
                 }
             }
             // A reset by the peer (for example a server that accepts then closes an over-limit connection)
-            // reaches Network.framework as a failed connection rather than a lost one. Classify it the way the
-            // BSD-socket transports do, so that it reports ConnectionLostException rather than ConnectFailedException.
+            // reaches Network.framework as a failed connection rather than a lost one. Classify the error the way the
+            // BSD-socket transports do, so that it reports ConnectionLostException or ConnectionRefusedException
+            // rather than ConnectFailedException.
             errno = result.error;
-            if (connectionLost())
+            if (connectionRefused())
+            {
+                throw ConnectionRefusedException(__FILE__, __LINE__);
+            }
+            else if (connectionLost())
             {
                 throw ConnectionLostException(__FILE__, __LINE__, result.error);
             }

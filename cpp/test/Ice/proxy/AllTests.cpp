@@ -1259,6 +1259,16 @@ allTests(TestHelper* helper)
         pstr = communicator->proxyToString(p1);
         test(pstr == "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
 
+        // Nothing listens on the SSL endpoint: the invocation fails with ConnectionRefusedException.
+        try
+        {
+            p1->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
+            test(false);
+        }
+        catch (const Ice::ConnectionRefusedException&)
+        {
+        }
+
         //
         // Test that the proxy with an SSL endpoint and a nonsense
         // endpoint (which the server doesn't understand either) can be
