@@ -263,6 +263,28 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
     // otherwise fail to bind with "address already in use".
     nw_parameters_set_reuse_local_address(parameters.get(), true);
 
+    // Accept the address families the BSD acceptor accepts: its socket has the family of the address it binds, and
+    // an IPv6 socket is IPv6-only when IPv4 is disabled. The local endpoint alone does not restrict the listener:
+    // a listener bound to 0.0.0.0 or :: accepts both IPv4 and IPv6 connections, so the IP version must be set.
+    Address address = getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true);
+    bool ipv4Address = address.saStorage.ss_family == AF_INET ||
+                       (address.saStorage.ss_family == AF_INET6 && IN6_IS_ADDR_V4MAPPED(&address.saIn6.sin6_addr));
+    if (ipv4Address && instance->protocolSupport() == EnableIPv6)
+    {
+        // An IPv6-only BSD socket cannot bind an IPv4-mapped address, which is how the host resolves when IPv4 is
+        // disabled. Network.framework would instead listen on IPv6 (for 0.0.0.0) or fail with EINVAL.
+        throw SocketException(__FILE__, __LINE__, EADDRNOTAVAIL);
+    }
+
+    if (ipv4Address || instance->protocolSupport() == EnableIPv6)
+    {
+        auto protocolStack =
+            NetworkRef<nw_protocol_stack_t>::adopt(nw_parameters_copy_default_protocol_stack(parameters.get()));
+        auto ipOptions =
+            NetworkRef<nw_protocol_options_t>::adopt(nw_protocol_stack_copy_internet_protocol(protocolStack.get()));
+        nw_ip_options_set_version(ipOptions.get(), ipv4Address ? nw_ip_version_4 : nw_ip_version_6);
+    }
+
     //
     // If a specific local address is requested, set it on the parameters.
     // Use port "0" here — the actual listen port is specified separately
