@@ -862,14 +862,14 @@ Selector::ready(EventHandler* handler, SocketOperation status, bool value)
 }
 
 EventHandler*
-Selector::getNextHandler(SocketOperation& status, size_t& count, int& error, int timeout)
+Selector::getNextHandler(SocketOperation& status, size_t& count, int& error, chrono::milliseconds timeout)
 {
     long result;
-    if (timeout > 0)
+    if (timeout.count() > 0)
     {
         result = dispatch_semaphore_wait(
             _semaphore.get(),
-            dispatch_time(DISPATCH_TIME_NOW, static_cast<int64_t>(timeout) * static_cast<int64_t>(NSEC_PER_SEC)));
+            dispatch_time(DISPATCH_TIME_NOW, static_cast<int64_t>(chrono::nanoseconds(timeout).count())));
     }
     else
     {

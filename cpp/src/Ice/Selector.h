@@ -19,6 +19,7 @@
 #elif defined(ICE_USE_NETWORK_FRAMEWORK)
 #    include "apple/ObjectRef.h"
 
+#    include <chrono>
 #    include <deque>
 #    include <dispatch/dispatch.h>
 #    include <mutex>
@@ -137,7 +138,15 @@ namespace IceInternal
 
         void ready(EventHandler*, SocketOperation, bool);
 
-        EventHandler* getNextHandler(SocketOperation&, size_t&, int&, int);
+        /// Waits for the next completion.
+        /// @param status The completed operation.
+        /// @param count Always set to 0.
+        /// @param error Always set to 0.
+        /// @param timeout How long to wait; zero or less waits until a completion arrives.
+        /// @return The event handler of the completion.
+        /// @throws SelectorTimeoutException Thrown when no completion arrives within the timeout.
+        EventHandler*
+        getNextHandler(SocketOperation& status, size_t& count, int& error, std::chrono::milliseconds timeout);
 
         void completed(EventHandler*, SocketOperation);
 

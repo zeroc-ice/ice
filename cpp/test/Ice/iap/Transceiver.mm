@@ -117,7 +117,7 @@ namespace
             SocketOperation status = SocketOperationNone;
             size_t count = 0;
             int error = 0;
-            EventHandler* handler = _selector.getNextHandler(status, count, error, 5); // 5 seconds timeout
+            EventHandler* handler = _selector.getNextHandler(status, count, error, std::chrono::seconds(5));
             test(handler == _handler.get());
             return status;
         }
