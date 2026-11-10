@@ -1326,7 +1326,6 @@ Slice::IceRpc::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     writeIceRpcDocComment(_out, p, "server-side interface", notes.str());
     _out << nl << "[IceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "[IceRpc.DefaultServicePath(\"" << defaultServicePath(p) << "\")]";
-    emitObsoleteAttribute(p);
     _out << nl << accessModifier(p) << " partial interface I" << name << "Service";
     if (!p->bases().empty())
     {
