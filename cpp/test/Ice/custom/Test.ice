@@ -2,11 +2,11 @@
 
 #pragma once
 
-[["cpp:include:deque",
-    "cpp:include:list",
-    "cpp:include:MyByteSeq.h",
-    "cpp:include:CustomMap.h",
-    "cpp:include:CustomBuffer.h"]]
+[["cpp:include:deque"]]
+[["cpp:include:list"]]
+[["cpp:include:MyByteSeq.h"]]
+[["cpp:include:CustomMap.h"]]
+[["cpp:include:CustomBuffer.h"]]
 
 module Test
 {
