@@ -823,7 +823,7 @@ public func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
         } else {
             try test(false)
         }
-    } catch is Ice.OperationNotExistException {}
+    }
 
     do {
         //
@@ -847,7 +847,7 @@ public func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
         }
 
         breakCycles(r)
-    } catch is Ice.OperationNotExistException {}
+    }
 
     do {
         //
@@ -872,7 +872,7 @@ public func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
         }
         breakCycles(r)
         breakCycles(pcd)
-    } catch is Ice.OperationNotExistException {}
+    }
 
     do {
         //
@@ -898,7 +898,7 @@ public func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
 
         breakCycles(r)
         breakCycles(pcd)
-    } catch is Ice.OperationNotExistException {}
+    }
 
     do {
         //
@@ -947,7 +947,7 @@ public func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
         }
         breakCycles(r)
         breakCycles(pcd)
-    } catch is Ice.OperationNotExistException {}
+    }
 
     do {
         //
@@ -965,7 +965,7 @@ public func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
             try test(p.ice_getSlicedData() == nil)
         }
         breakCycles(p)
-    } catch is Ice.OperationNotExistException {}
+    }
     output.writeLine("ok")
 
     return testPrx

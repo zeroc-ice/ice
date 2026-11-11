@@ -1765,7 +1765,6 @@ public class AllTests : Test.AllTests
         output.Write("preserved classes... ");
         output.Flush();
 
-        try
         {
             //
             // Server knows the most-derived class PDerived.
@@ -1781,11 +1780,7 @@ public class AllTests : Test.AllTests
             test(p2.ps == "preserved");
             test(p2.pb == p2);
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
-        try
         {
             //
             // Server only knows the base (non-preserved) type, so the object is sliced.
@@ -1810,11 +1805,7 @@ public class AllTests : Test.AllTests
                 test(p2.pu == "preserved");
             }
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
-        try
         {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -1837,11 +1828,7 @@ public class AllTests : Test.AllTests
                 test(p2.pbs[0] == p2);
             }
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
-        try
         {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -1864,11 +1851,7 @@ public class AllTests : Test.AllTests
                 test(p2.pbs[0] == p2);
             }
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
-        try
         {
             //
             // Send an object that will have multiple preserved slices in the server.
@@ -1915,11 +1898,7 @@ public class AllTests : Test.AllTests
                 test(p3.pcd3 == p3.pbs[10]);
             }
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
-        try
         {
             //
             // Obtain an object with preserved slices and send it back to the server.
@@ -1940,9 +1919,6 @@ public class AllTests : Test.AllTests
             {
                 test(p.ice_getSlicedData() == null);
             }
-        }
-        catch (Ice.OperationNotExistException)
-        {
         }
 
         output.WriteLine("ok");
@@ -2084,7 +2060,6 @@ public class AllTests : Test.AllTests
             }
         }
 
-        try
         {
             //
             // Obtain an object with preserved slices and send it back to the server.
@@ -2098,15 +2073,11 @@ public class AllTests : Test.AllTests
                 (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
             }
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
         output.WriteLine("ok");
 
         output.Write("garbage collection for preserved classes... ");
         output.Flush();
-        try
         {
             //
             // Relay a graph through the server.
@@ -2152,33 +2123,6 @@ public class AllTests : Test.AllTests
                 test(PreservedI.counter == 1);
                 PreservedI.counter = 0;
             }
-
-            //
-            // Throw a preserved exception where the most-derived type is unknown.
-            // The preserved exception slice contains a class data member. This
-            // object is also preserved, and its most-derived type is also unknown.
-            // The preserved slice of the object contains a class data member that
-            // refers to itself.
-            //
-            // The chain of references looks like this:
-            //
-            // ex.slicedData_.obj.iceSlicedData_.obj
-            //
-            test(PreservedI.counter == 0);
-
-            try
-            {
-                testPrx.throwPreservedException();
-            }
-            catch (PreservedException)
-            {
-                test(PreservedI.counter == 1);
-            }
-
-            PreservedI.counter = 0;
-        }
-        catch (Ice.OperationNotExistException)
-        {
         }
 
         output.WriteLine("ok");

@@ -543,17 +543,7 @@ namespace
 
         void response() { test(false); }
 
-        void exception(const Ice::Exception& ex)
-        {
-            if (!dynamic_cast<const Ice::OperationNotExistException*>(&ex))
-            {
-                test(false);
-            }
-            else
-            {
-                called();
-            }
-        }
+        void exception(const Ice::Exception&) { test(false); }
 
         BPtr rb;
         SS3 rss3;
@@ -759,9 +749,6 @@ allTests(Test::TestHelper* helper)
             SBasePtr sb = testPrx->SBSUnknownDerivedAsSBaseCompact();
             test(sb->sb == "SBSUnknownDerived.sb");
         }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
         catch (...)
         {
             test(false);
@@ -777,9 +764,6 @@ allTests(Test::TestHelper* helper)
             //
             SBasePtr sb = testPrx->SBSUnknownDerivedAsSBaseCompact();
             test(false);
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
         }
         catch (const Ice::MarshalException&)
         {
@@ -2474,7 +2458,6 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "preserved classes... " << flush;
-    try
     {
         // Server knows the most-derived class PDerived.
         //
@@ -2492,11 +2475,7 @@ allTests(Test::TestHelper* helper)
         breakCycles(r);
         breakCycles(pd);
     }
-    catch (const Ice::OperationNotExistException&)
-    {
-    }
 
-    try
     {
         //
         // Server only knows the base type.
@@ -2520,11 +2499,7 @@ allTests(Test::TestHelper* helper)
 
         breakCycles(r);
     }
-    catch (const Ice::OperationNotExistException&)
-    {
-    }
 
-    try
     {
         //
         // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -2551,11 +2526,7 @@ allTests(Test::TestHelper* helper)
         breakCycles(pcd);
         breakCycles(p2);
     }
-    catch (const Ice::OperationNotExistException&)
-    {
-    }
 
-    try
     {
         //
         // Server only knows the intermediate type CompactPDerived. The object will be sliced to
@@ -2582,11 +2553,7 @@ allTests(Test::TestHelper* helper)
         breakCycles(pcd);
         breakCycles(p2);
     }
-    catch (const Ice::OperationNotExistException&)
-    {
-    }
 
-    try
     {
         //
         // Send an object that will have multiple preserved slices in the server.
@@ -2637,11 +2604,7 @@ allTests(Test::TestHelper* helper)
         breakCycles(pcd);
         breakCycles(p3);
     }
-    catch (const Ice::OperationNotExistException&)
-    {
-    }
 
-    try
     {
         //
         // Obtain an object with preserved slices and send it back to the server.
@@ -2664,9 +2627,6 @@ allTests(Test::TestHelper* helper)
         }
 
         breakCycles(p);
-    }
-    catch (const Ice::OperationNotExistException&)
-    {
     }
 
     cout << "ok" << endl;

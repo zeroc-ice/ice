@@ -97,14 +97,8 @@ classdef AllTests
             assert(~isempty(sb));
             assert(strcmp(sb.sb, 'SBSUnknownDerived.sb'));
             if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                try
-                    sb = proxy.SBSUnknownDerivedAsSBaseCompact();
-                    assert(strcmp(sb.sb, 'SBSUnknownDerived.sb'));
-                catch ex
-                    if ~isa(ex, 'Ice.OperationNotExistException')
-                        rethrow(ex);
-                    end
-                end
+                sb = proxy.SBSUnknownDerivedAsSBaseCompact();
+                assert(strcmp(sb.sb, 'SBSUnknownDerived.sb'));
             else
                 try
                     %
@@ -116,8 +110,6 @@ classdef AllTests
                 catch ex
                     if isa(ex, 'Ice.MarshalException')
                         % Expected.
-                    elseif isa(ex, 'Ice.OperationNotExistException')
-                        % Ignore
                     else
                         rethrow(ex);
                     end
@@ -132,14 +124,8 @@ classdef AllTests
             assert(~isempty(sb));
             assert(strcmp(sb.sb, 'SBSUnknownDerived.sb'));
             if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                try
-                    sb = proxy.SBSUnknownDerivedAsSBaseCompactAsync().fetchOutputs();
-                    assert(strcmp(sb.sb, 'SBSUnknownDerived.sb'));
-                catch ex
-                    if ~isa(ex, 'Ice.OperationNotExistException')
-                        rethrow(ex);
-                    end
-                end
+                sb = proxy.SBSUnknownDerivedAsSBaseCompactAsync().fetchOutputs();
+                assert(strcmp(sb.sb, 'SBSUnknownDerived.sb'));
             else
                 try
                     %
@@ -151,8 +137,6 @@ classdef AllTests
                 catch ex
                     if isa(ex, 'Ice.MarshalException')
                         % Expected.
-                    elseif isa(ex, 'Ice.OperationNotExistException')
-                        % Ignore
                     else
                         rethrow(ex);
                     end
@@ -1290,200 +1274,152 @@ classdef AllTests
 
             fprintf('preserved classes... ');
 
-            try
-                %
-                % Server knows the most-derived class PDerived.
-                %
-                pd = PDerived();
-                pd.pi = 3;
-                pd.ps = 'preserved';
-                pd.pb = pd;
+            %
+            % Server knows the most-derived class PDerived.
+            %
+            pd = PDerived();
+            pd.pi = 3;
+            pd.ps = 'preserved';
+            pd.pb = pd;
 
-                r = proxy.exchangePBase(pd);
-                p2 = r;
-                assert(p2.pi == 3);
-                assert(strcmp(p2.ps, 'preserved'));
-                assert(p2.pb == p2);
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
+            r = proxy.exchangePBase(pd);
+            p2 = r;
+            assert(p2.pi == 3);
+            assert(strcmp(p2.ps, 'preserved'));
+            assert(p2.pb == p2);
+
+            %
+            % Send an object that will have multiple preserved slices in the server.
+            % The object will be sliced to Preserved for the 1.0 encoding.
+            %
+            pcd = PCDerived3();
+            pcd.pi = 3;
+            %
+            % Sending more than 254 objects exercises the encoding for object ids.
+            %
+            pcd.pbs = {};
+            for i = 1:300
+                p2 = PCDerived2();
+                p2.pi = i;
+                p2.pbs = {};
+                p2.pbs{1} = []; % Nil reference. This slice should not have an indirection table.
+                p2.pcd2 = i;
+                pcd.pbs{i} = p2;
             end
+            pcd.pcd2 = pcd.pi;
+            pcd.pcd3 = pcd.pbs{10};
 
-            try
-                %
-                % Send an object that will have multiple preserved slices in the server.
-                % The object will be sliced to Preserved for the 1.0 encoding.
-                %
-                pcd = PCDerived3();
-                pcd.pi = 3;
-                %
-                % Sending more than 254 objects exercises the encoding for object ids.
-                %
-                pcd.pbs = {};
+            r = proxy.exchangePBase(pcd);
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(r, 'Test.PCDerived3'));
+                assert(isa(r, 'Test.Preserved'));
+                assert(r.pi == 3);
+            else
+                p3 = r;
+                assert(p3.pi == 3);
                 for i = 1:300
-                    p2 = PCDerived2();
-                    p2.pi = i;
-                    p2.pbs = {};
-                    p2.pbs{1} = []; % Nil reference. This slice should not have an indirection table.
-                    p2.pcd2 = i;
-                    pcd.pbs{i} = p2;
+                    p2 = p3.pbs{i};
+                    assert(p2.pi == i);
+                    assert(length(p2.pbs) == 1);
+                    assert(isempty(p2.pbs{1}));
+                    assert(p2.pcd2 == i);
                 end
-                pcd.pcd2 = pcd.pi;
-                pcd.pcd3 = pcd.pbs{10};
-
-                r = proxy.exchangePBase(pcd);
-                if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'Test.PCDerived3'));
-                    assert(isa(r, 'Test.Preserved'));
-                    assert(r.pi == 3);
-                else
-                    p3 = r;
-                    assert(p3.pi == 3);
-                    for i = 1:300
-                        p2 = p3.pbs{i};
-                        assert(p2.pi == i);
-                        assert(length(p2.pbs) == 1);
-                        assert(isempty(p2.pbs{1}));
-                        assert(p2.pcd2 == i);
-                    end
-                    assert(p3.pcd2 == p3.pi);
-                    assert(p3.pcd3 == p3.pbs{10});
-                end
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
+                assert(p3.pcd2 == p3.pi);
+                assert(p3.pcd3 == p3.pbs{10});
             end
 
-            try
-                %
-                % Obtain an object with preserved slices and send it back to the server.
-                % The preserved slices should be excluded for the 1.0 encoding, otherwise
-                % they should be included.
-                %
-                p = proxy.PBSUnknownAsPreserved();
-                assert(~isempty(p));
-                proxy.checkPBSUnknown(p);
-                slicedData = p.ice_getSlicedData();
-                assert(~isempty(slicedData));
-                if proxy.ice_getEncodingVersion() ~= Ice.EncodingVersion(1, 0)
-                    assert(length(slicedData.slices) == 1);
-                    assert(strcmp(slicedData.slices{1}.typeId, '::Test::PSUnknown'));
-                    proxy.ice_encodingVersion(Ice.EncodingVersion(1, 0)).checkPBSUnknown(p);
-                else
-                    assert(length(slicedData.slices) == 0);
-                end
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
+            %
+            % Obtain an object with preserved slices and send it back to the server.
+            % The preserved slices should be excluded for the 1.0 encoding, otherwise
+            % they should be included.
+            %
+            p = proxy.PBSUnknownAsPreserved();
+            assert(~isempty(p));
+            proxy.checkPBSUnknown(p);
+            slicedData = p.ice_getSlicedData();
+            assert(~isempty(slicedData));
+            if proxy.ice_getEncodingVersion() ~= Ice.EncodingVersion(1, 0)
+                assert(length(slicedData.slices) == 1);
+                assert(strcmp(slicedData.slices{1}.typeId, '::Test::PSUnknown'));
+                proxy.ice_encodingVersion(Ice.EncodingVersion(1, 0)).checkPBSUnknown(p);
+            else
+                assert(length(slicedData.slices) == 0);
             end
 
             fprintf('ok\n');
 
             fprintf('preserved classes (AMI)... ');
 
-            try
-                %
-                % Server knows the most-derived class PDerived.
-                %
-                pd = PDerived();
-                pd.pi = 3;
-                pd.ps = 'preserved';
-                pd.pb = pd;
+            %
+            % Server knows the most-derived class PDerived.
+            %
+            pd = PDerived();
+            pd.pi = 3;
+            pd.ps = 'preserved';
+            pd.pb = pd;
 
-                r = proxy.exchangePBaseAsync(pd).fetchOutputs();
-                p2 = r;
-                assert(p2.pi == 3);
-                assert(strcmp(p2.ps, 'preserved'));
-                assert(p2.pb == p2);
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
+            r = proxy.exchangePBaseAsync(pd).fetchOutputs();
+            p2 = r;
+            assert(p2.pi == 3);
+            assert(strcmp(p2.ps, 'preserved'));
+            assert(p2.pb == p2);
+
+            %
+            % Send an object that will have multiple preserved slices in the server.
+            % The object will be sliced to Preserved for the 1.0 encoding.
+            %
+            pcd = PCDerived3();
+            pcd.pi = 3;
+            %
+            % Sending more than 254 objects exercises the encoding for object ids.
+            %
+            pcd.pbs = {};
+            for i = 1:300
+                p2 = PCDerived2();
+                p2.pi = i;
+                p2.pbs = {};
+                p2.pbs{1} = []; % Nil reference. This slice should not have an indirection table.
+                p2.pcd2 = i;
+                pcd.pbs{i} = p2;
             end
+            pcd.pcd2 = pcd.pi;
+            pcd.pcd3 = pcd.pbs{10};
 
-            try
-                %
-                % Send an object that will have multiple preserved slices in the server.
-                % The object will be sliced to Preserved for the 1.0 encoding.
-                %
-                pcd = PCDerived3();
-                pcd.pi = 3;
-                %
-                % Sending more than 254 objects exercises the encoding for object ids.
-                %
-                pcd.pbs = {};
+            r = proxy.exchangePBaseAsync(pcd).fetchOutputs();
+            if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
+                assert(~isa(r, 'Test.PCDerived3'));
+                assert(isa(r, 'Test.Preserved'));
+                assert(r.pi == 3);
+            else
+                p3 = r;
+                assert(p3.pi == 3);
                 for i = 1:300
-                    p2 = PCDerived2();
-                    p2.pi = i;
-                    p2.pbs = {};
-                    p2.pbs{1} = []; % Nil reference. This slice should not have an indirection table.
-                    p2.pcd2 = i;
-                    pcd.pbs{i} = p2;
+                    p2 = p3.pbs{i};
+                    assert(p2.pi == i);
+                    assert(length(p2.pbs) == 1);
+                    assert(isempty(p2.pbs{1}));
+                    assert(p2.pcd2 == i);
                 end
-                pcd.pcd2 = pcd.pi;
-                pcd.pcd3 = pcd.pbs{10};
-
-                r = proxy.exchangePBaseAsync(pcd).fetchOutputs();
-                if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'Test.PCDerived3'));
-                    assert(isa(r, 'Test.Preserved'));
-                    assert(r.pi == 3);
-                else
-                    p3 = r;
-                    assert(p3.pi == 3);
-                    for i = 1:300
-                        p2 = p3.pbs{i};
-                        assert(p2.pi == i);
-                        assert(length(p2.pbs) == 1);
-                        assert(isempty(p2.pbs{1}));
-                        assert(p2.pcd2 == i);
-                    end
-                    assert(p3.pcd2 == p3.pi);
-                    assert(p3.pcd3 == p3.pbs{10});
-                end
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
+                assert(p3.pcd2 == p3.pi);
+                assert(p3.pcd3 == p3.pbs{10});
             end
 
-            try
-                %
-                % Obtain an object with preserved slices and send it back to the server.
-                % The preserved slices should be excluded for the 1.0 encoding, otherwise
-                % they should be included.
-                %
-                p = proxy.PBSUnknownAsPreservedAsync().fetchOutputs();
-                assert(~isempty(p));
-                proxy.checkPBSUnknown(p);
-                slicedData = p.ice_getSlicedData();
-                assert(~isempty(slicedData));
-                if proxy.ice_getEncodingVersion() ~= Ice.EncodingVersion(1, 0)
-                    assert(length(slicedData.slices) == 1);
-                    assert(strcmp(slicedData.slices{1}.typeId, '::Test::PSUnknown'));
-                    proxy.ice_encodingVersion(Ice.EncodingVersion(1, 0)).checkPBSUnknown(p);
-                else
-                    assert(length(slicedData.slices) == 0);
-                end
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
+            %
+            % Obtain an object with preserved slices and send it back to the server.
+            % The preserved slices should be excluded for the 1.0 encoding, otherwise
+            % they should be included.
+            %
+            p = proxy.PBSUnknownAsPreservedAsync().fetchOutputs();
+            assert(~isempty(p));
+            proxy.checkPBSUnknown(p);
+            slicedData = p.ice_getSlicedData();
+            assert(~isempty(slicedData));
+            if proxy.ice_getEncodingVersion() ~= Ice.EncodingVersion(1, 0)
+                assert(length(slicedData.slices) == 1);
+                assert(strcmp(slicedData.slices{1}.typeId, '::Test::PSUnknown'));
+                proxy.ice_encodingVersion(Ice.EncodingVersion(1, 0)).checkPBSUnknown(p);
+            else
+                assert(length(slicedData.slices) == 0);
             end
 
             fprintf('ok\n');

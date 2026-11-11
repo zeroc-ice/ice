@@ -432,17 +432,6 @@ public sealed class TestI : TestIntfDisp_
         throw ude;
     }
 
-    public override Task
-    throwPreservedExceptionAsync(Ice.Current current)
-    {
-        var ue = new PSUnknownException();
-        ue.p = new PSUnknown2();
-        ue.p.pi = 5;
-        ue.p.ps = "preserved";
-        ue.p.pb = ue.p;
-        throw ue;
-    }
-
     public override void useForward(out Forward f, Ice.Current current)
     {
         f = new Forward();
