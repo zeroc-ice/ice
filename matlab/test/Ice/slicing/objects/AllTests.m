@@ -1489,76 +1489,43 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('garbage collection for preserved classes... ');
-            try
-                %
-                % Relay a graph through the server.
-                %
-                c = PNode();
-                c.next = PNode();
-                c.next.next = PNode();
-                c.next.next.next = c;
+            %
+            % Relay a graph through the server.
+            %
+            c = PNode();
+            c.next = PNode();
+            c.next.next = PNode();
+            c.next.next.next = c;
 
-                assert(customSliceLoader.nodeCounter == 0);
-                proxy.exchangePNode(c);
+            assert(customSliceLoader.nodeCounter == 0);
+            proxy.exchangePNode(c);
 
-                assert(customSliceLoader.nodeCounter == 3);
-                customSliceLoader.nodeCounter = 0;
+            assert(customSliceLoader.nodeCounter == 3);
+            customSliceLoader.nodeCounter = 0;
 
-                %
-                % Obtain a preserved object from the server where the most-derived
-                % type is unknown. The preserved slice refers to a graph of PNode
-                % objects.
-                %
-                assert(customSliceLoader.nodeCounter == 0);
-                p = proxy.PBSUnknownAsPreservedWithGraph();
-                proxy.checkPBSUnknownWithGraph(p);
-                assert(customSliceLoader.nodeCounter == 3);
-                customSliceLoader.nodeCounter = 0;
+            %
+            % Obtain a preserved object from the server where the most-derived
+            % type is unknown. The preserved slice refers to a graph of PNode
+            % objects.
+            %
+            assert(customSliceLoader.nodeCounter == 0);
+            p = proxy.PBSUnknownAsPreservedWithGraph();
+            proxy.checkPBSUnknownWithGraph(p);
+            assert(customSliceLoader.nodeCounter == 3);
+            customSliceLoader.nodeCounter = 0;
 
-                %
-                % Obtain a preserved object from the server where the most-derived
-                % type is unknown. A data member in the preserved slice refers to the
-                % outer object, so the chain of references looks like this:
-                %
-                % outer.slicedData.outer
-                %
-                customSliceLoader.preservedCounter = 0;
-                p = proxy.PBSUnknown2AsPreservedWithGraph();
-                proxy.checkPBSUnknown2WithGraph(p);
-                assert(customSliceLoader.preservedCounter == 1);
-                customSliceLoader.preservedCounter = 0;
-
-                %
-                % Throw a preserved exception where the most-derived type is unknown.
-                % The preserved exception slice contains a class data member. This
-                % object is also preserved, and its most-derived type is also unknown.
-                % The preserved slice of the object contains a class data member that
-                % refers to itself.
-                %
-                % The chain of references looks like this:
-                %
-                % ex.slicedData.obj.slicedData.obj
-                %
-                assert(customSliceLoader.preservedCounter == 0);
-
-                try
-                    proxy.throwPreservedException();
-                catch ex
-                    if isa(ex, 'Test.PreservedException')
-                        assert(customSliceLoader.preservedCounter == 1);
-                    else
-                        rethrow(ex);
-                    end
-                end
-
-                customSliceLoader.preservedCounter = 0;
-            catch ex
-                if isa(ex, 'Ice.OperationNotExistException')
-                    % Ignore
-                else
-                    rethrow(ex);
-                end
-            end
+            %
+            % Obtain a preserved object from the server where the most-derived
+            % type is unknown. A data member in the preserved slice refers to the
+            % outer object, so the chain of references looks like this:
+            %
+            % outer.slicedData.outer
+            %
+            customSliceLoader.preservedCounter = 0;
+            p = proxy.PBSUnknown2AsPreservedWithGraph();
+            proxy.checkPBSUnknown2WithGraph(p);
+            assert(customSliceLoader.preservedCounter == 1);
+            customSliceLoader.preservedCounter = 0;
 
             fprintf('ok\n');
 

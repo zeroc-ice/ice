@@ -6,30 +6,29 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.Value;
 
-import test.Ice.slicing.objects.server.Test.B;
-import test.Ice.slicing.objects.server.Test.BaseException;
-import test.Ice.slicing.objects.server.Test.D1;
+import test.Ice.slicing.objects.Test.B;
+import test.Ice.slicing.objects.Test.BaseException;
+import test.Ice.slicing.objects.Test.D1;
+import test.Ice.slicing.objects.Test.DerivedException;
+import test.Ice.slicing.objects.Test.Forward;
+import test.Ice.slicing.objects.Test.Hidden;
+import test.Ice.slicing.objects.Test.PBase;
+import test.Ice.slicing.objects.Test.PNode;
+import test.Ice.slicing.objects.Test.Preserved;
+import test.Ice.slicing.objects.Test.SBSKnownDerived;
+import test.Ice.slicing.objects.Test.SBase;
+import test.Ice.slicing.objects.Test.SD1;
+import test.Ice.slicing.objects.Test.SS1;
+import test.Ice.slicing.objects.Test.SS2;
+import test.Ice.slicing.objects.Test.SS3;
+import test.Ice.slicing.objects.Test.TestIntf;
 import test.Ice.slicing.objects.server.Test.D2;
 import test.Ice.slicing.objects.server.Test.D4;
-import test.Ice.slicing.objects.server.Test.DerivedException;
-import test.Ice.slicing.objects.server.Test.Forward;
-import test.Ice.slicing.objects.server.Test.Hidden;
 import test.Ice.slicing.objects.server.Test.MyClass;
-import test.Ice.slicing.objects.server.Test.PBase;
-import test.Ice.slicing.objects.server.Test.PNode;
 import test.Ice.slicing.objects.server.Test.PSUnknown;
 import test.Ice.slicing.objects.server.Test.PSUnknown2;
-import test.Ice.slicing.objects.server.Test.PSUnknownException;
-import test.Ice.slicing.objects.server.Test.Preserved;
-import test.Ice.slicing.objects.server.Test.SBSKnownDerived;
 import test.Ice.slicing.objects.server.Test.SBSUnknownDerived;
-import test.Ice.slicing.objects.server.Test.SBase;
-import test.Ice.slicing.objects.server.Test.SD1;
-import test.Ice.slicing.objects.server.Test.SS1;
-import test.Ice.slicing.objects.server.Test.SS2;
-import test.Ice.slicing.objects.server.Test.SS3;
 import test.Ice.slicing.objects.server.Test.SUnknown;
-import test.Ice.slicing.objects.server.Test.TestIntf;
 import test.Ice.slicing.objects.server.Test.UnknownDerivedException;
 
 import java.util.HashMap;
@@ -478,22 +477,6 @@ public final class TestI implements TestIntf {
         ude.sude = "sude";
         ude.pd2 = d2;
         throw ude;
-    }
-
-    @Override
-    public CompletionStage<Void> throwPreservedExceptionAsync(Current current) {
-        PSUnknownException ue = new PSUnknownException();
-        ue.p = new PSUnknown2();
-        ue.p.pi = 5;
-        ue.p.ps = "preserved";
-        ue.p.pb = ue.p;
-        CompletableFuture<Void> r = new CompletableFuture<>();
-        r.completeExceptionally(ue);
-        return r;
-        //
-        // Can't do this with the Java 8 mapping:
-        //
-        // ue.p.pb = null; // Break the cycle.
     }
 
     @Override
