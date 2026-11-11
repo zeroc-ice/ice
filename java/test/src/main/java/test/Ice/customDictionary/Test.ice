@@ -16,6 +16,7 @@ module Test
     {
         int i;
     }
+
     dictionary<A, int> AIntDict;
     ["java:type:java.util.LinkedHashMap<A, Integer>"] dictionary<A, int> AIntLinkedDict;
     ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"]
@@ -25,12 +26,14 @@ module Test
     {
         string s;
     }
+
     dictionary<short, C> ShortCDict;
     ["java:type:java.util.LinkedHashMap<Short, C>"] dictionary<short, C> ShortCLinkedDict;
     ["java:type:java.util.LinkedHashMap<Short, C>:java.util.LinkedHashMap<Short, C>"]
     dictionary<short, C> ShortCFormalLinkedDict;
 
     enum E { E1, E2, E3 }
+
     dictionary<string, E> StringEDict;
     ["java:type:java.util.LinkedHashMap<String, E>"] dictionary<string, E> StringELinkedDict;
     ["java:type:java.util.LinkedHashMap<String, E>:java.util.LinkedHashMap<String, E>"]

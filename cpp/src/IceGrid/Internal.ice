@@ -24,6 +24,7 @@ module IceGrid
         /// Specifies if the lifetime of the adapter is the same as the server.
         bool serverLifetime;
     }
+
     sequence<InternalAdapterDescriptor> InternalAdapterDescriptorSeq;
 
     dictionary<string, PropertyDescriptorSeq> PropertyDescriptorSeqDict;

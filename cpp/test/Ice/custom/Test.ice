@@ -69,6 +69,7 @@ module Test
     ["cpp:type:std::list<::Test::StringStringDictSeq>"] sequence<StringStringDictSeq> StringStringDictSeqList;
 
     enum E { E1, E2, E3 }
+
     sequence<E> ESeq;
     ["cpp:type:std::list<::Test::E>"] sequence<E> EList;
 
@@ -77,6 +78,7 @@ module Test
     ["cpp:type:std::list<::Test::ESeq>"] sequence<ESeq> ESeqList;
 
     class C {}
+
     sequence<C> CSeq;
     ["cpp:type:std::list<std::shared_ptr<::Test::C>>"] sequence<C> CList;
 
@@ -85,6 +87,7 @@ module Test
     ["cpp:type:std::list<::Test::CSeq>"] sequence<CSeq> CSeqList;
 
     interface D {}
+
     sequence<D*> DPrxSeq;
     ["cpp:type:std::list<std::optional<::Test::DPrx>>"] sequence<D*> DPrxList;
 
@@ -111,6 +114,7 @@ module Test
     ["cpp:type:Test::CustomBuffer<float>"] sequence<float> FloatBuffer;
     ["cpp:type:Test::CustomBuffer<double>"] sequence<double> DoubleBuffer;
     ["cpp:type:Test::CustomBuffer<std::byte>"] sequence<byte> ByteBuffer;
+
     struct BufferStruct
     {
         ByteBuffer byteBuf;

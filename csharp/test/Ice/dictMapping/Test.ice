@@ -10,6 +10,7 @@ module Test
     dictionary<string, NV> NDV;
     dictionary<string, NR> NDR;
     sequence<int> IntSeq;
+
     struct TEstNv
     {
         NV d;

@@ -105,6 +105,7 @@ module Test
     ["cs:generic:List"] sequence<CV> LCVS;
 
     interface I {}
+
     sequence<I*> AIPrxS;
     ["cs:generic:List"] sequence<I*> LIPrxS;
     ["cs:generic:LinkedList"] sequence<I*> KIPrxS;

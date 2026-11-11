@@ -101,6 +101,7 @@ module IceStormElection
         /// The node proxy.
         Node* n;
     }
+
     /// A sequence of node info.
     sequence<NodeInfo> NodeInfoSeq;
 
@@ -112,6 +113,7 @@ module IceStormElection
         /// The last known log update for this node.
         LogUpdate llu;
     }
+
     /// A sequence of group info.
     sequence<GroupInfo> GroupInfoSeq;
 

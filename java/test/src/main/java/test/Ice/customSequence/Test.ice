@@ -31,12 +31,14 @@ module Test
     ["java:buffer"] sequence<double> DoubleBuffer;
 
     enum E { E1, E2, E3 }
+
     ["java:type:java.util.ArrayList<E>"] sequence<E> ESeq;
 
     struct S
     {
         E en;
     }
+
     ["java:type:java.util.ArrayList<S>"] sequence<S> SSeq;
 
     dictionary<int, string> D;

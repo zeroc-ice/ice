@@ -11,6 +11,7 @@ module Test
     {
         int i;
     }
+
     ["cs:internal"] sequence<C> CSeq;
 
     ["cs:internal", "cs:readonly"]
