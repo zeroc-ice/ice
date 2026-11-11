@@ -17,6 +17,8 @@
 #    include <Security/Security.h>
 
 #    include <cerrno>
+#    include <cstring>
+#    include <sstream>
 #    include <utility>
 
 using namespace std;
@@ -27,15 +29,23 @@ using AsyncState = IceInternal::NetworkFrameworkTransceiver::AsyncState;
 
 namespace
 {
+    // Formats an endpoint like addrToString formats a socket address, for example 127.0.0.1:4061 or [::1]:4061. An
+    // endpoint that is not an address, such as the host name an outgoing connection is created for, is formatted as
+    // host:port.
     string nwEndpointToString(nw_endpoint_t endpoint)
     {
-        if (!endpoint)
+        if (nw_endpoint_get_type(endpoint) == nw_endpoint_type_address)
         {
-            return "<not connected>";
+            const sockaddr* address = nw_endpoint_get_address(endpoint);
+            if (address && address->sa_len <= sizeof(sockaddr_storage))
+            {
+                Address addr;
+                memcpy(&addr.saStorage, address, address->sa_len);
+                return addrToString(addr);
+            }
         }
-        string host = nw_endpoint_get_hostname(endpoint);
-        uint16_t port = nw_endpoint_get_port(endpoint);
-        return host + ":" + to_string(port);
+        const char* host = nw_endpoint_get_hostname(endpoint);
+        return string{host ? host : ""} + ":" + to_string(nw_endpoint_get_port(endpoint));
     }
 
     // How many bytes a receive asks for when the connection needs fewer: the surplus is kept for the next reads, so
@@ -129,6 +139,9 @@ IceInternal::NetworkFrameworkTransceiver::NetworkFrameworkTransceiver(
       _secure(secure)
 {
     assert(_connection);
+    // An accepted connection already has its path, hence both addresses, before it is started: this describes it in
+    // the traces that precede initialize, such as "trying to accept". initialize describes it again once connected.
+    _desc = describe();
 }
 
 NativeInfoPtr
@@ -580,10 +593,12 @@ IceInternal::NetworkFrameworkTransceiver::checkSendSize(const Buffer&)
 string
 IceInternal::NetworkFrameworkTransceiver::describe() const
 {
-    // Same format as fdToString for the BSD socket transports: with a proxy, the effective remote endpoint is
-    // the proxy and the destination address is listed separately.
+    // The format of fdToString(fd, proxy, target) for the BSD socket transports. With a proxy, the transport peer is
+    // the proxy and the destination address follows. Without a path, which an outgoing connection only gets once it
+    // is started, the local address is not available and the remote address is the endpoint the connection was
+    // created for, like fdToString reports the target of a socket that is not connected yet.
     string localAddress = "<not available>";
-    string remoteAddress = "<not available>";
+    string remoteAddress;
     auto path = NetworkRef<nw_path_t>::adopt(nw_connection_copy_current_path(_connection.get()));
     if (path)
     {
@@ -598,6 +613,11 @@ IceInternal::NetworkFrameworkTransceiver::describe() const
             remoteAddress = nwEndpointToString(remoteEndpoint.get());
         }
     }
+    if (remoteAddress.empty())
+    {
+        auto endpoint = NetworkRef<nw_endpoint_t>::adopt(nw_connection_copy_endpoint(_connection.get()));
+        remoteAddress = endpoint ? nwEndpointToString(endpoint.get()) : "<not connected>";
+    }
 
     ostringstream os;
     os << "local address = " << localAddress;
@@ -608,7 +628,7 @@ IceInternal::NetworkFrameworkTransceiver::describe() const
     }
     else
     {
-        os << " remote address = " << remoteAddress;
+        os << "\nremote address = " << remoteAddress;
     }
     return os.str();
 }
