@@ -36,6 +36,7 @@ import test.Ice.operations.Test.ss2;
 import test.Ice.operations.Test.ss3;
 import test.Ice.operations.Test.ss4;
 import test.Ice.operations.Test.ss5;
+import test.Ice.operations.Test.ss6;
 
 import test.Ice.operations.Test.sw0;
 import test.Ice.operations.Test.sw1;
@@ -178,12 +179,14 @@ class Twoways {
 
         test("\\u0041\\".equals(ss5.value) && ss5.value.equals(literals[27]));
 
+        test("\t".equals(ss6.value) && ss6.value.equals(literals[28]));
+
         test(
             su0.value.equals(su1.value)
                 && su0.value.equals(su2.value)
-                && su0.value.equals(literals[28])
                 && su0.value.equals(literals[29])
-                && su0.value.equals(literals[30]));
+                && su0.value.equals(literals[30])
+                && su0.value.equals(literals[31]));
         //CHECKSTYLE:ON: AvoidEscapedUnicodeCharacters
         p.ice_ping();
 

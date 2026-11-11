@@ -79,11 +79,14 @@ function twoways($communicator, $p)
         test(Test\ss5 == "\\u0041\\" &&
              Test\ss5 == $literals[27]);
 
+        test(Test\ss6 == "\t" &&
+             Test\ss6 == $literals[28]);
+
         test(Test\su0 == Test\su1 &&
              Test\su0 == Test\su2 &&
-             Test\su0 == $literals[28] &&
              Test\su0 == $literals[29] &&
-             Test\su0 == $literals[30]);
+             Test\su0 == $literals[30] &&
+             Test\su0 == $literals[31]);
     }
 
     {

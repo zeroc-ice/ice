@@ -101,8 +101,10 @@ func testLiterals(helper: TestHelper, prx p: MyInterfacePrx) async throws {
 
     try test(ss5 == "\\u0041\\" && ss5 == literals[27])
 
+    try test(ss6 == "\t" && ss6 == literals[28])
+
     try test(
-        su0 == su1 && su0 == su2 && su0 == literals[28] && su0 == literals[29] && su0 == literals[30])
+        su0 == su1 && su0 == su2 && su0 == literals[29] && su0 == literals[30] && su0 == literals[31])
 }
 
 func testProxyMethods(helper: TestHelper, prx p: MyInterfacePrx) async throws {

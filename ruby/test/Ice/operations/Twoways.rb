@@ -76,11 +76,14 @@ def twoways(helper, communicator, p)
     test(Test::Ss5 == "\\u0041\\" &&
          Test::Ss5 == literals[27]);
 
+    test(Test::Ss6 == "\t" &&
+         Test::Ss6 == literals[28]);
+
     test(Test::Su0 == Test::Su1 &&
          Test::Su0 == Test::Su2 &&
-         Test::Su0 == literals[28] &&
          Test::Su0 == literals[29] &&
-         Test::Su0 == literals[30]);
+         Test::Su0 == literals[30] &&
+         Test::Su0 == literals[31]);
 
     #
     # ice_ping

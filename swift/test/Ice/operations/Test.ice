@@ -331,6 +331,8 @@ module Test
     const string ss4 = "\\\u0041\\"; /* \A\     */
     const string ss5 = "\\u0041\\";  /* \u0041\ */
 
+    const string ss6 = "	"; /* tab character */
+
     //
     // Ĩ - Unicode Character 'LATIN CAPITAL LETTER I WITH TILDE' (U+0128)
     // Ÿ - Unicode Character 'LATIN CAPITAL LETTER Y WITH DIAERESIS' (U+0178)
@@ -397,6 +399,8 @@ module Test
     const string wss3 = "\\\\U\\u\\"; /* \\U\u\  */
     const string wss4 = "\\\u0041\\"; /* \A\     */
     const string wss5 = "\\u0041\\";  /* \u0041\ */
+
+    const string wss6 = "	"; /* tab character */
 
     //
     // Ĩ - Unicode Character 'LATIN CAPITAL LETTER I WITH TILDE' (U+0128)
