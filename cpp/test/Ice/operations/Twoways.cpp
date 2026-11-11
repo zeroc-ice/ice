@@ -95,11 +95,13 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
 
     test(Test::ss5 == "\\u0041\\" && Test::ss5 == literals[27]);
 
+    test(Test::ss6 == "\t" && Test::ss6 == literals[28]);
+
     test(Test::su0 == Test::su1);
     test(Test::su0 == Test::su2);
-    test(Test::su0 == literals[28]);
     test(Test::su0 == literals[29]);
     test(Test::su0 == literals[30]);
+    test(Test::su0 == literals[31]);
 
     //
     // Same but using wide strings
@@ -146,9 +148,11 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
 
     test(Test::wss5 == L"\\u0041\\" && Test::wss5 == wliterals[27]);
 
+    test(Test::wss6 == L"\t" && Test::wss6 == wliterals[28]);
+
     test(
-        Test::wsu0 == Test::wsu1 && Test::wsu0 == Test::wsu2 && Test::wsu0 == wliterals[28] &&
-        Test::wsu0 == wliterals[29] && Test::wsu0 == wliterals[30]);
+        Test::wsu0 == Test::wsu1 && Test::wsu0 == Test::wsu2 && Test::wsu0 == wliterals[29] &&
+        Test::wsu0 == wliterals[30] && Test::wsu0 == wliterals[31]);
 
     {
         p->ice_ping();

@@ -3608,7 +3608,7 @@ class BrowserProcessController(RemoteProcessController):
         # The Selenium WebDriver used to drive the browser, when one is configured.
         self.driver: Any = None
         try:
-            httpServerCmd = "node node_modules/http-server/bin/http-server -p 8080 dist"
+            httpServerCmd = "node node_modules/http-server/bin/http-server -p 8081 dist"
             cwd = current.getTestCase().getMapping().getPath()
             self.httpServer = Expect.Expect(httpServerCmd, cwd=cwd)
             self.httpServer.expect("Available on:")
@@ -3617,6 +3617,27 @@ class BrowserProcessController(RemoteProcessController):
             cwd = current.getTestCase().getMapping().getPath()
             self.httpsServer = Expect.Expect(httpsServerCmd, cwd=cwd)
             self.httpsServer.expect("Available on:")
+
+            # The https and wss servers present certificates signed by the test CA. Chrome and Firefox accept them
+            # with accept_insecure_certs; Safari doesn't support it and requires the test CA to be trusted instead.
+            if current.config.browser == "Chrome":
+                from selenium import webdriver
+
+                options = webdriver.ChromeOptions()
+                options.add_argument("--headless")
+                options.accept_insecure_certs = True
+                self.driver = webdriver.Chrome(options=options)
+            elif current.config.browser == "Firefox":
+                from selenium import webdriver
+
+                options = webdriver.FirefoxOptions()
+                options.add_argument("-headless")
+                options.accept_insecure_certs = True
+                self.driver = webdriver.Firefox(options=options)
+            elif current.config.browser == "Safari":
+                from selenium import webdriver
+
+                self.driver = webdriver.Safari()
         except Exception:
             self.destroy(current.driver)
             raise
@@ -3643,7 +3664,7 @@ class BrowserProcessController(RemoteProcessController):
             cport = "15003"
         else:
             protocol = "http"
-            port = "8080"
+            port = "8081"
             cport = "15002"
         url = "{0}://{5}:{1}/{2}/controller.html?port={3}&worker={4}".format(
             protocol, port, testsuite, cport, current.config.worker, self.host
@@ -3689,10 +3710,12 @@ class BrowserProcessController(RemoteProcessController):
             return RemoteProcessController.getController(self, current)
         except RuntimeError as ex:
             if self.driver:
+                from selenium.webdriver.common.by import By
+
                 # Print out the client & server console element values
                 for element in ["clientConsole", "serverConsole"]:
                     try:
-                        console = self.driver.find_element_by_id(element).get_attribute("value")
+                        console = self.driver.find_element(By.ID, element).get_attribute("value")
                         if len(console) > 0:
                             print("controller {0} value:\n{1}".format(element, console))
                     except Exception as exc:
@@ -4825,12 +4848,15 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
         def usage(cls) -> None:
             print("")
             print("JavaScript mapping options:")
-            print("--browser=<name>      Run with the given browser.")
+            print("--browser=<name>      Run in a browser driven by Selenium (Chrome, Firefox, or Safari), or Manual.")
             print("--worker              Run with Web workers enabled.")
             print("--coverage            Collect code coverage using c8. Only supported for Node.js.")
 
         def __init__(self, options: list[Option] = []):
             Mapping.Config.__init__(self, options)
+
+            if self.browser not in ["", "Chrome", "Firefox", "Safari", "Manual"]:
+                raise RuntimeError(f"unsupported browser `{self.browser}'")
 
             if self.browser and self.protocol == "tcp":
                 self.protocol = "ws"

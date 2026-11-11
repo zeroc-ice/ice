@@ -12,7 +12,6 @@ from typing import IO, Any
 
 from Util import (
     Args,
-    Darwin,
     Driver,
     IceProcess,
     Mapping,
@@ -23,7 +22,6 @@ from Util import (
     TestCase,
     TestSuite,
     parseOptions,
-    platform,
     runTests,
     toplevel,
     traceback,
@@ -72,7 +70,6 @@ class ControllerDriver(Driver):
         return (
             "",
             [
-                "clean",
                 "id=",
                 "endpoints=",
                 "bt-setup=",
@@ -91,7 +88,6 @@ class ControllerDriver(Driver):
         print("Controller driver options:")
         print("--id=<identity>       The identity of the controller object.")
         print("--endpoints=<endpts>  The endpoints to listen on.")
-        print("--clean               Remove trust settings (macOS).")
         print("")
         print("Bluetooth harness options (all exit without starting a controller):")
         print("--bt-emulators        Create and boot the --bt-client/--bt-server emulators (--bt-image).")
@@ -107,7 +103,6 @@ class ControllerDriver(Driver):
         Driver.__init__(self, options, *args, **kargs)
         self.id = "controller"
         self.endpoints = ""
-        self.clean = False
         self.btSetup = ""  # path to the btbond APK; when set, run Bluetooth device setup and exit
         self.btDiagnostics = False  # when set, dump adb diagnostics for --device and exit
         self.btPrepare = False  # when set, prepare + bond --bt-client/--bt-server and exit
@@ -122,7 +117,6 @@ class ControllerDriver(Driver):
             self,
             options,
             {
-                "clean": "clean",
                 "bt-setup": "btSetup",
                 "bt-diagnostics": "btDiagnostics",
                 "bt-prepare": "btPrepare",
@@ -143,35 +137,6 @@ class ControllerDriver(Driver):
             return self.runBluetoothPrepare()
         if self.btSetup or self.btDiagnostics:
             return self.runBluetoothDevice()
-
-        if isinstance(platform, Darwin):
-            #
-            # On macOS, we set the trust settings on the certificate to prevent
-            # the Web browsers from prompting the user about the untrusted
-            # certificate. Some browsers such as Chrome don't provide the
-            # option to set this trust settings.
-            #
-            serverCert = os.path.join(toplevel, "certs", "server_cert.pem")
-            if self.clean:
-                if os.system("security verify-cert -c " + serverCert + " >& /dev/null") == 0:
-                    sys.stdout.write("removing trust settings for the HTTP server certificate... ")
-                    sys.stdout.flush()
-                    if os.system("security remove-trusted-cert " + serverCert) != 0:
-                        print("\nerror: couldn't remove trust settings for the HTTP server certificate")
-                    else:
-                        print("ok")
-                else:
-                    print("trust settings already removed")
-                return
-            else:
-                if os.system("security verify-cert -c " + serverCert + " >& /dev/null") != 0:
-                    sys.stdout.write("adding trust settings for the HTTP server certificate... ")
-                    sys.stdout.flush()
-                    if os.system("security add-trusted-cert -r trustAsRoot " + serverCert) != 0:
-                        print("\nerror: couldn't add trust settings for the HTTP server certificate")
-                    else:
-                        print("ok")
-                    print("run " + sys.argv[0] + " --clean to remove the trust setting")
 
         self.initCommunicator()
         import Ice

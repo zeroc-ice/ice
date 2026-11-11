@@ -2,23 +2,67 @@
 
 set -e
 
-# Generates code coverage report for the specified binary or library using llvm-cov.
-# The script runs `make` and `allTests.py` to generate the coverage data in the current working directory.
+# Generates a code coverage report for the C++ libraries and executables using llvm-cov.
+# The script builds and runs the tests in the current working directory, and writes the report to coverage/html.
 
 export CPPFLAGS="-fprofile-instr-generate -fcoverage-mapping"
 export LDFLAGS="-fprofile-instr-generate"
 export LLVM_PROFILE_FILE="${PWD}/coverage/%m.profraw"
 export OPTIMIZE=no
 
-# The llvm tools used below come from the Xcode Command Line Tools, so this script is macOS only.
-if [ "$(uname)" != "Darwin" ]; then
-    echo "This script is only supported on macOS"
-    exit 1
-fi
+case "$(uname)" in
+    Darwin)
+        ncpu=$(sysctl -n hw.ncpu)
+        build() { make "-j$ncpu"; }
+        llvm_profdata() { xcrun llvm-profdata "$@"; }
+        llvm_cov() { xcrun llvm-cov "$@"; }
+        ;;
+    Linux)
+        ncpu=$(nproc)
+        # The instrumentation flags are clang's, and the llvm tools on the PATH must match its version. The Debian
+        # rules prefix CXX with the target triple, which clang doesn't install, so the build sets the platform's
+        # compiler directly.
+        export CXX=clang++
+        build() { make "-j$ncpu" "$(dpkg --print-architecture)_cxx=clang++"; }
+        llvm_profdata() { llvm-profdata "$@"; }
+        llvm_cov() { llvm-cov "$@"; }
+        ;;
+    *)
+        echo "This script is only supported on macOS and Linux; on Windows, use generate-cpp-code-coverage.ps1"
+        exit 1
+        ;;
+esac
 
 usage() {
-    echo "usage: $0 [<path-to-binary-or-library>] [-h|--help]"
+    echo "usage: $0 [-h|--help]"
 }
+
+case "$1" in
+    -h|--help)
+        usage
+        echo ""
+        echo "Generates one code coverage report for the libraries in lib and the executables in bin. Of the Slice"
+        echo "compilers, the report includes only slice2cpp: the others are exercised by the builds and tests of their"
+        echo "own language mappings, which the script doesn't run. The report also counts the header code that only"
+        echo "the tests use, but not the test code itself."
+        echo "The script builds the current working directory with code coverage instrumentation, runs the tests, and"
+        echo "generates the report in coverage/html."
+        echo ""
+        echo "example:"
+        echo "  cd cpp && ../scripts/generate-cpp-code-coverage.sh"
+        echo "  open coverage/html/index.html"
+        echo ""
+        echo "On Linux, the script supports only Debian and Ubuntu. It builds with clang++ and needs llvm-profdata and"
+        echo "llvm-cov of the same version."
+        exit 0
+        ;;
+    "")
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+esac
 
 if [ ! -e "Makefile" ]; then
     echo "Makefile not found"
@@ -30,54 +74,40 @@ if [ ! -e "allTests.py" ]; then
     exit 1
 fi
 
-arg=$1
-case "$arg" in
-    -h|--help)
-        usage
-        echo ""
-        echo "Generates a code coverage report for the specified binary or library. The report is generated in the coverage/html directory."
-        echo "The script builds the current working directory with code coverage instrumentation, runs the tests, and generates the report."
-        echo "The Xcode Command Line Tools must be installed."
-        echo ""
-        echo "example: generate code coverage report for libIce"
-        echo "  cd cpp && ../scripts/generate-cpp-code-coverage.sh lib/libIce.dylib"
-        echo "  open coverage/html/libIce.dylib/index.html"
-        exit 0
-        ;;
-esac
+rm -rf coverage
 
-CLI_TOOLS=/Library/Developer/CommandLineTools/usr/bin
+echo "Building with code coverage..."
+# distclean, unlike clean, also removes the Slice compilers, so they're rebuilt with instrumentation.
+make distclean
+build
 
-if [ ! -x "${CLI_TOOLS}/llvm-profdata" ] || [ ! -x "${CLI_TOOLS}/llvm-cov" ]; then
-    echo "llvm-profdata or llvm-cov not found in ${CLI_TOOLS}. Run 'xcode-select --install' to install the Xcode Command Line Tools."
-    exit 1
-fi
+echo "Running tests..."
+python3 allTests.py --all --workers="$ncpu"
 
-if [ -e default.profdata ]; then
-    echo "Skipping build and test as profdata already exists..."
-    echo "Remove default.profdata to rebuild code coverage"
-else
-    echo "Building with code coverage..."
-    ncpu=$(sysctl -n hw.ncpu)
-    make clean
-    make "-j$ncpu"
+echo "Merging coverage data..."
+llvm_profdata merge -o coverage/default.profdata coverage/*.profraw
+rm -f coverage/*.profraw
 
-    echo "Running tests..."
-    python3 allTests.py --all --workers="$ncpu"
+# Each library once, through its versioned file rather than its symlinks, only the executables in bin, and the test
+# executables and plugins. The report leaves out the test code itself, but the tests instantiate header templates and
+# inline functions that the libraries don't.
+set --
+for object in lib/lib*.dylib lib/*/lib*.so* bin/* $(find test -path '*/build/*' -type f); do
+    case "$object" in
+        # The other Slice compilers are exercised by the builds and tests of their own language mappings.
+        bin/slice2cpp) ;;
+        bin/slice2*) continue ;;
+    esac
+    if [ -f "$object" ] && [ ! -L "$object" ] && [ -x "$object" ]; then
+        set -- "$@" -object "$object"
+    fi
+done
 
-    echo "Merge coverage data..."
-    ${CLI_TOOLS}/llvm-profdata merge -o default.profdata coverage/*.profraw
-
-    echo "Cleaning up..."
-    rm -f coverage/*.profraw
-fi
-
-if [ -n "$arg" ]; then
-    echo "Generating coverage for $arg"
-    ${CLI_TOOLS}/llvm-cov show "$arg" -instr-profile=default.profdata -format=html --ignore-filename-regex='.*/generated/.*' -o "./coverage/html/$(basename "$arg")"
-    echo "Coverage report generated in coverage/html/$(basename "$arg")/index.html"
-    exit 0
-else
-    echo "Run again with an argument to generate coverage for a specific binary or library"
-    exit 0
-fi
+echo "Generating coverage report..."
+# Clang instruments the Homebrew headers too, since they aren't system headers.
+ignore="^(/opt/homebrew|${PWD}/(test|.*/generated))/"
+llvm_cov show "$@" -instr-profile=coverage/default.profdata -format=html -ignore-filename-regex="$ignore" \
+    -output-dir=coverage/html
+llvm_cov report "$@" -instr-profile=coverage/default.profdata -ignore-filename-regex="$ignore" \
+    > coverage/report.txt
+echo "Coverage report generated in coverage/html/index.html"

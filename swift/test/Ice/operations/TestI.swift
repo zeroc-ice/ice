@@ -476,7 +476,7 @@ final class MyDerivedInterfaceI: MyDerivedInterface {
         return [
             s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10,
             sw0, sw1, sw2, sw3, sw4, sw5, sw6, sw7, sw8, sw9, sw10,
-            ss0, ss1, ss2, ss3, ss4, ss5,
+            ss0, ss1, ss2, ss3, ss4, ss5, ss6,
             su0, su1, su2,
         ]
     }
