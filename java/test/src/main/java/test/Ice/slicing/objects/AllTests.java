@@ -30,6 +30,7 @@ import test.Ice.slicing.objects.client.Test.Preserved;
 import test.Ice.slicing.objects.client.Test.PreservedException;
 import test.Ice.slicing.objects.client.Test.SBSKnownDerived;
 import test.Ice.slicing.objects.client.Test.SBase;
+import test.Ice.slicing.objects.client.Test.SD1;
 import test.Ice.slicing.objects.client.Test.SS1;
 import test.Ice.slicing.objects.client.Test.SS2;
 import test.Ice.slicing.objects.client.Test.SS3;
@@ -1526,6 +1527,41 @@ public class AllTests {
                 test(d1 != null);
                 test(d1.sd1.equals(s));
                 test(d1.pd1 == d1);
+            }
+        }
+        out.println("ok");
+
+        out.print("dictionary of classes in a class... ");
+        out.flush();
+        {
+            try {
+                SD1 p = new SD1();
+                p.d = new HashMap<>();
+                int i;
+                for (i = 0; i < 10; i++) {
+                    String s = "D1." + Integer.valueOf(i).toString();
+                    D1 d1 = new D1();
+                    d1.sb = s;
+                    d1.pb = d1;
+                    d1.sd1 = s;
+                    p.d.put(s, d1);
+                }
+
+                SD1 r = test.dictionaryClassTest(p);
+
+                test(r.d.size() == 10);
+                for (i = 0; i < 10; i++) {
+                    String s = "D1." + Integer.valueOf(i).toString();
+                    B b = r.d.get(s);
+                    test(b != null);
+                    test(b.sb.equals(s));
+                    test(b.pb != null);
+                    test(b.pb != b);
+                    test(b.pb.sb.equals(s));
+                    test(b.pb.pb == b.pb);
+                }
+            } catch (Exception ex) {
+                test(false);
             }
         }
         out.println("ok");

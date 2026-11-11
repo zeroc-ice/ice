@@ -760,6 +760,48 @@ function allTests($helper)
     }
     echo "ok\n";
 
+    echo "dictionary of classes in a class... ";
+    flush();
+    {
+        $p = new Test\SD1();
+        $p->d = array();
+        for($i = 0; $i < 10; $i++)
+        {
+            $s = sprintf("D1.%d", $i);
+            $d1 = new Test\D1();
+            $d1->sb = $s;
+            $d1->pb = $d1;
+            $d1->sd1 = $s;
+            $p->d[$s] = $d1;
+        }
+
+        $r = $test->dictionaryClassTest($p);
+
+        test(count($r->d) == 10);
+        for($i = 0; $i < 10; $i++)
+        {
+            $s = sprintf("D1.%d", $i);
+            $b = $r->d[$s];
+            test($b != null);
+            test($b->sb == $s);
+            test($b->pb != null);
+            test($b->pb !== $b);
+            test($b->pb->sb == $s);
+            test($b->pb->pb === $b->pb);
+        }
+
+        //
+        // Break cyclic dependencies - helps in detecting leaks.
+        //
+        for($i = 0; $i < 10; $i++)
+        {
+            $s = sprintf("D1.%d", $i);
+            $p->d[$s]->pb = null;
+            $r->d[$s]->pb->pb = null;
+        }
+    }
+    echo "ok\n";
+
     echo "base exception thrown as base exception... ";
     flush();
     {

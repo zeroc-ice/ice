@@ -508,6 +508,35 @@ export class Client extends TestHelper {
         }
         out.writeLine("ok");
 
+        out.write("dictionary of classes in a class... ");
+        {
+            const p = new Test.SD1();
+            p.d = new Map();
+            for (let i = 0; i < 10; ++i) {
+                const s = `D1.${i}`;
+                const d1 = new Test.D1();
+                d1.sb = s;
+                d1.pb = d1;
+                d1.sd1 = s;
+                p.d.set(s, d1);
+            }
+
+            const r = await prx.dictionaryClassTest(p);
+            test(r !== null);
+            test(r!.d.size === 10);
+            for (let i = 0; i < 10; ++i) {
+                const s = `D1.${i}`;
+                const b = r!.d.get(s);
+                test(b instanceof Test.B);
+                test(b.sb == s);
+                test(b.pb !== null);
+                test(b.pb !== b);
+                test(b.pb.sb == s);
+                test(b.pb.pb == b.pb);
+            }
+        }
+        out.writeLine("ok");
+
         out.write("base exception thrown as base exception... ");
         try {
             await prx.throwBaseAsBase();

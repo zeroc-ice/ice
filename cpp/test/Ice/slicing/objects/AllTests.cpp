@@ -2218,6 +2218,49 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
+    cout << "dictionary of classes in a class... " << flush;
+    {
+        try
+        {
+            SD1Ptr p = make_shared<SD1>();
+            int i;
+            for (i = 0; i < 10; ++i)
+            {
+                std::ostringstream s;
+                s << "D1." << i;
+                D1Ptr d1 = make_shared<D1>();
+                d1->sb = s.str();
+                d1->pb = d1;
+                d1->sd1 = s.str();
+                p->d[s.str()] = d1;
+            }
+
+            SD1Ptr r = testPrx->dictionaryClassTest(p);
+
+            test(r->d.size() == 10);
+            for (i = 0; i < 10; ++i)
+            {
+                std::ostringstream s;
+                s << "D1." << i;
+                BPtr b = r->d.find(s.str())->second;
+                test(b);
+                test(b->sb == s.str());
+                test(b->pb);
+                test(b->pb != b);
+                test(b->pb->sb == s.str());
+                test(b->pb->pb == b->pb);
+            }
+
+            breakCycles(p->d);
+            breakCycles(r->d);
+        }
+        catch (const Ice::Exception&)
+        {
+            test(false);
+        }
+    }
+    cout << "ok" << endl;
+
     cout << "base exception thrown as base exception... " << flush;
     {
         try

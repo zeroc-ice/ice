@@ -1077,6 +1077,35 @@ classdef AllTests
 
             fprintf('ok\n');
 
+            fprintf('dictionary of classes in a class... ');
+
+            p = SD1();
+            p.d = configureDictionary('char', 'cell');
+            for i = 0:9
+                s = ['D1.', num2str(i)];
+                d1 = D1();
+                d1.sb = s;
+                d1.pb = d1;
+                d1.sd1 = s;
+                p.d{s} = d1;
+            end
+
+            r = proxy.dictionaryClassTest(p);
+
+            assert(r.d.numEntries == 10);
+            for i = 0:9
+                s = ['D1.', num2str(i)];
+                b = r.d{s};
+                assert(~isempty(b));
+                assert(strcmp(b.sb, s));
+                assert(~isempty(b.pb));
+                assert(b.pb ~= b);
+                assert(strcmp(b.pb.sb, s));
+                assert(b.pb.pb == b.pb);
+            end
+
+            fprintf('ok\n');
+
             fprintf('base exception thrown as base exception... ');
             try
                 proxy.throwBaseAsBase();

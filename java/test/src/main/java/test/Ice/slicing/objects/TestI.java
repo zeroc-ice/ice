@@ -24,6 +24,7 @@ import test.Ice.slicing.objects.server.Test.Preserved;
 import test.Ice.slicing.objects.server.Test.SBSKnownDerived;
 import test.Ice.slicing.objects.server.Test.SBSUnknownDerived;
 import test.Ice.slicing.objects.server.Test.SBase;
+import test.Ice.slicing.objects.server.Test.SD1;
 import test.Ice.slicing.objects.server.Test.SS1;
 import test.Ice.slicing.objects.server.Test.SS2;
 import test.Ice.slicing.objects.server.Test.SS3;
@@ -267,6 +268,22 @@ public final class TestI implements TestIntf {
         ss.c1 = p1;
         ss.c2 = p2;
         return ss;
+    }
+
+    @Override
+    public SD1 dictionaryClassTest(SD1 p, Current current) {
+        SD1 r = new SD1();
+        r.d = new HashMap<>();
+        for (Map.Entry<String, B> e : p.d.entrySet()) {
+            B b = e.getValue();
+            D2 d2 = new D2();
+            d2.sb = b.sb;
+            d2.pb = b.pb;
+            d2.sd2 = "D2";
+            d2.pd2 = d2;
+            r.d.put(e.getKey(), d2);
+        }
+        return r;
     }
 
     @Override
