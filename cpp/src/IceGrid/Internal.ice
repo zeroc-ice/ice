@@ -130,8 +130,8 @@ module IceGrid
         ["cpp:const"] idempotent long getOffsetFromEnd(string filename, int lines) throws FileNotAvailableException;
 
         /// Read lines (or @p size many bytes) at the specified position from the given file.
-        ["cpp:const"] idempotent bool
-        read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
+        ["cpp:const"]
+        idempotent bool read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
             throws FileNotAvailableException;
     }
 
@@ -192,29 +192,35 @@ module IceGrid
     {
         /// Load the given server. If the server resources weren't already created (property files, etc), they will be
         /// created. The returned proxy is never null.
-        ["amd"] idempotent Server* loadServer(
+        ["amd"]
+        idempotent Server* loadServer(
             InternalServerDescriptor svr,
             string replicaName,
             out AdapterPrxDict adapters,
             out int activateTimeout,
-            out int deactivateTimeout) throws DeploymentException;
+            out int deactivateTimeout)
+            throws DeploymentException;
 
         /// Load the given server and ensure the server won't be restarted. If the server resources weren't already
         /// created (property files, etc), they will be created. If the server can't be updated without a restart, a
         /// {@link DeploymentException} is raised. The returned proxy is never null.
-        ["amd"] idempotent Server* loadServerWithoutRestart(
+        ["amd"]
+        idempotent Server* loadServerWithoutRestart(
             InternalServerDescriptor svr,
             string replicaName,
             out AdapterPrxDict adapters,
             out int activateTimeout,
-            out int deactivateTimeout) throws DeploymentException;
+            out int deactivateTimeout)
+            throws DeploymentException;
 
         /// Destroy the given server.
-        ["amd"] idempotent void destroyServer(string name, string uuid, int revision, string replicaName)
+        ["amd"]
+        idempotent void destroyServer(string name, string uuid, int revision, string replicaName)
             throws DeploymentException;
 
         /// Destroy the server if it's not active.
-        ["amd"] idempotent void destroyServerWithoutRestart(string name, string uuid, int revision, string replicaName)
+        ["amd"]
+        idempotent void destroyServerWithoutRestart(string name, string uuid, int revision, string replicaName)
             throws DeploymentException;
 
         /// Establish a session to the given replica, this method only returns once the registration was attempted

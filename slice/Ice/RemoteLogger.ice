@@ -103,8 +103,11 @@ module Ice
         /// parameter does not limit the log messages sent to {@link RemoteLogger::log}.
         /// @throws RemoteLoggerAlreadyAttachedException Thrown when a remote logger with the identity of @p prx is
         /// already attached to this facet.
-        void
-        attachRemoteLogger(RemoteLogger* prx, LogMessageTypeSeq messageTypes, StringSeq traceCategories, int messageMax)
+        void attachRemoteLogger(
+            RemoteLogger* prx,
+            LogMessageTypeSeq messageTypes,
+            StringSeq traceCategories,
+            int messageMax)
             throws RemoteLoggerAlreadyAttachedException;
 
         /// Detaches a {@link RemoteLogger} object from the local logger.
@@ -124,7 +127,10 @@ module Ice
         /// requests all the cached messages, and 0 requests none.
         /// @param prefix The prefix of the associated local logger.
         /// @return The log messages.
-        LogMessageSeq
-        getLog(LogMessageTypeSeq messageTypes, StringSeq traceCategories, int messageMax, out string prefix);
+        LogMessageSeq getLog(
+            LogMessageTypeSeq messageTypes,
+            StringSeq traceCategories,
+            int messageMax,
+            out string prefix);
     }
 }

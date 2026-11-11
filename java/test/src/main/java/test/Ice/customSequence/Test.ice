@@ -88,7 +88,8 @@ module Test
         // An optional sequence parameter with local 'java:type' metadata that overrides the sequence's default
         // mapping (a native array). The generated marshaling code can't use the sequence helper and must fall back to
         // in-line marshaling.
-        ["java:type:java.util.ArrayList<A>"] optional(1) ASeq opOptASeqLocalType(
+        ["java:type:java.util.ArrayList<A>"]
+        optional(1) ASeq opOptASeqLocalType(
             ["java:type:java.util.ArrayList<A>"] optional(2) ASeq inSeq,
             ["java:type:java.util.ArrayList<A>"] out optional(3) ASeq outSeq);
 
@@ -97,8 +98,9 @@ module Test
         optional(1) IntBuffer opOptIntBufferSeq(optional(2) IntBuffer inSeq, out optional(3) IntBuffer outSeq);
         optional(1) LongBuffer opOptLongBufferSeq(optional(2) LongBuffer inSeq, out optional(3) LongBuffer outSeq);
         optional(1) FloatBuffer opOptFloatBufferSeq(optional(2) FloatBuffer inSeq, out optional(3) FloatBuffer outSeq);
-        optional(1) DoubleBuffer
-        opOptDoubleBufferSeq(optional(2) DoubleBuffer inSeq, out optional(3) DoubleBuffer outSeq);
+        optional(1) DoubleBuffer opOptDoubleBufferSeq(
+            optional(2) DoubleBuffer inSeq,
+            out optional(3) DoubleBuffer outSeq);
 
         void shutdown();
     }

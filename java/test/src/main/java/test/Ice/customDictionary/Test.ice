@@ -47,8 +47,9 @@ module Test
         ByteBoolLinkedDict opByteBoolLinkedDict(ByteBoolLinkedDict inDict, out ByteBoolLinkedDict outDict);
         ShortIntLinkedDict opShortIntLinkedDict(ShortIntLinkedDict inDict, out ShortIntLinkedDict outDict);
         LongFloatLinkedDict opLongFloatLinkedDict(LongFloatLinkedDict inDict, out LongFloatLinkedDict outDict);
-        StringDoubleLinkedDict
-        opStringDoubleLinkedDict(StringDoubleLinkedDict inDict, out StringDoubleLinkedDict outDict);
+        StringDoubleLinkedDict opStringDoubleLinkedDict(
+            StringDoubleLinkedDict inDict,
+            out StringDoubleLinkedDict outDict);
 
         AIntDict opAIntDict(AIntDict inDict, out AIntDict outDict);
         AIntLinkedDict opAIntLinkedDict(AIntLinkedDict inDict, out AIntLinkedDict outDict);
@@ -56,45 +57,54 @@ module Test
 
         ShortCDict opShortCDict(ShortCDict inDict, out ShortCDict outDict);
         ShortCLinkedDict opShortCLinkedDict(ShortCLinkedDict inDict, out ShortCLinkedDict outDict);
-        ShortCFormalLinkedDict
-        opShortCFormalLinkedDict(ShortCFormalLinkedDict inDict, out ShortCFormalLinkedDict outDict);
+        ShortCFormalLinkedDict opShortCFormalLinkedDict(
+            ShortCFormalLinkedDict inDict,
+            out ShortCFormalLinkedDict outDict);
 
         StringEDict opStringEDict(StringEDict inDict, out StringEDict outDict);
         StringELinkedDict opStringELinkedDict(StringELinkedDict inDict, out StringELinkedDict outDict);
-        StringEFormalLinkedDict
-        opStringEFormalLinkedDict(StringEFormalLinkedDict inDict, out StringEFormalLinkedDict outDict);
+        StringEFormalLinkedDict opStringEFormalLinkedDict(
+            StringEFormalLinkedDict inDict,
+            out StringEFormalLinkedDict outDict);
 
         EStringSeqDict opEStringSeqDict(EStringSeqDict inDict, out EStringSeqDict outDict);
         EStringSeqLinkedDict opEStringSeqLinkedDict(EStringSeqLinkedDict inDict, out EStringSeqLinkedDict outDict);
-        EStringSeqFormalLinkedDict
-        opEStringSeqFormalLinkedDict(EStringSeqFormalLinkedDict inDict, out EStringSeqFormalLinkedDict outDict);
+        EStringSeqFormalLinkedDict opEStringSeqFormalLinkedDict(
+            EStringSeqFormalLinkedDict inDict,
+            out EStringSeqFormalLinkedDict outDict);
 
-        optional(1) ByteBoolLinkedDict
-        opOptByteBoolLinkedDict(optional(2) ByteBoolLinkedDict inDict, out optional(3) ByteBoolLinkedDict outDict);
-        optional(1) ShortIntLinkedDict
-        opOptShortIntLinkedDict(optional(2) ShortIntLinkedDict inDict, out optional(3) ShortIntLinkedDict outDict);
-        optional(1) LongFloatLinkedDict
-        opOptLongFloatLinkedDict(optional(2) LongFloatLinkedDict inDict, out optional(3) LongFloatLinkedDict outDict);
+        optional(1) ByteBoolLinkedDict opOptByteBoolLinkedDict(
+            optional(2) ByteBoolLinkedDict inDict,
+            out optional(3) ByteBoolLinkedDict outDict);
+        optional(1) ShortIntLinkedDict opOptShortIntLinkedDict(
+            optional(2) ShortIntLinkedDict inDict,
+            out optional(3) ShortIntLinkedDict outDict);
+        optional(1) LongFloatLinkedDict opOptLongFloatLinkedDict(
+            optional(2) LongFloatLinkedDict inDict,
+            out optional(3) LongFloatLinkedDict outDict);
         optional(1) StringDoubleLinkedDict opOptStringDoubleLinkedDict(
             optional(2) StringDoubleLinkedDict inDict,
             out optional(3) StringDoubleLinkedDict outDict);
 
         optional(1) AIntDict opOptAIntDict(optional(2) AIntDict inDict, out optional(3) AIntDict outDict);
-        optional(1) AIntLinkedDict
-        opOptAIntLinkedDict(optional(2) AIntLinkedDict inDict, out optional(3) AIntLinkedDict outDict);
+        optional(1) AIntLinkedDict opOptAIntLinkedDict(
+            optional(2) AIntLinkedDict inDict,
+            out optional(3) AIntLinkedDict outDict);
         optional(1) AIntFormalLinkedDict opOptAIntFormalLinkedDict(
             optional(2) AIntFormalLinkedDict inDict,
             out optional(3) AIntFormalLinkedDict outDict);
 
         optional(1) StringEDict opOptStringEDict(optional(2) StringEDict inDict, out optional(3) StringEDict outDict);
-        optional(1) StringELinkedDict
-        opOptStringELinkedDict(optional(2) StringELinkedDict inDict, out optional(3) StringELinkedDict outDict);
+        optional(1) StringELinkedDict opOptStringELinkedDict(
+            optional(2) StringELinkedDict inDict,
+            out optional(3) StringELinkedDict outDict);
         optional(1) StringEFormalLinkedDict opOptStringEFormalLinkedDict(
             optional(2) StringEFormalLinkedDict inDict,
             out optional(3) StringEFormalLinkedDict outDict);
 
-        optional(1) EStringSeqDict
-        opOptEStringSeqDict(optional(2) EStringSeqDict inDict, out optional(3) EStringSeqDict outDict);
+        optional(1) EStringSeqDict opOptEStringSeqDict(
+            optional(2) EStringSeqDict inDict,
+            out optional(3) EStringSeqDict outDict);
         optional(1) EStringSeqLinkedDict opOptEStringSeqLinkedDict(
             optional(2) EStringSeqLinkedDict inDict,
             out optional(3) EStringSeqLinkedDict outDict);

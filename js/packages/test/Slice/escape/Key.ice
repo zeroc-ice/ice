@@ -52,8 +52,8 @@ module await
 
     interface explicit extends typeof, case
     {
-        ["js:identifier:_in"] var
-        in(break internal, ["js:identifier:_new"] typeof* new, ["js:identifier:_null"] delete null, int override)
+        ["js:identifier:_in"]
+        var in(break internal, ["js:identifier:_new"] typeof* new, ["js:identifier:_null"] delete null, int override)
             throws fixed, foreach;
     }
 
