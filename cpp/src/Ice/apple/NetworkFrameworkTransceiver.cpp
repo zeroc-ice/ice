@@ -56,6 +56,18 @@ namespace
     // with their full length.
     constexpr size_t readAheadSize = 64 * 1024;
 
+    // How many bytes write() hands to Network.framework before their send completions run, the equivalent of the
+    // socket send buffer the BSD transports write into. A write that finds this many bytes in flight is asynchronous:
+    // it completes once the bytes in flight drop to sendResumeSize, so a large message is never buffered beyond
+    // sendCapacity. With 512 KiB a client writes about as much to a peer that does not read as it does with a BSD
+    // socket on loopback before a write becomes asynchronous, which the tests of the back pressure rely on. A larger
+    // capacity only made 16 MiB messages over TCP faster on loopback.
+    constexpr size_t sendCapacity = 512 * 1024;
+    constexpr size_t sendResumeSize = sendCapacity / 2;
+
+    // How long close() lets the sends in flight complete before it cancels the connection anyway, see close().
+    constexpr int64_t sendDrainTimeoutSeconds = 10;
+
     // The functions below are called with the state mutex held.
 
     // Completes the operation with its result and posts its completion to the selector, unless the operation was
@@ -77,6 +89,81 @@ namespace
         complete(state, state.connect, SocketOperationConnect, AsyncState::ConnectResult{ECANCELED, false});
         complete(state, state.read, SocketOperationRead, AsyncState::ReadResult{{}, 0, ECANCELED});
         complete(state, state.write, SocketOperationWrite, AsyncState::WriteResult{0, ECANCELED});
+    }
+
+    // Completes a pending write operation of a connected connection once there is room for more data, or once a
+    // send failed.
+    void completeWriteIfRoom(AsyncState& state)
+    {
+        if (state.sendError != 0 || state.unsent <= sendResumeSize)
+        {
+            complete(state, state.write, SocketOperationWrite, AsyncState::WriteResult{0, state.sendError});
+        }
+    }
+
+    // Takes the queued send data. Returns null, and clears the sending state, when nothing is queued.
+    //
+    // Only one nw_connection_send is outstanding at a time: the data written in the meantime is queued and the
+    // completion of the outstanding send sends it all at once. With one send per message, many small messages written
+    // back to back kept Network.framework's connection queue busy with small writes and the receives of the process's
+    // connections were delayed by more than a second. The queued data is at most sendCapacity bytes and is sent in one
+    // piece: sending it in halves made 1 MiB messages slower on loopback.
+    DispatchRef<dispatch_data_t> takeQueuedSend(AsyncState& state)
+    {
+        if (!state.queuedSend)
+        {
+            state.sendConnection.reset();
+        }
+        return std::move(state.queuedSend);
+    }
+
+    // Sends data, which takeQueuedSend returned, on the connection of state.sendConnection. Called without the state
+    // mutex. The completion sends the data queued in the meantime, if any.
+    void startSend(const shared_ptr<AsyncState>& state, DispatchRef<dispatch_data_t> data)
+    {
+        const size_t length = dispatch_data_get_size(data.get());
+        nw_connection_t connection;
+        {
+            lock_guard lock(state->mutex);
+            connection = state->sendConnection.get(); // Released once no send is outstanding, see takeQueuedSend.
+        }
+        auto async = state; // The block captures a copy: it can run after the transceiver is destroyed.
+        nw_connection_send(connection, data.get(), NW_CONNECTION_DEFAULT_MESSAGE_CONTEXT, true, ^(nw_error_t error) {
+          DispatchRef<dispatch_data_t> next;
+          NetworkRef<nw_connection_t> cancelConnection;
+          {
+              lock_guard lock(async->mutex);
+              assert(async->unsent >= length);
+              async->unsent -= length;
+              if (error && async->sendError == 0)
+              {
+                  async->sendError = nw_error_get_error_code(error);
+              }
+              if (async->sendError != 0)
+              {
+                  // The connection failed: the queued data is dropped, the next write reports the error.
+                  if (async->queuedSend)
+                  {
+                      async->unsent -= dispatch_data_get_size(async->queuedSend.get());
+                      async->queuedSend.reset();
+                  }
+              }
+              next = takeQueuedSend(*async);
+              completeWriteIfRoom(*async);
+              if (async->unsent == 0 || async->sendError != 0)
+              {
+                  cancelConnection = std::move(async->cancelAfterSends);
+              }
+          }
+          if (next)
+          {
+              startSend(async, std::move(next));
+          }
+          if (cancelConnection)
+          {
+              nw_connection_cancel(cancelConnection.get()); // The deferred cancel of close().
+          }
+        });
     }
 
     AsyncState::ConnectResult connectFailure(nw_error_t error)
@@ -304,8 +391,7 @@ IceInternal::NetworkFrameworkTransceiver::closing(bool initiator, exception_ptr)
 void
 IceInternal::NetworkFrameworkTransceiver::close()
 {
-    // Cancelling is distinct from releasing the connection, which the transceiver does when it is destroyed.
-    nw_connection_cancel(_connection.get());
+    _closed = true;
 
     // The connection reads nothing more. The read readiness is left as is: the thread pool does not read a closed
     // connection, and a transceiver closed before it got a connection is not registered with a thread pool.
@@ -313,20 +399,59 @@ IceInternal::NetworkFrameworkTransceiver::close()
     _readAheadOffset = 0;
     _readAheadSize = 0;
 
-    lock_guard lock(_async->mutex);
-    cancel(*_async);
+    // nw_connection_cancel drops the data of the sends whose completion has not run yet: write() reported that data
+    // as written, and the BSD transports deliver what they wrote before closing their socket. The cancel is deferred
+    // until these sends complete, bounded by sendDrainTimeoutSeconds for a peer that stops reading. The pending
+    // operations are completed now regardless: the thread pool waits for them to finish the connection. Cancelling
+    // is distinct from releasing the connection, which the transceiver does when it is destroyed; the state keeps its
+    // own reference until the deferred cancel.
+    {
+        lock_guard lock(_async->mutex);
+        cancel(*_async);
+        if (_async->cancelAfterSends)
+        {
+            return; // Already closed, the deferred cancel is pending.
+        }
+        if (_async->unsent > 0 && _async->sendError == 0)
+        {
+            _async->cancelAfterSends = NetworkRef<nw_connection_t>::retain(_connection.get());
+            auto async = _async; // See initialize.
+            dispatch_after(
+                dispatch_time(DISPATCH_TIME_NOW, sendDrainTimeoutSeconds * static_cast<int64_t>(NSEC_PER_SEC)),
+                _dispatchQueue.get(),
+                ^{
+                  NetworkRef<nw_connection_t> connection;
+                  {
+                      lock_guard drainLock(async->mutex);
+                      connection = std::move(async->cancelAfterSends);
+                  }
+                  if (connection)
+                  {
+                      nw_connection_cancel(connection.get());
+                  }
+                });
+            return;
+        }
+    }
+    nw_connection_cancel(_connection.get());
 }
 
 SocketOperation
 IceInternal::NetworkFrameworkTransceiver::write(Buffer& buf)
 {
-    // Network.framework doesn't support synchronous writes. Return SocketOperationWrite to
-    // trigger the async write path (startWrite/finishWrite) when there's still data to send.
     if (buf.i == buf.b.end())
     {
         return SocketOperationNone;
     }
-    return SocketOperationWrite;
+
+    // The proxy handshake keeps to the asynchronous path (startWrite/finishWrite), which advances its state.
+    if (_state != StateConnected)
+    {
+        return SocketOperationWrite;
+    }
+
+    sendAvailable(buf);
+    return buf.i == buf.b.end() ? SocketOperationNone : SocketOperationWrite;
 }
 
 SocketOperation
@@ -347,6 +472,17 @@ IceInternal::NetworkFrameworkTransceiver::startWrite(Buffer& buf)
 {
     assert(_state == StateProxyWrite || _state == StateConnected);
     assert(buf.b.end() - buf.i > 0);
+
+    if (_state == StateConnected)
+    {
+        // write() handed as much as there was room for: the operation completes once there is room again, and
+        // finishWrite hands the next chunk. Nothing is handed here, so the message is not known to be sent.
+        lock_guard lock(_async->mutex);
+        _async->write.start();
+        completeWriteIfRoom(*_async);
+        return false;
+    }
+
     size_t length = static_cast<size_t>(buf.b.end() - buf.i);
 
     //
@@ -394,12 +530,22 @@ IceInternal::NetworkFrameworkTransceiver::finishWrite(Buffer& buf)
         throw ConnectionLostException(__FILE__, __LINE__, result.error);
     }
 
-    buf.i += result.count;
-
-    if (_state == StateProxyWrite)
+    if (_state == StateConnected)
     {
-        _state = toState(_proxy->endWrite(buf));
+        // The operation completed because there is room: hand the next chunk, so that the asynchronous write makes
+        // progress like a completed socket send does. Not once closed: the operation can complete just before
+        // close(), and the connection finishes it afterwards. The rest of a message handed then could still be
+        // delivered by the deferred cancel, although the connection reports the message as not sent and the
+        // invocation can be retried.
+        if (!_closed)
+        {
+            sendAvailable(buf);
+        }
+        return;
     }
+
+    buf.i += result.count;
+    _state = toState(_proxy->endWrite(buf));
 }
 
 void
@@ -631,6 +777,59 @@ IceInternal::NetworkFrameworkTransceiver::describe() const
         os << "\nremote address = " << remoteAddress;
     }
     return os.str();
+}
+
+void
+IceInternal::NetworkFrameworkTransceiver::sendAvailable(Buffer& buf)
+{
+    assert(_state == StateConnected);
+    size_t length;
+    {
+        lock_guard lock(_async->mutex);
+        assert(!_async->write.pending());
+        if (_async->sendError != 0)
+        {
+            // A send that write() or finishWrite reported as written failed since.
+            throw ConnectionLostException(__FILE__, __LINE__, _async->sendError);
+        }
+        if (_async->unsent >= sendCapacity)
+        {
+            return;
+        }
+        length = min(static_cast<size_t>(buf.b.end() - buf.i), sendCapacity - _async->unsent);
+        _async->unsent += length;
+    }
+
+    // DISPATCH_DATA_DESTRUCTOR_DEFAULT copies the data, outside the state mutex: the buffer can be reused once this
+    // returns.
+    DispatchRef<dispatch_data_t> data = DispatchRef<dispatch_data_t>::adopt(
+        dispatch_data_create(&*buf.i, length, _dispatchQueue.get(), DISPATCH_DATA_DESTRUCTOR_DEFAULT));
+    buf.i += length;
+
+    DispatchRef<dispatch_data_t> chunk;
+    {
+        lock_guard lock(_async->mutex);
+        if (_async->sendError != 0)
+        {
+            // A send failed in the meantime: the data is dropped like the queued data, the next write reports it.
+            _async->unsent -= length;
+            return;
+        }
+        _async->queuedSend =
+            _async->queuedSend
+                ? DispatchRef<dispatch_data_t>::adopt(dispatch_data_create_concat(_async->queuedSend.get(), data.get()))
+                : std::move(data);
+        if (!_async->sendConnection)
+        {
+            // No send is outstanding: this one sends the data, otherwise the completion of the outstanding one does.
+            _async->sendConnection = NetworkRef<nw_connection_t>::retain(_connection.get());
+            chunk = takeQueuedSend(*_async);
+        }
+    }
+    if (chunk)
+    {
+        startSend(_async, std::move(chunk));
+    }
 }
 
 IceInternal::NetworkFrameworkTransceiver::State

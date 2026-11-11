@@ -30,7 +30,9 @@ namespace IceInternal
     // Completion-based transceiver for the TCP and TLS connections of Network.framework. The thread pool starts an
     // asynchronous connect, read or write operation; the transceiver starts the corresponding Network.framework
     // operation, whose completion block records the result and posts one completion through the NativeInfo; the
-    // thread pool then finishes the operation and the transceiver consumes the result.
+    // thread pool then finishes the operation and the transceiver consumes the result. Once connected, write()
+    // hands the data to Network.framework and completes synchronously as long as the data whose send completion has
+    // not run yet stays below a bound (sendCapacity in the implementation); the write operation only waits for room.
     class NetworkFrameworkTransceiver final : public Transceiver
     {
     public:
@@ -58,7 +60,9 @@ namespace IceInternal
 
             struct WriteResult
             {
-                size_t count{0}; // The number of bytes sent, 0 on error.
+                // During the proxy handshake, the number of bytes sent, 0 on error. Once connected, the write
+                // operation only waits for room to hand more data to Network.framework and count is 0.
+                size_t count{0};
                 int error{0};
             };
 
@@ -66,11 +70,24 @@ namespace IceInternal
             AsyncState(const AsyncState&) = delete;
             AsyncState& operator=(const AsyncState&) = delete;
 
-            std::mutex mutex; // Protects the operations.
+            std::mutex mutex; // Protects the operations and the send state below.
             const NativeInfoPtr nativeInfo;
             AsyncOperation<ConnectResult> connect;
             AsyncOperation<ReadResult> read;
             AsyncOperation<WriteResult> write;
+
+            // The send state of a connected connection, see write(). unsent counts the bytes write() accepted whose
+            // send completion has not run yet: the outstanding send and queuedSend, the data written while a send is
+            // outstanding. sendConnection is set while a send is outstanding: it keeps the connection alive for the
+            // completion, which sends the queued data. sendError is the error of the first send that failed,
+            // reported by the next write.
+            size_t unsent{0};
+            DispatchRef<dispatch_data_t> queuedSend;
+            NetworkRef<nw_connection_t> sendConnection;
+            int sendError{0};
+
+            // Set by close() while sends are in flight: the connection to cancel once they all completed, see close().
+            NetworkRef<nw_connection_t> cancelAfterSends;
         };
 
         // With a network proxy, the connection is established with the proxy and, for plain TCP connections, the
@@ -143,6 +160,10 @@ namespace IceInternal
         [[nodiscard]] std::string describe() const;
         [[nodiscard]] static State toState(SocketOperation);
 
+        // Hands as much of buf to Network.framework as the send capacity allows and advances buf.i accordingly,
+        // possibly not at all. Throws ConnectionLostException when a previous send failed.
+        void sendAvailable(Buffer& buf);
+
         // Fills buf from the read-ahead data, as far as both go, and releases the data once it is all consumed.
         void consumeReadAhead(Buffer& buf);
 
@@ -173,6 +194,9 @@ namespace IceInternal
         // The read readiness last reported through the NativeInfo, true while read-ahead data is available. It lets
         // the thread pool dispatch the buffered messages without starting a receive. See updateReadReady.
         bool _readReady{false};
+
+        // Set by close(). Like the other members, only used by the threads the connection serializes.
+        bool _closed{false};
 
         std::string _desc;
         bool _secure;
