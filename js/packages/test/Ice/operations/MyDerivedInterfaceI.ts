@@ -502,6 +502,7 @@ export class MyDerivedInterfaceI extends Test.MyDerivedInterface {
             Test.ss3,
             Test.ss4,
             Test.ss5,
+            Test.ss6,
             Test.su0,
             Test.su1,
             Test.su2,
