@@ -278,6 +278,16 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     return ICE_STRING_LITERAL;
 }
 
+  /* Fallback rule to match anything not covered by another rule in the 'STRING_LITERAL' start condition.
+   * It matches invalid control characters, one at a time to make this the lowest priority rule in the state.
+   * Anything matched by it is ignored and reported as an error, but otherwise scanning continue uninterrupted. */
+<STRING_LITERAL>. {
+    // Suggest the escape sequence for the character: its mnemonic form if it has one, and an octal escape otherwise.
+    string escape = toStringLiteral(string(1, yytext[0]), "\a\b\f\n\r\t\v", "", Octal, 0);
+    currentUnit->error(
+        "encountered invalid control character while scanning a string literal; use '" + escape + "' instead");
+}
+
 {integer_constant} {
     setLocation(yylloc);
 

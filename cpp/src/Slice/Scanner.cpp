@@ -727,8 +727,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 /* %% [3.0] code to copy yytext_ptr to yytext[] goes here, if %array \ */\
 	(yy_c_buf_p) = yy_cp;
 /* %% [4.0] data tables for the DFA and the user's section 1 definitions go here */
-#define YY_NUM_RULES 52
-#define YY_END_OF_BUFFER 53
+#define YY_NUM_RULES 53
+#define YY_END_OF_BUFFER 54
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -739,26 +739,26 @@ struct yy_trans_info
 static const flex_int32_t yy_accept[204] =
     {   0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-        0,    0,    0,    0,   53,   50,   46,   47,   46,   51,
-        1,   51,   51,   51,   20,   20,   51,   45,   36,   51,
-       50,   46,   46,   30,   27,   28,   26,   27,   27,   50,
-       34,   46,   35,   34,   34,   46,   30,   43,   40,   38,
-       39,   43,   41,   43,   30,   52,    3,   15,   16,   19,
-       18,    3,    3,   46,   47,    0,   20,   20,   21,   25,
-       23,   21,   20,    0,    0,    0,    0,   44,   45,    0,
-       45,    0,   37,   45,    0,   46,   30,   30,   32,    0,
-       27,   28,   29,   27,   27,   27,   27,   27,    0,   34,
+        0,    0,    0,    0,   54,   51,   47,   48,   47,   52,
+        1,   52,   52,   52,   21,   21,   52,   46,   37,   52,
+       51,   47,   47,   31,   28,   29,   27,   28,   28,   51,
+       35,   47,   36,   35,   35,   47,   31,   44,   41,   39,
+       40,   44,   42,   44,   31,   20,    3,   15,   16,   19,
+       18,    3,    3,   47,   48,    0,   21,   21,   22,   26,
+       24,   22,   21,    0,    0,    0,    0,   45,   46,    0,
+       46,    0,   38,   46,    0,   47,   31,   31,   33,    0,
+       28,   29,   30,   28,   28,   28,   28,   28,    0,   35,
 
-       25,   23,   34,   32,   34,   43,   40,   25,   23,   42,
-       43,   32,   43,    3,   17,    4,    5,    8,    6,   14,
+       26,   24,   35,   33,   35,   44,   41,   26,   24,   43,
+       44,   33,   44,    3,   17,    4,    5,    8,    6,   14,
         2,    7,   13,   10,    3,    3,    3,    3,    3,    0,
-       21,    0,   23,   22,    0,   21,   20,   48,    0,    0,
-       27,   27,   49,   34,   23,   22,   34,   34,   43,   23,
-       22,   43,   43,    8,   14,   14,    0,   13,   13,    9,
-        3,    3,    0,   21,   24,   22,    0,    0,   27,   27,
-       24,   22,   34,   24,   22,   43,    8,   14,    2,   13,
-        9,    3,    0,   33,   31,   27,   27,   27,   31,   31,
-       14,   13,    3,    0,   27,   14,   11,    3,   14,   14,
+       22,    0,   24,   23,    0,   22,   21,   49,    0,    0,
+       28,   28,   50,   35,   24,   23,   35,   35,   44,   24,
+       23,   44,   44,    8,   14,   14,    0,   13,   13,    9,
+        3,    3,    0,   22,   25,   23,    0,    0,   28,   28,
+       25,   23,   35,   25,   23,   44,    8,   14,    2,   13,
+        9,    3,    0,   34,   32,   28,   28,   28,   32,   32,
+       14,   13,    3,    0,   28,   14,   11,    3,   14,   14,
 
        14,   12,    0
     } ;
@@ -1146,14 +1146,14 @@ static char *yy_last_accepting_cpos;
 extern int yy_flex_debug;
 int yy_flex_debug = 1;
 
-static const flex_int32_t yy_rule_linenum[52] =
+static const flex_int32_t yy_rule_linenum[53] =
     {   0,
       130,  142,  143,  150,  151,  152,  159,  178,  191,  201,
-      208,  209,  221,  222,  230,  240,  246,  256,  264,  282,
-      305,  333,  338,  342,  347,  353,  354,  359,  365,  390,
-      395,  401,  402,  417,  422,  430,  435,  441,  451,  456,
-      460,  465,  471,  484,  517,  527,  530,  544,  545,  551,
-      565
+      208,  209,  221,  222,  230,  240,  246,  256,  264,  285,
+      292,  315,  343,  348,  352,  357,  363,  364,  369,  375,
+      400,  405,  411,  412,  427,  432,  440,  445,  451,  461,
+      466,  470,  475,  481,  494,  527,  537,  540,  554,  555,
+      561,  575
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1596,13 +1596,13 @@ do_action:	/* This label is used only to access EOF actions. */
 			{
 			if ( yy_act == 0 )
 				fprintf( stderr, "--scanner backing up\n" );
-			else if ( yy_act < 52 )
+			else if ( yy_act < 53 )
 				fprintf( stderr, "--accepting rule at line %ld (\"%s\")\n",
 				         (long)yy_rule_linenum[yy_act], yytext );
-			else if ( yy_act == 52 )
+			else if ( yy_act == 53 )
 				fprintf( stderr, "--accepting default rule (\"%s\")\n",
 				         yytext );
-			else if ( yy_act == 53 )
+			else if ( yy_act == 54 )
 				fprintf( stderr, "--(end of buffer or a NUL)\n" );
 			else
 				fprintf( stderr, "--EOF (start condition %d)\n", YY_START );
@@ -1820,9 +1820,22 @@ case YY_STATE_EOF(STRING_LITERAL):
     return ICE_STRING_LITERAL;
 }
 	YY_BREAK
+/* Fallback rule to match anything not covered by another rule in the 'STRING_LITERAL' start condition.
+   * It matches invalid control characters, one at a time to make this the lowest priority rule in the state.
+   * Anything matched by it is ignored and reported as an error, but otherwise scanning continue uninterrupted. */
 case 20:
 YY_RULE_SETUP
-#line 282 "src/Slice/Scanner.l"
+#line 285 "src/Slice/Scanner.l"
+{
+    // Suggest the escape sequence for the character: its mnemonic form if it has one, and an octal escape otherwise.
+    string escape = toStringLiteral(string(1, yytext[0]), "\a\b\f\n\r\t\v", "", Octal, 0);
+    currentUnit->error(
+        "encountered invalid control character while scanning a string literal; use '" + escape + "' instead");
+}
+	YY_BREAK
+case 21:
+YY_RULE_SETUP
+#line 292 "src/Slice/Scanner.l"
 {
     setLocation(yylloc);
 
@@ -1846,9 +1859,9 @@ YY_RULE_SETUP
     return ICE_INTEGER_LITERAL;
 }
 	YY_BREAK
-case 21:
+case 22:
 YY_RULE_SETUP
-#line 305 "src/Slice/Scanner.l"
+#line 315 "src/Slice/Scanner.l"
 {
     setLocation(yylloc);
 
@@ -1876,66 +1889,66 @@ YY_RULE_SETUP
 	YY_BREAK
 /* ========== Comments ========== */
 /* Matches and records a triple-slash style doc-comment. */
-case 22:
+case 23:
 YY_RULE_SETUP
-#line 333 "src/Slice/Scanner.l"
+#line 343 "src/Slice/Scanner.l"
 {
     currentUnit->appendToDocComment(yytext + 3);
 }
 	YY_BREAK
 /* Matches and consumes a C++ style comment. */
-case 23:
+case 24:
 YY_RULE_SETUP
-#line 338 "src/Slice/Scanner.l"
+#line 348 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches the start of a C style doc-comment, and switches the scanner to the C_DOC_COMMENT state.
    * Specifically we match a forward slash and 2 stars when they are _not_ followed by either a '/' or '*' character. */
-case 24:
-/* rule 24 can match eol */
+case 25:
+/* rule 25 can match eol */
 *yy_cp = (yy_hold_char); /* undo effects of setting up yytext */
 YY_LINENO_REWIND_TO(yy_bp + 3);
 (yy_c_buf_p) = yy_cp = yy_bp + 3;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 342 "src/Slice/Scanner.l"
+#line 352 "src/Slice/Scanner.l"
 {
     pushState(C_DOC_COMMENT);
 }
 	YY_BREAK
 /* Matches the start of a C style comment, and switches the scanner to the C_COMMENT state. */
-case 25:
+case 26:
 YY_RULE_SETUP
-#line 347 "src/Slice/Scanner.l"
+#line 357 "src/Slice/Scanner.l"
 {
     pushState(C_COMMENT);
 }
 	YY_BREAK
 /* Matches any character except for newlines and adds them to the comments. '*' are matched one at a time to ensure
    * Flex scans '* /' correctly. Flex prioritizes longer matches over shorter ones, so '* /' will match before '*'. */
-case 26:
-#line 354 "src/Slice/Scanner.l"
 case 27:
+#line 364 "src/Slice/Scanner.l"
+case 28:
 YY_RULE_SETUP
-#line 354 "src/Slice/Scanner.l"
+#line 364 "src/Slice/Scanner.l"
 {
     yymore();
 }
 	YY_BREAK
 /* Matches as many newlines as are available and adds them to the comment, after incrementing the line count. */
-case 28:
-/* rule 28 can match eol */
+case 29:
+/* rule 29 can match eol */
 YY_RULE_SETUP
-#line 359 "src/Slice/Scanner.l"
+#line 369 "src/Slice/Scanner.l"
 {
     nextLine(yyleng);
     yymore();
 }
 	YY_BREAK
 /* Matches the end of a C style comment, and reverts the scanner state to what it previously was. */
-case 29:
+case 30:
 YY_RULE_SETUP
-#line 365 "src/Slice/Scanner.l"
+#line 375 "src/Slice/Scanner.l"
 {
     string comment(yytext);
     // The last 2 characters are the '*/' matched by this rule.
@@ -1950,7 +1963,7 @@ YY_RULE_SETUP
 /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
 case YY_STATE_EOF(C_COMMENT):
 case YY_STATE_EOF(C_DOC_COMMENT):
-#line 377 "src/Slice/Scanner.l"
+#line 387 "src/Slice/Scanner.l"
 {
     currentUnit->error("encountered EOF while scanning a comment");
     if (YY_START == C_DOC_COMMENT)
@@ -1963,28 +1976,28 @@ case YY_STATE_EOF(C_DOC_COMMENT):
 	YY_BREAK
 /* ========== Preprocessor Statements ========== */
 /* Matches the empty preprocessor directive. */
-case 30:
+case 31:
 YY_RULE_SETUP
-#line 390 "src/Slice/Scanner.l"
+#line 400 "src/Slice/Scanner.l"
 {
     pushState(PREPROCESS);
 }
 	YY_BREAK
 /* Matches a line preprocessor directive, but missing a line number. */
-case 31:
+case 32:
 YY_RULE_SETUP
-#line 395 "src/Slice/Scanner.l"
+#line 405 "src/Slice/Scanner.l"
 {
     pushState(PREPROCESS);
     currentUnit->error("missing line number in line preprocessor directive");
 }
 	YY_BREAK
 /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
-case 32:
-#line 402 "src/Slice/Scanner.l"
 case 33:
+#line 412 "src/Slice/Scanner.l"
+case 34:
 YY_RULE_SETUP
-#line 402 "src/Slice/Scanner.l"
+#line 412 "src/Slice/Scanner.l"
 {
     int includeAction = scanPosition(yytext);
     if (yylineno == 0 || includeAction == 1) // Push: Indicated the scanner has started scanning a new file.
@@ -2000,46 +2013,46 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches any non white-space character. This is a catch-all to report any invalid characters
    * found while scanning a preprocessor directive. */
-case 34:
+case 35:
 YY_RULE_SETUP
-#line 417 "src/Slice/Scanner.l"
+#line 427 "src/Slice/Scanner.l"
 {
     currentUnit->error("encountered unexpected token while scanning preprocessor directive: '" + string(yytext) + "'");
 }
 	YY_BREAK
 /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
-case 35:
-/* rule 35 can match eol */
-#line 423 "src/Slice/Scanner.l"
+case 36:
+/* rule 36 can match eol */
+#line 433 "src/Slice/Scanner.l"
 YY_RULE_SETUP
 case YY_STATE_EOF(PREPROCESS):
-#line 423 "src/Slice/Scanner.l"
+#line 433 "src/Slice/Scanner.l"
 {
     popState();
     nextLine();
 }
 	YY_BREAK
 /* ========== Metadata ========== */
-case 36:
+case 37:
 YY_RULE_SETUP
-#line 430 "src/Slice/Scanner.l"
+#line 440 "src/Slice/Scanner.l"
 {
     pushState(METADATA);
     return ICE_METADATA_OPEN;
 }
 	YY_BREAK
-case 37:
+case 38:
 YY_RULE_SETUP
-#line 435 "src/Slice/Scanner.l"
+#line 445 "src/Slice/Scanner.l"
 {
     pushState(METADATA);
     return ICE_FILE_METADATA_OPEN;
 }
 	YY_BREAK
 /* Matches the start of a metadata string, then switches the scanner into STRING_LITERAL mode. */
-case 38:
+case 39:
 YY_RULE_SETUP
-#line 441 "src/Slice/Scanner.l"
+#line 451 "src/Slice/Scanner.l"
 {
     pushState(STRING_LITERAL);
     startLocation(yylloc);
@@ -2050,42 +2063,42 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 /* Matches commas between string literals in quoted metadata and forwards them to the parser. */
-case 39:
+case 40:
 YY_RULE_SETUP
-#line 451 "src/Slice/Scanner.l"
+#line 461 "src/Slice/Scanner.l"
 {
     return yytext[0];
 }
 	YY_BREAK
 /* Matches and consumes newlines in between metadata after incrementing the line count. */
-case 40:
-/* rule 40 can match eol */
+case 41:
+/* rule 41 can match eol */
 YY_RULE_SETUP
-#line 456 "src/Slice/Scanner.l"
+#line 466 "src/Slice/Scanner.l"
 {
     nextLine(yyleng);
 }
 	YY_BREAK
-case 41:
+case 42:
 YY_RULE_SETUP
-#line 460 "src/Slice/Scanner.l"
+#line 470 "src/Slice/Scanner.l"
 {
     popState();
     return ICE_METADATA_CLOSE;
 }
 	YY_BREAK
-case 42:
+case 43:
 YY_RULE_SETUP
-#line 465 "src/Slice/Scanner.l"
+#line 475 "src/Slice/Scanner.l"
 {
     popState();
     return ICE_FILE_METADATA_CLOSE;
 }
 	YY_BREAK
 /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
-case 43:
+case 44:
 YY_RULE_SETUP
-#line 471 "src/Slice/Scanner.l"
+#line 481 "src/Slice/Scanner.l"
 {
     ostringstream msg;
     msg << "invalid tokens in metadata: '" << yytext << "' (maybe you forgot to wrap it in quotes?)";
@@ -2098,10 +2111,10 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 /* ========== Identifiers and Keywords ========== */
-case 44:
-/* rule 44 can match eol */
+case 45:
+/* rule 45 can match eol */
 YY_RULE_SETUP
-#line 484 "src/Slice/Scanner.l"
+#line 494 "src/Slice/Scanner.l"
 {
     StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -2135,9 +2148,9 @@ YY_RULE_SETUP
     }
 }
 	YY_BREAK
-case 45:
+case 46:
 YY_RULE_SETUP
-#line 517 "src/Slice/Scanner.l"
+#line 527 "src/Slice/Scanner.l"
 {
     StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -2147,16 +2160,16 @@ YY_RULE_SETUP
 	YY_BREAK
 /* ========== Whitespace ========== */
 /* Matches and consumes any whitespace, except for newlines. */
-case 46:
+case 47:
 YY_RULE_SETUP
-#line 527 "src/Slice/Scanner.l"
+#line 537 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches and consumes newlines, but only when the scanner isn't in a sub-scanner. */
-case 47:
-/* rule 47 can match eol */
+case 48:
+/* rule 48 can match eol */
 YY_RULE_SETUP
-#line 530 "src/Slice/Scanner.l"
+#line 540 "src/Slice/Scanner.l"
 {
     nextLine(yyleng);
 }
@@ -2170,24 +2183,24 @@ YY_RULE_SETUP
    *
    * Since BOMs are only allowed at the beginning of files, we only allow them in this 'INITIAL' state.
    * If we see a BOM in any other state, we emit an error and throw it away. */
-case 48:
-YY_RULE_SETUP
-#line 544 "src/Slice/Scanner.l"
-{ /* do nothing */ }
-	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 545 "src/Slice/Scanner.l"
+#line 554 "src/Slice/Scanner.l"
+{ /* do nothing */ }
+	YY_BREAK
+case 50:
+YY_RULE_SETUP
+#line 555 "src/Slice/Scanner.l"
 {
     currentUnit->error("encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files");
 }
 	YY_BREAK
 /* Matches invalid characters, one at a time to make this the 2nd lowest priority rule. All printable ASCII
    * characters are valid (those between 32 and 127 inclusively), anything outside this range is invalid. */
-case 50:
-/* rule 50 can match eol */
+case 51:
+/* rule 51 can match eol */
 YY_RULE_SETUP
-#line 551 "src/Slice/Scanner.l"
+#line 561 "src/Slice/Scanner.l"
 {
     stringstream s;
     s << "illegal input character: '\\";
@@ -2202,20 +2215,20 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches any valid character (except newlines) not matched by another rule and forwards it to the parser.
    * This is the lowest priority rule in the scanner, and is only active while not in a sub-scanner. */
-case 51:
+case 52:
 YY_RULE_SETUP
-#line 565 "src/Slice/Scanner.l"
+#line 575 "src/Slice/Scanner.l"
 {
     setLocation(yylloc);
     return yytext[0];
 }
 	YY_BREAK
-case 52:
+case 53:
 YY_RULE_SETUP
-#line 570 "src/Slice/Scanner.l"
+#line 580 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2219 "src/Slice/Scanner.cpp"
+#line 2232 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SLICE):
 case YY_STATE_EOF(METADATA):
@@ -3218,7 +3231,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 570 "src/Slice/Scanner.l"
+#line 580 "src/Slice/Scanner.l"
 
 
 // NOLINTEND
