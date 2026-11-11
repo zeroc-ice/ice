@@ -1759,7 +1759,7 @@ YY_RULE_SETUP
     endLocation(yylloc);
     nextLine();
 
-    currentUnit->error("encountered un-escaped EOL while scanning a string literal.");
+    currentUnit->error("encountered un-escaped EOL while scanning a string literal");
     return ICE_STRING_LITERAL;
 }
 	YY_BREAK
@@ -1768,7 +1768,7 @@ case 16:
 YY_RULE_SETUP
 #line 240 "src/Slice/Scanner.l"
 {
-    currentUnit->error("encountered un-escaped CR while scanning a string literal; use '\\r' instead.");
+    currentUnit->error("encountered un-escaped CR while scanning a string literal; use '\\r' instead");
 }
 	YY_BREAK
 /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
@@ -1822,7 +1822,7 @@ case YY_STATE_EOF(STRING_LITERAL):
 	YY_BREAK
 /* Fallback rule to match anything not covered by another rule in the 'STRING_LITERAL' start condition.
    * It matches invalid control characters, one at a time to make this the lowest priority rule in the state.
-   * Anything matched by it is ignored and reported as an error, but otherwise scanning continue uninterrupted. */
+   * Anything matched by it is ignored and reported as an error, but otherwise scanning continues uninterrupted. */
 case 20:
 YY_RULE_SETUP
 #line 285 "src/Slice/Scanner.l"
