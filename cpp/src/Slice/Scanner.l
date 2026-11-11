@@ -230,14 +230,14 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <STRING_LITERAL>\n {
     popState();
     endSpan(yylloc);
-    currentUnit->error(*yylloc, "encountered un-escaped EOL while scanning a string literal.");
+    currentUnit->error(*yylloc, "encountered un-escaped EOL while scanning a string literal");
     nextLine();
     return ICE_STRING_LITERAL;
 }
 
   /* Matches an unescaped carriage return in a string literal, and issues an error. But we otherwise continue. */
 <STRING_LITERAL>\r {
-    currentUnit->error(matchSpan(), "encountered un-escaped CR while scanning a string literal; use '\\r' instead.");
+    currentUnit->error(matchSpan(), "encountered un-escaped CR while scanning a string literal; use '\\r' instead");
 }
 
   /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
@@ -276,6 +276,17 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
     currentUnit->error(*yylloc, "encountered EOF while scanning a string literal");
     return ICE_STRING_LITERAL;
+}
+
+  /* Fallback rule to match anything not covered by another rule in the 'STRING_LITERAL' start condition.
+   * It matches invalid control characters, one at a time to make this the lowest priority rule in the state.
+   * Anything matched by it is ignored and reported as an error, but otherwise scanning continues uninterrupted. */
+<STRING_LITERAL>. {
+    // Suggest the escape sequence for the character: its mnemonic form if it has one, and an octal escape otherwise.
+    string escape = toStringLiteral(string(1, yytext[0]), "\a\b\f\n\r\t\v", "", Octal, 0);
+    currentUnit->error(
+        matchSpan(),
+        "encountered invalid control character while scanning a string literal; use '" + escape + "' instead");
 }
 
 {integer_constant} {
