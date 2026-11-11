@@ -122,8 +122,10 @@ module Test
 
         ["marshaled-result"] ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"]
         optional(1) EStringSeqDict opMOptEStringSeqFormalLinkedDict(
-            ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"] optional(2) EStringSeqDict inDict,
-            ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"] out optional(3) EStringSeqDict outDict);
+            ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"]
+            optional(2) EStringSeqDict inDict,
+            ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"]
+            out optional(3) EStringSeqDict outDict);
 
         void shutdown();
     }
