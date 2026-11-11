@@ -14,12 +14,16 @@
 #include <Network/Network.h>
 #include <dispatch/dispatch.h>
 
-#include <atomic>
 #include <cstddef>
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <string>
+
+namespace IceInternal::NetworkFrameworkTLS
+{
+    class PeerRejection;
+}
 
 namespace IceInternal
 {
@@ -104,7 +108,11 @@ namespace IceInternal
         void checkSendSize(const Buffer&) final;
         void setBufferSize(int rcvSize, int sndSize) final;
 
-        void setLocalVerifyRejected(std::shared_ptr<std::atomic<bool>> flag) { _localVerifyRejected = std::move(flag); }
+        // Sets the rejection the TLS verify block of an outgoing connection records, see initialize.
+        void setPeerRejection(std::shared_ptr<NetworkFrameworkTLS::PeerRejection> rejection)
+        {
+            _peerRejection = std::move(rejection);
+        }
 
         // Sets the function that verifies the peer of a TLS connection once the handshake completed and the peer did
         // not present a certificate. TLS only validates the certificate the peer presents; the SSL engine's trust
@@ -172,11 +180,9 @@ namespace IceInternal
         int _rcvSize{0};
         int _sndSize{0};
 
-        // Optional flag shared with the verify block in SSLConnectorI. When the
-        // local verify block calls complete(false), it sets this flag so we can
-        // distinguish "we rejected the peer" (SecurityException) from "the peer
-        // rejected us" (ConnectionLostException).
-        std::shared_ptr<std::atomic<bool>> _localVerifyRejected;
+        // Shared with the TLS verify block of an outgoing connection, which records why it rejected the server. Null
+        // for an incoming connection: the verify block of a listener is shared by the connections it accepts.
+        std::shared_ptr<NetworkFrameworkTLS::PeerRejection> _peerRejection;
 
         // See setPeerVerifier.
         std::function<void(const Ice::SSL::ConnectionInfoPtr&)> _peerVerifier;

@@ -44,15 +44,16 @@ Ice::SSL::ConnectorI::connect()
     assert(nfConnector);
 
     // The immutable configuration is owned by the blocks Network.framework invokes during the handshake; the
-    // results are per connection: the configuration error, and the flag the verification of this connection sets.
+    // results are per connection: the configuration error, and the rejection the verification of this connection
+    // records.
     auto configuration =
         make_shared<const IceInternal::NetworkFrameworkTLS::ClientConfiguration>(*clientAuthenticationOptions, _host);
-    auto localVerifyRejected = make_shared<atomic<bool>>(false);
+    auto rejection = make_shared<IceInternal::NetworkFrameworkTLS::PeerRejection>();
     __block exception_ptr error;
 
     IceInternal::NetworkRef<nw_parameters_t> parameters =
         IceInternal::createTcpParameters(^(nw_protocol_options_t tlsOptions) {
-          error = IceInternal::NetworkFrameworkTLS::configureClientTLS(tlsOptions, configuration, localVerifyRejected);
+          error = IceInternal::NetworkFrameworkTLS::configureClientTLS(tlsOptions, configuration, rejection);
         });
 
     if (error)
@@ -67,7 +68,7 @@ Ice::SSL::ConnectorI::connect()
 
     auto transceiver =
         nfConnector->connect(IceInternal::NetworkFrameworkConnector::Protocol::TLS, std::move(parameters));
-    transceiver->setLocalVerifyRejected(std::move(localVerifyRejected));
+    transceiver->setPeerRejection(std::move(rejection));
     SSLEnginePtr engine = _instance->engine();
     transceiver->setPeerVerifier([engine](const ConnectionInfoPtr& info) { engine->verifyPeer(info); }, false, "");
     return transceiver;

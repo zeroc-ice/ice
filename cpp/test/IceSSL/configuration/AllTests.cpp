@@ -1528,8 +1528,10 @@ testTrustOnly(const string& factoryRef, const Ice::PropertiesPtr& defaultProps, 
             server->ice_ping();
             test(false);
         }
-        catch (const LocalException&)
+        catch (const SecurityException& ex)
         {
+            // The client reports why it rejected the server.
+            test(string(ex.what()).find("rejected by trust manager") != string::npos);
         }
         fact->destroyServer(server);
         comm->destroy();

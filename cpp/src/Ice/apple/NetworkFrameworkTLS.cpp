@@ -4,6 +4,7 @@
 
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
 
+#    include "../SSL/SSLUtil.h"
 #    include "../UniqueRef.h"
 #    include "Ice/Connection.h"
 #    include "Ice/LocalExceptions.h"
@@ -254,13 +255,24 @@ namespace
         return trust;
     }
 
-    // Validates the peer with the application's callback, or with the default trust evaluation.
-    bool validatePeer(SecTrustRef trust, const PeerVerification& verification)
+    // Validates the peer with the application's callback, or with the default trust evaluation. Throws
+    // SecurityException with the reason of a rejection; the engine's callback throws its own exceptions.
+    void validatePeer(SecTrustRef trust, const PeerVerification& verification)
     {
         if (!verification.callback)
         {
             UniqueRef<CFErrorRef> error;
-            return SecTrustEvaluateWithError(trust, &error.get());
+            if (!SecTrustEvaluateWithError(trust, &error.get()))
+            {
+                string reason;
+                if (error)
+                {
+                    UniqueRef<CFStringRef> description(CFErrorCopyDescription(error.get()));
+                    reason = ":\n" + Ice::SSL::fromCFString(description.get());
+                }
+                throw SecurityException(__FILE__, __LINE__, "SSL transport: certificate verification failure" + reason);
+            }
+            return;
         }
 
         // The callback receives a minimal connection info with the peer certificate so that the trust manager
@@ -283,14 +295,22 @@ namespace
             0,
             0,
             0);
-        return verification.callback(trust, make_shared<SSL::AppleConnectionInfo>(underlying, peerCertificate));
+        if (!verification.callback(trust, make_shared<SSL::AppleConnectionInfo>(underlying, peerCertificate)))
+        {
+            throw SecurityException(
+                __FILE__,
+                __LINE__,
+                "SSL transport: certificate verification failure: the certificate was rejected by the certificate "
+                "validation callback");
+        }
     }
 
-    // The TLS verify block: invokes the completion exactly once, an application exception or a failure to build the
-    // trust rejects the peer, and a rejection is recorded in localVerifyRejected when set.
+    // The TLS verify block: invokes the completion exactly once. The peer is rejected when the verification throws,
+    // including an exception of the application's callback, or when the trust cannot be built; the exception is
+    // recorded in rejection when set.
     void verifyPeer(
         const PeerVerification& verification,
-        const shared_ptr<atomic<bool>>& localVerifyRejected,
+        const shared_ptr<PeerRejection>& rejection,
         sec_protocol_metadata_t metadata,
         sec_protocol_verify_complete_t complete)
     {
@@ -301,36 +321,40 @@ namespace
             UniqueRef<SecPolicyRef> policy(createPolicy(verification));
             UniqueRef<SecTrustRef> trust(
                 createPeerTrust(certificates.get(), policy.get(), verification.trustedRootCertificates.get()));
-            if (trust)
+            if (!trust)
             {
-                valid = validatePeer(trust.get(), verification);
+                throw SecurityException(
+                    __FILE__,
+                    __LINE__,
+                    "SSL transport: certificate verification failure: cannot create the trust of the peer certificate "
+                    "chain");
             }
+            validatePeer(trust.get(), verification);
+            valid = true;
         }
         catch (...)
         {
-            valid = false;
-        }
-
-        if (!valid && localVerifyRejected)
-        {
-            localVerifyRejected->store(true);
+            if (rejection)
+            {
+                rejection->record(current_exception());
+            }
         }
         complete(valid);
     }
 
-    // Blocks capture a reference parameter as a reference, not a copy: the configuration and the flag are taken by
-    // value so that the block captures copies of them, which retain the verification and the objects it uses for as
-    // long as the block can run.
+    // Blocks capture a reference parameter as a reference, not a copy: the configuration and the rejection are taken
+    // by value so that the block captures copies of them, which retain the verification and the objects it uses for
+    // as long as the block can run.
     template<typename Configuration>
     void setVerifyBlock(
         sec_protocol_options_t options,
         shared_ptr<const Configuration> configuration, // NOLINT(performance-unnecessary-value-param)
-        shared_ptr<atomic<bool>> localVerifyRejected)  // NOLINT(performance-unnecessary-value-param)
+        shared_ptr<PeerRejection> rejection)           // NOLINT(performance-unnecessary-value-param)
     {
         sec_protocol_options_set_verify_block(
             options,
             ^(sec_protocol_metadata_t metadata, sec_trust_t, sec_protocol_verify_complete_t complete) {
-              verifyPeer(configuration->verification, localVerifyRejected, metadata, complete);
+              verifyPeer(configuration->verification, rejection, metadata, complete);
             },
             dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
     }
@@ -377,7 +401,7 @@ exception_ptr
 IceInternal::NetworkFrameworkTLS::configureClientTLS(
     nw_protocol_options_t tlsOptions,
     shared_ptr<const ClientConfiguration> configuration, // NOLINT(performance-unnecessary-value-param)
-    shared_ptr<atomic<bool>> localVerifyRejected)        // NOLINT(performance-unnecessary-value-param)
+    shared_ptr<PeerRejection> rejection)                 // NOLINT(performance-unnecessary-value-param)
 {
     auto options = SecRef<sec_protocol_options_t>::adopt(nw_tls_copy_sec_protocol_options(tlsOptions));
     const SSL::ClientAuthenticationOptions& authOptions = configuration->options;
@@ -404,7 +428,7 @@ IceInternal::NetworkFrameworkTLS::configureClientTLS(
             }
         }
 
-        setVerifyBlock(options.get(), configuration, localVerifyRejected);
+        setVerifyBlock(options.get(), configuration, rejection);
 
         // The application's callback comes last so that the settings it applies take precedence.
         if (authOptions.sslNewSessionCallback)
@@ -454,7 +478,7 @@ IceInternal::NetworkFrameworkTLS::configureServerTLS(
         if (authOptions.clientCertificateRequired)
         {
             sec_protocol_options_set_peer_authentication_required(options.get(), true);
-            // The listener configuration is shared by its connections: there is no per-connection rejection flag.
+            // The listener configuration is shared by its connections: there is no per-connection rejection to record.
             setVerifyBlock(options.get(), configuration, nullptr);
         }
         else

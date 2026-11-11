@@ -11,6 +11,7 @@
 #    include "Ice/LocalExceptions.h"
 #    include "Ice/LoggerUtil.h"
 #    include "Ice/SSL/ConnectionInfo.h"
+#    include "NetworkFrameworkTLS.h"
 #    include "NetworkFrameworkTransceiver.h"
 
 #    include <Security/Security.h>
@@ -192,19 +193,21 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer& readBuffer, Buffer&
         {
             if (result.tlsError)
             {
-                // The verification of this connection rejected the peer (SecurityException), or the peer rejected
-                // this connection, for example a server that rejected the client certificate (ConnectionLost).
-                if (!_localVerifyRejected || _localVerifyRejected->load())
+                // The verification of this outgoing connection rejected the server: report why. Otherwise the server
+                // rejected this connection, for example its client certificate (ConnectionLost). An incoming
+                // connection cannot tell who rejected whom, it reports the handshake failure.
+                if (!_peerRejection)
                 {
                     throw Ice::SecurityException(
                         __FILE__,
                         __LINE__,
                         "SSL transport: TLS handshake failed with error " + to_string(result.error));
                 }
-                else
+                if (exception_ptr rejection = _peerRejection->exception())
                 {
-                    throw ConnectionLostException(__FILE__, __LINE__);
+                    rethrow_exception(rejection);
                 }
+                throw ConnectionLostException(__FILE__, __LINE__);
             }
             // A reset by the peer (for example a server that accepts then closes an over-limit connection)
             // reaches Network.framework as a failed connection rather than a lost one. Classify the error the way the

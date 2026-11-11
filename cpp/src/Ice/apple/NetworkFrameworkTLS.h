@@ -15,10 +15,10 @@
 
 #    include <Network/Network.h>
 
-#    include <atomic>
 #    include <exception>
 #    include <functional>
 #    include <memory>
+#    include <mutex>
 #    include <string>
 
 // The TLS configuration of the Network.framework connections and listeners. The client and server entry points
@@ -31,7 +31,8 @@
 // The configurations are immutable and owned by the blocks that capture them: a client configuration lives as long
 // as the handshake of its connection, a server configuration as long as the listener and the handshakes of the
 // connections it accepted. The results of a configuration or of a handshake are per connection and live in separate
-// state: the exception the configure functions return, and the flag recording a rejection by the local verification.
+// state: the exception the configure functions return, and the PeerRejection recording why the local verification
+// rejected the peer.
 namespace IceInternal::NetworkFrameworkTLS
 {
     // The verification of the certificate chain the peer presents, performed by the TLS verify block.
@@ -45,6 +46,35 @@ namespace IceInternal::NetworkFrameworkTLS
         const UniqueRef<CFArrayRef> trustedRootCertificates;
         // The application's validation callback; SecTrustEvaluateWithError when not set.
         const std::function<bool(SecTrustRef, const Ice::SSL::ConnectionInfoPtr&)> callback;
+    };
+
+    // The reason the TLS verification of one connection rejected its peer: the exception the verification failed with,
+    // which the connection reports instead of the generic handshake failure. Shared by the verify block, which runs on
+    // a dispatch queue, and the transceiver, which reads it once the handshake failed. The verify block can run more
+    // than once for the same handshake; the first rejection is kept.
+    class PeerRejection
+    {
+    public:
+        // Records the exception of a rejection, unless a rejection is already recorded.
+        void record(std::exception_ptr exception)
+        {
+            std::lock_guard lock(_mutex);
+            if (!_exception)
+            {
+                _exception = std::move(exception);
+            }
+        }
+
+        // Returns the exception of the recorded rejection, or null when the verification did not reject the peer.
+        [[nodiscard]] std::exception_ptr exception() const
+        {
+            std::lock_guard lock(_mutex);
+            return _exception;
+        }
+
+    private:
+        mutable std::mutex _mutex;
+        std::exception_ptr _exception;
     };
 
     // The TLS configuration of an outgoing connection.
@@ -70,9 +100,9 @@ namespace IceInternal::NetworkFrameworkTLS
 
     // Configures the TLS options of an outgoing connection: the server name, the client identity, the server
     // certificate verification, then the application's sslNewSessionCallback. Called from the configure block of
-    // nw_parameters_create_secure_tcp, which invokes it synchronously. localVerifyRejected is set when the
-    // verification of this connection rejects the server, so that the connection reports a SecurityException rather
-    // than a ConnectionLostException.
+    // nw_parameters_create_secure_tcp, which invokes it synchronously. rejection records the exception with which the
+    // verification of this connection rejects the server, so that the connection reports that exception rather than a
+    // ConnectionLostException, which reports a rejection by the server.
     //
     // Returns the exception the configuration failed with, for example when the certificate selection callback
     // returned an invalid chain or threw: an exception must not escape through Network.framework, the connector
@@ -80,7 +110,7 @@ namespace IceInternal::NetworkFrameworkTLS
     std::exception_ptr configureClientTLS(
         nw_protocol_options_t tlsOptions,
         std::shared_ptr<const ClientConfiguration>,
-        std::shared_ptr<std::atomic<bool>> localVerifyRejected);
+        std::shared_ptr<PeerRejection> rejection);
 
     // Configures the TLS options of a listener: the server identity, selected for each handshake by a challenge
     // block so that a reloaded certificate is picked up without recreating the listener, the client certificate
