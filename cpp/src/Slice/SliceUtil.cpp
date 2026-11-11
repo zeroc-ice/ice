@@ -450,7 +450,7 @@ Slice::emitRaw(const char* message)
     }
 
     string_view text{message};
-    if (text.ends_with('\n'))
+    if (!text.empty() && text.back() == '\n')
     {
         text.remove_suffix(1);
     }
@@ -463,7 +463,7 @@ Slice::emitRaw(const char* message)
         int line = 0;
         auto [lineEnd, result] = from_chars(text.data() + colon + 1, textEnd, line);
         string_view rest{lineEnd, static_cast<size_t>(textEnd - lineEnd)};
-        if (result != errc{} || !rest.starts_with(": "))
+        if (result != errc{} || rest.substr(0, 2) != ": ")
         {
             continue;
         }
@@ -472,12 +472,12 @@ Slice::emitRaw(const char* message)
         constexpr string_view warningPrefix = "warning: ";
         constexpr string_view errorPrefix = "error: ";
         Diagnostic::Severity severity = Diagnostic::Severity::Error;
-        if (rest.starts_with(warningPrefix))
+        if (rest.substr(0, warningPrefix.size()) == warningPrefix)
         {
             severity = Diagnostic::Severity::Warning;
             rest.remove_prefix(warningPrefix.size());
         }
-        else if (rest.starts_with(errorPrefix))
+        else if (rest.substr(0, errorPrefix.size()) == errorPrefix)
         {
             rest.remove_prefix(errorPrefix.size());
         }
