@@ -37,7 +37,7 @@ This build compiles Ice for Python directly from the source tree and requires a 
 
 ### Prerequisites
 
-1. **Python 3.12 or later**
+1. **Python 3.9 or later**
 
 2. **Ice for C++ source build**
 
