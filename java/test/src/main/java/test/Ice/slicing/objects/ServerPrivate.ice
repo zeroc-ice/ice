@@ -93,9 +93,7 @@ module Test
         PNode next;
     }
 
-    exception PreservedException
-    {
-    }
+    exception PreservedException {}
 
     ["format:sliced"]
     interface TestIntf

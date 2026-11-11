@@ -5,9 +5,7 @@
 ["java:identifier:test.Ice.metrics.Test"]
 module Test
 {
-    exception UserEx
-    {
-    }
+    exception UserEx {}
 
     sequence<byte> ByteSeq;
 

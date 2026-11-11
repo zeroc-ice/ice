@@ -7,9 +7,7 @@
 ["java:identifier:test.Ice.exceptions.Test"]
 module Test
 {
-    interface Empty
-    {
-    }
+    interface Empty {}
 
     interface Thrower;
 

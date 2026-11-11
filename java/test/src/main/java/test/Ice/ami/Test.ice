@@ -8,9 +8,7 @@
 ["java:identifier:test.Ice.ami.Test"]
 module Test
 {
-    exception TestIntfException
-    {
-    }
+    exception TestIntfException {}
 
     interface PingReply
     {

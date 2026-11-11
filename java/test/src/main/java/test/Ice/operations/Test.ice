@@ -313,7 +313,5 @@ module Test2
     * a different module (ICE-7639).
     *
     */
-    interface MyDerivedInterface extends Test::MyInterface
-    {
-    }
+    interface MyDerivedInterface extends Test::MyInterface {}
 }
