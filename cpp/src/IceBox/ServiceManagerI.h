@@ -92,7 +92,7 @@ private:
     ::Ice::LoggerPtr _logger;
     ::Ice::StringSeq _argv; // Filtered server argument vector, not including program name
     std::vector<ServiceInfo> _services;
-    bool _pendingStatusChanges;
+    int _pendingStatusChanges;
 
     std::set<ServiceObserverPrxPtr> _observers;
     int _traceServiceObserver;
