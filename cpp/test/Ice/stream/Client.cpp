@@ -1099,6 +1099,54 @@ allTests(Test::TestHelper* helper, const CustomSliceLoaderPtr& customSliceLoader
         }
     }
     cout << "ok" << endl;
+
+    cout << "testing dictionary with duplicate keys... " << flush;
+    {
+        // A marshaled dictionary never has duplicate keys, so write the entries one by one.
+        Ice::OutputStream out(communicator);
+        out.writeSize(2);
+        out.write(string{"key1"});
+        out.write(string{"value1"});
+        out.write(string{"key1"});
+        out.write(string{"value2"});
+        out.finished(data);
+
+        Ice::InputStream in(communicator, data);
+        StringStringD dict;
+        try
+        {
+            in.read(dict);
+            test(false);
+        }
+        catch (const Ice::MarshalException&)
+        {
+        }
+    }
+
+    {
+        // With the 1.0 encoding, class instances are unmarshaled only after the dictionary.
+        Ice::OutputStream out(communicator, Ice::Encoding_1_0);
+        out.writeSize(2);
+        out.write(string{"key1"});
+        out.write(make_shared<MyClass>());
+        out.write(string{"key1"});
+        out.write(make_shared<MyClass>());
+        out.writePendingValues();
+        out.finished(data);
+
+        Ice::InputStream in(communicator, Ice::Encoding_1_0, data);
+        StringMyClassD dict;
+        try
+        {
+            in.read(dict);
+            in.readPendingValues();
+            test(false);
+        }
+        catch (const Ice::MarshalException&)
+        {
+        }
+    }
+    cout << "ok" << endl;
 }
 
 class Client : public Test::TestHelper

@@ -1011,6 +1011,55 @@ public class AllTests : global::Test.AllTests
         }
 
         output.WriteLine("ok");
+
+        output.Write("testing dictionary with duplicate keys... ");
+        output.Flush();
+        {
+            // A marshaled dictionary never has duplicate keys, so write the entries one by one.
+            outS = new Ice.OutputStream(communicator);
+            outS.writeSize(2);
+            outS.writeString("key1");
+            outS.writeString("value1");
+            outS.writeString("key1");
+            outS.writeString("value2");
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            try
+            {
+                Test.StringStringDHelper.read(inS);
+                test(false);
+            }
+            catch (Ice.MarshalException)
+            {
+            }
+        }
+
+        {
+            // With the 1.0 encoding, class instances are unmarshaled only after the dictionary.
+            outS = new Ice.OutputStream(Ice.Util.Encoding_1_0);
+            outS.writeSize(2);
+            for (int i = 0; i < 2; ++i)
+            {
+                outS.writeString("key1");
+                var c = new Test.MyClass();
+                c.s = new Test.LargeStruct();
+                outS.writeValue(c);
+            }
+            outS.writePendingValues();
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, Ice.Util.Encoding_1_0, data);
+            try
+            {
+                Test.StringMyClassDHelper.read(inS);
+                inS.readPendingValues();
+                test(false);
+            }
+            catch (Ice.MarshalException)
+            {
+            }
+        }
+
+        output.WriteLine("ok");
         return 0;
     }
 }

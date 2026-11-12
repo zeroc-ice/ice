@@ -908,6 +908,31 @@ classdef LocalTests
             end
 
             fprintf('ok\n');
+
+            fprintf('testing dictionary with duplicate keys... ');
+
+            % A marshaled dictionary never has duplicate keys, so write the entries one by one.
+            out = Ice.OutputStream(encoding, communicator.getFormat());
+            out.startEncapsulation(format);
+            out.writeSize(2);
+            for i = 1:2
+                out.writeInt(1);
+                out.writeValue(C1(i));
+            end
+            out.writePendingValues();
+            out.endEncapsulation();
+
+            is = Ice.InputStream(communicator, out.getEncoding(), out.finished());
+            is.startEncapsulation();
+            try
+                C1Dict.read(is);
+                is.readPendingValues();
+                assert(false);
+            catch ex
+                assert(isa(ex, 'Ice.MarshalException'));
+            end
+
+            fprintf('ok\n');
         end
     end
 end

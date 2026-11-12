@@ -46,7 +46,11 @@ export class IncomingRequest {
         const ctx = new Context();
         let sz = inputStream.readSize();
         while (sz-- > 0) {
-            ctx.set(inputStream.readString(), inputStream.readString());
+            const key = inputStream.readString();
+            if (ctx.has(key)) {
+                throw new MarshalException("Received request context with duplicate key.");
+            }
+            ctx.set(key, inputStream.readString());
         }
 
         const encapsulationSize = inputStream.readInt();

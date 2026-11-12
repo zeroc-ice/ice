@@ -2,6 +2,7 @@
 
 import { OptionalFormat } from "./OptionalFormat.js";
 import { InputStream } from "./InputStream.js";
+import { MarshalException } from "./LocalExceptions.js";
 import { OutputStream } from "./OutputStream.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 import { Value } from "./Value.js";
@@ -333,7 +334,11 @@ class DictionaryHelper {
         const keyHelper = this.keyHelper;
         const valueHelper = this.valueHelper;
         for (let i = 0; i < sz; ++i) {
-            v.set(keyHelper.read(is), valueHelper.read(is));
+            const key = keyHelper.read(is);
+            if (v.has(key)) {
+                throw new MarshalException("received dictionary with duplicate key");
+            }
+            v.set(key, valueHelper.read(is));
         }
         return v;
     }
@@ -355,6 +360,12 @@ function valueDictionaryHelperRead(is) {
     const valueType = this.valueType;
 
     const readValueForKey = function (key) {
+        if (v.has(key)) {
+            throw new MarshalException("received dictionary with duplicate key");
+        }
+        // The value is set later, when it is unmarshaled. The placeholder makes a later duplicate of this key
+        // detectable before then.
+        v.set(key, null);
         is.readValue(obj => v.set(key, obj), valueType);
     };
 

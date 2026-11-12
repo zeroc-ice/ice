@@ -47,7 +47,10 @@ IncomingRequest::IncomingRequest(
         string value;
         inputStream.read(key);
         inputStream.read(value);
-        _current.ctx.emplace(std::move(key), std::move(value));
+        if (!_current.ctx.emplace(std::move(key), std::move(value)).second)
+        {
+            throw MarshalException{__FILE__, __LINE__, "received request context with duplicate key"};
+        }
     }
 
     int32_t encapsulationSize;

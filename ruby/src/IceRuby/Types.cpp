@@ -1814,6 +1814,11 @@ IceRuby::DictionaryInfo::unmarshal(
         keyType->unmarshal(is, keyCB, Qnil, 0, false);
         assert(!NIL_P(keyCB->key));
 
+        if (callRuby(rb_hash_lookup2, hash, keyCB->key, Qundef) != Qundef)
+        {
+            throw Ice::MarshalException(__FILE__, __LINE__, "received dictionary with duplicate key");
+        }
+
         //
         // The callback will set the dictionary entry with the unmarshaled value, so we
         // pass it the key through the closure. When the value type uses classes, the

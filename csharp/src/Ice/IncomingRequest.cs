@@ -66,7 +66,10 @@ public sealed class IncomingRequest
         {
             string first = inputStream.readString();
             string second = inputStream.readString();
-            ctx[first] = second;
+            if (!ctx.TryAdd(first, second))
+            {
+                throw new MarshalException("Received request context with duplicate key.");
+            }
         }
 
         int encapsulationSize = inputStream.readInt();

@@ -574,9 +574,16 @@ Slice::Ice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sb;
     _out << nl << keyS << " k;";
     writeMarshalUnmarshalCode(_out, key, ns, "k", false);
+    _out << nl << "if (r.ContainsKey(k))";
+    _out << sb;
+    _out << nl << "throw new Ice.MarshalException(\"Received dictionary with duplicate key.\");";
+    _out << eb;
 
     if (value->isClassType())
     {
+        // The class instance is set later, when it is unmarshaled. The placeholder makes a later duplicate of this
+        // key detectable before then.
+        _out << nl << "r[k] = null!;";
         ostringstream os;
         os << '(' << typeToString(value, ns) << " v) => { r[k] = v; }";
         writeMarshalUnmarshalCode(_out, value, ns, os.str(), false);

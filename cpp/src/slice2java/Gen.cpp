@@ -83,6 +83,19 @@ namespace
 
         return "java.util.Optional.ofNullable";
     }
+
+    /// The statement that rejects a duplicate key when unmarshaling a dictionary.
+    const char* const throwDuplicateKey =
+        R"(throw new com.zeroc.Ice.MarshalException("received dictionary with duplicate key");)";
+
+    /// Writes the code that rejects an unmarshaled dictionary key already present in the dictionary @p param.
+    void writeDuplicateKeyCheck(Output& out, const string& param)
+    {
+        out << nl << "if (" << param << ".containsKey(key))";
+        out << sb;
+        out << nl << throwDuplicateKey;
+        out << eb;
+    }
 }
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) : JavaGenerator(dir) {}
@@ -526,10 +539,15 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
             {
                 out << nl << "final " << keyS << " key;";
                 writeMarshalUnmarshalCode(out, package, keyT, false, false, 0, "key", false, iter, customStream);
+                writeDuplicateKeyCheck(out, param);
 
+                // The class instance is put later, when it is unmarshaled, so a duplicate of a key whose instance is
+                // still pending can only be detected then. A null placeholder would avoid the second check, but a
+                // custom map type (java:type) may reject null values.
                 valueS = typeToObjectString(valueT, package);
                 ostringstream patchParams;
-                patchParams << "value -> " << param << ".put(key, value), " << valueS << ".class";
+                patchParams << "value -> { if (" << param << ".containsKey(key)) { " << throwDuplicateKey << " } "
+                            << param << ".put(key, value); }, " << valueS << ".class";
                 writeMarshalUnmarshalCode(
                     out,
                     package,
@@ -548,6 +566,7 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
             {
                 out << nl << keyS << " key;";
                 writeMarshalUnmarshalCode(out, package, keyT, false, false, 0, "key", false, iter, customStream);
+                writeDuplicateKeyCheck(out, param);
 
                 out << nl << valueS << " value;";
                 writeMarshalUnmarshalCode(out, package, valueT, false, false, 0, "value", false, iter, customStream);

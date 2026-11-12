@@ -690,6 +690,48 @@ export class Client extends TestHelper {
             test(inS.pos === 0);
         }
         out.writeLine("ok");
+
+        out.write("testing dictionary with duplicate keys... ");
+        {
+            // A marshaled dictionary never has duplicate keys, so write the entries one by one.
+            const outS = new Ice.OutputStream(communicator);
+            outS.writeSize(2);
+            outS.writeString("key1");
+            outS.writeString("value1");
+            outS.writeString("key1");
+            outS.writeString("value2");
+            const data = outS.finished();
+            const inS = new Ice.InputStream(communicator, data);
+            try {
+                Test.StringStringDHelper.read(inS);
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.MarshalException);
+            }
+        }
+
+        {
+            // With the 1.0 encoding, class instances are unmarshaled only after the dictionary.
+            const outS = new Ice.OutputStream(Ice.Encoding_1_0);
+            outS.writeSize(2);
+            for (let i = 0; i < 2; ++i) {
+                outS.writeString("key1");
+                const c = new Test.MyClass();
+                c.s = new Test.LargeStruct();
+                outS.writeValue(c);
+            }
+            outS.writePendingValues();
+            const data = outS.finished();
+            const inS = new Ice.InputStream(communicator, Ice.Encoding_1_0, data);
+            try {
+                Test.StringMyClassDHelper.read(inS);
+                inS.readPendingValues();
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.MarshalException);
+            }
+        }
+        out.writeLine("ok");
     }
 
     async run(args: string[]) {

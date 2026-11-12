@@ -332,7 +332,15 @@ namespace Ice
             {
                 typename T::value_type p;
                 stream->read(const_cast<typename T::key_type&>(p.first));
+                auto size = v.size();
                 auto i = v.insert(v.end(), p);
+                if (v.size() == size)
+                {
+                    IceInternal::Ex::throwMarshalException(
+                        __FILE__,
+                        __LINE__,
+                        "received dictionary with duplicate key");
+                }
                 stream->read(i->second);
             }
         }

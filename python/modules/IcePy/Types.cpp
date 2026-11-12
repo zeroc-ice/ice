@@ -2482,10 +2482,16 @@ IcePy::DictionaryInfo::unmarshal(
         // a reference to the key. In case of an exception, we don't want to leak
         // the key.
         //
+        Py_ssize_t size = PyDict_Size(p.get());
         if (PyDict_SetItem(p.get(), keyCB->key.get(), Py_None) < 0)
         {
             assert(PyErr_Occurred());
             throw AbortMarshaling();
+        }
+
+        if (PyDict_Size(p.get()) == size)
+        {
+            throw MarshalException{__FILE__, __LINE__, "received dictionary with duplicate key"};
         }
 
         //

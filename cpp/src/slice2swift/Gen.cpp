@@ -869,6 +869,11 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         _out << sb;
         string keyParam = "let key: " + keyType;
         writeMarshalUnmarshalCode(_out, p->keyType(), p, keyParam, false);
+        _out << nl << "if v.index(forKey: key) != nil";
+        _out << sb;
+        _out << nl << "throw " << getUnqualified("Ice.MarshalException", swiftModule)
+             << "(\"received dictionary with duplicate key\")";
+        _out << eb;
         _out << nl << "v[key] = nil as " << valueType;
         _out << nl << "Swift.withUnsafeMutablePointer(to: &v[key, default:nil])";
         _out << sb;
@@ -892,6 +897,11 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         _out << sb;
         string keyParam = "let key: " + keyType;
         writeMarshalUnmarshalCode(_out, p->keyType(), p, keyParam, false);
+        _out << nl << "if v.index(forKey: key) != nil";
+        _out << sb;
+        _out << nl << "throw " << getUnqualified("Ice.MarshalException", swiftModule)
+             << "(\"received dictionary with duplicate key\")";
+        _out << eb;
         string valueParam = "let value: " + typeToString(p->valueType(), p);
         writeMarshalUnmarshalCode(_out, p->valueType(), p, valueParam, false);
         _out << nl << "v[key] = value";

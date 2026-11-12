@@ -585,6 +585,43 @@ public class Client: TestHelperI, @unchecked Sendable {
         }
         writer.writeLine("ok")
 
+        writer.write("testing dictionary with duplicate keys... ")
+        do {
+            // A marshaled dictionary never has duplicate keys, so write the entries one by one.
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(size: 2)
+            outS.write("key1")
+            outS.write("value1")
+            outS.write("key1")
+            outS.write("value2")
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            do {
+                _ = try StringStringDHelper.read(from: inS)
+                try test(false)
+            } catch is Ice.MarshalException {}
+        }
+        do {
+            // With the 1.0 encoding, class instances are unmarshaled only after the dictionary.
+            outS = Ice.OutputStream(communicator: communicator, encoding: Ice.Encoding_1_0)
+            outS.write(size: 2)
+            for _ in 0..<2 {
+                outS.write("key1")
+                let c = MyClass()
+                c.s = LargeStruct()
+                outS.write(c)
+            }
+            outS.writePendingValues()
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, encoding: Ice.Encoding_1_0, bytes: data)
+            do {
+                _ = try StringMyClassDHelper.read(from: inS)
+                try inS.readPendingValues()
+                try test(false)
+            } catch is Ice.MarshalException {}
+        }
+        writer.writeLine("ok")
+
         writer.write("testing readEncapsulation... ")
         do {
             outS = Ice.OutputStream(communicator: communicator)

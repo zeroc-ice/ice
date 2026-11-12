@@ -2125,6 +2125,29 @@ IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* obje
     }
 }
 
+namespace
+{
+    /// Returns true if the PHP array @p array has an entry for the unmarshaled dictionary key @p key.
+    bool containsKey(zval* array, zval* key)
+    {
+        switch (Z_TYPE_P(key))
+        {
+            case IS_LONG:
+                return zend_hash_index_exists(Z_ARRVAL_P(array), Z_LVAL_P(key));
+            case IS_TRUE:
+                return zend_hash_index_exists(Z_ARRVAL_P(array), 1);
+            case IS_FALSE:
+                return zend_hash_index_exists(Z_ARRVAL_P(array), 0);
+            case IS_STRING:
+                // Same key normalization as add_assoc_zval_ex in ValueCallback::unmarshaled.
+                return zend_symtable_str_exists(Z_ARRVAL_P(array), Z_STRVAL_P(key), Z_STRLEN_P(key));
+            default:
+                assert(false);
+                return false;
+        }
+    }
+}
+
 void
 IcePHP::DictionaryInfo::unmarshal(
     Ice::InputStream* is,
@@ -2171,8 +2194,22 @@ IcePHP::DictionaryInfo::unmarshal(
         keyType->unmarshal(is, keyCB, comm, 0, 0, false);
         assert(Z_TYPE(keyCB->key) != IS_UNDEF);
 
+        if (containsKey(&zv, &keyCB->key))
+        {
+            throw MarshalException{__FILE__, __LINE__, "received dictionary with duplicate key"};
+        }
+
         // Allocate a callback that holds a reference to the key.
         ValueCallbackPtr valueCB = make_shared<ValueCallback>(&keyCB->key);
+
+        if (valueType->usesClasses())
+        {
+            // The class instance is set later, when it is unmarshaled. The placeholder makes a later duplicate of
+            // this key detectable before then.
+            zval placeholder;
+            ZVAL_NULL(&placeholder);
+            valueCB->unmarshaled(&placeholder, &zv, nullptr);
+        }
 
         // Pass the key to the callback.
         valueType->unmarshal(is, valueCB, comm, &zv, 0, false);

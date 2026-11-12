@@ -52,7 +52,9 @@ public final class IncomingRequest {
         while (sz-- > 0) {
             String first = inputStream.readString();
             String second = inputStream.readString();
-            ctx.put(first, second);
+            if (ctx.putIfAbsent(first, second) != null) {
+                throw new MarshalException("Received request context with duplicate key.");
+            }
         }
 
         int encapsulationSize = inputStream.readInt();

@@ -2464,6 +2464,11 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out.inc();
 
     unmarshal(out, "is", "k", key, false, 0);
+    out << nl << "if isKey(r, k)";
+    out.inc();
+    out << nl << "throw(Ice.MarshalException('received dictionary with duplicate key'));";
+    out.dec();
+    out << nl << "end";
 
     if (cls)
     {

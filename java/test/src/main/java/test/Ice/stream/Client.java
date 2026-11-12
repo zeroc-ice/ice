@@ -726,6 +726,46 @@ public class Client extends TestHelper {
             }
 
             printWriter.println("ok");
+
+            printWriter.print("testing dictionary with duplicate keys... ");
+            printWriter.flush();
+            {
+                // A marshaled dictionary never has duplicate keys, so write the entries one by one.
+                out = new OutputStream(communicator);
+                out.writeSize(2);
+                out.writeString("key1");
+                out.writeString("value1");
+                out.writeString("key1");
+                out.writeString("value2");
+                byte[] data = out.finished();
+                in = new InputStream(communicator, data);
+                try {
+                    StringStringDHelper.read(in);
+                    test(false);
+                } catch (MarshalException ex) {}
+            }
+
+            {
+                // With the 1.0 encoding, class instances are unmarshaled only after the dictionary.
+                out = new OutputStream(Util.Encoding_1_0);
+                out.writeSize(2);
+                for (int i = 0; i < 2; i++) {
+                    out.writeString("key1");
+                    MyClass c = new MyClass();
+                    c.s = new LargeStruct();
+                    out.writeValue(c);
+                }
+                out.writePendingValues();
+                byte[] data = out.finished();
+                in = new InputStream(communicator, Util.Encoding_1_0, data);
+                try {
+                    StringMyClassDHelper.read(in);
+                    in.readPendingValues();
+                    test(false);
+                } catch (MarshalException ex) {}
+            }
+
+            printWriter.println("ok");
         }
     }
 }
