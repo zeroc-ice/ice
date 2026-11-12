@@ -380,6 +380,26 @@ TestI::dictionaryTestAsync(
 }
 
 void
+TestI::dictionaryClassTestAsync(
+    Test::SD1Ptr p,
+    function<void(const ::Test::SD1Ptr&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
+{
+    auto r = make_shared<SD1>();
+    for (const auto& [key, b] : p->d)
+    {
+        auto d2 = make_shared<D2>();
+        d2->sb = b->sb;
+        d2->pb = b->pb;
+        d2->sd2 = "D2";
+        d2->pd2 = d2;
+        r->d[key] = d2;
+    }
+    response(r);
+}
+
+void
 TestI::exchangePBaseAsync(
     shared_ptr<::Test::PBase> pb,
     function<void(const shared_ptr<::Test::PBase>&)> response,

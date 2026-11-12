@@ -241,6 +241,21 @@ class TestI(Test.TestIntf):
         return Ice.Future.completed(ss)
 
     @override
+    def dictionaryClassTest(self, p: Test.SD1 | None, current: Ice.Current) -> Awaitable[Test.SD1 | None]:
+        assert p is not None
+        r = Test.SD1()
+        r.d = {}
+        for key, b in p.d.items():
+            assert b is not None
+            d2 = ServerPrivateTest.D2()
+            d2.sb = b.sb
+            d2.pb = b.pb
+            d2.sd2 = "D2"
+            d2.pd2 = d2
+            r.d[key] = d2
+        return Ice.Future.completed(r)
+
+    @override
     def dictionaryTest(
         self, bin: dict[int, Test.B | None], current: Ice.Current
     ) -> Awaitable[tuple[Mapping[int, Test.B | None], Mapping[int, Test.B | None]]]:

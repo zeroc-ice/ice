@@ -128,6 +128,12 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 
+    void dictionaryClassTestAsync(
+        Test::SD1Ptr,
+        std::function<void(const ::Test::SD1Ptr&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) override;
+
     void exchangePBaseAsync(
         std::shared_ptr<::Test::PBase>,
         std::function<void(const std::shared_ptr<::Test::PBase>&)>,
