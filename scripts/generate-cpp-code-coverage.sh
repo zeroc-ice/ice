@@ -6,15 +6,19 @@ set -e
 # The script builds Ice with every language mapping, runs the C++ tests in the current working directory, and writes
 # the report to coverage/html.
 
-export CPPFLAGS="-fprofile-instr-generate -fcoverage-mapping"
-export LDFLAGS="-fprofile-instr-generate"
-export LLVM_PROFILE_FILE="${PWD}/coverage/%m.profraw"
+# The profile file is set at build time rather than with LLVM_PROFILE_FILE, since SwiftPM runs slice2swift with the
+# environment of its build plugin.
+profile_file="${PWD}/coverage/%m.profraw"
+export CPPFLAGS="-fprofile-instr-generate=$profile_file -fcoverage-mapping"
+export LDFLAGS="-fprofile-instr-generate=$profile_file"
 export OPTIMIZE=no
 
 case "$(uname)" in
     Darwin)
         ncpu=$(sysctl -n hw.ncpu)
-        build() { make "-j$ncpu" "$@"; }
+        # SwiftPM's sandbox would keep slice2swift from writing its profile data. The flags otherwise match those of
+        # swift/Makefile with OPTIMIZE=no.
+        build() { make "-j$ncpu" SWIFT_BUILD_FLAGS="--disable-sandbox --configuration debug" "$@"; }
         # The root Makefile doesn't build MATLAB, so nothing runs slice2matlab.
         unused_compilers="bin/slice2matlab"
         llvm_profdata() { xcrun llvm-profdata "$@"; }
