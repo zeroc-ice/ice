@@ -1,0 +1,2 @@
+IllegalStringLiteral.ice:6: encountered un-escaped CR while scanning a string literal; use '\r' instead
+IllegalStringLiteral.ice:10: encountered invalid control character while scanning a string literal; use '\037' instead

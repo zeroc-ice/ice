@@ -107,11 +107,14 @@ internal class Twoways
         test(Test.ss5.value == "\\u0041\\" &&
              literals[27] == Test.ss5.value);
 
+        test(Test.ss6.value == "\t" &&
+             literals[28] == Test.ss6.value);
+
         test(Test.su0.value == Test.su1.value &&
              Test.su0.value == Test.su2.value &&
-             literals[28] == Test.su0.value &&
              literals[29] == Test.su0.value &&
-             literals[30] == Test.su0.value);
+             literals[30] == Test.su0.value &&
+             literals[31] == Test.su0.value);
 
         p.ice_ping();
 

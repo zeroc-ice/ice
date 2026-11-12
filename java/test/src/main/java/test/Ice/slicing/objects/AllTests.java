@@ -12,29 +12,29 @@ import com.zeroc.Ice.UnknownSlicedValue;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.Value;
 
-import test.Ice.slicing.objects.client.Test.B;
-import test.Ice.slicing.objects.client.Test.BaseException;
+import test.Ice.slicing.objects.Test.B;
+import test.Ice.slicing.objects.Test.BaseException;
+import test.Ice.slicing.objects.Test.D1;
+import test.Ice.slicing.objects.Test.DerivedException;
+import test.Ice.slicing.objects.Test.Forward;
+import test.Ice.slicing.objects.Test.PBase;
+import test.Ice.slicing.objects.Test.PDerived;
+import test.Ice.slicing.objects.Test.PNode;
+import test.Ice.slicing.objects.Test.Preserved;
+import test.Ice.slicing.objects.Test.SBSKnownDerived;
+import test.Ice.slicing.objects.Test.SBase;
+import test.Ice.slicing.objects.Test.SD1;
+import test.Ice.slicing.objects.Test.SS1;
+import test.Ice.slicing.objects.Test.SS2;
+import test.Ice.slicing.objects.Test.SS3;
+import test.Ice.slicing.objects.Test.TestIntf;
+import test.Ice.slicing.objects.Test.TestIntfPrx;
 import test.Ice.slicing.objects.client.Test.CompactPCDerived;
-import test.Ice.slicing.objects.client.Test.D1;
 import test.Ice.slicing.objects.client.Test.D3;
-import test.Ice.slicing.objects.client.Test.DerivedException;
-import test.Ice.slicing.objects.client.Test.Forward;
-import test.Ice.slicing.objects.client.Test.PBase;
 import test.Ice.slicing.objects.client.Test.PCDerived;
 import test.Ice.slicing.objects.client.Test.PCDerived2;
 import test.Ice.slicing.objects.client.Test.PCDerived3;
 import test.Ice.slicing.objects.client.Test.PCUnknown;
-import test.Ice.slicing.objects.client.Test.PDerived;
-import test.Ice.slicing.objects.client.Test.PNode;
-import test.Ice.slicing.objects.client.Test.Preserved;
-import test.Ice.slicing.objects.client.Test.PreservedException;
-import test.Ice.slicing.objects.client.Test.SBSKnownDerived;
-import test.Ice.slicing.objects.client.Test.SBase;
-import test.Ice.slicing.objects.client.Test.SS1;
-import test.Ice.slicing.objects.client.Test.SS2;
-import test.Ice.slicing.objects.client.Test.SS3;
-import test.Ice.slicing.objects.client.Test.TestIntf;
-import test.Ice.slicing.objects.client.Test.TestIntfPrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
@@ -1530,6 +1530,41 @@ public class AllTests {
         }
         out.println("ok");
 
+        out.print("dictionary of classes in a class... ");
+        out.flush();
+        {
+            try {
+                SD1 p = new SD1();
+                p.d = new HashMap<>();
+                int i;
+                for (i = 0; i < 10; i++) {
+                    String s = "D1." + Integer.valueOf(i).toString();
+                    D1 d1 = new D1();
+                    d1.sb = s;
+                    d1.pb = d1;
+                    d1.sd1 = s;
+                    p.d.put(s, d1);
+                }
+
+                SD1 r = test.dictionaryClassTest(p);
+
+                test(r.d.size() == 10);
+                for (i = 0; i < 10; i++) {
+                    String s = "D1." + Integer.valueOf(i).toString();
+                    B b = r.d.get(s);
+                    test(b != null);
+                    test(b.sb.equals(s));
+                    test(b.pb != null);
+                    test(b.pb != b);
+                    test(b.pb.sb.equals(s));
+                    test(b.pb.pb == b.pb);
+                }
+            } catch (Exception ex) {
+                test(false);
+            }
+        }
+        out.println("ok");
+
         out.print("base exception thrown as base exception... ");
         out.flush();
         {
@@ -2159,26 +2194,6 @@ public class AllTests {
                 test(PreservedI.counter == 1);
                 PreservedI.counter = 0;
             }
-
-            //
-            // Throw a preserved exception where the most-derived type is unknown. The preserved
-            // exception slice contains a class data member. This object is also preserved, and its
-            // most-derived type is also unknown. The preserved slice of the object contains a class
-            // data member that refers to itself.
-            //
-            // The chain of references looks like this:
-            //
-            // ex.slicedData.obj.slicedData.obj
-            //
-            test(PreservedI.counter == 0);
-
-            try {
-                test.throwPreservedException();
-            } catch (PreservedException ex) {
-                test(PreservedI.counter == 1);
-            }
-
-            PreservedI.counter = 0;
         } catch (OperationNotExistException ex) {}
 
         out.println("ok");

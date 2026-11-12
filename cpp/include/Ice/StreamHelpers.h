@@ -333,6 +333,8 @@ namespace Ice
                 typename T::value_type p;
                 stream->read(const_cast<typename T::key_type&>(p.first));
                 auto i = v.insert(v.end(), p);
+                // Read the value in place: when it holds a class instance, the stream can keep the address of this
+                // instance and set it later.
                 stream->read(i->second);
             }
         }

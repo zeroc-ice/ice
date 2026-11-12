@@ -1475,6 +1475,46 @@ public class AllTests : Test.AllTests
         }
         output.WriteLine("ok");
 
+        output.Write("dictionary of classes in a class... ");
+        {
+            try
+            {
+                var p = new SD1();
+                p.d = new Dictionary<string, B>();
+                int i;
+                for (i = 0; i < 10; ++i)
+                {
+                    string s = $"D1.{i}";
+                    var d1 = new D1();
+                    d1.sb = s;
+                    d1.pb = d1;
+                    d1.sd1 = s;
+                    p.d[s] = d1;
+                }
+
+                SD1 r = testPrx.dictionaryClassTest(p);
+
+                test(r.d.Count == 10);
+                for (i = 0; i < 10; ++i)
+                {
+                    string s = $"D1.{i}";
+                    B b = r.d[s];
+                    test(b != null);
+                    test(b.sb == s);
+                    test(b.pb != null);
+                    test(b.pb != b);
+                    test(b.pb.sb == s);
+                    test(b.pb.pb == b.pb);
+                }
+            }
+            catch (Exception ex)
+            {
+                output.WriteLine(ex.ToString());
+                test(false);
+            }
+        }
+        output.WriteLine("ok");
+
         output.Write("base exception thrown as base exception... ");
         output.Flush();
         {

@@ -1477,6 +1477,37 @@ def testDictionarySlicing(t: Test.TestIntfPrx) -> None:
         test(False)
     print("ok")
 
+    sys.stdout.write("dictionary of classes in a class... ")
+    sys.stdout.flush()
+    try:
+        p = Test.SD1()
+        p.d = {}
+        for i in range(0, 10):
+            d1 = Test.D1()
+            s = "D1." + str(i)
+            d1.sb = s
+            d1.pb = d1
+            d1.sd1 = s
+            d1.pd1 = None
+            p.d[s] = d1
+
+        r = t.dictionaryClassTest(p)
+
+        assert r is not None
+        test(len(r.d) == 10)
+        for i in range(0, 10):
+            s = "D1." + str(i)
+            b = r.d[s]
+            assert b is not None
+            test(b.sb == s)
+            assert b.pb is not None
+            test(b.pb != b)
+            test(b.pb.sb == s)
+            test(b.pb.pb == b.pb)
+    except Ice.Exception:
+        test(False)
+    print("ok")
+
 
 def testExceptionSlicing(t: Test.TestIntfPrx) -> None:
     sys.stdout.write("base exception thrown as base exception... ")

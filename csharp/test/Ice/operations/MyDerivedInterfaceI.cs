@@ -821,6 +821,7 @@ public sealed class MyDerivedInterfaceI : Test.MyDerivedInterfaceDisp_
                 Test.ss3.value,
                 Test.ss4.value,
                 Test.ss5.value,
+                Test.ss6.value,
 
                 Test.su0.value,
                 Test.su1.value,

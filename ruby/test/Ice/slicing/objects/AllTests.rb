@@ -628,6 +628,39 @@ def allTests(helper, communicator)
     end
     puts "ok"
 
+    print "dictionary of classes in a class... "
+    STDOUT.flush
+    begin
+        p = Test::SD1.new
+        p.d = {}
+        for i in (0...10)
+            d1 = Test::D1.new
+            s = "D1." + i.to_s
+            d1.sb = s
+            d1.pb = d1
+            d1.sd1 = s
+            d1.pd1 = nil
+            p.d[s] = d1
+        end
+
+        r = t.dictionaryClassTest(p)
+
+        test(r.d.length == 10)
+        for i in (0...10)
+            s = "D1." + i.to_s
+            b = r.d[s]
+            test(b)
+            test(b.sb == s)
+            test(b.pb)
+            test(b.pb != b)
+            test(b.pb.sb == s)
+            test(b.pb.pb == b.pb)
+        end
+    rescue Ice::Exception
+        test(false)
+    end
+    puts "ok"
+
     print "base exception thrown as base exception... "
     STDOUT.flush
     begin

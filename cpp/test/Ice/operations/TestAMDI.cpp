@@ -910,6 +910,7 @@ MyDerivedInterfaceI::opStringLiteralsAsync(
     data.push_back(ss3);
     data.push_back(ss4);
     data.push_back(ss5);
+    data.push_back(ss6);
 
     data.push_back(su0);
     data.push_back(su1);
@@ -955,6 +956,7 @@ MyDerivedInterfaceI::opWStringLiteralsAsync(
     data.push_back(wss3);
     data.push_back(wss4);
     data.push_back(wss5);
+    data.push_back(wss6);
 
     data.push_back(wsu0);
     data.push_back(wsu1);

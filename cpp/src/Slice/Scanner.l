@@ -113,7 +113,7 @@ oct                 [0-7]
 dec                 [0-9]
 hex                 [0-9a-fA-F]
 bom                 "\357\273\277"
-whitespace          ([[:space:]]{-}[\n])+
+whitespace          [[:space:]]{-}[\n]
 preprocessor_prefix [[:blank:]]*#[[:blank:]]*
 preprocessor_lineno {preprocessor_prefix}(line[[:blank:]]+)?{dec}+
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
@@ -135,13 +135,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     *yylval = str;
 }
 
-  /* Matches a single escaped backslash, or as many characters as it can,
-   * except backslashes, new-lines, double quotes, and non-printable ASCII characters. */
-
-  /* Matches Escaped backslashes and any other valid string characters. Invalid characters are
-   * new-lines, non-printable ASCII characters, and double-quotes. */
-<STRING_LITERAL>"\\\\"+               |
-<STRING_LITERAL>[^\\\n"\x0-\x1f\x7f]+ {
+  /* Matches as many escaped backslashes or other valid string characters as possible. Invalid characters are
+   * characters representing newlines and ASCII control characters. Double quotes and single backslashes are matched
+   * by other rules in the 'STRING_LITERAL' start-condition. */
+<STRING_LITERAL>"\\\\"+                        |
+<STRING_LITERAL>[^\x0-\x8\xE-\x1F\x7F\\\r\n"]+ {
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
@@ -233,8 +231,13 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     endLocation(yylloc);
     nextLine();
 
-    currentUnit->error("encountered un-escaped EOL while scanning a string literal.");
+    currentUnit->error("encountered un-escaped EOL while scanning a string literal");
     return ICE_STRING_LITERAL;
+}
+
+  /* Matches an unescaped carriage return in a string literal, and issues an error. But we otherwise continue. */
+<STRING_LITERAL>\r {
+    currentUnit->error("encountered un-escaped CR while scanning a string literal; use '\\r' instead");
 }
 
   /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
@@ -273,6 +276,16 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
     currentUnit->error("encountered EOF while scanning a string literal");
     return ICE_STRING_LITERAL;
+}
+
+  /* Fallback rule to match anything not covered by another rule in the 'STRING_LITERAL' start condition.
+   * It matches invalid control characters, one at a time to make this the lowest priority rule in the state.
+   * Anything matched by it is ignored and reported as an error, but otherwise scanning continues uninterrupted. */
+<STRING_LITERAL>. {
+    // Suggest the escape sequence for the character: its mnemonic form if it has one, and an octal escape otherwise.
+    string escape = toStringLiteral(string(1, yytext[0]), "\a\b\f\n\r\t\v", "", Octal, 0);
+    currentUnit->error(
+        "encountered invalid control character while scanning a string literal; use '" + escape + "' instead");
 }
 
 {integer_constant} {
@@ -520,7 +533,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* ========== Whitespace ========== */
 
   /* Matches and consumes any whitespace, except for newlines. */
-<*>{whitespace}+ {}
+<INITIAL,SLICE,PREPROCESS,METADATA>{whitespace}+ {}
 
   /* Matches and consumes newlines, but only when the scanner isn't in a sub-scanner. */
 \n+ {
@@ -544,7 +557,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches invalid characters, one at a time to make this the 2nd lowest priority rule. All printable ASCII
    * characters are valid (those between 32 and 127 inclusively), anything outside this range is invalid. */
-[^\x20-\x7f] {
+[^\x20-\x7F] {
     stringstream s;
     s << "illegal input character: '\\";
     s.width(3);

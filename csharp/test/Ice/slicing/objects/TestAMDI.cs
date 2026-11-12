@@ -234,6 +234,22 @@ public sealed class TestI : AsyncTestIntfDisp_
     public override Task<SS3>
     sequenceTestAsync(SS1 p1, SS2 p2, Ice.Current current) => Task.FromResult<SS3>(new SS3(p1, p2));
 
+    public override Task<SD1> dictionaryClassTestAsync(SD1 p, Ice.Current current)
+    {
+        var r = new SD1();
+        r.d = new Dictionary<string, B>();
+        foreach (var (key, b) in p.d)
+        {
+            var d2 = new D2();
+            d2.sb = b.sb;
+            d2.pb = b.pb;
+            d2.sd2 = "D2";
+            d2.pd2 = d2;
+            r.d[key] = d2;
+        }
+        return Task.FromResult(r);
+    }
+
     public override Task<TestIntf_DictionaryTestResult>
     dictionaryTestAsync(Dictionary<int, B> bin, Ice.Current current)
     {

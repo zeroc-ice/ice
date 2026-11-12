@@ -32,6 +32,7 @@ import test.Ice.operations.Test.ss2;
 import test.Ice.operations.Test.ss3;
 import test.Ice.operations.Test.ss4;
 import test.Ice.operations.Test.ss5;
+import test.Ice.operations.Test.ss6;
 import test.Ice.operations.Test.su0;
 import test.Ice.operations.Test.su1;
 import test.Ice.operations.Test.su2;
@@ -711,6 +712,7 @@ public final class MyDerivedInterfaceI implements MyDerivedInterface {
             ss3.value,
             ss4.value,
             ss5.value,
+            ss6.value,
             su0.value,
             su1.value,
             su2.value
