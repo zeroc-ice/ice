@@ -52,6 +52,13 @@ module Test
 
     dictionary<int, B> BDict;
 
+    dictionary<string, B> BStringDict;
+
+    class SD1
+    {
+        BStringDict d;
+    }
+
     exception BaseException
     {
         string sbe;
@@ -129,6 +136,7 @@ module Test
         SS3 sequenceTest(SS1 p1, SS2 p2);
 
         BDict dictionaryTest(BDict bin, out BDict bout);
+        SD1 dictionaryClassTest(SD1 p);
 
         PBase exchangePBase(PBase pb);
 

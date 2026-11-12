@@ -272,6 +272,19 @@ final class TestI: TestIntf, @unchecked Sendable {
         return ss
     }
 
+    func dictionaryClassTest(p: SD1?, current _: Current) -> SD1? {
+        let r = SD1()
+        for (key, b) in p!.d {
+            let d2 = D2()
+            d2.sb = b!.sb
+            d2.pb = b!.pb
+            d2.sd2 = "D2"
+            d2.pd2 = d2
+            r.d[key] = d2
+        }
+        return r
+    }
+
     func dictionaryTest(bin: BDict, current _: Current) -> (
         returnValue: BDict, bout: BDict
     ) {
