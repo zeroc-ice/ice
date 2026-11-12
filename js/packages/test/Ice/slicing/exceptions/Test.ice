@@ -24,16 +24,6 @@ module Test
         string kmd;
     }
 
-    exception KnownPreserved extends Base
-    {
-        string kp;
-    }
-
-    exception KnownPreservedDerived extends KnownPreserved
-    {
-        string kpd;
-    }
-
     interface TestIntf
     {
         void baseAsBase() throws Base;
