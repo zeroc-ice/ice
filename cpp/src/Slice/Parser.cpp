@@ -1423,10 +1423,11 @@ Slice::Container::createConst(
     const TypePtr& type,
     MetadataList metadata,
     const SyntaxTreeBasePtr& valueType,
-    const string& valueString)
+    const string& valueString,
+    const SourceSpan& valueSpan)
 {
     SyntaxTreeBasePtr resolvedValueType = valueType;
-    validateConstant(name, span, type, resolvedValueType, valueString, true);
+    validateConstant(name, span, type, resolvedValueType, valueString, valueSpan, true);
     ConstPtr p =
         make_shared<Const>(shared_from_this(), name, span, type, std::move(metadata), resolvedValueType, valueString);
 
@@ -1950,6 +1951,7 @@ Slice::Container::validateConstant(
     const TypePtr& type,
     SyntaxTreeBasePtr& valueType,
     const string& valueString,
+    const SourceSpan& valueSpan,
     bool isConstant)
 {
     // Don't bother validating the constant if some other error prevented us from resolving its type.
@@ -1984,7 +1986,7 @@ Slice::Container::validateConstant(
                 ostringstream os;
                 os << "default value not allowed for data member '" << name << "' of type '" << b->kindAsString()
                    << "'";
-                unit()->error(span, os.str());
+                unit()->error(valueSpan, os.str());
             }
             return false;
         }
@@ -2001,7 +2003,7 @@ Slice::Container::validateConstant(
         {
             ostringstream os;
             os << "default value not allowed for data member '" << name << "'";
-            unit()->error(span, os.str());
+            unit()->error(valueSpan, os.str());
         }
         return false;
     }
@@ -2041,7 +2043,7 @@ Slice::Container::validateConstant(
                 ostringstream os;
                 os << "initializer of type '" << lt->kindAsString() << "' is incompatible with the type '"
                    << b->kindAsString() << "' of " << desc << " '" << name << "'";
-                unit()->error(span, os.str());
+                unit()->error(valueSpan, os.str());
                 return false;
             }
         }
@@ -2050,7 +2052,7 @@ Slice::Container::validateConstant(
             ostringstream os;
             os << "type of initializer is incompatible with the type '" << b->kindAsString() << "' of " << desc << " '"
                << name << "'";
-            unit()->error(span, os.str());
+            unit()->error(valueSpan, os.str());
             return false;
         }
 
@@ -2064,7 +2066,7 @@ Slice::Container::validateConstant(
                     ostringstream os;
                     os << "initializer '" << valueString << "' for " << desc << " '" << name
                        << "' out of range for type byte";
-                    unit()->error(span, os.str());
+                    unit()->error(valueSpan, os.str());
                     return false;
                 }
                 break;
@@ -2077,7 +2079,7 @@ Slice::Container::validateConstant(
                     ostringstream os;
                     os << "initializer '" << valueString << "' for " << desc << " '" << name
                        << "' out of range for type short";
-                    unit()->error(span, os.str());
+                    unit()->error(valueSpan, os.str());
                     return false;
                 }
                 break;
@@ -2090,7 +2092,7 @@ Slice::Container::validateConstant(
                     ostringstream os;
                     os << "initializer '" << valueString << "' for " + desc << " '" << name
                        << "' out of range for type int";
-                    unit()->error(span, os.str());
+                    unit()->error(valueSpan, os.str());
                     return false;
                 }
                 break;
@@ -2112,7 +2114,7 @@ Slice::Container::validateConstant(
             {
                 ostringstream os;
                 os << "type of initializer is incompatible with the type of " << desc << " '" << name << "'";
-                unit()->error(span, os.str());
+                unit()->error(valueSpan, os.str());
                 return false;
             }
         }
@@ -2126,7 +2128,7 @@ Slice::Container::validateConstant(
                 {
                     ostringstream os;
                     os << "type of initializer is incompatible with the type of " << desc << " '" << name << "'";
-                    unit()->error(span, os.str());
+                    unit()->error(valueSpan, os.str());
                     return false;
                 }
                 EnumeratorList elist = e->enumerators();
@@ -2134,7 +2136,7 @@ Slice::Container::validateConstant(
                 {
                     ostringstream os;
                     os << "enumerator '" << valueString << "' is not defined in enumeration '" << e->scoped() << "'";
-                    unit()->error(span, os.str());
+                    unit()->error(valueSpan, os.str());
                     return false;
                 }
             }
@@ -2154,7 +2156,7 @@ Slice::Container::validateConstant(
                 {
                     ostringstream os;
                     os << "'" << valueString << "' does not designate an enumerator of '" << e->scoped() << "'";
-                    unit()->error(span, os.str());
+                    unit()->error(valueSpan, os.str());
                     return false;
                 }
 
@@ -2167,7 +2169,7 @@ Slice::Container::validateConstant(
                 {
                     ostringstream os;
                     os << "type of initializer is incompatible with the type of " << desc << " '" << name << "'";
-                    unit()->error(span, os.str());
+                    unit()->error(valueSpan, os.str());
                     return false;
                 }
             }
@@ -2298,12 +2300,13 @@ Slice::ClassDef::createDataMember(
     bool isOptional,
     int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
-    optional<string> defaultValueString)
+    optional<string> defaultValueString,
+    const SourceSpan& defaultValueSpan)
 {
     if (defaultValueString)
     {
         // Validate the default value.
-        if (!validateConstant(name, span, type, defaultValueType, *defaultValueString, false))
+        if (!validateConstant(name, span, type, defaultValueType, *defaultValueString, defaultValueSpan, false))
         {
             // Create the data member anyway, just without the default value.
             defaultValueType = nullptr;
@@ -3409,12 +3412,13 @@ Slice::Exception::createDataMember(
     bool isOptional,
     int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
-    optional<string> defaultValueString)
+    optional<string> defaultValueString,
+    const SourceSpan& defaultValueSpan)
 {
     if (defaultValueString)
     {
         // Validate the default value.
-        if (!validateConstant(name, span, type, defaultValueType, *defaultValueString, false))
+        if (!validateConstant(name, span, type, defaultValueType, *defaultValueString, defaultValueSpan, false))
         {
             // Create the data member anyway, just without the default value.
             defaultValueType = nullptr;
@@ -3632,7 +3636,8 @@ Slice::Struct::createDataMember(
     const SourceSpan& span,
     const TypePtr& type,
     SyntaxTreeBasePtr defaultValueType,
-    optional<string> defaultValueString)
+    optional<string> defaultValueString,
+    const SourceSpan& defaultValueSpan)
 {
     // Structures cannot contain themselves.
     if (type && type.get() == this)
@@ -3644,7 +3649,7 @@ Slice::Struct::createDataMember(
     if (defaultValueString)
     {
         // Validate the default value.
-        if (!validateConstant(name, span, type, defaultValueType, *defaultValueString, false))
+        if (!validateConstant(name, span, type, defaultValueType, *defaultValueString, defaultValueSpan, false))
         {
             // Create the data member anyway, just without the default value.
             defaultValueType = nullptr;

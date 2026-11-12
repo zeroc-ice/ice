@@ -500,7 +500,8 @@ namespace Slice
             const TypePtr& constType,
             MetadataList metadata,
             const SyntaxTreeBasePtr& valueType,
-            const std::string& value);
+            const std::string& value,
+            const SourceSpan& valueSpan);
         // The lookup functions report an error at `span` or `errorSpan` when they find nothing suitable; a null
         // `errorSpan` reports nothing.
         [[nodiscard]] TypePtr lookupType(const std::string& identifier, const SourceSpan& span);
@@ -565,6 +566,7 @@ namespace Slice
             const TypePtr& type,
             SyntaxTreeBasePtr& valueType,
             const std::string& valueString,
+            const SourceSpan& valueSpan,
             bool isConstant);
 
         ContainedList _contents;
@@ -638,7 +640,8 @@ namespace Slice
             bool isOptional,
             std::int32_t tag,
             SyntaxTreeBasePtr defaultValueType,
-            std::optional<std::string> defaultValueString);
+            std::optional<std::string> defaultValueString,
+            const SourceSpan& defaultValueSpan);
         [[nodiscard]] ClassDeclPtr declaration() const;
         [[nodiscard]] ClassDefPtr base() const;
         [[nodiscard]] ClassList allBases() const;
@@ -893,7 +896,8 @@ namespace Slice
             bool isOptional,
             std::int32_t tag,
             SyntaxTreeBasePtr defaultValueType,
-            std::optional<std::string> defaultValueString);
+            std::optional<std::string> defaultValueString,
+            const SourceSpan& defaultValueSpan);
         [[nodiscard]] DataMemberList dataMembers() const;
         [[nodiscard]] DataMemberList orderedOptionalDataMembers() const;
         [[nodiscard]] DataMemberList allDataMembers() const;
@@ -922,7 +926,8 @@ namespace Slice
             const SourceSpan& span,
             const TypePtr& type,
             SyntaxTreeBasePtr defaultValueType,
-            std::optional<std::string> defaultValueString);
+            std::optional<std::string> defaultValueString,
+            const SourceSpan& defaultValueSpan);
         [[nodiscard]] DataMemberList dataMembers() const;
         [[nodiscard]] DataMemberList classDataMembers() const;
         [[nodiscard]] bool usesClasses() const final;

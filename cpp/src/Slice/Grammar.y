@@ -804,7 +804,8 @@ data_member
             def->isOptional,
             def->tag,
             nullptr,
-            std::nullopt);
+            std::nullopt,
+            {});
     }
     else if (auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer()))
     {
@@ -812,7 +813,7 @@ data_member
         {
             currentUnit->error(@1, "optional data members are not supported in structs");
         }
-        dm = st->createDataMember(def->name, def->nameSpan, def->type, nullptr, std::nullopt);
+        dm = st->createDataMember(def->name, def->nameSpan, def->type, nullptr, std::nullopt, {});
     }
     else if (auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer()))
     {
@@ -823,7 +824,8 @@ data_member
             def->isOptional,
             def->tag,
             nullptr,
-            std::nullopt);
+            std::nullopt,
+            {});
     }
 
     if (dm)
@@ -847,7 +849,8 @@ data_member
             def->isOptional,
             def->tag,
             value->v,
-            value->valueAsString);
+            value->valueAsString,
+            @3);
     }
     else if (auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer()))
     {
@@ -855,7 +858,7 @@ data_member
         {
             currentUnit->error(@1, "optional data members are not supported in structs");
         }
-        dm = st->createDataMember(def->name, def->nameSpan, def->type, value->v, value->valueAsString);
+        dm = st->createDataMember(def->name, def->nameSpan, def->type, value->v, value->valueAsString, @3);
     }
     else if (auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer()))
     {
@@ -866,7 +869,8 @@ data_member
             def->isOptional,
             def->tag,
             value->v,
-            value->valueAsString);
+            value->valueAsString,
+            @3);
     }
 
     if (dm)
@@ -1669,7 +1673,8 @@ const_def
         const_type,
         std::move(metadata->v),
         value->v,
-        value->valueAsString);
+        value->valueAsString,
+        @6);
 }
 ;
 
