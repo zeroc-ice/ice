@@ -61,6 +61,28 @@
                 await b1.ice_flushBatchRequests();
                 test(await p.waitForBatch(1));
             }
+
+            if(await p.ice_getConnection() !== null)
+            {
+                //
+                // Flushing the batch requests of a closed connection fails with the connection's exception.
+                //
+                test(await p.opBatchCount() == 0);
+                const conn = await p.ice_getConnection();
+                const b1 = Test.TestIntfPrx.uncheckedCast(conn.createProxy(p.ice_getIdentity()).ice_batchOneway());
+                await b1.opBatch();
+                await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                try
+                {
+                    await conn.flushBatchRequests();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.ConnectionManuallyClosedException, ex);
+                }
+                test(await p.opBatchCount() == 0);
+            }
             out.writeLine("ok");
 
             out.write("testing batch requests with communicator... ");
