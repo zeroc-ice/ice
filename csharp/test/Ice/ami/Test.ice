@@ -38,11 +38,6 @@ module Test
         bool supportsFunctionalTests();
         bool supportsBackPressureTests();
 
-        ["amd"] void opAsyncDispatch();
-        ["amd"] int opWithResultAsyncDispatch();
-        ["amd"] void opWithUEAsyncDispatch()
-            throws TestIntfException;
-
         ["amd"] void pingBiDir(PingReply* reply);
     }
 

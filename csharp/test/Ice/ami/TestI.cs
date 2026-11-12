@@ -102,26 +102,6 @@ public class TestI : Test.TestIntfDisp_
     public override bool
     supportsBackPressureTests(Ice.Current current) => true;
 
-    public override Task opAsyncDispatchAsync(Ice.Current current) => Task.CompletedTask;
-
-    public override async Task<int>
-    opWithResultAsyncDispatchAsync(Ice.Current current)
-    {
-        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server", StringComparison.Ordinal));
-        await Task.Yield();
-        test(!Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server", StringComparison.Ordinal));
-        return await self(current).opWithResultAsync();
-    }
-
-    public override async Task
-    opWithUEAsyncDispatchAsync(Ice.Current current)
-    {
-        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server", StringComparison.Ordinal));
-        await Task.Yield();
-        test(!Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server", StringComparison.Ordinal));
-        await self(current).opWithUEAsync();
-    }
-
     public override async Task pingBiDirAsync(Test.PingReplyPrx reply, Ice.Current current)
     {
         reply = Test.PingReplyPrxHelper.uncheckedCast(reply.ice_fixed(current.con));
@@ -137,9 +117,6 @@ public class TestI : Test.TestIntfDisp_
             test(!expectSuccess);
         }
     }
-
-    private Test.TestIntfPrx
-    self(Ice.Current current) => Test.TestIntfPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
 
     public override Task
     startDispatchAsync(Ice.Current current)

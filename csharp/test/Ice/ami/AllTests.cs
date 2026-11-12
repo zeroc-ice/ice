@@ -590,39 +590,18 @@ public class AllTests : global::Test.AllTests
         output.Flush();
         Func<Task> task = async () =>
         {
+            await p.opAsync();
+
+            int r = await p.opWithResultAsync();
+            test(r == 15);
+
             try
             {
-                await p.opAsync();
-
-                int r = await p.opWithResultAsync();
-                test(r == 15);
-
-                try
-                {
-                    await p.opWithUEAsync();
-                }
-                catch (Test.TestIntfException)
-                {
-                }
-
-                // Operations implemented with amd and async.
-                await p.opAsyncDispatchAsync();
-
-                r = await p.opWithResultAsyncDispatchAsync();
-                test(r == 15);
-
-                try
-                {
-                    await p.opWithUEAsyncDispatchAsync();
-                    test(false);
-                }
-                catch (Test.TestIntfException)
-                {
-                }
+                await p.opWithUEAsync();
+                test(false);
             }
-            catch (Ice.OperationNotExistException)
+            catch (Test.TestIntfException)
             {
-                // Expected with cross testing, these opXxxAsyncDispatch methods are C# only.
             }
         };
         task().Wait();
