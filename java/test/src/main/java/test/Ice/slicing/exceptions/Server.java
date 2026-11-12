@@ -3,6 +3,7 @@
 package test.Ice.slicing.exceptions;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CompositeSliceLoader;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
@@ -13,7 +14,9 @@ import test.TestHelper;
 public class Server extends TestHelper {
     public void run(String[] args) {
         var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.slicing.exceptions.server.Test");
+        initData.sliceLoader = new CompositeSliceLoader(
+            new ModuleToPackageSliceLoader("::Test", "test.Ice.slicing.exceptions.server.Test"),
+            new ModuleToPackageSliceLoader("::Test", "test.Ice.slicing.exceptions.Test"));
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 

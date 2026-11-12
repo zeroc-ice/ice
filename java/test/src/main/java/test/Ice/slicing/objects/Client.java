@@ -8,9 +8,9 @@ import com.zeroc.Ice.CompositeSliceLoader;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 
+import test.Ice.slicing.objects.Test.CompactPDerived;
+import test.Ice.slicing.objects.Test.TestIntfPrx;
 import test.Ice.slicing.objects.client.Test.CompactPCDerived;
-import test.Ice.slicing.objects.client.Test.CompactPDerived;
-import test.Ice.slicing.objects.client.Test.TestIntfPrx;
 import test.TestHelper;
 
 public class Client extends TestHelper {
@@ -22,7 +22,8 @@ public class Client extends TestHelper {
         initData.sliceLoader = new CompositeSliceLoader(
             new AllTests.CustomSliceLoader(),
             new ClassSliceLoader(CompactPDerived.class, CompactPCDerived.class),
-            new ModuleToPackageSliceLoader("::Test", "test.Ice.slicing.objects.client.Test"));
+            new ModuleToPackageSliceLoader("::Test", "test.Ice.slicing.objects.client.Test"),
+            new ModuleToPackageSliceLoader("::Test", "test.Ice.slicing.objects.Test"));
 
         try (Communicator communicator = initialize(initData)) {
             TestIntfPrx test = AllTests.allTests(this, false);
