@@ -64,10 +64,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyInterfacePrx) async throws {
 
     try await p.ice_ping()
 
-    var supportsCompress = true
-    do {
-        supportsCompress = try await p.supportsCompress()
-    } catch is Ice.OperationNotExistException {}
+    let supportsCompress = try await p.supportsCompress()
 
     conn = try await p.ice_getConnection()
     if supportsCompress,

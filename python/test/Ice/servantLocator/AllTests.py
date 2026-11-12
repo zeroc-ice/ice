@@ -48,10 +48,6 @@ def testExceptions(obj: Test.TestIntfPrx):
         test(False)
     except Ice.UnknownUserException as ex:
         test("::Test::TestIntfUserException" in str(ex))
-    except Ice.OperationNotExistException:
-        pass
-    except AttributeError:
-        pass
     except Exception:
         test(False)
 
@@ -68,10 +64,6 @@ def testExceptions(obj: Test.TestIntfPrx):
         test(False)
     except Ice.UnknownException as ex:
         test("RuntimeError: message" in str(ex))
-    except Ice.OperationNotExistException:
-        pass
-    except AttributeError:
-        pass
     except Exception:
         test(False)
 

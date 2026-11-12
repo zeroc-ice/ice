@@ -5,7 +5,6 @@ package test.Ice.servantLocator;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ObjectPrx;
-import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
@@ -94,7 +93,7 @@ public class AllTests {
             test(false);
         } catch (UnknownException ex) {
             test(ex.getMessage().contains("java.lang.RuntimeException: message"));
-        } catch (OperationNotExistException ex) {} catch (Throwable ex) {
+        } catch (Throwable ex) {
             // System.err.println(ex);
             test(false);
         }

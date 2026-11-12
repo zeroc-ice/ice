@@ -107,13 +107,6 @@ allTests(Test::TestHelper* helper)
         }
         test(!com->getDefaultLocator()->getRegistry());
         test(!Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
-        try
-        {
-            test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
 
         adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
         adapter->activate();

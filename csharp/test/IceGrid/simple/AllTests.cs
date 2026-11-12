@@ -111,13 +111,6 @@ public class AllTests : Test.AllTests
                 }
                 test(com.getDefaultLocator().getRegistry() == null);
                 test(IceGrid.LocatorPrxHelper.checkedCast(com.getDefaultLocator()) == null);
-                try
-                {
-                    IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry();
-                }
-                catch (Ice.OperationNotExistException)
-                {
-                }
 
                 Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
                 adapter.activate();
