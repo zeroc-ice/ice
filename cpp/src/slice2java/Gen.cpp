@@ -84,16 +84,12 @@ namespace
         return "java.util.Optional.ofNullable";
     }
 
-    /// The statement that rejects a duplicate key when unmarshaling a dictionary.
-    const char* const throwDuplicateKey =
-        R"(throw new com.zeroc.Ice.MarshalException("received dictionary with duplicate key");)";
-
     /// Writes the code that rejects an unmarshaled dictionary key already present in the dictionary @p param.
     void writeDuplicateKeyCheck(Output& out, const string& param)
     {
         out << nl << "if (" << param << ".containsKey(key))";
         out << sb;
-        out << nl << throwDuplicateKey;
+        out << nl << R"(throw new com.zeroc.Ice.MarshalException("received dictionary with duplicate key");)";
         out << eb;
     }
 }
@@ -546,8 +542,9 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
                 // custom map type (java:type) may reject null values.
                 valueS = typeToObjectString(valueT, package);
                 ostringstream patchParams;
-                patchParams << "value -> { if (" << param << ".containsKey(key)) { " << throwDuplicateKey << " } "
-                            << param << ".put(key, value); }, " << valueS << ".class";
+                patchParams << "value -> { if (" << param << ".containsKey(key)) { "
+                            << R"(throw new com.zeroc.Ice.MarshalException("received dictionary with duplicate key");)"
+                            << " } " << param << ".put(key, value); }, " << valueS << ".class";
                 writeMarshalUnmarshalCode(
                     out,
                     package,
