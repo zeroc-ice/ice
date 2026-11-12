@@ -174,6 +174,7 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         {
             Ice::Error out(_communicator->getLogger());
             out << "can't remove unknown object `" << _communicator->identityToString(id) << "'";
+            return;
         }
         removeImpl(id);
 
@@ -311,8 +312,7 @@ AllocatableObjectEntry::allocated(const SessionIPtr& session)
     {
         try
         {
-            Ice::IdentitySeq seq(1);
-            seq.push_back(_info.proxy->ice_getIdentity());
+            Ice::IdentitySeq seq(1, _info.proxy->ice_getIdentity());
             identities->add(seq);
         }
         catch(const Ice::LocalException& ex)
@@ -342,8 +342,7 @@ AllocatableObjectEntry::released(const SessionIPtr& session)
     {
         try
         {
-            Ice::IdentitySeq seq(1);
-            seq.push_back(_info.proxy->ice_getIdentity());
+            Ice::IdentitySeq seq(1, _info.proxy->ice_getIdentity());
             identities->remove(seq);
         }
         catch(const Ice::LocalException& ex)

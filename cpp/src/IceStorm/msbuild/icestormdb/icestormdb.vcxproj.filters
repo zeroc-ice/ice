@@ -63,6 +63,9 @@
     <ClCompile Include="..\..\IceStormDB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SubscriberRecordKeyCompare.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Win32\Debug\DBTypes.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>

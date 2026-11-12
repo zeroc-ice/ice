@@ -75,6 +75,21 @@ classdef AllTests
 
             fprintf('ok\n');
 
+            fprintf('testing wait(''sent'')... ');
+            % wait('sent') must return once the request has reached or passed the 'sent' state.
+            f = p.opAsync();
+            assert(f.wait('sent', 10));
+            assert(f.wait('finished', 10)); % advance to 'finished' without consuming the result
+            assert(f.wait('sent', 10));     % still returns even though the future is already 'finished'
+            f.fetchOutputs();
+            fprintf('ok\n');
+
+            fprintf('testing wait with an infinite timeout... ');
+            f = p.sleepAsync(500);
+            assert(f.wait('finished', Inf)); % blocks until the invocation completes
+            f.fetchOutputs();
+            fprintf('ok\n');
+
             fprintf('testing local exceptions... ');
 
             indirect = p.ice_adapterId('dummy');
@@ -103,6 +118,24 @@ classdef AllTests
                 end
             end
 
+            fprintf('ok\n');
+
+            fprintf('testing fetchOutputs after a failed invocation... ');
+            % A second fetchOutputs call must raise InvalidStateException rather than crash the MATLAB
+            % process, even when the first call completed exceptionally.
+            f = p.ice_adapterId('dummy').opAsync();
+            try
+                f.fetchOutputs();
+                assert(false);
+            catch ex
+                assert(isa(ex, 'Ice.NoEndpointException'));
+            end
+            try
+                f.fetchOutputs();
+                assert(false);
+            catch ex
+                assert(strcmp(ex.identifier, 'Ice:InvalidStateException'));
+            end
             fprintf('ok\n');
 
             fprintf('testing future operations... ');
@@ -160,6 +193,15 @@ classdef AllTests
             assert(f1.wait('finished', 1));
 
             fprintf('ok\n');
+
+            if ~isempty(p.ice_getConnection())
+                fprintf('testing ice_getConnectionAsync... ');
+                con = p.ice_getConnectionAsync().fetchOutputs();
+                assert(isa(con, 'Ice.Connection'));
+                proxy = con.createProxy(p.ice_getIdentity());
+                assert(strcmp(proxy.ice_getIdentity().name, p.ice_getIdentity().name));
+                fprintf('ok\n');
+            end
 
             if ~isempty(p.ice_getConnection()) && p.supportsAMD()
                 fprintf('testing graceful close connection with wait... ');

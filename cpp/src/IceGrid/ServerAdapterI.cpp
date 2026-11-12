@@ -34,6 +34,12 @@ ServerAdapterI::~ServerAdapterI()
 void
 ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Current&)
 {
+    //
+    // Call the server before acquiring the lock to preserve the lock order (see ServerAdapterI.h).
+    //
+    ServerState serverState = _server->getState(Ice::emptyCurrent);
+    bool activatable = _server->isAdapterActivatable(_id);
+
     {
         Lock sync(*this);
         if(_enabled && _proxy)
@@ -50,7 +56,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
             // Nothing else waits for this adapter so we must make sure that this
             // adapter if still activatable.
             //
-            if(!_enabled || !_server->isAdapterActivatable(_id))
+            if(!_enabled || !activatable)
             {
                 cb->ice_response(0);
                 return;
@@ -68,8 +74,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
         {
             return;
         }
-        _activateAfterDeactivating = _server->getState(Ice::emptyCurrent) >= Deactivating &&
-            _server->getState(Ice::emptyCurrent) < Destroying;
+        _activateAfterDeactivating = serverState >= Deactivating && serverState < Destroying;
     }
 
     //
@@ -105,6 +110,11 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 Ice::ObjectPrx
 ServerAdapterI::getDirectProxy(const Ice::Current&) const
 {
+    //
+    // Call the server before acquiring the lock to preserve the lock order (see ServerAdapterI.h).
+    //
+    bool activatable = _server->isAdapterActivatable(_id);
+
     Lock sync(*this);
 
     //
@@ -117,74 +127,78 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
     }
     else
     {
-        throw AdapterNotActiveException(_enabled && _server->isAdapterActivatable(_id));
+        throw AdapterNotActiveException(_enabled && activatable);
     }
 }
 
 void
 ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
 {
-    Lock sync(*this);
+    //
+    // Call the server before acquiring the lock to preserve the lock order (see ServerAdapterI.h).
+    //
+    ServerState serverState = _server->getState(Ice::emptyCurrent);
 
-    //
-    // We don't allow to override an existing proxy by another non
-    // null proxy if the server is not inactive.
-    //
-    if(!_node->allowEndpointsOverride())
     {
-        if(prx && _proxy)
+        Lock sync(*this);
+
+        //
+        // We don't allow to override an existing proxy by another non
+        // null proxy if the server is not inactive.
+        //
+        if(!_node->allowEndpointsOverride() && prx && _proxy && serverState == Active)
         {
-            if(_server->getState(Ice::emptyCurrent) == Active)
+            throw AdapterActiveException();
+        }
+
+        bool updated = _proxy != prx;
+        _proxy = prx;
+
+        //
+        // If the server is being deactivated and the activation callback
+        // was added during the deactivation, we don't send the response
+        // now. The server is going to be activated again and the adapter
+        // activated.
+        //
+        if(serverState < Deactivating || serverState >= Destroying || !_activateAfterDeactivating)
+        {
+            for(vector<AMD_Adapter_activatePtr>::const_iterator p = _activateCB.begin(); p != _activateCB.end(); ++p)
             {
-                throw AdapterActiveException();
+                (*p)->ice_response(_proxy);
+            }
+            _activateCB.clear();
+        }
+
+        if(updated)
+        {
+            AdapterDynamicInfo info;
+            info.id = _id;
+            info.proxy = _proxy;
+            _node->observerUpdateAdapter(info);
+        }
+
+        if(_node->getTraceLevels()->adapter > 1)
+        {
+            Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
+            out << "server `" + _serverId + "' adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
+            if(_proxy)
+            {
+                out << ": " << _node->getCommunicator()->proxyToString(_proxy);
             }
         }
     }
 
-    bool updated = _proxy != prx;
-    _proxy = prx;
-
     //
-    // If the server is being deactivated and the activation callback
-    // was added during the deactivation, we don't send the response
-    // now. The server is going to be activated again and the adapter
-    // activated.
+    // Call the server after releasing the lock: adapterDeactivated() waits for the server to leave the Activating
+    // state, and the server activation needs the adapter lock to clear the adapter proxy.
     //
-    if(_server->getState(Ice::emptyCurrent) < Deactivating ||
-       _server->getState(Ice::emptyCurrent) >= Destroying || !_activateAfterDeactivating)
-    {
-        for(vector<AMD_Adapter_activatePtr>::const_iterator p = _activateCB.begin(); p != _activateCB.end(); ++p)
-        {
-            (*p)->ice_response(_proxy);
-        }
-        _activateCB.clear();
-    }
-
-    if(updated)
-    {
-        AdapterDynamicInfo info;
-        info.id = _id;
-        info.proxy = _proxy;
-        _node->observerUpdateAdapter(info);
-    }
-
-    if(_proxy)
+    if(prx)
     {
         _server->adapterActivated(_id);
     }
     else
     {
         _server->adapterDeactivated(_id);
-    }
-
-    if(_node->getTraceLevels()->adapter > 1)
-    {
-        Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-        out << "server `" + _serverId + "' adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
-        if(_proxy)
-        {
-            out << ": " << _node->getCommunicator()->proxyToString(_proxy);
-        }
     }
 }
 
@@ -205,8 +219,12 @@ ServerAdapterI::destroy()
 void
 ServerAdapterI::updateEnabled()
 {
+    //
+    // Call the server before acquiring the lock to preserve the lock order (see ServerAdapterI.h).
+    //
+    bool enabled = _server->isEnabled(Ice::emptyCurrent);
     Lock sync(*this);
-    _enabled = _server->isEnabled(Ice::emptyCurrent);
+    _enabled = enabled;
 }
 
 void

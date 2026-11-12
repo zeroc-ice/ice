@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.nio.IntBuffer;
@@ -19,6 +21,8 @@ import java.nio.FloatBuffer;
 import java.nio.DoubleBuffer;
 
 import test.Ice.custom.Test.C;
+import test.Ice.custom.Test.DictClass;
+import test.Ice.custom.Test.DictException;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.S;
 import test.Ice.custom.Test.TestIntf;
@@ -308,6 +312,34 @@ public class AllTests
             test(Arrays.equals(arr, usedSeq));
         }
 
+        out.println("ok");
+
+        out.print("testing custom dictionaries with a formal type... ");
+        out.flush();
+        {
+            SortedMap<Integer, String> d = new TreeMap<>();
+            d.put(3, "three");
+            d.put(1, "one");
+
+            DictClass c = t.opDictClass(new DictClass(d));
+            test(c.sortedD instanceof TreeMap && c.sortedD.equals(d));
+
+            c = t.opDictClass(new DictClass());
+            test(c.sortedD != null && c.sortedD.isEmpty());
+
+            try
+            {
+                t.throwDictException(d);
+                test(false);
+            }
+            catch(DictException ex)
+            {
+                test(ex.sortedD instanceof TreeMap && ex.sortedD.equals(d));
+            }
+
+            SortedMap<Integer, String> r = t.opMarshaledSortedD(d);
+            test(r instanceof TreeMap && r.equals(d) && r.firstKey() == 1);
+        }
         out.println("ok");
 
         return t;

@@ -125,7 +125,15 @@ public:
 
 private:
 
+    struct ReapableItem;
+
     bool calcWakeInterval();
+
+    //
+    // Removes the item's reapable from the _connections entry of its connection, if any. Must be called with the
+    // monitor locked.
+    //
+    void detachConnection(const ReapableItem&);
 
     Ice::CloseCallbackPtr _closeCallback;
     Ice::HeartbeatCallbackPtr _heartbeatCallback;
