@@ -1,43 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Diagnostics;
 using Test;
 
 namespace Ice.slicing.objects;
 
 public class AllTests : Test.AllTests
 {
-    private class Callback
-    {
-        internal Callback() => _called = false;
-
-        public virtual void check()
-        {
-            lock (_mutex)
-            {
-                while (!_called)
-                {
-                    Monitor.Wait(_mutex);
-                }
-
-                _called = false;
-            }
-        }
-
-        public virtual void called()
-        {
-            lock (_mutex)
-            {
-                Debug.Assert(!_called);
-                _called = true;
-                Monitor.Pulse(_mutex);
-            }
-        }
-
-        private bool _called;
-        private readonly object _mutex = new();
-    }
-
     internal class CustomSliceLoader : Ice.SliceLoader
     {
         public object newInstance(string typeId)
@@ -1764,7 +1732,6 @@ public class AllTests : Test.AllTests
 
         output.Write("preserved classes... ");
         output.Flush();
-
         {
             //
             // Server knows the most-derived class PDerived.
