@@ -57,7 +57,7 @@ module Test
     struct S5
     {
         int x;
-        S3 s3; // Mapped to a read-only field.
+        S3 s3;    // Mapped to a read-only field.
         CSeq seq; // Mapped to a read-only field.
     }
 
@@ -65,7 +65,7 @@ module Test
     struct S6
     {
         int x;
-        S4 s4; // Mapped to a get-only property.
+        S4 s4;    // Mapped to a get-only property.
         CSeq seq; // Mapped to a get-only property.
     }
 }

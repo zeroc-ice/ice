@@ -217,16 +217,16 @@ module Test
 
     struct MyStruct1
     {
-        string tesT; // Same name as the enclosing module
+        string tesT;              // Same name as the enclosing module
         MyInterface* myInterface; // Same name as an already defined interface
-        string myStruct1; // Same name as the enclosing struct
+        string myStruct1;         // Same name as the enclosing struct
     }
 
     class MyClass
     {
-        string tesT; // Same name as the enclosing module
+        string tesT;              // Same name as the enclosing module
         MyInterface* myInterface; // Same name as an already defined interface
-        string myClass; // Same name as the enclosing class
+        string myClass;           // Same name as the enclosing class
     }
 
     interface MyDerivedInterface extends MyInterface
@@ -240,38 +240,38 @@ module Test
     // String literals
     //
 
-    const string s0 = "\u005c";                           // backslash
-    const string s1 = "\u0041";                           // A
-    const string s2 = "\u0049\u0063\u0065";               // Ice
-    const string s3 = "\u004121";                         // A21
-    const string s4 = "\\u0041 \\U00000041";              // \\u0041 \\U00000041
-    const string s5 = "\u00FF";                           // ÿ
-    const string s6 = "\u03FF";                           // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
-    const string s7 = "\u05F0";                           // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
-    const string s8 = "\U00010000";                       // LINEAR B SYLLABLE B008 A (U+10000)
-    const string s9 = "\U0001F34C";                       // BANANA (U+1F34C)
-    const string s10 = "\u0DA7";                          // Sinhala Letter Alpapraana Ttayanna
+    const string s0 = "\u005c";              // backslash
+    const string s1 = "\u0041";              // A
+    const string s2 = "\u0049\u0063\u0065";  // Ice
+    const string s3 = "\u004121";            // A21
+    const string s4 = "\\u0041 \\U00000041"; // \\u0041 \\U00000041
+    const string s5 = "\u00FF";              // ÿ
+    const string s6 = "\u03FF";              // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
+    const string s7 = "\u05F0";              // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
+    const string s8 = "\U00010000";          // LINEAR B SYLLABLE B008 A (U+10000)
+    const string s9 = "\U0001F34C";          // BANANA (U+1F34C)
+    const string s10 = "\u0DA7";             // Sinhala Letter Alpapraana Ttayanna
     const string s11 = "\xE2\x82\xac\342\202\254\342\x82\254"; // 3 euro signs (U+20AC) in UTF-8
-    const string s12 = "\x5C101";                         // \101 (not an octal escape)
-    const string s13 = "\U0001F34C0123";                  // \xd83c\xdf4c\060\061\062\063
-    const string s14 = "\U0001F34Cabcd";                  // \xd83c\xdf4c\141bcd
-    const string s15 = "\U0001F34CABCD";                  // \xd83c\xdf4c\141BCD
-    const string s16 = "\x7fabcd";                        // \177abcd
-    const string s17 = "\x7fABCD";                        // \177ABCD
-    const string s18 = "\x011238";                        // \001\061\062\0638
-    const string s19 = "abc\x011238\x08abcd";             // abc\001\061\062\0638\babcd
+    const string s12 = "\x5C101";                              // \101 (not an octal escape)
+    const string s13 = "\U0001F34C0123";                       // \xd83c\xdf4c\060\061\062\063
+    const string s14 = "\U0001F34Cabcd";                       // \xd83c\xdf4c\141bcd
+    const string s15 = "\U0001F34CABCD";                       // \xd83c\xdf4c\141BCD
+    const string s16 = "\x7fabcd";                             // \177abcd
+    const string s17 = "\x7fABCD";                             // \177ABCD
+    const string s18 = "\x011238";                             // \001\061\062\0638
+    const string s19 = "abc\x011238\x08abcd";                  // abc\001\061\062\0638\babcd
 
-    const string sw0 = "\U0000005c";                      // backslash
-    const string sw1 = "\U00000041";                      // A
-    const string sw2 = "\U00000049\U00000063\U00000065";  // Ice
-    const string sw3 = "\U0000004121";                    // A21
-    const string sw4 = "\\u0041 \\U00000041";             // \\u0041 \\U00000041
-    const string sw5 = "\U000000FF";                      // ÿ
-    const string sw6 = "\U000003FF";                      // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
-    const string sw7 = "\U000005F0";                      // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
-    const string sw8 = "\U00010000";                      // LINEAR B SYLLABLE B008 A (U+10000)
-    const string sw9 = "\U0001F34C";                      // BANANA (U+1F34C)
-    const string sw10 = "\U00000DA7";                     // Sinhala Letter Alpapraana Ttayanna
+    const string sw0 = "\U0000005c";                     // backslash
+    const string sw1 = "\U00000041";                     // A
+    const string sw2 = "\U00000049\U00000063\U00000065"; // Ice
+    const string sw3 = "\U0000004121";                   // A21
+    const string sw4 = "\\u0041 \\U00000041";            // \\u0041 \\U00000041
+    const string sw5 = "\U000000FF";                     // ÿ
+    const string sw6 = "\U000003FF";                     // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
+    const string sw7 = "\U000005F0";                     // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
+    const string sw8 = "\U00010000";                     // LINEAR B SYLLABLE B008 A (U+10000)
+    const string sw9 = "\U0001F34C";                     // BANANA (U+1F34C)
+    const string sw10 = "\U00000DA7";                    // Sinhala Letter Alpapraana Ttayanna
 
     /*
     \'      single quote    byte 0x27 in ASCII encoding
