@@ -33,7 +33,6 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get install -y clang llvm
 
-      # The script builds every language mapping but Swift, which runs their Slice compilers.
       - name: Setup PHP
         uses: ./.github/actions/setup-php
 
