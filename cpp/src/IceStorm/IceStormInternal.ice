@@ -29,8 +29,7 @@ module IceStorm
     }
 
     /// A sequence of {@link EventData}.
-    ["cpp:type:std::deque<IceStorm::EventData>"]
-    sequence<EventData> EventDataSeq;
+    ["cpp:type:std::deque<IceStorm::EventData>"] sequence<EventData> EventDataSeq;
 
     /// The `TopicLink` interface. This is used to forward events between federated {@link Topic} instances.
     /// @see TopicInternal

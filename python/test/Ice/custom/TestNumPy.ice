@@ -8,49 +8,34 @@ module Test
     module NumPy
     {
         sequence<bool> BoolSeq1;
-        ["python:numpy.ndarray"]
-        sequence<bool> BoolSeq2;
-        ["python:memoryview:CustomFactory.myNumPyBoolSeq:numpy.ndarray"]
-        sequence<bool> BoolSeq3;
+        ["python:numpy.ndarray"] sequence<bool> BoolSeq2;
+        ["python:memoryview:CustomFactory.myNumPyBoolSeq:numpy.ndarray"] sequence<bool> BoolSeq3;
 
         sequence<byte> ByteSeq1;
-        ["python:numpy.ndarray"]
-        sequence<byte> ByteSeq2;
-        ["python:memoryview:CustomFactory.myNumPyByteSeq:numpy.ndarray"]
-        sequence<byte> ByteSeq3;
+        ["python:numpy.ndarray"] sequence<byte> ByteSeq2;
+        ["python:memoryview:CustomFactory.myNumPyByteSeq:numpy.ndarray"] sequence<byte> ByteSeq3;
 
         sequence<short> ShortSeq1;
-        ["python:numpy.ndarray"]
-        sequence<short> ShortSeq2;
-        ["python:memoryview:CustomFactory.myNumPyShortSeq:numpy.ndarray"]
-        sequence<short> ShortSeq3;
+        ["python:numpy.ndarray"] sequence<short> ShortSeq2;
+        ["python:memoryview:CustomFactory.myNumPyShortSeq:numpy.ndarray"] sequence<short> ShortSeq3;
 
         sequence<int> IntSeq1;
-        ["python:numpy.ndarray"]
-        sequence<int> IntSeq2;
-        ["python:memoryview:CustomFactory.myNumPyIntSeq:numpy.ndarray"]
-        sequence<int> IntSeq3;
+        ["python:numpy.ndarray"] sequence<int> IntSeq2;
+        ["python:memoryview:CustomFactory.myNumPyIntSeq:numpy.ndarray"] sequence<int> IntSeq3;
 
         sequence<long> LongSeq1;
-        ["python:numpy.ndarray"]
-        sequence<long> LongSeq2;
-        ["python:memoryview:CustomFactory.myNumPyLongSeq:numpy.ndarray"]
-        sequence<long> LongSeq3;
+        ["python:numpy.ndarray"] sequence<long> LongSeq2;
+        ["python:memoryview:CustomFactory.myNumPyLongSeq:numpy.ndarray"] sequence<long> LongSeq3;
 
         sequence<float> FloatSeq1;
-        ["python:numpy.ndarray"]
-        sequence<float> FloatSeq2;
-        ["python:memoryview:CustomFactory.myNumPyFloatSeq:numpy.ndarray"]
-        sequence<float> FloatSeq3;
+        ["python:numpy.ndarray"] sequence<float> FloatSeq2;
+        ["python:memoryview:CustomFactory.myNumPyFloatSeq:numpy.ndarray"] sequence<float> FloatSeq3;
 
         sequence<double> DoubleSeq1;
-        ["python:numpy.ndarray"]
-        sequence<double> DoubleSeq2;
-        ["python:memoryview:CustomFactory.myNumPyDoubleSeq:numpy.ndarray"]
-        sequence<double> DoubleSeq3;
+        ["python:numpy.ndarray"] sequence<double> DoubleSeq2;
+        ["python:memoryview:CustomFactory.myNumPyDoubleSeq:numpy.ndarray"] sequence<double> DoubleSeq3;
 
-        ["python:memoryview:CustomFactory.myNumPyComplex128Seq:numpy.ndarray"]
-        sequence<byte> Complex128Seq;
+        ["python:memoryview:CustomFactory.myNumPyComplex128Seq:numpy.ndarray"] sequence<byte> Complex128Seq;
 
         class D
         {

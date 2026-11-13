@@ -2,12 +2,9 @@
 
 module Test
 {
-    ["cs:internal"]
-    sequence<string> StringSeq;
-    ["cs:generic:List", "cs:internal"]
-    sequence<int> IntList;
-    ["cs:internal"]
-    dictionary<string, string> StringDict;
+    ["cs:internal"] sequence<string> StringSeq;
+    ["cs:generic:List", "cs:internal"] sequence<int> IntList;
+    ["cs:internal"] dictionary<string, string> StringDict;
 
     ["cs:internal"]
     class C
@@ -15,8 +12,7 @@ module Test
         int i;
     }
 
-    ["cs:internal"]
-    sequence<C> CSeq;
+    ["cs:internal"] sequence<C> CSeq;
 
     ["cs:internal", "cs:readonly"]
     struct S1

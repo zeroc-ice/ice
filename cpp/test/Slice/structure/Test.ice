@@ -5,8 +5,7 @@
 module Test
 {
     sequence<string> StringSeq;
-    ["cpp:type:std::list<std::int32_t>"]
-    sequence<int> IntList;
+    ["cpp:type:std::list<std::int32_t>"] sequence<int> IntList;
     dictionary<string, string> StringDict;
 
     class C

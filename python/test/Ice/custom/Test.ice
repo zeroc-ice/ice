@@ -6,49 +6,33 @@
 module Test
 {
     sequence<byte> ByteString; /* By default, sequence<byte> is received as a bytes literal. */
-    ["python:list"]
-    sequence<byte> ByteList;
+    ["python:list"] sequence<byte> ByteList;
 
     sequence<string> StringList; /* By default, a sequence is received as a list. */
-    ["python:tuple"]
-    sequence<string> StringTuple;
+    ["python:tuple"] sequence<string> StringTuple;
 
     sequence<int> IntList; /* By default, sequence<int> is received as a list. */
 
-    ["python:array.array"]
-    sequence<bool> BoolSeq1;
-    ["python:memoryview:CustomFactory.myBoolSeq:array.array"]
-    sequence<bool> BoolSeq2;
+    ["python:array.array"] sequence<bool> BoolSeq1;
+    ["python:memoryview:CustomFactory.myBoolSeq:array.array"] sequence<bool> BoolSeq2;
 
-    ["python:array.array"]
-    sequence<byte> ByteSeq1;
-    ["python:memoryview:CustomFactory.myByteSeq:array.array"]
-    sequence<byte> ByteSeq2;
+    ["python:array.array"] sequence<byte> ByteSeq1;
+    ["python:memoryview:CustomFactory.myByteSeq:array.array"] sequence<byte> ByteSeq2;
 
-    ["python:array.array"]
-    sequence<short> ShortSeq1;
-    ["python:memoryview:CustomFactory.myShortSeq:array.array"]
-    sequence<short> ShortSeq2;
+    ["python:array.array"] sequence<short> ShortSeq1;
+    ["python:memoryview:CustomFactory.myShortSeq:array.array"] sequence<short> ShortSeq2;
 
-    ["python:array.array"]
-    sequence<int> IntSeq1;
-    ["python:memoryview:CustomFactory.myIntSeq:array.array"]
-    sequence<int> IntSeq2;
+    ["python:array.array"] sequence<int> IntSeq1;
+    ["python:memoryview:CustomFactory.myIntSeq:array.array"] sequence<int> IntSeq2;
 
-    ["python:array.array"]
-    sequence<long> LongSeq1;
-    ["python:memoryview:CustomFactory.myLongSeq:array.array"]
-    sequence<long> LongSeq2;
+    ["python:array.array"] sequence<long> LongSeq1;
+    ["python:memoryview:CustomFactory.myLongSeq:array.array"] sequence<long> LongSeq2;
 
-    ["python:array.array"]
-    sequence<float> FloatSeq1;
-    ["python:memoryview:CustomFactory.myFloatSeq:array.array"]
-    sequence<float> FloatSeq2;
+    ["python:array.array"] sequence<float> FloatSeq1;
+    ["python:memoryview:CustomFactory.myFloatSeq:array.array"] sequence<float> FloatSeq2;
 
-    ["python:array.array"]
-    sequence<double> DoubleSeq1;
-    ["python:memoryview:CustomFactory.myDoubleSeq:array.array"]
-    sequence<double> DoubleSeq2;
+    ["python:array.array"] sequence<double> DoubleSeq1;
+    ["python:memoryview:CustomFactory.myDoubleSeq:array.array"] sequence<double> DoubleSeq2;
 
     struct S
     {

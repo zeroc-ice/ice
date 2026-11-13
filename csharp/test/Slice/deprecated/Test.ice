@@ -6,13 +6,10 @@ module DeprecatedTest
 {
     // Applies the deprecated metadata on various Slice definitions.
 
-    ["deprecated"]
-    const int MyIntConst = 42;
+    ["deprecated"] const int MyIntConst = 42;
 
-    ["deprecated:Use NewStringSeq instead."]
-    sequence<string> StringSeq;
-    ["deprecated"]
-    dictionary<string, string> StringDict;
+    ["deprecated:Use NewStringSeq instead."] sequence<string> StringSeq;
+    ["deprecated"] dictionary<string, string> StringDict;
 
     ["deprecated"]
     class MyClass

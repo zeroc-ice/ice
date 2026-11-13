@@ -37,8 +37,7 @@ module Test
 
     sequence<byte> ByteSeq;
     sequence<bool> BoolSeq;
-    ["cs:generic:List"]
-    sequence<short> ShortSeq;
+    ["cs:generic:List"] sequence<short> ShortSeq;
     sequence<int> IntSeq;
     sequence<long> LongSeq;
     sequence<float> FloatSeq;
@@ -46,11 +45,9 @@ module Test
     sequence<string> StringSeq;
     sequence<MyEnum> MyEnumSeq;
     sequence<SmallStruct> SmallStructSeq;
-    ["cs:generic:List"]
-    sequence<SmallStruct> SmallStructList;
+    ["cs:generic:List"] sequence<SmallStruct> SmallStructList;
     sequence<FixedStruct> FixedStructSeq;
-    ["cs:generic:LinkedList"]
-    sequence<FixedStruct> FixedStructList;
+    ["cs:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
     sequence<VarStruct> VarStructSeq;
     sequence<MyInterface*> MyInterfacePrxSeq;
 

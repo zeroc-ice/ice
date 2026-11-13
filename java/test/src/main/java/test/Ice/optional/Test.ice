@@ -45,16 +45,13 @@ module Test
     sequence<string> StringSeq;
     sequence<MyEnum> MyEnumSeq;
     sequence<SmallStruct> SmallStructSeq;
-    ["java:type:java.util.ArrayList<SmallStruct>"]
-    sequence<SmallStruct> SmallStructList;
+    ["java:type:java.util.ArrayList<SmallStruct>"] sequence<SmallStruct> SmallStructList;
     sequence<FixedStruct> FixedStructSeq;
-    ["java:type:java.util.ArrayList<FixedStruct>"]
-    sequence<FixedStruct> FixedStructList;
+    ["java:type:java.util.ArrayList<FixedStruct>"] sequence<FixedStruct> FixedStructList;
     sequence<VarStruct> VarStructSeq;
     sequence<MyInterface*> MyInterfacePrxSeq;
 
-    ["java:serializable:test.Ice.optional.SerializableClass"]
-    sequence<byte> Serializable;
+    ["java:serializable:test.Ice.optional.SerializableClass"] sequence<byte> Serializable;
 
     dictionary<int, int> IntIntDict;
     dictionary<string, int> StringIntDict;

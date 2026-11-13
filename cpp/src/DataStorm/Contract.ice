@@ -60,8 +60,7 @@ module DataStormContract
     }
 
     /// A queue of {@link DataSample}
-    ["cpp:type:std::deque<DataSample>"]
-    sequence<DataSample> DataSampleSeq;
+    ["cpp:type:std::deque<DataSample>"] sequence<DataSample> DataSampleSeq;
 
     /// Represents a collection of data samples produced by a specific writer to initialize a specific reader.
     ["cpp:custom-print"]
