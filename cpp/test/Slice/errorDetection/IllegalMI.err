@@ -1,26 +1,26 @@
-IllegalMI.ice:48: ambiguous multiple inheritance: 'A3' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:47: ambiguous multiple inheritance: 'A3' inherits operation 'op' from two or more unrelated base interfaces
 IllegalMI.ice:76: operation 'op' is already defined as an operation in a base interface
 IllegalMI.ice:103: operation 'op' is already defined as an operation in a base interface
 IllegalMI.ice:130: operation 'op' is already defined as an operation in a base interface
-IllegalMI.ice:179: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:206: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:233: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:261: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:321: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:353: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:385: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:417: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:449: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:481: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:514: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:547: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:580: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:613: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:647: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:178: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:205: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:232: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:260: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:320: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:352: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:384: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:416: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:448: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:480: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:513: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:546: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:579: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:612: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:646: ambiguous multiple inheritance: 'A2' inherits operation 'op' from two or more unrelated base interfaces
 IllegalMI.ice:730: operation 'op' is already defined as an operation in a base interface
 IllegalMI.ice:772: operation 'op' is already defined as an operation in a base interface
-IllegalMI.ice:914: ambiguous multiple inheritance: 'A4' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:986: ambiguous multiple inheritance: 'A4' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:1058: ambiguous multiple inheritance: 'A4' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:1128: ambiguous multiple inheritance: 'A4' inherits operation 'op' from two or more unrelated base interfaces
-IllegalMI.ice:1198: ambiguous multiple inheritance: 'A4' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:913: ambiguous multiple inheritance: 'A4' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:985: ambiguous multiple inheritance: 'A4' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:1057: ambiguous multiple inheritance: 'A4' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:1127: ambiguous multiple inheritance: 'A4' inherits operation 'op' from two or more unrelated base interfaces
+IllegalMI.ice:1197: ambiguous multiple inheritance: 'A4' inherits operation 'op' from two or more unrelated base interfaces

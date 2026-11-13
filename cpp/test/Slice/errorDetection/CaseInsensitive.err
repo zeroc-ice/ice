@@ -27,7 +27,7 @@ CaseInsensitive.ice:143: redefinition of module 'm1' as enumeration
 CaseInsensitive.ice:144: enumeration 'M1' differs only in capitalization from module 'm1'
 CaseInsensitive.ice:145: enumerator 'EN1' differs only in capitalization from enumerator 'en1'
 CaseInsensitive.ice:158: interface name 'base' is capitalized inconsistently with its previous name: '::Test::xxx::xx::Base'
-CaseInsensitive.ice:159: redefinition of interface 'Derived'
+CaseInsensitive.ice:158: redefinition of interface 'Derived'
 CaseInsensitive.ice:166: exception name 'E1' is capitalized inconsistently with its previous name: '::Test::xxx::xx::e1'
 CaseInsensitive.ice:173: sequence name 'S1' is capitalized inconsistently with its previous name: '::Test::xxx::xx::s1'
 CaseInsensitive.ice:174: sequence name 'xxx::xx::S1' is capitalized inconsistently with its previous name: '::Test::xxx::xx::s1'
@@ -42,5 +42,5 @@ CaseInsensitive.ice:194: exception name 'Test::XXX::xx::e1' is capitalized incon
 CaseInsensitive.ice:196: exception name 'Test::xxx::xx::E1' is capitalized inconsistently with its previous name: '::Test::xxx::xx::e1'
 CaseInsensitive.ice:197: exception name 'Test::xxx::XX::e1' is capitalized inconsistently with its previous name: '::Test::xxx::xx::e1'
 CaseInsensitive.ice:198: exception name 'Test::XXX::xx::e1' is capitalized inconsistently with its previous name: '::Test::xxx::xx::e1'
-CaseInsensitive.ice:216: ambiguous multiple inheritance: 'derived' inherits operations 'op' and 'OP', which differ only in capitalization, from unrelated base interfaces
+CaseInsensitive.ice:215: ambiguous multiple inheritance: 'derived' inherits operations 'op' and 'OP', which differ only in capitalization, from unrelated base interfaces
 CaseInsensitive.ice:260: data member 'x' differs only in capitalization from data member 'X', which is defined in a base class

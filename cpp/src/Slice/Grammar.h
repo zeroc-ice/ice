@@ -48,7 +48,7 @@ extern int slice_debug;
 #line 9 "src/Slice/Grammar.y"
 
 
-// Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
+// Included first to get 'SourceSpan' which we need to define YYLTYPE before flex does.
 #include "GrammarUtil.h"
 
 // I must set the initial stack depth to the maximum stack depth to
@@ -60,7 +60,7 @@ extern int slice_debug;
 #define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
 // Newer bison versions allow to disable stack resizing by defining yyoverflow.
-#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
+#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(&yylloc, a)
 
 
 #line 67 "src/Slice/Grammar.h"
@@ -127,7 +127,7 @@ typedef Slice::GrammarBasePtr YYSTYPE;
 #endif
 
 /* Location type.  */
-typedef Slice::TokenContext YYLTYPE;
+typedef Slice::SourceSpan YYLTYPE;
 
 
 

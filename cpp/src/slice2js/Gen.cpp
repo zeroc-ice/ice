@@ -159,7 +159,7 @@ namespace
         {
             // Try to locate the exception's definition using the name given in the comment.
             string mappedName = name;
-            if (ExceptionPtr ex = op->container()->lookupException(name, false))
+            if (ExceptionPtr ex = op->container()->lookupException(name, nullptr))
             {
                 mappedName = ex->mappedScoped(".");
             }

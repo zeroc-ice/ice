@@ -714,7 +714,7 @@ Slice::Csharp::writeIceRpcOpDocComment(Output& out, const OperationPtr& op, bool
     for (const auto& [exceptionName, exceptionLines] : comment->exceptions())
     {
         string name = exceptionName;
-        ExceptionPtr ex = op->container()->lookupException(exceptionName, false);
+        ExceptionPtr ex = op->container()->lookupException(exceptionName, nullptr);
         if (ex)
         {
             name = ex->mappedScoped(".");

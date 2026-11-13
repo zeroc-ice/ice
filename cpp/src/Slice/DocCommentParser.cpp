@@ -262,7 +262,7 @@ namespace
             // If the link has a '#' anywhere else, convert it to '::' so we can look it up.
             linkText.replace(separatorPos, 1, "::");
         }
-        ContainedList results = linkSourceScope->lookupContained(linkText, false);
+        ContainedList results = linkSourceScope->lookupContained(linkText, nullptr);
         return (results.empty() ? nullptr : results.front());
     }
 
@@ -295,7 +295,7 @@ namespace
         {
             // No matching delimiter was found. Emit a warning, then skip to the next line. This one is broken.
             const string msg = "unterminated code span: missing closing backtick delimiter";
-            p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+            p->unit()->warning(p->span(), InvalidComment, msg);
 
             pos = line.size();
         }
@@ -326,7 +326,7 @@ namespace
         {
             // No closing brace was found. Emit a warning, then skip to the next line. This one is broken.
             const string msg = "unterminated link tag: missing closing '}'";
-            p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+            p->unit()->warning(p->span(), InvalidComment, msg);
 
             pos = line.size();
         }
@@ -349,14 +349,14 @@ namespace
             if (!linkTarget)
             {
                 string msg = "no Slice element with identifier '" + linkText + "' could be found in this context";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                p->unit()->warning(p->span(), InvalidComment, msg);
             }
             if (dynamic_pointer_cast<Parameter>(linkTarget))
             {
                 // We don't support linking to parameters with '@link' tags.
                 // Parameter links must be done with '@p' tags, and can only appear on the enclosing operation.
                 string msg = "cannot link parameter '" + linkText + "'; parameters can only be referenced with @p";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                p->unit()->warning(p->span(), InvalidComment, msg);
                 linkTarget = nullptr;
             }
 
@@ -383,7 +383,7 @@ namespace
         // If we hit EOL before finding a non-whitespace character, then the 'name' is missing.
         if (nameStart == string::npos)
         {
-            p->unit()->warning(p->file(), p->line(), InvalidComment, "missing parameter name after '@p' tag");
+            p->unit()->warning(p->span(), InvalidComment, "missing parameter name after '@p' tag");
             pos += 2; // Skip the '@p' tag and continue parsing.
             return;
         }
@@ -422,12 +422,12 @@ namespace
             {
                 string opName = operationTarget->name();
                 string msg = "No parameter named '" + parameterName + "' exists on operation '" + opName + "'";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                p->unit()->warning(p->span(), InvalidComment, msg);
             }
         }
         else
         {
-            p->unit()->warning(p->file(), p->line(), InvalidComment, "'@p' tags can only be used on operations");
+            p->unit()->warning(p->span(), InvalidComment, "'@p' tags can only be used on operations");
         }
 
         // Format the parameter's name and insert it in-place of the original '@p name'.
@@ -522,14 +522,14 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             {
                 // If '@param' was put on anything other than an operation, ignore it and issue a warning.
                 const string msg = "the '" + paramTag + "' tag is only valid on operations";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                p->unit()->warning(p->span(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else if (name.empty())
             {
                 // If the '@param' tag is missing a name, ignore it and issue a warning.
                 const string msg = "missing parameter name after '" + paramTag + "' tag";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                p->unit()->warning(p->span(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
@@ -541,14 +541,14 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                 {
                     const string msg = "'" + paramTag + " " + name +
                                        "' does not correspond to any parameter in operation '" + p->name() + "'";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    p->unit()->warning(p->span(), InvalidComment, msg);
                 }
 
                 // Check if this is a duplicate tag. If it is, ignore it and issue a warning.
                 if (docComment->_parameters.count(name) != 0)
                 {
                     const string msg = "ignoring duplicate doc-comment tag: '" + paramTag + " " + name + "'";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    p->unit()->warning(p->span(), InvalidComment, msg);
                     currentSection = nullptr;
                 }
                 else
@@ -568,26 +568,26 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             {
                 // If '@throws'/'@exception' was put on anything other than an operation, ignore it and issue a warning.
                 const string msg = "the '" + actualTag + "' tag is only valid on operations";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                p->unit()->warning(p->span(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else if (name.empty())
             {
                 // If the '@throws'/'@exception' tag is missing a name, ignore it and issue a warning.
                 const string msg = "missing exception name after '" + actualTag + "' tag";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                p->unit()->warning(p->span(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
             {
                 // Check if the exception exists...
                 const ContainerPtr containingModule = operationTarget->parentInterface()->container();
-                const ExceptionPtr exceptionTarget = containingModule->lookupException(name, false);
+                const ExceptionPtr exceptionTarget = containingModule->lookupException(name, nullptr);
                 if (!exceptionTarget)
                 {
                     const string msg = "'" + actualTag + " " + name +
                                        "': no exception with this name could be found from the current scope";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    p->unit()->warning(p->span(), InvalidComment, msg);
                 }
                 else
                 {
@@ -599,7 +599,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                     {
                         const string msg = "'" + actualTag + " " + name + "': this exception is not listed in the " +
                                            "exception specification of '" + operationTarget->name() + "'";
-                        p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                        p->unit()->warning(p->span(), InvalidComment, msg);
                     }
                 }
 
@@ -607,7 +607,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                 if (docComment->_exceptions.count(name) != 0)
                 {
                     const string msg = "ignoring duplicate doc-comment tag: '" + actualTag + " " + name + "'";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    p->unit()->warning(p->span(), InvalidComment, msg);
                     currentSection = nullptr;
                 }
                 else
@@ -631,7 +631,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             if (lineText.empty())
             {
                 const string msg = "missing link target after '" + seeTag + "' tag";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                p->unit()->warning(p->span(), InvalidComment, msg);
             }
             else
             {
@@ -640,7 +640,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                 if (lineText.back() == '.')
                 {
                     const string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    p->unit()->warning(p->span(), InvalidComment, msg);
                     lineText.pop_back();
                 }
 
@@ -649,14 +649,14 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                 if (!seeTarget)
                 {
                     string msg = "no Slice element with identifier '" + lineText + "' could be found in this context";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    p->unit()->warning(p->span(), InvalidComment, msg);
                 }
                 if (dynamic_pointer_cast<Parameter>(seeTarget))
                 {
                     // We don't support referencing parameters with '@see' tags.
                     // Parameter references must be done with '@p' tags, and can only appear on the enclosing operation.
                     string msg = "cannot link parameter '" + lineText + "'; parameters can only be referenced with @p";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    p->unit()->warning(p->span(), InvalidComment, msg);
                     seeTarget = nullptr;
                 }
 
@@ -671,7 +671,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             {
                 // If '@return' was put on anything other than an operation, ignore it and issue a warning.
                 const string msg = "the '" + returnTag + "' tag is only valid on operations";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                p->unit()->warning(p->span(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
@@ -680,14 +680,14 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                 {
                     // If '@return' was applied to a void operation (one without a return-type), issue a warning.
                     const string msg = "'" + returnTag + "' is only valid on operations with non-void return types";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    p->unit()->warning(p->span(), InvalidComment, msg);
                 }
 
                 // Check if this is a duplicate tag. If it is, ignore it and issue a warning.
                 if (!docComment->_returns.empty())
                 {
                     const string msg = "ignoring duplicate doc-comment tag: '" + returnTag + "'";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    p->unit()->warning(p->span(), InvalidComment, msg);
                     currentSection = nullptr;
                 }
                 else
@@ -702,7 +702,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             if (docComment->_isDeprecated)
             {
                 const string msg = "ignoring duplicate doc-comment tag: '" + deprecatedTag + "'";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                p->unit()->warning(p->span(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
@@ -722,7 +722,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                     if (unknownTag != "@p")
                     {
                         const string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
-                        p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                        p->unit()->warning(p->span(), InvalidComment, msg);
                         currentSection = nullptr;
                     }
                 }
@@ -731,7 +731,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                 if (currentSection == &docComment->_seeAlso)
                 {
                     string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    p->unit()->warning(p->span(), InvalidComment, msg);
                     currentSection = nullptr;
                 }
             }

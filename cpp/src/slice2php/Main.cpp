@@ -759,7 +759,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     {
         // A PHP array key can only be an int or a string, so the PHP mapping only supports dictionary key types
         // that map to int or string (builtin types and enums).
-        p->unit()->warning(p->file(), p->line(), All, "dictionary key type not supported in PHP");
+        p->unit()->warning(p->span(), All, "dictionary key type not supported in PHP");
     }
 
     // Emit the type information.

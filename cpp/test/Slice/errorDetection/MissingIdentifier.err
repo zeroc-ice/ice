@@ -1,4 +1,4 @@
-MissingIdentifier.ice:6: missing name
+MissingIdentifier.ice:5: missing name
 MissingIdentifier.ice:9: enumerator 'C' has the same value as enumerator 'B'
 MissingIdentifier.ice:12: 'MissingType' is not defined
 MissingIdentifier.ice:12: missing name

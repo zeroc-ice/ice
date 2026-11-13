@@ -96,7 +96,7 @@ Slice::validateCsMetadata(const UnitPtr& unit)
         .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
             const string msg = "'cs:namespace' is deprecated; use 'cs:identifier' to remap modules instead";
-            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
+            p->unit()->warning(metadata->span(), Deprecated, msg);
 
             if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("cs:identifier"))
             {
