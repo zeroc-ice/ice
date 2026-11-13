@@ -195,13 +195,7 @@ function allTests($helper)
 
     echo "setting G... ";
     flush();
-    try
-    {
-        $initial->setG(new Test\G(new Test\S("hello"), "g"));
-    }
-    catch(Ice\OperationNotExistException $ex)
-    {
-    }
+    $initial->setG(new Test\G(new Test\S("hello"), "g"));
     echo "ok\n";
 
     echo "testing sequences... ";
@@ -270,14 +264,8 @@ function allTests($helper)
 
     echo "testing compact ID... ";
     flush();
-    try
-    {
-        $r = $initial->getCompact();
-        test($r != null);
-    }
-    catch(Ice\OperationNotExistException $ex)
-    {
-    }
+    $r = $initial->getCompact();
+    test($r != null);
     echo "ok\n";
 
     echo "testing marshaled results... ";

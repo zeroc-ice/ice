@@ -39,7 +39,7 @@ func testExceptions(_ obj: TestIntfPrx, _ helper: TestHelper) async throws {
         try helper.test(false)
     } catch let ex as Ice.UnknownUserException {
         try helper.test(ex.message.contains("Test::TestIntfUserException"))
-    } catch is Ice.OperationNotExistException {}
+    }
 
     do {
         try await obj.localException()

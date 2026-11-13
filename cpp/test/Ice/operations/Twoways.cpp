@@ -913,35 +913,29 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         dsi1[1] = di2;
         dsi2[0] = di3;
 
-        try
-        {
-            Test::ByteBoolDS _do;
-            Test::ByteBoolDS ro = p->opByteBoolDS(dsi1, dsi2, _do);
+        Test::ByteBoolDS _do;
+        Test::ByteBoolDS ro = p->opByteBoolDS(dsi1, dsi2, _do);
 
-            test(ro.size() == 2);
-            test(ro[0].size() == 3);
-            test(ro[0][10] == true);
-            test(ro[0][11] == false);
-            test(ro[0][101] == true);
-            test(ro[1].size() == 2);
-            test(ro[1][10] == true);
-            test(ro[1][100] == false);
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0][10] == true);
+        test(ro[0][11] == false);
+        test(ro[0][101] == true);
+        test(ro[1].size() == 2);
+        test(ro[1][10] == true);
+        test(ro[1][100] == false);
 
-            test(_do.size() == 3);
-            test(_do[0].size() == 2);
-            test(_do[0][100] == false);
-            test(_do[0][101] == false);
-            test(_do[1].size() == 2);
-            test(_do[1][10] == true);
-            test(_do[1][100] == false);
-            test(_do[2].size() == 3);
-            test(_do[2][10] == true);
-            test(_do[2][11] == false);
-            test(_do[2][101] == true);
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do.size() == 3);
+        test(_do[0].size() == 2);
+        test(_do[0][100] == false);
+        test(_do[0][101] == false);
+        test(_do[1].size() == 2);
+        test(_do[1][10] == true);
+        test(_do[1][100] == false);
+        test(_do[2].size() == 3);
+        test(_do[2][10] == true);
+        test(_do[2][11] == false);
+        test(_do[2][101] == true);
     }
 
     {
@@ -964,34 +958,28 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         dsi1[1] = di2;
         dsi2[0] = di3;
 
-        try
-        {
-            Test::ShortIntDS _do;
-            Test::ShortIntDS ro = p->opShortIntDS(dsi1, dsi2, _do);
+        Test::ShortIntDS _do;
+        Test::ShortIntDS ro = p->opShortIntDS(dsi1, dsi2, _do);
 
-            test(ro.size() == 2);
-            test(ro[0].size() == 3);
-            test(ro[0][110] == -1);
-            test(ro[0][111] == -100);
-            test(ro[0][1101] == 0);
-            test(ro[1].size() == 2);
-            test(ro[1][110] == -1);
-            test(ro[1][1100] == 123123);
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0][110] == -1);
+        test(ro[0][111] == -100);
+        test(ro[0][1101] == 0);
+        test(ro[1].size() == 2);
+        test(ro[1][110] == -1);
+        test(ro[1][1100] == 123123);
 
-            test(_do.size() == 3);
-            test(_do[0].size() == 1);
-            test(_do[0][100] == -1001);
-            test(_do[1].size() == 2);
-            test(_do[1][110] == -1);
-            test(_do[1][1100] == 123123);
-            test(_do[2].size() == 3);
-            test(_do[2][110] == -1);
-            test(_do[2][111] == -100);
-            test(_do[2][1101] == 0);
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0][100] == -1001);
+        test(_do[1].size() == 2);
+        test(_do[1][110] == -1);
+        test(_do[1][1100] == 123123);
+        test(_do[2].size() == 3);
+        test(_do[2][110] == -1);
+        test(_do[2][111] == -100);
+        test(_do[2][1101] == 0);
     }
 
     {
@@ -1014,34 +1002,28 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         dsi1[1] = di2;
         dsi2[0] = di3;
 
-        try
-        {
-            Test::LongFloatDS _do;
-            Test::LongFloatDS ro = p->opLongFloatDS(dsi1, dsi2, _do);
+        Test::LongFloatDS _do;
+        Test::LongFloatDS ro = p->opLongFloatDS(dsi1, dsi2, _do);
 
-            test(ro.size() == 2);
-            test(ro[0].size() == 3);
-            test(ro[0][999999110] == float(-1.1));
-            test(ro[0][999999120] == float(-100.4));
-            test(ro[0][999999130] == float(0.5));
-            test(ro[1].size() == 2);
-            test(ro[1][999999110] == float(-1.1));
-            test(ro[1][999999111] == float(123123.2));
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0][999999110] == float(-1.1));
+        test(ro[0][999999120] == float(-100.4));
+        test(ro[0][999999130] == float(0.5));
+        test(ro[1].size() == 2);
+        test(ro[1][999999110] == float(-1.1));
+        test(ro[1][999999111] == float(123123.2));
 
-            test(_do.size() == 3);
-            test(_do[0].size() == 1);
-            test(_do[0][999999140] == float(3.14));
-            test(_do[1].size() == 2);
-            test(_do[1][999999110] == float(-1.1));
-            test(_do[1][999999111] == float(123123.2));
-            test(_do[2].size() == 3);
-            test(_do[2][999999110] == float(-1.1));
-            test(_do[2][999999120] == float(-100.4));
-            test(_do[2][999999130] == float(0.5));
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0][999999140] == float(3.14));
+        test(_do[1].size() == 2);
+        test(_do[1][999999110] == float(-1.1));
+        test(_do[1][999999111] == float(123123.2));
+        test(_do[2].size() == 3);
+        test(_do[2][999999110] == float(-1.1));
+        test(_do[2][999999120] == float(-100.4));
+        test(_do[2][999999130] == float(0.5));
     }
 
     {
@@ -1064,34 +1046,28 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         dsi1[1] = di2;
         dsi2[0] = di3;
 
-        try
-        {
-            Test::StringStringDS _do;
-            Test::StringStringDS ro = p->opStringStringDS(dsi1, dsi2, _do);
+        Test::StringStringDS _do;
+        Test::StringStringDS ro = p->opStringStringDS(dsi1, dsi2, _do);
 
-            test(ro.size() == 2);
-            test(ro[0].size() == 3);
-            test(ro[0]["foo"] == "abc -1.1");
-            test(ro[0]["FOO"] == "abc -100.4");
-            test(ro[0]["BAR"] == "abc 0.5");
-            test(ro[1].size() == 2);
-            test(ro[1]["foo"] == "abc -1.1");
-            test(ro[1]["bar"] == "abc 123123.2");
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0]["foo"] == "abc -1.1");
+        test(ro[0]["FOO"] == "abc -100.4");
+        test(ro[0]["BAR"] == "abc 0.5");
+        test(ro[1].size() == 2);
+        test(ro[1]["foo"] == "abc -1.1");
+        test(ro[1]["bar"] == "abc 123123.2");
 
-            test(_do.size() == 3);
-            test(_do[0].size() == 1);
-            test(_do[0]["f00"] == "ABC -3.14");
-            test(_do[1].size() == 2);
-            test(_do[1]["foo"] == "abc -1.1");
-            test(_do[1]["bar"] == "abc 123123.2");
-            test(_do[2].size() == 3);
-            test(_do[2]["foo"] == "abc -1.1");
-            test(_do[2]["FOO"] == "abc -100.4");
-            test(_do[2]["BAR"] == "abc 0.5");
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0]["f00"] == "ABC -3.14");
+        test(_do[1].size() == 2);
+        test(_do[1]["foo"] == "abc -1.1");
+        test(_do[1]["bar"] == "abc 123123.2");
+        test(_do[2].size() == 3);
+        test(_do[2]["foo"] == "abc -1.1");
+        test(_do[2]["FOO"] == "abc -100.4");
+        test(_do[2]["BAR"] == "abc 0.5");
     }
 
     {
@@ -1114,34 +1090,28 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         dsi1[1] = di2;
         dsi2[0] = di3;
 
-        try
-        {
-            Test::StringMyEnumDS _do;
-            Test::StringMyEnumDS ro = p->opStringMyEnumDS(dsi1, dsi2, _do);
+        Test::StringMyEnumDS _do;
+        Test::StringMyEnumDS ro = p->opStringMyEnumDS(dsi1, dsi2, _do);
 
-            test(ro.size() == 2);
-            test(ro[0].size() == 3);
-            test(ro[0]["abc"] == MyEnum::enum1);
-            test(ro[0]["qwerty"] == MyEnum::enum3);
-            test(ro[0]["Hello!!"] == MyEnum::enum2);
-            test(ro[1].size() == 2);
-            test(ro[1]["abc"] == MyEnum::enum1);
-            test(ro[1][""] == MyEnum::enum2);
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0]["abc"] == MyEnum::enum1);
+        test(ro[0]["qwerty"] == MyEnum::enum3);
+        test(ro[0]["Hello!!"] == MyEnum::enum2);
+        test(ro[1].size() == 2);
+        test(ro[1]["abc"] == MyEnum::enum1);
+        test(ro[1][""] == MyEnum::enum2);
 
-            test(_do.size() == 3);
-            test(_do[0].size() == 1);
-            test(_do[0]["Goodbye"] == MyEnum::enum1);
-            test(_do[1].size() == 2);
-            test(_do[1]["abc"] == MyEnum::enum1);
-            test(_do[1][""] == MyEnum::enum2);
-            test(_do[2].size() == 3);
-            test(_do[2]["abc"] == MyEnum::enum1);
-            test(_do[2]["qwerty"] == MyEnum::enum3);
-            test(_do[2]["Hello!!"] == MyEnum::enum2);
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0]["Goodbye"] == MyEnum::enum1);
+        test(_do[1].size() == 2);
+        test(_do[1]["abc"] == MyEnum::enum1);
+        test(_do[1][""] == MyEnum::enum2);
+        test(_do[2].size() == 3);
+        test(_do[2]["abc"] == MyEnum::enum1);
+        test(_do[2]["qwerty"] == MyEnum::enum3);
+        test(_do[2]["Hello!!"] == MyEnum::enum2);
     }
 
     {
@@ -1162,30 +1132,24 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         dsi1[1] = di2;
         dsi2[0] = di3;
 
-        try
-        {
-            Test::MyEnumStringDS _do;
-            Test::MyEnumStringDS ro = p->opMyEnumStringDS(dsi1, dsi2, _do);
+        Test::MyEnumStringDS _do;
+        Test::MyEnumStringDS ro = p->opMyEnumStringDS(dsi1, dsi2, _do);
 
-            test(ro.size() == 2);
-            test(ro[0].size() == 2);
-            test(ro[0][MyEnum::enum2] == "Hello!!");
-            test(ro[0][MyEnum::enum3] == "qwerty");
-            test(ro[1].size() == 1);
-            test(ro[1][MyEnum::enum1] == "abc");
+        test(ro.size() == 2);
+        test(ro[0].size() == 2);
+        test(ro[0][MyEnum::enum2] == "Hello!!");
+        test(ro[0][MyEnum::enum3] == "qwerty");
+        test(ro[1].size() == 1);
+        test(ro[1][MyEnum::enum1] == "abc");
 
-            test(_do.size() == 3);
-            test(_do[0].size() == 1);
-            test(_do[0][MyEnum::enum1] == "Goodbye");
-            test(_do[1].size() == 1);
-            test(_do[1][MyEnum::enum1] == "abc");
-            test(_do[2].size() == 2);
-            test(_do[2][MyEnum::enum2] == "Hello!!");
-            test(_do[2][MyEnum::enum3] == "qwerty");
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0][MyEnum::enum1] == "Goodbye");
+        test(_do[1].size() == 1);
+        test(_do[1][MyEnum::enum1] == "abc");
+        test(_do[2].size() == 2);
+        test(_do[2][MyEnum::enum2] == "Hello!!");
+        test(_do[2][MyEnum::enum3] == "qwerty");
     }
 
     {
@@ -1214,34 +1178,28 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         dsi1[1] = di2;
         dsi2[0] = di3;
 
-        try
-        {
-            Test::MyStructMyEnumDS _do;
-            Test::MyStructMyEnumDS ro = p->opMyStructMyEnumDS(dsi1, dsi2, _do);
+        Test::MyStructMyEnumDS _do;
+        Test::MyStructMyEnumDS ro = p->opMyStructMyEnumDS(dsi1, dsi2, _do);
 
-            test(ro.size() == 2);
-            test(ro[0].size() == 3);
-            test(ro[0][ms11] == MyEnum::enum1);
-            test(ro[0][ms22] == MyEnum::enum3);
-            test(ro[0][ms23] == MyEnum::enum2);
-            test(ro[1].size() == 2);
-            test(ro[1][ms11] == MyEnum::enum1);
-            test(ro[1][ms12] == MyEnum::enum2);
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0][ms11] == MyEnum::enum1);
+        test(ro[0][ms22] == MyEnum::enum3);
+        test(ro[0][ms23] == MyEnum::enum2);
+        test(ro[1].size() == 2);
+        test(ro[1][ms11] == MyEnum::enum1);
+        test(ro[1][ms12] == MyEnum::enum2);
 
-            test(_do.size() == 3);
-            test(_do[0].size() == 1);
-            test(_do[0][ms23] == MyEnum::enum3);
-            test(_do[1].size() == 2);
-            test(_do[1][ms11] == MyEnum::enum1);
-            test(_do[1][ms12] == MyEnum::enum2);
-            test(_do[2].size() == 3);
-            test(_do[2][ms11] == MyEnum::enum1);
-            test(_do[2][ms22] == MyEnum::enum3);
-            test(_do[2][ms23] == MyEnum::enum2);
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0][ms23] == MyEnum::enum3);
+        test(_do[1].size() == 2);
+        test(_do[1][ms11] == MyEnum::enum1);
+        test(_do[1][ms12] == MyEnum::enum2);
+        test(_do[2].size() == 3);
+        test(_do[2][ms11] == MyEnum::enum1);
+        test(_do[2][ms22] == MyEnum::enum3);
+        test(_do[2][ms23] == MyEnum::enum2);
     }
 
     {
@@ -1262,25 +1220,19 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         sdi1[uint8_t{0x22}] = si2;
         sdi2[uint8_t{0xf1}] = si3;
 
-        try
-        {
-            Test::ByteByteSD _do;
-            Test::ByteByteSD ro = p->opByteByteSD(sdi1, sdi2, _do);
+        Test::ByteByteSD _do;
+        Test::ByteByteSD ro = p->opByteByteSD(sdi1, sdi2, _do);
 
-            test(_do == sdi2);
-            test(ro.size() == 3);
-            test(ro[uint8_t{0x01}].size() == 2);
-            test(ro[uint8_t{0x01}][0] == byte{0x01});
-            test(ro[uint8_t{0x01}][1] == byte{0x11});
-            test(ro[uint8_t{0x22}].size() == 1);
-            test(ro[uint8_t{0x22}][0] == byte{0x12});
-            test(ro[uint8_t{0xf1}].size() == 2);
-            test(ro[uint8_t{0xf1}][0] == byte{0xf2});
-            test(ro[uint8_t{0xf1}][1] == byte{0xf3});
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro[uint8_t{0x01}].size() == 2);
+        test(ro[uint8_t{0x01}][0] == byte{0x01});
+        test(ro[uint8_t{0x01}][1] == byte{0x11});
+        test(ro[uint8_t{0x22}].size() == 1);
+        test(ro[uint8_t{0x22}][0] == byte{0x12});
+        test(ro[uint8_t{0xf1}].size() == 2);
+        test(ro[uint8_t{0xf1}][0] == byte{0xf2});
+        test(ro[uint8_t{0xf1}][1] == byte{0xf3});
     }
 
     {
@@ -1300,24 +1252,18 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         sdi1[true] = si2;
         sdi2[false] = si1;
 
-        try
-        {
-            Test::BoolBoolSD _do;
-            Test::BoolBoolSD ro = p->opBoolBoolSD(sdi1, sdi2, _do);
+        Test::BoolBoolSD _do;
+        Test::BoolBoolSD ro = p->opBoolBoolSD(sdi1, sdi2, _do);
 
-            test(_do == sdi2);
-            test(ro.size() == 2);
-            test(ro[false].size() == 2);
-            test(ro[false][0] == true);
-            test(ro[false][1] == false);
-            test(ro[true].size() == 3);
-            test(ro[true][0] == false);
-            test(ro[true][1] == true);
-            test(ro[true][2] == true);
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do == sdi2);
+        test(ro.size() == 2);
+        test(ro[false].size() == 2);
+        test(ro[false][0] == true);
+        test(ro[false][1] == false);
+        test(ro[true].size() == 3);
+        test(ro[true][0] == false);
+        test(ro[true][1] == true);
+        test(ro[true][2] == true);
     }
 
     {
@@ -1340,27 +1286,21 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         sdi1[2] = si2;
         sdi2[4] = si3;
 
-        try
-        {
-            Test::ShortShortSD _do;
-            Test::ShortShortSD ro = p->opShortShortSD(sdi1, sdi2, _do);
+        Test::ShortShortSD _do;
+        Test::ShortShortSD ro = p->opShortShortSD(sdi1, sdi2, _do);
 
-            test(_do == sdi2);
-            test(ro.size() == 3);
-            test(ro[1].size() == 3);
-            test(ro[1][0] == 1);
-            test(ro[1][1] == 2);
-            test(ro[1][2] == 3);
-            test(ro[2].size() == 2);
-            test(ro[2][0] == 4);
-            test(ro[2][1] == 5);
-            test(ro[4].size() == 2);
-            test(ro[4][0] == 6);
-            test(ro[4][1] == 7);
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro[1].size() == 3);
+        test(ro[1][0] == 1);
+        test(ro[1][1] == 2);
+        test(ro[1][2] == 3);
+        test(ro[2].size() == 2);
+        test(ro[2][0] == 4);
+        test(ro[2][1] == 5);
+        test(ro[4].size() == 2);
+        test(ro[4][0] == 6);
+        test(ro[4][1] == 7);
     }
 
     {
@@ -1383,27 +1323,21 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         sdi1[200] = si2;
         sdi2[400] = si3;
 
-        try
-        {
-            Test::IntIntSD _do;
-            Test::IntIntSD ro = p->opIntIntSD(sdi1, sdi2, _do);
+        Test::IntIntSD _do;
+        Test::IntIntSD ro = p->opIntIntSD(sdi1, sdi2, _do);
 
-            test(_do == sdi2);
-            test(ro.size() == 3);
-            test(ro[100].size() == 3);
-            test(ro[100][0] == 100);
-            test(ro[100][1] == 200);
-            test(ro[100][2] == 300);
-            test(ro[200].size() == 2);
-            test(ro[200][0] == 400);
-            test(ro[200][1] == 500);
-            test(ro[400].size() == 2);
-            test(ro[400][0] == 600);
-            test(ro[400][1] == 700);
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro[100].size() == 3);
+        test(ro[100][0] == 100);
+        test(ro[100][1] == 200);
+        test(ro[100][2] == 300);
+        test(ro[200].size() == 2);
+        test(ro[200][0] == 400);
+        test(ro[200][1] == 500);
+        test(ro[400].size() == 2);
+        test(ro[400][0] == 600);
+        test(ro[400][1] == 700);
     }
 
     {
@@ -1426,27 +1360,21 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         sdi1[999999991] = si2;
         sdi2[999999992] = si3;
 
-        try
-        {
-            Test::LongLongSD _do;
-            Test::LongLongSD ro = p->opLongLongSD(sdi1, sdi2, _do);
+        Test::LongLongSD _do;
+        Test::LongLongSD ro = p->opLongLongSD(sdi1, sdi2, _do);
 
-            test(_do == sdi2);
-            test(ro.size() == 3);
-            test(ro[999999990].size() == 3);
-            test(ro[999999990][0] == 999999110);
-            test(ro[999999990][1] == 999999111);
-            test(ro[999999990][2] == 999999110);
-            test(ro[999999991].size() == 2);
-            test(ro[999999991][0] == 999999120);
-            test(ro[999999991][1] == 999999130);
-            test(ro[999999992].size() == 2);
-            test(ro[999999992][0] == 999999110);
-            test(ro[999999992][1] == 999999120);
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro[999999990].size() == 3);
+        test(ro[999999990][0] == 999999110);
+        test(ro[999999990][1] == 999999111);
+        test(ro[999999990][2] == 999999110);
+        test(ro[999999991].size() == 2);
+        test(ro[999999991][0] == 999999120);
+        test(ro[999999991][1] == 999999130);
+        test(ro[999999992].size() == 2);
+        test(ro[999999992][0] == 999999110);
+        test(ro[999999992][1] == 999999120);
     }
 
     {
@@ -1469,27 +1397,21 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         sdi1["ABC"] = si2;
         sdi2["aBc"] = si3;
 
-        try
-        {
-            Test::StringFloatSD _do;
-            Test::StringFloatSD ro = p->opStringFloatSD(sdi1, sdi2, _do);
+        Test::StringFloatSD _do;
+        Test::StringFloatSD ro = p->opStringFloatSD(sdi1, sdi2, _do);
 
-            test(_do == sdi2);
-            test(ro.size() == 3);
-            test(ro["abc"].size() == 3);
-            test(ro["abc"][0] == float(-1.1));
-            test(ro["abc"][1] == float(123123.2));
-            test(ro["abc"][2] == float(100.0));
-            test(ro["ABC"].size() == 2);
-            test(ro["ABC"][0] == float(42.24));
-            test(ro["ABC"][1] == float(-1.61));
-            test(ro["aBc"].size() == 2);
-            test(ro["aBc"][0] == float(-3.14));
-            test(ro["aBc"][1] == float(3.14));
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro["abc"].size() == 3);
+        test(ro["abc"][0] == float(-1.1));
+        test(ro["abc"][1] == float(123123.2));
+        test(ro["abc"][2] == float(100.0));
+        test(ro["ABC"].size() == 2);
+        test(ro["ABC"][0] == float(42.24));
+        test(ro["ABC"][1] == float(-1.61));
+        test(ro["aBc"].size() == 2);
+        test(ro["aBc"][0] == float(-3.14));
+        test(ro["aBc"][1] == float(3.14));
     }
 
     {
@@ -1512,27 +1434,21 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         sdi1["Goodbye"] = si2;
         sdi2[""] = si3;
 
-        try
-        {
-            Test::StringDoubleSD _do;
-            Test::StringDoubleSD ro = p->opStringDoubleSD(sdi1, sdi2, _do);
+        Test::StringDoubleSD _do;
+        Test::StringDoubleSD ro = p->opStringDoubleSD(sdi1, sdi2, _do);
 
-            test(_do == sdi2);
-            test(ro.size() == 3);
-            test(ro["Hello!!"].size() == 3);
-            test(ro["Hello!!"][0] == double(1.1E10));
-            test(ro["Hello!!"][1] == double(1.2E10));
-            test(ro["Hello!!"][2] == double(1.3E10));
-            test(ro["Goodbye"].size() == 2);
-            test(ro["Goodbye"][0] == double(1.4E10));
-            test(ro["Goodbye"][1] == double(1.5E10));
-            test(ro[""].size() == 2);
-            test(ro[""][0] == double(1.6E10));
-            test(ro[""][1] == double(1.7E10));
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro["Hello!!"].size() == 3);
+        test(ro["Hello!!"][0] == double(1.1E10));
+        test(ro["Hello!!"][1] == double(1.2E10));
+        test(ro["Hello!!"][2] == double(1.3E10));
+        test(ro["Goodbye"].size() == 2);
+        test(ro["Goodbye"][0] == double(1.4E10));
+        test(ro["Goodbye"][1] == double(1.5E10));
+        test(ro[""].size() == 2);
+        test(ro[""][0] == double(1.6E10));
+        test(ro[""][1] == double(1.7E10));
     }
 
     {
@@ -1557,27 +1473,21 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         sdi1["def"] = si2;
         sdi2["ghi"] = si3;
 
-        try
-        {
-            Test::StringStringSD _do;
-            Test::StringStringSD ro = p->opStringStringSD(sdi1, sdi2, _do);
+        Test::StringStringSD _do;
+        Test::StringStringSD ro = p->opStringStringSD(sdi1, sdi2, _do);
 
-            test(_do == sdi2);
-            test(ro.size() == 3);
-            test(ro["abc"].size() == 3);
-            test(ro["abc"][0] == "abc");
-            test(ro["abc"][1] == "de");
-            test(ro["abc"][2] == "fghi");
-            test(ro["def"].size() == 2);
-            test(ro["def"][0] == "xyz");
-            test(ro["def"][1] == "or");
-            test(ro["ghi"].size() == 2);
-            test(ro["ghi"][0] == "and");
-            test(ro["ghi"][1] == "xor");
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro["abc"].size() == 3);
+        test(ro["abc"][0] == "abc");
+        test(ro["abc"][1] == "de");
+        test(ro["abc"][2] == "fghi");
+        test(ro["def"].size() == 2);
+        test(ro["def"][0] == "xyz");
+        test(ro["def"][1] == "or");
+        test(ro["ghi"].size() == 2);
+        test(ro["ghi"][0] == "and");
+        test(ro["ghi"][1] == "xor");
     }
 
     {
@@ -1600,27 +1510,21 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         sdi1[MyEnum::enum2] = si2;
         sdi2[MyEnum::enum1] = si3;
 
-        try
-        {
-            Test::MyEnumMyEnumSD _do;
-            Test::MyEnumMyEnumSD ro = p->opMyEnumMyEnumSD(sdi1, sdi2, _do);
+        Test::MyEnumMyEnumSD _do;
+        Test::MyEnumMyEnumSD ro = p->opMyEnumMyEnumSD(sdi1, sdi2, _do);
 
-            test(_do == sdi2);
-            test(ro.size() == 3);
-            test(ro[MyEnum::enum3].size() == 3);
-            test(ro[MyEnum::enum3][0] == MyEnum::enum1);
-            test(ro[MyEnum::enum3][1] == MyEnum::enum1);
-            test(ro[MyEnum::enum3][2] == MyEnum::enum2);
-            test(ro[MyEnum::enum2].size() == 2);
-            test(ro[MyEnum::enum2][0] == MyEnum::enum1);
-            test(ro[MyEnum::enum2][1] == MyEnum::enum2);
-            test(ro[MyEnum::enum1].size() == 2);
-            test(ro[MyEnum::enum1][0] == MyEnum::enum3);
-            test(ro[MyEnum::enum1][1] == MyEnum::enum3);
-        }
-        catch (const Ice::OperationNotExistException&)
-        {
-        }
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro[MyEnum::enum3].size() == 3);
+        test(ro[MyEnum::enum3][0] == MyEnum::enum1);
+        test(ro[MyEnum::enum3][1] == MyEnum::enum1);
+        test(ro[MyEnum::enum3][2] == MyEnum::enum2);
+        test(ro[MyEnum::enum2].size() == 2);
+        test(ro[MyEnum::enum2][0] == MyEnum::enum1);
+        test(ro[MyEnum::enum2][1] == MyEnum::enum2);
+        test(ro[MyEnum::enum1].size() == 2);
+        test(ro[MyEnum::enum1][0] == MyEnum::enum3);
+        test(ro[MyEnum::enum1][1] == MyEnum::enum3);
     }
 
     {
