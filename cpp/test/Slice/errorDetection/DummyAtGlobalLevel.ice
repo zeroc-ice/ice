@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-
+// ice-fmt: ignore-file
 interface Foo
 {
     void op() throws UndefinedException;

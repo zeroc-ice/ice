@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-
+// ice-fmt: ignore-file
 module Test
 {
     // Test that carriage returns are reported in string literals.
