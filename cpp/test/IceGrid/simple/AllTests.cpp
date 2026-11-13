@@ -108,6 +108,16 @@ allTests(Test::TestHelper* helper)
         test(!com->getDefaultLocator()->getRegistry());
         test(!Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
 
+        // The plug-in forwards this call to a locator that doesn't implement it, and must relay the failure.
+        try
+        {
+            Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery();
+            test(false);
+        }
+        catch (const Ice::OperationNotExistException&)
+        {
+        }
+
         adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
         adapter->activate();
         adapter->deactivate();

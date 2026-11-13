@@ -10,6 +10,7 @@ import com.zeroc.Ice.NoEndpointException;
 import com.zeroc.Ice.NotRegisteredException;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.UserException;
 import com.zeroc.Ice.Util;
 import com.zeroc.IceGrid.AdminPrx;
@@ -143,6 +144,12 @@ public class AllTests {
             } catch (NoEndpointException ex) {}
             test(comm.getDefaultLocator().getRegistry() == null);
             test(LocatorPrx.checkedCast(comm.getDefaultLocator()) == null);
+
+            // The plug-in forwards this call to a locator that doesn't implement it, and must relay the failure.
+            try {
+                LocatorPrx.uncheckedCast(comm.getDefaultLocator()).getLocalQuery();
+                test(false);
+            } catch (OperationNotExistException ex) {}
 
             adapter = comm.createObjectAdapter("AdapterForDiscoveryTest");
             adapter.activate();

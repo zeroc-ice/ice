@@ -112,6 +112,16 @@ public class AllTests : Test.AllTests
                 test(com.getDefaultLocator().getRegistry() == null);
                 test(IceGrid.LocatorPrxHelper.checkedCast(com.getDefaultLocator()) == null);
 
+                // The plug-in forwards this call to a locator that doesn't implement it, and must relay the failure.
+                try
+                {
+                    IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry();
+                    test(false);
+                }
+                catch (Ice.OperationNotExistException)
+                {
+                }
+
                 Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
                 adapter.activate();
                 adapter.deactivate();
