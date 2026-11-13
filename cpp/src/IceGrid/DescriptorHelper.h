@@ -58,6 +58,7 @@ public:
 private:
 
     std::string substitute(const std::string&, bool, bool) const;
+    std::string substitute(const std::string&, bool, bool, std::set<std::string>&) const;
     std::string getVariable(const std::string&, bool, bool&) const;
     PropertyDescriptorSeq getProperties(const Ice::StringSeq&, std::set<std::string>&) const;
 
