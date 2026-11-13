@@ -5,7 +5,6 @@ package test.Ice.slicing.objects;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.ObjectPrx;
-import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.SliceLoader;
 import com.zeroc.Ice.SlicedData;
 import com.zeroc.Ice.UnknownSlicedValue;
@@ -272,7 +271,7 @@ public class AllTests {
             try {
                 SBase sb = test.SBSUnknownDerivedAsSBaseCompact();
                 test("SBSUnknownDerived.sb".equals(sb.sb));
-            } catch (OperationNotExistException ex) {} catch (Exception ex) {
+            } catch (Exception ex) {
                 test(false);
             }
         } else {
@@ -285,7 +284,7 @@ public class AllTests {
                 test(false);
             } catch (MarshalException ex) {
                 // Expected.
-            } catch (OperationNotExistException ex) {} catch (Exception ex) {
+            } catch (Exception ex) {
                 test(false);
             }
         }
@@ -312,11 +311,8 @@ public class AllTests {
             test.SBSUnknownDerivedAsSBaseCompactAsync()
                 .whenComplete(
                     (result, ex) -> {
-                        if (ex != null) {
-                            test(ex instanceof OperationNotExistException);
-                        } else {
-                            test("SBSUnknownDerived.sb".equals(result.sb));
-                        }
+                        test(ex == null);
+                        test("SBSUnknownDerived.sb".equals(result.sb));
                         cb.called();
                     });
             cb.check();
@@ -329,10 +325,7 @@ public class AllTests {
             test.SBSUnknownDerivedAsSBaseCompactAsync()
                 .whenComplete(
                     (result, ex) -> {
-                        test(ex != null);
-                        test(
-                            ex instanceof OperationNotExistException
-                                || ex instanceof MarshalException);
+                        test(ex instanceof MarshalException);
                         cb.called();
                     });
             cb.check();
@@ -1787,7 +1780,7 @@ public class AllTests {
         out.print("preserved classes... ");
         out.flush();
 
-        try {
+        {
             //
             // Server knows the most-derived class PDerived.
             //
@@ -1801,9 +1794,9 @@ public class AllTests {
             test(p2.pi == 3);
             test("preserved".equals(p2.ps));
             test(p2.pb == p2);
-        } catch (OperationNotExistException ex) {}
+        }
 
-        try {
+        {
             //
             // Server only knows the base (non-preserved) type, so the object is sliced.
             //
@@ -1823,9 +1816,9 @@ public class AllTests {
                 test(p2 != null);
                 test("preserved".equals(p2.pu));
             }
-        } catch (OperationNotExistException ex) {}
+        }
 
-        try {
+        {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
@@ -1843,9 +1836,9 @@ public class AllTests {
                 test(p2.pi == 3);
                 test(p2.pbs[0] == p2);
             }
-        } catch (OperationNotExistException ex) {}
+        }
 
-        try {
+        {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
@@ -1863,9 +1856,9 @@ public class AllTests {
                 test(p2.pi == 3);
                 test(p2.pbs[0] == p2);
             }
-        } catch (OperationNotExistException ex) {}
+        }
 
-        try {
+        {
             //
             // Send an object that will have multiple preserved slices in the server.
             // The object will be sliced to Preserved for the 1.0 encoding.
@@ -1908,9 +1901,9 @@ public class AllTests {
                 test(p3.pcd2 == p3.pi);
                 test(p3.pcd3 == p3.pbs[10]);
             }
-        } catch (OperationNotExistException ex) {}
+        }
 
-        try {
+        {
             //
             // Obtain an object with preserved slices and send it back to the server. The preserved
             // slices should be excluded for the 1.0 encoding, otherwise they should be included.
@@ -1926,12 +1919,12 @@ public class AllTests {
             } else {
                 test(p.ice_getSlicedData() == null);
             }
-        } catch (OperationNotExistException ex) {}
+        }
         out.println("ok");
 
         out.print("preserved classes (AMI)... ");
         out.flush();
-        try {
+        {
             //
             // Server knows the most-derived class PDerived.
             //
@@ -1944,20 +1937,17 @@ public class AllTests {
             test.exchangePBaseAsync(pd)
                 .whenComplete(
                     (result, ex) -> {
-                        if (ex != null) {
-                            test(ex instanceof OperationNotExistException);
-                        } else {
-                            PDerived p2 = (PDerived) result;
-                            test(p2.pi == 3);
-                            test("preserved".equals(p2.ps));
-                            test(p2.pb == p2);
-                        }
+                        test(ex == null);
+                        PDerived p2 = (PDerived) result;
+                        test(p2.pi == 3);
+                        test("preserved".equals(p2.ps));
+                        test(p2.pb == p2);
                         cb.called();
                     });
             cb.check();
-        } catch (OperationNotExistException ex) {}
+        }
 
-        try {
+        {
             //
             // Server only knows the base (non-preserved) type, so the object is sliced.
             //
@@ -1969,24 +1959,21 @@ public class AllTests {
             test.exchangePBaseAsync(pu)
                 .whenComplete(
                     (result, ex) -> {
-                        if (ex != null) {
-                            test(ex instanceof OperationNotExistException);
+                        test(ex == null);
+                        if (test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
+                            test(!(result instanceof PCUnknown));
                         } else {
-                            if (test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
-                                test(!(result instanceof PCUnknown));
-                            } else {
-                                test(result instanceof PCUnknown);
-                                PCUnknown p2 = (PCUnknown) result;
-                                test(p2 != null);
-                                test("preserved".equals(p2.pu));
-                            }
+                            test(result instanceof PCUnknown);
+                            PCUnknown p2 = (PCUnknown) result;
+                            test(p2 != null);
+                            test("preserved".equals(p2.pu));
                         }
                         cb.called();
                     });
             cb.check();
-        } catch (OperationNotExistException ex) {}
+        }
 
-        try {
+        {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
@@ -2000,12 +1987,9 @@ public class AllTests {
                 test.exchangePBaseAsync(pcd)
                     .whenComplete(
                         (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof OperationNotExistException);
-                            } else {
-                                test(!(result instanceof PCDerived));
-                                test(result.pi == 3);
-                            }
+                            test(ex == null);
+                            test(!(result instanceof PCDerived));
+                            test(result.pi == 3);
                             cb.called();
                         });
                 cb.check();
@@ -2014,20 +1998,17 @@ public class AllTests {
                 test.exchangePBaseAsync(pcd)
                     .whenComplete(
                         (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof OperationNotExistException);
-                            } else {
-                                PCDerived p2 = (PCDerived) result;
-                                test(p2.pi == 3);
-                                test(p2.pbs[0] == p2);
-                            }
+                            test(ex == null);
+                            PCDerived p2 = (PCDerived) result;
+                            test(p2.pi == 3);
+                            test(p2.pbs[0] == p2);
                             cb.called();
                         });
                 cb.check();
             }
-        } catch (OperationNotExistException ex) {}
+        }
 
-        try {
+        {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
@@ -2041,12 +2022,9 @@ public class AllTests {
                 test.exchangePBaseAsync(pcd)
                     .whenComplete(
                         (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof OperationNotExistException);
-                            } else {
-                                test(!(result instanceof CompactPCDerived));
-                                test(result.pi == 3);
-                            }
+                            test(ex == null);
+                            test(!(result instanceof CompactPCDerived));
+                            test(result.pi == 3);
                             cb.called();
                         });
                 cb.check();
@@ -2055,20 +2033,17 @@ public class AllTests {
                 test.exchangePBaseAsync(pcd)
                     .whenComplete(
                         (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof OperationNotExistException);
-                            } else {
-                                CompactPCDerived p2 = (CompactPCDerived) result;
-                                test(p2.pi == 3);
-                                test(p2.pbs[0] == p2);
-                            }
+                            test(ex == null);
+                            CompactPCDerived p2 = (CompactPCDerived) result;
+                            test(p2.pi == 3);
+                            test(p2.pbs[0] == p2);
                             cb.called();
                         });
                 cb.check();
             }
-        } catch (OperationNotExistException ex) {}
+        }
 
-        try {
+        {
             //
             // Send an object that will have multiple preserved slices in the server.
             // The object will be sliced to Preserved for the 1.0 encoding.
@@ -2098,13 +2073,10 @@ public class AllTests {
                 test.exchangePBaseAsync(pcd)
                     .whenComplete(
                         (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof OperationNotExistException);
-                            } else {
-                                test(!(result instanceof PCDerived3));
-                                test(result instanceof Preserved);
-                                test(result.pi == 3);
-                            }
+                            test(ex == null);
+                            test(!(result instanceof PCDerived3));
+                            test(result instanceof Preserved);
+                            test(result.pi == 3);
                             cb.called();
                         });
                 cb.check();
@@ -2113,28 +2085,25 @@ public class AllTests {
                 test.exchangePBaseAsync(pcd)
                     .whenComplete(
                         (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof OperationNotExistException);
-                            } else {
-                                PCDerived3 p3 = (PCDerived3) result;
-                                test(p3.pi == 3);
-                                for (int j = 0; j < 300; j++) {
-                                    PCDerived2 p2 = (PCDerived2) p3.pbs[j];
-                                    test(p2.pi == j);
-                                    test(p2.pbs.length == 1);
-                                    test(p2.pbs[0] == null);
-                                    test(p2.pcd2 == j);
-                                }
-                                test(p3.pcd2 == p3.pi);
-                                test(p3.pcd3 == p3.pbs[10]);
+                            test(ex == null);
+                            PCDerived3 p3 = (PCDerived3) result;
+                            test(p3.pi == 3);
+                            for (int j = 0; j < 300; j++) {
+                                PCDerived2 p2 = (PCDerived2) p3.pbs[j];
+                                test(p2.pi == j);
+                                test(p2.pbs.length == 1);
+                                test(p2.pbs[0] == null);
+                                test(p2.pcd2 == j);
                             }
+                            test(p3.pcd2 == p3.pi);
+                            test(p3.pcd3 == p3.pbs[10]);
                             cb.called();
                         });
                 cb.check();
             }
-        } catch (OperationNotExistException ex) {}
+        }
 
-        try {
+        {
             //
             // Obtain an object with preserved slices and send it back to the server. The preserved
             // slices should be excluded for the 1.0 encoding, otherwise they should be included.
@@ -2144,13 +2113,13 @@ public class AllTests {
             if (!test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
                 test.ice_encodingVersion(Util.Encoding_1_0).checkPBSUnknown(p);
             }
-        } catch (OperationNotExistException ex) {}
+        }
 
         out.println("ok");
 
         out.print("garbage collection for preserved classes... ");
         out.flush();
-        try {
+        {
             //
             // Relay a graph through the server.
             //
@@ -2194,7 +2163,7 @@ public class AllTests {
                 test(PreservedI.counter == 1);
                 PreservedI.counter = 0;
             }
-        } catch (OperationNotExistException ex) {}
+        }
 
         out.println("ok");
 
