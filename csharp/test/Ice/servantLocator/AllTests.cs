@@ -73,9 +73,6 @@ public class AllTests : global::Test.AllTests
         {
             test(ex.Message.Contains("Test::TestIntfUserException", StringComparison.Ordinal));
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
         catch (Exception)
         {
             test(false);
@@ -104,9 +101,6 @@ public class AllTests : global::Test.AllTests
         catch (Ice.UnknownException ex)
         {
             test(ex.Message.Contains("System.Exception", StringComparison.Ordinal));
-        }
-        catch (Ice.OperationNotExistException)
-        {
         }
         catch (Exception)
         {

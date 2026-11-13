@@ -200,9 +200,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     output.writeLine("ok")
 
     output.write("setting G... ")
-    do {
-        try await initial.setG(G(theS: S(str: "hello"), str: "g"))
-    } catch is Ice.OperationNotExistException {}
+    try await initial.setG(G(theS: S(str: "hello"), str: "g"))
     output.writeLine("ok")
 
     output.write("testing sequences...")
@@ -210,7 +208,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var (retS, outS) = try await initial.opBaseSeq([Base]())
         (retS, outS) = try await initial.opBaseSeq([Base(theS: S(), str: "")])
         try test(retS.count == 1 && outS.count == 1)
-    } catch is Ice.OperationNotExistException {}
+    }
     output.writeLine("ok")
 
     output.write("testing recursive type... ")
@@ -235,9 +233,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     output.writeLine("ok")
 
     output.write("testing compact ID...")
-    do {
-        try await test(initial.getCompact() != nil)
-    } catch is Ice.OperationNotExistException {}
+    try await test(initial.getCompact() != nil)
     output.writeLine("ok")
 
     output.write("testing marshaled results...")

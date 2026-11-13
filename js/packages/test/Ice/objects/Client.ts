@@ -230,11 +230,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("setting G... ");
-        try {
-            await initial.setG(new Test.G(new Test.S("hello"), "g"));
-        } catch (ex) {
-            test(ex instanceof Ice.OperationNotExistException, ex as Error);
-        }
+        await initial.setG(new Test.G(new Test.S("hello"), "g"));
         out.writeLine("ok");
 
         out.write("testing sequences... ");

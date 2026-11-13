@@ -1,1 +1,1 @@
-IllegalIncludeDirective.ice:8: '#include' directives must come before any Slice definitions in a file
+IllegalIncludeDirective.ice:20: '#include' directives must come before any Slice definitions in a file
