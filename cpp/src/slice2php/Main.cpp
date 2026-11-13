@@ -358,12 +358,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp << nl << "public static function checkedCast($proxy, ...$args)";
     _out << sb;
-    _out << nl << "return $proxy->ice_checkedCast('" << scoped << "', ...$args);";
+    _out << nl << "return $proxy?->ice_checkedCast('" << scoped << "', ...$args);";
     _out << eb;
 
     _out << sp << nl << "public static function uncheckedCast($proxy, $facet=null)";
     _out << sb;
-    _out << nl << "return $proxy->ice_uncheckedCast('" << scoped << "', $facet);";
+    _out << nl << "return $proxy?->ice_uncheckedCast('" << scoped << "', $facet);";
     _out << eb;
 
     _out << sp << nl << "public static function ice_staticId()";

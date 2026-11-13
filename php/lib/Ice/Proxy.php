@@ -12,12 +12,12 @@ class ObjectPrxHelper
 
     public static function checkedCast($proxy, ...$args)
     {
-        return $proxy->ice_checkedCast('::Ice::Object', ...$args);
+        return $proxy?->ice_checkedCast('::Ice::Object', ...$args);
     }
 
     public static function uncheckedCast($proxy, $facet=null)
     {
-        return $proxy->ice_uncheckedCast('::Ice::Object', $facet);
+        return $proxy?->ice_uncheckedCast('::Ice::Object', $facet);
     }
 
     public static function ice_staticId()
