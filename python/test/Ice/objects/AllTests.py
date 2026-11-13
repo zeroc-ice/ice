@@ -98,10 +98,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.Initial
 
     sys.stdout.write("setting G... ")
     sys.stdout.flush()
-    try:
-        initial.setG(Test.G(Test.S("hello"), "g"))
-    except Ice.OperationNotExistException:
-        pass
+    initial.setG(Test.G(Test.S("hello"), "g"))
     print("ok")
 
     sys.stdout.write("checking consistency... ")
@@ -186,14 +183,11 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.Initial
     print("ok")
 
     sys.stdout.write("testing sequences... ")
-    try:
-        sys.stdout.flush()
-        initial.opBaseSeq([])
+    sys.stdout.flush()
+    initial.opBaseSeq([])
 
-        retS, outS = initial.opBaseSeq([Test.Base()])
-        test(len(retS) == 1 and len(outS) == 1)
-    except Ice.OperationNotExistException:
-        pass
+    retS, outS = initial.opBaseSeq([Test.Base()])
+    test(len(retS) == 1 and len(outS) == 1)
     print("ok")
 
     sys.stdout.write("testing recursive type... ")
@@ -221,11 +215,8 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.Initial
 
     sys.stdout.write("testing compact ID... ")
     sys.stdout.flush()
-    try:
-        r = initial.getCompact()
-        test(r)
-    except Ice.OperationNotExistException:
-        pass
+    r = initial.getCompact()
+    test(r)
     print("ok")
 
     sys.stdout.write("testing marshaled results...")

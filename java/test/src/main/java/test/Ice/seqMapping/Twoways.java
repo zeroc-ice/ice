@@ -2,8 +2,6 @@
 
 package test.Ice.seqMapping;
 
-import com.zeroc.Ice.OperationNotExistException;
-
 import test.Ice.seqMapping.Serialize.Large;
 import test.Ice.seqMapping.Serialize.Small;
 import test.Ice.seqMapping.Serialize.Struct;
@@ -31,14 +29,10 @@ class Twoways {
             Small i = new Small();
             i.i = 99;
 
-            try {
-                MyInterface.OpSerialSmallJavaResult r = p.opSerialSmallJava(i);
+            MyInterface.OpSerialSmallJavaResult r = p.opSerialSmallJava(i);
 
-                test(r.o.i == 99);
-                test(r.returnValue.i == 99);
-            } catch (OperationNotExistException ex) {
-                // OK, talking to non-Java server.
-            }
+            test(r.o.i == 99);
+            test(r.returnValue.i == 99);
         }
 
         {
@@ -54,32 +48,28 @@ class Twoways {
             i.d9 = 9.0;
             i.d10 = 10.0;
 
-            try {
-                MyInterface.OpSerialLargeJavaResult r = p.opSerialLargeJava(i);
+            MyInterface.OpSerialLargeJavaResult r = p.opSerialLargeJava(i);
 
-                test(r.o.d1 == 1.0);
-                test(r.o.d2 == 2.0);
-                test(r.o.d3 == 3.0);
-                test(r.o.d4 == 4.0);
-                test(r.o.d5 == 5.0);
-                test(r.o.d6 == 6.0);
-                test(r.o.d7 == 7.0);
-                test(r.o.d8 == 8.0);
-                test(r.o.d9 == 9.0);
-                test(r.o.d10 == 10.0);
-                test(r.returnValue.d1 == 1.0);
-                test(r.returnValue.d2 == 2.0);
-                test(r.returnValue.d3 == 3.0);
-                test(r.returnValue.d4 == 4.0);
-                test(r.returnValue.d5 == 5.0);
-                test(r.returnValue.d6 == 6.0);
-                test(r.returnValue.d7 == 7.0);
-                test(r.returnValue.d8 == 8.0);
-                test(r.returnValue.d9 == 9.0);
-                test(r.returnValue.d10 == 10.0);
-            } catch (OperationNotExistException ex) {
-                // OK, talking to non-Java server.
-            }
+            test(r.o.d1 == 1.0);
+            test(r.o.d2 == 2.0);
+            test(r.o.d3 == 3.0);
+            test(r.o.d4 == 4.0);
+            test(r.o.d5 == 5.0);
+            test(r.o.d6 == 6.0);
+            test(r.o.d7 == 7.0);
+            test(r.o.d8 == 8.0);
+            test(r.o.d9 == 9.0);
+            test(r.o.d10 == 10.0);
+            test(r.returnValue.d1 == 1.0);
+            test(r.returnValue.d2 == 2.0);
+            test(r.returnValue.d3 == 3.0);
+            test(r.returnValue.d4 == 4.0);
+            test(r.returnValue.d5 == 5.0);
+            test(r.returnValue.d6 == 6.0);
+            test(r.returnValue.d7 == 7.0);
+            test(r.returnValue.d8 == 8.0);
+            test(r.returnValue.d9 == 9.0);
+            test(r.returnValue.d10 == 10.0);
         }
 
         {
@@ -89,24 +79,20 @@ class Twoways {
             i.s = null;
             i.s2 = "Hello";
 
-            try {
-                MyInterface.OpSerialStructJavaResult r = p.opSerialStructJava(i);
+            MyInterface.OpSerialStructJavaResult r = p.opSerialStructJava(i);
 
-                test(r.o.o == null);
-                test(r.o.o2 != null);
-                test(((Struct) (r.o.o2)).o == null);
-                test(((Struct) (r.o.o2)).o2 == r.o.o2);
-                test(r.o.s == null);
-                test("Hello".equals(r.o.s2));
-                test(r.returnValue.o == null);
-                test(r.returnValue.o2 != null);
-                test(((Struct) (r.returnValue.o2)).o == null);
-                test(((Struct) (r.returnValue.o2)).o2 == r.returnValue.o2);
-                test(r.returnValue.s == null);
-                test("Hello".equals(r.returnValue.s2));
-            } catch (OperationNotExistException ex) {
-                // OK, talking to non-Java server.
-            }
+            test(r.o.o == null);
+            test(r.o.o2 != null);
+            test(((Struct) (r.o.o2)).o == null);
+            test(((Struct) (r.o.o2)).o2 == r.o.o2);
+            test(r.o.s == null);
+            test("Hello".equals(r.o.s2));
+            test(r.returnValue.o == null);
+            test(r.returnValue.o2 != null);
+            test(((Struct) (r.returnValue.o2)).o == null);
+            test(((Struct) (r.returnValue.o2)).o2 == r.returnValue.o2);
+            test(r.returnValue.s == null);
+            test("Hello".equals(r.returnValue.s2));
         }
     }
 

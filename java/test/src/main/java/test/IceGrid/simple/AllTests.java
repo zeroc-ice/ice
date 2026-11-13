@@ -144,9 +144,11 @@ public class AllTests {
             } catch (NoEndpointException ex) {}
             test(comm.getDefaultLocator().getRegistry() == null);
             test(LocatorPrx.checkedCast(comm.getDefaultLocator()) == null);
+
+            // The plug-in forwards this call to a locator that doesn't implement it, and must relay the failure.
             try {
-                LocatorPrx.uncheckedCast(comm.getDefaultLocator())
-                    .getLocalQuery();
+                LocatorPrx.uncheckedCast(comm.getDefaultLocator()).getLocalQuery();
+                test(false);
             } catch (OperationNotExistException ex) {}
 
             adapter = comm.createObjectAdapter("AdapterForDiscoveryTest");

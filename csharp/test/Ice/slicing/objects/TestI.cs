@@ -225,6 +225,22 @@ public sealed class TestI : TestIntfDisp_
         return ss;
     }
 
+    public override SD1 dictionaryClassTest(SD1 p, Ice.Current current)
+    {
+        var r = new SD1();
+        r.d = new Dictionary<string, B>();
+        foreach (var (key, b) in p.d)
+        {
+            var d2 = new D2();
+            d2.sb = b.sb;
+            d2.pb = b.pb;
+            d2.sd2 = "D2";
+            d2.pd2 = d2;
+            r.d[key] = d2;
+        }
+        return r;
+    }
+
     public override Dictionary<int, B> dictionaryTest(
         Dictionary<int, B> bin,
         out Dictionary<int, B> bout,
@@ -414,17 +430,6 @@ public sealed class TestI : TestIntfDisp_
         ude.sude = "sude";
         ude.pd2 = d2;
         throw ude;
-    }
-
-    public override Task
-    throwPreservedExceptionAsync(Ice.Current current)
-    {
-        var ue = new PSUnknownException();
-        ue.p = new PSUnknown2();
-        ue.p.pi = 5;
-        ue.p.ps = "preserved";
-        ue.p.pb = ue.p;
-        throw ue;
     }
 
     public override void useForward(out Forward f, Ice.Current current)

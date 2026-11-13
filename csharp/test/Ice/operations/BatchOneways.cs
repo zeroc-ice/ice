@@ -146,14 +146,7 @@ internal class BatchOneways
         // environment must provide bzip2, otherwise the compression checks below exercise nothing.
         test(Ice.Internal.BZip2.isLoaded(p.ice_getCommunicator().getLogger()));
 
-        bool supportsCompress = true;
-        try
-        {
-            supportsCompress = p.supportsCompress();
-        }
-        catch (Ice.OperationNotExistException)
-        {
-        }
+        bool supportsCompress = p.supportsCompress();
 
         if (supportsCompress && p.ice_getConnection() != null &&
            p.ice_getCommunicator().getProperties().getIceProperty("Ice.Override.Compress").Length == 0)

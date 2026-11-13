@@ -259,13 +259,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "setting G... " << flush;
     GPtr g = make_shared<G>(s, "g");
-    try
-    {
-        initial->setG(g);
-    }
-    catch (const Ice::OperationNotExistException&)
-    {
-    }
+    initial->setG(g);
     cout << "ok" << endl;
 
     cout << "testing sequences... " << flush;
@@ -305,13 +299,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing compact ID..." << flush;
-    try
-    {
-        test(initial->getCompact());
-    }
-    catch (const Ice::OperationNotExistException&)
-    {
-    }
+    test(initial->getCompact());
     cout << "ok" << endl;
 
     cout << "testing marshaled results..." << flush;

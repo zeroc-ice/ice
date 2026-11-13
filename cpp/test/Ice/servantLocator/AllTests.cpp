@@ -79,9 +79,6 @@ testExceptions(const TestIntfPrx& obj)
     {
         test(string{ex.what()}.find("::Test::TestIntfUserException") != string::npos);
     }
-    catch (const OperationNotExistException&)
-    {
-    }
     catch (...)
     {
         test(false);
@@ -108,9 +105,6 @@ testExceptions(const TestIntfPrx& obj)
         obj->stdException();
         test(false);
     }
-    catch (const OperationNotExistException&)
-    {
-    }
     catch (const UnknownException& ex)
     {
         string message{ex.what()};
@@ -131,9 +125,6 @@ testExceptions(const TestIntfPrx& obj)
     catch (const UnknownException& ex)
     {
         test(string{ex.what()} == "dispatch failed with unknown: c++ exception");
-    }
-    catch (const OperationNotExistException&)
-    {
     }
     catch (...)
     {

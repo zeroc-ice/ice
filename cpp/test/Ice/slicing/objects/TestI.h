@@ -42,6 +42,7 @@ public:
     ::Test::SS3 sequenceTest(::Test::SS1Ptr, ::Test::SS2Ptr, const Ice::Current&) override;
 
     ::Test::BDict dictionaryTest(::Test::BDict, ::Test::BDict&, const Ice::Current&) override;
+    ::Test::SD1Ptr dictionaryClassTest(::Test::SD1Ptr, const Ice::Current&) override;
 
     ::Test::PBasePtr exchangePBase(::Test::PBasePtr, const Ice::Current&) override;
 

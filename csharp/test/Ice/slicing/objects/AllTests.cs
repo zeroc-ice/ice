@@ -1,43 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Diagnostics;
 using Test;
 
 namespace Ice.slicing.objects;
 
 public class AllTests : Test.AllTests
 {
-    private class Callback
-    {
-        internal Callback() => _called = false;
-
-        public virtual void check()
-        {
-            lock (_mutex)
-            {
-                while (!_called)
-                {
-                    Monitor.Wait(_mutex);
-                }
-
-                _called = false;
-            }
-        }
-
-        public virtual void called()
-        {
-            lock (_mutex)
-            {
-                Debug.Assert(!_called);
-                _called = true;
-                Monitor.Pulse(_mutex);
-            }
-        }
-
-        private bool _called;
-        private readonly object _mutex = new();
-    }
-
     internal class CustomSliceLoader : Ice.SliceLoader
     {
         public object newInstance(string typeId)
@@ -1475,6 +1443,46 @@ public class AllTests : Test.AllTests
         }
         output.WriteLine("ok");
 
+        output.Write("dictionary of classes in a class... ");
+        {
+            try
+            {
+                var p = new SD1();
+                p.d = new Dictionary<string, B>();
+                int i;
+                for (i = 0; i < 10; ++i)
+                {
+                    string s = $"D1.{i}";
+                    var d1 = new D1();
+                    d1.sb = s;
+                    d1.pb = d1;
+                    d1.sd1 = s;
+                    p.d[s] = d1;
+                }
+
+                SD1 r = testPrx.dictionaryClassTest(p);
+
+                test(r.d.Count == 10);
+                for (i = 0; i < 10; ++i)
+                {
+                    string s = $"D1.{i}";
+                    B b = r.d[s];
+                    test(b != null);
+                    test(b.sb == s);
+                    test(b.pb != null);
+                    test(b.pb != b);
+                    test(b.pb.sb == s);
+                    test(b.pb.pb == b.pb);
+                }
+            }
+            catch (Exception ex)
+            {
+                output.WriteLine(ex.ToString());
+                test(false);
+            }
+        }
+        output.WriteLine("ok");
+
         output.Write("base exception thrown as base exception... ");
         output.Flush();
         {
@@ -1724,8 +1732,6 @@ public class AllTests : Test.AllTests
 
         output.Write("preserved classes... ");
         output.Flush();
-
-        try
         {
             //
             // Server knows the most-derived class PDerived.
@@ -1741,11 +1747,7 @@ public class AllTests : Test.AllTests
             test(p2.ps == "preserved");
             test(p2.pb == p2);
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
-        try
         {
             //
             // Server only knows the base (non-preserved) type, so the object is sliced.
@@ -1770,11 +1772,7 @@ public class AllTests : Test.AllTests
                 test(p2.pu == "preserved");
             }
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
-        try
         {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -1797,11 +1795,7 @@ public class AllTests : Test.AllTests
                 test(p2.pbs[0] == p2);
             }
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
-        try
         {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -1824,11 +1818,7 @@ public class AllTests : Test.AllTests
                 test(p2.pbs[0] == p2);
             }
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
-        try
         {
             //
             // Send an object that will have multiple preserved slices in the server.
@@ -1875,11 +1865,7 @@ public class AllTests : Test.AllTests
                 test(p3.pcd3 == p3.pbs[10]);
             }
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
-        try
         {
             //
             // Obtain an object with preserved slices and send it back to the server.
@@ -1900,9 +1886,6 @@ public class AllTests : Test.AllTests
             {
                 test(p.ice_getSlicedData() == null);
             }
-        }
-        catch (Ice.OperationNotExistException)
-        {
         }
 
         output.WriteLine("ok");
@@ -2044,7 +2027,6 @@ public class AllTests : Test.AllTests
             }
         }
 
-        try
         {
             //
             // Obtain an object with preserved slices and send it back to the server.
@@ -2058,15 +2040,11 @@ public class AllTests : Test.AllTests
                 (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
             }
         }
-        catch (Ice.OperationNotExistException)
-        {
-        }
 
         output.WriteLine("ok");
 
         output.Write("garbage collection for preserved classes... ");
         output.Flush();
-        try
         {
             //
             // Relay a graph through the server.
@@ -2112,33 +2090,6 @@ public class AllTests : Test.AllTests
                 test(PreservedI.counter == 1);
                 PreservedI.counter = 0;
             }
-
-            //
-            // Throw a preserved exception where the most-derived type is unknown.
-            // The preserved exception slice contains a class data member. This
-            // object is also preserved, and its most-derived type is also unknown.
-            // The preserved slice of the object contains a class data member that
-            // refers to itself.
-            //
-            // The chain of references looks like this:
-            //
-            // ex.slicedData_.obj.iceSlicedData_.obj
-            //
-            test(PreservedI.counter == 0);
-
-            try
-            {
-                testPrx.throwPreservedException();
-            }
-            catch (PreservedException)
-            {
-                test(PreservedI.counter == 1);
-            }
-
-            PreservedI.counter = 0;
-        }
-        catch (Ice.OperationNotExistException)
-        {
         }
 
         output.WriteLine("ok");

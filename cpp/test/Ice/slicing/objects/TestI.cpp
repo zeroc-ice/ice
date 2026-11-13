@@ -439,6 +439,24 @@ TestI::dictionaryTest(BDict bin, BDict& bout, const Ice::Current&)
     return r;
 }
 
+Test::SD1Ptr
+TestI::dictionaryClassTest(SD1Ptr p, const Ice::Current&)
+{
+    SD1Ptr r = make_shared<SD1>();
+    for (const auto& [key, b] : p->d)
+    {
+        D2Ptr d2 = make_shared<D2>();
+        d2->sb = b->sb;
+        d2->pb = b->pb;
+        d2->sd2 = "D2";
+        d2->pd2 = d2;
+        _values.push_back(b);
+        _values.push_back(d2);
+        r->d[key] = d2;
+    }
+    return r;
+}
+
 Test::PBasePtr
 TestI::exchangePBase(Test::PBasePtr pb, const Ice::Current&)
 {

@@ -968,10 +968,6 @@ namespace
             {
                 rethrow_exception(ex);
             }
-            catch (const OperationNotExistException&)
-            {
-                called();
-            }
             catch (const std::exception& e)
             {
                 cerr << e.what() << endl;

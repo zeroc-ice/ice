@@ -2,6 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
+import { Test as TestPrivate } from "./ClientPrivate.js";
 import { TestHelper, test } from "../../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
@@ -204,7 +205,7 @@ export class Client extends TestHelper {
             const d1 = new Test.D1();
             d1.sb = "D1.sb";
             d1.sd1 = "D1.sd1";
-            const d3 = new Test.D3();
+            const d3 = new TestPrivate.D3();
             d3.pb = d1;
             d3.sb = "D3.sb";
             d3.sd3 = "D3.sd3";
@@ -227,9 +228,9 @@ export class Client extends TestHelper {
             test(b2.pb == b1);
 
             if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
-                test(!(b2 instanceof Test.D3));
+                test(!(b2 instanceof TestPrivate.D3));
             } else {
-                const d3 = b2 as Test.D3;
+                const d3 = b2 as TestPrivate.D3;
                 test(d3 !== null);
                 test(d3.pd3 === p1);
                 test(d3.sd3 == "D3.sd3");
@@ -247,7 +248,7 @@ export class Client extends TestHelper {
             const d1 = new Test.D1();
             d1.sb = "D1.sb";
             d1.sd1 = "D1.sd1";
-            const d3 = new Test.D3();
+            const d3 = new TestPrivate.D3();
             d3.pb = d1;
             d3.sb = "D3.sb";
             d3.sd3 = "D3.sd3";
@@ -272,9 +273,9 @@ export class Client extends TestHelper {
             test(p3.pd1 === b1);
 
             if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
-                test(!(b1 instanceof Test.D3));
+                test(!(b1 instanceof TestPrivate.D3));
             } else {
-                const p1 = b1 as Test.D3;
+                const p1 = b1 as TestPrivate.D3;
                 test(p1 !== null);
                 test(p1.pd3 === b2);
                 test(p1.sd3 == "D3.sd3");
@@ -328,7 +329,7 @@ export class Client extends TestHelper {
             b1.sb = "B.sb(1)";
             b1.pb = b1;
 
-            const d3 = new Test.D3();
+            const d3 = new TestPrivate.D3();
             d3.sb = "D3.sb";
             d3.pb = d3;
             d3.sd3 = "D3.sd3";
@@ -345,9 +346,9 @@ export class Client extends TestHelper {
             test(ret.pb === ret);
 
             if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
-                test(!(ret instanceof Test.D3));
+                test(!(ret instanceof TestPrivate.D3));
             } else {
-                const p3 = ret as Test.D3;
+                const p3 = ret as TestPrivate.D3;
                 test(p3 !== null);
                 test(p3.sd3 == "D3.sd3");
                 test(p3.pd3!.ice_id() == "::Test::B");
@@ -364,7 +365,7 @@ export class Client extends TestHelper {
             d11.pb = d11;
             d11.sd1 = "D1.sd1(1)";
 
-            const d3 = new Test.D3();
+            const d3 = new TestPrivate.D3();
             d3.sb = "D3.sb";
             d3.pb = d3;
             d3.sd3 = "D3.sd3";
@@ -395,7 +396,7 @@ export class Client extends TestHelper {
             ss1d1.sd1 = "D1.sd1";
             ss1d1.pb = ss1b;
 
-            let ss1d3 = new Test.D3();
+            let ss1d3 = new TestPrivate.D3();
             ss1d3.sb = "D3.sb";
             ss1d3.sd3 = "D3.sd3";
             ss1d3.pb = ss1b;
@@ -409,7 +410,7 @@ export class Client extends TestHelper {
             ss2d1.sd1 = "D1.sd1";
             ss2d1.pb = ss2b;
 
-            let ss2d3 = new Test.D3();
+            let ss2d3 = new TestPrivate.D3();
             ss2d3.sb = "D3.sb";
             ss2d3.sd3 = "D3.sd3";
             ss2d3.pb = ss2b;
@@ -438,12 +439,12 @@ export class Client extends TestHelper {
             ss1b = ss.c1.s[0] as Test.B;
             ss1d1 = ss.c1.s[1] as Test.D1;
             test(ss.c2 !== null);
-            ss1d3 = ss.c1.s[2] as Test.D3;
+            ss1d3 = ss.c1.s[2] as TestPrivate.D3;
 
             test(ss.c2 !== null);
             ss2b = ss.c2.s[0] as Test.B;
             ss2d1 = ss.c2.s[1] as Test.D1;
-            ss2d3 = ss.c2.s[2] as Test.D3;
+            ss2d3 = ss.c2.s[2] as TestPrivate.D3;
 
             test(ss1b.pb === ss1b);
             test(ss1d1.pb === ss1b);
@@ -463,8 +464,8 @@ export class Client extends TestHelper {
                 test(ss1d3 instanceof Test.B);
                 test(ss2d3 instanceof Test.B);
             } else {
-                test(ss1d3 instanceof Test.D3);
-                test(ss2d3 instanceof Test.D3);
+                test(ss1d3 instanceof TestPrivate.D3);
+                test(ss2d3 instanceof TestPrivate.D3);
             }
         }
         out.writeLine("ok");
@@ -504,6 +505,35 @@ export class Client extends TestHelper {
                 const d1 = b as Test.D1;
                 test(d1.sd1 == s);
                 test(d1.pd1 === b);
+            }
+        }
+        out.writeLine("ok");
+
+        out.write("dictionary of classes in a class... ");
+        {
+            const p = new Test.SD1();
+            p.d = new Map();
+            for (let i = 0; i < 10; ++i) {
+                const s = `D1.${i}`;
+                const d1 = new Test.D1();
+                d1.sb = s;
+                d1.pb = d1;
+                d1.sd1 = s;
+                p.d.set(s, d1);
+            }
+
+            const r = await prx.dictionaryClassTest(p);
+            test(r !== null);
+            test(r!.d.size === 10);
+            for (let i = 0; i < 10; ++i) {
+                const s = `D1.${i}`;
+                const b = r!.d.get(s);
+                test(b instanceof Test.B);
+                test(b.sb == s);
+                test(b.pb !== null);
+                test(b.pb !== b);
+                test(b.pb.sb == s);
+                test(b.pb.pb == b.pb);
             }
         }
         out.writeLine("ok");
@@ -616,7 +646,7 @@ export class Client extends TestHelper {
             //
             // Server only knows the base (non-preserved) type, so the object is sliced.
             //
-            const pu = new Test.PCUnknown();
+            const pu = new TestPrivate.PCUnknown();
             pu.pi = 3;
             pu.pu = "preserved";
 
@@ -625,9 +655,9 @@ export class Client extends TestHelper {
             test(r.pi == 3);
 
             if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
-                test(!(r instanceof Test.PCUnknown));
+                test(!(r instanceof TestPrivate.PCUnknown));
             } else {
-                const p2 = r as Test.PCUnknown;
+                const p2 = r as TestPrivate.PCUnknown;
                 test(p2 !== null);
                 test(p2.pu == "preserved");
             }
@@ -638,17 +668,17 @@ export class Client extends TestHelper {
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
             //
-            const pcd = new Test.PCDerived();
+            const pcd = new TestPrivate.PCDerived();
             pcd.pi = 3;
             pcd.pbs = [pcd];
 
             const r = await prx.exchangePBase(pcd);
             if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
                 test(r !== null);
-                test(!(r instanceof Test.PCDerived));
+                test(!(r instanceof TestPrivate.PCDerived));
                 test(r.pi === 3);
             } else {
-                const p2 = r as Test.PCDerived;
+                const p2 = r as TestPrivate.PCDerived;
                 test(p2.pi === 3);
                 test(p2.pbs[0] === r);
             }
@@ -659,17 +689,17 @@ export class Client extends TestHelper {
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
             //
-            const pcd = new Test.CompactPCDerived();
+            const pcd = new TestPrivate.CompactPCDerived();
             pcd.pi = 3;
             pcd.pbs = [pcd];
 
             const r = await prx.exchangePBase(pcd);
             if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
                 test(r !== null);
-                test(!(r instanceof Test.CompactPCDerived));
+                test(!(r instanceof TestPrivate.CompactPCDerived));
                 test(r.pi === 3);
             } else {
-                const p2 = r as Test.CompactPCDerived;
+                const p2 = r as TestPrivate.CompactPCDerived;
                 test(p2.pi === 3);
                 test(p2.pbs[0] === p2);
             }
@@ -680,7 +710,7 @@ export class Client extends TestHelper {
             // Send an object that will have multiple preserved slices in the server.
             // The object will be sliced to Preserved for the 1.0 encoding.
             //
-            const pcd = new Test.PCDerived3();
+            const pcd = new TestPrivate.PCDerived3();
             pcd.pi = 3;
 
             //
@@ -688,7 +718,7 @@ export class Client extends TestHelper {
             //
             pcd.pbs = new Array(300);
             for (let i = 0; i < 300; ++i) {
-                const p2 = new Test.PCDerived2();
+                const p2 = new TestPrivate.PCDerived2();
                 p2.pi = i;
                 p2.pbs = [null]; // Nil reference. This slice should not have an indirection table.
                 p2.pcd2 = i;
@@ -699,14 +729,14 @@ export class Client extends TestHelper {
 
             const r = await prx.exchangePBase(pcd);
             if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
-                test(!(r instanceof Test.PCDerived3));
+                test(!(r instanceof TestPrivate.PCDerived3));
                 test(r instanceof Test.Preserved);
                 test(r.pi === 3);
             } else {
-                const p3 = r as Test.PCDerived3;
+                const p3 = r as TestPrivate.PCDerived3;
                 test(p3.pi === 3);
                 for (let i = 0; i < 300; ++i) {
-                    const p2 = p3.pbs[i] as Test.PCDerived2;
+                    const p2 = p3.pbs[i] as TestPrivate.PCDerived2;
                     test(p2.pi === i);
                     test(p2.pbs.length === 1);
                     test(p2.pbs[0] === null);
