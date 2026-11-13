@@ -316,8 +316,8 @@ ReplicaSessionManager::create(const InternalRegistryPrx& replica)
         Lock sync(*this);
 
         //
-        // Wait until the session manager is initialized or destroyed. _master can't be used for this since it's set
-        // by the constructor; _thread is set by the other create() overload once the slave registry is ready.
+        // Wait until the session manager is initialized or destroyed. _thread is set by the other create() overload
+        // once the slave registry is ready.
         //
         while(!_thread && _communicator)
         {
