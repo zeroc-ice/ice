@@ -2489,23 +2489,22 @@ IcePy::DictionaryInfo::unmarshal(
         }
 
         //
-        // A class value can be unmarshaled after this loop, and the dictionary
-        // doesn't keep a reference to a key equal to one it already holds, so the
-        // stream must keep the key alive until then.
-        //
-        if (valueType->usesClasses())
-        {
-            auto* util = reinterpret_cast<StreamUtil*>(is->getClosure());
-            assert(util);
-            util->hold(keyCB->key);
-        }
-
-        //
         // The callback will reset the dictionary entry with the unmarshaled value,
         // so we pass it the key.
         //
         void* cl = reinterpret_cast<void*>(keyCB->key.get());
         valueType->unmarshal(is, shared_from_this(), p.get(), cl, false);
+    }
+
+    //
+    // A repeated key leaves the dictionary with fewer entries than the stream
+    // announced. The dictionary doesn't keep a reference to the repeated key, so
+    // a class value unmarshaled after this function returns would be set with a
+    // released key: the exception aborts the unmarshaling before that happens.
+    //
+    if (PyDict_Size(p.get()) != sz)
+    {
+        throw MarshalException{__FILE__, __LINE__, "received dictionary with duplicate key"};
     }
 
     cb->unmarshaled(p.get(), target, closure);

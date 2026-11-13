@@ -84,9 +84,6 @@ namespace IcePy
         /// Keep track of object instances that have preserved slices.
         void add(const ValueReaderPtr&);
 
-        /// Keep a reference to an object passed as the closure of a ReadValueCallback, which doesn't own its closure.
-        void hold(const PyObjectHandle& object) { _heldObjects.push_back(object); }
-
         /// Updated the sliced data information for all stored object instances.
         void updateSlicedData();
 
@@ -96,7 +93,6 @@ namespace IcePy
     private:
         std::vector<ReadValueCallbackPtr> _callbacks;
         std::set<ValueReaderPtr> _readers;
-        std::vector<PyObjectHandle> _heldObjects;
         static PyObject* _slicedDataType;
         static PyObject* _sliceInfoType;
     };
