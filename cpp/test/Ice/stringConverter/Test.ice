@@ -8,7 +8,8 @@ module Test
 
     interface MyObject
     {
-        ["cpp:type:wstring"] string widen(string msg) throws BadEncodingException;
+        ["cpp:type:wstring"]
+        string widen(string msg) throws BadEncodingException;
         string narrow(["cpp:type:wstring"] string wmsg);
 
         string echoString(string s);

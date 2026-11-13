@@ -20,12 +20,11 @@ module and
     ["cpp:identifier:escaped_break"]
     interface break
     {
-        ["amd", "cpp:identifier:escaped_case"] void case(
-            ["cpp:identifier:escaped_catch"] int catch,
-            ["cpp:identifier:escaped_try"] out int try
-        );
+        ["amd", "cpp:identifier:escaped_case"]
+        void case(["cpp:identifier:escaped_catch"] int catch, ["cpp:identifier:escaped_try"] out int try);
 
-        ["cpp:identifier:escaped_explicit"] void explicit();
+        ["cpp:identifier:escaped_explicit"]
+        void explicit();
     }
 
     ["cpp:identifier:escaped_switch"]
@@ -45,7 +44,7 @@ module and
     sequence<auto> extern;
 
     ["cpp:identifier:escaped_for"]
-    dictionary<string,auto> for;
+    dictionary<string, auto> for;
 
     ["cpp:identifier:escaped_return"]
     exception return
@@ -72,9 +71,8 @@ module and
             ["cpp:identifier:escaped_mutable"] do* mutable,
             ["cpp:identifier:escaped_namespace"] break* namespace,
             ["cpp:identifier:escaped_not"] switch not,
-            ["cpp:identifier:escaped_or"] int or
-        )
-        throws return, sizeof;
+            ["cpp:identifier:escaped_or"] int or)
+            throws return, sizeof;
     }
 
     ["cpp:identifier:escaped_template"]

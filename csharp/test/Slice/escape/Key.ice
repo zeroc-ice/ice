@@ -34,10 +34,8 @@ module abstract
     interface case
     {
         /// @param continue make sure the parameter doc-comment is mapped without a leading '@'.
-        ["amd", "cs:identifier:@catch"] void catch(
-            ["cs:identifier:@checked"] int checked,
-            ["cs:identifier:@continue"] out int continue
-        );
+        ["amd", "cs:identifier:@catch"]
+        void catch(["cs:identifier:@checked"] int checked, ["cs:identifier:@continue"] out int continue);
     }
 
     ["cs:identifier:@decimal"]
@@ -79,32 +77,28 @@ module abstract
             ["cs:identifier:@goto"] optional(2) as goto,
             ["cs:identifier:@if"] optional(3) explicit* if,
             ["cs:identifier:@internal"] optional(5) while internal,
-            optional(7) string context
-        );
+            optional(7) string context);
 
         ["amd", "cs:identifier:@continue"]
         optional(1) break continue(
             ["cs:identifier:@goto"] optional(2) as goto,
             ["cs:identifier:@if"] optional(3) explicit* if,
             ["cs:identifier:@internal"] optional(5) while internal,
-            optional(7) string context
-        );
+            optional(7) string context);
 
         ["cs:identifier:@in"]
         optional(1) break in(
             out ["cs:identifier:@goto"] optional(2) as goto,
             out ["cs:identifier:@if"] optional(3) explicit* if,
             out ["cs:identifier:@internal"] optional(5) while internal,
-            out optional(7) string context
-        );
+            out optional(7) string context);
 
         ["amd", "cs:identifier:@foreach"]
         optional(1) break foreach(
             out ["cs:identifier:@goto"] optional(2) as goto,
             out ["cs:identifier:@if"] optional(3) explicit* if,
             out ["cs:identifier:@internal"] optional(5) while internal,
-            out optional(7) string context
-        );
+            out optional(7) string context);
     }
 
     ["cs:identifier:@protected"]

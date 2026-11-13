@@ -75,6 +75,7 @@ module DataStormContract
         /// The unique identifier for the reader element these samples initialize.
         long peerId;
     }
+
     sequence<DataSamples> DataSamplesSeq;
 
     /// Provides metadata about an element, such as a key, filter, or tag.
@@ -91,6 +92,7 @@ module DataStormContract
         /// The encoded value of the element.
         Ice::ByteSeq value;
     }
+
     sequence<ElementInfo> ElementInfoSeq;
 
     /// Contains metadata about a topic, including its name and associated reader/writer IDs.
@@ -191,6 +193,7 @@ module DataStormContract
         /// - The value represents the last sample ID received from the corresponding data writer.
         LongLongDict lastIds;
     }
+
     sequence<ElementData> ElementDataSeq;
 
     /// Represents detailed information about topic elements, which can be a key or a filter.
@@ -217,6 +220,7 @@ module DataStormContract
         /// This field is empty if the element is a key.
         string peerName;
     }
+
     sequence<ElementSpec> ElementSpecSeq;
 
     /// Represents an acknowledgment of the attachment of data readers or data writers associated with a key or filter.
@@ -244,6 +248,7 @@ module DataStormContract
         /// The unique identifier for the peer's data reader or data writer.
         long peerId;
     }
+
     sequence<ElementDataAck> ElementDataAckSeq;
 
     /// Represents an acknowledgment of the attachment of an element, which can be a key or a filter.
@@ -270,6 +275,7 @@ module DataStormContract
         /// This field is empty if the element is a key.
         string peerName;
     }
+
     sequence<ElementSpecAck> ElementSpecAckSeq;
 
     /// The base interface for publisher and subscriber sessions.

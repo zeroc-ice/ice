@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+// ice-fmt: ignore-file
+
 module M
 {
     class C { long l; }

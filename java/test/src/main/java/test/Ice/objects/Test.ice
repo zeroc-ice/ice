@@ -52,24 +52,20 @@ module Test
     }
 
     // Exercise empty class with non-empty base
-    class G extends Base
-    {}
+    class G extends Base {}
 
     sequence<Base> BaseSeq;
 
     class CompactExt;
 
-    class Compact(1)
-    {}
+    class Compact(1) {}
 
     const int CompactExtId = 789;
 
-    class CompactExt(CompactExtId) extends Compact
-    {}
+    class CompactExt(CompactExtId) extends Compact {}
 
     module Inner
     {
-
         class A
         {
             ::Test::A theA;
@@ -82,7 +78,6 @@ module Test
 
         module Sub
         {
-
             class A
             {
                 ::Test::Inner::A theA;
@@ -190,8 +185,11 @@ module Test
         void setCycle(Recursive r);
         bool acceptsClassCycles();
 
-        ["marshaled-result"] B getMB();
-        ["amd"] ["marshaled-result"] B getAMDMB();
+        ["marshaled-result"]
+        B getMB();
+        ["amd"]
+        ["marshaled-result"]
+        B getAMDMB();
 
         void getAll(out B b1, out B b2, out C theC, out D theD);
 
@@ -226,11 +224,9 @@ module Test
         bool hasF3();
     }
 
-    class Empty
-    {}
+    class Empty {}
 
-    class AlsoEmpty
-    {}
+    class AlsoEmpty {}
 
     interface UnexpectedObjectExceptionTest
     {

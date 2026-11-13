@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+// ice-fmt: ignore-file
+
 module Test
 {
     const byte C1 = 0;

@@ -1,2 +1,2 @@
-RedefinitionAsInterface.ice:6: interface 'Sequence1' was previously defined as a sequence
-RedefinitionAsInterface.ice:9: interface 'Sequence2' was previously defined as a sequence
+RedefinitionAsInterface.ice:8: interface 'Sequence1' was previously defined as a sequence
+RedefinitionAsInterface.ice:11: interface 'Sequence2' was previously defined as a sequence

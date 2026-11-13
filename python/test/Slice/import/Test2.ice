@@ -9,6 +9,7 @@ module Test
         {
             const int Value2 = 11;
         }
+
         module SubSubA2
         {
             const int Value1 = 30;

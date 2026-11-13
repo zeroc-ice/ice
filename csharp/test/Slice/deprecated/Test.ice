@@ -11,7 +11,8 @@ module DeprecatedTest
     ["deprecated:Use NewStringSeq instead."] sequence<string> StringSeq;
     ["deprecated"] dictionary<string, string> StringDict;
 
-    ["deprecated"] class MyClass
+    ["deprecated"]
+    class MyClass
     {
         int i;
     }
@@ -21,14 +22,17 @@ module DeprecatedTest
         ["deprecated"] int i;
     }
 
-    ["deprecated"] class MyForwardClass;
+    ["deprecated"]
+    class MyForwardClass;
 
-    ["deprecated"] struct MyStruct
+    ["deprecated"]
+    struct MyStruct
     {
         string name;
     }
 
-    ["deprecated"] exception MyException
+    ["deprecated"]
+    exception MyException
     {
         string reason;
     }
@@ -38,12 +42,14 @@ module DeprecatedTest
         ["deprecated"] string reason;
     }
 
-    ["deprecated"] interface MyInterface
+    ["deprecated"]
+    interface MyInterface
     {
         void opInt(int i);
     }
 
-    ["deprecated"] enum MyEnum { A, B, C }
+    ["deprecated"]
+    enum MyEnum { A, B, C }
 
     enum MyOtherEnum
     {
@@ -58,12 +64,14 @@ module DeprecatedTest
 
         void opInt(int x);
 
-        ["deprecated:Use opInt() instead."] void opLong(long x);
+        ["deprecated:Use opInt() instead."]
+        void opLong(long x);
 
         void opProxy(MyInterface* proxy) throws MyException, MyOtherException;
 
         MyStruct opStruct(MyStruct s);
     }
 
-    ["deprecated"] interface MyForwardInterface;
+    ["deprecated"]
+    interface MyForwardInterface;
 }

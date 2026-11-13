@@ -15,8 +15,10 @@ module Test
 
     interface MyInterface
     {
-        ["amd"] void callCallback();
-        ["amd"] int getCallbackCount();
+        ["amd"]
+        void callCallback();
+        ["amd"]
+        int getCallbackCount();
 
         void incCounter(int expected);
         void waitCounter(int value);
@@ -29,7 +31,8 @@ module Test
         int getDatagramCount();
 
         void callDatagramCallback();
-        ["amd"] int getCallbackDatagramCount();
+        ["amd"]
+        int getCallbackDatagramCount();
 
         void shutdown();
     }

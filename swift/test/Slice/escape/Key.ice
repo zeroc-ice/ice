@@ -20,10 +20,9 @@ module import
     ["swift:identifier:`break`"]
     interface break
     {
-        ["amd"] ["swift:identifier:`case`"] void case(
-            ["swift:identifier:`class`"] int \class,
-            ["swift:identifier:`try`"] out int try
-        );
+        ["amd"]
+        ["swift:identifier:`case`"]
+        void case(["swift:identifier:`class`"] int \class, ["swift:identifier:`try`"] out int try);
     }
 
     ["swift:identifier:`switch`"]
@@ -60,8 +59,8 @@ module import
             do* mutable,
             ["swift:identifier:foo"] break* namespace,
             switch not,
-            long or
-        ) throws return, as;
+            long or)
+            throws return, as;
     }
 
     ["swift:identifier:`fileprivate`"]

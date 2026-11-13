@@ -160,8 +160,11 @@ module Test
         void setCycle(Recursive r);
         bool acceptsClassCycles();
 
-        ["marshaled-result"] B getMB();
-        ["amd"] ["marshaled-result"] B getAMDMB();
+        ["marshaled-result"]
+        B getMB();
+        ["amd"]
+        ["marshaled-result"]
+        B getAMDMB();
 
         void getAll(out B b1, out B b2, out C theC, out D theD);
 

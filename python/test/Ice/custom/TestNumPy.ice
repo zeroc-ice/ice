@@ -70,17 +70,26 @@ module Test
             DoubleSeq2 opDoubleSeq(DoubleSeq1 v1, DoubleSeq2 v2, out DoubleSeq3 v3);
             Complex128Seq opComplex128Seq(Complex128Seq v1);
 
-            ["python:numpy.ndarray"] optional(1) IntSeq1 opOptIntSeq(["python:numpy.ndarray"] optional(2) IntSeq1 v);
+            ["python:numpy.ndarray"]
+            optional(1) IntSeq1 opOptIntSeq(["python:numpy.ndarray"] optional(2) IntSeq1 v);
 
-            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] BoolSeq1 opBoolMatrix();
-            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] ByteSeq1 opByteMatrix();
-            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] ShortSeq1 opShortMatrix();
-            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] IntSeq1 opIntMatrix();
-            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] LongSeq1 opLongMatrix();
-            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] FloatSeq1 opFloatMatrix();
-            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] DoubleSeq1 opDoubleMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"]
+            BoolSeq1 opBoolMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"]
+            ByteSeq1 opByteMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"]
+            ShortSeq1 opShortMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"]
+            IntSeq1 opIntMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"]
+            LongSeq1 opLongMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"]
+            FloatSeq1 opFloatMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"]
+            DoubleSeq1 opDoubleMatrix();
 
-            ["python:memoryview:CustomFactory.myBogusNumpyArrayType:numpy.ndarray"] BoolSeq1 opBogusNumpyArrayType();
+            ["python:memoryview:CustomFactory.myBogusNumpyArrayType:numpy.ndarray"]
+            BoolSeq1 opBogusNumpyArrayType();
 
             D opD(D d);
 

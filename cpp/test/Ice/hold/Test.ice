@@ -10,10 +10,12 @@ module Test
         /// @param delay When less than 0, puts the adapter on hold indefinitely. When 0, puts the adapter on hold and
         /// immediately reactivates it. When greater than 0, starts a background task that sleeps for @p delay many
         /// milliseconds, puts the adapter on hold and then immediately reactivates it.
-        ["amd"] void putOnHold(int delay);
+        ["amd"]
+        void putOnHold(int delay);
 
         /// Starts a background task that calls `waitForHold` and `activate` on the adapter.
-        ["amd"] void waitForHold();
+        ["amd"]
+        void waitForHold();
 
         /// Saves @p value as the last value.
         /// @param value The new value.

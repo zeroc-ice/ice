@@ -5,8 +5,7 @@
 ["java:identifier:test.Ice.facets.Test"]
 module Test
 {
-    interface Empty
-    {}
+    interface Empty {}
 
     interface A
     {

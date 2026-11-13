@@ -1,89 +1,89 @@
-IdentAsKeyword.ice:5: syntax error, unexpected identifier
-IdentAsKeyword.ice:7: exceptions can only be defined within a module
-IdentAsKeyword.ice:8: keyword 'int' cannot be used as a name
-IdentAsKeyword.ice:8: exceptions can only be defined within a module
-IdentAsKeyword.ice:10: structs can only be defined within a module
-IdentAsKeyword.ice:11: keyword 'double' cannot be used as a name
-IdentAsKeyword.ice:11: structs can only be defined within a module
+IdentAsKeyword.ice:7: syntax error, unexpected identifier
+IdentAsKeyword.ice:9: exceptions can only be defined within a module
+IdentAsKeyword.ice:10: keyword 'int' cannot be used as a name
+IdentAsKeyword.ice:10: exceptions can only be defined within a module
+IdentAsKeyword.ice:12: structs can only be defined within a module
+IdentAsKeyword.ice:13: keyword 'double' cannot be used as a name
 IdentAsKeyword.ice:13: structs can only be defined within a module
-IdentAsKeyword.ice:14: structs can only be defined within a module
-IdentAsKeyword.ice:14: keyword 'byte' cannot be used as a name
 IdentAsKeyword.ice:15: structs can only be defined within a module
 IdentAsKeyword.ice:16: structs can only be defined within a module
 IdentAsKeyword.ice:16: keyword 'byte' cannot be used as a name
-IdentAsKeyword.ice:18: classes can only be defined within a module
-IdentAsKeyword.ice:19: keyword 'interface' cannot be used as class name
-IdentAsKeyword.ice:19: classes can only be defined within a module
+IdentAsKeyword.ice:17: structs can only be defined within a module
+IdentAsKeyword.ice:18: structs can only be defined within a module
+IdentAsKeyword.ice:18: keyword 'byte' cannot be used as a name
+IdentAsKeyword.ice:20: classes can only be defined within a module
+IdentAsKeyword.ice:21: keyword 'interface' cannot be used as class name
 IdentAsKeyword.ice:21: classes can only be defined within a module
-IdentAsKeyword.ice:22: keyword 'module' cannot be used as class name
-IdentAsKeyword.ice:22: classes can only be defined within a module
+IdentAsKeyword.ice:23: classes can only be defined within a module
+IdentAsKeyword.ice:24: keyword 'module' cannot be used as class name
 IdentAsKeyword.ice:24: classes can only be defined within a module
-IdentAsKeyword.ice:25: classes can only be defined within a module
-IdentAsKeyword.ice:25: keyword 'extends' cannot be used as a name
 IdentAsKeyword.ice:26: classes can only be defined within a module
-IdentAsKeyword.ice:26: keyword 'extends' cannot be used as a name
-IdentAsKeyword.ice:28: keyword 'idempotent' cannot be used as interface name
-IdentAsKeyword.ice:28: interfaces can only be defined within a module
-IdentAsKeyword.ice:29: interfaces can only be defined within a module
-IdentAsKeyword.ice:31: keyword 'Object' cannot be used as interface name
+IdentAsKeyword.ice:27: classes can only be defined within a module
+IdentAsKeyword.ice:27: keyword 'extends' cannot be used as a name
+IdentAsKeyword.ice:28: classes can only be defined within a module
+IdentAsKeyword.ice:28: keyword 'extends' cannot be used as a name
+IdentAsKeyword.ice:30: keyword 'idempotent' cannot be used as interface name
+IdentAsKeyword.ice:30: interfaces can only be defined within a module
 IdentAsKeyword.ice:31: interfaces can only be defined within a module
-IdentAsKeyword.ice:32: interfaces can only be defined within a module
-IdentAsKeyword.ice:33: keyword 'long' cannot be used as interface name
+IdentAsKeyword.ice:33: keyword 'Object' cannot be used as interface name
 IdentAsKeyword.ice:33: interfaces can only be defined within a module
-IdentAsKeyword.ice:35: sequences can only be defined within a module
-IdentAsKeyword.ice:36: keyword 'extends' cannot be used as a name
-IdentAsKeyword.ice:36: sequences can only be defined within a module
-IdentAsKeyword.ice:36: sequence 'extends' differs only in capitalization from sequence 'EXtends'
-IdentAsKeyword.ice:37: keyword 'short' cannot be used as a name
+IdentAsKeyword.ice:34: interfaces can only be defined within a module
+IdentAsKeyword.ice:35: keyword 'long' cannot be used as interface name
+IdentAsKeyword.ice:35: interfaces can only be defined within a module
 IdentAsKeyword.ice:37: sequences can only be defined within a module
-IdentAsKeyword.ice:39: syntax error, unexpected module keyword
-IdentAsKeyword.ice:40: 'moDule' is not defined
-IdentAsKeyword.ice:40: sequences can only be defined within a module
-IdentAsKeyword.ice:42: keyword 'throws' cannot be used as a name
-IdentAsKeyword.ice:42: dictionaries can only be defined within a module
-IdentAsKeyword.ice:43: dictionaries can only be defined within a module
-IdentAsKeyword.ice:43: dictionary 'thRows' differs only in capitalization from dictionary 'throws'
-IdentAsKeyword.ice:45: syntax error, unexpected module keyword
-IdentAsKeyword.ice:46: 'MODULE' is not defined
-IdentAsKeyword.ice:46: dictionaries can only be defined within a module
-IdentAsKeyword.ice:48: syntax error, unexpected out keyword
-IdentAsKeyword.ice:49: dictionaries can only be defined within a module
-IdentAsKeyword.ice:51: syntax error, unexpected void keyword
-IdentAsKeyword.ice:52: exception name 'VOID' is capitalized inconsistently with its previous name: '::Void'
-IdentAsKeyword.ice:52: 'VOID' is an exception, which cannot be used as a type
-IdentAsKeyword.ice:52: exception name 'VOid' is capitalized inconsistently with its previous name: '::Void'
-IdentAsKeyword.ice:52: 'VOid' is an exception, which cannot be used as a type
-IdentAsKeyword.ice:52: dictionaries can only be defined within a module
-IdentAsKeyword.ice:54: keyword 'idempotent' cannot be used as a name
-IdentAsKeyword.ice:54: enums can only be defined within a module
-IdentAsKeyword.ice:55: enums can only be defined within a module
-IdentAsKeyword.ice:55: enumeration 'IDEMPOTENT' differs only in capitalization from enumeration 'idempotent'
+IdentAsKeyword.ice:38: keyword 'extends' cannot be used as a name
+IdentAsKeyword.ice:38: sequences can only be defined within a module
+IdentAsKeyword.ice:38: sequence 'extends' differs only in capitalization from sequence 'EXtends'
+IdentAsKeyword.ice:39: keyword 'short' cannot be used as a name
+IdentAsKeyword.ice:39: sequences can only be defined within a module
+IdentAsKeyword.ice:41: syntax error, unexpected module keyword
+IdentAsKeyword.ice:42: 'moDule' is not defined
+IdentAsKeyword.ice:42: sequences can only be defined within a module
+IdentAsKeyword.ice:44: keyword 'throws' cannot be used as a name
+IdentAsKeyword.ice:44: dictionaries can only be defined within a module
+IdentAsKeyword.ice:45: dictionaries can only be defined within a module
+IdentAsKeyword.ice:45: dictionary 'thRows' differs only in capitalization from dictionary 'throws'
+IdentAsKeyword.ice:47: syntax error, unexpected module keyword
+IdentAsKeyword.ice:48: 'MODULE' is not defined
+IdentAsKeyword.ice:48: dictionaries can only be defined within a module
+IdentAsKeyword.ice:50: syntax error, unexpected out keyword
+IdentAsKeyword.ice:51: dictionaries can only be defined within a module
+IdentAsKeyword.ice:53: syntax error, unexpected void keyword
+IdentAsKeyword.ice:54: exception name 'VOID' is capitalized inconsistently with its previous name: '::Void'
+IdentAsKeyword.ice:54: 'VOID' is an exception, which cannot be used as a type
+IdentAsKeyword.ice:54: exception name 'VOid' is capitalized inconsistently with its previous name: '::Void'
+IdentAsKeyword.ice:54: 'VOid' is an exception, which cannot be used as a type
+IdentAsKeyword.ice:54: dictionaries can only be defined within a module
+IdentAsKeyword.ice:56: keyword 'idempotent' cannot be used as a name
+IdentAsKeyword.ice:56: enums can only be defined within a module
 IdentAsKeyword.ice:57: enums can only be defined within a module
-IdentAsKeyword.ice:57: keyword 'long' cannot be used as enumerator
-IdentAsKeyword.ice:57: keyword 'byte' cannot be used as enumerator
-IdentAsKeyword.ice:58: enums can only be defined within a module
-IdentAsKeyword.ice:60: interfaces can only be defined within a module
-IdentAsKeyword.ice:60: keyword 'module' cannot be used as a name
-IdentAsKeyword.ice:61: interfaces can only be defined within a module
+IdentAsKeyword.ice:57: enumeration 'IDEMPOTENT' differs only in capitalization from enumeration 'idempotent'
+IdentAsKeyword.ice:59: enums can only be defined within a module
+IdentAsKeyword.ice:59: keyword 'long' cannot be used as enumerator
+IdentAsKeyword.ice:59: keyword 'byte' cannot be used as enumerator
+IdentAsKeyword.ice:60: enums can only be defined within a module
+IdentAsKeyword.ice:62: interfaces can only be defined within a module
+IdentAsKeyword.ice:62: keyword 'module' cannot be used as a name
 IdentAsKeyword.ice:63: interfaces can only be defined within a module
-IdentAsKeyword.ice:63: keyword 'exception' cannot be used as a name
-IdentAsKeyword.ice:64: interfaces can only be defined within a module
+IdentAsKeyword.ice:65: interfaces can only be defined within a module
+IdentAsKeyword.ice:65: keyword 'exception' cannot be used as a name
 IdentAsKeyword.ice:66: interfaces can only be defined within a module
-IdentAsKeyword.ice:66: syntax error, unexpected out keyword
-IdentAsKeyword.ice:67: interfaces can only be defined within a module
+IdentAsKeyword.ice:68: interfaces can only be defined within a module
+IdentAsKeyword.ice:68: syntax error, unexpected out keyword
 IdentAsKeyword.ice:69: interfaces can only be defined within a module
-IdentAsKeyword.ice:69: keyword 'byte' cannot be used as a name
-IdentAsKeyword.ice:70: interfaces can only be defined within a module
+IdentAsKeyword.ice:71: interfaces can only be defined within a module
+IdentAsKeyword.ice:71: keyword 'byte' cannot be used as a name
 IdentAsKeyword.ice:72: interfaces can only be defined within a module
-IdentAsKeyword.ice:72: keyword 'byte' cannot be used as a name
-IdentAsKeyword.ice:73: interfaces can only be defined within a module
+IdentAsKeyword.ice:74: interfaces can only be defined within a module
+IdentAsKeyword.ice:74: keyword 'byte' cannot be used as a name
 IdentAsKeyword.ice:75: interfaces can only be defined within a module
-IdentAsKeyword.ice:77: illegal leading underscore in identifier '_a'
-IdentAsKeyword.ice:78: illegal leading underscore in identifier '_true'
-IdentAsKeyword.ice:79: illegal leading underscore in identifier '_true'
-IdentAsKeyword.ice:81: illegal trailing underscore in identifier 'b_'
-IdentAsKeyword.ice:83: illegal double underscore in identifier 'b__c'
-IdentAsKeyword.ice:84: illegal double underscore in identifier 'b___c'
-IdentAsKeyword.ice:86: interfaces can only be defined within a module
-IdentAsKeyword.ice:87: interfaces can only be defined within a module
-IdentAsKeyword.ice:88: syntax error, unexpected '}'
+IdentAsKeyword.ice:77: interfaces can only be defined within a module
+IdentAsKeyword.ice:79: illegal leading underscore in identifier '_a'
+IdentAsKeyword.ice:80: illegal leading underscore in identifier '_true'
+IdentAsKeyword.ice:81: illegal leading underscore in identifier '_true'
+IdentAsKeyword.ice:83: illegal trailing underscore in identifier 'b_'
+IdentAsKeyword.ice:85: illegal double underscore in identifier 'b__c'
+IdentAsKeyword.ice:86: illegal double underscore in identifier 'b___c'
+IdentAsKeyword.ice:88: interfaces can only be defined within a module
+IdentAsKeyword.ice:89: interfaces can only be defined within a module
+IdentAsKeyword.ice:90: syntax error, unexpected '}'

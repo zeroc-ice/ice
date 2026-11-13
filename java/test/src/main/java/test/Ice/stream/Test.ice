@@ -104,6 +104,5 @@ module Test
         MyClass c;
     }
 
-    interface MyInterface
-    {};
+    interface MyInterface {}
 }

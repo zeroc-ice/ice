@@ -25,6 +25,7 @@ module Test
     sequence<SLS> SLSS;
     dictionary<int, SerialLarge> SLD;
     dictionary<int, SLS> SLSD;
+
     struct Foo
     {
         SerialLarge SLmem;

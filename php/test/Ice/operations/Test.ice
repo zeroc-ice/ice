@@ -79,120 +79,83 @@ module Test
 
         void opVoid();
 
-        byte opByte(byte p1, byte p2,
-            out byte p3);
+        byte opByte(byte p1, byte p2, out byte p3);
 
-        bool opBool(bool p1, bool p2,
-            out bool p3);
+        bool opBool(bool p1, bool p2, out bool p3);
 
-        long opShortIntLong(short p1, int p2, long p3,
-            out short p4, out int p5, out long p6);
+        long opShortIntLong(short p1, int p2, long p3, out short p4, out int p5, out long p6);
 
-        double opFloatDouble(float p1, double p2,
-            out float p3, out double p4);
+        double opFloatDouble(float p1, double p2, out float p3, out double p4);
 
-        string opString(string p1, string p2,
-            out string p3);
+        string opString(string p1, string p2, out string p3);
 
         MyEnum opMyEnum(MyEnum p1, out MyEnum p2);
 
         MyInterface* opMyInterface(MyInterface* p1, out MyInterface* p2, out MyInterface* p3);
 
-        Structure opStruct(Structure p1, Structure p2,
-            out Structure p3);
+        Structure opStruct(Structure p1, Structure p2, out Structure p3);
 
-        ByteS opByteS(ByteS p1, ByteS p2,
-            out ByteS p3);
+        ByteS opByteS(ByteS p1, ByteS p2, out ByteS p3);
 
-        BoolS opBoolS(BoolS p1, BoolS p2,
-            out BoolS p3);
+        BoolS opBoolS(BoolS p1, BoolS p2, out BoolS p3);
 
-        LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3,
-            out ::Test::ShortS p4, out IntS p5, out LongS p6);
+        LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3, out ::Test::ShortS p4, out IntS p5, out LongS p6);
 
-        DoubleS opFloatDoubleS(FloatS p1, DoubleS p2,
-            out FloatS p3, out DoubleS p4);
+        DoubleS opFloatDoubleS(FloatS p1, DoubleS p2, out FloatS p3, out DoubleS p4);
 
-        StringS opStringS(StringS p1, StringS p2,
-            out StringS p3);
+        StringS opStringS(StringS p1, StringS p2, out StringS p3);
 
-        ByteSS opByteSS(ByteSS p1, ByteSS p2,
-            out ByteSS p3);
+        ByteSS opByteSS(ByteSS p1, ByteSS p2, out ByteSS p3);
 
-        BoolSS opBoolSS(BoolSS p1, BoolSS p2,
-            out BoolSS p3);
+        BoolSS opBoolSS(BoolSS p1, BoolSS p2, out BoolSS p3);
 
-        LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3,
-            out ShortSS p4, out IntSS p5, out LongSS p6);
+        LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3, out ShortSS p4, out IntSS p5, out LongSS p6);
 
-        DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2,
-            out FloatSS p3, out DoubleSS p4);
+        DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2, out FloatSS p3, out DoubleSS p4);
 
-        StringSS opStringSS(StringSS p1, StringSS p2,
-            out StringSS p3);
+        StringSS opStringSS(StringSS p1, StringSS p2, out StringSS p3);
 
-        ByteBoolD opByteBoolD(ByteBoolD p1, ByteBoolD p2,
-            out ByteBoolD p3);
+        ByteBoolD opByteBoolD(ByteBoolD p1, ByteBoolD p2, out ByteBoolD p3);
 
-        ShortIntD opShortIntD(ShortIntD p1, ShortIntD p2,
-            out ShortIntD p3);
+        ShortIntD opShortIntD(ShortIntD p1, ShortIntD p2, out ShortIntD p3);
 
-        LongFloatD opLongFloatD(LongFloatD p1, LongFloatD p2,
-            out LongFloatD p3);
+        LongFloatD opLongFloatD(LongFloatD p1, LongFloatD p2, out LongFloatD p3);
 
-        StringStringD opStringStringD(StringStringD p1, StringStringD p2,
-            out StringStringD p3);
+        StringStringD opStringStringD(StringStringD p1, StringStringD p2, out StringStringD p3);
 
-        StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2,
-            out StringMyEnumD p3);
+        StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2, out StringMyEnumD p3);
 
-        MyEnumStringD opMyEnumStringD(MyEnumStringD p1, MyEnumStringD p2,
-            out MyEnumStringD p3);
+        MyEnumStringD opMyEnumStringD(MyEnumStringD p1, MyEnumStringD p2, out MyEnumStringD p3);
 
-        ByteBoolDS opByteBoolDS(ByteBoolDS p1, ByteBoolDS p2,
-            out ByteBoolDS p3);
+        ByteBoolDS opByteBoolDS(ByteBoolDS p1, ByteBoolDS p2, out ByteBoolDS p3);
 
-        ShortIntDS opShortIntDS(ShortIntDS p1, ShortIntDS p2,
-            out ShortIntDS p3);
+        ShortIntDS opShortIntDS(ShortIntDS p1, ShortIntDS p2, out ShortIntDS p3);
 
-        LongFloatDS opLongFloatDS(LongFloatDS p1, LongFloatDS p2,
-            out LongFloatDS p3);
+        LongFloatDS opLongFloatDS(LongFloatDS p1, LongFloatDS p2, out LongFloatDS p3);
 
-        StringStringDS opStringStringDS(StringStringDS p1, StringStringDS p2,
-            out StringStringDS p3);
+        StringStringDS opStringStringDS(StringStringDS p1, StringStringDS p2, out StringStringDS p3);
 
-        StringMyEnumDS opStringMyEnumDS(StringMyEnumDS p1, StringMyEnumDS p2,
-            out StringMyEnumDS p3);
+        StringMyEnumDS opStringMyEnumDS(StringMyEnumDS p1, StringMyEnumDS p2, out StringMyEnumDS p3);
 
-        MyEnumStringDS opMyEnumStringDS(MyEnumStringDS p1, MyEnumStringDS p2,
-            out MyEnumStringDS p3);
+        MyEnumStringDS opMyEnumStringDS(MyEnumStringDS p1, MyEnumStringDS p2, out MyEnumStringDS p3);
 
-        ByteByteSD opByteByteSD(ByteByteSD p1, ByteByteSD p2,
-            out ByteByteSD p3);
+        ByteByteSD opByteByteSD(ByteByteSD p1, ByteByteSD p2, out ByteByteSD p3);
 
-        BoolBoolSD opBoolBoolSD(BoolBoolSD p1, BoolBoolSD p2,
-            out BoolBoolSD p3);
+        BoolBoolSD opBoolBoolSD(BoolBoolSD p1, BoolBoolSD p2, out BoolBoolSD p3);
 
-        ShortShortSD opShortShortSD(ShortShortSD p1, ShortShortSD p2,
-            out ShortShortSD p3);
+        ShortShortSD opShortShortSD(ShortShortSD p1, ShortShortSD p2, out ShortShortSD p3);
 
-        IntIntSD opIntIntSD(IntIntSD p1, IntIntSD p2,
-            out IntIntSD p3);
+        IntIntSD opIntIntSD(IntIntSD p1, IntIntSD p2, out IntIntSD p3);
 
-        LongLongSD opLongLongSD(LongLongSD p1, LongLongSD p2,
-            out LongLongSD p3);
+        LongLongSD opLongLongSD(LongLongSD p1, LongLongSD p2, out LongLongSD p3);
 
-        StringFloatSD opStringFloatSD(StringFloatSD p1, StringFloatSD p2,
-            out StringFloatSD p3);
+        StringFloatSD opStringFloatSD(StringFloatSD p1, StringFloatSD p2, out StringFloatSD p3);
 
-        StringDoubleSD opStringDoubleSD(StringDoubleSD p1, StringDoubleSD p2,
-            out StringDoubleSD p3);
+        StringDoubleSD opStringDoubleSD(StringDoubleSD p1, StringDoubleSD p2, out StringDoubleSD p3);
 
-        StringStringSD opStringStringSD(StringStringSD p1, StringStringSD p2,
-            out StringStringSD p3);
+        StringStringSD opStringStringSD(StringStringSD p1, StringStringSD p2, out StringStringSD p3);
 
-        MyEnumMyEnumSD opMyEnumMyEnumSD(MyEnumMyEnumSD p1, MyEnumMyEnumSD p2,
-            out MyEnumMyEnumSD p3);
+        MyEnumMyEnumSD opMyEnumMyEnumSD(MyEnumMyEnumSD p1, MyEnumMyEnumSD p2, out MyEnumMyEnumSD p3);
 
         IntS opIntS(IntS s);
 
@@ -204,7 +167,8 @@ module Test
 
         idempotent void opIdempotent();
 
-        ["oneway"] void opOneway();
+        ["oneway"]
+        void opOneway();
 
         byte opByte1(byte opByte1);
         short opShort1(short opShort1);
@@ -220,28 +184,34 @@ module Test
 
         StringS opStringLiterals();
 
-        ["marshaled-result"] Structure opMStruct1();
-        ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
+        ["marshaled-result"]
+        Structure opMStruct1();
+        ["marshaled-result"]
+        Structure opMStruct2(Structure p1, out Structure p2);
 
-        ["marshaled-result"] StringS opMSeq1();
-        ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
+        ["marshaled-result"]
+        StringS opMSeq1();
+        ["marshaled-result"]
+        StringS opMSeq2(StringS p1, out StringS p2);
 
-        ["marshaled-result"] StringStringD opMDict1();
-        ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
+        ["marshaled-result"]
+        StringStringD opMDict1();
+        ["marshaled-result"]
+        StringStringD opMDict2(StringStringD p1, out StringStringD p2);
     }
 
     struct MyStruct1
     {
-        string tesT; // Same name as the enclosing module
+        string tesT;              // Same name as the enclosing module
         MyInterface* myInterface; // Same name as an already defined interface
-        string myStruct1; // Same name as the enclosing struct
+        string myStruct1;         // Same name as the enclosing struct
     }
 
     class MyClass
     {
-        string tesT; // Same name as the enclosing module
+        string tesT;              // Same name as the enclosing module
         MyInterface* myInterface; // Same name as an already defined interface
-        string myClass; // Same name as the enclosing class
+        string myClass;           // Same name as the enclosing class
     }
 
     interface MyDerivedInterface extends MyInterface
@@ -255,29 +225,29 @@ module Test
     // String literals
     //
 
-    const string s0 = "\u005c";                           // backslash
-    const string s1 = "\u0041";                           // A
-    const string s2 = "\u0049\u0063\u0065";               // Ice
-    const string s3 = "\u004121";                         // A21
-    const string s4 = "\\u0041 \\U00000041";              // \\u0041 \\U00000041
-    const string s5 = "\u00FF";                           // ÿ
-    const string s6 = "\u03FF";                           // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
-    const string s7 = "\u05F0";                           // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
-    const string s8 = "\U00010000";                       // LINEAR B SYLLABLE B008 A (U+10000)
-    const string s9 = "\U0001F34C";                       // BANANA (U+1F34C)
-    const string s10 = "\u0DA7";                          // Sinhala Letter Alpapraana Ttayanna
+    const string s0 = "\u005c";              // backslash
+    const string s1 = "\u0041";              // A
+    const string s2 = "\u0049\u0063\u0065";  // Ice
+    const string s3 = "\u004121";            // A21
+    const string s4 = "\\u0041 \\U00000041"; // \\u0041 \\U00000041
+    const string s5 = "\u00FF";              // ÿ
+    const string s6 = "\u03FF";              // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
+    const string s7 = "\u05F0";              // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
+    const string s8 = "\U00010000";          // LINEAR B SYLLABLE B008 A (U+10000)
+    const string s9 = "\U0001F34C";          // BANANA (U+1F34C)
+    const string s10 = "\u0DA7";             // Sinhala Letter Alpapraana Ttayanna
 
-    const string sw0 = "\U0000005c";                      // backslash
-    const string sw1 = "\U00000041";                      // A
-    const string sw2 = "\U00000049\U00000063\U00000065";  // Ice
-    const string sw3 = "\U0000004121";                    // A21
-    const string sw4 = "\\u0041 \\U00000041";             // \\u0041 \\U00000041
-    const string sw5 = "\U000000FF";                      // ÿ
-    const string sw6 = "\U000003FF";                      // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
-    const string sw7 = "\U000005F0";                      // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
-    const string sw8 = "\U00010000";                      // LINEAR B SYLLABLE B008 A (U+10000)
-    const string sw9 = "\U0001F34C";                      // BANANA (U+1F34C)
-    const string sw10 = "\U00000DA7";                     // Sinhala Letter Alpapraana Ttayanna
+    const string sw0 = "\U0000005c";                     // backslash
+    const string sw1 = "\U00000041";                     // A
+    const string sw2 = "\U00000049\U00000063\U00000065"; // Ice
+    const string sw3 = "\U0000004121";                   // A21
+    const string sw4 = "\\u0041 \\U00000041";            // \\u0041 \\U00000041
+    const string sw5 = "\U000000FF";                     // ÿ
+    const string sw6 = "\U000003FF";                     // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
+    const string sw7 = "\U000005F0";                     // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
+    const string sw8 = "\U00010000";                     // LINEAR B SYLLABLE B008 A (U+10000)
+    const string sw9 = "\U0001F34C";                     // BANANA (U+1F34C)
+    const string sw10 = "\U00000DA7";                    // Sinhala Letter Alpapraana Ttayanna
 
     /*
     \'      single quote    byte 0x27 in ASCII encoding

@@ -1,33 +1,33 @@
-WarningInvalidComment.ice:11: warning: '@p' tags can only be used on operations
-WarningInvalidComment.ice:11: warning: the '@param' tag is only valid on operations
-WarningInvalidComment.ice:11: warning: the '@throws' tag is only valid on operations
-WarningInvalidComment.ice:11: warning: the '@exception' tag is only valid on operations
-WarningInvalidComment.ice:11: warning: the '@return' tag is only valid on operations
-WarningInvalidComment.ice:15: warning: missing link target after '@see' tag
-WarningInvalidComment.ice:17: warning: ignoring trailing '.' character in '@see' tag
-WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@something' in comment
-WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@params' in comment
-WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@throwss' in comment
-WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@deprecated:' in comment
-WarningInvalidComment.ice:29: warning: '@see' tags cannot span multiple lines and must be of the form: '@see identifier'
-WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@bad' in comment
-WarningInvalidComment.ice:33: warning: ignoring duplicate doc-comment tag: '@deprecated'
-WarningInvalidComment.ice:39: warning: unterminated code span: missing closing backtick delimiter
-WarningInvalidComment.ice:39: warning: unterminated code span: missing closing backtick delimiter
-WarningInvalidComment.ice:47: warning: No parameter named 'param' exists on operation 'voidOp'
-WarningInvalidComment.ice:47: warning: '@param NoParam' does not correspond to any parameter in operation 'voidOp'
-WarningInvalidComment.ice:47: warning: '@return' is only valid on operations with non-void return types
-WarningInvalidComment.ice:47: warning: '@throws FakeException': no exception with this name could be found from the current scope
-WarningInvalidComment.ice:47: warning: '@throws CommentDummy': this exception is not listed in the exception specification of 'voidOp'
-WarningInvalidComment.ice:59: warning: missing parameter name after '@p' tag
-WarningInvalidComment.ice:59: warning: ignoring duplicate doc-comment tag: '@param value'
-WarningInvalidComment.ice:59: warning: '@param namess' does not correspond to any parameter in operation 'stringOp'
-WarningInvalidComment.ice:59: warning: ignoring duplicate doc-comment tag: '@return'
-WarningInvalidComment.ice:59: warning: '@throws DerivedFromDummy': this exception is not listed in the exception specification of 'stringOp'
-WarningInvalidComment.ice:59: warning: '@throws SomeOtherException': this exception is not listed in the exception specification of 'stringOp'
-WarningInvalidComment.ice:59: warning: ignoring duplicate doc-comment tag: '@throws CommentDummy'
-WarningInvalidComment.ice:86: warning: missing parameter name after '@param' tag
-WarningInvalidComment.ice:86: warning: missing exception name after '@throws' tag
-WarningInvalidComment.ice:86: warning: missing exception name after '@exception' tag
-WarningInvalidComment.ice:90: warning: '@throws SomeOtherException': this exception is not listed in the exception specification of 'SomeOtherException'
-WarningInvalidComment.ice:95: warning: unterminated link tag: missing closing '}'
+WarningInvalidComment.ice:13: warning: '@p' tags can only be used on operations
+WarningInvalidComment.ice:13: warning: the '@param' tag is only valid on operations
+WarningInvalidComment.ice:13: warning: the '@throws' tag is only valid on operations
+WarningInvalidComment.ice:13: warning: the '@exception' tag is only valid on operations
+WarningInvalidComment.ice:13: warning: the '@return' tag is only valid on operations
+WarningInvalidComment.ice:17: warning: missing link target after '@see' tag
+WarningInvalidComment.ice:19: warning: ignoring trailing '.' character in '@see' tag
+WarningInvalidComment.ice:31: warning: ignoring unknown doc tag '@something' in comment
+WarningInvalidComment.ice:31: warning: ignoring unknown doc tag '@params' in comment
+WarningInvalidComment.ice:31: warning: ignoring unknown doc tag '@throwss' in comment
+WarningInvalidComment.ice:31: warning: ignoring unknown doc tag '@deprecated:' in comment
+WarningInvalidComment.ice:31: warning: '@see' tags cannot span multiple lines and must be of the form: '@see identifier'
+WarningInvalidComment.ice:31: warning: ignoring unknown doc tag '@bad' in comment
+WarningInvalidComment.ice:35: warning: ignoring duplicate doc-comment tag: '@deprecated'
+WarningInvalidComment.ice:41: warning: unterminated code span: missing closing backtick delimiter
+WarningInvalidComment.ice:41: warning: unterminated code span: missing closing backtick delimiter
+WarningInvalidComment.ice:49: warning: No parameter named 'param' exists on operation 'voidOp'
+WarningInvalidComment.ice:49: warning: '@param NoParam' does not correspond to any parameter in operation 'voidOp'
+WarningInvalidComment.ice:49: warning: '@return' is only valid on operations with non-void return types
+WarningInvalidComment.ice:49: warning: '@throws FakeException': no exception with this name could be found from the current scope
+WarningInvalidComment.ice:49: warning: '@throws CommentDummy': this exception is not listed in the exception specification of 'voidOp'
+WarningInvalidComment.ice:61: warning: missing parameter name after '@p' tag
+WarningInvalidComment.ice:61: warning: ignoring duplicate doc-comment tag: '@param value'
+WarningInvalidComment.ice:61: warning: '@param namess' does not correspond to any parameter in operation 'stringOp'
+WarningInvalidComment.ice:61: warning: ignoring duplicate doc-comment tag: '@return'
+WarningInvalidComment.ice:61: warning: '@throws DerivedFromDummy': this exception is not listed in the exception specification of 'stringOp'
+WarningInvalidComment.ice:61: warning: '@throws SomeOtherException': this exception is not listed in the exception specification of 'stringOp'
+WarningInvalidComment.ice:61: warning: ignoring duplicate doc-comment tag: '@throws CommentDummy'
+WarningInvalidComment.ice:88: warning: missing parameter name after '@param' tag
+WarningInvalidComment.ice:88: warning: missing exception name after '@throws' tag
+WarningInvalidComment.ice:88: warning: missing exception name after '@exception' tag
+WarningInvalidComment.ice:92: warning: '@throws SomeOtherException': this exception is not listed in the exception specification of 'SomeOtherException'
+WarningInvalidComment.ice:97: warning: unterminated link tag: missing closing '}'

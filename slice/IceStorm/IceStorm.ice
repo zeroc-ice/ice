@@ -96,8 +96,7 @@ module IceStorm
         /// @throws AlreadySubscribed Thrown when @p subscriber is already subscribed.
         /// @throws BadQoS Thrown when @p theQoS is unavailable or invalid.
         /// @see #unsubscribe
-        Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber)
-            throws AlreadySubscribed, BadQoS;
+        Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber) throws AlreadySubscribed, BadQoS;
 
         /// Unsubscribes the provided @p subscriber from this topic.
         /// @param subscriber A proxy to an existing subscriber. This proxy is never null.
@@ -122,7 +121,8 @@ module IceStorm
 
         /// Gets the list of subscribers for this topic.
         /// @return The sequence of Ice identities for the subscriber objects.
-        ["cpp:const"] Ice::IdentitySeq getSubscribers();
+        ["cpp:const"]
+        Ice::IdentitySeq getSubscribers();
 
         /// Destroys this topic.
         void destroy();
