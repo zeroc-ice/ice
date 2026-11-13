@@ -232,31 +232,19 @@ namespace Ice.objects
 
                 output.Write("setting G... ");
                 output.Flush();
-                try
-                {
-                    initial.setG(new G(new S("hello"), "g"));
-                }
-                catch (Ice.OperationNotExistException)
-                {
-                }
+                initial.setG(new G(new S("hello"), "g"));
                 output.WriteLine("ok");
 
                 output.Write("testing sequences...");
                 output.Flush();
-                try
-                {
-                    Base[] inS = [];
-                    Base[] retS;
-                    retS = initial.opBaseSeq(inS, out Base[] outS);
+                Base[] inS = [];
+                Base[] retS = initial.opBaseSeq(inS, out Base[] outS);
+                test(retS.Length == 0 && outS.Length == 0);
 
-                    inS = new Base[1];
-                    inS[0] = new Base(new S(""), "");
-                    retS = initial.opBaseSeq(inS, out outS);
-                    test(retS.Length == 1 && outS.Length == 1);
-                }
-                catch (Ice.OperationNotExistException)
-                {
-                }
+                inS = new Base[1];
+                inS[0] = new Base(new S(""), "");
+                retS = initial.opBaseSeq(inS, out outS);
+                test(retS.Length == 1 && outS.Length == 1);
                 output.WriteLine("ok");
 
                 output.Write("testing recursive type... ");
@@ -288,13 +276,7 @@ namespace Ice.objects
 
                 output.Write("testing compact ID...");
                 output.Flush();
-                try
-                {
-                    test(initial.getCompact() != null);
-                }
-                catch (Ice.OperationNotExistException)
-                {
-                }
+                test(initial.getCompact() != null);
                 output.WriteLine("ok");
 
                 output.Write("testing marshaled results...");

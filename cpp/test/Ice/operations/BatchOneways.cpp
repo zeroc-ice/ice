@@ -172,14 +172,7 @@ batchOneways(const MyInterfacePrx& p)
         ic->destroy();
     }
 
-    bool supportsCompress = true;
-    try
-    {
-        supportsCompress = p->supportsCompress();
-    }
-    catch (const OperationNotExistException&)
-    {
-    }
+    bool supportsCompress = p->supportsCompress();
 
     if (supportsCompress && batch->ice_getConnection() &&
         p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Override.Compress") == "")

@@ -5,7 +5,6 @@ package test.Ice.objects;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.ObjectPrx;
-import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.Value;
 
@@ -233,23 +232,19 @@ public class AllTests {
 
         out.print("setting G... ");
         out.flush();
-        try {
-            initial.setG(new G(new S("hello"), "g"));
-        } catch (OperationNotExistException ex) {}
+        initial.setG(new G(new S("hello"), "g"));
         out.println("ok");
 
         out.print("testing sequences...");
-        try {
-            out.flush();
-            Base[] inS = new Base[0];
-            Initial.OpBaseSeqResult sr = initial.opBaseSeq(inS);
-            test(sr.returnValue.length == 0 && sr.outSeq.length == 0);
+        out.flush();
+        Base[] inS = new Base[0];
+        Initial.OpBaseSeqResult sr = initial.opBaseSeq(inS);
+        test(sr.returnValue.length == 0 && sr.outSeq.length == 0);
 
-            inS = new Base[1];
-            inS[0] = new Base(new S(), "");
-            sr = initial.opBaseSeq(inS);
-            test(sr.returnValue.length == 1 && sr.outSeq.length == 1);
-        } catch (OperationNotExistException ex) {}
+        inS = new Base[1];
+        inS[0] = new Base(new S(), "");
+        sr = initial.opBaseSeq(inS);
+        test(sr.returnValue.length == 1 && sr.outSeq.length == 1);
         out.println("ok");
 
         out.print("testing recursive type... ");
@@ -277,9 +272,7 @@ public class AllTests {
 
         out.print("testing compact ID...");
         out.flush();
-        try {
-            test(initial.getCompact() != null);
-        } catch (OperationNotExistException ex) {}
+        test(initial.getCompact() != null);
         out.println("ok");
 
         out.print("testing marshaled results...");

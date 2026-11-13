@@ -10,7 +10,6 @@ import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.ObjectPrx;
-import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.Properties;
 
 import test.Ice.operations.Test.MyInterfacePrx;
@@ -163,10 +162,7 @@ class BatchOneways {
             }
         }
 
-        boolean supportsCompress = true;
-        try {
-            supportsCompress = p.supportsCompress();
-        } catch (OperationNotExistException ex) {}
+        boolean supportsCompress = p.supportsCompress();
 
         p.ice_ping();
         if (supportsCompress

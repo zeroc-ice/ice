@@ -161,10 +161,7 @@ def allTests(helper, communicator)
 
     print "setting G... "
     STDOUT.flush
-    begin
-        initial.setG(Test::G.new(Test::S.new("hello"), "g"))
-    rescue Ice::OperationNotExistException
-    end
+    initial.setG(Test::G.new(Test::S.new("hello"), "g"))
     puts "ok"
 
     print "testing sequences... "
@@ -202,11 +199,8 @@ def allTests(helper, communicator)
 
     print "testing compact ID... "
     STDOUT.flush
-    begin
-        r = initial.getCompact()
-        test(r != nil)
-    rescue Ice::OperationNotExistException
-    end
+    r = initial.getCompact()
+    test(r != nil)
     puts "ok"
 
     print "testing marshaled results..."

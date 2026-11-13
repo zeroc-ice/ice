@@ -58,9 +58,7 @@ export class Client extends TestHelper {
                 test(false);
             } catch (ex) {
                 test(
-                    ex instanceof Ice.OperationNotExistException ||
-                        (ex instanceof Ice.UnknownUserException &&
-                            ex.message.includes("::Test::TestIntfUserException")),
+                    ex instanceof Ice.UnknownUserException && ex.message.includes("::Test::TestIntfUserException"),
                     ex as Error,
                 );
             }
@@ -80,11 +78,7 @@ export class Client extends TestHelper {
                 await obj.jsException();
                 test(false);
             } catch (ex) {
-                test(
-                    ex instanceof Ice.OperationNotExistException ||
-                        (ex instanceof Ice.UnknownException && ex.unknown.length > 0),
-                    ex as Error,
-                );
+                test(ex instanceof Ice.UnknownException && ex.unknown.length > 0, ex as Error);
             }
 
             try {
