@@ -3,25 +3,22 @@
 set -e
 
 # Generates a code coverage report for the C++ libraries and executables using llvm-cov.
-# The script builds Ice with every language mapping, runs the C++ tests in the current working directory, and writes
-# the report to coverage/html.
+# The script builds Ice with every language mapping but Swift, runs the C++ tests in the current working directory, and
+# writes the report to coverage/html.
 
-# The profile file is compiled in for slice2swift, which SwiftPM runs with the environment of its build plugin, and
-# exported too, since LLVM_PROFILE_FILE overrides the compiled-in path.
-profile_file="${PWD}/coverage/%m.profraw"
-export CPPFLAGS="-fprofile-instr-generate=$profile_file -fcoverage-mapping"
-export LDFLAGS="-fprofile-instr-generate=$profile_file"
-export LLVM_PROFILE_FILE="$profile_file"
+export CPPFLAGS="-fprofile-instr-generate -fcoverage-mapping"
+export LDFLAGS="-fprofile-instr-generate"
+export LLVM_PROFILE_FILE="${PWD}/coverage/%m.profraw"
 export OPTIMIZE=no
+
+# The root Makefile doesn't build MATLAB, and the script skips Swift, whose build uses the released slice2swift that
+# Package.swift downloads.
+unused_compilers="bin/slice2matlab bin/slice2swift"
 
 case "$(uname)" in
     Darwin)
         ncpu=$(sysctl -n hw.ncpu)
-        # SwiftPM's sandbox would keep slice2swift from writing its profile data. The flags otherwise match those of
-        # swift/Makefile with OPTIMIZE=no.
-        build() { make "-j$ncpu" SWIFT_BUILD_FLAGS="--disable-sandbox --configuration debug" "$@"; }
-        # The root Makefile doesn't build MATLAB, so nothing runs slice2matlab.
-        unused_compilers="bin/slice2matlab"
+        build() { make "-j$ncpu" "$@"; }
         llvm_profdata() { xcrun llvm-profdata "$@"; }
         llvm_cov() { xcrun llvm-cov "$@"; }
         ;;
@@ -32,8 +29,6 @@ case "$(uname)" in
         # compiler directly.
         export CXX=clang++
         build() { make "-j$ncpu" "$(dpkg --print-architecture)_cxx=clang++" "$@"; }
-        # The root Makefile doesn't build MATLAB, nor Swift on Linux.
-        unused_compilers="bin/slice2matlab bin/slice2swift"
         llvm_profdata() { llvm-profdata "$@"; }
         llvm_cov() { llvm-cov "$@"; }
         ;;
@@ -52,11 +47,11 @@ case "$1" in
         usage
         echo ""
         echo "Generates one code coverage report for the libraries in lib and the executables in bin. The report"
-        echo "includes every Slice compiler but slice2matlab, and slice2swift on Linux, which no build runs. It also"
+        echo "includes every Slice compiler but slice2matlab and slice2swift, which the builds don't run. It also"
         echo "counts the header code that only the tests use, but not the test code itself."
         echo "The script cleans the whole checkout, builds Ice with code coverage instrumentation, along with every"
-        echo "language mapping and its tests, runs the C++ tests, and generates the report in coverage/html. It needs"
-        echo "the toolchain of each language mapping that the root Makefile builds."
+        echo "language mapping but Swift, tests included, runs the C++ tests, and generates the report in"
+        echo "coverage/html. It needs the toolchain of each of those language mappings."
         echo ""
         echo "example:"
         echo "  cd cpp && ../scripts/generate-cpp-code-coverage.sh"
@@ -90,7 +85,7 @@ echo "Building with code coverage..."
 # distclean, unlike clean, also removes the Slice compilers, so they're rebuilt with instrumentation. The builds of the
 # other language mappings and their tests run the other Slice compilers.
 make -C .. distclean
-build -C ..
+build -C .. SKIP=swift
 
 echo "Running tests..."
 python3 allTests.py --all --workers="$ncpu"
