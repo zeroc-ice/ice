@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
+
 // ice-fmt: ignore-file
+
 #pragma once
 
 //

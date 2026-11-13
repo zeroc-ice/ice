@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
+
 // ice-fmt: ignore-file
+
 module Test
 {
     dictionary<bool, long> d1;              // OK

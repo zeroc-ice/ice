@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
+
 // ice-fmt: ignore-file
+
 #include "include/IcePrefix.ice"        // No error should be caused by this file
 
 module OK

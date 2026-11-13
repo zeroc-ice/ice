@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
+
 // ice-fmt: ignore-file
+
 // Error: metadata cannot be applied to nested module definitions.
 // Make sure we only emit 1 error for all the metadata; not 1 error per metadata here.
 ["deprecated"] ["fake-metadata", "deprecated"]

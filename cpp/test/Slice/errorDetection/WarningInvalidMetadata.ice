@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
+
 // ice-fmt: ignore-file
+
 // Duplicate metadata should be rejected.
 [["cpp:header-ext:hh"]]
 [["cpp:header-ext:hh"]]

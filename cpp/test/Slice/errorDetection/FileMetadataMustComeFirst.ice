@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
+
 // ice-fmt: ignore-file
+
 [["suppress-warning"]] // okay
 
 module Hello {}

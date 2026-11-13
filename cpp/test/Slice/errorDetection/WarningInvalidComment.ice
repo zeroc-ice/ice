@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
+
 // ice-fmt: ignore-file
+
 module Test
 {
     /// Test that operation specific tags don't work on non-operations.

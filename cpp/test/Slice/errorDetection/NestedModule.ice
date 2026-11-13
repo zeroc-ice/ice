@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
+
 // ice-fmt: ignore-file
+
 // Case where the module chain is all good.
 module All::Good::Here
 {
