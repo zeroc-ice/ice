@@ -25,8 +25,7 @@ module Test1
 
         WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
 
-        void throwExcept(string reason)
-            throws WstringException;
+        void throwExcept(string reason) throws WstringException;
     }
 }
 
@@ -55,7 +54,6 @@ module Test2
 
         WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
 
-        void throwExcept(string reason)
-            throws WstringException;
+        void throwExcept(string reason) throws WstringException;
     }
 }

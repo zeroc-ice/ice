@@ -11,28 +11,38 @@
 module Test
 {
     sequence<bool> BoolSeq;
-    ["cpp:type:std::list<bool>"] sequence<bool> BoolList;
+    ["cpp:type:std::list<bool>"]
+    sequence<bool> BoolList;
 
-    ["cpp:type:std::list<::Test::BoolList>"] sequence<BoolList> BoolListList;
+    ["cpp:type:std::list<::Test::BoolList>"]
+    sequence<BoolList> BoolListList;
     sequence<BoolList> BoolListSeq;
 
-    ["cpp:type:std::list<::Test::BoolSeq>"] sequence<BoolSeq> BoolSeqList;
+    ["cpp:type:std::list<::Test::BoolSeq>"]
+    sequence<BoolSeq> BoolSeqList;
 
-    ["cpp:type:std::list<std::deque<bool>>"] sequence<["cpp:type:std::deque<bool>"] BoolSeq> BoolDequeList;
+    ["cpp:type:std::list<std::deque<bool>>"]
+    sequence<["cpp:type:std::deque<bool>"] BoolSeq> BoolDequeList;
 
     sequence<byte> ByteSeq;
-    ["cpp:type:std::list<std::byte>"] sequence<byte> ByteList;
+    ["cpp:type:std::list<std::byte>"]
+    sequence<byte> ByteList;
 
-    ["cpp:type:std::list<::Test::ByteList>"] sequence<ByteList> ByteListList;
+    ["cpp:type:std::list<::Test::ByteList>"]
+    sequence<ByteList> ByteListList;
     sequence<ByteList> ByteListSeq;
-    ["cpp:type:std::list<::Test::ByteSeq>"] sequence<ByteSeq> ByteSeqList;
+    ["cpp:type:std::list<::Test::ByteSeq>"]
+    sequence<ByteSeq> ByteSeqList;
 
     sequence<string> StringSeq;
-    ["cpp:type:std::list<std::string>"] sequence<string> StringList;
+    ["cpp:type:std::list<std::string>"]
+    sequence<string> StringList;
 
-    ["cpp:type:std::list<::Test::StringList>"] sequence<StringList> StringListList;
+    ["cpp:type:std::list<::Test::StringList>"]
+    sequence<StringList> StringListList;
     sequence<StringList> StringListSeq;
-    ["cpp:type:std::list<::Test::StringSeq>"] sequence<StringSeq> StringSeqList;
+    ["cpp:type:std::list<::Test::StringSeq>"]
+    sequence<StringSeq> StringSeqList;
 
     struct Fixed
     {
@@ -40,11 +50,14 @@ module Test
     }
 
     sequence<Fixed> FixedSeq;
-    ["cpp:type:std::list<::Test::Fixed>"] sequence<Fixed> FixedList;
+    ["cpp:type:std::list<::Test::Fixed>"]
+    sequence<Fixed> FixedList;
 
-    ["cpp:type:std::list<::Test::FixedList>"] sequence<FixedList> FixedListList;
+    ["cpp:type:std::list<::Test::FixedList>"]
+    sequence<FixedList> FixedListList;
     sequence<FixedList> FixedListSeq;
-    ["cpp:type:std::list<::Test::FixedSeq>"] sequence<FixedSeq> FixedSeqList;
+    ["cpp:type:std::list<::Test::FixedSeq>"]
+    sequence<FixedSeq> FixedSeqList;
 
     struct Variable
     {
@@ -54,51 +67,67 @@ module Test
     }
 
     sequence<Variable> VariableSeq;
-    ["cpp:type:std::list<::Test::Variable>"] sequence<Variable> VariableList;
+    ["cpp:type:std::list<::Test::Variable>"]
+    sequence<Variable> VariableList;
 
-    ["cpp:type:std::list<::Test::VariableList>"] sequence<VariableList> VariableListList;
+    ["cpp:type:std::list<::Test::VariableList>"]
+    sequence<VariableList> VariableListList;
     sequence<VariableList> VariableListSeq;
-    ["cpp:type:std::list<::Test::VariableSeq>"] sequence<VariableSeq> VariableSeqList;
+    ["cpp:type:std::list<::Test::VariableSeq>"]
+    sequence<VariableSeq> VariableSeqList;
 
     dictionary<string, string> StringStringDict;
     sequence<StringStringDict> StringStringDictSeq;
-    ["cpp:type:std::list<::Test::StringStringDict>"] sequence<StringStringDict> StringStringDictList;
+    ["cpp:type:std::list<::Test::StringStringDict>"]
+    sequence<StringStringDict> StringStringDictList;
 
-    ["cpp:type:std::list<::Test::StringStringDictList>"] sequence<StringStringDictList> StringStringDictListList;
+    ["cpp:type:std::list<::Test::StringStringDictList>"]
+    sequence<StringStringDictList> StringStringDictListList;
     sequence<StringStringDictList> StringStringDictListSeq;
-    ["cpp:type:std::list<::Test::StringStringDictSeq>"] sequence<StringStringDictSeq> StringStringDictSeqList;
+    ["cpp:type:std::list<::Test::StringStringDictSeq>"]
+    sequence<StringStringDictSeq> StringStringDictSeqList;
 
     enum E { E1, E2, E3 }
 
     sequence<E> ESeq;
-    ["cpp:type:std::list<::Test::E>"] sequence<E> EList;
+    ["cpp:type:std::list<::Test::E>"]
+    sequence<E> EList;
 
-    ["cpp:type:std::list<::Test::EList>"] sequence<EList> EListList;
+    ["cpp:type:std::list<::Test::EList>"]
+    sequence<EList> EListList;
     sequence<EList> EListSeq;
-    ["cpp:type:std::list<::Test::ESeq>"] sequence<ESeq> ESeqList;
+    ["cpp:type:std::list<::Test::ESeq>"]
+    sequence<ESeq> ESeqList;
 
     class C {}
 
     sequence<C> CSeq;
-    ["cpp:type:std::list<std::shared_ptr<::Test::C>>"] sequence<C> CList;
+    ["cpp:type:std::list<std::shared_ptr<::Test::C>>"]
+    sequence<C> CList;
 
-    ["cpp:type:std::list<::Test::CList>"] sequence<CList> CListList;
+    ["cpp:type:std::list<::Test::CList>"]
+    sequence<CList> CListList;
     sequence<CList> CListSeq;
-    ["cpp:type:std::list<::Test::CSeq>"] sequence<CSeq> CSeqList;
+    ["cpp:type:std::list<::Test::CSeq>"]
+    sequence<CSeq> CSeqList;
 
     interface D {}
 
     sequence<D*> DPrxSeq;
-    ["cpp:type:std::list<std::optional<::Test::DPrx>>"] sequence<D*> DPrxList;
+    ["cpp:type:std::list<std::optional<::Test::DPrx>>"]
+    sequence<D*> DPrxList;
 
-    ["cpp:type:std::list<::Test::DPrxList>"] sequence<DPrxList> DPrxListList;
+    ["cpp:type:std::list<::Test::DPrxList>"]
+    sequence<DPrxList> DPrxListList;
     sequence<DPrxList> DPrxListSeq;
-    ["cpp:type:std::list<::Test::DPrxSeq>"] sequence<DPrxSeq> DPrxSeqList;
+    ["cpp:type:std::list<::Test::DPrxSeq>"]
+    sequence<DPrxSeq> DPrxSeqList;
 
     sequence<double> DoubleSeq;
     sequence<short> ShortSeq;
 
-    ["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
+    ["cpp:type:Test::CustomMap<std::int32_t, std::string>"]
+    dictionary<int, string> IntStringDict;
     dictionary<long, long> LongLongDict;
     dictionary<string, int> StringIntDict;
 
@@ -107,13 +136,20 @@ module Test
         IntStringDict isdict;
     }
 
-    ["cpp:type:Test::CustomBuffer<bool>"] sequence<bool> BoolBuffer;
-    ["cpp:type:Test::CustomBuffer<std::int16_t>"] sequence<short> ShortBuffer;
-    ["cpp:type:Test::CustomBuffer<std::int32_t>"] sequence<int> IntBuffer;
-    ["cpp:type:Test::CustomBuffer<int64_t>"] sequence<long> LongBuffer;
-    ["cpp:type:Test::CustomBuffer<float>"] sequence<float> FloatBuffer;
-    ["cpp:type:Test::CustomBuffer<double>"] sequence<double> DoubleBuffer;
-    ["cpp:type:Test::CustomBuffer<std::byte>"] sequence<byte> ByteBuffer;
+    ["cpp:type:Test::CustomBuffer<bool>"]
+    sequence<bool> BoolBuffer;
+    ["cpp:type:Test::CustomBuffer<std::int16_t>"]
+    sequence<short> ShortBuffer;
+    ["cpp:type:Test::CustomBuffer<std::int32_t>"]
+    sequence<int> IntBuffer;
+    ["cpp:type:Test::CustomBuffer<int64_t>"]
+    sequence<long> LongBuffer;
+    ["cpp:type:Test::CustomBuffer<float>"]
+    sequence<float> FloatBuffer;
+    ["cpp:type:Test::CustomBuffer<double>"]
+    sequence<double> DoubleBuffer;
+    ["cpp:type:Test::CustomBuffer<std::byte>"]
+    sequence<byte> ByteBuffer;
 
     struct BufferStruct
     {
@@ -128,14 +164,17 @@ module Test
 
     interface TestIntf
     {
-        ["cpp:array"] ShortSeq opShortArray(["cpp:array"] ShortSeq inSeq, ["cpp:array"] out ShortSeq outSeq);
+        ["cpp:array"]
+        ShortSeq opShortArray(["cpp:array"] ShortSeq inSeq, ["cpp:array"] out ShortSeq outSeq);
 
         ["cpp:array"]
         DoubleSeq opDoubleArray(bool padding, ["cpp:array"] DoubleSeq inSeq, ["cpp:array"] out DoubleSeq outSeq);
 
-        ["cpp:array"] BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, ["cpp:array"] out BoolSeq outSeq);
+        ["cpp:array"]
+        BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, ["cpp:array"] out BoolSeq outSeq);
 
-        ["cpp:array"] ByteList opByteArray(["cpp:array"] ByteList inSeq, ["cpp:array"] out ByteList outSeq);
+        ["cpp:array"]
+        ByteList opByteArray(["cpp:array"] ByteList inSeq, ["cpp:array"] out ByteList outSeq);
 
         ["cpp:array"]
         VariableList opVariableArray(["cpp:array"] VariableList inSeq, ["cpp:array"] out VariableList outSeq);

@@ -6,10 +6,13 @@ module DeprecatedTest
 {
     // Applies the deprecated metadata on various Slice definitions.
 
-    ["deprecated"] const int MyIntConst = 42;
+    ["deprecated"]
+    const int MyIntConst = 42;
 
-    ["deprecated:Use NewStringSeq instead."] sequence<string> StringSeq;
-    ["deprecated"] dictionary<string, string> StringDict;
+    ["deprecated:Use NewStringSeq instead."]
+    sequence<string> StringSeq;
+    ["deprecated"]
+    dictionary<string, string> StringDict;
 
     ["deprecated"]
     class MyClass
@@ -22,7 +25,8 @@ module DeprecatedTest
         ["deprecated"] int i;
     }
 
-    ["deprecated"] class MyForwardClass;
+    ["deprecated"]
+    class MyForwardClass;
 
     ["deprecated"]
     struct MyStruct
@@ -63,12 +67,14 @@ module DeprecatedTest
 
         void opInt(int x);
 
-        ["deprecated:Use opInt() instead."] void opLong(long x);
+        ["deprecated:Use opInt() instead."]
+        void opLong(long x);
 
         void opProxy(MyInterface* proxy) throws MyException, MyOtherException;
 
         MyStruct opStruct(MyStruct s);
     }
 
-    ["deprecated"] interface MyForwardInterface;
+    ["deprecated"]
+    interface MyForwardInterface;
 }

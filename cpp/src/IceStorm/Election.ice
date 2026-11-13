@@ -37,22 +37,19 @@ module IceStormElection
         /// @param llu The last log update seen by the master.
         /// @param content The topic content.
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
-        void init(LogUpdate llu, TopicContentSeq content)
-            throws ObserverInconsistencyException;
+        void init(LogUpdate llu, TopicContentSeq content) throws ObserverInconsistencyException;
 
         /// Create the topic with the given name.
         /// @param llu The log update token.
         /// @param name The topic name.
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
-        void createTopic(LogUpdate llu, string name)
-            throws ObserverInconsistencyException;
+        void createTopic(LogUpdate llu, string name) throws ObserverInconsistencyException;
 
         /// Destroy the topic with the given name.
         /// @param llu The log update token.
         /// @param name The topic name.
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
-        void destroyTopic(LogUpdate llu, string name)
-            throws ObserverInconsistencyException;
+        void destroyTopic(LogUpdate llu, string name) throws ObserverInconsistencyException;
 
         /// Add a subscriber to a topic.
         /// @param llu The log update token.
@@ -171,24 +168,29 @@ module IceStormElection
 
         /// Determine if this node is a coordinator.
         /// @return `true` if the node is a coordinator, `false` otherwise.
-        ["cpp:const"] idempotent bool areYouCoordinator();
+        ["cpp:const"]
+        idempotent bool areYouCoordinator();
 
         /// Determine if the node is a member of the given group with the given coordinator.
         /// @param gn The group name.
         /// @param j The group coordinator.
         /// @return `true` if the node is a member, `false` otherwise.
-        ["cpp:const"] idempotent bool areYouThere(string gn, int j);
+        ["cpp:const"]
+        idempotent bool areYouThere(string gn, int j);
 
         /// Get the sync object for the replica hosted by this node.
         /// @return The sync object.
-        ["cpp:const"] idempotent Object* sync();
+        ["cpp:const"]
+        idempotent Object* sync();
 
         /// Get the replication group information.
         /// @return The set of configured nodes and the associated priority.
-        ["cpp:const"] idempotent NodeInfoSeq nodes();
+        ["cpp:const"]
+        idempotent NodeInfoSeq nodes();
 
         /// Get the query information for the given node.
         /// @return The query information.
-        ["cpp:const"] idempotent QueryInfo query();
+        ["cpp:const"]
+        idempotent QueryInfo query();
     }
 }

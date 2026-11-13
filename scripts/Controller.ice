@@ -39,14 +39,11 @@ module Test::Common
 
     interface TestCase
     {
-        string startServerSide(Config config)
-            throws TestCaseFailedException;
+        string startServerSide(Config config) throws TestCaseFailedException;
 
-        string stopServerSide(bool success)
-            throws TestCaseFailedException;
+        string stopServerSide(bool success) throws TestCaseFailedException;
 
-        string runClientSide(string host, Config config)
-            throws TestCaseFailedException;
+        string runClientSide(string host, Config config) throws TestCaseFailedException;
 
         void destroy();
     }
@@ -70,19 +67,16 @@ module Test::Common
 
     interface Process
     {
-        void waitReady(int timeout)
-            throws ProcessFailedException;
+        void waitReady(int timeout) throws ProcessFailedException;
 
-        int waitSuccess(int timeout)
-            throws ProcessFailedException;
+        int waitSuccess(int timeout) throws ProcessFailedException;
 
         string terminate();
     }
 
     interface ProcessController
     {
-        Process* start(string testsuite, string exe, StringSeq args)
-            throws ProcessFailedException;
+        Process* start(string testsuite, string exe, StringSeq args) throws ProcessFailedException;
 
         string getHost(["swift:identifier:transportProtocol"] string protocol, bool ipv6);
 

@@ -46,9 +46,11 @@ module Test
     sequence<string> StringSeq;
     sequence<MyEnum> MyEnumSeq;
     sequence<SmallStruct> SmallStructSeq;
-    ["cpp:type:std::list<::Test::SmallStruct>"] sequence<SmallStruct> SmallStructList;
+    ["cpp:type:std::list<::Test::SmallStruct>"]
+    sequence<SmallStruct> SmallStructList;
     sequence<FixedStruct> FixedStructSeq;
-    ["cpp:type:std::list<::Test::FixedStruct>"] sequence<FixedStruct> FixedStructList;
+    ["cpp:type:std::list<::Test::FixedStruct>"]
+    sequence<FixedStruct> FixedStructList;
     sequence<VarStruct> VarStructSeq;
     sequence<MyInterface*> MyInterfacePrxSeq;
 
@@ -61,7 +63,8 @@ module Test
     dictionary<int, VarStruct> IntVarStructDict;
     dictionary<int, MyInterface*> IntMyInterfacePrxDict;
 
-    ["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
+    ["cpp:type:Test::CustomMap<std::int32_t, std::string>"]
+    dictionary<int, string> IntStringDict;
 
     class MultiOptional
     {
@@ -177,16 +180,14 @@ module Test
     {
         void shutdown();
 
-        ["marshaled-result"] Object pingPong(Object o);
+        ["marshaled-result"]
+        Object pingPong(Object o);
 
-        void opOptionalException(optional(1) int a, optional(2) string b)
-            throws OptionalException;
+        void opOptionalException(optional(1) int a, optional(2) string b) throws OptionalException;
 
-        void opDerivedException(optional(1) int a, optional(2) string b)
-            throws OptionalException;
+        void opDerivedException(optional(1) int a, optional(2) string b) throws OptionalException;
 
-        void opRequiredException(optional(1) int a, optional(2) string b)
-            throws OptionalException;
+        void opRequiredException(optional(1) int a, optional(2) string b) throws OptionalException;
 
         optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
 
@@ -218,14 +219,10 @@ module Test
 
         // Custom mapping operations
         ["cpp:array"]
-        optional(1) ByteSeq opByteSeq(
-            ["cpp:array"] optional(2) ByteSeq p1,
-            ["cpp:array"] out optional(3) ByteSeq p3);
+        optional(1) ByteSeq opByteSeq(["cpp:array"] optional(2) ByteSeq p1, ["cpp:array"] out optional(3) ByteSeq p3);
 
         ["cpp:array"]
-        optional(1) BoolSeq opBoolSeq(
-            ["cpp:array"] optional(2) BoolSeq p1,
-            ["cpp:array"] out optional(3) BoolSeq p3);
+        optional(1) BoolSeq opBoolSeq(["cpp:array"] optional(2) BoolSeq p1, ["cpp:array"] out optional(3) BoolSeq p3);
 
         ["cpp:array"]
         optional(1) ShortSeq opShortSeq(
@@ -233,14 +230,10 @@ module Test
             ["cpp:array"] out optional(3) ShortSeq p3);
 
         ["cpp:array"]
-        optional(1) IntSeq opIntSeq(
-            ["cpp:array"] optional(2) IntSeq p1,
-            ["cpp:array"] out optional(3) IntSeq p3);
+        optional(1) IntSeq opIntSeq(["cpp:array"] optional(2) IntSeq p1, ["cpp:array"] out optional(3) IntSeq p3);
 
         ["cpp:array"]
-        optional(1) LongSeq opLongSeq(
-            ["cpp:array"] optional(2) LongSeq p1,
-            ["cpp:array"] out optional(3) LongSeq p3);
+        optional(1) LongSeq opLongSeq(["cpp:array"] optional(2) LongSeq p1, ["cpp:array"] out optional(3) LongSeq p3);
 
         ["cpp:array"]
         optional(1) FloatSeq opFloatSeq(
@@ -288,23 +281,20 @@ module Test
 
         void opVoid();
 
-        ["marshaled-result"] optional(1) SmallStruct opMStruct1();
         ["marshaled-result"]
-        optional(1) SmallStruct opMStruct2(
-            optional(2) SmallStruct p1,
-            out optional(3) SmallStruct p2);
+        optional(1) SmallStruct opMStruct1();
+        ["marshaled-result"]
+        optional(1) SmallStruct opMStruct2(optional(2) SmallStruct p1, out optional(3) SmallStruct p2);
 
-        ["marshaled-result"] optional(1) StringSeq opMSeq1();
         ["marshaled-result"]
-        optional(1) StringSeq opMSeq2(
-            optional(2) StringSeq p1,
-            out optional(3) StringSeq p2);
+        optional(1) StringSeq opMSeq1();
+        ["marshaled-result"]
+        optional(1) StringSeq opMSeq2(optional(2) StringSeq p1, out optional(3) StringSeq p2);
 
-        ["marshaled-result"] optional(1) StringIntDict opMDict1();
         ["marshaled-result"]
-        optional(1) StringIntDict opMDict2(
-            optional(2) StringIntDict p1,
-            out optional(3) StringIntDict p2);
+        optional(1) StringIntDict opMDict1();
+        ["marshaled-result"]
+        optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1, out optional(3) StringIntDict p2);
 
         bool supportsJavaSerializable();
     }

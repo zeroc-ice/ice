@@ -6,33 +6,49 @@
 module Test
 {
     sequence<byte> ByteString; /* By default, sequence<byte> is received as a bytes literal. */
-    ["python:list"] sequence<byte> ByteList;
+    ["python:list"]
+    sequence<byte> ByteList;
 
     sequence<string> StringList; /* By default, a sequence is received as a list. */
-    ["python:tuple"] sequence<string> StringTuple;
+    ["python:tuple"]
+    sequence<string> StringTuple;
 
     sequence<int> IntList; /* By default, sequence<int> is received as a list. */
 
-    ["python:array.array"] sequence<bool> BoolSeq1;
-    ["python:memoryview:CustomFactory.myBoolSeq:array.array"] sequence<bool> BoolSeq2;
+    ["python:array.array"]
+    sequence<bool> BoolSeq1;
+    ["python:memoryview:CustomFactory.myBoolSeq:array.array"]
+    sequence<bool> BoolSeq2;
 
-    ["python:array.array"] sequence<byte> ByteSeq1;
-    ["python:memoryview:CustomFactory.myByteSeq:array.array"] sequence<byte> ByteSeq2;
+    ["python:array.array"]
+    sequence<byte> ByteSeq1;
+    ["python:memoryview:CustomFactory.myByteSeq:array.array"]
+    sequence<byte> ByteSeq2;
 
-    ["python:array.array"] sequence<short> ShortSeq1;
-    ["python:memoryview:CustomFactory.myShortSeq:array.array"] sequence<short> ShortSeq2;
+    ["python:array.array"]
+    sequence<short> ShortSeq1;
+    ["python:memoryview:CustomFactory.myShortSeq:array.array"]
+    sequence<short> ShortSeq2;
 
-    ["python:array.array"] sequence<int> IntSeq1;
-    ["python:memoryview:CustomFactory.myIntSeq:array.array"] sequence<int> IntSeq2;
+    ["python:array.array"]
+    sequence<int> IntSeq1;
+    ["python:memoryview:CustomFactory.myIntSeq:array.array"]
+    sequence<int> IntSeq2;
 
-    ["python:array.array"] sequence<long> LongSeq1;
-    ["python:memoryview:CustomFactory.myLongSeq:array.array"] sequence<long> LongSeq2;
+    ["python:array.array"]
+    sequence<long> LongSeq1;
+    ["python:memoryview:CustomFactory.myLongSeq:array.array"]
+    sequence<long> LongSeq2;
 
-    ["python:array.array"] sequence<float> FloatSeq1;
-    ["python:memoryview:CustomFactory.myFloatSeq:array.array"] sequence<float> FloatSeq2;
+    ["python:array.array"]
+    sequence<float> FloatSeq1;
+    ["python:memoryview:CustomFactory.myFloatSeq:array.array"]
+    sequence<float> FloatSeq2;
 
-    ["python:array.array"] sequence<double> DoubleSeq1;
-    ["python:memoryview:CustomFactory.myDoubleSeq:array.array"] sequence<double> DoubleSeq2;
+    ["python:array.array"]
+    sequence<double> DoubleSeq1;
+    ["python:memoryview:CustomFactory.myDoubleSeq:array.array"]
+    sequence<double> DoubleSeq2;
 
     struct S
     {
@@ -90,27 +106,19 @@ module Test
     {
         ByteString opByteString1(ByteString b1, out ByteString b2);
         ["python:tuple"]
-        ByteString opByteString2(
-            ["python:list"] ByteString b1,
-            ["python:list"] out ByteString b2);
+        ByteString opByteString2(["python:list"] ByteString b1, ["python:list"] out ByteString b2);
 
         ByteList opByteList1(ByteList b1, out ByteList b2);
         ["python:list"]
-        ByteList opByteList2(
-            ["python:tuple"] ByteList b1,
-            ["python:tuple"] out ByteList b2);
+        ByteList opByteList2(["python:tuple"] ByteList b1, ["python:tuple"] out ByteList b2);
 
         StringList opStringList1(StringList s1, out StringList s2);
         ["python:tuple"]
-        StringList opStringList2(
-            ["python:tuple"] StringList s1,
-            ["python:tuple"] out StringList s2);
+        StringList opStringList2(["python:tuple"] StringList s1, ["python:tuple"] out StringList s2);
 
         StringTuple opStringTuple1(StringTuple s1, out StringTuple s2);
         ["python:list"]
-        StringTuple opStringTuple2(
-            ["python:list"] StringTuple s1,
-            ["python:list"] out StringTuple s2);
+        StringTuple opStringTuple2(["python:list"] StringTuple s1, ["python:list"] out StringTuple s2);
 
         void sendS(S val);
         void sendC(C val);
@@ -125,12 +133,16 @@ module Test
 
         ["python:memoryview:CustomFactory.myBogusArrayNotExistsFactory:array.array"]
         BoolSeq1 opBogusArrayNotExistsFactory();
-        ["python:memoryview:CustomFactory.myBogusArrayThrowFactory:array.array"] BoolSeq1 opBogusArrayThrowFactory();
-        ["python:memoryview:CustomFactory.myBogusArrayType:array.array"] BoolSeq1 opBogusArrayType();
-        ["python:memoryview:CustomFactory.myBogusArrayNoneFactory:array.array"] BoolSeq1 opBogusArrayNoneFactory();
+        ["python:memoryview:CustomFactory.myBogusArrayThrowFactory:array.array"]
+        BoolSeq1 opBogusArrayThrowFactory();
+        ["python:memoryview:CustomFactory.myBogusArrayType:array.array"]
+        BoolSeq1 opBogusArrayType();
+        ["python:memoryview:CustomFactory.myBogusArrayNoneFactory:array.array"]
+        BoolSeq1 opBogusArrayNoneFactory();
         ["python:memoryview:CustomFactory.myBogusArraySignatureFactory:array.array"]
         BoolSeq1 opBogusArraySignatureFactory();
-        ["python:memoryview:CustomFactory.myNoCallableFactory:array.array"] BoolSeq1 opBogusArrayNoCallableFactory();
+        ["python:memoryview:CustomFactory.myNoCallableFactory:array.array"]
+        BoolSeq1 opBogusArrayNoCallableFactory();
 
         D opD(D d);
 

@@ -17,7 +17,8 @@ module Test
     class MyClass;
     interface MyInterface;
 
-    ["java:serializable:test.Ice.stream.Serialize.Small"] sequence<byte> SerialSmall;
+    ["java:serializable:test.Ice.stream.Serialize.Small"]
+    sequence<byte> SerialSmall;
 
     struct LargeStruct
     {

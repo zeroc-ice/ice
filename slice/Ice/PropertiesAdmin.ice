@@ -25,7 +25,8 @@ module Ice
         /// are returned.
         /// @param prefix The prefix to search for. May be empty.
         /// @return The matching property set.
-        ["java:type:java.util.TreeMap<String, String>"] PropertyDict getPropertiesForPrefix(string prefix);
+        ["java:type:java.util.TreeMap<String, String>"]
+        PropertyDict getPropertiesForPrefix(string prefix);
 
         /// Updates the communicator's properties with the given property set. If an entry in @p newProperties matches
         /// the name of an existing property, that property's value is replaced with the new value. If the new value is

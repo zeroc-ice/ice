@@ -66,8 +66,11 @@ module abstract
             throws hashCode, clone;
     }
 
-    ["java:identifier:escaped_for"] sequence<assert> for;
-    ["java:identifier:escaped_goto"] dictionary<string, assert> goto;
+    ["java:identifier:escaped_for"]
+    sequence<assert> for;
+    ["java:identifier:escaped_goto"]
+    dictionary<string, assert> goto;
 
-    ["java:identifier:escaped_synchronized"] const int synchronized = 0;
+    ["java:identifier:escaped_synchronized"]
+    const int synchronized = 0;
 }

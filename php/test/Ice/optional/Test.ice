@@ -174,14 +174,11 @@ module Test
 
         Object pingPong(Object o);
 
-        void opOptionalException(optional(1) int a, optional(2) string b)
-            throws OptionalException;
+        void opOptionalException(optional(1) int a, optional(2) string b) throws OptionalException;
 
-        void opDerivedException(optional(1) int a, optional(2) string b)
-            throws OptionalException;
+        void opDerivedException(optional(1) int a, optional(2) string b) throws OptionalException;
 
-        void opRequiredException(optional(1) int a, optional(2) string b)
-            throws OptionalException;
+        void opRequiredException(optional(1) int a, optional(2) string b) throws OptionalException;
 
         optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
 
@@ -251,23 +248,20 @@ module Test
 
         G opG(G g);
 
-        ["marshaled-result"] optional(1) SmallStruct opMStruct1();
         ["marshaled-result"]
-        optional(1) SmallStruct opMStruct2(
-            optional(2) SmallStruct p1,
-            out optional(3) SmallStruct p2);
+        optional(1) SmallStruct opMStruct1();
+        ["marshaled-result"]
+        optional(1) SmallStruct opMStruct2(optional(2) SmallStruct p1, out optional(3) SmallStruct p2);
 
-        ["marshaled-result"] optional(1) StringSeq opMSeq1();
         ["marshaled-result"]
-        optional(1) StringSeq opMSeq2(
-            optional(2) StringSeq p1,
-            out optional(3) StringSeq p2);
+        optional(1) StringSeq opMSeq1();
+        ["marshaled-result"]
+        optional(1) StringSeq opMSeq2(optional(2) StringSeq p1, out optional(3) StringSeq p2);
 
-        ["marshaled-result"] optional(1) StringIntDict opMDict1();
         ["marshaled-result"]
-        optional(1) StringIntDict opMDict2(
-            optional(2) StringIntDict p1,
-            out optional(3) StringIntDict p2);
+        optional(1) StringIntDict opMDict1();
+        ["marshaled-result"]
+        optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1, out optional(3) StringIntDict p2);
 
         bool supportsJavaSerializable();
     }

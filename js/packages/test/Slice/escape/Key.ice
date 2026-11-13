@@ -21,7 +21,9 @@ module await
     ["js:identifier:_case"]
     interface case
     {
-        ["amd"] ["js:identifier:_catch"] void catch(int checked, ["js:identifier:_continue"] out int continue);
+        ["amd"]
+        ["js:identifier:_catch"]
+        void catch(int checked, ["js:identifier:_continue"] out int continue);
     }
 
     ["js:identifier:_typeof"]
@@ -53,11 +55,7 @@ module await
     interface explicit extends typeof, case
     {
         ["js:identifier:_in"]
-        var in(
-            break internal,
-            ["js:identifier:_new"] typeof* new,
-            ["js:identifier:_null"] delete null,
-            int override)
+        var in(break internal, ["js:identifier:_new"] typeof* new, ["js:identifier:_null"] delete null, int override)
             throws fixed, foreach;
     }
 
@@ -84,7 +82,8 @@ module await
             out optional(7) string namespace,
             ["js:identifier:_null"] out optional(8) explicit* null);
 
-        ["amd"] ["js:identifier:_continue"]
+        ["amd"]
+        ["js:identifier:_continue"]
         optional(1) break continue(
             optional(2) var goto,
             ["js:identifier:_if"] optional(3) explicit* if,

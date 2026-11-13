@@ -45,13 +45,16 @@ module Test
     sequence<string> StringSeq;
     sequence<MyEnum> MyEnumSeq;
     sequence<SmallStruct> SmallStructSeq;
-    ["java:type:java.util.ArrayList<SmallStruct>"] sequence<SmallStruct> SmallStructList;
+    ["java:type:java.util.ArrayList<SmallStruct>"]
+    sequence<SmallStruct> SmallStructList;
     sequence<FixedStruct> FixedStructSeq;
-    ["java:type:java.util.ArrayList<FixedStruct>"] sequence<FixedStruct> FixedStructList;
+    ["java:type:java.util.ArrayList<FixedStruct>"]
+    sequence<FixedStruct> FixedStructList;
     sequence<VarStruct> VarStructSeq;
     sequence<MyInterface*> MyInterfacePrxSeq;
 
-    ["java:serializable:test.Ice.optional.SerializableClass"] sequence<byte> Serializable;
+    ["java:serializable:test.Ice.optional.SerializableClass"]
+    sequence<byte> Serializable;
 
     dictionary<int, int> IntIntDict;
     dictionary<string, int> StringIntDict;
@@ -180,14 +183,11 @@ module Test
 
         Object pingPong(Object o);
 
-        void opOptionalException(optional(1) int a, optional(2) string b)
-            throws OptionalException;
+        void opOptionalException(optional(1) int a, optional(2) string b) throws OptionalException;
 
-        void opDerivedException(optional(1) int a, optional(2) string b)
-            throws OptionalException;
+        void opDerivedException(optional(1) int a, optional(2) string b) throws OptionalException;
 
-        void opRequiredException(optional(1) int a, optional(2) string b)
-            throws OptionalException;
+        void opRequiredException(optional(1) int a, optional(2) string b) throws OptionalException;
 
         optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
 
@@ -259,23 +259,20 @@ module Test
 
         void opVoid();
 
-        ["marshaled-result"] optional(1) SmallStruct opMStruct1();
         ["marshaled-result"]
-        optional(1) SmallStruct opMStruct2(
-            optional(2) SmallStruct p1,
-            out optional(3) SmallStruct p2);
+        optional(1) SmallStruct opMStruct1();
+        ["marshaled-result"]
+        optional(1) SmallStruct opMStruct2(optional(2) SmallStruct p1, out optional(3) SmallStruct p2);
 
-        ["marshaled-result"] optional(1) StringSeq opMSeq1();
         ["marshaled-result"]
-        optional(1) StringSeq opMSeq2(
-            optional(2) StringSeq p1,
-            out optional(3) StringSeq p2);
+        optional(1) StringSeq opMSeq1();
+        ["marshaled-result"]
+        optional(1) StringSeq opMSeq2(optional(2) StringSeq p1, out optional(3) StringSeq p2);
 
-        ["marshaled-result"] optional(1) StringIntDict opMDict1();
         ["marshaled-result"]
-        optional(1) StringIntDict opMDict2(
-            optional(2) StringIntDict p1,
-            out optional(3) StringIntDict p2);
+        optional(1) StringIntDict opMDict1();
+        ["marshaled-result"]
+        optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1, out optional(3) StringIntDict p2);
 
         bool supportsJavaSerializable();
     }

@@ -20,15 +20,15 @@ module Test
         void op();
         void opWithPayload(Ice::ByteSeq seq);
         int opWithResult();
-        void opWithUE()
-            throws TestIntfException;
+        void opWithUE() throws TestIntfException;
         void opBatch();
         int opBatchCount();
         bool waitForBatch(int count);
         void closeConnection();
         void abortConnection();
         void sleep(int ms);
-        ["amd"] void startDispatch();
+        ["amd"]
+        void startDispatch();
         void finishDispatch();
         void shutdown();
 
@@ -43,7 +43,8 @@ module Test
         float opFloat(float f);
         double opDouble(double d);
 
-        ["amd"] void pingBiDir(PingReply* reply);
+        ["amd"]
+        void pingBiDir(PingReply* reply);
     }
 
     interface TestIntfController

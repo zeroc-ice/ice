@@ -5,8 +5,10 @@
 ["java:identifier:test.Ice.customDictionary.Test"]
 module Test
 {
-    ["java:type:java.util.LinkedHashMap<Byte, Boolean>"] dictionary<byte, bool> ByteBoolLinkedDict;
-    ["java:type:java.util.LinkedHashMap<Short, Integer>"] dictionary<short, int> ShortIntLinkedDict;
+    ["java:type:java.util.LinkedHashMap<Byte, Boolean>"]
+    dictionary<byte, bool> ByteBoolLinkedDict;
+    ["java:type:java.util.LinkedHashMap<Short, Integer>"]
+    dictionary<short, int> ShortIntLinkedDict;
     ["java:type:java.util.LinkedHashMap<Long, Float>:java.util.LinkedHashMap<Long, Float>"]
     dictionary<long, float> LongFloatLinkedDict;
     ["java:type:java.util.LinkedHashMap<String, Double>:java.util.LinkedHashMap<String, Double>"]
@@ -18,7 +20,8 @@ module Test
     }
 
     dictionary<A, int> AIntDict;
-    ["java:type:java.util.LinkedHashMap<A, Integer>"] dictionary<A, int> AIntLinkedDict;
+    ["java:type:java.util.LinkedHashMap<A, Integer>"]
+    dictionary<A, int> AIntLinkedDict;
     ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"]
     dictionary<A, int> AIntFormalLinkedDict;
 
@@ -28,20 +31,23 @@ module Test
     }
 
     dictionary<short, C> ShortCDict;
-    ["java:type:java.util.LinkedHashMap<Short, C>"] dictionary<short, C> ShortCLinkedDict;
+    ["java:type:java.util.LinkedHashMap<Short, C>"]
+    dictionary<short, C> ShortCLinkedDict;
     ["java:type:java.util.LinkedHashMap<Short, C>:java.util.LinkedHashMap<Short, C>"]
     dictionary<short, C> ShortCFormalLinkedDict;
 
     enum E { E1, E2, E3 }
 
     dictionary<string, E> StringEDict;
-    ["java:type:java.util.LinkedHashMap<String, E>"] dictionary<string, E> StringELinkedDict;
+    ["java:type:java.util.LinkedHashMap<String, E>"]
+    dictionary<string, E> StringELinkedDict;
     ["java:type:java.util.LinkedHashMap<String, E>:java.util.LinkedHashMap<String, E>"]
     dictionary<string, E> StringEFormalLinkedDict;
 
     sequence<string> StringSeq;
     dictionary<E, StringSeq> EStringSeqDict;
-    ["java:type:java.util.LinkedHashMap<E, String[]>"] dictionary<E, StringSeq> EStringSeqLinkedDict;
+    ["java:type:java.util.LinkedHashMap<E, String[]>"]
+    dictionary<E, StringSeq> EStringSeqLinkedDict;
     ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"]
     dictionary<E, StringSeq> EStringSeqFormalLinkedDict;
 
@@ -56,9 +62,7 @@ module Test
 
         AIntDict opAIntDict(AIntDict inDict, out AIntDict outDict);
         AIntLinkedDict opAIntLinkedDict(AIntLinkedDict inDict, out AIntLinkedDict outDict);
-        AIntFormalLinkedDict opAIntFormalLinkedDict(
-            AIntFormalLinkedDict inDict,
-            out AIntFormalLinkedDict outDict);
+        AIntFormalLinkedDict opAIntFormalLinkedDict(AIntFormalLinkedDict inDict, out AIntFormalLinkedDict outDict);
 
         ShortCDict opShortCDict(ShortCDict inDict, out ShortCDict outDict);
         ShortCLinkedDict opShortCLinkedDict(ShortCLinkedDict inDict, out ShortCLinkedDict outDict);
@@ -91,9 +95,7 @@ module Test
             optional(2) StringDoubleLinkedDict inDict,
             out optional(3) StringDoubleLinkedDict outDict);
 
-        optional(1) AIntDict opOptAIntDict(
-            optional(2) AIntDict inDict,
-            out optional(3) AIntDict outDict);
+        optional(1) AIntDict opOptAIntDict(optional(2) AIntDict inDict, out optional(3) AIntDict outDict);
         optional(1) AIntLinkedDict opOptAIntLinkedDict(
             optional(2) AIntLinkedDict inDict,
             out optional(3) AIntLinkedDict outDict);
@@ -101,9 +103,7 @@ module Test
             optional(2) AIntFormalLinkedDict inDict,
             out optional(3) AIntFormalLinkedDict outDict);
 
-        optional(1) StringEDict opOptStringEDict(
-            optional(2) StringEDict inDict,
-            out optional(3) StringEDict outDict);
+        optional(1) StringEDict opOptStringEDict(optional(2) StringEDict inDict, out optional(3) StringEDict outDict);
         optional(1) StringELinkedDict opOptStringELinkedDict(
             optional(2) StringELinkedDict inDict,
             out optional(3) StringELinkedDict outDict);
@@ -121,12 +121,14 @@ module Test
             optional(2) EStringSeqFormalLinkedDict inDict,
             out optional(3) EStringSeqFormalLinkedDict outDict);
 
-        ["marshaled-result"] ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"]
+        ["marshaled-result"]
+        ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"]
         AIntDict opMAIntFormalLinkedDict(
             ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"] AIntDict inDict,
             ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"] out AIntDict outDict);
 
-        ["marshaled-result"] ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"]
+        ["marshaled-result"]
+        ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"]
         optional(1) EStringSeqDict opMOptEStringSeqFormalLinkedDict(
             ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"]
             optional(2) EStringSeqDict inDict,

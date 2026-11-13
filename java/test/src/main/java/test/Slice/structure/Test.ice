@@ -6,7 +6,8 @@
 module Test
 {
     sequence<string> StringSeq;
-    ["java:type:java.util.ArrayList<Integer>"] sequence<int> IntList;
+    ["java:type:java.util.ArrayList<Integer>"]
+    sequence<int> IntList;
     dictionary<string, string> StringDict;
 
     class C

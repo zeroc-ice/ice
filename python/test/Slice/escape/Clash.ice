@@ -12,7 +12,8 @@ module Test
         void response();
         void upCast();
         void typeId();
-        ["python:identifier:_del"] void del();
+        ["python:identifier:_del"]
+        void del();
         void cookie();
         void sync();
         void inS();

@@ -82,28 +82,24 @@ module IceGrid
         /// @param password The password for the given user.
         /// @return A proxy to the newly created session. This proxy is never null.
         /// @throws PermissionDeniedException Thrown when authentication or authorization fails.
-        Session* createSession(string userId, string password)
-            throws PermissionDeniedException;
+        Session* createSession(string userId, string password) throws PermissionDeniedException;
 
         /// Creates an administrative session.
         /// @param userId The user ID.
         /// @param password The password for the given user.
         /// @return A proxy to the newly created session. This proxy is never null.
         /// @throws PermissionDeniedException Thrown when authentication or authorization fails.
-        AdminSession* createAdminSession(string userId, string password)
-            throws PermissionDeniedException;
+        AdminSession* createAdminSession(string userId, string password) throws PermissionDeniedException;
 
         /// Creates a client session from a secure connection.
         /// @return A proxy to the newly created session. This proxy is never null.
         /// @throws PermissionDeniedException Thrown when authentication or authorization fails.
-        Session* createSessionFromSecureConnection()
-            throws PermissionDeniedException;
+        Session* createSessionFromSecureConnection() throws PermissionDeniedException;
 
         /// Creates an administrative session from a secure connection.
         /// @return A proxy to the newly created session. This proxy is never null.
         /// @throws PermissionDeniedException Thrown when authentication or authorization fails.
-        AdminSession* createAdminSessionFromSecureConnection()
-            throws PermissionDeniedException;
+        AdminSession* createAdminSessionFromSecureConnection() throws PermissionDeniedException;
 
         /// Gets the session timeout. An Ice 3.7 or earlier client can use this value to determine how often it needs to
         /// send heartbeats (using ACM) or call {@link Session#keepAlive} (resp. {@link AdminSession#keepAlive}) to keep

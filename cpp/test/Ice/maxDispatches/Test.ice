@@ -6,7 +6,8 @@ module Test
 {
     interface TestIntf
     {
-        ["amd"] void op();
+        ["amd"]
+        void op();
         int resetMaxConcurrentDispatches();
         void shutdown();
     }

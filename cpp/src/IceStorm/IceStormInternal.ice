@@ -29,7 +29,8 @@ module IceStorm
     }
 
     /// A sequence of {@link EventData}.
-    ["cpp:type:std::deque<IceStorm::EventData>"] sequence<EventData> EventDataSeq;
+    ["cpp:type:std::deque<IceStorm::EventData>"]
+    sequence<EventData> EventDataSeq;
 
     /// The `TopicLink` interface. This is used to forward events between federated {@link Topic} instances.
     /// @see TopicInternal
@@ -65,6 +66,7 @@ module IceStorm
     {
         /// Return the replica node proxy for this topic manager.
         /// @return The replica proxy, or `null` if this instance is not replicated.
-        ["cpp:const"] idempotent IceStormElection::Node* getReplicaNode();
+        ["cpp:const"]
+        idempotent IceStormElection::Node* getReplicaNode();
     }
 }

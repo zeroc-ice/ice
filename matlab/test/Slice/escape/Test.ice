@@ -35,8 +35,10 @@ module classdef
         ["matlab:identifier:return_"] int return = 1;
     }
 
-    ["matlab:identifier:parfor_"] sequence<global> parfor;
-    ["matlab:identifier:switch_"] dictionary<int, global> switch;
+    ["matlab:identifier:parfor_"]
+    sequence<global> parfor;
+    ["matlab:identifier:switch_"]
+    dictionary<int, global> switch;
 
     class Base
     {
@@ -70,8 +72,10 @@ module classdef
     ["matlab:identifier:MyInterface"]
     interface operations
     {
-        ["matlab:identifier:foobar"] void events(Object* obj, string context);
-        ["matlab:identifier:func"] void function();
+        ["matlab:identifier:foobar"]
+        void events(Object* obj, string context);
+        ["matlab:identifier:func"]
+        void function();
     }
 
     ["matlab:identifier:methods_"]
