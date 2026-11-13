@@ -396,19 +396,19 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* ========== Preprocessor Statements ========== */
 
   /* Matches the empty preprocessor directive. */
-<*>^{preprocessor_prefix} {
+<INITIAL,SLICE,METADATA>^{preprocessor_prefix} {
     pushState(PREPROCESS);
 }
 
   /* Matches a line preprocessor directive, but missing a line number. */
-<*>^{preprocessor_prefix}line {
+<INITIAL,SLICE,METADATA>^{preprocessor_prefix}line {
     pushState(PREPROCESS);
     currentUnit->error("missing line number in line preprocessor directive");
 }
 
   /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
-<*>^{preprocessor_lineno}                         |
-<*>^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
+<INITIAL,SLICE,METADATA>^{preprocessor_lineno}                         |
+<INITIAL,SLICE,METADATA>^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
     int includeAction = scanPosition(yytext);
     if (yylineno == 0 || includeAction == 1) // Push: Indicated the scanner has started scanning a new file.
     {
