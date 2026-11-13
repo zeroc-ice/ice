@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
-from typing import cast
+from typing import cast, override
 
 from generated.test.Ice.objects import Test
 from generated.test.Ice.objects.client_private.Test import UnexpectedObjectExceptionTestPrx
@@ -323,4 +323,39 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.Initial
         test(not acceptsCycles)
     print("ok")
 
+    sys.stdout.write("testing dictionary with duplicate keys and class values... ")
+    sys.stdout.flush()
+    testDuplicateKeys(communicator, initial)
+    print("ok")
+
     return initial
+
+
+class RequestRecorder(Ice.Blobject):
+    """Records the encoded arguments of the last request it dispatches, and replies without results."""
+
+    def __init__(self) -> None:
+        self.inParams = b""
+
+    @override
+    def ice_invoke(self, bytes: bytes, current: Ice.Current) -> tuple[bool, bytes]:
+        self.inParams = bytes
+        return (True, b"")
+
+
+def testDuplicateKeys(communicator: Ice.Communicator, initial: Test.InitialPrx) -> None:
+    # Record the arguments of a request and rewrite its second key to repeat the first one.
+    # With the 1.0 encoding, the class values are unmarshaled after the dictionary.
+    adapter = communicator.createObjectAdapter("")
+    recorder = RequestRecorder()
+    recorderPrx = Test.InitialPrx.uncheckedCast(adapter.add(recorder, Ice.stringToIdentity("recorder")))
+    try:
+        recorderPrx.ice_encodingVersion(Ice.Encoding_1_0).opValueMap({"key1": Test.Empty(), "key2": Test.Empty()})
+    except Ice.MarshalException:
+        pass  # The recorder replies without results.
+    finally:
+        adapter.destroy()
+
+    inParams = recorder.inParams.replace(b"key2", b"key1")
+    ok, _ = initial.ice_invoke("opValueMap", Ice.OperationMode.Normal, inParams)
+    test(ok)

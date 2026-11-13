@@ -247,6 +247,12 @@ IcePy::StreamUtil::add(const ValueReaderPtr& reader)
 }
 
 void
+IcePy::StreamUtil::hold(const PyObjectHandle& object)
+{
+    _heldObjects.push_back(object);
+}
+
+void
 IcePy::StreamUtil::updateSlicedData()
 {
     for (const auto& valueReader : _readers)
@@ -2486,6 +2492,18 @@ IcePy::DictionaryInfo::unmarshal(
         {
             assert(PyErr_Occurred());
             throw AbortMarshaling();
+        }
+
+        //
+        // A class value can be unmarshaled after this loop, and the dictionary
+        // doesn't keep a reference to a key equal to one it already holds, so the
+        // stream must keep the key alive until then.
+        //
+        if (valueType->usesClasses())
+        {
+            auto* util = reinterpret_cast<StreamUtil*>(is->getClosure());
+            assert(util);
+            util->hold(keyCB->key);
         }
 
         //
