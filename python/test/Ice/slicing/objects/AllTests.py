@@ -502,8 +502,6 @@ def testValueSlicing(t: Test.TestIntfPrx):
             sb = t.SBSUnknownDerivedAsSBaseCompact()
             assert sb is not None
             test(sb.sb == "SBSUnknownDerived.sb")
-        except Ice.OperationNotExistException:
-            pass
         except Exception as ex:
             print(f"Unexpected exception: {ex}")
             test(False)
@@ -515,8 +513,6 @@ def testValueSlicing(t: Test.TestIntfPrx):
             #
             sb = t.SBSUnknownDerivedAsSBaseCompact()
             test(False)
-        except Ice.OperationNotExistException:
-            pass
         except Ice.MarshalException:
             # Expected.
             pass
@@ -1633,132 +1629,129 @@ def testClassSlicing(t: Test.TestIntfPrx) -> None:
     sys.stdout.write("preserved classes... ")
     sys.stdout.flush()
 
-    try:
-        #
-        # Server knows the most-derived class PDerived.
-        #
-        pd = Test.PDerived()
-        pd.pi = 3
-        pd.ps = "preserved"
-        pd.pb = pd
+    #
+    # Server knows the most-derived class PDerived.
+    #
+    pd = Test.PDerived()
+    pd.pi = 3
+    pd.ps = "preserved"
+    pd.pb = pd
 
-        r = t.exchangePBase(pd)
-        assert isinstance(r, Test.PDerived)
+    r = t.exchangePBase(pd)
+    assert isinstance(r, Test.PDerived)
+    test(r.pi == 3)
+    test(r.ps == "preserved")
+    test(r.pb == r)
+
+    #
+    # Server only knows the base (non-preserved) type, so the object is sliced.
+    #
+    pu = ClientPrivateTest.PCUnknown()
+    pu.pi = 3
+    pu.pu = "preserved"
+
+    r = t.exchangePBase(pu)
+    assert r is not None
+    test(r.pi == 3)
+
+    p2 = r
+    if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+        test(not isinstance(p2, ClientPrivateTest.PCUnknown))
+    else:
+        assert isinstance(p2, ClientPrivateTest.PCUnknown)
+        test(p2.pu == "preserved")
+
+    #
+    # Server only knows the intermediate type Preserved. The object will be sliced to
+    # Preserved for the 1.0 encoding; otherwise it should be returned intact.
+    #
+    pcd = ClientPrivateTest.PCDerived()
+    pcd.pi = 3
+    pcd.pbs = [pcd]
+
+    r = t.exchangePBase(pcd)
+    assert r is not None
+    if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+        test(not isinstance(r, ClientPrivateTest.PCDerived))
         test(r.pi == 3)
-        test(r.ps == "preserved")
-        test(r.pb == r)
-
-        #
-        # Server only knows the base (non-preserved) type, so the object is sliced.
-        #
-        pu = ClientPrivateTest.PCUnknown()
-        pu.pi = 3
-        pu.pu = "preserved"
-
-        r = t.exchangePBase(pu)
-        assert r is not None
+    else:
+        assert isinstance(r, ClientPrivateTest.PCDerived)
         test(r.pi == 3)
+        test(r.pbs[0] == r)
 
-        p2 = r
-        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(p2, ClientPrivateTest.PCUnknown))
-        else:
-            assert isinstance(p2, ClientPrivateTest.PCUnknown)
-            test(p2.pu == "preserved")
+    #
+    # Server only knows the intermediate type CompactPDerived. The object will be sliced to
+    # CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
+    #
+    pcd = ClientPrivateTest.CompactPCDerived()
+    pcd.pi = 3
+    pcd.pbs = [pcd]
 
-        #
-        # Server only knows the intermediate type Preserved. The object will be sliced to
-        # Preserved for the 1.0 encoding; otherwise it should be returned intact.
-        #
-        pcd = ClientPrivateTest.PCDerived()
-        pcd.pi = 3
-        pcd.pbs = [pcd]
+    r = t.exchangePBase(pcd)
+    assert r is not None
+    if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+        test(not isinstance(r, ClientPrivateTest.CompactPCDerived))
+        test(r.pi == 3)
+    else:
+        assert isinstance(r, ClientPrivateTest.CompactPCDerived)
+        test(r.pi == 3)
+        test(r.pbs[0] == r)
 
-        r = t.exchangePBase(pcd)
-        assert r is not None
-        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(r, ClientPrivateTest.PCDerived))
-            test(r.pi == 3)
-        else:
-            assert isinstance(r, ClientPrivateTest.PCDerived)
-            test(r.pi == 3)
-            test(r.pbs[0] == r)
+    #
+    # Send an object that will have multiple preserved slices in the server.
+    # The object will be sliced to Preserved for the 1.0 encoding.
+    #
+    pcd = ClientPrivateTest.PCDerived3()
+    pcd.pi = 3
+    #
+    # Sending more than 254 objects exercises the encoding for object ids.
+    #
+    pcd.pbs = []
+    for i in range(0, 300):
+        p2 = ClientPrivateTest.PCDerived2()
+        p2.pi = i
+        p2.pbs = [None]  # Nil reference. This slice should not have an indirection table.
+        p2.pcd2 = i
+        pcd.pbs.append(p2)
+    pcd.pcd2 = pcd.pi
+    pcd.pcd3 = pcd.pbs[10]
 
-        #
-        # Server only knows the intermediate type CompactPDerived. The object will be sliced to
-        # CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
-        #
-        pcd = ClientPrivateTest.CompactPCDerived()
-        pcd.pi = 3
-        pcd.pbs = [pcd]
-
-        r = t.exchangePBase(pcd)
-        assert r is not None
-        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(r, ClientPrivateTest.CompactPCDerived))
-            test(r.pi == 3)
-        else:
-            assert isinstance(r, ClientPrivateTest.CompactPCDerived)
-            test(r.pi == 3)
-            test(r.pbs[0] == r)
-
-        #
-        # Send an object that will have multiple preserved slices in the server.
-        # The object will be sliced to Preserved for the 1.0 encoding.
-        #
-        pcd = ClientPrivateTest.PCDerived3()
-        pcd.pi = 3
-        #
-        # Sending more than 254 objects exercises the encoding for object ids.
-        #
-        pcd.pbs = []
+    r = t.exchangePBase(pcd)
+    assert r is not None
+    if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+        test(not isinstance(r, ClientPrivateTest.PCDerived3))
+        test(isinstance(r, Test.Preserved))
+        test(r.pi == 3)
+    else:
+        assert isinstance(r, ClientPrivateTest.PCDerived3)
+        test(r.pi == 3)
         for i in range(0, 300):
-            p2 = ClientPrivateTest.PCDerived2()
-            p2.pi = i
-            p2.pbs = [None]  # Nil reference. This slice should not have an indirection table.
-            p2.pcd2 = i
-            pcd.pbs.append(p2)
-        pcd.pcd2 = pcd.pi
-        pcd.pcd3 = pcd.pbs[10]
+            p2 = r.pbs[i]
+            assert isinstance(p2, ClientPrivateTest.PCDerived2)
+            test(p2.pi == i)
+            test(len(p2.pbs) == 1)
+            test(not p2.pbs[0])
+            test(p2.pcd2 == i)
+        test(r.pcd2 == r.pi)
+        test(r.pcd3 == r.pbs[10])
 
-        r = t.exchangePBase(pcd)
-        assert r is not None
-        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(r, ClientPrivateTest.PCDerived3))
-            test(isinstance(r, Test.Preserved))
-            test(r.pi == 3)
-        else:
-            assert isinstance(r, ClientPrivateTest.PCDerived3)
-            test(r.pi == 3)
-            for i in range(0, 300):
-                p2 = r.pbs[i]
-                assert isinstance(p2, ClientPrivateTest.PCDerived2)
-                test(p2.pi == i)
-                test(len(p2.pbs) == 1)
-                test(not p2.pbs[0])
-                test(p2.pcd2 == i)
-            test(r.pcd2 == r.pi)
-            test(r.pcd3 == r.pbs[10])
-
-        #
-        # Obtain an object with preserved slices and send it back to the server.
-        # The preserved slices should be excluded for the 1.0 encoding, otherwise
-        # they should be included.
-        #
-        p = t.PBSUnknownAsPreserved()
-        assert p is not None
-        t.checkPBSUnknown(p)
-        if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
-            slicedData = p.ice_getSlicedData()
-            assert slicedData is not None
-            # TODO: type hinting for SlicedData
-            test(len(slicedData.slices) == 1)  # pyright: ignore
-            test(slicedData.slices[0].typeId == "::Test::PSUnknown")  # pyright: ignore
-            t.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p)
-        else:
-            test(p.ice_getSlicedData() is None)
-    except Ice.OperationNotExistException:
-        pass
+    #
+    # Obtain an object with preserved slices and send it back to the server.
+    # The preserved slices should be excluded for the 1.0 encoding, otherwise
+    # they should be included.
+    #
+    p = t.PBSUnknownAsPreserved()
+    assert p is not None
+    t.checkPBSUnknown(p)
+    if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
+        slicedData = p.ice_getSlicedData()
+        assert slicedData is not None
+        # TODO: type hinting for SlicedData
+        test(len(slicedData.slices) == 1)  # pyright: ignore
+        test(slicedData.slices[0].typeId == "::Test::PSUnknown")  # pyright: ignore
+        t.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p)
+    else:
+        test(p.ice_getSlicedData() is None)
 
     print("ok")
 
@@ -1851,60 +1844,57 @@ def testClassSlicing(t: Test.TestIntfPrx) -> None:
 
     sys.stdout.write("garbage collection of preserved classes... ")
     sys.stdout.flush()
-    try:
-        #
-        # Relay a graph through the server. This test uses a preserved class
-        # with a class member.
-        #
-        c = Test.PNode()
-        c.next = Test.PNode()
-        c.next.next = Test.PNode()
-        c.next.next.next = c  # Create a cyclic graph.
+    #
+    # Relay a graph through the server. This test uses a preserved class
+    # with a class member.
+    #
+    c = Test.PNode()
+    c.next = Test.PNode()
+    c.next.next = Test.PNode()
+    c.next.next.next = c  # Create a cyclic graph.
 
-        test(PNodeI.counter == 0)
-        n = t.exchangePNode(c)
-        assert n is not None
-        test(PNodeI.counter == 3)
-        assert n.next is not None
-        assert n.next.next is not None
-        test(n.next != n.next.next)
-        test(n.next.next != n.next.next.next)
-        test(n.next.next.next == n)
-        n = None  # Release reference.
-        gc.collect()
-        test(PNodeI.counter == 0)
+    test(PNodeI.counter == 0)
+    n = t.exchangePNode(c)
+    assert n is not None
+    test(PNodeI.counter == 3)
+    assert n.next is not None
+    assert n.next.next is not None
+    test(n.next != n.next.next)
+    test(n.next.next != n.next.next.next)
+    test(n.next.next.next == n)
+    n = None  # Release reference.
+    gc.collect()
+    test(PNodeI.counter == 0)
 
-        #
-        # Obtain a preserved object from the server where the most-derived
-        # type is unknown. The preserved slice refers to a graph of PNode
-        # objects.
-        #
-        test(PNodeI.counter == 0)
-        p = t.PBSUnknownAsPreservedWithGraph()
-        test(p)
-        test(PNodeI.counter == 3)
-        t.checkPBSUnknownWithGraph(p)
-        p = None  # Release reference.
-        gc.collect()
-        test(PNodeI.counter == 0)
+    #
+    # Obtain a preserved object from the server where the most-derived
+    # type is unknown. The preserved slice refers to a graph of PNode
+    # objects.
+    #
+    test(PNodeI.counter == 0)
+    p = t.PBSUnknownAsPreservedWithGraph()
+    test(p)
+    test(PNodeI.counter == 3)
+    t.checkPBSUnknownWithGraph(p)
+    p = None  # Release reference.
+    gc.collect()
+    test(PNodeI.counter == 0)
 
-        #
-        # Obtain a preserved object from the server where the most-derived
-        # type is unknown. A data member in the preserved slice refers to the
-        # outer object, so the chain of references looks like this:
-        #
-        # outer->slicedData->outer
-        #
-        test(PreservedI.counter == 0)
-        p = t.PBSUnknown2AsPreservedWithGraph()
-        assert p is not None
-        test(PreservedI.counter == 1)
-        t.checkPBSUnknown2WithGraph(p)
-        p._ice_slicedData = None  # Break the cycle. # pyright: ignore
-        p = None  # Release reference.
-        test(PreservedI.counter == 0)
-    except Ice.OperationNotExistException:
-        pass
+    #
+    # Obtain a preserved object from the server where the most-derived
+    # type is unknown. A data member in the preserved slice refers to the
+    # outer object, so the chain of references looks like this:
+    #
+    # outer->slicedData->outer
+    #
+    test(PreservedI.counter == 0)
+    p = t.PBSUnknown2AsPreservedWithGraph()
+    assert p is not None
+    test(PreservedI.counter == 1)
+    t.checkPBSUnknown2WithGraph(p)
+    p._ice_slicedData = None  # Break the cycle. # pyright: ignore
+    p = None  # Release reference.
+    test(PreservedI.counter == 0)
 
     print("ok")
 
