@@ -1922,6 +1922,20 @@ Slice::JavaVisitor::writeDeprecatedAnnotation(IceInternal::Output& out, const Co
 }
 
 void
+Slice::JavaVisitor::writeDeprecatedAnnotationForContainer(IceInternal::Output& out, const ContainedPtr& p)
+{
+    if (p->isDeprecated())
+    {
+        out << nl << "@Deprecated";
+        out << nl << R"(@SuppressWarnings("serial"))";
+    }
+    else
+    {
+        out << nl << R"(@SuppressWarnings({"deprecation", "serial"}))";
+    }
+}
+
+void
 Slice::JavaVisitor::writeExceptionDocComment(Output& out, const OperationPtr& op, const DocComment& dc)
 {
     for (const auto& [name, lines] : dc.exceptions())
@@ -2390,8 +2404,7 @@ Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     writeDocComment(out, p, "class");
-    writeDeprecatedAnnotation(out, p);
-    out << nl << R"(@SuppressWarnings("serial"))";
+    writeDeprecatedAnnotationForContainer(out, p);
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     if (p->compactId() != -1)
@@ -2677,9 +2690,7 @@ Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sp;
 
     writeDocComment(out, p, "exception class");
-    writeDeprecatedAnnotation(out, p);
-    out << nl << R"(@SuppressWarnings("serial"))";
-
+    writeDeprecatedAnnotationForContainer(out, p);
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public class " << name << " extends ";
 
@@ -2944,9 +2955,7 @@ Slice::TypesVisitor::visitStructStart(const StructPtr& p)
     out << sp;
 
     writeDocComment(out, p, "class");
-    writeDeprecatedAnnotation(out, p);
-    out << nl << R"(@SuppressWarnings("serial"))";
-
+    writeDeprecatedAnnotationForContainer(out, p);
     out << nl << "public final class " << p->mappedName() << " implements java.lang.Cloneable, java.io.Serializable";
     out << sb;
 
@@ -4005,6 +4014,10 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     writeDocComment(out, p, "proxy interface");
     writeDeprecatedAnnotation(out, p);
+    if (!p->isDeprecated())
+    {
+        out << nl << R"(@SuppressWarnings("deprecation"))";
+    }
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << p->mappedName() << "Prx extends ";
     if (bases.empty())

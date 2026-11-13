@@ -148,6 +148,7 @@ namespace Slice
 
         /// Generate a 'Deprecated' annotation on the provided element if it has the 'deprecated' metadata.
         static void writeDeprecatedAnnotation(IceInternal::Output& out, const ContainedPtr& p);
+        static void writeDeprecatedAnnotationForContainer(IceInternal::Output& out, const ContainedPtr& p);
 
         //
         // Handle doc comments.
