@@ -247,12 +247,6 @@ IcePy::StreamUtil::add(const ValueReaderPtr& reader)
 }
 
 void
-IcePy::StreamUtil::hold(const PyObjectHandle& object)
-{
-    _heldObjects.push_back(object);
-}
-
-void
 IcePy::StreamUtil::updateSlicedData()
 {
     for (const auto& valueReader : _readers)

@@ -85,7 +85,7 @@ namespace IcePy
         void add(const ValueReaderPtr&);
 
         /// Keep a reference to an object passed as the closure of a ReadValueCallback, which doesn't own its closure.
-        void hold(const PyObjectHandle&);
+        void hold(const PyObjectHandle& object) { _heldObjects.push_back(object); }
 
         /// Updated the sliced data information for all stored object instances.
         void updateSlicedData();
