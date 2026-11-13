@@ -2497,10 +2497,7 @@ IcePy::DictionaryInfo::unmarshal(
     }
 
     //
-    // A repeated key leaves the dictionary with fewer entries than the stream
-    // announced. The dictionary doesn't keep a reference to the repeated key, so
-    // a class value unmarshaled after this function returns would be set with a
-    // released key: the exception aborts the unmarshaling before that happens.
+    // A duplicate key leaves the dictionary with fewer entries than sz.
     //
     if (PyDict_Size(p.get()) != sz)
     {
