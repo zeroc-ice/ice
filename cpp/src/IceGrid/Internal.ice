@@ -107,14 +107,17 @@ module IceGrid
         /// Get the adapter's direct proxy. The adapter's direct proxy is a proxy created with the object adapter.
         /// The proxy contains the last known adapter endpoints.
         /// @return A direct proxy containing the last known adapter endpoints if the adapter is already active.
-        ["cpp:const"] idempotent Object* getDirectProxy() throws AdapterNotActiveException;
+        ["cpp:const"]
+        idempotent Object* getDirectProxy()
+            throws AdapterNotActiveException;
 
         /// Set the direct proxy for this adapter.
         /// @param proxy The direct proxy.
         /// The direct proxy should be created with the object adapter and should contain the object adapter endpoints.
         /// @throws AdapterActiveException The adapter is already active.
         /// It's not possible to override the direct proxy of an active adapter.
-        void setDirectProxy(Object* proxy) throws AdapterActiveException;
+        void setDirectProxy(Object* proxy)
+            throws AdapterActiveException;
     }
 
     /// This exception is raised if an adapter with the same name already exists.
@@ -128,7 +131,9 @@ module IceGrid
     interface FileReader
     {
         /// Count the number of given lines from the end of the file and return the file offset.
-        ["cpp:const"] idempotent long getOffsetFromEnd(string filename, int lines) throws FileNotAvailableException;
+        ["cpp:const"]
+        idempotent long getOffsetFromEnd(string filename, int lines)
+            throws FileNotAvailableException;
 
         /// Read lines (or @p size many bytes) at the specified position from the given file.
         ["cpp:const"]
@@ -139,16 +144,21 @@ module IceGrid
     interface Server extends FileReader
     {
         /// Start the server.
-        ["amd"] void start() throws ServerStartException;
+        ["amd"]
+        void start()
+            throws ServerStartException;
 
         /// Stop the server. This method returns only when the server is deactivated. If the server doesn't stop after a
         /// configurable amount of time, it will be killed.
-        ["amd"] void stop() throws ServerStopException;
+        ["amd"]
+        void stop()
+            throws ServerStopException;
 
         /// Check if the given server can be loaded on this node.
         /// @return `true` if the server is inactive.
         /// @throws DeploymentException Raised if the server can't be updated.
-        bool checkUpdate(InternalServerDescriptor svr, bool noRestart) throws DeploymentException;
+        bool checkUpdate(InternalServerDescriptor svr, bool noRestart)
+            throws DeploymentException;
 
         /// Enable or disable the server.
         void setEnabled(bool enable);
@@ -157,7 +167,8 @@ module IceGrid
         ["cpp:const"] idempotent bool isEnabled();
 
         /// Send @p signal to the server
-        void sendSignal(string signal) throws BadSignalException;
+        void sendSignal(string signal)
+            throws BadSignalException;
 
         /// Write @p message on servers' stdout or stderr.
         void writeMessage(string message, int fd);

@@ -79,12 +79,14 @@ module IceMX
         /// Enables a metrics view.
         /// @param name The metrics view name.
         /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
-        void enableMetricsView(string name) throws UnknownMetricsView;
+        void enableMetricsView(string name)
+            throws UnknownMetricsView;
 
         /// Disables a metrics view.
         /// @param name The metrics view name.
         /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
-        void disableMetricsView(string name) throws UnknownMetricsView;
+        void disableMetricsView(string name)
+            throws UnknownMetricsView;
 
         /// Gets the metrics objects for the given metrics view.
         /// @param view The name of the metrics view.
@@ -94,14 +96,16 @@ module IceMX
         /// this operation.
         /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
         ["format:sliced"]
-        MetricsView getMetricsView(string view, out long timestamp) throws UnknownMetricsView;
+        MetricsView getMetricsView(string view, out long timestamp)
+            throws UnknownMetricsView;
 
         /// Gets the metrics failures associated with the given @p view and @p map.
         /// @param view The name of the metrics view.
         /// @param map The name of the metrics map.
         /// @return The metrics failures associated with the map.
         /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
-        MetricsFailuresSeq getMapMetricsFailures(string view, string map) throws UnknownMetricsView;
+        MetricsFailuresSeq getMapMetricsFailures(string view, string map)
+            throws UnknownMetricsView;
 
         /// Gets the metrics failures associated with the given metrics.
         /// @param view The name of the metrics view.
@@ -109,7 +113,8 @@ module IceMX
         /// @param id The ID of the metrics.
         /// @return The metrics failures associated with the metrics.
         /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
-        MetricsFailures getMetricsFailures(string view, string map, string id) throws UnknownMetricsView;
+        MetricsFailures getMetricsFailures(string view, string map, string id)
+            throws UnknownMetricsView;
     }
 
     /// Provides information on the number of threads currently in use and their activity.

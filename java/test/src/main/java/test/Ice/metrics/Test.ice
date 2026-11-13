@@ -15,7 +15,8 @@ module Test
 
         idempotent void fail();
 
-        void opWithUserException() throws UserEx;
+        void opWithUserException()
+            throws UserEx;
 
         void opWithRequestFailedException();
 

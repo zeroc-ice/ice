@@ -24,7 +24,9 @@ module Test
         interface del
         {
             ["amd"] ["python:identifier:_elif"]
-            void elif(["python:identifier:_else"] int else, ["python:identifier:_except"] out int except);
+            void elif(
+                ["python:identifier:_else"] int else,
+                ["python:identifier:_except"] out int except);
         }
 
         ["python:identifier:_exec"]

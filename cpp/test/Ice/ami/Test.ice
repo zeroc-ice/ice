@@ -21,8 +21,10 @@ module Test
         void op();
         void opWithPayload(Ice::ByteSeq seq);
         int opWithResult();
-        void opWithUE() throws TestIntfException;
-        int opWithResultAndUE() throws TestIntfException;
+        void opWithUE()
+            throws TestIntfException;
+        int opWithResultAndUE()
+            throws TestIntfException;
         void opBatch();
 
         void opWithArgs(

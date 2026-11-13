@@ -66,16 +66,19 @@ module Glacier2
         /// @see Session
         /// @see SSLSessionManager
         /// @see SSLPermissionsVerifier
-        Session* createSessionFromSecureConnection() throws PermissionDeniedException, CannotCreateSessionException;
+        Session* createSessionFromSecureConnection()
+            throws PermissionDeniedException, CannotCreateSessionException;
 
         /// Keeps the session with this router alive.
         /// @throws SessionNotExistException Thrown when no session exists for the caller (client).
         ["deprecated:As of Ice 3.8, this operation no longer keeps the session alive; it only verifies that the session exists."]
-        void refreshSession() throws SessionNotExistException;
+        void refreshSession()
+            throws SessionNotExistException;
 
         /// Destroys the session of the caller with this router.
         /// @throws SessionNotExistException Thrown when no session exists for the caller (client).
-        void destroySession() throws SessionNotExistException;
+        void destroySession()
+            throws SessionNotExistException;
 
         /// Gets the idle timeout used by the server-side of the connection.
         /// @return The idle timeout (in seconds).

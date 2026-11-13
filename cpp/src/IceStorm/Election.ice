@@ -37,19 +37,22 @@ module IceStormElection
         /// @param llu The last log update seen by the master.
         /// @param content The topic content.
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
-        void init(LogUpdate llu, TopicContentSeq content) throws ObserverInconsistencyException;
+        void init(LogUpdate llu, TopicContentSeq content)
+            throws ObserverInconsistencyException;
 
         /// Create the topic with the given name.
         /// @param llu The log update token.
         /// @param name The topic name.
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
-        void createTopic(LogUpdate llu, string name) throws ObserverInconsistencyException;
+        void createTopic(LogUpdate llu, string name)
+            throws ObserverInconsistencyException;
 
         /// Destroy the topic with the given name.
         /// @param llu The log update token.
         /// @param name The topic name.
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
-        void destroyTopic(LogUpdate llu, string name) throws ObserverInconsistencyException;
+        void destroyTopic(LogUpdate llu, string name)
+            throws ObserverInconsistencyException;
 
         /// Add a subscriber to a topic.
         /// @param llu The log update token.

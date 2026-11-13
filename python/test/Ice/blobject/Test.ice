@@ -13,7 +13,8 @@ module Test
     {
         void sayHello(int delay);
         int add(int s1, int s2);
-        void raiseUE() throws UE;
+        void raiseUE()
+            throws UE;
         void shutdown();
     }
 }

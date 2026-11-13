@@ -28,6 +28,7 @@ module IceGrid
         /// the server's activation mode is `session`, the default value for `user` is the session identifier.
         /// @return The user account name.
         /// @throws UserAccountNotFoundException Thrown when no user account is found for the given user.
-        string getUserAccount(string user) throws UserAccountNotFoundException;
+        string getUserAccount(string user)
+            throws UserAccountNotFoundException;
     }
 }

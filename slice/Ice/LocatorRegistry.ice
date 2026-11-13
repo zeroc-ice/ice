@@ -74,6 +74,7 @@ module Ice
         /// @param proxy A proxy to the {@link Process} object of the server. This proxy is never null.
         /// @throws ServerNotFoundException Thrown when the locator does not know a server application with a server ID
         /// of @p id.
-        idempotent void setServerProcessProxy(string id, Process* proxy) throws ServerNotFoundException;
+        idempotent void setServerProcessProxy(string id, Process* proxy)
+            throws ServerNotFoundException;
     }
 }

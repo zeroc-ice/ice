@@ -30,6 +30,7 @@ module IceGrid
         /// @param adminProxy An {@link Admin} proxy, used only to retrieve default templates when needed. May be null.
         /// @return The application descriptor.
         /// @throws ParseException Thrown when an error occurs during parsing.
-        idempotent ApplicationDescriptor parse(string xmlFile, Admin* adminProxy) throws ParseException;
+        idempotent ApplicationDescriptor parse(string xmlFile, Admin* adminProxy)
+            throws ParseException;
     }
 }

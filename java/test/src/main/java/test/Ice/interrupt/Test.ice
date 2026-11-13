@@ -13,7 +13,8 @@ module Test
     {
         void op();
         idempotent void opIdempotent();
-        void sleep(int to) throws InterruptedException;
+        void sleep(int to)
+            throws InterruptedException;
         void opWithPayload(Ice::ByteSeq seq);
         void shutdown();
     }
@@ -24,6 +25,7 @@ module Test
     {
         void holdAdapter();
         void resumeAdapter();
-        void interrupt() throws CannotInterruptException;
+        void interrupt()
+            throws CannotInterruptException;
     }
 }

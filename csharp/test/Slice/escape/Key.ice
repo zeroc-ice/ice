@@ -35,7 +35,9 @@ module abstract
     {
         /// @param continue make sure the parameter doc-comment is mapped without a leading '@'.
         ["amd", "cs:identifier:@catch"]
-        void catch(["cs:identifier:@checked"] int checked, ["cs:identifier:@continue"] out int continue);
+        void catch(
+            ["cs:identifier:@checked"] int checked,
+            ["cs:identifier:@continue"] out int continue);
     }
 
     ["cs:identifier:@decimal"]

@@ -56,7 +56,9 @@ module Test
 
         AIntDict opAIntDict(AIntDict inDict, out AIntDict outDict);
         AIntLinkedDict opAIntLinkedDict(AIntLinkedDict inDict, out AIntLinkedDict outDict);
-        AIntFormalLinkedDict opAIntFormalLinkedDict(AIntFormalLinkedDict inDict, out AIntFormalLinkedDict outDict);
+        AIntFormalLinkedDict opAIntFormalLinkedDict(
+            AIntFormalLinkedDict inDict,
+            out AIntFormalLinkedDict outDict);
 
         ShortCDict opShortCDict(ShortCDict inDict, out ShortCDict outDict);
         ShortCLinkedDict opShortCLinkedDict(ShortCLinkedDict inDict, out ShortCLinkedDict outDict);
@@ -89,7 +91,9 @@ module Test
             optional(2) StringDoubleLinkedDict inDict,
             out optional(3) StringDoubleLinkedDict outDict);
 
-        optional(1) AIntDict opOptAIntDict(optional(2) AIntDict inDict, out optional(3) AIntDict outDict);
+        optional(1) AIntDict opOptAIntDict(
+            optional(2) AIntDict inDict,
+            out optional(3) AIntDict outDict);
         optional(1) AIntLinkedDict opOptAIntLinkedDict(
             optional(2) AIntLinkedDict inDict,
             out optional(3) AIntLinkedDict outDict);
@@ -97,7 +101,9 @@ module Test
             optional(2) AIntFormalLinkedDict inDict,
             out optional(3) AIntFormalLinkedDict outDict);
 
-        optional(1) StringEDict opOptStringEDict(optional(2) StringEDict inDict, out optional(3) StringEDict outDict);
+        optional(1) StringEDict opOptStringEDict(
+            optional(2) StringEDict inDict,
+            out optional(3) StringEDict outDict);
         optional(1) StringELinkedDict opOptStringELinkedDict(
             optional(2) StringELinkedDict inDict,
             out optional(3) StringELinkedDict outDict);
