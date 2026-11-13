@@ -51,9 +51,4 @@ module Test
     {
         PBase pb;
     }
-
-    exception PSUnknownException extends PreservedException
-    {
-        PSUnknown2 p;
-    }
 }

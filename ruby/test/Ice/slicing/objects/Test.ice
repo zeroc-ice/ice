@@ -95,10 +95,6 @@ module Test
         PNode next;
     }
 
-    exception PreservedException
-    {
-    }
-
     ["format:sliced"]
     interface TestIntf
     {
@@ -151,7 +147,6 @@ module Test
         void throwDerivedAsBase() throws BaseException;
         void throwDerivedAsDerived() throws DerivedException;
         void throwUnknownDerivedAsBase() throws BaseException;
-        ["amd"] void throwPreservedException() throws PreservedException;
 
         void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
 

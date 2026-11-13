@@ -33,8 +33,23 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get install -y clang llvm
 
+      - name: Setup PHP
+        uses: ./.github/actions/setup-php
+
       - name: Setup Python
         uses: ./.github/actions/setup-python
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Setup Ruby
+        uses: ./.github/actions/setup-ruby
 
       - name: Install testing dependencies from pip
         run: python3 -m pip install passlib cryptography numpy
