@@ -6,11 +6,12 @@ set -e
 # The script builds Ice with every language mapping, runs the C++ tests in the current working directory, and writes
 # the report to coverage/html.
 
-# The profile file is set at build time rather than with LLVM_PROFILE_FILE, since SwiftPM runs slice2swift with the
-# environment of its build plugin.
+# The profile file is compiled in for slice2swift, which SwiftPM runs with the environment of its build plugin, and
+# exported too, since LLVM_PROFILE_FILE overrides the compiled-in path.
 profile_file="${PWD}/coverage/%m.profraw"
 export CPPFLAGS="-fprofile-instr-generate=$profile_file -fcoverage-mapping"
 export LDFLAGS="-fprofile-instr-generate=$profile_file"
+export LLVM_PROFILE_FILE="$profile_file"
 export OPTIMIZE=no
 
 case "$(uname)" in
