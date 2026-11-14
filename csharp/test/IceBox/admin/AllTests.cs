@@ -9,7 +9,7 @@ public class AllTests : Test.AllTests
     public static void allTests(Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        Ice.ObjectPrx admin = communicator.stringToProxy("DemoIceBox/admin:default -p 9996 -t 10000");
+        Ice.ObjectPrx admin = communicator.stringToProxy("DemoIceBox/admin:default -p 9990 -t 10000");
         Console.Out.Write("testing custom facet... ");
         Console.Out.Flush();
 

@@ -941,5 +941,84 @@ allTests(Test::TestHelper* helper)
 
         cout << "ok" << endl;
     }
+
+    {
+        cout << "testing wildcard endpoints accept connections of the enabled IP versions only... " << flush;
+
+        // Whether an adapter with the given properties and endpoints accepts a connection to the given address.
+        // Returns nullopt when the adapter cannot be created, for example without IPv6 support.
+        auto accepts = [](const vector<pair<string, string>>& properties,
+                          const string& endpoints,
+                          const string& address) -> optional<bool>
+        {
+            Ice::InitializationData serverInitData;
+            serverInitData.properties = Ice::createProperties();
+            for (const auto& [key, value] : properties)
+            {
+                serverInitData.properties->setProperty(key, value);
+            }
+
+            // The adapter listens on a port assigned by the operating system.
+            Ice::CommunicatorHolder serverCommunicator;
+            int port = 0;
+            try
+            {
+                serverCommunicator = Ice::initialize(serverInitData);
+                Ice::ObjectAdapterPtr adapter =
+                    serverCommunicator->createObjectAdapterWithEndpoints("Adapter", endpoints + " -p 0");
+                adapter->activate();
+                for (Ice::EndpointInfoPtr info = adapter->getEndpoints()[0]->getInfo(); info; info = info->underlying)
+                {
+                    if (auto ipInfo = dynamic_pointer_cast<Ice::IPEndpointInfo>(info))
+                    {
+                        port = ipInfo->port;
+                    }
+                }
+            }
+            catch (const Ice::LocalException&)
+            {
+                return nullopt;
+            }
+            test(port > 0);
+
+            Ice::CommunicatorHolder clientCommunicator(Ice::initialize());
+            Ice::ObjectPrx prx(
+                clientCommunicator.communicator(),
+                "dummy:tcp -h \"" + address + "\" -p " + to_string(port));
+            try
+            {
+                prx->ice_ping();
+                test(false);
+            }
+            catch (const Ice::ObjectNotExistException&)
+            {
+                return true;
+            }
+            catch (const Ice::LocalException&)
+            {
+                // The connection could not be established, whatever the reason.
+                return false;
+            }
+            return false;
+        };
+
+        // An IPv4 listener, which never accepts IPv6 connections, whether or not the host supports IPv6.
+        test(accepts({{"Ice.IPv6", "0"}}, "tcp", "127.0.0.1") == true);
+        test(accepts({{"Ice.IPv6", "0"}}, "tcp", "::1") == false);
+        test(accepts({{"Ice.IPv6", "0"}}, "tcp -h 0.0.0.0", "127.0.0.1") == true);
+        test(accepts({{"Ice.IPv6", "0"}}, "tcp -h 0.0.0.0", "::1") == false);
+        test(accepts({}, "tcp -h 0.0.0.0", "127.0.0.1") == true);
+        test(accepts({}, "tcp -h 0.0.0.0", "::1") == false);
+
+        // An IPv6-only listener, when the host supports IPv6, does not accept IPv4 connections.
+        test(accepts({{"Ice.IPv4", "0"}}, "tcp", "127.0.0.1") != true);
+        test(accepts({{"Ice.IPv4", "0"}}, "tcp -h \"::\"", "127.0.0.1") != true);
+
+        // With IPv4 disabled, an IPv4 address cannot be bound.
+        test(!accepts({{"Ice.IPv4", "0"}}, "tcp -h 0.0.0.0", "::1"));
+        test(!accepts({{"Ice.IPv4", "0"}}, "tcp -h 127.0.0.1", "127.0.0.1"));
+
+        cout << "ok" << endl;
+    }
     com->shutdown();
 }

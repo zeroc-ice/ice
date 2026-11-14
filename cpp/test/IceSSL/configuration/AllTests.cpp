@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "../../src/Ice/SSL/SecureTransportUtil.h" // For loadCertificateChain
+#include "../../src/Ice/SSL/AppleSSLUtil.h" // For loadCertificateChain
 #include "../../src/Ice/UniqueRef.h"
 #include "Ice/Ice.h"
 #include "Test.h"
@@ -167,7 +167,7 @@ public:
             if (resolved)
             {
                 IceInternal::UniqueRef<CFArrayRef> certs(
-                    Ice::SSL::SecureTransport::loadCertificateChain(*resolved, "", "", "", "password"));
+                    Ice::SSL::Apple::loadCertificateChain(*resolved, "", "", "", "password"));
                 SecIdentityRef identity =
                     static_cast<SecIdentityRef>(const_cast<void*>(CFArrayGetValueAtIndex(certs.get(), 0)));
                 CFRetain(identity);
@@ -378,6 +378,23 @@ testCertificateVerification(
     }
     fact->destroyServer(server);
 
+#if defined(ICE_USE_APPLE_SSL)
+    // Network.framework cannot request an optional client certificate, so IceSSL.VerifyPeer=1 is rejected.
+    {
+        InitializationData verifyPeer1InitData;
+        verifyPeer1InitData.properties = createClientProps(defaultProps, p12, "", "ca1/ca1");
+        verifyPeer1InitData.properties->setProperty("IceSSL.VerifyPeer", "1");
+        try
+        {
+            initialize(verifyPeer1InitData);
+            test(false);
+        }
+        catch (const InitializationException&)
+        {
+            // Expected.
+        }
+    }
+#else
     // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
     d = createServerProps(defaultProps, p12, "ca1/server", "");
     d["IceSSL.VerifyPeer"] = "1";
@@ -419,6 +436,7 @@ testCertificateVerification(
         test(false);
     }
     fact->destroyServer(server);
+#endif
 
     // Test IceSSL.VerifyPeer=2. This should fail because the client does not supply a certificate.
     d = createServerProps(defaultProps, p12, "ca1/server", "");
@@ -445,6 +463,7 @@ testCertificateVerification(
     fact->destroyServer(server);
     comm->destroy();
 
+#if !defined(ICE_USE_APPLE_SSL)
     // Test IceSSL.VerifyPeer=1. This should fail because the client doesn't trust the server's CA.
     initData.properties = createClientProps(defaultProps, p12, "", "");
     initData.properties->setProperty("IceSSL.VerifyPeer", "1");
@@ -495,6 +514,7 @@ testCertificateVerification(
     }
     fact->destroyServer(server);
     comm->destroy();
+#endif
 
     // This should succeed because the self signed certificate used by the server is trusted.
     initData.properties = createClientProps(defaultProps, p12, "", "ca2/ca2");
@@ -872,7 +892,7 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
     }
     cout << "ok" << endl;
 }
-#elif defined(ICE_USE_SECURE_TRANSPORT)
+#elif defined(ICE_USE_APPLE_SSL)
 void
 testFindCert(const string& factoryRef, const string& defaultDir, const Ice::PropertiesPtr& defaultProps, bool p12)
 {
@@ -914,7 +934,7 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
         initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
 
         // Use TrustOnly to ensure the peer has picked the expected certificate.
-#    ifndef ICE_USE_SECURE_TRANSPORT_IOS
+#    ifndef ICE_USE_APPLE_SSL_IOS
         initData.properties->setProperty("IceSSL.TrustOnly", "CN=ca1.server");
 #    endif
         CommunicatorPtr comm = initialize(initData);
@@ -928,7 +948,7 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
         d["IceSSL.FindCert"] = serverFindCertProperties[i];
 
         // Use TrustOnly to ensure the peer has picked the expected certificate.
-#    ifndef ICE_USE_SECURE_TRANSPORT_IOS
+#    ifndef ICE_USE_APPLE_SSL_IOS
         d["IceSSL.TrustOnly"] = "CN=ca1.client";
 #    endif
         optional<Test::ServerPrx> server = fact->createServer(d);
@@ -1209,7 +1229,7 @@ testCAsDirectory(const string& factoryRef, const string& defaultDir, const Ice::
 void
 testCAsDirectory(const string&, const string&, const Ice::PropertiesPtr&, bool)
 {
-    // Not supported with Schannel and SecureTransport.
+    // Not supported with Schannel and Apple SSL.
 }
 #endif
 
@@ -1343,7 +1363,7 @@ testDerCertificates(const string&, const Ice::PropertiesPtr&, bool)
 }
 #endif
 
-#ifdef ICE_USE_SECURE_TRANSPORT_IOS
+#ifdef ICE_USE_APPLE_SSL_IOS
 void
 testTrustOnly(const string&, const Ice::PropertiesPtr&, bool)
 {
@@ -2295,7 +2315,7 @@ testCrlRevocation(const string&, const string&, const Ice::PropertiesPtr&, bool)
 }
 #endif
 
-#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_APPLE_SSL_MACOS)
 void
 testOcspRevocation(const string& factoryRef, const string& defaultDir, const Ice::PropertiesPtr& defaultProps, bool p12)
 {
@@ -2323,8 +2343,8 @@ testOcspRevocation(const string& factoryRef, const string& defaultDir, const Ice
     comm->destroy();
 
     // Now check with a revoked certificate and RevocationCheck=0 to disable revocation checks
-#    ifndef ICE_USE_SECURE_TRANSPORT
-    // With secure transport there is no reliable way to disable revocation checks
+#    ifndef ICE_USE_APPLE_SSL
+    // With Apple SSL there is no reliable way to disable revocation checks
     initData.properties = createClientProps(defaultProps, p12, "", "ca4/ca4");
     initData.properties->setProperty("IceSSL.RevocationCheck", "0");
     comm = initialize(initData);
@@ -2382,8 +2402,8 @@ testOcspRevocation(const string& factoryRef, const string& defaultDir, const Ice
     comm->destroy();
 
     // Repeat with RevocationCheck=1 to only check the end cert
-#    ifndef ICE_USE_SECURE_TRANSPORT
-    // SecureTransport always checks the whole chain for revocation
+#    ifndef ICE_USE_APPLE_SSL
+    // Apple SSL always checks the whole chain for revocation
     initData.properties = createClientProps(defaultProps, p12, "", "ca4/ca4");
     initData.properties->setProperty("IceSSL.RevocationCheck", "1");
     initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");

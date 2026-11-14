@@ -9,7 +9,7 @@
 #    include "SchannelEngine.h"
 #    include "SchannelTransceiverI.h"
 #elif defined(__APPLE__)
-#    include "SecureTransportTransceiverI.h"
+#    include "../apple/NetworkFrameworkTransceiver.h"
 #else
 #    include "OpenSSLTransceiverI.h"
 #endif
@@ -45,7 +45,7 @@ Ice::SSL::AcceptorI::listen()
     return _endpoint;
 }
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
 void
 Ice::SSL::AcceptorI::startAccept()
 {
@@ -68,18 +68,27 @@ Ice::SSL::AcceptorI::accept()
         serverAuthenticationOptions = _instance->engine()->createServerAuthenticationOptions();
     }
     assert(serverAuthenticationOptions);
-#if defined(_WIN32)
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    // For Network.framework, TLS is configured at the listener level — the accepted
+    // connection is already TLS-enabled. The delegate's transceiver handles TLS transparently.
+    auto transceiver = dynamic_pointer_cast<IceInternal::NetworkFrameworkTransceiver>(_delegate->accept());
+    assert(transceiver);
+    SSLEnginePtr engine = _instance->engine();
+    transceiver->setPeerVerifier(
+        [engine](const ConnectionInfoPtr& info) { engine->verifyPeer(info); },
+        true,
+        _adapterName);
+    return transceiver;
+#elif defined(_WIN32)
     return make_shared<Ice::SSL::Schannel::TransceiverI>(
         _instance,
         _delegate->accept(),
         _adapterName,
         *serverAuthenticationOptions);
 #elif defined(__APPLE__)
-    return make_shared<Ice::SSL::SecureTransport::TransceiverI>(
-        _instance,
-        _delegate->accept(),
-        _adapterName,
-        *serverAuthenticationOptions);
+    // Unreachable: Network.framework handles TLS at the listener level.
+    assert(false);
+    return _delegate->accept();
 #else
     return make_shared<Ice::SSL::OpenSSL::TransceiverI>(
         _instance,

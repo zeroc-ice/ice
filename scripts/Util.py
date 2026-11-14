@@ -1177,6 +1177,11 @@ class Mapping(object):
         # Can be overridden for client-only mapping that relies on another mapping for servers
         return self
 
+    def usesCppRuntime(self) -> bool:
+        # Whether this mapping's processes run on the Ice C++ runtime, whose servers listen through
+        # Network.framework on Apple platforms. Mappings with their own runtime listen with BSD sockets.
+        return False
+
     def getBuildDir(self, name: str, current: Driver.Current) -> str:
         return platform.getBuildSubDir(self, name, current)
 
@@ -4125,6 +4130,9 @@ class Driver:
 
 
 class CppMapping(Mapping):
+    def usesCppRuntime(self) -> bool:
+        return True
+
     class Config(Mapping.Config):
         @classmethod
         def getSupportedArgs(cls) -> tuple[str, list[str]]:
@@ -4511,6 +4519,9 @@ class CSharpMapping(Mapping):
 
 
 class CppBasedMapping(Mapping):
+    def usesCppRuntime(self) -> bool:
+        return True
+
     class Config(Mapping.Config):
         # Set by the mapping specializations.
         mappingName: str
@@ -4896,6 +4907,9 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
 
 
 class SwiftMapping(Mapping):
+    def usesCppRuntime(self) -> bool:
+        return True
+
     class Config(CppBasedClientMapping.Config):
         mappingName = "swift"
         mappingDesc = "Swift"
