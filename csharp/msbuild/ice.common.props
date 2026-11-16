@@ -16,9 +16,7 @@
     <LangVersion>12.0</LangVersion>
     <RollForward>Major</RollForward>
     <WarningLevel>4</WarningLevel>
-    <!-- The 1.2 beta version is required for supporting the latest language features.
-         See: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/pull/3187 -->
-    <StyleCopAnalyzersVersion>1.2.0-beta.556</StyleCopAnalyzersVersion>
+    <StyleCopAnalyzersVersion>1.3.180</StyleCopAnalyzersVersion>
     <AnalysisMode>All</AnalysisMode>
   </PropertyGroup>
 

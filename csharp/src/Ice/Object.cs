@@ -13,6 +13,12 @@ namespace Ice;
 public interface Object
 {
     /// <summary>
+    /// Returns the type ID of the associated Slice interface.
+    /// </summary>
+    /// <returns>The return value is always <c>"::Ice::Object"</c>.</returns>
+    public static string ice_staticId() => "::Ice::Object";
+
+    /// <summary>
     /// Dispatches an incoming request and returns the corresponding outgoing response.
     /// </summary>
     /// <param name="request">The incoming request.</param>
@@ -81,12 +87,6 @@ public interface Object
     /// <param name="current">The Current object of the incoming request.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
     public string ice_id(Current current) => ice_staticId();
-
-    /// <summary>
-    /// Returns the type ID of the associated Slice interface.
-    /// </summary>
-    /// <returns>The return value is always <c>"::Ice::Object"</c>.</returns>
-    public static string ice_staticId() => "::Ice::Object";
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     protected static ValueTask<OutgoingResponse> iceD_ice_isAAsync(Object obj, IncomingRequest request)
