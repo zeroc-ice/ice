@@ -257,20 +257,29 @@ ReapThread::connectionHeartbeat(const Ice::ConnectionPtr& con)
 void
 ReapThread::connectionClosed(const Ice::ConnectionPtr& con)
 {
-    Lock sync(*this);
-    map<Ice::ConnectionPtr, set<ReapablePtr> >::iterator p = _connections.find(con);
-    if(p == _connections.end())
+    set<ReapablePtr> reapables;
     {
-        con->setCloseCallback(0);
-        con->setHeartbeatCallback(0);
-        return;
+        Lock sync(*this);
+        map<Ice::ConnectionPtr, set<ReapablePtr> >::iterator p = _connections.find(con);
+        if(p == _connections.end())
+        {
+            con->setCloseCallback(0);
+            con->setHeartbeatCallback(0);
+            return;
+        }
+        reapables.swap(p->second);
+        _connections.erase(p);
     }
 
-    for(set<ReapablePtr>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+    //
+    // Destroy the reapables outside the lock, like run() and terminate(). Destroying a session can block (for
+    // example to release a server allocated with the session activation mode) and holding the lock would also
+    // block add(), which every new session goes through.
+    //
+    for(set<ReapablePtr>::const_iterator q = reapables.begin(); q != reapables.end(); ++q)
     {
         (*q)->destroy(false);
     }
-    _connections.erase(p);
 }
 
 //
