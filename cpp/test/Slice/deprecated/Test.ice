@@ -64,8 +64,7 @@ module DeprecatedTest
 
         void opInt(int x);
 
-        ["deprecated:Use opInt() instead."]
-        void opLong(long x);
+        ["deprecated:Use opInt() instead."] void opLong(long x);
 
         void opProxy(MyInterface* proxy) throws MyException, MyOtherException;
 

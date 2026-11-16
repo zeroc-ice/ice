@@ -8,8 +8,7 @@ module Test
 {
     interface Session extends Glacier2::Session
     {
-        ["amd"]
-        void destroyFromClient();
+        ["amd"] void destroyFromClient();
 
         void shutdown();
     }

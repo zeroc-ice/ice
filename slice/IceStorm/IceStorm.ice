@@ -121,8 +121,7 @@ module IceStorm
 
         /// Gets the list of subscribers for this topic.
         /// @return The sequence of Ice identities for the subscriber objects.
-        ["cpp:const"]
-        Ice::IdentitySeq getSubscribers();
+        ["cpp:const"] Ice::IdentitySeq getSubscribers();
 
         /// Destroys this topic.
         void destroy();

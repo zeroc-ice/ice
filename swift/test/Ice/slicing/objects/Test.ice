@@ -105,8 +105,7 @@ module Test
 
         SBase SBSUnknownDerivedAsSBase();
 
-        ["format:compact"]
-        SBase SBSUnknownDerivedAsSBaseCompact();
+        ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
 
         Object SUnknownAsObject();
         void checkSUnknown(Object o);
@@ -136,12 +135,10 @@ module Test
         Preserved PBSUnknownAsPreserved();
         void checkPBSUnknown(Preserved p);
 
-        ["amd"]
-        Preserved PBSUnknownAsPreservedWithGraph();
+        ["amd"] Preserved PBSUnknownAsPreservedWithGraph();
         void checkPBSUnknownWithGraph(Preserved p);
 
-        ["amd"]
-        Preserved PBSUnknown2AsPreservedWithGraph();
+        ["amd"] Preserved PBSUnknown2AsPreservedWithGraph();
         void checkPBSUnknown2WithGraph(Preserved p);
 
         PNode exchangePNode(PNode pn);

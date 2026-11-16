@@ -191,8 +191,7 @@ module Test
 
         idempotent void opIdempotent();
 
-        ["oneway"]
-        void opOneway();
+        ["oneway"] void opOneway();
 
         byte opByte1(byte opByte1);
         short opShort1(short opShort1);
@@ -209,20 +208,14 @@ module Test
         StringS opStringLiterals();
         WStringS opWStringLiterals();
 
-        ["marshaled-result"]
-        Structure opMStruct1();
-        ["marshaled-result"]
-        Structure opMStruct2(Structure p1, out Structure p2);
+        ["marshaled-result"] Structure opMStruct1();
+        ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
 
-        ["marshaled-result"]
-        StringS opMSeq1();
-        ["marshaled-result"]
-        StringS opMSeq2(StringS p1, out StringS p2);
+        ["marshaled-result"] StringS opMSeq1();
+        ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
 
-        ["marshaled-result"]
-        StringStringD opMDict1();
-        ["marshaled-result"]
-        StringStringD opMDict2(StringStringD p1, out StringStringD p2);
+        ["marshaled-result"] StringStringD opMDict1();
+        ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
     }
 
     struct MyStruct1

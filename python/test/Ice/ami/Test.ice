@@ -29,16 +29,14 @@ module Test
         void closeConnection();
         void abortConnection();
         void sleep(int ms);
-        ["amd"]
-        void startDispatch();
+        ["amd"] void startDispatch();
         void finishDispatch();
         void shutdown();
 
         bool supportsFunctionalTests();
         bool supportsBackPressureTests();
 
-        ["amd"]
-        void pingBiDir(PingReply* reply);
+        ["amd"] void pingBiDir(PingReply* reply);
     }
 
     interface TestIntfController

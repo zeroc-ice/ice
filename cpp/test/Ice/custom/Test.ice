@@ -128,17 +128,14 @@ module Test
 
     interface TestIntf
     {
-        ["cpp:array"]
-        ShortSeq opShortArray(["cpp:array"] ShortSeq inSeq, ["cpp:array"] out ShortSeq outSeq);
+        ["cpp:array"] ShortSeq opShortArray(["cpp:array"] ShortSeq inSeq, ["cpp:array"] out ShortSeq outSeq);
 
         ["cpp:array"]
         DoubleSeq opDoubleArray(bool padding, ["cpp:array"] DoubleSeq inSeq, ["cpp:array"] out DoubleSeq outSeq);
 
-        ["cpp:array"]
-        BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, ["cpp:array"] out BoolSeq outSeq);
+        ["cpp:array"] BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, ["cpp:array"] out BoolSeq outSeq);
 
-        ["cpp:array"]
-        ByteList opByteArray(["cpp:array"] ByteList inSeq, ["cpp:array"] out ByteList outSeq);
+        ["cpp:array"] ByteList opByteArray(["cpp:array"] ByteList inSeq, ["cpp:array"] out ByteList outSeq);
 
         ["cpp:array"]
         VariableList opVariableArray(["cpp:array"] VariableList inSeq, ["cpp:array"] out VariableList outSeq);
