@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-// ice-fmt: ignore-file
+// icefmt: ignore-file
 
 // Error: multiple commas in a row.
 [["hello",,]]

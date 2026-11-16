@@ -1,4 +1,4 @@
-// ice-fmt: ignore-file
+// icefmt: ignore-file
 
 #include "include/IcePrefix.ice" // okay
 

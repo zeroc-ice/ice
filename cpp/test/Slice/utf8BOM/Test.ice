@@ -1,6 +1,6 @@
 ﻿// Copyright (c) ZeroC, Inc.
 
-// ice-fmt: ignore-file
+// icefmt: ignore-file
 
 // This file is encoded in 'UTF-8 with BOM'
 

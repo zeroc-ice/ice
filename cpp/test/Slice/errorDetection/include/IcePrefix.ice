@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-// ice-fmt: ignore-file
+// icefmt: ignore-file
 
 module IceSomething {}

@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-// ice-fmt: ignore-file
+// icefmt: ignore-file
 
 //
 // This macro sets the default value only when compiling with slice2cpp.
