@@ -30,8 +30,7 @@ module abstract
     ["java:identifier:_default"]
     interface default
     {
-        ["java:identifier:_do"]
-        void do();
+        ["java:identifier:_do"] void do();
     }
 
     ["java:identifier:_notify"]

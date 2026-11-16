@@ -49,8 +49,7 @@ module import
     ["swift:identifier:`do`"]
     interface do extends break
     {
-        ["swift:identifier:`public`"]
-        void public();
+        ["swift:identifier:`public`"] void public();
 
         guard goto(
             ["swift:identifier:`if`"] continue if,

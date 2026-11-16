@@ -31,8 +31,7 @@ module Test
         ["python:identifier:_exec"]
         interface exec
         {
-            ["python:identifier:_finally"]
-            void finally();
+            ["python:identifier:_finally"] void finally();
         }
 
         ["python:identifier:_for"]

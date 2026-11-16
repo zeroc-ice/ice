@@ -52,8 +52,7 @@ module Glacier2
 
         /// Gets a sequence of strings describing the constraints in this set.
         /// @return The sequence of strings for this set.
-        ["swift:identifier:`get`"]
-        idempotent Ice::StringSeq get();
+        ["swift:identifier:`get`"] idempotent Ice::StringSeq get();
     }
 
     /// Manages a set of object identity constraints on a {@link Session}.
@@ -72,8 +71,7 @@ module Glacier2
 
         /// Gets a sequence of identities describing the constraints in this set.
         /// @return The sequence of Ice identities for this set.
-        ["swift:identifier:`get`"]
-        idempotent Ice::IdentitySeq get();
+        ["swift:identifier:`get`"] idempotent Ice::IdentitySeq get();
     }
 
     /// Represents a router-provided object that allows an application-provided session manager to configure the

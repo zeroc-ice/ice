@@ -48,8 +48,7 @@ module and
     ["php:identifier:_die"]
     interface die
     {
-        ["php:identifier:_do"]
-        void do();
+        ["php:identifier:_do"] void do();
     }
 
     ["php:identifier:_echo"]

@@ -48,7 +48,6 @@ module Glacier2
         /// @return `true` if access is granted, `false` otherwise.
         /// @throws PermissionDeniedException Thrown when the user's access is denied. This exception can be thrown
         /// instead of returning `false` with a reason set in the reason out parameter.
-        ["cpp:const"]
-        idempotent bool authorize(SSLInfo info, out string reason) throws PermissionDeniedException;
+        ["cpp:const"] idempotent bool authorize(SSLInfo info, out string reason) throws PermissionDeniedException;
     }
 }

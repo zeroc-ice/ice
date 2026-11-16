@@ -29,8 +29,7 @@ module await
     ["js:identifier:_typeof"]
     interface typeof
     {
-        ["js:identifier:_default"]
-        void default();
+        ["js:identifier:_default"] void default();
     }
 
     ["js:identifier:_delete"]

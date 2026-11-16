@@ -93,8 +93,7 @@ module IceMX
         /// The @p timestamp allows the client to compute averages which are not dependent on the invocation latency for
         /// this operation.
         /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
-        ["format:sliced"]
-        MetricsView getMetricsView(string view, out long timestamp) throws UnknownMetricsView;
+        ["format:sliced"] MetricsView getMetricsView(string view, out long timestamp) throws UnknownMetricsView;
 
         /// Gets the metrics failures associated with the given @p view and @p map.
         /// @param view The name of the metrics view.
