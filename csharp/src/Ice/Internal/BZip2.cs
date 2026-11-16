@@ -13,22 +13,22 @@ namespace Ice.Internal;
 
 // Map Bzip2 bz_stream struct to a C# struct for using with the Bzip2 low level API.
 [StructLayout(LayoutKind.Sequential)]
-internal struct BZStream(IntPtr nextOut, uint availOut)
+internal struct BZStream(nint nextOut, uint availOut)
 {
-    internal IntPtr NextIn = IntPtr.Zero;
+    internal nint NextIn = nint.Zero;
     internal uint AvailIn = 0;
     internal uint TotalInLo32 = 0;
     internal uint TotalInHi32 = 0;
 
-    internal IntPtr NextOut = nextOut;
+    internal nint NextOut = nextOut;
     internal uint AvailOut = availOut;
     internal uint TotalOutLo32 = 0;
     internal uint TotalOutHi32 = 0;
 
-    internal IntPtr State = IntPtr.Zero;
-    internal IntPtr BzAlloc = IntPtr.Zero;
-    internal IntPtr BzFree = IntPtr.Zero;
-    internal IntPtr Opaque = IntPtr.Zero;
+    internal nint State = nint.Zero;
+    internal nint BzAlloc = nint.Zero;
+    internal nint BzFree = nint.Zero;
+    internal nint Opaque = nint.Zero;
 }
 
 public static class BZip2
@@ -89,7 +89,7 @@ public static class BZip2
                     msg.AppendLine(
                         CultureInfo.InvariantCulture,
                         $"{libNames} could not be loaded (likely due to 32/64-bit mismatch).");
-                    if (IntPtr.Size == 8)
+                    if (nint.Size == 8)
                     {
                         msg.AppendLine(
                             CultureInfo.InvariantCulture,
@@ -245,7 +245,7 @@ public static class BZip2
     }
 
     [DllImport("bzip2", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
-    private static extern IntPtr BZ2_bzLibVersion();
+    private static extern nint BZ2_bzLibVersion();
 
     [DllImport("bzip2", EntryPoint = "BZ2_bzCompressInit", ExactSpelling = true)]
     private static extern int BZ2_bzCompressInit(
@@ -269,7 +269,7 @@ public static class BZip2
     [DllImport("bzip2", EntryPoint = "BZ2_bzDecompressEnd", ExactSpelling = true)]
     private static extern int BZ2_bzDecompressEnd(ref BZStream stream);
 
-    private static IntPtr dllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+    private static nint dllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
     {
         DllNotFoundException? failure = null;
         Debug.Assert(libraryName == "bzip2");
@@ -287,7 +287,7 @@ public static class BZip2
         Debug.Assert(failure is not null);
         ExceptionDispatchInfo.Throw(failure);
         Debug.Assert(false);
-        return IntPtr.Zero;
+        return nint.Zero;
     }
 
     private static string[] getPlatformNativeLibraryNames()
