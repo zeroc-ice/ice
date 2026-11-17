@@ -21,9 +21,7 @@ module await
     ["js:identifier:_case"]
     interface case
     {
-        ["amd"]
-        ["js:identifier:_catch"]
-        void catch(int checked, ["js:identifier:_continue"] out int continue);
+        ["amd"] ["js:identifier:_catch"] void catch(int checked, ["js:identifier:_continue"] out int continue);
     }
 
     ["js:identifier:_typeof"]
