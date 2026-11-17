@@ -22,8 +22,7 @@ module DeprecatedTest
         ["deprecated"] int i;
     }
 
-    ["deprecated"]
-    class MyForwardClass;
+    ["deprecated"] class MyForwardClass;
 
     ["deprecated"]
     struct MyStruct
@@ -71,6 +70,5 @@ module DeprecatedTest
         MyStruct opStruct(MyStruct s);
     }
 
-    ["deprecated"]
-    interface MyForwardInterface;
+    ["deprecated"] interface MyForwardInterface;
 }
