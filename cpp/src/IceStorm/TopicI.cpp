@@ -505,6 +505,12 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
     TraceLevelsPtr traceLevels = _instance->traceLevels();
 
     IceUtil::Mutex::Lock sync(_subscribersMutex);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
@@ -631,6 +637,11 @@ TopicImpl::link(const TopicPrx& topic, Ice::Int cost)
     }
 
     IceUtil::Mutex::Lock sync(_subscribersMutex);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
 
     Ice::Identity id = topic->ice_getIdentity();
 
