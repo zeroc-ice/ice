@@ -45,6 +45,7 @@ module Test
         int x;
         int y;
     }
+
     sequence<Point> Points;
 
     struct Polyline

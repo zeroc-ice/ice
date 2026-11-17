@@ -5,8 +5,7 @@
 ["java:identifier:test.Ice.metrics.Test"]
 module Test
 {
-    exception UserEx
-    {}
+    exception UserEx {}
 
     sequence<byte> ByteSeq;
 
@@ -16,8 +15,7 @@ module Test
 
         idempotent void fail();
 
-        void opWithUserException()
-            throws UserEx;
+        void opWithUserException() throws UserEx;
 
         void opWithRequestFailedException();
 

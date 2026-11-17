@@ -15,8 +15,7 @@ module Test
 
     interface MyDerivedInterface extends MyInterface
     {
-        ["php:identifier:_echo"]
-        Object* echo(Object* obj);
+        ["php:identifier:_echo"] Object* echo(Object* obj);
     }
 
     interface A

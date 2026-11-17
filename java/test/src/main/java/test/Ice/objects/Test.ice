@@ -52,24 +52,20 @@ module Test
     }
 
     // Exercise empty class with non-empty base
-    class G extends Base
-    {}
+    class G extends Base {}
 
     sequence<Base> BaseSeq;
 
     class CompactExt;
 
-    class Compact(1)
-    {}
+    class Compact(1) {}
 
     const int CompactExtId = 789;
 
-    class CompactExt(CompactExtId) extends Compact
-    {}
+    class CompactExt(CompactExtId) extends Compact {}
 
     module Inner
     {
-
         class A
         {
             ::Test::A theA;
@@ -82,7 +78,6 @@ module Test
 
         module Sub
         {
-
             class A
             {
                 ::Test::Inner::A theA;
@@ -226,11 +221,9 @@ module Test
         bool hasF3();
     }
 
-    class Empty
-    {}
+    class Empty {}
 
-    class AlsoEmpty
-    {}
+    class AlsoEmpty {}
 
     interface UnexpectedObjectExceptionTest
     {

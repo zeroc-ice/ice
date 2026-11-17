@@ -33,11 +33,9 @@ module BEGIN
     ["ruby:identifier:MyBreak"]
     interface break
     {
-        ["ruby:identifier:_case"]
-        void case(["ruby:identifier:_clone"] int clone, ["ruby:identifier:_def"] out int def);
+        ["ruby:identifier:_case"] void case(["ruby:identifier:_clone"] int clone, ["ruby:identifier:_def"] out int def);
 
-        ["ruby:identifier:PascalOperation"]
-        END instance_variables();
+        ["ruby:identifier:PascalOperation"] END instance_variables();
     }
 
     ["ruby:identifier:Display"]
@@ -55,8 +53,8 @@ module BEGIN
         END for(
             ["ruby:identifier:_freeze"] display freeze,
             ["ruby:identifier:_if"] break* if,
-            ["ruby:identifier:_methods"] int methods
-        ) throws nil;
+            ["ruby:identifier:_methods"] int methods)
+            throws nil;
     }
 
     ["ruby:identifier:_rescue"]

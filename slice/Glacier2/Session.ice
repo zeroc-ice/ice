@@ -52,8 +52,7 @@ module Glacier2
 
         /// Gets a sequence of strings describing the constraints in this set.
         /// @return The sequence of strings for this set.
-        ["swift:identifier:`get`"]
-        idempotent Ice::StringSeq get();
+        ["swift:identifier:`get`"] idempotent Ice::StringSeq get();
     }
 
     /// Manages a set of object identity constraints on a {@link Session}.
@@ -72,8 +71,7 @@ module Glacier2
 
         /// Gets a sequence of identities describing the constraints in this set.
         /// @return The sequence of Ice identities for this set.
-        ["swift:identifier:`get`"]
-        idempotent Ice::IdentitySeq get();
+        ["swift:identifier:`get`"] idempotent Ice::IdentitySeq get();
     }
 
     /// Represents a router-provided object that allows an application-provided session manager to configure the
@@ -112,8 +110,7 @@ module Glacier2
         /// is not configured.
         /// @return A proxy to the newly created session. This proxy is never null.
         /// @throws CannotCreateSessionException Thrown when the session cannot be created.
-        Session* create(string userId, SessionControl* control)
-            throws CannotCreateSessionException;
+        Session* create(string userId, SessionControl* control) throws CannotCreateSessionException;
     }
 
     /// Represents an application-provided factory for session objects. You can configure a Glacier2 router with your
@@ -127,7 +124,6 @@ module Glacier2
         /// is not configured.
         /// @return A proxy to the newly created session. This proxy is never null.
         /// @throws CannotCreateSessionException Thrown when the session cannot be created.
-        Session* create(SSLInfo info, SessionControl* control)
-            throws CannotCreateSessionException;
+        Session* create(SSLInfo info, SessionControl* control) throws CannotCreateSessionException;
     }
 }

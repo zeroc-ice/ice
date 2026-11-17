@@ -31,8 +31,7 @@ module Glacier2
         /// Gets a unique category that identifies the client (caller) in the router. This category must be used in the
         /// identities of all the client's callback objects.
         /// @return The category. It's an empty string when `Glacier2.Server.Endpoints` is not configured.
-        ["cpp:const"]
-        idempotent string getCategoryForClient();
+        ["cpp:const"] idempotent string getCategoryForClient();
 
         /// Creates a session for the client (caller) with the router. If a {@link SessionManager} is configured,
         /// a proxy to a {@link Session} object is returned to the client. Otherwise, null is returned and only an
@@ -66,28 +65,23 @@ module Glacier2
         /// @see Session
         /// @see SSLSessionManager
         /// @see SSLPermissionsVerifier
-        Session* createSessionFromSecureConnection()
-            throws PermissionDeniedException, CannotCreateSessionException;
+        Session* createSessionFromSecureConnection() throws PermissionDeniedException, CannotCreateSessionException;
 
         /// Keeps the session with this router alive.
         /// @throws SessionNotExistException Thrown when no session exists for the caller (client).
         ["deprecated:As of Ice 3.8, this operation no longer keeps the session alive; it only verifies that the session exists."]
-        void refreshSession()
-            throws SessionNotExistException;
+        void refreshSession() throws SessionNotExistException;
 
         /// Destroys the session of the caller with this router.
         /// @throws SessionNotExistException Thrown when no session exists for the caller (client).
-        void destroySession()
-            throws SessionNotExistException;
+        void destroySession() throws SessionNotExistException;
 
         /// Gets the idle timeout used by the server-side of the connection.
         /// @return The idle timeout (in seconds).
-        ["cpp:const"]
-        idempotent long getSessionTimeout();
+        ["cpp:const"] idempotent long getSessionTimeout();
 
         /// Gets the idle timeout used by the server-side of the connection.
         /// @return The idle timeout (in seconds).
-        ["cpp:const"]
-        idempotent int getACMTimeout();
+        ["cpp:const"] idempotent int getACMTimeout();
     }
 }

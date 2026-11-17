@@ -2,7 +2,8 @@
 
 #pragma once
 
-["cpp:type:wstring"] module Test1
+["cpp:type:wstring"]
+module Test1
 {
     sequence<string> WstringSeq;
 
@@ -24,8 +25,7 @@
 
         WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
 
-        void throwExcept(string reason)
-            throws WstringException;
+        void throwExcept(string reason) throws WstringException;
     }
 }
 
@@ -35,23 +35,25 @@ module Test2
 
     dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStringDict;
 
-    ["cpp:type:wstring"] struct WstringStruct
+    ["cpp:type:wstring"]
+    struct WstringStruct
     {
         string s;
     }
 
-    ["cpp:type:wstring"] exception WstringException
+    ["cpp:type:wstring"]
+    exception WstringException
     {
         string reason;
     }
 
-    ["cpp:type:wstring"] interface WstringInterface
+    ["cpp:type:wstring"]
+    interface WstringInterface
     {
         string opString(string s1, out string s2);
 
         WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
 
-        void throwExcept(string reason)
-            throws WstringException;
+        void throwExcept(string reason) throws WstringException;
     }
 }

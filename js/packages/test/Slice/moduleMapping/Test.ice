@@ -8,7 +8,7 @@ module foo
     class One
     {
         string name;
-    };
+    }
 
     ["js:identifier:baz.quux"]
     module baz
@@ -16,7 +16,7 @@ module foo
         class One
         {
             string name;
-        };
+        }
     }
 
     ["js:identifier:max_"]
@@ -25,6 +25,6 @@ module foo
         class One
         {
             string name;
-        };
+        }
     }
 }

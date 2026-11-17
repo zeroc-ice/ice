@@ -1,8 +1,8 @@
-DerivedRedefinition.ice:9: operation 'ice_ping' is already defined as an operation in a base interface
-DerivedRedefinition.ice:14: operation 'op' is already defined as an operation in a base interface
-DerivedRedefinition.ice:15: redefinition of operation 'op'
-DerivedRedefinition.ice:15: operation 'op' is already defined as an operation in a base interface
-DerivedRedefinition.ice:31: operation 'op' is already defined as an operation in a base interface
-DerivedRedefinition.ice:35: ambiguous multiple inheritance: 'D3' inherits operation 'op' from two or more unrelated base interfaces
-DerivedRedefinition.ice:40: data member 'l' is already defined as a data member in a base class
+DerivedRedefinition.ice:11: operation 'ice_ping' is already defined as an operation in a base interface
+DerivedRedefinition.ice:16: operation 'op' is already defined as an operation in a base interface
+DerivedRedefinition.ice:17: redefinition of operation 'op'
+DerivedRedefinition.ice:17: operation 'op' is already defined as an operation in a base interface
+DerivedRedefinition.ice:33: operation 'op' is already defined as an operation in a base interface
+DerivedRedefinition.ice:37: ambiguous multiple inheritance: 'D3' inherits operation 'op' from two or more unrelated base interfaces
 DerivedRedefinition.ice:42: data member 'l' is already defined as a data member in a base class
+DerivedRedefinition.ice:44: data member 'l' is already defined as a data member in a base class

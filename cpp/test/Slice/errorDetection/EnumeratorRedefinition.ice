@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+// icefmt: ignore-file
+
 module Test
 {
     enum Enum1 { A, B, C }  // Ok as of 3.7

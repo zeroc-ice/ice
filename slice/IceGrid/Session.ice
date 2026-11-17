@@ -34,8 +34,7 @@ module IceGrid
         /// @throws AllocationException Thrown when the allocation fails.
         /// @see #setAllocationTimeout
         /// @see #releaseObject
-        Object* allocateObjectById(Ice::Identity id)
-            throws ObjectNotRegisteredException, AllocationException;
+        Object* allocateObjectById(Ice::Identity id) throws ObjectNotRegisteredException, AllocationException;
 
         /// Allocates an object with the given type.
         /// @param type The type of the object.
@@ -43,8 +42,7 @@ module IceGrid
         /// @throws AllocationException Thrown when the allocation fails.
         /// @see #setAllocationTimeout
         /// @see #releaseObject
-        Object* allocateObjectByType(string type)
-            throws AllocationException;
+        Object* allocateObjectByType(string type) throws AllocationException;
 
         /// Releases an object that was allocated using {@link allocateObjectById} or {@link allocateObjectByType}.
         /// @param id The identity of the object to release.
@@ -52,8 +50,7 @@ module IceGrid
         /// the registry.
         /// @throws AllocationException Thrown when the object can't be released. This can happen when the object is not
         /// allocatable or is not allocated by this session.
-        void releaseObject(Ice::Identity id)
-            throws ObjectNotRegisteredException, AllocationException;
+        void releaseObject(Ice::Identity id) throws ObjectNotRegisteredException, AllocationException;
 
         /// Sets the allocation timeout. When no object is immediately available for an allocation request, the
         /// implementation of {@link allocateObjectById} and {@link allocateObjectByType} waits for the duration of

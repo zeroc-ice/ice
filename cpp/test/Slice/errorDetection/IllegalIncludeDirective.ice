@@ -1,3 +1,6 @@
+// Copyright (c) ZeroC, Inc.
+
+// icefmt: ignore-file
 
 #include "include/IcePrefix.ice" // okay
 

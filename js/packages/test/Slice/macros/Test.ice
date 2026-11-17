@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+// icefmt: ignore-file
+
 //
 // This macro sets the default value only when compiling with slice2js.
 //

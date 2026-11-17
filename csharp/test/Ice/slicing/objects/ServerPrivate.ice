@@ -51,5 +51,4 @@ module Test
     {
         PBase pb;
     }
-
 }

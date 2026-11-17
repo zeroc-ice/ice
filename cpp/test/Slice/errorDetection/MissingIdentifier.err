@@ -1,8 +1,8 @@
-MissingIdentifier.ice:6: missing name
-MissingIdentifier.ice:9: enumerator 'C' has the same value as enumerator 'B'
-MissingIdentifier.ice:12: 'MissingType' is not defined
-MissingIdentifier.ice:12: missing name
-MissingIdentifier.ice:13: 'MissingType' is not defined
-MissingIdentifier.ice:13: missing name
+MissingIdentifier.ice:8: missing name
+MissingIdentifier.ice:11: enumerator 'C' has the same value as enumerator 'B'
+MissingIdentifier.ice:14: 'MissingType' is not defined
+MissingIdentifier.ice:14: missing name
+MissingIdentifier.ice:15: 'MissingType' is not defined
 MissingIdentifier.ice:15: missing name
-MissingIdentifier.ice:15: initializer of type 'long' is incompatible with the type 'string' of constant ''
+MissingIdentifier.ice:17: missing name
+MissingIdentifier.ice:17: initializer of type 'long' is incompatible with the type 'string' of constant ''

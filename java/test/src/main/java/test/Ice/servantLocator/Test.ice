@@ -5,11 +5,9 @@
 ["java:identifier:test.Ice.servantLocator.Test"]
 module Test
 {
-    exception TestIntfUserException
-    {}
+    exception TestIntfUserException {}
 
-    exception TestImpossibleException
-    {}
+    exception TestImpossibleException {}
 
     interface TestIntf
     {

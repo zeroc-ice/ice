@@ -70,8 +70,7 @@ module Ice
         /// @param logMessages The most recent log messages cached by the Logger admin facet that match the filters
         /// given to {@link LoggerAdmin::attachRemoteLogger}, oldest first, up to its `messageMax`. This sequence is
         /// empty when `messageMax` is 0.
-        ["swift:identifier:initialize"]
-        void init(string prefix, LogMessageSeq logMessages);
+        ["swift:identifier:initialize"] void init(string prefix, LogMessageSeq logMessages);
 
         /// Receives a log message that matches the filters given to {@link LoggerAdmin::attachRemoteLogger}.
         /// @param message The log message.
