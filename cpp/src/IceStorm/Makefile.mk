@@ -24,6 +24,7 @@ IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
                                                              TransientTopicI.cpp \
                                                              TransientTopicManagerI.cpp \
                                                              Util.cpp \
+                                                             SubscriberRecordKeyCompare.cpp \
                                                              Election.ice \
                                                              IceStormInternal.ice \
                                                              Instrumentation.ice \
@@ -45,6 +46,6 @@ icestormadmin_sources           := $(addprefix $(currentdir)/,Admin.cpp \
 icestormdb_targetdir            := $(bindir)
 icestormdb_dependencies         := IcePatch2 IceDB
 icestormdb_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
-icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp DBTypes.ice)
+icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp SubscriberRecordKeyCompare.cpp DBTypes.ice)
 
 projects += $(project)

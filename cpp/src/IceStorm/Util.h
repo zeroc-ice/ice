@@ -39,6 +39,14 @@ nameToIdentity(const IceStorm::InstancePtr&, const std::string&);
 std::string
 describeEndpoints(const Ice::ObjectPrx&);
 
+//
+// Installs the communicator used by compareSubscriberRecordKey; must be called before the subscribers database is
+// opened. compareSubscriberRecordKey is shared by the IceStorm service and icestormdb, so that both order the
+// subscribers database the same way.
+//
+void
+setKeyComparatorCommunicator(const Ice::CommunicatorPtr&);
+
 int
 compareSubscriberRecordKey(const MDB_val* v1, const MDB_val* v2);
 
