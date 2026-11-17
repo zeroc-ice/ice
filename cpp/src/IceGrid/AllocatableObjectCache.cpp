@@ -174,6 +174,7 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         {
             Ice::Error out(_communicator->getLogger());
             out << "can't remove unknown object `" << _communicator->identityToString(id) << "'";
+            return;
         }
         removeImpl(id);
 
