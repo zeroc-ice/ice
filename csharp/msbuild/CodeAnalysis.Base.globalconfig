@@ -218,6 +218,10 @@ dotnet_diagnostic.SA1127.severity = none
 # SA1129: Do not use default value type constructor
 dotnet_diagnostic.SA1129.severity = none
 
+# SA1143: Conditional expressions must be formatted consistently
+# Multi-line conditional expressions keep the ? and : operators at the end of the line.
+dotnet_diagnostic.SA1143.severity = none
+
 # SA1200: A C# using directive is placed outside of a namespace element
 dotnet_diagnostic.SA1200.severity = none
 
@@ -262,6 +266,10 @@ dotnet_diagnostic.SA1312.severity = none
 
 # SA1314: Type parameter names should begin with T
 dotnet_diagnostic.SA1314.severity = none
+
+# SA1315: Parameters should match inherited names
+# Overrides and interface implementations keep their own, often more descriptive, parameter names.
+dotnet_diagnostic.SA1315.severity = none
 
 # SA1316: Tuple element names should use correct casing
 dotnet_diagnostic.SA1316.severity = none

@@ -14,6 +14,21 @@ namespace Ice;
 public interface ObjectPrx : IEquatable<ObjectPrx>
 {
     /// <summary>
+    /// Ensures that a proxy received over the wire is not null.
+    /// </summary>
+    /// <param name="proxy">The proxy to check.</param>
+    /// <param name="current">The current object of the corresponding incoming request.</param>
+    /// <exception cref="MarshalException">Thrown when the proxy is null.</exception>
+    static void checkNotNull(ObjectPrx? proxy, Current current)
+    {
+        if (proxy is null)
+        {
+            throw new MarshalException(
+                $"Null proxy passed to '{current.operation}' on object '{current.adapter.getCommunicator().identityToString(current.id)}'.");
+        }
+    }
+
+    /// <summary>
     /// Gets the communicator that created this proxy.
     /// </summary>
     /// <returns>The communicator that created this proxy.</returns>
@@ -224,6 +239,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// </summary>
     /// <param name="newTimeout">The new locator cache timeout (in seconds). Any negative value means infinite
     /// and is normalized to -1.</param>
+    /// <returns>The proxy with the new locator cache timeout.</returns>
     ObjectPrx ice_locatorCacheTimeout(int newTimeout);
 
     /// <summary>
@@ -232,6 +248,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="newTimeout">The new locator cache timeout. Any negative timeout means infinite and is
     /// normalized to -1 second; a timeout that is not a whole number of seconds is rounded up to the next whole
     /// number of seconds.</param>
+    /// <returns>The proxy with the new locator cache timeout.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
     /// <see cref="int.MaxValue"/> seconds.</exception>
     ObjectPrx ice_locatorCacheTimeout(TimeSpan newTimeout);
@@ -241,6 +258,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// </summary>
     /// <param name="newTimeout">The new invocation timeout (in milliseconds). Zero or any negative value means
     /// infinite and is normalized to -1.</param>
+    /// <returns>The proxy with the new invocation timeout.</returns>
     ObjectPrx ice_invocationTimeout(int newTimeout);
 
     /// <summary>
@@ -249,6 +267,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="newTimeout">The new invocation timeout. Zero or any negative timeout means infinite and is
     /// normalized to -1 millisecond; a timeout that is not a whole number of milliseconds is rounded up to the next
     /// whole number of milliseconds.</param>
+    /// <returns>The proxy with the new invocation timeout.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
     /// <see cref="int.MaxValue"/> milliseconds.</exception>
     ObjectPrx ice_invocationTimeout(TimeSpan newTimeout);
@@ -515,21 +534,6 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// </summary>
     /// <returns>The task scheduler object.</returns>
     TaskScheduler ice_scheduler();
-
-    /// <summary>
-    /// Ensures that a proxy received over the wire is not null.
-    /// </summary>
-    /// <param name="proxy">The proxy to check.</param>
-    /// <param name="current">The current object of the corresponding incoming request.</param>
-    /// <exception cref="MarshalException">Thrown when the proxy is null.</exception>
-    static void checkNotNull(ObjectPrx? proxy, Current current)
-    {
-        if (proxy is null)
-        {
-            throw new MarshalException(
-                $"Null proxy passed to '{current.operation}' on object '{current.adapter.getCommunicator().identityToString(current.id)}'.");
-        }
-    }
 }
 
 /// <summary>
