@@ -3722,7 +3722,7 @@ class MatlabMapping(CppBasedClientMapping):
         return Mapping.getByName("python") # Run clients against Python mapping servers
 
     def _getDefaultSource(self, processType):
-        return { "client" : "client.m" }[processType]
+        return { "client" : "Client.m" }[processType]
 
     def getOptions(self, current):
         #
