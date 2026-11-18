@@ -818,7 +818,7 @@ public class AllTests : global::Test.AllTests
 
             List<Properties> serverProps =
             [
-            .. clientProps,
+                .. clientProps,
                 anyipv4,
                 anyipv6,
                 anyboth,
