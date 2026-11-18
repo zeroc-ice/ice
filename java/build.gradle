@@ -42,16 +42,13 @@ subprojects {
         options.compilerArgs << "-Xdoclint:all,-missing"
                              << "-Xlint:all,-rawtypes,-exports,-try,-missing-explicit-ctor"
         options.encoding = "UTF-8"
+        options.release = targetJavaRelease.toInteger()
+        options.debug = debug.toBoolean()
         if (System.getenv("WARNINGS_AS_ERRORS") == "yes") {
             // Treat all warnings as errors, but don't stop compilation at the first error.
             options.compilerArgs << "-Werror" << "-XDshould-stop.ifError=FLOW"
         }
     }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.release = targetJavaRelease
-    options.debug = debug
 }
 
 task clean(type: Delete) {
