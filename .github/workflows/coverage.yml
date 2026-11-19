@@ -108,7 +108,7 @@ jobs:
       - name: Generate C++ Coverage Report
         uses: danielpalme/ReportGenerator-GitHub-Action@861674232075b2c6bd1405a04c4bb9b150653e81 # 5.5.12
         with:
-          reports: cpp/coverage/coverage.cobertura.xml
+          reports: cpp/coverage/lcov.info
           targetdir: cpp-coverage-report
           # The parsers' #line paths are relative to cpp, but the compiler resolves them against the msbuild project
           # directory; ReportGenerator maps such missing files to the source directory.
@@ -117,7 +117,7 @@ jobs:
           license: ${{ secrets.REPORT_GENERATOR_LICENSE }}
 
       - name: Write C++ Coverage Summary
-        # Only the totals, which end at the first blank line: the per-class rows exceed the step summary's size limit.
+        # Only the totals, which end at the first blank line, as in the Linux and macOS summaries.
         run: |
           $totals = (Get-Content cpp-coverage-report\Summary.txt -Raw) -split '\r?\n\r?\n', 2
           '```', $totals[0], '```' | Add-Content $env:GITHUB_STEP_SUMMARY
