@@ -87,7 +87,8 @@ finally {
 Write-Host "Merging coverage data..."
 # The Cobertura file has a class for each template instantiation in each module that compiles it, and ReportGenerator
 # counts the lines of each class apart. The lcov file has a record for each source file instead, where a line counts
-# once, as with llvm-cov. A method's instantiations share its first line, which keys it.
+# once, as with llvm-cov. A method's instantiations share its first line, which keys it. Microsoft.CodeCoverage records
+# whether a line ran, not how often, so each count is the number of copies that ran.
 $files = @{}
 foreach ($class in ([xml](Get-Content coverage\coverage.cobertura.xml -Raw)).SelectNodes("//class")) {
     $filename = $class.GetAttribute("filename")
@@ -102,9 +103,9 @@ foreach ($class in ([xml](Get-Content coverage\coverage.cobertura.xml -Raw)).Sel
         $lines = $method.SelectNodes("lines/line")
         $first = [int]$lines[0].GetAttribute("number")
         $file.Methods[$first] = $method.GetAttribute("name") + $method.GetAttribute("signature")
-        foreach ($line in $lines) {
-            $file.MethodHits[$first] += [long]$line.GetAttribute("hits")
-        }
+        # The first line of a flex or bison function can be a rule that didn't run, so any line counts.
+        $ran = $method.SelectNodes("lines/line[@hits != '0']").Count -gt 0
+        $file.MethodHits[$first] += [int]$ran
     }
 }
 $lcov = foreach ($filename in $files.Keys | Sort-Object) {
