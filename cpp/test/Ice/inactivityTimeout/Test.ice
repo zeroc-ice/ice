@@ -6,8 +6,7 @@ module Test
 {
     interface TestIntf
     {
-        ["amd"]
-        void sleep(int ms);
+        ["amd"] void sleep(int ms);
 
         void disableInactivityCheck();
 

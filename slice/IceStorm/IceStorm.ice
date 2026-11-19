@@ -73,21 +73,18 @@ module IceStorm
         /// Gets the name of this topic.
         /// @return The name of the topic.
         /// @see TopicManager#create
-        ["cpp:const"]
-        idempotent string getName();
+        ["cpp:const"] idempotent string getName();
 
         /// Gets a proxy to a publisher object for this topic. To publish data to a topic, a publisher calls this
         /// operation and then creates a proxy with the publisher type from this proxy. If a replicated IceStorm
         /// deployment is used, this call may return a replicated proxy.
         /// @return A proxy to publish data on this topic. This proxy is never null.
-        ["cpp:const"]
-        idempotent Object* getPublisher();
+        ["cpp:const"] idempotent Object* getPublisher();
 
         /// Gets a non-replicated proxy to a publisher object for this topic. To publish data to a topic, a publisher
         /// calls this operation and then creates a proxy with the publisher type from this proxy.
         /// @return A proxy to publish data on this topic. This proxy is never null.
-        ["cpp:const"]
-        idempotent Object* getNonReplicatedPublisher();
+        ["cpp:const"] idempotent Object* getNonReplicatedPublisher();
 
         /// Subscribes to this topic.
         /// @param theQoS The quality of service parameters for this subscription.
@@ -96,8 +93,7 @@ module IceStorm
         /// @throws AlreadySubscribed Thrown when @p subscriber is already subscribed.
         /// @throws BadQoS Thrown when @p theQoS is unavailable or invalid.
         /// @see #unsubscribe
-        Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber)
-            throws AlreadySubscribed, BadQoS;
+        Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber) throws AlreadySubscribed, BadQoS;
 
         /// Unsubscribes the provided @p subscriber from this topic.
         /// @param subscriber A proxy to an existing subscriber. This proxy is never null.
@@ -117,8 +113,7 @@ module IceStorm
 
         /// Gets information on the current links.
         /// @return A sequence of LinkInfo objects.
-        ["cpp:const"]
-        idempotent LinkInfoSeq getLinkInfoSeq();
+        ["cpp:const"] idempotent LinkInfoSeq getLinkInfoSeq();
 
         /// Gets the list of subscribers for this topic.
         /// @return The sequence of Ice identities for the subscriber objects.

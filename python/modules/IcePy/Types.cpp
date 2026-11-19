@@ -2496,6 +2496,14 @@ IcePy::DictionaryInfo::unmarshal(
         valueType->unmarshal(is, shared_from_this(), p.get(), cl, false);
     }
 
+    //
+    // A duplicate key leaves the dictionary with fewer entries than sz.
+    //
+    if (PyDict_Size(p.get()) != sz)
+    {
+        throw MarshalException{__FILE__, __LINE__, "received dictionary with duplicate key"};
+    }
+
     cb->unmarshaled(p.get(), target, closure);
 }
 

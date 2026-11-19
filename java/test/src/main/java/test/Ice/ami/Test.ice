@@ -8,8 +8,7 @@
 ["java:identifier:test.Ice.ami.Test"]
 module Test
 {
-    exception TestIntfException
-    {}
+    exception TestIntfException {}
 
     interface PingReply
     {
@@ -21,8 +20,7 @@ module Test
         void op();
         void opWithPayload(Ice::ByteSeq seq);
         int opWithResult();
-        void opWithUE()
-            throws TestIntfException;
+        void opWithUE() throws TestIntfException;
         void opBatch();
         int opBatchCount();
         bool waitForBatch(int count);

@@ -7,27 +7,23 @@
 ["java:identifier:test.Ice.interrupt.Test"]
 module Test
 {
-    exception InterruptedException
-    {}
+    exception InterruptedException {}
 
     interface TestIntf
     {
         void op();
         idempotent void opIdempotent();
-        void sleep(int to)
-            throws InterruptedException;
+        void sleep(int to) throws InterruptedException;
         void opWithPayload(Ice::ByteSeq seq);
         void shutdown();
     }
 
-    exception CannotInterruptException
-    {}
+    exception CannotInterruptException {}
 
     interface TestIntfController
     {
         void holdAdapter();
         void resumeAdapter();
-        void interrupt()
-            throws CannotInterruptException;
+        void interrupt() throws CannotInterruptException;
     }
 }

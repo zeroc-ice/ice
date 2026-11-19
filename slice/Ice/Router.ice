@@ -24,15 +24,13 @@ module Ice
         /// a routing table when @p hasRoutingTable is not set.
         /// @return The router's client proxy.
         /// @remark Introduced in Ice 3.7.
-        ["cpp:const"]
-        idempotent Object* getClientProxy(out optional(1) bool hasRoutingTable);
+        ["cpp:const"] idempotent Object* getClientProxy(out optional(1) bool hasRoutingTable);
 
         /// Gets the router's server proxy, i.e. the proxy to use for forwarding requests from the server to the
         /// router. The Ice runtime uses the endpoints of this proxy as the published endpoints of bi-dir object
         /// adapters.
         /// @return The router's server proxy.
-        ["cpp:const"]
-        idempotent Object* getServerProxy();
+        ["cpp:const"] idempotent Object* getServerProxy();
 
         /// Adds new proxy information to the router's routing table.
         /// @param proxies The proxies to add. Adding a null proxy is an error.

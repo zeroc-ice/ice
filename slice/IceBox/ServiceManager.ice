@@ -52,22 +52,19 @@ module IceBox
         /// @param service The service name.
         /// @throws AlreadyStartedException Thrown when the service is already running.
         /// @throws NoSuchServiceException Thrown when IceBox does not know a service named @p service.
-        void startService(string service)
-            throws AlreadyStartedException, NoSuchServiceException;
+        void startService(string service) throws AlreadyStartedException, NoSuchServiceException;
 
         /// Stops a service.
         /// @param service The service name.
         /// @throws AlreadyStoppedException Thrown when the service is already stopped.
         /// @throws NoSuchServiceException Thrown when IceBox does not know a service named @p service.
-        void stopService(string service)
-            throws AlreadyStoppedException, NoSuchServiceException;
+        void stopService(string service) throws AlreadyStoppedException, NoSuchServiceException;
 
         /// Returns whether a service is running.
         /// @param service The name of the service to check.
         /// @return `true` if the service was started and not stopped; otherwise `false`.
         /// @throws NoSuchServiceException Thrown when IceBox does not know a service named @p service.
-        bool isServiceRunning(string service)
-            throws NoSuchServiceException;
+        bool isServiceRunning(string service) throws NoSuchServiceException;
 
         /// Registers a new observer with this service manager.
         /// @param observer The new observer.

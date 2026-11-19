@@ -11,7 +11,6 @@ module Test
 
     module Nested
     {
-
         enum Color { red, green, blue }
     }
 

@@ -45,7 +45,7 @@ class SliceUtf8BomTestCase(ClientTestCase):
 
             # Other than the above-mentioned MCPP issue, we only expect 1 error for the BOM in the middle of the file.
             if len(lines) != 1 or not lines[0].endswith(
-                "Test.ice:9: encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files"
+                "Test.ice:11: encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files"
             ):
                 raise RuntimeError("Unexpected output from BOM test: {0}".format(lines))
 

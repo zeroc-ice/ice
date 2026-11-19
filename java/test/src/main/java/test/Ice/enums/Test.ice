@@ -29,6 +29,7 @@ module Test
         benum10,
         benum11 = ByteConst2
     }
+
     sequence<ByteEnum> ByteEnumSeq;
 
     enum ShortEnum
@@ -45,6 +46,7 @@ module Test
         senum10,
         senum11 = ShortConst2
     }
+
     sequence<ShortEnum> ShortEnumSeq;
 
     enum IntEnum
@@ -62,6 +64,7 @@ module Test
         ienum11 = IntConst2,
         ienum12 = LongConst2
     }
+
     sequence<IntEnum> IntEnumSeq;
 
     enum SimpleEnum
@@ -70,6 +73,7 @@ module Test
         green,
         blue
     }
+
     sequence<SimpleEnum> SimpleEnumSeq;
 
     interface TestIntf

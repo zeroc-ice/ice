@@ -13,4 +13,4 @@ module Test
     {
         void op();
     }
-};
+}

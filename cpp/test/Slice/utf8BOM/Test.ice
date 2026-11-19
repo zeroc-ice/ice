@@ -1,5 +1,7 @@
 ﻿// Copyright (c) ZeroC, Inc.
 
+// icefmt: ignore-file
+
 // This file is encoded in 'UTF-8 with BOM'
 
 #pragma once

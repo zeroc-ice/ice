@@ -457,6 +457,17 @@ function allTests($helper)
 
     echo "ok\n";
 
+    echo "testing casts of a null proxy... ";
+    flush();
+    test(Test\MyInterfacePrxHelper::uncheckedCast(null) === null);
+    test(Test\MyInterfacePrxHelper::uncheckedCast(null, "facet") === null);
+    test(Test\MyInterfacePrxHelper::checkedCast(null) === null);
+    test(Test\MyInterfacePrxHelper::checkedCast(null, "facet") === null);
+    test(Ice\ObjectPrxHelper::uncheckedCast(null) === null);
+    test(Ice\ObjectPrxHelper::checkedCast(null) === null);
+    test(Test\MyInterfacePrxHelper::uncheckedCast($communicator->propertyToProxy("NotSet.Proxy")) === null);
+    echo "ok\n";
+
     echo "testing ice_fixed... ";
     flush();
     $connection = $cl->ice_getConnection();

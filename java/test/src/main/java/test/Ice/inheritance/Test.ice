@@ -7,7 +7,6 @@ module Test
 {
     module MA
     {
-
         interface IA
         {
             IA* iaop(IA* p);
@@ -16,7 +15,6 @@ module Test
 
     module MB
     {
-
         interface IB1 extends MA::IA
         {
             IB1* ib1op(IB1* p);
@@ -30,7 +28,6 @@ module Test
 
     module MA
     {
-
         interface IC extends MB::IB1, MB::IB2
         {
             IC* icop(IC* p);
