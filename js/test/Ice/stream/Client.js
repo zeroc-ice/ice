@@ -70,6 +70,27 @@
             }
 
             {
+                // The InputStream reads from the exact range of a Uint8Array view into a larger buffer.
+                outS = new Ice.OutputStream(communicator);
+                outS.writeInt(0x01020304);
+                const data = outS.finished();
+                const padded = new Uint8Array(data.byteLength + 8);
+                padded.fill(0xff);
+                padded.set(data, 4);
+                inS = new Ice.InputStream(communicator, padded.subarray(4, 4 + data.byteLength));
+                test(inS.readInt() === 0x01020304);
+                try
+                {
+                    inS.readByte(); // no data remains within the view's range
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.UnmarshalOutOfBoundsException, ex);
+                }
+            }
+
+            {
                 outS = new Ice.OutputStream(communicator);
                 outS.writeBool(true);
                 const data = outS.finished();
@@ -640,6 +661,26 @@
                 {
                     test(ex instanceof Ice.UnmarshalOutOfBoundsException, ex);
                 }
+            }
+            out.writeLine("ok");
+
+            out.write("testing skip with a negative size... ");
+            {
+                outS = new Ice.OutputStream(communicator);
+                outS.writeInt(42);
+                const data = outS.finished();
+                inS = new Ice.InputStream(communicator, data);
+                test(inS.readInt() === 42);
+                try
+                {
+                    inS.skip(-4);
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.UnmarshalOutOfBoundsException, ex);
+                }
+                test(inS.pos === data.length);
             }
             out.writeLine("ok");
         }

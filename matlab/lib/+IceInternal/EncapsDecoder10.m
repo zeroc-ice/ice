@@ -35,7 +35,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             % Object references are encoded as a negative integer in 1.0.
             %
             index = obj.is.readInt();
-            if index > 0
+            if index > 0 || index == intmin('int32')
                 throw(Ice.MarshalException('', '', 'invalid object id'));
             end
             index = -index;

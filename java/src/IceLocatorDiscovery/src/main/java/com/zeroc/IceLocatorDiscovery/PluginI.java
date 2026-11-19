@@ -61,7 +61,7 @@ class PluginI implements Plugin
             else
             {
                 assert(_exception != null); // Don't retry if the proxy didn't change
-                exception(_exception);
+                _future.completeExceptionally(_exception);
             }
         }
 
@@ -728,7 +728,7 @@ class PluginI implements Plugin
         {
             _locatorAdapter.destroy();
         }
-        if(_communicator.getDefaultLocator().equals(_locatorPrx))
+        if(_locatorPrx.equals(_communicator.getDefaultLocator()))
         {
             // Restore original default locator proxy, if the user didn't change it in the meantime
             _communicator.setDefaultLocator(_defaultLocator);

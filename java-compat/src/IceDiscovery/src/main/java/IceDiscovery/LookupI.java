@@ -124,7 +124,7 @@ class LookupI extends _LookupDisp
                 _proxies.add(proxy);
                 if(_latency == 0)
                 {
-                    _latency = (long)((System.nanoTime() - _start) * _latencyMultiplier / 100000.0);
+                    _latency = (long)((System.nanoTime() - _start) * _latencyMultiplier / 1000000.0);
                     if(_latency == 0)
                     {
                         _latency = 1; // 1ms

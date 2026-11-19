@@ -261,7 +261,7 @@ public abstract class ImplicitContextI implements ImplicitContext
 
             if(threadContext == null)
             {
-                return null;
+                return "";
             }
 
             String val = threadContext.remove(key);

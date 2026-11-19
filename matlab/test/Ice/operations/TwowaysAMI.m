@@ -1140,8 +1140,15 @@ classdef TwowaysAMI
             %
             % Test implicit context propagation
             %
-            impls = {'Shared', 'PerThread'};
-            for i = 1:2
+            % On Linux, MATLAB crashes on exit after a thread has used a PerThread implicit context, so
+            % PerThread is only tested on Windows.
+            %
+            if ispc
+                impls = {'Shared', 'PerThread'};
+            else
+                impls = {'Shared'};
+            end
+            for i = 1:numel(impls)
                 properties = helper.communicator().getProperties().clone();
                 properties.setProperty('Ice.ImplicitContext', impls{i});
 
