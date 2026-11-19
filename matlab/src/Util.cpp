@@ -300,6 +300,8 @@ IceMatlab::createStringMap(const map<string, string>& m)
         params[0] = keys;
         params[1] = values;
         mexCallMATLAB(1, &r, 2, params, "containers.Map");
+        mxDestroyArray(keys);
+        mxDestroyArray(values);
     }
     return r;
 }
