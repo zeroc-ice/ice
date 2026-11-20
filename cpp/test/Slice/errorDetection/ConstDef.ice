@@ -132,7 +132,26 @@ module Test
 
     const color c13 = colorconst;   // OK
 
-    const string unknownEscape = "a\g";                  // Unknown escape sequence
+    // Correctness of integer literals.
+    const int oct1 = 017;           // OK
+    const int oct2 = -017;          // OK
+    const int oct3 = 00;            // OK
+    const double oct4 = 09.5;       // OK, a floating-point literal
+    const int oct5 = 09;            // Invalid octal digit
+    const int oct6 = 018;           // Invalid octal digit
+    const long oct7 = -0189;        // Invalid octal digit
+    const int hex1 = 0x1f;          // OK
+    const int hex2 = -0X1F;         // OK
+    const double exp1 = 1e5;        // OK, a floating-point literal
+    const float exp2 = 1e5f;        // OK, a floating-point literal
+    const int bad1 = 0x;            // Missing hex digits
+    const int bad2 = 0xZZ;          // Invalid hex digits
+    const int bad3 = 0x1G;          // Invalid hex digit
+    const int bad4 = 10L;           // Suffixes are not supported
+    const int bad5 = 123abc;        // Not an integer literal
+    const int bad6 = 09L;           // Invalid octal digit
+
+    const string unknownEscape = "a\g";                 // Unknown escape sequence
     const string invalidCodepoint = "a\u000N";          // Invalid code point
     const string invalidCodepoint1 = "a\U0000000K";     // Invalid code point
     const string octalRange = "\455";                   // Octal escape sequence out of range
