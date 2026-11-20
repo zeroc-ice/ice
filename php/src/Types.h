@@ -443,6 +443,7 @@ namespace IcePHP
     ExceptionInfoPtr getExceptionInfo(std::string_view);
 
     bool isUnset(zval*);
+    bool isUnsetOrNull(zval*);
     void assignUnset(zval*);
 
     bool typesInit(INIT_FUNC_ARGS);

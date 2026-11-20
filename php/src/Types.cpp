@@ -2630,6 +2630,8 @@ IcePHP::ProxyInfo::optionalFormat() const
 void
 IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool optional)
 {
+    assert(!(optional && Z_TYPE_P(zv) == IS_NULL));
+
     Ice::OutputStream::size_type sizePos = 0;
     if (optional)
     {
@@ -2637,11 +2639,7 @@ IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool opt
     }
 
     std::optional<Ice::ObjectPrx> proxy;
-    if (Z_TYPE_P(zv) == IS_NULL)
-    {
-        os->write(proxy);
-    }
-    else
+    if (Z_TYPE_P(zv) != IS_NULL)
     {
         assert(Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) == proxyClassEntry); // validate() should have caught this.
         ProxyInfoPtr info;
@@ -2656,8 +2654,8 @@ IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool opt
             invalidArgument(os.str());
             throw AbortMarshaling();
         }
-        os->write(proxy);
     }
+    os->write(proxy);
 
     if (optional)
     {
@@ -2886,7 +2884,7 @@ IcePHP::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
             val = Z_REFVAL_P(val);
         }
 
-        if (member->optional && (isUnset(val) || !os->writeOptional(member->tag, member->type->optionalFormat())))
+        if (member->optional && (isUnsetOrNull(val) || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -3685,6 +3683,12 @@ IcePHP::isUnset(zval* zv)
         return _unsetGUID == string(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
     }
     return false;
+}
+
+bool
+IcePHP::isUnsetOrNull(zval* zv)
+{
+    return Z_TYPE_P(zv) == IS_NULL || isUnset(zv);
 }
 
 void
