@@ -335,6 +335,18 @@ public final class ObjectAdapter {
         }
 
         try {
+            synchronized (this) {
+                // A collocated invocation can start after waitForDeactivate returns: the adapter accepts them until
+                // its state is StateDestroying.
+                while (_directCount > 0) {
+                    try {
+                        wait();
+                    } catch (InterruptedException ex) {
+                        throw new OperationInterruptedException(ex);
+                    }
+                }
+            }
+
             if (_routerInfo != null) {
                 // Remove entry from the router manager.
                 _instance.routerManager().erase(_routerInfo.getRouter());
