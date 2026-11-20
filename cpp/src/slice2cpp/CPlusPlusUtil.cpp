@@ -955,8 +955,7 @@ Slice::Cpp::validateCppMetadata(const UnitPtr& unit)
         .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
             p->unit()->warning(
-                metadata->file(),
-                metadata->line(),
+                metadata->span(),
                 Deprecated,
                 "'cpp:ice_print' is deprecated; use 'cpp:custom-print' instead");
             return nullopt;

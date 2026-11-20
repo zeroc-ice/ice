@@ -1,7 +1,7 @@
-StructMembers.ice:9: struct 's1' must have at least one member
+StructMembers.ice:7: struct 's1' must have at least one member
 StructMembers.ice:41: missing name
-StructMembers.ice:47: missing name
-StructMembers.ice:47: ';' missing after definition
+StructMembers.ice:46: missing name
+StructMembers.ice:46: ';' missing after definition
 StructMembers.ice:51: missing name
-StructMembers.ice:57: missing name
-StructMembers.ice:57: ';' missing after definition
+StructMembers.ice:56: missing name
+StructMembers.ice:56: ';' missing after definition

@@ -289,7 +289,7 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
 
             // Try to locate the exception's definition using the name given in the comment, so we can reference it
             // with a symbol link.
-            if (ExceptionPtr ex = p->container()->lookupException(name, false))
+            if (ExceptionPtr ex = p->container()->lookupException(name, nullptr))
             {
                 out << " " << swiftLinkFormatter(name, p, ex);
             }
@@ -434,7 +434,7 @@ Slice::Swift::validateSwiftMetadata(const UnitPtr& unit)
         .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
             const string msg = "'swift:module' is deprecated; use 'swift:identifier' to remap modules instead";
-            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
+            p->unit()->warning(metadata->span(), Deprecated, msg);
 
             if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("swift:identifier"))
             {
@@ -475,7 +475,7 @@ Slice::Swift::validateSwiftModuleMappings(const UnitPtr& unit)
             os << "invalid module mapping: the contents of a Slice file must map to a single Swift module" << endl;
             os << "note: you can use 'swift:identifier:" << mappedModuleName << "' metadata to map Slice module '"
                << mod->scoped() << "' to Swift module '" << mappedModuleName << "'" << endl;
-            unit->error(mod->file(), mod->line(), os.str());
+            unit->error(mod->span(), os.str());
         }
     }
 }

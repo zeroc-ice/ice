@@ -31,3 +31,8 @@ WarningInvalidComment.ice:88: warning: missing exception name after '@throws' ta
 WarningInvalidComment.ice:88: warning: missing exception name after '@exception' tag
 WarningInvalidComment.ice:92: warning: '@throws SomeOtherException': this exception is not listed in the exception specification of 'SomeOtherException'
 WarningInvalidComment.ice:97: warning: unterminated link tag: missing closing '}'
+WarningInvalidComment.ice:101: warning: the '@param' tag is only valid on operations
+WarningInvalidComment.ice:107: warning: the '@param' tag is only valid on operations
+WarningInvalidComment.ice:112: warning: the '@param' tag is only valid on operations
+WarningInvalidComment.ice:117: warning: the '@param' tag is only valid on operations
+WarningInvalidComment.ice:123: warning: the '@param' tag is only valid on operations

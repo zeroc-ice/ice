@@ -168,18 +168,34 @@ namespace Slice
     };
 
     // ----------------------------------------------------------------------
+    // SourceSpan
+    // ----------------------------------------------------------------------
+
+    /// A range of text in a Slice file. Lines are counted from 1. Columns are byte offsets within a line, counted
+    /// from 0, and `lastColumn` is one past the last character of the range. Columns are measured after
+    /// preprocessing, which replaces each run of spaces, tabs, and comments between two tokens with a single space.
+    struct SourceSpan
+    {
+        std::string filename;
+        int firstLine{0};
+        int firstColumn{0};
+        int lastLine{0};
+        int lastColumn{0};
+    };
+
+    // ----------------------------------------------------------------------
     // Metadata
     // ----------------------------------------------------------------------
 
     class Metadata final : public GrammarBase
     {
     public:
-        Metadata(std::string rawMetadata, std::string file, int line);
+        Metadata(std::string rawMetadata, SourceSpan span);
         [[nodiscard]] const std::string& directive() const;
         [[nodiscard]] const std::string& arguments() const;
 
-        [[nodiscard]] const std::string& file() const;
-        [[nodiscard]] int line() const;
+        /// Returns the span of the string literal this metadata was parsed from.
+        [[nodiscard]] const SourceSpan& span() const;
 
         friend std::ostream& operator<<(std::ostream& out, const Metadata& metadata);
 
@@ -187,8 +203,7 @@ namespace Slice
         std::string _directive;
         std::string _arguments;
 
-        std::string _file;
-        int _line;
+        SourceSpan _span;
     };
 
     inline std::ostream& operator<<(std::ostream& ostr, const Metadata& metadata)
@@ -408,7 +423,8 @@ namespace Slice
         // Functions to get information about where a Slice element was defined at.
 
         [[nodiscard]] const std::string& file() const;
-        [[nodiscard]] int line() const;
+        /// Returns the span of this element's name.
+        [[nodiscard]] const SourceSpan& span() const;
 
         [[nodiscard]] const std::optional<DocComment>& docComment() const;
 
@@ -439,12 +455,11 @@ namespace Slice
     protected:
         friend class DocCommentParser;
 
-        Contained(const ContainerPtr& container, std::string name);
+        Contained(const ContainerPtr& container, std::string name, SourceSpan span);
 
         ContainerPtr _container;
         std::string _name;
-        std::string _file;
-        int _line;
+        SourceSpan _span;
         std::optional<DocComment> _docComment;
         int _includeLevel;
         DefinitionContextPtr _definitionContext;
@@ -459,33 +474,42 @@ namespace Slice
     {
     public:
         void destroyContents();
-        ModulePtr createModule(const std::string& name, bool nestedSyntax);
-        [[nodiscard]] ClassDefPtr createClassDef(const std::string& name, std::int32_t id, const ClassDefPtr& base);
-        [[nodiscard]] ClassDeclPtr createClassDecl(const std::string& name);
-        [[nodiscard]] InterfaceDefPtr createInterfaceDef(const std::string& name, const InterfaceList& bases);
-        [[nodiscard]] InterfaceDeclPtr createInterfaceDecl(const std::string& name);
-        [[nodiscard]] ExceptionPtr createException(const std::string& name, const ExceptionPtr& base);
-        [[nodiscard]] StructPtr createStruct(const std::string& name);
-        [[nodiscard]] SequencePtr createSequence(const std::string& name, const TypePtr& type, MetadataList metadata);
+        ModulePtr createModule(const std::string& name, const SourceSpan& span, bool nestedSyntax);
+        [[nodiscard]] ClassDefPtr
+        createClassDef(const std::string& name, const SourceSpan& span, std::int32_t id, const ClassDefPtr& base);
+        [[nodiscard]] ClassDeclPtr createClassDecl(const std::string& name, const SourceSpan& span);
+        [[nodiscard]] InterfaceDefPtr
+        createInterfaceDef(const std::string& name, const SourceSpan& span, const InterfaceList& bases);
+        [[nodiscard]] InterfaceDeclPtr createInterfaceDecl(const std::string& name, const SourceSpan& span);
+        [[nodiscard]] ExceptionPtr
+        createException(const std::string& name, const SourceSpan& span, const ExceptionPtr& base);
+        [[nodiscard]] StructPtr createStruct(const std::string& name, const SourceSpan& span);
+        [[nodiscard]] SequencePtr
+        createSequence(const std::string& name, const SourceSpan& span, const TypePtr& type, MetadataList metadata);
         [[nodiscard]] DictionaryPtr createDictionary(
             const std::string& name,
+            const SourceSpan& span,
             const TypePtr& keyType,
             MetadataList keyMetadata,
             const TypePtr& valueType,
             MetadataList valueMetadata);
-        [[nodiscard]] EnumPtr createEnum(const std::string& name);
+        [[nodiscard]] EnumPtr createEnum(const std::string& name, const SourceSpan& span);
         [[nodiscard]] ConstPtr createConst(
             const std::string& name,
+            const SourceSpan& span,
             const TypePtr& constType,
             MetadataList metadata,
             const SyntaxTreeBasePtr& valueType,
-            const std::string& value);
-        [[nodiscard]] TypePtr lookupType(const std::string& identifier);
+            const std::string& value,
+            const SourceSpan& valueSpan);
+        // The lookup functions report an error at `span` or `errorSpan` when they find nothing suitable; a null
+        // `errorSpan` reports nothing.
+        [[nodiscard]] TypePtr lookupType(const std::string& identifier, const SourceSpan& span);
         [[nodiscard]] TypePtr
-        lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
-        [[nodiscard]] ContainedList lookupContained(const std::string& identifier, bool emitErrors);
-        [[nodiscard]] InterfaceDefPtr lookupInterfaceDef(const std::string& identifier, bool emitErrors);
-        [[nodiscard]] ExceptionPtr lookupException(const std::string& identifier, bool emitErrors);
+        lookupTypeNoBuiltin(const std::string& identifier, const SourceSpan* errorSpan, bool ignoreUndefined = false);
+        [[nodiscard]] ContainedList lookupContained(const std::string& identifier, const SourceSpan* errorSpan);
+        [[nodiscard]] InterfaceDefPtr lookupInterfaceDef(const std::string& identifier, const SourceSpan& span);
+        [[nodiscard]] ExceptionPtr lookupException(const std::string& identifier, const SourceSpan* errorSpan);
         [[nodiscard]] ModuleList modules() const;
         [[nodiscard]] InterfaceList interfaces() const;
         [[nodiscard]] EnumList enums() const;
@@ -507,12 +531,12 @@ namespace Slice
         /// ```
         /// Because the parser parses in order, the meaning of 'H' in 'Inner' is ordering dependent, which is not good.
         /// The user should disambiguate by qualifying the type-reference as 'Outer::H'.
-        void checkHasChangedMeaning(const std::string& name, ContainedPtr namedThing = nullptr);
+        void checkHasChangedMeaning(const std::string& name, const SourceSpan& span, ContainedPtr namedThing = nullptr);
 
         /// Returns `false` if this container is the global scope (i.e. it's of type `Unit`), and `true` otherwise.
         /// If false, we emit an error message. So this function should only be called for types which cannot appear at
         /// global scope... so everything except for `Module`s.
-        bool checkForGlobalDefinition(const char* definitionKindPlural);
+        bool checkForGlobalDefinition(const char* definitionKindPlural, const SourceSpan& span);
 
         /// Returns true if this contains elements of the specified type.
         /// This check is recursive, so it will still return true even if the type is only contained indirectly.
@@ -538,9 +562,11 @@ namespace Slice
     protected:
         bool validateConstant(
             const std::string& name,
+            const SourceSpan& span,
             const TypePtr& type,
             SyntaxTreeBasePtr& valueType,
             const std::string& valueString,
+            const SourceSpan& valueSpan,
             bool isConstant);
 
         ContainedList _contents;
@@ -554,7 +580,7 @@ namespace Slice
     class Module final : public Container, public Contained
     {
     public:
-        Module(const ContainerPtr& container, const std::string& name, bool nestedSyntax);
+        Module(const ContainerPtr& container, const std::string& name, const SourceSpan& span, bool nestedSyntax);
         [[nodiscard]] std::string kindOf() const final;
         [[nodiscard]] ModulePtr getTopLevelModule() const final;
         void visit(ParserVisitor* visitor) final;
@@ -570,7 +596,7 @@ namespace Slice
     class ClassDecl final : public Contained, public Type, public std::enable_shared_from_this<ClassDecl>
     {
     public:
-        ClassDecl(const ContainerPtr& container, const std::string& name);
+        ClassDecl(const ContainerPtr& container, const std::string& name, const SourceSpan& span);
         void destroy() final;
         [[nodiscard]] ClassDefPtr definition() const;
         [[nodiscard]] bool isClassType() const final;
@@ -600,15 +626,22 @@ namespace Slice
     class ClassDef final : public Container, public Contained
     {
     public:
-        ClassDef(const ContainerPtr& container, const std::string& name, std::int32_t id, ClassDefPtr base);
+        ClassDef(
+            const ContainerPtr& container,
+            const std::string& name,
+            const SourceSpan& span,
+            std::int32_t id,
+            ClassDefPtr base);
         void destroy() final;
         [[nodiscard]] DataMemberPtr createDataMember(
             const std::string& name,
+            const SourceSpan& span,
             const TypePtr& type,
             bool isOptional,
             std::int32_t tag,
             SyntaxTreeBasePtr defaultValueType,
-            std::optional<std::string> defaultValueString);
+            std::optional<std::string> defaultValueString,
+            const SourceSpan& defaultValueSpan);
         [[nodiscard]] ClassDeclPtr declaration() const;
         [[nodiscard]] ClassDefPtr base() const;
         [[nodiscard]] ClassList allBases() const;
@@ -642,7 +675,7 @@ namespace Slice
     class InterfaceDecl final : public Contained, public Type, public std::enable_shared_from_this<InterfaceDecl>
     {
     public:
-        InterfaceDecl(const ContainerPtr& container, const std::string& name);
+        InterfaceDecl(const ContainerPtr& container, const std::string& name, const SourceSpan& span);
         void destroy() final;
         [[nodiscard]] InterfaceDefPtr definition() const;
         [[nodiscard]] size_t minWireSize() const final;
@@ -651,7 +684,11 @@ namespace Slice
         void visit(ParserVisitor* visitor) final;
         [[nodiscard]] std::string kindOf() const final;
 
-        static void checkBasesAreLegal(const std::string& name, const InterfaceList& bases, const UnitPtr& unit);
+        static void checkBasesAreLegal(
+            const std::string& name,
+            const SourceSpan& span,
+            const InterfaceList& bases,
+            const UnitPtr& unit);
 
     private:
         friend class Container;
@@ -671,6 +708,7 @@ namespace Slice
         static void checkPairIntersections(
             const StringPartitionList& stringPartitions,
             const std::string& name,
+            const SourceSpan& span,
             const UnitPtr& unit);
     };
 
@@ -694,6 +732,7 @@ namespace Slice
         Operation(
             const ContainerPtr& container,
             const std::string& name,
+            const SourceSpan& span,
             TypePtr returnType,
             bool returnIsOptional,
             std::int32_t returnTag,
@@ -706,7 +745,12 @@ namespace Slice
         [[nodiscard]] Mode mode() const;
         [[nodiscard]] bool hasMarshaledResult() const;
 
-        ParameterPtr createParameter(const std::string& name, const TypePtr& type, bool isOptional, std::int32_t tag);
+        ParameterPtr createParameter(
+            const std::string& name,
+            const SourceSpan& span,
+            const TypePtr& type,
+            bool isOptional,
+            std::int32_t tag);
 
         /// Returns all parameters of this operation.
         [[nodiscard]] ParameterList parameters() const;
@@ -745,7 +789,8 @@ namespace Slice
         [[nodiscard]] ParameterList sortedReturnAndOutParameters(const std::string& returnName);
 
         [[nodiscard]] ExceptionList throws() const;
-        void setExceptionList(const ExceptionList& exceptions);
+        /// @param span The span of the throws clause.
+        void setExceptionList(const ExceptionList& exceptions, const SourceSpan& span);
 
         /// Returns true if this operation uses class types in any of its in parameters.
         [[nodiscard]] bool sendsClasses() const;
@@ -791,10 +836,15 @@ namespace Slice
     class InterfaceDef final : public Container, public Contained
     {
     public:
-        InterfaceDef(const ContainerPtr& container, const std::string& name, InterfaceList bases);
+        InterfaceDef(
+            const ContainerPtr& container,
+            const std::string& name,
+            const SourceSpan& span,
+            InterfaceList bases);
         void destroy() final;
         OperationPtr createOperation(
             const std::string& name,
+            const SourceSpan& span,
             const TypePtr& returnType,
             bool isOptional,
             std::int32_t tag,
@@ -822,7 +872,10 @@ namespace Slice
         friend class Container;
 
         // Returns true if name does not collide with any base name; otherwise, false.
-        bool checkBaseOperationNames(const std::string& name, const std::vector<std::string>& baseNames);
+        bool checkBaseOperationNames(
+            const std::string& name,
+            const SourceSpan& span,
+            const std::vector<std::string>& baseNames);
 
         InterfaceDeclPtr _declaration;
         InterfaceList _bases;
@@ -834,15 +887,17 @@ namespace Slice
     class Exception final : public Container, public Contained
     {
     public:
-        Exception(const ContainerPtr& container, const std::string& name, ExceptionPtr base);
+        Exception(const ContainerPtr& container, const std::string& name, const SourceSpan& span, ExceptionPtr base);
         void destroy() final;
         [[nodiscard]] DataMemberPtr createDataMember(
             const std::string& name,
+            const SourceSpan& span,
             const TypePtr& type,
             bool isOptional,
             std::int32_t tag,
             SyntaxTreeBasePtr defaultValueType,
-            std::optional<std::string> defaultValueString);
+            std::optional<std::string> defaultValueString,
+            const SourceSpan& defaultValueSpan);
         [[nodiscard]] DataMemberList dataMembers() const;
         [[nodiscard]] DataMemberList orderedOptionalDataMembers() const;
         [[nodiscard]] DataMemberList allDataMembers() const;
@@ -865,12 +920,14 @@ namespace Slice
     class Struct final : public Container, public Contained, public Type
     {
     public:
-        Struct(const ContainerPtr& container, const std::string& name);
+        Struct(const ContainerPtr& container, const std::string& name, const SourceSpan& span);
         [[nodiscard]] DataMemberPtr createDataMember(
             const std::string& name,
+            const SourceSpan& span,
             const TypePtr& type,
             SyntaxTreeBasePtr defaultValueType,
-            std::optional<std::string> defaultValueString);
+            std::optional<std::string> defaultValueString,
+            const SourceSpan& defaultValueSpan);
         [[nodiscard]] DataMemberList dataMembers() const;
         [[nodiscard]] DataMemberList classDataMembers() const;
         [[nodiscard]] bool usesClasses() const final;
@@ -889,7 +946,12 @@ namespace Slice
     class Sequence final : public Contained, public Type, public std::enable_shared_from_this<Sequence>
     {
     public:
-        Sequence(const ContainerPtr& container, const std::string& name, TypePtr type, MetadataList typeMetadata);
+        Sequence(
+            const ContainerPtr& container,
+            const std::string& name,
+            const SourceSpan& span,
+            TypePtr type,
+            MetadataList typeMetadata);
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] MetadataList typeMetadata() const;
         void setTypeMetadata(MetadataList metadata);
@@ -915,6 +977,7 @@ namespace Slice
         Dictionary(
             const ContainerPtr& container,
             const std::string& name,
+            const SourceSpan& span,
             TypePtr keyType,
             MetadataList keyMetadata,
             TypePtr valueType,
@@ -948,8 +1011,9 @@ namespace Slice
     class Enum final : public Container, public Contained, public Type
     {
     public:
-        Enum(const ContainerPtr& container, const std::string& name);
-        EnumeratorPtr createEnumerator(const std::string& name, std::optional<std::int32_t> explicitValue);
+        Enum(const ContainerPtr& container, const std::string& name, const SourceSpan& span);
+        EnumeratorPtr
+        createEnumerator(const std::string& name, const SourceSpan& span, std::optional<std::int32_t> explicitValue);
         [[nodiscard]] bool hasExplicitValues() const;
         [[nodiscard]] std::int32_t minValue() const;
         [[nodiscard]] std::int32_t maxValue() const;
@@ -974,7 +1038,12 @@ namespace Slice
     class Enumerator final : public Contained
     {
     public:
-        Enumerator(const ContainerPtr& container, const std::string& name, std::int32_t value, bool hasExplicitValue);
+        Enumerator(
+            const ContainerPtr& container,
+            const std::string& name,
+            const SourceSpan& span,
+            std::int32_t value,
+            bool hasExplicitValue);
         [[nodiscard]] EnumPtr type() const;
         [[nodiscard]] std::string kindOf() const final;
 
@@ -998,6 +1067,7 @@ namespace Slice
         Const(
             const ContainerPtr& container,
             const std::string& name,
+            const SourceSpan& span,
             TypePtr type,
             MetadataList typeMetadata,
             SyntaxTreeBasePtr valueType,
@@ -1027,6 +1097,7 @@ namespace Slice
         Parameter(
             const ContainerPtr& container,
             const std::string& name,
+            const SourceSpan& span,
             TypePtr type,
             bool isOptional,
             std::int32_t tag);
@@ -1056,6 +1127,7 @@ namespace Slice
         DataMember(
             const ContainerPtr& container,
             const std::string& name,
+            const SourceSpan& span,
             TypePtr type,
             bool isOptional,
             std::int32_t tag,
@@ -1122,19 +1194,16 @@ namespace Slice
 
         [[nodiscard]] std::string currentFile() const;
         [[nodiscard]] const std::string& topLevelFile() const;
-        [[nodiscard]] int currentLine() const;
 
         int setCurrentFile(std::string currentFile, int lineNumber);
         [[nodiscard]] int currentIncludeLevel() const;
 
-        void addFileMetadata(MetadataList metadata);
+        void addFileMetadata(MetadataList metadata, const SourceSpan& span);
 
         void setSeenDefinition();
 
-        void error(std::string_view message);
-        void error(std::string_view file, int line, std::string_view message);
-        void warning(WarningCategory category, std::string_view message) const;
-        void warning(std::string_view file, int line, WarningCategory category, std::string_view message) const;
+        void error(const SourceSpan& span, std::string_view message);
+        void warning(const SourceSpan& span, WarningCategory category, std::string_view message) const;
 
         [[nodiscard]] ContainerPtr currentContainer() const;
         void pushContainer(const ContainerPtr& container);

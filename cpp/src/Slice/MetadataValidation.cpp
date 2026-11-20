@@ -183,10 +183,7 @@ MetadataVisitor::visitModuleStart(const ModulePtr& p)
     {
         // Metadata cannot be applied to modules that used nested-module-syntax, since it's ambiguous in meaning.
         // We issue an error, and clear the metadata, so that we're in a valid state for further validation.
-        p->unit()->error(
-            p->file(),
-            p->line(),
-            "metadata cannot be applied to modules defined using nested module syntax");
+        p->unit()->error(p->span(), "metadata cannot be applied to modules defined using nested module syntax");
         p->setMetadata({});
     }
     else
@@ -311,7 +308,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
     {
         ostringstream msg;
         msg << "ignoring unknown metadata: '" << *metadata << '\'';
-        p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
+        p->unit()->warning(metadata->span(), InvalidMetadata, msg.str());
         return false;
     }
     const MetadataInfo& info = lookupResult->second;
@@ -327,7 +324,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
             if (!arguments.empty())
             {
                 string msg = "the '" + directive + "' metadata does not take any arguments";
-                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
+                p->unit()->warning(metadata->span(), InvalidMetadata, msg);
                 isValid = false;
             }
             break;
@@ -337,7 +334,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
             if (arguments.find(',') != string::npos)
             {
                 string msg = "the '" + directive + "' metadata only accepts one argument but a list was provided";
-                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
+                p->unit()->warning(metadata->span(), InvalidMetadata, msg);
                 isValid = false;
             }
             // Then intentionally fall through to the non-empty check below, since we require an argument.
@@ -347,7 +344,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
             if (arguments.empty())
             {
                 string msg = "missing required argument for '" + directive + "' metadata";
-                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
+                p->unit()->warning(metadata->span(), InvalidMetadata, msg);
                 isValid = false;
             }
             break;
@@ -373,7 +370,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
             if (std::find(validValues.begin(), validValues.end(), trimmedArg) == validValues.end())
             {
                 string msg = "invalid argument '" + trimmedArg + "' supplied to '" + directive + "' metadata";
-                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
+                p->unit()->warning(metadata->span(), InvalidMetadata, msg);
                 isValid = false;
             }
         }
@@ -387,7 +384,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
         {
             string msg = '\'' + directive + "' metadata can only be applied to definitions and declarations" +
                          ", it cannot be applied to type references";
-            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
+            p->unit()->warning(metadata->span(), InvalidMetadata, msg);
             isValid = false;
         }
         else
@@ -413,7 +410,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
             else
             {
                 string msg = '\'' + directive + "' metadata cannot be applied to operations with void return type";
-                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
+                p->unit()->warning(metadata->span(), InvalidMetadata, msg);
                 isValid = false;
             }
         }
@@ -436,7 +433,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
         if (info.acceptedContext == MetadataApplicationContext::ParameterTypeReferences && !isAppliedToParameter)
         {
             auto msg = '\'' + directive + "' metadata can only be applied to operation parameters and return types";
-            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
+            p->unit()->warning(metadata->span(), InvalidMetadata, msg);
             isValid = false;
         }
     }
@@ -450,7 +447,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
         if (std::none_of(validOn.begin(), validOn.end(), comparator))
         {
             string message = misappliedMetadataMessage(metadata, appliedTo);
-            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
+            p->unit()->warning(metadata->span(), InvalidMetadata, message);
             isValid = false;
         }
     }
@@ -474,7 +471,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
                     ostringstream msg;
                     msg << "ignoring duplicate metadata: '" << *metadata
                         << "' does not match previously applied metadata of '" << *previousMetadata << "'";
-                    p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
+                    p->unit()->warning(metadata->span(), InvalidMetadata, msg.str());
                 }
 
                 // Even in this special case, we want to remove the metadata. At worst it was invalid, and at best,
@@ -484,7 +481,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
             else
             {
                 auto msg = "ignoring duplicate metadata: '" + directive + "' has already been applied in this context";
-                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
+                p->unit()->warning(metadata->span(), InvalidMetadata, msg);
                 isValid = false;
             }
         }
@@ -497,7 +494,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
         // So if we get a string back, we know that the custom validation failed.
         if (auto result = info.extraValidation(metadata, appliedTo))
         {
-            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, *result);
+            p->unit()->warning(metadata->span(), InvalidMetadata, *result);
             isValid = false;
         }
     }
