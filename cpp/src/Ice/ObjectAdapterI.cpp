@@ -300,6 +300,10 @@ Ice::ObjectAdapterI::destroy() noexcept
             return;
         }
         _state = StateDestroying;
+
+        // A collocated invocation can start after waitForDeactivate returns: the adapter accepts them until its state
+        // is StateDestroying.
+        _conditionVariable.wait(lock, [this] { return _directCount == 0; });
     }
 
     if (_routerInfo)
