@@ -1141,7 +1141,7 @@ classdef TwowaysAMI
             % Test implicit context propagation
             %
             % On Linux, MATLAB crashes on exit after a thread has used a PerThread implicit context, so
-            % PerThread is only tested on Windows.
+            % PerThread is only tested on Windows. See https://github.com/zeroc-ice/ice/issues/7104.
             %
             if ispc
                 impls = {'Shared', 'PerThread'};
