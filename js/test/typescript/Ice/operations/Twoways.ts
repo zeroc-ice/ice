@@ -1362,7 +1362,7 @@ export async function run(communicator:Ice.Communicator, prx:Test.MyClassPrx, bi
 
         test(ic.getImplicitContext().containsKey("zero") == false);
         const r = ic.getImplicitContext().put("zero", "ZERO");
-        test(r === undefined);
+        test(r === "");
         test(ic.getImplicitContext().get("zero") == "ZERO");
 
         ctx = ic.getImplicitContext().getContext();
