@@ -4,13 +4,17 @@ Generates a code coverage report for the C++ modules and executables with Micros
 
 .DESCRIPTION
 Builds the C++ source tree in the current working directory with coverage instrumentation, runs the tests, writes
-the coverage data in Cobertura format to coverage\coverage.cobertura.xml, and cleans the build. Of the Slice compilers,
-the report includes only slice2cpp: the others are exercised by the builds and tests of their own language mappings,
-which the script doesn't run. The report also counts the header code that only the tests use, but not the test code
-itself.
+the coverage data in Cobertura format to coverage\coverage.cobertura.xml and in lcov format to coverage\lcov.info, and
+cleans the build. Of the Slice compilers, the report includes only slice2cpp: the others are exercised by the builds and
+tests of their own language mappings, which the script doesn't run. The report also counts the header code that only
+the tests use, but not the test code itself.
+
+The Cobertura file reports the code of each module apart, and of each template instantiation in it. The lcov file
+merges these copies, so each source line counts once, and is covered when any copy of it runs.
 
 Run it from a Developer PowerShell for Visual Studio, so msbuild is on the PATH. Microsoft.CodeCoverage.Console ships
-with Visual Studio Enterprise. Visual Studio opens the Cobertura file, and ReportGenerator turns it into HTML.
+with Visual Studio Enterprise. Visual Studio opens the Cobertura file, and ReportGenerator turns the lcov file into
+HTML.
 
 .EXAMPLE
 cd cpp; ..\scripts\generate-cpp-code-coverage.ps1
@@ -79,4 +83,39 @@ finally {
     $env:PATH = $path
     $env:LINK = $link
 }
-Write-Host "Coverage data written to coverage\coverage.cobertura.xml"
+
+Write-Host "Merging coverage data..."
+# The Cobertura file has a class for each template instantiation in each module that compiles it, and ReportGenerator
+# counts the lines of each class apart. The lcov file has a record for each source file instead, where a line counts
+# once, as with llvm-cov. A method's instantiations share its first line, which keys it. Microsoft.CodeCoverage records
+# whether a line ran, not how often, so each count is the number of copies that ran.
+$files = @{}
+foreach ($class in ([xml](Get-Content coverage\coverage.cobertura.xml -Raw)).SelectNodes("//class")) {
+    $filename = $class.GetAttribute("filename")
+    if (-not $files.ContainsKey($filename)) {
+        $files[$filename] = @{ Hits = @{}; Methods = @{}; MethodHits = @{} }
+    }
+    $file = $files[$filename]
+    foreach ($line in $class.SelectNodes("lines/line")) {
+        $file.Hits[[int]$line.GetAttribute("number")] += [long]$line.GetAttribute("hits")
+    }
+    foreach ($method in $class.SelectNodes("methods/method")) {
+        $lines = $method.SelectNodes("lines/line")
+        $first = [int]$lines[0].GetAttribute("number")
+        $file.Methods[$first] = $method.GetAttribute("name") + $method.GetAttribute("signature")
+        # The first line of a flex or bison function can be a rule that didn't run, so any line counts.
+        $ran = $method.SelectNodes("lines/line[@hits != '0']").Count -gt 0
+        $file.MethodHits[$first] += [int]$ran
+    }
+}
+$lcov = foreach ($filename in $files.Keys | Sort-Object) {
+    $file = $files[$filename]
+    $firstLines = $file.Methods.Keys | Sort-Object
+    "SF:$filename"
+    foreach ($first in $firstLines) { "FN:$first,$($file.Methods[$first])" }
+    foreach ($first in $firstLines) { "FNDA:$($file.MethodHits[$first]),$($file.Methods[$first])" }
+    foreach ($number in $file.Hits.Keys | Sort-Object) { "DA:$number,$($file.Hits[$number])" }
+    "end_of_record"
+}
+Set-Content coverage\lcov.info $lcov
+Write-Host "Coverage data written to coverage\coverage.cobertura.xml and coverage\lcov.info"
