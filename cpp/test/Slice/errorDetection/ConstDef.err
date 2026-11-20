@@ -21,11 +21,19 @@ ConstDef.ice:109: initializer '-1' for constant 'b3' out of range for type byte
 ConstDef.ice:110: initializer '256' for constant 'b4' out of range for type byte
 ConstDef.ice:122: initializer '32767' for constant 'c5' out of range for type byte
 ConstDef.ice:123: initializer '2147483647' for constant 'c6' out of range for type short
-ConstDef.ice:124: initializer '9223372036854775807' for constant 'c7' out of range for type int
-ConstDef.ice:135: warning: unknown escape sequence in string literal: '\g'
-ConstDef.ice:136: unknown escape sequence in string literal: '\u000N'
-ConstDef.ice:137: unknown escape sequence in string literal: '\U0000000K'
-ConstDef.ice:138: octal escape sequence out of range: '\455'
-ConstDef.ice:139: no hex digit in hex escape sequence
-ConstDef.ice:140: a universal character name cannot designate a surrogate: '\uD83C'
-ConstDef.ice:140: a universal character name cannot designate a surrogate: '\uDF4C'
+ConstDef.ice:140: invalid integer constant '09'
+ConstDef.ice:141: invalid integer constant '018'
+ConstDef.ice:142: invalid integer constant '-0189'
+ConstDef.ice:147: invalid integer constant '0x'
+ConstDef.ice:148: invalid integer constant '0xZZ'
+ConstDef.ice:149: invalid integer constant '0x1G'
+ConstDef.ice:150: invalid integer constant '10L'
+ConstDef.ice:151: invalid integer constant '123abc'
+ConstDef.ice:152: invalid integer constant '09L'
+ConstDef.ice:154: warning: unknown escape sequence in string literal: '\g'
+ConstDef.ice:155: unknown escape sequence in string literal: '\u000N'
+ConstDef.ice:156: unknown escape sequence in string literal: '\U0000000K'
+ConstDef.ice:157: octal escape sequence out of range: '\455'
+ConstDef.ice:158: no hex digit in hex escape sequence
+ConstDef.ice:159: a universal character name cannot designate a surrogate: '\uD83C'
+ConstDef.ice:159: a universal character name cannot designate a surrogate: '\uDF4C'
