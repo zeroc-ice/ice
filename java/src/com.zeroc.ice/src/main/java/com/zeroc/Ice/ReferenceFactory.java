@@ -504,7 +504,8 @@ final class ReferenceFactory {
         // Default local proxy options.
         LocatorInfo locatorInfo = null;
         if (_defaultLocator != null) {
-            if (!((_ObjectPrxI) _defaultLocator)._getReference().getEncoding().equals(encoding)) {
+            if (!((_ObjectPrxI) _defaultLocator)._getReference().getEncoding().equals(encoding)
+                && Protocol.isSupported(encoding, Util.Encoding_1_1)) {
                 locatorInfo = _instance.locatorManager().get(_defaultLocator.ice_encodingVersion(encoding));
             } else {
                 locatorInfo = _instance.locatorManager().get(_defaultLocator);
@@ -529,7 +530,8 @@ final class ReferenceFactory {
             property = propertyPrefix + ".Locator";
             LocatorPrx locator = LocatorPrx.uncheckedCast(_communicator.propertyToProxy(property));
             if (locator != null) {
-                if (!((_ObjectPrxI) locator)._getReference().getEncoding().equals(encoding)) {
+                if (!((_ObjectPrxI) locator)._getReference().getEncoding().equals(encoding)
+                    && Protocol.isSupported(encoding, Util.Encoding_1_1)) {
                     locatorInfo = _instance.locatorManager().get(locator.ice_encodingVersion(encoding));
                 } else {
                     locatorInfo = _instance.locatorManager().get(locator);
