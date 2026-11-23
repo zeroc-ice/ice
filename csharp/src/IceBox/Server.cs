@@ -33,7 +33,7 @@ public class Server
             argSeq.RemoveAll(v => v.StartsWith("--" + name));
         }
 
-        foreach(string arg in args)
+        foreach(string arg in argSeq)
         {
             if(arg.Equals("-h") || arg.Equals("--help"))
             {
