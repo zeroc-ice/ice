@@ -102,7 +102,8 @@ foreach ($class in ([xml](Get-Content coverage\coverage.cobertura.xml -Raw)).Sel
     foreach ($method in $class.SelectNodes("methods/method")) {
         $lines = $method.SelectNodes("lines/line")
         $first = [int]$lines[0].GetAttribute("number")
-        $file.Methods[$first] = $method.GetAttribute("name") + $method.GetAttribute("signature")
+        $file.Methods[$first] = $class.GetAttribute("name") + "::" + $method.GetAttribute("name") +
+            $method.GetAttribute("signature")
         # The first line of a flex or bison function can be a rule that didn't run, so any line counts.
         $ran = $method.SelectNodes("lines/line[@hits != '0']").Count -gt 0
         $file.MethodHits[$first] += [int]$ran
