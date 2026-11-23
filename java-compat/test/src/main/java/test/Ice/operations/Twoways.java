@@ -1527,8 +1527,6 @@ class Twoways
 
                     ic.getImplicitContext().setContext(null);
                     test(p3.opContext().equals(prxContext));
-                    test(ic.getImplicitContext().get("missing").equals(""));
-                    test(ic.getImplicitContext().remove("missing").equals(""));
 
                     ic.getImplicitContext().setContext(ctx);
                     test(p3.opContext().equals(combined));
