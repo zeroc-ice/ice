@@ -457,7 +457,7 @@ function decodeChar(s, start, end, special, result)
             case 'a':
             {
                 ++start;
-                result.append("\u0007");
+                result.push("\u0007");
                 break;
             }
             case 'b':
