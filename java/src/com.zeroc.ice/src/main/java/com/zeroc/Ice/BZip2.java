@@ -117,6 +117,11 @@ public class BZip2 {
             throw new ProtocolException("bzip2 decompression failed", ex);
         }
 
+        if (r.b.position() != uncompressedSize) {
+            throw new ProtocolException(
+                "decompressed message size does not match expected size");
+        }
+
         // Copy the header from the compressed stream to the uncompressed one.
         r.position(0);
         r.b.put(compressed, offset, headerSize);
