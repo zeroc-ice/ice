@@ -13,6 +13,10 @@
 #include <thread>
 #include <vector>
 
+#ifdef ICE_USE_OPENSSL
+#    include <openssl/crypto.h>
+#endif
+
 using namespace std;
 using namespace Ice;
 
@@ -617,19 +621,23 @@ testCertificateVerification(
         d = createServerProps(props, p12, "ca1/server_cn3", "ca1/ca1");
         server = fact->createServer(d);
 
+        // SecureTransport, and OpenSSL 4.1 or later, match the target host only against the certificate altNames.
 #if defined(__APPLE__)
+        const bool matchesCommonName = false;
+#elif defined(ICE_USE_OPENSSL)
+        const bool matchesCommonName = OpenSSL_version_num() < 0x40100000L;
+#else
+        const bool matchesCommonName = true;
+#endif
         try
         {
             server->ice_ping();
-            test(false);
+            test(matchesCommonName);
         }
         catch (const Ice::SecurityException&)
         {
-            // Expected.
+            test(!matchesCommonName);
         }
-#else
-        server->ice_ping();
-#endif
 
         fact->destroyServer(server);
         comm->destroy();
