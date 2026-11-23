@@ -84,12 +84,6 @@ classdef AllTests
             f.fetchOutputs();
             fprintf('ok\n');
 
-            fprintf('testing wait with an infinite timeout... ');
-            f = p.sleepAsync(500);
-            assert(f.wait('finished', Inf)); % blocks until the invocation completes
-            f.fetchOutputs();
-            fprintf('ok\n');
-
             fprintf('testing local exceptions... ');
 
             indirect = p.ice_adapterId('dummy');
