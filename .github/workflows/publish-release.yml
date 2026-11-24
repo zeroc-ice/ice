@@ -114,6 +114,10 @@ jobs:
 
   publish-nuget-packages:
     uses: ./.github/workflows/publish-nuget-packages.yml
+    permissions:
+      contents: read
+      id-token: write
+      actions: read
     with:
       channel: ${{ inputs.channel }}
       quality: ${{ inputs.quality }}
