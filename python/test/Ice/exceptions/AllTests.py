@@ -701,7 +701,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.Thrower
     sys.stdout.flush()
     try:
         try:
-            thrower.throwMarshalException(context={"response": ""})
+            thrower.throwMarshalException(context={"return": ""})
         except Ice.UnknownLocalException as ex:
             test("cannot marshal result" in str(ex))
         try:
@@ -713,6 +713,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.Thrower
         except Ice.UnknownLocalException as ex:
             test("cannot marshal result" in str(ex))
     except Ice.OperationNotExistException:
+        # Only implemented in Python
         pass
     print("ok")
 
