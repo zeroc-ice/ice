@@ -1537,9 +1537,19 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
         if(zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS(), const_cast<char*>("s|a!"), &id,
                                     &idLen, &arr) == FAILURE)
         {
-            php_error(E_ERROR, "%s() requires a type id followed by an optional facet and/or context",
-                      get_active_function_name());
-            return;
+            //
+            // The checkedCast helpers always pass three arguments, so checkedCast($proxy, $context) arrives
+            // as a type id, a context and null: accept a context followed by null.
+            //
+            zval* last = 0;
+            arr = 0;
+            if(zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS(), const_cast<char*>("sa!z!"), &id,
+                                        &idLen, &arr, &last) == FAILURE || last)
+            {
+                php_error(E_ERROR, "%s() requires a type id followed by an optional facet and/or context",
+                          get_active_function_name());
+                return;
+            }
         }
     }
 

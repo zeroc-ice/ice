@@ -520,7 +520,8 @@ function allTests($helper)
 
     $c["one"] = "hello";
     $c["two"] = "world";
-    $clc = $base->ice_checkedCast("::Test::MyClass", $c);
+    $myClassPrxHelper = $NS ? "Test\\MyClassPrxHelper" : "Test_MyClassPrxHelper";
+    $clc = $myClassPrxHelper::checkedCast($base, $c);
     $c2 = $clc->getContext();
     test($c == $c2);
 
