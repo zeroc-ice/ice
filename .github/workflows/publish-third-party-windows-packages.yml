@@ -23,6 +23,7 @@ on:
           - ZeroC.Expat
           - ZeroC.LMDB
           - ZeroC.LMDB.Tools
+          - ZeroC.MCPP
       destination:
         description: "Where to publish"
         required: true

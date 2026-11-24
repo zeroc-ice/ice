@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <_McppConfiguration Condition="'$(UseDebugLibraries)' == 'true'">Debug</_McppConfiguration>
+        <_McppConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</_McppConfiguration>
+    </PropertyGroup>
+
+    <!-- Pick the library that matches the CRT of the consuming project: mcpp(d).lib or mcppmt(d).lib. -->
+    <Target Name="_McppLink" BeforeTargets="Link">
+        <CreateProperty Value="mtd" Condition="'%(ClCompile.RuntimeLibrary)' == 'MultiThreadedDebug'">
+            <Output TaskParameter="Value" PropertyName="_McppLibSuffix" />
+        </CreateProperty>
+
+        <CreateProperty Value="mt" Condition="'%(ClCompile.RuntimeLibrary)' == 'MultiThreaded'">
+            <Output TaskParameter="Value" PropertyName="_McppLibSuffix" />
+        </CreateProperty>
+
+        <CreateProperty Value="d" Condition="'%(ClCompile.RuntimeLibrary)' == 'MultiThreadedDebugDLL'">
+            <Output TaskParameter="Value" PropertyName="_McppLibSuffix" />
+        </CreateProperty>
+
+        <ItemGroup>
+            <Link>
+                <AdditionalDependencies>mcpp$(_McppLibSuffix).lib;%(AdditionalDependencies)</AdditionalDependencies>
+                <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\$(_McppConfiguration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            </Link>
+        </ItemGroup>
+    </Target>
+</Project>

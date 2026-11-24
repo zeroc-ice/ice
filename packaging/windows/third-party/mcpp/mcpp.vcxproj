@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MT-Debug|Win32">
+      <Configuration>MT-Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MT-Debug|x64">
+      <Configuration>MT-Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MT-Release|Win32">
+      <Configuration>MT-Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MT-Release|x64">
+      <Configuration>MT-Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Globals">
+    <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
+    <McppSourceDir Condition="'$(McppSourceDir)' == ''">$(MSBuildThisFileDirectory)..\sources\mcpp\</McppSourceDir>
+    <OutRoot Condition="'$(OutRoot)' == ''">$(MSBuildThisFileDirectory)..\out\mcpp</OutRoot>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <!--
+      The MT-* configurations differ from their counterparts only in the CRT they link. The library name carries
+      the CRT, as in the packages built from the mcpp repository: mcpp(d).lib for the DLL CRT, mcppmt(d).lib for
+      the static CRT.
+  -->
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <UseDebugLibraries Condition="$(Configuration.Contains('Debug'))">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="$(Configuration.Contains('Release'))">false</UseDebugLibraries>
+    <TargetName Condition="'$(Configuration)' == 'Debug'">mcppd</TargetName>
+    <TargetName Condition="'$(Configuration)' == 'Release'">mcpp</TargetName>
+    <TargetName Condition="'$(Configuration)' == 'MT-Debug'">mcppmtd</TargetName>
+    <TargetName Condition="'$(Configuration)' == 'MT-Release'">mcppmt</TargetName>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+  <PropertyGroup>
+    <OutDir>$(OutRoot)\$(PlatformToolset)-$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(OutRoot)\$(PlatformToolset)-$(Platform)\$(Configuration)\obj\</IntDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x600;WIN32_LEAN_AND_MEAN;_CONSOLE</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>4996;4244;4246;4267;4146;4018</DisableSpecificWarnings>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <!-- A static library has no linker PDB, so the compiler PDB is the one the package ships. -->
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="$(Configuration.Contains('Debug'))">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="$(Configuration.Contains('Release'))">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)' == 'Debug'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)' == 'Release'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)' == 'MT-Debug'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)' == 'MT-Release'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <ClCompile Include="$(McppSourceDir)directive.c" />
+    <ClCompile Include="$(McppSourceDir)eval.c" />
+    <ClCompile Include="$(McppSourceDir)expand.c" />
+    <ClCompile Include="$(McppSourceDir)mbchar.c" />
+    <ClCompile Include="$(McppSourceDir)mcpp_main.c" />
+    <ClCompile Include="$(McppSourceDir)support.c" />
+    <ClCompile Include="$(McppSourceDir)system.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(McppSourceDir)config.h" />
+    <ClInclude Include="$(McppSourceDir)configed.H" />
+    <ClInclude Include="$(McppSourceDir)internal.H" />
+    <ClInclude Include="$(McppSourceDir)mcpp_lib.h" />
+    <ClInclude Include="$(McppSourceDir)mcpp_out.h" />
+    <ClInclude Include="$(McppSourceDir)system.H" />
+  </ItemGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+</Project>

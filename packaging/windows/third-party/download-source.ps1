@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('bzip2', 'libexpat', 'lmdb')]
+    [ValidateSet('bzip2', 'libexpat', 'lmdb', 'mcpp')]
     [string]$Dependency
 )
 

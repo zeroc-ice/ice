@@ -1,7 +1,7 @@
 # Windows third-party NuGet packages
 
-ZeroC builds and publishes `ZeroC.Bzip2`, `ZeroC.Expat`, `ZeroC.LMDB` and `ZeroC.LMDB.Tools` so that Ice users can
-build Ice C++ from source on Windows without first building these libraries.
+ZeroC builds and publishes `ZeroC.Bzip2`, `ZeroC.Expat`, `ZeroC.LMDB`, `ZeroC.LMDB.Tools` and `ZeroC.MCPP` so that
+Ice users can build Ice C++ from source on Windows without first building these libraries.
 
 ## Build locally
 
@@ -13,6 +13,7 @@ msbuild bzip2\bzip2.proj /t:All
 msbuild libexpat\expat.proj /t:All
 msbuild lmdb\lmdb.proj /t:All
 msbuild lmdb\lmdb-tools.proj /t:All
+msbuild mcpp\mcpp.proj /t:All
 ```
 
 The Build target downloads each pinned upstream archive from [sources.json](sources.json), verifies its SHA-256

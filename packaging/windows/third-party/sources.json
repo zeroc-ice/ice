@@ -19,5 +19,12 @@
     "sha256": "7d55c3cbc1ef55f9b0076d3ddb16d0d9996d05b9caa7ca889ce10430ac677b90",
     "root": "lmdb-LMDB_0.9.36",
     "patches": []
+  },
+  "mcpp": {
+    "version": "2.7.2.20",
+    "url": "https://github.com/zeroc-ice/mcpp/archive/refs/tags/v2.7.2.20.tar.gz",
+    "sha256": "8eea2e805d8d19412b6ca2582058460e86616f27a754e64873b47b91e5de276d",
+    "root": "mcpp-2.7.2.20",
+    "patches": []
   }
 }
