@@ -1,1 +1,0 @@
-- Fixed the unmarshaling of class indirection tables to reject a zero-valued entry.
