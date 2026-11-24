@@ -155,10 +155,7 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
             }
             else
             {
-                //
-                // The completion port failed without dequeuing a completion packet: there is no handler to
-                // return and no way to recover. Log the error, then abort.
-                //
+                // This indicates an internal error with the IOCP completion port, we log the error and abort.
                 {
                     Ice::SocketException ex(__FILE__, __LINE__, err);
                     Ice::Error out(_instance->initializationData().logger);
