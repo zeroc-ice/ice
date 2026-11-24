@@ -83,6 +83,16 @@ public class AllTests {
         test(
             Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator())
                 == 0);
+        test(
+            communicator.stringToProxy("test -e 1.0 @ TestAdapter")
+                .ice_getLocator()
+                .ice_getEncodingVersion()
+                .equals(Util.Encoding_1_0));
+        test(
+            communicator.stringToProxy("test -e 6.5 @ TestAdapter")
+                .ice_getLocator()
+                .ice_getEncodingVersion()
+                .equals(locator.ice_getEncodingVersion()));
 
         //
         // We also test ice_router/ice_getRouter (perhaps we should add a test/Ice/router test?)
