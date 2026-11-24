@@ -152,6 +152,11 @@ public class BZip2
             throw new com.zeroc.Ice.CompressionException("bzip2 uncompression failure", ex);
         }
 
+        if(r.b.position() != uncompressedSize)
+        {
+            throw new com.zeroc.Ice.ProtocolException("decompressed message size does not match expected size");
+        }
+
         //
         // Copy the header from the compressed stream to the uncompressed one.
         //
