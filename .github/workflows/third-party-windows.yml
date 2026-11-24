@@ -82,6 +82,21 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
 
+      # windows-2022 has the v143 toolset only; v142 is an optional Visual Studio component.
+      - name: Install the MSVC v142 toolset
+        if: ${{ matrix.toolset == 'v142' }}
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+
+          $installPath = & $vswhere -latest -products * -property installationPath
+          if (-not $installPath) { throw "Visual Studio installation not found." }
+
+          & $vsInstaller modify --installPath "$installPath" `
+            --add Microsoft.VisualStudio.ComponentGroup.VC.Tools.142.x86.x64 `
+            --quiet --wait --norestart
+
       # The matrix values go through the environment rather than into the command line: this workflow runs on pull
       # requests, and the matrix is built from the packages.json of whatever branch is being tested.
       - name: Build and pack ${{ matrix.package }}

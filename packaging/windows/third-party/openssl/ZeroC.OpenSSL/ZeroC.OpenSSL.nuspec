@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>ZeroC.OpenSSL</id>
+    <version>3.5.9</version>
+    <authors>The OpenSSL Project Authors</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">LICENSE.txt</license>
+    <readme>README.md</readme>
+    <projectUrl>https://openssl-library.org/</projectUrl>
+    <repository type="git" url="https://github.com/zeroc-ice/ice" />
+    <description>OpenSSL built as DLLs with Visual Studio 2019 (v142). OpenSSL is a toolkit for the TLS protocol and a general-purpose cryptography library.</description>
+    <tags>openssl native</tags>
+  </metadata>
+</package>

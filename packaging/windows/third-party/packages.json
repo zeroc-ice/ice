@@ -33,5 +33,12 @@
     "package": "ZeroC.MCPP",
     "toolset": "v143",
     "sign_filter": ""
+  },
+  {
+    "dependency": "openssl",
+    "project": "packaging/windows/third-party/openssl/openssl.proj",
+    "package": "ZeroC.OpenSSL",
+    "toolset": "v142",
+    "sign_filter": "dll,exe"
   }
 ]

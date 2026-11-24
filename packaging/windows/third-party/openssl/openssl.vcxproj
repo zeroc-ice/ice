@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Builds one (Platform, Configuration) of OpenSSL with OpenSSL's own build system: perl Configure, then nmake.
+
+    This is a Makefile project so that MSBuild runs the commands with the compiler environment of the selected
+    platform toolset, the way a Visual Studio command prompt would. The build is out of tree: each slice has its own
+    build directory, and nothing is written to the extracted sources.
+-->
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Globals">
+    <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v142</DefaultPlatformToolset>
+    <OpenSSLSourceDir Condition="'$(OpenSSLSourceDir)' == ''">$(MSBuildThisFileDirectory)..\sources\openssl\</OpenSSLSourceDir>
+    <OutRoot Condition="'$(OutRoot)' == ''">$(MSBuildThisFileDirectory)..\out\openssl</OutRoot>
+    <PerlExe Condition="'$(PerlExe)' == ''">perl</PerlExe>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+  <PropertyGroup>
+    <BuildDir>$(OutRoot)\$(PlatformToolset)-$(Platform)\$(Configuration)\</BuildDir>
+    <OutDir>$(BuildDir)</OutDir>
+    <IntDir>$(BuildDir)obj\</IntDir>
+
+    <OpenSSLTarget Condition="'$(Platform)' == 'Win32'">VC-WIN32</OpenSSLTarget>
+    <OpenSSLTarget Condition="'$(Platform)' == 'x64'">VC-WIN64A</OpenSSLTarget>
+    <OpenSSLBuildType Condition="'$(Configuration)' == 'Debug'">--debug</OpenSSLBuildType>
+    <OpenSSLBuildType Condition="'$(Configuration)' == 'Release'">--release</OpenSSLBuildType>
+
+    <!--
+        No prefix or openssldir is given: OpenSSL keeps its defaults under Program Files, which only administrators
+        can write to. These directories are compiled into the libraries as the place to look for openssl.cnf, so
+        they must not be a build-machine path that an unprivileged user could create on another machine. The files
+        are staged with DESTDIR instead.
+
+        no-module builds the legacy provider into libcrypto and enable-static-engine does the same for the
+        engines, so the package has no loadable module that would be searched for in a compiled-in directory.
+        The tests and the documentation are not built: neither is packaged.
+    -->
+    <OpenSSLOptions>no-module enable-static-engine no-tests no-docs</OpenSSLOptions>
+
+    <NMakeBuildCommandLine>cd /d "$(BuildDir)" &amp;&amp; "$(PerlExe)" "$(OpenSSLSourceDir)Configure" $(OpenSSLTarget) $(OpenSSLBuildType) $(OpenSSLOptions) &amp;&amp; nmake /nologo /S &amp;&amp; nmake /nologo /S install_sw "DESTDIR=$(BuildDir)stage"</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>if exist "$(BuildDir)" rmdir /s /q "$(BuildDir)"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>$(NMakeCleanCommandLine) &amp;&amp; mkdir "$(BuildDir)" &amp;&amp; $(NMakeBuildCommandLine)</NMakeReBuildCommandLine>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+</Project>
