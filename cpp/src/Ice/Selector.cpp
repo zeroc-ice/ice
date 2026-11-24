@@ -155,10 +155,16 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
             }
             else
             {
-                Ice::SocketException ex(__FILE__, __LINE__, err);
-                Ice::Error out(_instance->initializationData().logger);
-                out << "couldn't dequeue packet from completion port:\n" << ex;
-                IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(5)); // Sleep 5s to avoid looping
+                //
+                // The completion port failed without dequeuing a completion packet: there is no handler to
+                // return and no way to recover. Log the error, then abort.
+                //
+                {
+                    Ice::SocketException ex(__FILE__, __LINE__, err);
+                    Ice::Error out(_instance->initializationData().logger);
+                    out << "couldn't dequeue packet from completion port:\n" << ex;
+                } // The message is logged when out goes out of scope.
+                abort();
             }
         }
         AsyncInfo* info = static_cast<AsyncInfo*>(ol);
