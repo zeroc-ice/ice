@@ -681,6 +681,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                         outAsync.invokeCompletedAsync();
                     }
                 }
+
+                if(_asyncRequests.isEmpty())
+                {
+                    notifyAll(); // Notify threads blocked in close(GracefullyWithWait)
+                }
                 return;
             }
         }
@@ -703,6 +708,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                         {
                             outAsync.invokeCompletedAsync();
                         }
+                    }
+
+                    if(_asyncRequests.isEmpty())
+                    {
+                        notifyAll(); // Notify threads blocked in close(GracefullyWithWait)
                     }
                     return;
                 }

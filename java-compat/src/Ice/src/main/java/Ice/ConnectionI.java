@@ -775,6 +775,11 @@ public final class ConnectionI extends IceInternal.EventHandler
                         outAsync.invokeCompletedAsync();
                     }
                 }
+
+                if(_asyncRequests.isEmpty())
+                {
+                    notifyAll(); // Notify threads blocked in close(GracefullyWithWait)
+                }
                 return;
             }
         }
@@ -798,6 +803,11 @@ public final class ConnectionI extends IceInternal.EventHandler
                         {
                             outAsync.invokeCompletedAsync();
                         }
+                    }
+
+                    if(_asyncRequests.isEmpty())
+                    {
+                        notifyAll(); // Notify threads blocked in close(GracefullyWithWait)
                     }
                     return;
                 }
