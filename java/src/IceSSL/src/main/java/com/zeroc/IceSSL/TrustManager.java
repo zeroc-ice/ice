@@ -187,6 +187,7 @@ class TrustManager
             {
                 _communicator.getLogger().warning(
                     "IceSSL: unable to parse certificate DN `" + subjectName + "'\nreason: " + e.reason);
+                return false;
             }
 
             //
