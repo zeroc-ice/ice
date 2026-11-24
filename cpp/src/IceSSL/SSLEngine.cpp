@@ -198,7 +198,17 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
             //
             if(dnsNames.empty())
             {
-                DistinguishedName d = cert->getSubjectDN();
+                DistinguishedName d = DistinguishedName(list<pair<string, string> >());
+                try
+                {
+                    d = cert->getSubjectDN();
+                }
+                catch(const ParseException& ex)
+                {
+                    throw SecurityException(__FILE__, __LINE__,
+                                            "IceSSL: certificate verification failure:\n"
+                                            "unable to parse certificate DN:\n" + ex.reason);
+                }
                 string dn = IceUtilInternal::toLower(string(d));
                 string cn = "cn=" + addrLower;
                 string::size_type pos = dn.find(cn);
