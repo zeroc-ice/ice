@@ -232,6 +232,11 @@ public static class BZip2
             {
                 throw new ProtocolException($"bzip2 decompression failed: {rc}");
             }
+
+            if (bzStream.TotalOutLo32 != (uint)(decompressedSize - headerSize))
+            {
+                throw new ProtocolException("decompressed message size does not match expected size");
+            }
         }
         finally
         {
