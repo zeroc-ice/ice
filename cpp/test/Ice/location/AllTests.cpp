@@ -53,6 +53,12 @@ allTests(Test::TestHelper* helper, const string& ref)
     communicator->setDefaultLocator(locator);
     base = ObjectPrx(communicator, "test @ TestAdapter");
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator()));
+    test(
+        ObjectPrx(communicator, "test -e 1.0 @ TestAdapter")->ice_getLocator()->ice_getEncodingVersion() ==
+        Ice::Encoding_1_0);
+    test(
+        ObjectPrx(communicator, "test -e 6.5 @ TestAdapter")->ice_getLocator()->ice_getEncodingVersion() ==
+        locator->ice_getEncodingVersion());
 
     //
     // We also test ice_router/ice_getRouter (perhaps we should add a

@@ -18,6 +18,7 @@
 #include "LocatorInfo.h"
 #include "PropertyNames.h"
 #include "PropertyUtil.h"
+#include "Protocol.h"
 #include "RouterInfo.h"
 
 #include <chrono>
@@ -705,7 +706,7 @@ IceInternal::ReferenceFactory::create(
     LocatorInfoPtr locatorInfo;
     if (_defaultLocator)
     {
-        if (_defaultLocator->ice_getEncodingVersion() != encoding)
+        if (_defaultLocator->ice_getEncodingVersion() != encoding && isSupported(encoding, Encoding_1_1))
         {
             locatorInfo = _instance->locatorManager()->get(_defaultLocator->ice_encodingVersion(encoding));
         }
@@ -739,7 +740,7 @@ IceInternal::ReferenceFactory::create(
         auto locator = _communicator->propertyToProxy<LocatorPrx>(property);
         if (locator)
         {
-            if (locator->ice_getEncodingVersion() != encoding)
+            if (locator->ice_getEncodingVersion() != encoding && isSupported(encoding, Encoding_1_1))
             {
                 locatorInfo = _instance->locatorManager()->get(locator->ice_encodingVersion(encoding));
             }

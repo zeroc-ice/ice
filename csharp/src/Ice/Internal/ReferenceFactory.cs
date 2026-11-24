@@ -644,7 +644,8 @@ internal class ReferenceFactory
         LocatorInfo locatorInfo = null;
         if (_defaultLocator != null)
         {
-            if (!((Ice.ObjectPrxHelperBase)_defaultLocator).iceReference().getEncoding().Equals(encoding))
+            if (!((Ice.ObjectPrxHelperBase)_defaultLocator).iceReference().getEncoding().Equals(encoding) &&
+                Protocol.isSupported(encoding, Ice.Util.Encoding_1_1))
             {
                 locatorInfo = _instance.locatorManager().get(
                     (Ice.LocatorPrx)_defaultLocator.ice_encodingVersion(encoding));
@@ -677,7 +678,8 @@ internal class ReferenceFactory
             Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
             if (locator != null)
             {
-                if (!((Ice.ObjectPrxHelperBase)locator).iceReference().getEncoding().Equals(encoding))
+                if (!((Ice.ObjectPrxHelperBase)locator).iceReference().getEncoding().Equals(encoding) &&
+                    Protocol.isSupported(encoding, Ice.Util.Encoding_1_1))
                 {
                     locatorInfo = _instance.locatorManager().get(
                         (Ice.LocatorPrx)locator.ice_encodingVersion(encoding));

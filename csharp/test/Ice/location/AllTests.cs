@@ -40,6 +40,12 @@ public class AllTests : global::Test.AllTests
         communicator.setDefaultLocator(locator);
         @base = communicator.stringToProxy("test @ TestAdapter");
         test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
+        test(
+            communicator.stringToProxy("test -e 1.0 @ TestAdapter").ice_getLocator().ice_getEncodingVersion() ==
+            Ice.Util.Encoding_1_0);
+        test(
+            communicator.stringToProxy("test -e 6.5 @ TestAdapter").ice_getLocator().ice_getEncodingVersion() ==
+            locator.ice_getEncodingVersion());
 
         //
         // We also test ice_router/ice_getRouter(perhaps we should add a
