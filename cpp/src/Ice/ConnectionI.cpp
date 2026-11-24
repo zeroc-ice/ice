@@ -3121,6 +3121,11 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
             "cannot decompress message - BZ2_bzBuffToBuffDecompress failed" + getBZ2Error(bzError)};
     }
 
+    if (uncompressedLen != static_cast<unsigned int>(uncompressedSize - headerSize))
+    {
+        throw ProtocolException{__FILE__, __LINE__, "decompressed message size does not match expected size"};
+    }
+
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());
 }
 #endif
