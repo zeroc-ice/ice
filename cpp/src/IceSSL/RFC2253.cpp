@@ -188,7 +188,7 @@ static char
 unescapeHex(const string& data, size_t pos)
 {
     assert(pos < data.size());
-    if(pos + 2 >= data.size())
+    if(pos + 2 > data.size())
     {
         throw ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
     }
