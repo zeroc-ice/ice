@@ -151,6 +151,11 @@ public class BZip2
             throw new Ice.CompressionException("bzip2 uncompression failure", ex);
         }
 
+        if(r.b.position() != uncompressedSize)
+        {
+            throw new Ice.ProtocolException("decompressed message size does not match expected size");
+        }
+
         //
         // Copy the header from the compressed stream to the uncompressed one.
         //

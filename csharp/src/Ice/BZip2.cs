@@ -386,6 +386,11 @@ namespace IceInternal
                 throw ex;
             }
 
+            if(uncompressedLen != uncompressedSize - headerSize)
+            {
+                throw new Ice.ProtocolException("decompressed message size does not match expected size");
+            }
+
             Buffer r = new Buffer();
             r.resize(uncompressedSize, false);
 
