@@ -99,8 +99,8 @@ class TcpTransceiver {
 
     close() {
         if (this._fd === null) {
-            // Socket creation failed or not yet initialized, the later can happen if the connection creation throws
-            // before calling transceiver initialize.
+            // Socket creation failed or the transceiver was not initialized yet. The latter happens when the
+            // connection creation fails before it initializes the transceiver.
             return;
         }
 
@@ -109,8 +109,8 @@ class TcpTransceiver {
 
     destroy() {
         if (this._fd === null) {
-            // Socket creation failed or not yet initialized, the later can happen if the connection creation throws
-            // before calling transceiver initialize.
+            // Socket creation failed or the transceiver was not initialized yet. The latter happens when the
+            // connection creation fails before it initializes the transceiver.
             return;
         }
         this._fd.destroy();
