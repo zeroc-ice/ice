@@ -10,7 +10,14 @@ const { RouterPrx } = Ice_Router;
 import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
 const { StringSeqHelper } = Ice_BuiltinSequences;
 import { StringUtil } from "./StringUtil.js";
-import { Encoding_1_0, Protocol_1_0, stringToEncodingVersion, stringToProtocolVersion } from "./Protocol.js";
+import {
+    Encoding_1_0,
+    Encoding_1_1,
+    Protocol,
+    Protocol_1_0,
+    stringToEncodingVersion,
+    stringToProtocolVersion,
+} from "./Protocol.js";
 import { ParseException, MarshalException } from "./LocalExceptions.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { ProtocolVersion, EncodingVersion } = Ice_Version;
@@ -487,7 +494,10 @@ export class ReferenceFactory {
         //
         let locatorInfo = null;
         if (this._defaultLocator !== null) {
-            if (!this._defaultLocator._getReference().getEncoding().equals(encoding)) {
+            if (
+                !this._defaultLocator._getReference().getEncoding().equals(encoding) &&
+                Protocol.isSupported(encoding, Encoding_1_1)
+            ) {
                 locatorInfo = this._instance.locatorManager().find(this._defaultLocator.ice_encodingVersion(encoding));
             } else {
                 locatorInfo = this._instance.locatorManager().find(this._defaultLocator);
@@ -511,7 +521,10 @@ export class ReferenceFactory {
             let property = propertyPrefix + ".Locator";
             const locator = LocatorPrx.uncheckedCast(this._communicator.propertyToProxy(property));
             if (locator !== null) {
-                if (!locator._getReference().getEncoding().equals(encoding)) {
+                if (
+                    !locator._getReference().getEncoding().equals(encoding) &&
+                    Protocol.isSupported(encoding, Encoding_1_1)
+                ) {
                     locatorInfo = this._instance.locatorManager().find(locator.ice_encodingVersion(encoding));
                 } else {
                     locatorInfo = this._instance.locatorManager().find(locator);

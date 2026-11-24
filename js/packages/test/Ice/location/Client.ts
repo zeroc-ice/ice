@@ -40,6 +40,18 @@ export class Client extends TestHelper {
         communicator.setDefaultLocator(locator);
         base = new Ice.ObjectPrx(communicator, "test @ TestAdapter");
         test(proxyIdentityCompare(base.ice_getLocator()!, communicator.getDefaultLocator()!));
+        test(
+            new Ice.ObjectPrx(communicator, "test -e 1.0 @ TestAdapter")
+                .ice_getLocator()!
+                .ice_getEncodingVersion()
+                .equals(Ice.Encoding_1_0),
+        );
+        test(
+            new Ice.ObjectPrx(communicator, "test -e 6.5 @ TestAdapter")
+                .ice_getLocator()!
+                .ice_getEncodingVersion()
+                .equals(locator.ice_getEncodingVersion()),
+        );
 
         // We also test ice_router/ice_getRouter (perhaps we should add a test/Ice/router test?)
         test(base.ice_getRouter() === null);
