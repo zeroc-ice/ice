@@ -151,7 +151,6 @@ if (typeof WebSocket !== 'undefined')
                 return;
             }
 
-            Debug.assert(this._fd !== null);
             this._state = StateClosed;
             this._fd.close();
             this._fd = null;
