@@ -108,9 +108,14 @@ jobs:
     name: "Publish to ${{ inputs.destination }}"
     needs: validate
     runs-on: windows-2022
-    # One environment per destination, named after the input value, so nuget.org can require a reviewer. The API
-    # keys are organization secrets; an environment secret of the same name would shadow them.
-    environment: ${{ inputs.destination }}
+    permissions:
+      contents: read
+      actions: read
+      # NuGet/login exchanges the GitHub OIDC token for a short-lived nuget.org API key (Trusted Publishing).
+      id-token: write
+    # One environment per destination. nuget.org issues a key only to a job that runs in the environment its
+    # Trusted Publishing policy names, and that environment can require a reviewer.
+    environment: ${{ inputs.destination == 'nuget.org' && 'nuget-zeroc' || 'testing' }}
     steps:
       - name: Download NuGet artifacts
         env:
@@ -124,16 +129,25 @@ jobs:
           gh run download $env:RUN_ID --repo $env:REPO --pattern $pattern --dir staging
           if ($LASTEXITCODE -ne 0) { throw "gh run download failed with exit code $LASTEXITCODE" }
 
+      # The temporary API key is valid for one hour, so log in right before the push.
+      - name: Log in to nuget.org
+        id: nuget-login
+        if: inputs.destination == 'nuget.org'
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          # The nuget.org user who created the Trusted Publishing policy, not the organization that owns it.
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Publish NuGet Packages
         env:
           DESTINATION: ${{ inputs.destination }}
           PACKAGE: ${{ inputs.package }}
           RUN_ID: ${{ inputs.run_id }}
           NEXUS_NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
-          RELEASE_NUGET_API_KEY: ${{ secrets.RELEASE_NUGET_API_KEY }}
+          NUGET_ORG_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: |
           switch ($env:DESTINATION) {
-            "nuget.org" { $source = "https://api.nuget.org/v3/index.json"; $key = $env:RELEASE_NUGET_API_KEY }
+            "nuget.org" { $source = "https://api.nuget.org/v3/index.json"; $key = $env:NUGET_ORG_API_KEY }
             "testing"   { $source = $env:TESTING_SOURCE_URL;               $key = $env:NEXUS_NUGET_API_KEY }
             default {
               Write-Host "::error::Unknown destination '$env:DESTINATION'. Expected 'testing' or 'nuget.org'."

@@ -18,7 +18,6 @@ rules:
     ignore:
       - publish-nuget-packages.yml
       - publish-pip-packages.yml
-      - publish-third-party-windows-packages.yml
 
   unpinned-uses:
     config:
