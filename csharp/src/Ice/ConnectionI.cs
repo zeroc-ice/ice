@@ -828,6 +828,11 @@ namespace Ice
                             outAsync.invokeExceptionAsync();
                         }
                     }
+
+                    if(_asyncRequests.Count == 0)
+                    {
+                        Monitor.PulseAll(this); // Notify threads blocked in close(GracefullyWithWait)
+                    }
                     return;
                 }
 
@@ -848,6 +853,11 @@ namespace Ice
                                 {
                                     outAsync.invokeExceptionAsync();
                                 }
+                            }
+
+                            if(_asyncRequests.Count == 0)
+                            {
+                                Monitor.PulseAll(this); // Notify threads blocked in close(GracefullyWithWait)
                             }
                             return;
                         }

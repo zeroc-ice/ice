@@ -1254,6 +1254,11 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
                     outAsync->invokeExceptionAsync();
                 }
             }
+
+            if(_asyncRequests.empty())
+            {
+                notifyAll(); // Notify threads blocked in close(GracefullyWithWait)
+            }
             return;
         }
     }
@@ -1277,6 +1282,11 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
                         outAsync->invokeExceptionAsync();
                     }
                 }
+
+                if(_asyncRequests.empty())
+                {
+                    notifyAll(); // Notify threads blocked in close(GracefullyWithWait)
+                }
                 return;
             }
         }
@@ -1297,6 +1307,11 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
                     {
                         outAsync->invokeExceptionAsync();
                     }
+                }
+
+                if(_asyncRequests.empty())
+                {
+                    notifyAll(); // Notify threads blocked in close(GracefullyWithWait)
                 }
                 return;
             }
