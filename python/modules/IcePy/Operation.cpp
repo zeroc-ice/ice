@@ -1319,18 +1319,21 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
         if((!info->optional || arg != Unset) && !info->type->validate(arg))
         {
-            try
+            // TODO: Provide the parameter name instead?
+            ostringstream ostr;
+            ostr << "invalid value for out argument " << (info->pos + 1) << " in operation `" << dispatchName << "'";
+            if(PyErr_Occurred()) // validate can return false without setting a Python exception
             {
-                PyException().raise();
+                try
+                {
+                    PyException().raise();
+                }
+                catch(const Ice::UnknownException& ex)
+                {
+                    ostr << ":\n" << ex.unknown;
+                }
             }
-            catch(const Ice::UnknownException& ex)
-            {
-                // TODO: Provide the parameter name instead?
-                ostringstream ostr;
-                ostr << "invalid value for out argument " << (info->pos + 1) << " in operation `" << dispatchName;
-                ostr << "':\n" << ex.unknown;
-                throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
-            }
+            throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
         }
     }
     if(returnType)
@@ -1338,16 +1341,20 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
         if((!returnType->optional || res != Unset) && !returnType->type->validate(res))
         {
-            try
+            ostringstream ostr;
+            ostr << "invalid return value for operation `" << dispatchName << "'";
+            if(PyErr_Occurred()) // validate can return false without setting a Python exception
             {
-                PyException().raise();
+                try
+                {
+                    PyException().raise();
+                }
+                catch(const Ice::UnknownException& ex)
+                {
+                    ostr << ":\n" << ex.unknown;
+                }
             }
-            catch(const Ice::UnknownException& ex)
-            {
-                ostringstream ostr;
-                ostr << "invalid return value for operation `" << dispatchName << "':\n" << ex.unknown;
-                throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
-            }
+            throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
         }
     }
 
