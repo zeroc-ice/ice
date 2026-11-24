@@ -190,7 +190,15 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         seq.insert(seq.begin(), getString(progName));
 
         data.compactIdResolver = new IdResolver;
-        data.valueFactoryManager = new ValueFactoryManager;
+
+        //
+        // The Ruby object that wraps the value factory manager is only marked through the communicator
+        // wrapper, which is created at the end of this function. Until then we keep a reference to it on
+        // the stack, otherwise the GC can collect it.
+        //
+        ValueFactoryManagerPtr valueFactoryManager = new ValueFactoryManager;
+        volatile VALUE valueFactoryManagerObj = valueFactoryManager->getObject();
+        data.valueFactoryManager = valueFactoryManager;
 
         if(!data.properties)
         {
@@ -282,6 +290,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
 
         VALUE result = Data_Wrap_Struct(_communicatorClass, IceRuby_Communicator_mark,
                                         IceRuby_Communicator_free, new Ice::CommunicatorPtr(communicator));
+        RB_GC_GUARD(valueFactoryManagerObj);
 
         CommunicatorMap::iterator p = _communicatorMap.find(communicator);
         if(p != _communicatorMap.end())
