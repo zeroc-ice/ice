@@ -4580,6 +4580,10 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
                 out << nl << stream << ".skip(4);";
                 out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
                 out.dec();
+                out << nl << "else";
+                out.inc();
+                out << nl << v << " = Ice.Unset;";
+                out.dec();
                 out << nl << "end";
             }
             else
