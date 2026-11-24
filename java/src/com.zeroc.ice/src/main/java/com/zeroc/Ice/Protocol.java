@@ -159,13 +159,15 @@ final class Protocol {
     }
 
     public static void checkSupportedEncoding(EncodingVersion v) {
-        if (v.major != Util.Encoding_1_1.major || v.minor > Util.Encoding_1_1.minor) {
-            throw new MarshalException("This Ice runtime does not support encoding version " + v.major + "." + v.minor);
+        if (!isSupported(v, Util.Encoding_1_1)) {
+            throw new MarshalException(
+                "This Ice runtime does not support encoding version " + encodingVersionToString(v));
         }
     }
 
     public static boolean isSupported(EncodingVersion version, EncodingVersion supported) {
-        return version.major == supported.major && version.minor <= supported.minor;
+        return version.major == supported.major
+            && Byte.toUnsignedInt(version.minor) <= Byte.toUnsignedInt(supported.minor);
     }
 
     public static final int OPTIONAL_END_MARKER = 0xFF;
@@ -222,9 +224,9 @@ final class Protocol {
 
     private static String majorMinorToString(byte major, byte minor) {
         StringBuilder str = new StringBuilder();
-        str.append(major < 0 ? major + 255 : (int) major);
+        str.append(Byte.toUnsignedInt(major));
         str.append(".");
-        str.append(minor < 0 ? minor + 255 : (int) minor);
+        str.append(Byte.toUnsignedInt(minor));
         return str.toString();
     }
 
