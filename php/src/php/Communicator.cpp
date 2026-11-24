@@ -2348,7 +2348,8 @@ IcePHP::ReaperTask::runTimerTask()
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.begin();
     while(p != _registeredCommunicators.end())
     {
-        if(p->second->lastAccess + IceUtil::Time::seconds(p->second->expires * 60) <= now)
+        if(p->second->expires > 0 &&
+           p->second->lastAccess + IceUtil::Time::seconds(p->second->expires * 60) <= now)
         {
             try
             {
