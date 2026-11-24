@@ -2600,7 +2600,10 @@ Ice::InputStream::EncapsDecoder11::readOptional(Ice::Int readTag, Ice::OptionalF
 Int
 Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, void* patchAddr)
 {
-    assert(index > 0);
+    if(index <= 0)
+    {
+        throw MarshalException(__FILE__, __LINE__, "invalid class instance index");
+    }
 
     if(index > 1)
     {
