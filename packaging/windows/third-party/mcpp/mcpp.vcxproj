@@ -44,9 +44,8 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
   <!--
-      The MT-* configurations differ from their counterparts only in the CRT they link. The library name carries
-      the CRT, as in the packages built from the mcpp repository: mcpp(d).lib for the DLL CRT, mcppmt(d).lib for
-      the static CRT.
+      Debug and Release link the DLL CRT (/MDd, /MD). MT-Debug and MT-Release link the static CRT (/MTd, /MT) and
+      are otherwise identical to them. In the library name, "mt" means static CRT and a trailing "d" means debug.
   -->
   <PropertyGroup Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
