@@ -1491,7 +1491,9 @@ public final class ObjectAdapterI implements ObjectAdapter
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",
         "ThreadPool.StackSize",
-        "ThreadPool.Serialize"
+        "ThreadPool.Serialize",
+        "ThreadPool.ThreadIdleTime",
+        "ThreadPool.ThreadPriority"
     };
 
     boolean

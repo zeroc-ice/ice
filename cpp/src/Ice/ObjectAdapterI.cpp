@@ -1486,6 +1486,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "ThreadPool.SizeWarn",
         "ThreadPool.StackSize",
         "ThreadPool.Serialize",
+        "ThreadPool.ThreadIdleTime",
         "ThreadPool.ThreadPriority"
     };
 
