@@ -876,7 +876,10 @@ class EncapsDecoder11 extends EncapsDecoder
 
     readInstance(index, cb)
     {
-        Debug.assert(index > 0);
+        if(index <= 0)
+        {
+            throw new Ice.MarshalException("invalid class instance index");
+        }
 
         let v = null;
 
