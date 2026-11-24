@@ -148,13 +148,14 @@ final class Protocol {
     public static void checkSupportedProtocol(ProtocolVersion v) {
         if (!v.equals(currentProtocol)) {
             throw new FeatureNotSupportedException(
-                "Cannot send request using protocol version " + v.major + "." + v.minor);
+                "Cannot send request using protocol version " + protocolVersionToString(v));
         }
     }
 
     public static void checkSupportedProtocolEncoding(EncodingVersion v) {
         if (!v.equals(currentProtocolEncoding)) {
-            throw new MarshalException("This Ice runtime does not support encoding version " + v.major + "." + v.minor);
+            throw new MarshalException(
+                "This Ice runtime does not support encoding version " + encodingVersionToString(v));
         }
     }
 
