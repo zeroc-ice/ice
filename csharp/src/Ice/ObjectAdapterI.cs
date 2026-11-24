@@ -1373,7 +1373,9 @@ namespace Ice
             "ThreadPool.SizeMax",
             "ThreadPool.SizeWarn",
             "ThreadPool.StackSize",
-            "ThreadPool.Serialize"
+            "ThreadPool.Serialize",
+            "ThreadPool.ThreadIdleTime",
+            "ThreadPool.ThreadPriority"
         };
 
         private bool filterProperties(List<string> unknownProps)
