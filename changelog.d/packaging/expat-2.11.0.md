@@ -1,0 +1,1 @@
+- The Windows build of IceGrid now uses Expat 2.11.0, which includes Expat's latest security fixes.
