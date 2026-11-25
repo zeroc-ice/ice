@@ -13,10 +13,9 @@ rules:
     ignore:
       - action.yml
 
-  # These publish with API keys until trusted publishers are configured on nuget.org and PyPI.
+  # This publishes with an API token until a trusted publisher is configured on PyPI.
   use-trusted-publishing:
     ignore:
-      - publish-nuget-packages.yml
       - publish-pip-packages.yml
 
   unpinned-uses:

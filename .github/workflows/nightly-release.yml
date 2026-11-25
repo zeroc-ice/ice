@@ -56,7 +56,7 @@ jobs:
       - prune
     uses: ./.github/workflows/publish-release.yml
     # GitHub checks the permissions of every publish-release job, including those a nightly skips: upload-release-assets
-    # writes contents, and the GEM and NPM publishes use OIDC.
+    # writes contents, and the GEM, NPM and NuGet publishes use OIDC.
     permissions:
       contents: write
       id-token: write
