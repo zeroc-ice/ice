@@ -20,35 +20,54 @@ concurrency:
 permissions:
   contents: read
 
-# Builds and packs every package on every change, and uploads nothing: only build-third-party-windows-packages.yml
-# produces publishable artifacts. Packing runs here so a broken nuspec or a missing file fails on the pull request
-# rather than on release day.
+# Builds and packs the packages that a change affects, and uploads nothing: only
+# build-third-party-windows-packages.yml produces publishable artifacts. Packing runs here so a broken nuspec or a
+# missing file fails on the pull request rather than on release day.
 #
-# Every package is built whichever one a change was aimed at, because the build projects share the packages.json
-# that drives them and the workflows themselves, so a change to either can break a package it did not touch.
+# packaging/windows/third-party/select-changed-packages.sh describes which files select which packages. A file shared
+# by the packages, such as packages.json or this workflow, selects them all; so does a manual run.
 jobs:
   select:
     name: "Select packages"
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.select.outputs.matrix }}
+      count: ${{ steps.select.outputs.count }}
     steps:
+      # A pull request is checked out as a merge commit, whose first parent is the tip of the base branch: a depth
+      # of 2 is enough to compare against it.
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 2
 
-      - name: Read packaging/windows/third-party/packages.json
+      - name: Select the packages affected by the change
         id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PUSH_BEFORE: ${{ github.event.before }}
         run: |
-          matrix=$(jq -c '.' packaging/windows/third-party/packages.json)
+          base=""
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            base=$(git rev-parse HEAD^1)
+          elif [[ "$EVENT_NAME" == "push" ]]; then
+            # Without the previous commit of the branch, build everything.
+            if git fetch --quiet --depth=1 origin "$PUSH_BEFORE"; then
+              base="$PUSH_BEFORE"
+            fi
+          fi
+
+          matrix=$(packaging/windows/third-party/select-changed-packages.sh "$base")
           echo "matrix={\"include\":$matrix}" >> "$GITHUB_OUTPUT"
+          echo "count=$(echo "$matrix" | jq 'length')" >> "$GITHUB_OUTPUT"
           echo "Building:"
           echo "$matrix" | jq -r '.[] | "  " + .package'
 
   build:
     name: "Build ${{ matrix.package }} (${{ matrix.toolset }})"
     needs: select
+    if: ${{ needs.select.outputs.count != '0' }}
     runs-on: windows-2022
     strategy:
       fail-fast: false
