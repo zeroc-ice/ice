@@ -7,10 +7,10 @@ name: "Build Third-Party Windows Packages"
 # only in which project is built and how the result is signed. Dependencies move at their own pace, so `package`
 # selects one of them; the default builds all of them.
 #
-# sign_filter in packages.json is the file extension Authenticode signing covers; it is empty for ZeroC.LMDB, a
-# static library, and the signing step is skipped. Signing uses the same AZURE_* secrets as the other build-*
-# workflows. ZeroC.LMDB.Tools is built with MinGW-w64, so its toolset is not an MSVC platform toolset (see
-# packaging/windows/third-party/lmdb/lmdb-tools.proj).
+# sign_filter in packages.json is the file extension Authenticode signing covers; it is empty for ZeroC.LMDB and
+# ZeroC.MCPP, which are static libraries, and the signing step is skipped. Signing uses the same AZURE_* secrets as
+# the other build-* workflows. ZeroC.LMDB.Tools is built with MinGW-w64, so its toolset is not an MSVC platform
+# toolset (see packaging/windows/third-party/lmdb/lmdb-tools.proj).
 
 on:
   workflow_dispatch:
@@ -26,6 +26,7 @@ on:
           - ZeroC.Expat
           - ZeroC.LMDB
           - ZeroC.LMDB.Tools
+          - ZeroC.MCPP
 
 permissions:
   contents: read

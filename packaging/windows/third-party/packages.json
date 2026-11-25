@@ -26,5 +26,12 @@
     "package": "ZeroC.LMDB.Tools",
     "toolset": "mingw64",
     "sign_filter": "exe"
+  },
+  {
+    "dependency": "mcpp",
+    "project": "packaging/windows/third-party/mcpp/mcpp.proj",
+    "package": "ZeroC.MCPP",
+    "toolset": "v143",
+    "sign_filter": ""
   }
 ]

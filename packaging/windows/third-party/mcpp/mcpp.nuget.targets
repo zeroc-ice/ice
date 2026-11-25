@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copies one (Platform, Configuration) slice of the build output into the NuGet staging directory.
+
+    Invoked once per slice by mcpp.proj, so the wildcards below are evaluated after the binaries exist with
+    Platform and Configuration each holding a single value.
+-->
+<Project DefaultTargets="CopyBinaries" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <BuildDir>$(OutRoot)\$(DefaultPlatformToolset)-$(Platform)\$(Configuration)</BuildDir>
+
+        <!--
+            The package has one directory per debug or release flavor: the static-CRT libraries (MT-Debug,
+            MT-Release) sit next to the DLL-CRT ones, told apart by the library name.
+        -->
+        <PackageConfiguration Condition="$(Configuration.Contains('Debug'))">Debug</PackageConfiguration>
+        <PackageConfiguration Condition="$(Configuration.Contains('Release'))">Release</PackageConfiguration>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <McppLib Include="$(BuildDir)\mcpp*.lib" />
+        <McppPdb Include="$(BuildDir)\mcpp*.pdb" />
+    </ItemGroup>
+
+    <Target Name="CopyBinaries">
+        <Error Condition="'@(McppLib)' == ''"
+               Text="No mcpp library found in $(BuildDir). Build the $(Platform) $(Configuration) configuration first." />
+
+        <!-- mcpp is static: there is no bin directory, consumers link the library directly. -->
+        <Copy SourceFiles="@(McppLib);@(McppPdb)"
+              DestinationFolder="$(PackageStagingDir)\build\native\lib\$(Platform)\$(PackageConfiguration)" />
+    </Target>
+
+</Project>
