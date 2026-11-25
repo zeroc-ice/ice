@@ -58,6 +58,14 @@ jobs:
             test_flags: "--config=cpp11-shared"
             working_directory: cpp
 
+          # The C++98 mapping compiled as C++98. The other jobs build it with the compiler's default standard, which
+          # accepts C++11 and later code. This job only builds: the release job runs the tests of this mapping.
+          - os: ubuntu-24.04
+            config: cpp98
+            build_flags: "CONFIGS=shared OPTIMIZE=no CXXFLAGS=-std=c++98"
+            working_directory: cpp
+            build_only: true
+
           # JavaScript in Chrome, Firefox, and Safari, each in its own test step.
           - os: macos-26
             config: browser
@@ -140,7 +148,7 @@ jobs:
         shell: bash
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
-        if: matrix.config != 'browser'
+        if: matrix.config != 'browser' && !matrix.build_only
         uses: ./.github/actions/test
         timeout-minutes: 45
         with:

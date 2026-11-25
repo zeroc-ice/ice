@@ -142,15 +142,8 @@ run(const Ice::StringSeq& args)
     string mapSizeStr = opts.optArg("mapsize");
     if (!mapSizeStr.empty())
     {
-        try
-        {
-            mapSizeValue = stoi(mapSizeStr);
-            if (mapSizeValue < 0)
-            {
-                throw std::out_of_range("negative value");
-            }
-        }
-        catch (const std::exception&)
+        istringstream is(mapSizeStr);
+        if (!(is >> mapSizeValue) || mapSizeValue < 0)
         {
             consoleErr << args[0] << ": invalid value '" << mapSizeStr << "' for --mapsize" << endl;
             return 1;
