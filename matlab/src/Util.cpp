@@ -226,8 +226,7 @@ IceMatlab::createEnumerator(const string& type, int v)
     auto param = createInt(v);
     mxArray* r;
     mexCallMATLAB(1, &r, 1, &param, func.c_str());
-    // Calling this causes MATLAB to crash:
-    //mxFree(param);
+    mxDestroyArray(param);
     return r;
 }
 
@@ -244,8 +243,7 @@ IceMatlab::getEnumerator(mxArray* p, const string& type)
     mxArray* i;
     mexCallMATLAB(1, &i, 1, &p, "int32");
     int r = static_cast<int>(mxGetScalar(i));
-    // Calling this causes MATLAB to crash:
-    //mxFree(i);
+    mxDestroyArray(i);
     return r;
 }
 
@@ -257,6 +255,8 @@ IceMatlab::createIdentity(const Ice::Identity& id)
     params[1] = createStringFromUTF8(id.category);
     mxArray* r;
     mexCallMATLAB(1, &r, 2, params, "Ice.Identity");
+    mxDestroyArray(params[0]);
+    mxDestroyArray(params[1]);
     return r;
 }
 
@@ -267,12 +267,31 @@ IceMatlab::getIdentity(mxArray* p, Ice::Identity& id)
     {
         throw std::invalid_argument("argument is not Ice.Identity");
     }
+    // mxGetProperty returns a copy that the caller owns and must destroy.
     auto name = mxGetProperty(p, 0, "name");
     assert(name);
-    id.name = getStringFromUTF16(name);
+    try
+    {
+        id.name = getStringFromUTF16(name);
+    }
+    catch(...)
+    {
+        mxDestroyArray(name);
+        throw;
+    }
+    mxDestroyArray(name);
     auto category = mxGetProperty(p, 0, "category");
     assert(category);
-    id.category = getStringFromUTF16(category);
+    try
+    {
+        id.category = getStringFromUTF16(category);
+    }
+    catch(...)
+    {
+        mxDestroyArray(category);
+        throw;
+    }
+    mxDestroyArray(category);
 }
 
 mxArray*
@@ -356,6 +375,8 @@ IceMatlab::createEncodingVersion(const Ice::EncodingVersion& v)
     params[1] = mxCreateDoubleScalar(v.minor);
     mxArray* r;
     mexCallMATLAB(1, &r, 2, params, "Ice.EncodingVersion");
+    mxDestroyArray(params[0]);
+    mxDestroyArray(params[1]);
     return r;
 }
 
@@ -377,6 +398,8 @@ IceMatlab::createProtocolVersion(const Ice::ProtocolVersion& v)
     params[1] = mxCreateDoubleScalar(v.minor);
     mxArray* r;
     mexCallMATLAB(1, &r, 2, params, "Ice.ProtocolVersion");
+    mxDestroyArray(params[0]);
+    mxDestroyArray(params[1]);
     return r;
 }
 
@@ -561,6 +584,10 @@ IceMatlab::convertException(const std::exception& exc)
         //
         params[1] = createStringFromUTF8(msg);
         mexCallMATLAB(1, &ex, idx, params, cls.c_str());
+        for(int i = 0; i < idx; ++i)
+        {
+            mxDestroyArray(params[i]);
+        }
     }
     else if(dynamic_cast<const std::invalid_argument*>(&exc))
     {
@@ -568,6 +595,8 @@ IceMatlab::convertException(const std::exception& exc)
         params[0] = createStringFromUTF8("Ice:InvalidArgumentException");
         params[1] = createStringFromUTF8(exc.what());
         mexCallMATLAB(1, &ex, 2, params, "MException");
+        mxDestroyArray(params[0]);
+        mxDestroyArray(params[1]);
     }
     else
     {
@@ -575,6 +604,8 @@ IceMatlab::convertException(const std::exception& exc)
         params[0] = createStringFromUTF8("Ice:CppException");
         params[1] = createStringFromUTF8(exc.what());
         mexCallMATLAB(1, &ex, 2, params, "MException");
+        mxDestroyArray(params[0]);
+        mxDestroyArray(params[1]);
     }
     return ex;
 }
