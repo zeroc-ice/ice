@@ -82,22 +82,22 @@ Ice::ConnectionPtr
 connect(const Ice::ObjectPrxPtr& prx)
 {
     //
-    // Establish connection with the given proxy (which might have a timeout
-    // set and might sporadically fail on connection establishment if it's
-    // too slow). The loop ensures that the connection is established by retrying
-    // in case we can a ConnectTimeoutException
+    // Establish connection with the given proxy (which might have a short
+    // timeout set and might sporadically fail on connection establishment if
+    // it's too slow). A loaded machine can be slow for longer than a few
+    // back-to-back attempts take, in particular for SSL on Windows, so keep
+    // retrying for a while, with a pause between attempts, before giving up.
     //
-    int nRetry = 10;
-    while(--nRetry > 0)
+    IceUtil::Time deadline = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(10);
+    while(IceUtil::Time::now(IceUtil::Time::Monotonic) < deadline)
     {
         try
         {
-            prx->ice_getConnection(); // Establish connection
-            break;
+            return prx->ice_getConnection();
         }
         catch(const Ice::ConnectTimeoutException&)
         {
-            // Can sporadically occur with slow machines
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
         }
     }
     return prx->ice_getConnection();
