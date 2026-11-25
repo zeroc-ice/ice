@@ -290,6 +290,9 @@ public class AllTests {
         b1 = communicator.stringToProxy("test -e 6.5");
         test(b1.ice_getEncodingVersion().major == 6 && b1.ice_getEncodingVersion().minor == 5);
 
+        b1 = communicator.stringToProxy("test -e 1.200");
+        test("test -e 1.200".equals(b1.toString()));
+
         b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
         test("test -e 1.0".equals(b1.toString()));
 
@@ -998,6 +1001,15 @@ public class AllTests {
             test(false);
         } catch (MarshalException ex) {
             // Same with 1.3.
+        }
+
+        String ref1200 = "test -e 1.200:" + helper.getTestEndpoint(0);
+        var cl1200 = MyInterfacePrx.createProxy(communicator, ref1200);
+        try {
+            cl1200.ice_ping();
+            test(false);
+        } catch (MarshalException ex) {
+            // Same with 1.200.
         }
 
         String ref10 = "test -e 1.0:" + helper.getTestEndpoint(0);
