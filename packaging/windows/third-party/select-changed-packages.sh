@@ -26,12 +26,14 @@ if [[ -z "$base" ]]; then
     exit 0
 fi
 
-changed_files=$(git diff --name-only "$base" HEAD -- "$dir" '.github/workflows/*third-party*windows*.yml')
+# Without rename detection, a file moved out of a package's directory is listed under both its old and new paths.
+changed_files=$(git diff --name-only --no-renames "$base" HEAD -- \
+    "$dir" '.github/workflows/*third-party*windows*.yml')
 
-# The dependencies whose sources.json entry was added or modified.
+# The dependencies whose sources.json entry was added, modified or removed.
 base_sources=$(git show "$base:$dir/sources.json" 2>/dev/null || echo '{}')
 changed_sources=$(jq -c --argjson base "$base_sources" \
-    '[to_entries[] | select($base[.key] != .value) | .key]' "$dir/sources.json")
+    '. as $head | [$base + $head | keys[] | select($base[.] != $head[.])]' "$dir/sources.json")
 
 jq -c --arg dir "$dir" --arg files "$changed_files" --argjson sources "$changed_sources" '
     # Whether the input, a file path, belongs to $package rather than being shared by the packages.
