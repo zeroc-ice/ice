@@ -43,14 +43,22 @@
     </ItemGroup>
 
     <!--
-        nmake runs one compiler at a time, so the four slices are built in parallel: each has its own build
-        directory.
+        nmake runs one compiler at a time, so the four slices are built in parallel when msbuild runs with /m: each
+        has its own build directory.
+
+        The slices are passed to a single MSBuild task as four items. Batching the task over BuildTarget would run
+        it four times, one slice after the other.
     -->
     <Target Name="Build" DependsOnTargets="DownloadSource">
         <MakeDir Directories="$(OutRoot)\$(DefaultPlatformToolset)-%(BuildTarget.Platform)\%(BuildTarget.Configuration)" />
-        <MSBuild Projects="$(MSBuildThisFileDirectory)openssl.vcxproj"
+        <ItemGroup>
+            <SliceProject Include="@(BuildTarget->'$(MSBuildThisFileDirectory)openssl.vcxproj')">
+                <AdditionalProperties>Configuration=%(Configuration);Platform=%(Platform)</AdditionalProperties>
+            </SliceProject>
+        </ItemGroup>
+        <MSBuild Projects="@(SliceProject)"
                  BuildInParallel="true"
-                 Properties="Configuration=%(BuildTarget.Configuration);Platform=%(BuildTarget.Platform);DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot);PerlExe=$(PerlExe)" />
+                 Properties="DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot);PerlExe=$(PerlExe)" />
     </Target>
 
     <Target Name="NugetPack" DependsOnTargets="CheckSources">
