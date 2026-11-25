@@ -270,27 +270,11 @@ IceMatlab::getIdentity(mxArray* p, Ice::Identity& id)
     // mxGetProperty returns a copy that the caller owns and must destroy.
     auto name = mxGetProperty(p, 0, "name");
     assert(name);
-    try
-    {
-        id.name = getStringFromUTF16(name);
-    }
-    catch(...)
-    {
-        mxDestroyArray(name);
-        throw;
-    }
+    id.name = getStringFromUTF16(name);
     mxDestroyArray(name);
     auto category = mxGetProperty(p, 0, "category");
     assert(category);
-    try
-    {
-        id.category = getStringFromUTF16(category);
-    }
-    catch(...)
-    {
-        mxDestroyArray(category);
-        throw;
-    }
+    id.category = getStringFromUTF16(category);
     mxDestroyArray(category);
 }
 
