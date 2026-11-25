@@ -46,7 +46,9 @@ namespace
 //
 template<typename T> bool constantTimeEquals(const T* a, const T* b, size_t n)
 {
+#ifdef ICE_CPP11_COMPILER
     static_assert(sizeof(T) == 1, "constantTimeEquals operates on byte-sized elements");
+#endif
     volatile unsigned char diff = 0;
     for(size_t i = 0; i < n; ++i)
     {
