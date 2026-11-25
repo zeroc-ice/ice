@@ -817,18 +817,22 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         try:
-            thrower.throwMarshalException(context={"response":""})
+            thrower.throwMarshalException(context={"return":""})
+            test(False)
         except Ice.UnknownLocalException as ex:
-            test("::Ice::MarshalException" in str(ex))
+            test("invalid return value" in str(ex))
         try:
             thrower.throwMarshalException(context={"param":""})
+            test(False)
         except Ice.UnknownLocalException as ex:
-            test("::Ice::MarshalException" in str(ex))
+            test("invalid value for out argument" in str(ex))
         try:
             thrower.throwMarshalException()
+            test(False)
         except Ice.UnknownLocalException as ex:
-            test("::Ice::MarshalException" in str(ex))
+            test("should return a tuple of length 2" in str(ex))
     except Ice.OperationNotExistException:
+        # Only implemented in Python
         pass
     print("ok")
 
