@@ -61,6 +61,10 @@ using namespace IceUtil;
 #ifdef __GNUC__
 //#  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
+// The switch statements below fall through on purpose, and C++98 has no fallthrough attribute.
+#  if !defined(__clang__) && __GNUC__ >= 7
+#     pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#  endif
 #endif
 
 namespace IceUtilInternal
