@@ -84,9 +84,8 @@ connect(const Ice::ObjectPrxPtr& prx)
     //
     // Establish connection with the given proxy (which might have a short
     // timeout set and might sporadically fail on connection establishment if
-    // it's too slow). A loaded machine can be slow for longer than a few
-    // back-to-back attempts take, in particular for SSL on Windows, so keep
-    // retrying for a while, with a pause between attempts, before giving up.
+    // it's too slow). A loaded machine can remain slow for several seconds,
+    // in particular with SSL on Windows.
     //
     IceUtil::Time deadline = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(10);
     while(IceUtil::Time::now(IceUtil::Time::Monotonic) < deadline)
