@@ -125,7 +125,8 @@ Not used
 %debug_package
 %endif
 
-%ifarch %{_host_cpu} # We build noarch packages only on %{_host_cpu}
+# We build noarch packages only on the host architecture
+%ifarch %{_host_cpu}
 
 #
 # ice-slice package
@@ -187,7 +188,7 @@ Requires: python3-%{?nameprefix}ice%{?_isa} = %{version}-%{release}
    %endif
 Requires: lib%{?nameprefix}ice3.7-c++%{?_isa} = %{version}-%{release}
 Requires: %{?nameprefix}icegridgui = %{version}-%{release}
-%endif # %{_host_cpu}
+%endif
 %description -n %{?nameprefix}ice-all-runtime
 This is a meta package that depends on all run-time packages for Ice.
 
@@ -458,7 +459,7 @@ network programming interfaces and allows you to focus your efforts on
 your application logic.
 %endif
 
-%endif #%{_host_cpu}
+%endif
 
 %prep
 %setup -q -n ice-%{archive_tag}
@@ -554,7 +555,7 @@ rm -rf %{buildroot}%{_includedir}
 rm -rf %{buildroot}%{_mandir}
 rm -rf %{buildroot}%{_datadir}/ice
 
-%endif # %{_host_cpu}
+%endif
 
 %ifarch %{_host_cpu}
 
@@ -577,7 +578,7 @@ rm -rf %{buildroot}%{_datadir}/ice
 %attr(755,root,root) %{_bindir}/icegridgui
 %{_javadir}/icegridgui.jar
 
-%endif # %{_host_cpu}
+%endif
 
 #
 # arch-specific packages
@@ -920,13 +921,13 @@ exit 0
 %{python3_sitearch}/*
 %endif
 
-%endif #%{_host_cpu}
+%endif
 
 %changelog
 * Tue Jun 09 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.7.12
 - 3.7.12 release
 
-* Thu Jan 30 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.7.11
+* Fri Jan 30 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.7.11
 - 3.7.11 release
 
 * Wed Apr 2 2025 Joe George <joe@zeroc.com> 3.7.10-4
