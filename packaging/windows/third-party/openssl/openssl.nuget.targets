@@ -21,7 +21,8 @@
         <OpenSSLPdb Include="$(InstallDir)\bin\libcrypto-*.pdb;$(InstallDir)\bin\libssl-*.pdb" />
         <OpenSSLExe Include="$(InstallDir)\bin\openssl.exe;$(InstallDir)\bin\openssl.pdb" />
         <OpenSSLLib Include="$(InstallDir)\lib\libcrypto.lib;$(InstallDir)\lib\libssl.lib" />
-        <OpenSSLHeader Include="$(InstallDir)\include\openssl\*.h" />
+        <!-- applink.c is the source file an application compiles in to pass its own FILE pointers to the DLLs. -->
+        <OpenSSLHeader Include="$(InstallDir)\include\openssl\*.h;$(InstallDir)\include\openssl\applink.c" />
     </ItemGroup>
 
     <Target Name="CopyBinaries">
