@@ -131,6 +131,7 @@ Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int 
                 Ice::SocketException ex(__FILE__, __LINE__, err);
                 Ice::Error out(_instance->initializationData().logger);
                 out << "could not dequeue packet from completion port:\n" << ex;
+                out.flush();
                 std::abort();
             }
         }
@@ -595,6 +596,7 @@ Selector::select(int timeout)
             Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
             Ice::Error out(_instance->initializationData().logger);
             out << "selector failed:\n" << ex;
+            out.flush();
             std::abort();
         }
         else if (_count == 0 && timeout < 0)
