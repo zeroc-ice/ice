@@ -328,6 +328,41 @@ struct CallbackData
     Handler* handler;
 };
 
+namespace
+{
+
+//
+// Expat 2.9.0 deprecates XML_GetCurrentLineNumber and XML_GetCurrentColumnNumber in favor of 64-bit variants
+// that earlier releases don't provide.
+//
+#if XML_MAJOR_VERSION > 2 || (XML_MAJOR_VERSION == 2 && XML_MINOR_VERSION >= 9)
+inline int
+currentLine(XML_Parser parser)
+{
+    return static_cast<int>(XML_GetCurrentLineNumber64(parser));
+}
+
+inline int
+currentColumn(XML_Parser parser)
+{
+    return static_cast<int>(XML_GetCurrentColumnNumber64(parser));
+}
+#else
+inline int
+currentLine(XML_Parser parser)
+{
+    return static_cast<int>(XML_GetCurrentLineNumber(parser));
+}
+
+inline int
+currentColumn(XML_Parser parser)
+{
+    return static_cast<int>(XML_GetCurrentColumnNumber(parser));
+}
+#endif
+
+}
+
 extern "C"
 {
 
@@ -342,8 +377,8 @@ startElementHandler(void* data, const XML_Char* name, const XML_Char** attr)
         attributes[attr[i]] = attr[i + 1];
     }
 
-    int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
-    int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
+    int line = currentLine(cb->parser);
+    int column = currentColumn(cb->parser);
     cb->handler->startElement(name, attributes, line, column);
 }
 
@@ -351,8 +386,8 @@ static void
 endElementHandler(void* data, const XML_Char* name)
 {
     CallbackData* cb = static_cast<CallbackData*>(data);
-    int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
-    int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
+    int line = currentLine(cb->parser);
+    int column = currentColumn(cb->parser);
     cb->handler->endElement(name, line, column);
 }
 
@@ -362,8 +397,8 @@ characterDataHandler(void* data, const XML_Char* s, int len)
     CallbackData* cb = static_cast<CallbackData*>(data);
 
     string str(s, static_cast<size_t>(len));
-    int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
-    int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
+    int line = currentLine(cb->parser);
+    int column = currentColumn(cb->parser);
     cb->handler->characters(str, line, column);
 }
 
@@ -426,8 +461,8 @@ IceXML::Parser::parse(istream& in, Handler& handler)
             if(XML_Parse(parser, buff, static_cast<int>(in.gcount()), isFinal) != 1)
             {
                 handler.error(XML_ErrorString(XML_GetErrorCode(parser)),
-                              static_cast<int>(XML_GetCurrentLineNumber(parser)),
-                              static_cast<int>(XML_GetCurrentColumnNumber(parser)));
+                              currentLine(parser),
+                              currentColumn(parser));
                 return;
             }
         }
