@@ -104,7 +104,7 @@ public:
 
     void exception(const Ice::Exception& ex)
     {
-        error(false, ex);
+        error(true, ex); // true = release the flush reservation taken by flush()
     }
 
     void doFlush();
@@ -219,10 +219,17 @@ SubscriberBatch::doFlush()
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_lock);
 
     //
-    // If the subscriber isn't online we're done.
+    // The subscriber went offline or errored (for example the send queue filled up) after this flush was
+    // scheduled: release the flush reservation taken by flush() and wake a waiting shutdown().
     //
     if(_state != SubscriberStateOnline)
     {
+        --_outstanding;
+        assert(_outstanding >= 0 && _outstanding < _maxOutstanding);
+        if(_events.empty() && _shutdown)
+        {
+            _lock.notify();
+        }
         return;
     }
 
@@ -260,7 +267,7 @@ SubscriberBatch::doFlush()
     }
     catch(const Ice::Exception& ex)
     {
-        error(false, ex);
+        error(true, ex); // true = release the flush reservation taken by flush()
         return;
     }
 
