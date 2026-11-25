@@ -480,7 +480,7 @@ Ice::SSL::ScopedCertificate::~ScopedCertificate()
 
 namespace
 {
-    string convertX509NameToString(X509_name_st* name)
+    string convertX509NameToString(const X509_NAME* name)
     {
         BIO* out = BIO_new(BIO_s_mem());
         if (!out)
