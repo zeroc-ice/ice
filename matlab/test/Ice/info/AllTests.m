@@ -105,7 +105,7 @@ classdef AllTests
             assert(strcmp(ctx('localPort'), num2str(info.remotePort)));
 
             type = base.ice_getConnection().type();
-            if strcmp(base, 'ws') || strcmp(base, 'wss')
+            if strcmp(type, 'ws') || strcmp(type, 'wss')
                 headers = connection.getInfo().headers;
                 assert(strcmp(headers('Upgrade'), 'websocket'));
                 assert(strcmp(headers('Connection'), 'Upgrade'));
