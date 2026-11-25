@@ -148,7 +148,7 @@ IcePy::ValueFactoryManager::findObjectFactory(const string& id) const
 PyObject*
 IcePy::ValueFactoryManager::getObject() const
 {
-    Py_INCREF(_self);
+    Py_XINCREF(_self);
     return _self;
 }
 
