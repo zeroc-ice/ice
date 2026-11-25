@@ -16,14 +16,14 @@
     <ROW Property="LICENSE_AGREEMENT" Value="No" Options="1"/>
     <ROW Property="Manufacturer" Value="ZeroC, Inc." ValueLocId="*"/>
     <ROW Property="PRODUCT_NAME" Value="Ice 3.7.12"/>
-    <ROW Property="ProductCode" Value="1033:{AB37BCBA-BD85-4892-A41E-00F4C059901A} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{85643A90-62BD-4CF3-B567-BC3790EC7AA4} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Ice 3.7.12" ValueLocId="*"/>
     <ROW Property="ProductVersion" Value="3.7.12" Type="32"/>
     <ROW Property="RELEASENOTES" Value="1" Type="4"/>
     <ROW Property="SET_SYSTEM_PATH" Value="1"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
-    <ROW Property="UpgradeCode" Value="{D8C2E744-0230-4ED5-89ED-8CD302C3DCC7}"/>
+    <ROW Property="UpgradeCode" Value="{FB24C0F9-4994-44AC-816F-DC00C1FFF88C}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
