@@ -71,6 +71,7 @@ public:
     PyObject* findValueFactory(const std::string&) const;
     PyObject* findObjectFactory(const std::string&) const;
 
+    // Returns a new reference to the Python value factory manager object, or null once destroy() has been called.
     PyObject* getObject() const;
 
     void destroy();

@@ -1463,7 +1463,13 @@ communicatorGetValueFactoryManager(CommunicatorObject* self, PyObject* /*args*/)
 {
     ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
 
-    return vfm->getObject();
+    PyObject* obj = vfm->getObject();
+    if(!obj)
+    {
+        // The Python object is released when the communicator is destroyed.
+        setPythonException(Ice::CommunicatorDestroyedException(__FILE__, __LINE__));
+    }
+    return obj;
 }
 
 #ifdef WIN32
