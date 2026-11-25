@@ -924,7 +924,7 @@ exit 0
 %endif
 
 %changelog
-* Tue Jun 09 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.7.12
+* Wed Nov 25 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.7.12
 - 3.7.12 release
 
 * Fri Jan 30 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.7.11
