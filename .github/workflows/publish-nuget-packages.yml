@@ -31,7 +31,6 @@ permissions:
   actions: read
 
 jobs:
-  # A release that is not stable goes to its ZeroC-hosted feed.
   publish-prerelease:
     name: "Publish NuGet Packages to the ZeroC feed"
     if: inputs.quality != 'stable'
@@ -64,7 +63,6 @@ jobs:
           QUALITY: ${{ inputs.quality }}
           NEXUS_NIGHTLY_NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
 
-  # A stable release goes to nuget.org.
   publish-stable:
     name: "Publish NuGet Packages to nuget.org"
     if: inputs.quality == 'stable'
