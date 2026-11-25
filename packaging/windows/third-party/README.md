@@ -3,8 +3,12 @@
 ZeroC builds and publishes `ZeroC.Bzip2`, `ZeroC.Expat`, `ZeroC.LMDB`, `ZeroC.LMDB.Tools`, `ZeroC.MCPP` and
 `ZeroC.OpenSSL` so that Ice users can build Ice C++ from source on Windows without first building these libraries.
 
-`ZeroC.OpenSSL` is used by Ice 3.7 only: later releases use Schannel on Windows. It is built with the v142 toolset,
-which Ice 3.7 still supports.
+This directory contains the projects that build these packages. This page describes how to build and publish them
+and is intended for their maintainers; building Ice does not require these steps.
+
+`ZeroC.OpenSSL` is for Ice 3.7 only. On Windows, Ice 3.7 provides an OpenSSL-based IceSSL in addition to its default
+Schannel-based IceSSL; Ice 3.8 and later support only Schannel on Windows. The package is built with the v142
+toolset, the oldest toolset Ice 3.7 supports, and can be used with v142 and v143.
 
 ## Build locally
 

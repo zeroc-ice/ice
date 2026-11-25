@@ -86,7 +86,7 @@ jobs:
       - name: Install NASM
         if: ${{ matrix.dependency == 'openssl' }}
         run: |
-          choco install nasm --no-progress -y
+          choco install nasm --version=3.2.0 --no-progress -y
           "C:\Program Files\NASM" >> $env:GITHUB_PATH
 
       # The matrix values go through the environment rather than into the command line: this workflow runs on pull
@@ -96,5 +96,5 @@ jobs:
           PROJECT: ${{ matrix.project }}
           TOOLSET: ${{ matrix.toolset }}
         run: >
-          msbuild $env:PROJECT /t:All
+          msbuild $env:PROJECT /t:All /m
           /p:DefaultPlatformToolset=$env:TOOLSET
