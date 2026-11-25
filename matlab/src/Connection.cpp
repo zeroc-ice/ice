@@ -360,6 +360,9 @@ Ice_Connection_getACM(void* self)
         params[2] = createInt(static_cast<int>(acm.heartbeat)); // The integer is converted to the enumerator.
         mxArray* r;
         mexCallMATLAB(1, &r, 3, params, "Ice.ACM");
+        mxDestroyArray(params[0]);
+        mxDestroyArray(params[1]);
+        mxDestroyArray(params[2]);
         return createResultValue(r);
     }
     catch(const std::exception& ex)
