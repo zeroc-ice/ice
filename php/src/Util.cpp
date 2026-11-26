@@ -667,8 +667,8 @@ invokeMethodHelper(zval* obj, const string& name, zval* param)
     zend_try { status = call_user_function(0, obj, &method, &ret, numParams, param); }
     zend_catch { status = FAILURE; }
     zend_end_try();
-    zval_dtor(&method);
-    zval_dtor(&ret);
+    zval_ptr_dtor_nogc(&method);
+    zval_ptr_dtor_nogc(&ret);
     if (status == FAILURE || EG(exception))
     {
         return false;
@@ -720,7 +720,8 @@ ZEND_FUNCTION(Ice_stringVersion)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     RETURN_STRINGL(ICE_STRING_VERSION, static_cast<int>(strlen(ICE_STRING_VERSION)));
@@ -730,7 +731,8 @@ ZEND_FUNCTION(Ice_intVersion)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     RETURN_LONG(ICE_INT_VERSION);
@@ -740,7 +742,8 @@ ZEND_FUNCTION(Ice_generateUUID)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     string uuid = Ice::generateUUID();
