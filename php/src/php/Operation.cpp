@@ -307,6 +307,14 @@ IcePHP::OperationI::~OperationI()
 {
     if(_zendFunction)
     {
+#if PHP_VERSION_ID >= 80600
+        // zend_convert_internal_arg_info created these names. Releasing an interned name does nothing, but with
+        // opcache enabled a name created during a request is a regular string that we must release.
+        for(uint32_t i = 0; i < _zendFunction->num_args; ++i)
+        {
+            zend_string_release(_zendFunction->arg_info[i].name);
+        }
+#endif
         delete []_zendFunction->arg_info;
         zend_string_release(_zendFunction->function_name);
         efree(_zendFunction);
