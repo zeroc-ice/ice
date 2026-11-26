@@ -26,8 +26,9 @@ on:
         type: string
 
 jobs:
-  build:
-    name: "Publish NuGet Packages"
+  publish-prerelease:
+    name: "Publish NuGet Packages to the ZeroC feed"
+    if: inputs.quality != 'stable'
     runs-on: ubuntu-24.04
 
     steps:
@@ -40,28 +41,59 @@ jobs:
 
       - name: Publish NuGet Packages
         run: |
-          case "$QUALITY" in
-            "stable")
-              SOURCE_URL="https://api.nuget.org/v3/index.json"
-              NUGET_API_KEY="${RELEASE_NUGET_API_KEY}"
-              ;;
-            *)
-              SOURCE_URL="https://download.zeroc.com/nexus/repository/nuget-${CHANNEL}-${QUALITY}/"
-              NUGET_API_KEY="${NEXUS_NIGHTLY_NUGET_API_KEY}"
-              ;;
-          esac
+          SOURCE_URL="https://download.zeroc.com/nexus/repository/nuget-${CHANNEL}-${QUALITY}/"
 
           # Collect all packages. The symbol package ".snupkg" files are published automatically with the main package
           # no need to push them separately.
           mapfile -t packages < <(find staging -type f -name "*.nupkg")
 
-          # Push each package to the appropriate NuGet repository
           for package in "${packages[@]}"; do
             echo "Publishing package: $package"
-            dotnet nuget push "$package" --source "$SOURCE_URL" --api-key "$NUGET_API_KEY"
+            dotnet nuget push "$package" --source "$SOURCE_URL" --api-key "$NEXUS_NIGHTLY_NUGET_API_KEY"
           done
         env:
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}
           NEXUS_NIGHTLY_NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
-          RELEASE_NUGET_API_KEY: ${{ secrets.RELEASE_NUGET_API_KEY }}
+
+  publish-stable:
+    name: "Publish NuGet Packages to nuget.org"
+    if: inputs.quality == 'stable'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      # NuGet/login exchanges the GitHub OIDC token for a short-lived nuget.org API key (Trusted Publishing).
+      id-token: write
+    # nuget.org issues a key only to a job that runs in the environment its Trusted Publishing policy names, and
+    # that environment can require a reviewer.
+    environment: nuget-zeroc
+
+    steps:
+      - name: Download NuGet artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "*-nuget-packages" --dir staging
+
+      # The temporary API key is valid for one hour, so log in right before the push.
+      - name: Log in to nuget.org
+        id: nuget-login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          # The nuget.org user who created the Trusted Publishing policy, not the organization that owns it.
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish NuGet Packages
+        run: |
+          # "dotnet nuget push" publishes the symbol package ".snupkg" files automatically with the main package,
+          # no need to push them separately.
+          mapfile -t packages < <(find staging -type f -name "*.nupkg")
+
+          for package in "${packages[@]}"; do
+            echo "Publishing package: $package"
+            dotnet nuget push "$package" --source "https://api.nuget.org/v3/index.json" --api-key "$NUGET_API_KEY"
+          done
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
