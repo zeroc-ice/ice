@@ -82,6 +82,13 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
 
+      # OpenSSL's assembly sources need NASM, which the runner image does not include.
+      - name: Install NASM
+        if: ${{ matrix.dependency == 'openssl' }}
+        run: |
+          choco install nasm --version=3.2.0 --no-progress -y
+          "C:\Program Files\NASM" >> $env:GITHUB_PATH
+
       # The matrix values go through the environment rather than into the command line: this workflow runs on pull
       # requests, and the matrix is built from the packages.json of whatever branch is being tested.
       - name: Build and pack ${{ matrix.package }}
@@ -89,5 +96,5 @@ jobs:
           PROJECT: ${{ matrix.project }}
           TOOLSET: ${{ matrix.toolset }}
         run: >
-          msbuild $env:PROJECT /t:All
+          msbuild $env:PROJECT /t:All /m
           /p:DefaultPlatformToolset=$env:TOOLSET

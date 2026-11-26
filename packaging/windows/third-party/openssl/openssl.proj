@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="All" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <Import Project="..\sources.targets" />
+
+    <PropertyGroup>
+        <Dependency>openssl</Dependency>
+        <ThirdPartyRoot>$(MSBuildThisFileDirectory)..\</ThirdPartyRoot>
+        <SourceDir>$(ThirdPartyRoot)sources\openssl</SourceDir>
+        <OutRoot>$(ThirdPartyRoot)out\openssl</OutRoot>
+
+        <PackageName>ZeroC.OpenSSL</PackageName>
+        <PackageStagingDir>$(OutRoot)\$(PackageName)</PackageStagingDir>
+
+        <!--
+            v142 rather than v143: this package is consumed by Ice 3.7, which supports the v142 and v143 toolsets,
+            and binaries built with v142 can be used from both.
+        -->
+        <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v142</DefaultPlatformToolset>
+
+        <!-- OpenSSL's build system needs a native Windows Perl, such as Strawberry Perl, and NASM in the PATH. -->
+        <PerlExe Condition="'$(PerlExe)' == ''">perl</PerlExe>
+        <NuGetExe Condition="'$(NuGetExe)' == ''">nuget</NuGetExe>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <BuildTarget Include="Win32-Debug">
+            <Platform>Win32</Platform>
+            <Configuration>Debug</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="Win32-Release">
+            <Platform>Win32</Platform>
+            <Configuration>Release</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="x64-Debug">
+            <Platform>x64</Platform>
+            <Configuration>Debug</Configuration>
+        </BuildTarget>
+        <BuildTarget Include="x64-Release">
+            <Platform>x64</Platform>
+            <Configuration>Release</Configuration>
+        </BuildTarget>
+    </ItemGroup>
+
+    <!--
+        nmake runs one compiler at a time, so the four slices are built in parallel when msbuild runs with /m: each
+        has its own build directory.
+
+        The slices are passed to a single MSBuild task as four items. Batching the task over BuildTarget would run
+        it four times, one slice after the other.
+    -->
+    <Target Name="Build" DependsOnTargets="DownloadSource">
+        <MakeDir Directories="$(OutRoot)\$(DefaultPlatformToolset)-%(BuildTarget.Platform)\%(BuildTarget.Configuration)" />
+        <ItemGroup>
+            <SliceProject Include="@(BuildTarget->'$(MSBuildThisFileDirectory)openssl.vcxproj')">
+                <AdditionalProperties>Configuration=%(Configuration);Platform=%(Platform)</AdditionalProperties>
+            </SliceProject>
+        </ItemGroup>
+        <MSBuild Projects="@(SliceProject)"
+                 BuildInParallel="true"
+                 Properties="DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot);PerlExe=$(PerlExe)" />
+    </Target>
+
+    <Target Name="NugetPack" DependsOnTargets="CheckSources">
+        <RemoveDir Directories="$(PackageStagingDir)" />
+
+        <MSBuild Projects="$(MSBuildThisFileDirectory)openssl.nuget.targets"
+                 Properties="Platform=%(BuildTarget.Platform);Configuration=%(BuildTarget.Configuration);OutRoot=$(OutRoot);DefaultPlatformToolset=$(DefaultPlatformToolset);PackageStagingDir=$(PackageStagingDir)" />
+
+        <Copy SourceFiles="$(SourceDir)\LICENSE.txt"
+              DestinationFolder="$(PackageStagingDir)" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\README.md"
+              DestinationFolder="$(PackageStagingDir)" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\$(PackageName).nuspec"
+              DestinationFolder="$(PackageStagingDir)" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\$(PackageName).targets"
+              DestinationFolder="$(PackageStagingDir)\build\native" />
+
+        <Exec Command="&quot;$(NuGetExe)&quot; pack -NoPackageAnalysis -NonInteractive"
+              WorkingDirectory="$(PackageStagingDir)" />
+    </Target>
+
+    <Target Name="All" DependsOnTargets="Build;NugetPack" />
+
+    <Target Name="Clean">
+        <RemoveDir Directories="$(OutRoot)" />
+    </Target>
+
+</Project>

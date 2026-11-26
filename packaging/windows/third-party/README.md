@@ -1,12 +1,21 @@
 # Windows third-party NuGet packages
 
-ZeroC builds and publishes `ZeroC.Bzip2`, `ZeroC.Expat`, `ZeroC.LMDB`, `ZeroC.LMDB.Tools` and `ZeroC.MCPP` so that
-Ice users can build Ice C++ from source on Windows without first building these libraries.
+ZeroC builds and publishes `ZeroC.Bzip2`, `ZeroC.Expat`, `ZeroC.LMDB`, `ZeroC.LMDB.Tools`, `ZeroC.MCPP` and
+`ZeroC.OpenSSL` so that Ice users can build Ice C++ from source on Windows without first building these libraries.
+
+This directory contains the projects that build these packages. This page describes how to build and publish them
+and is intended for their maintainers; building Ice does not require these steps.
+
+`ZeroC.OpenSSL` is for Ice 3.7 only. On Windows, Ice 3.7 provides an OpenSSL-based IceSSL in addition to its default
+Schannel-based IceSSL; Ice 3.8 and later support only Schannel on Windows. The package is built with the v142
+toolset, the oldest toolset Ice 3.7 supports, and can be used with v142 and v143.
 
 ## Build locally
 
 Use Visual Studio with the v143 C++ toolset, PowerShell, Git, tar, CMake and the NuGet CLI. Building LMDB Tools also
-requires MinGW-w64 (for example, MSYS2's mingw-w64-x86_64-gcc package). From this directory, run:
+requires MinGW-w64 (for example, MSYS2's mingw-w64-x86_64-gcc package). Building OpenSSL also requires the v142 C++
+toolset, a native Windows Perl such as Strawberry Perl, and NASM, with `perl` and `nasm` in the PATH. From this
+directory, run:
 
 ```shell
 msbuild bzip2\bzip2.proj /t:All
@@ -14,6 +23,7 @@ msbuild libexpat\expat.proj /t:All
 msbuild lmdb\lmdb.proj /t:All
 msbuild lmdb\lmdb-tools.proj /t:All
 msbuild mcpp\mcpp.proj /t:All
+msbuild openssl\openssl.proj /t:All
 ```
 
 The Build target downloads each pinned upstream archive from [sources.json](sources.json), verifies its SHA-256
@@ -24,10 +34,11 @@ under `downloads/` and `sources/`.
 
 | Property               | Default     | Purpose                                                |
 |------------------------|-------------|--------------------------------------------------------|
-| DefaultPlatformToolset | v143        | MSVC toolset for DLL and library builds.               |
+| DefaultPlatformToolset | v143        | MSVC toolset for the builds (v142 for OpenSSL).        |
 | CMakeExe               | cmake       | CMake executable for Expat.                            |
 | NuGetExe               | nuget       | NuGet CLI used to pack the binaries.                   |
 | MinGWBin               | first found | Directory containing mingw-w64 gcc.exe for LMDB Tools. |
+| PerlExe                | perl        | Perl executable for OpenSSL.                           |
 
 ## Publish a release
 
