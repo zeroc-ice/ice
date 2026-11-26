@@ -61,7 +61,7 @@
                  Properties="DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot);PerlExe=$(PerlExe)" />
     </Target>
 
-    <Target Name="NugetPack" DependsOnTargets="CheckSources">
+    <Target Name="NugetPack" DependsOnTargets="CheckSources;GetPackageVersion">
         <RemoveDir Directories="$(PackageStagingDir)" />
 
         <MSBuild Projects="$(MSBuildThisFileDirectory)openssl.nuget.targets"
@@ -76,7 +76,7 @@
         <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\$(PackageName).targets"
               DestinationFolder="$(PackageStagingDir)\build\native" />
 
-        <Exec Command="&quot;$(NuGetExe)&quot; pack -NoPackageAnalysis -NonInteractive"
+        <Exec Command="&quot;$(NuGetExe)&quot; pack -Version $(PackageVersion) -NoPackageAnalysis -NonInteractive"
               WorkingDirectory="$(PackageStagingDir)" />
     </Target>
 

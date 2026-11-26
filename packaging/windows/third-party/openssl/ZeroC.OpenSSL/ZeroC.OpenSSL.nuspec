@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ZeroC.OpenSSL</id>
-    <version>3.5.9</version>
+    <version>$version$</version>
     <authors>The OpenSSL Project Authors</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="file">LICENSE.txt</license>

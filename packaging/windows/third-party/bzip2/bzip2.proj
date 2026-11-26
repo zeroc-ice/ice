@@ -12,7 +12,11 @@
         <PackageName>ZeroC.Bzip2</PackageName>
         <PackageStagingDir>$(OutRoot)\$(PackageName)</PackageStagingDir>
 
-        <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
+        <!--
+            v142 rather than v143: Ice 3.7 supports the v142 and v143 toolsets, and binaries built with v142 can be
+            used from both, and from later toolsets.
+        -->
+        <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v142</DefaultPlatformToolset>
         <NuGetExe Condition="'$(NuGetExe)' == ''">nuget</NuGetExe>
     </PropertyGroup>
 
@@ -62,7 +66,7 @@
                  Properties="Configuration=%(BuildTarget.Configuration);Platform=%(BuildTarget.Platform);DefaultPlatformToolset=$(DefaultPlatformToolset);OutRoot=$(OutRoot)" />
     </Target>
 
-    <Target Name="NugetPack" DependsOnTargets="CheckSources">
+    <Target Name="NugetPack" DependsOnTargets="CheckSources;GetPackageVersion">
         <RemoveDir Directories="$(PackageStagingDir)" />
 
         <MSBuild Projects="$(MSBuildThisFileDirectory)bzip2.nuget.targets"
@@ -79,7 +83,7 @@
         <Copy SourceFiles="$(MSBuildThisFileDirectory)$(PackageName)\$(PackageName).targets"
               DestinationFolder="$(PackageStagingDir)\build\native" />
 
-        <Exec Command="&quot;$(NuGetExe)&quot; pack -NoPackageAnalysis -NonInteractive"
+        <Exec Command="&quot;$(NuGetExe)&quot; pack -Version $(PackageVersion) -NoPackageAnalysis -NonInteractive"
               WorkingDirectory="$(PackageStagingDir)" />
     </Target>
 

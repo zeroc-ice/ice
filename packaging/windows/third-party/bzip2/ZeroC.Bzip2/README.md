@@ -3,6 +3,8 @@
 This package provides the [Bzip2] debug and release DLLs, their corresponding import libraries, and the bzip2 header
 file. Both the shared and static CRT variants are included.
 
+The DLLs are built with the v142 platform toolset and can be used from projects built with v142 or later.
+
 ## Source Code
 
 The binaries are built from the upstream bzip2 sources with one patch to `bzlib.h`. The MSBuild project, nuspec

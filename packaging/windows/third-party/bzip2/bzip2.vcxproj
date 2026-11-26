@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <PropertyGroup Label="Globals">
-    <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
+    <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v142</DefaultPlatformToolset>
     <BzipSourceDir Condition="'$(BzipSourceDir)' == ''">$(MSBuildThisFileDirectory)..\sources\bzip2\</BzipSourceDir>
     <OutRoot Condition="'$(OutRoot)' == ''">$(MSBuildThisFileDirectory)..\out\bzip2</OutRoot>
   </PropertyGroup>
