@@ -1,0 +1,1 @@
+- Ice for PHP now builds with PHP 8.6. Building it against PHP 8.6 previously failed with compilation errors.

@@ -98,7 +98,8 @@ ZEND_METHOD(Ice_ObjectPrx, __toString)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -120,7 +121,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCommunicator)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -138,7 +140,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getIdentity)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -189,7 +192,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getContext)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -244,7 +248,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getFacet)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -297,7 +302,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getAdapterId)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -350,7 +356,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpoints)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -436,7 +443,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocatorCacheTimeout)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -458,7 +466,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getConnectionId)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -509,7 +518,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isConnectionCached)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -560,7 +570,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpointSelection)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -618,7 +629,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isSecure)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -669,7 +681,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEncodingVersion)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -729,7 +742,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isPreferSecure)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -780,7 +794,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getRouter)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -868,7 +883,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocator)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -954,7 +970,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_twoway)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -978,7 +995,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isTwoway)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1000,7 +1018,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_oneway)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1024,7 +1043,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isOneway)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1046,7 +1066,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_batchOneway)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1070,7 +1091,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isBatchOneway)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1092,7 +1114,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_datagram)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1116,7 +1139,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isDatagram)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1138,7 +1162,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_batchDatagram)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1162,7 +1187,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isBatchDatagram)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1213,7 +1239,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
@@ -1271,7 +1298,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
@@ -1329,7 +1357,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getInvocationTimeout)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
@@ -1417,7 +1446,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isFixed)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1439,7 +1469,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getConnection)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1464,7 +1495,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCachedConnection)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1489,7 +1521,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_flushBatchRequests)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1521,7 +1554,8 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
     //
     if(ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 3)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     char* id;
@@ -1908,7 +1942,7 @@ IcePHP::proxyInit(void)
     _handlers.compare_objects = handleCompare;
 #endif
     _handlers.free_obj = handleFreeStorage;
-    _handlers.offset =  XtOffsetOf(Wrapper<ProxyPtr>, zobj);
+    _handlers.offset =  offsetof(Wrapper<ProxyPtr>, zobj);
 
     return true;
 }
@@ -1936,7 +1970,7 @@ IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ProxyInfoPtr& info)
 bool
 IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ProxyInfoPtr& info, CommunicatorInfoPtr& comm)
 {
-    if(!ZVAL_IS_NULL(zv))
+    if(!Z_ISNULL_P(zv))
     {
         if(Z_TYPE_P(zv) != IS_OBJECT || Z_OBJCE_P(zv) != proxyClassEntry)
         {

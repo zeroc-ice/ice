@@ -3234,7 +3234,7 @@ void
 IcePHP::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
 {
 #ifdef HT_ALLOW_COW_VIOLATION
-    if(!ZVAL_IS_NULL(&_target))
+    if(!Z_ISNULL_P(&_target))
     {
         HT_ALLOW_COW_VIOLATION(Z_ARRVAL(_target));
     }
@@ -3895,7 +3895,8 @@ ZEND_FUNCTION(IcePHP_stringify)
 {
     if(ZEND_NUM_ARGS() != 2)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     zval* v;
@@ -3923,7 +3924,8 @@ ZEND_FUNCTION(IcePHP_stringifyException)
 {
     if(ZEND_NUM_ARGS() != 2)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     zval* v;
@@ -3999,7 +4001,7 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
     _typeInfoHandlers.clone_obj = 0;
     _typeInfoHandlers.free_obj = handleTypeInfoFreeStorage;
-    _typeInfoHandlers.offset = XtOffsetOf(Wrapper<TypeInfoPtr>, zobj);
+    _typeInfoHandlers.offset = offsetof(Wrapper<TypeInfoPtr>, zobj);
 
     //
     // Register the IcePHP_ExceptionInfo class.
@@ -4011,7 +4013,7 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     // The default clone_obj creates an object without the native state of the wrapper, so disable cloning.
     _exceptionInfoHandlers.clone_obj = 0;
     _exceptionInfoHandlers.free_obj = handleExceptionInfoFreeStorage;
-    _exceptionInfoHandlers.offset = XtOffsetOf(Wrapper<ExceptionInfoPtr>, zobj);
+    _exceptionInfoHandlers.offset = offsetof(Wrapper<ExceptionInfoPtr>, zobj);
 
 #ifdef ICEPHP_USE_NAMESPACES
     REGISTER_NS_STRING_CONSTANT("Ice", "None", const_cast<char*>(_unsetGUID.c_str()), CONST_CS|CONST_PERSISTENT);
@@ -4093,7 +4095,7 @@ IcePHP::typesRequestShutdown(void)
 
     delete static_cast<ExceptionInfoMap*>(ICE_G(exceptionInfoMap));
 
-    zval_dtor(ICE_G(unset));
+    zval_ptr_dtor_nogc(ICE_G(unset));
     efree(ICE_G(unset));
     return true;
 }

@@ -21,6 +21,13 @@ ZEND_FUNCTION(IcePHP_Operation_call);
 namespace IcePHP
 {
 
+#if PHP_VERSION_ID >= 80600
+// The argument info type of internal functions; PHP 8.6 replaced zend_internal_arg_info with zend_arg_info.
+typedef zend_arg_info ArgInfo;
+#else
+typedef zend_internal_arg_info ArgInfo;
+#endif
+
 class ParamInfo : public IceUtil::Shared
 {
 public:
@@ -91,7 +98,7 @@ private:
 
     static void convertParams(zval*, ParamInfoList&, bool&);
     static ParamInfoPtr convertParam(zval*, int);
-    static void getArgInfo(zend_internal_arg_info&, const ParamInfoPtr&, bool);
+    static void getArgInfo(ArgInfo&, const ParamInfoPtr&, bool);
 };
 typedef IceUtil::Handle<OperationI> OperationIPtr;
 
@@ -314,7 +321,7 @@ IcePHP::OperationI::function()
         //
         // Create an array that indicates how arguments are passed to the operation.
         //
-        zend_internal_arg_info* argInfo = new zend_internal_arg_info[numParams];
+        ArgInfo* argInfo = new ArgInfo[numParams];
 
         int i = 0;
         ParamInfoList::const_iterator p;
@@ -386,13 +393,14 @@ IcePHP::OperationI::convertParam(zval* p, int pos)
 }
 
 void
-IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& info, bool out)
+IcePHP::OperationI::getArgInfo(ArgInfo& arg, const ParamInfoPtr& info, bool out)
 {
 #if defined(_MSC_VER) && PHP_VERSION_ID >= 80000
 #    pragma warning(disable:4838) // C4838 conversion from 'int' to 'uint32_t' requires a narrowing conversion
 #endif
     const zend_uchar pass_by_ref = out ? 1 : 0;
     const zend_bool allow_null = 1;
+    zend_internal_arg_info internalArgInfo;
     if(!info->optional && (SequenceInfoPtr::dynamicCast(info->type) || DictionaryInfoPtr::dynamicCast(info->type)))
     {
         zend_internal_arg_info ai[] =
@@ -401,7 +409,7 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
                                 static_cast<uint32_t>(0),
                                 static_cast<uint32_t>(allow_null))
         };
-        arg = ai[0];
+        internalArgInfo = ai[0];
     }
     else
     {
@@ -411,8 +419,14 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
                                    static_cast<uint32_t>(0),
                                    static_cast<uint32_t>(allow_null))
         };
-        arg = ai[0];
+        internalArgInfo = ai[0];
     }
+#if PHP_VERSION_ID >= 80600
+    // Performs the conversion that zend_register_functions applies to the arg_info of registered functions.
+    zend_convert_internal_arg_info(&arg, &internalArgInfo, false, false);
+#else
+    arg = internalArgInfo;
+#endif
 #if defined(_MSC_VER) && PHP_VERSION_ID >= 80000
 #    pragma warning(default:4838) // C4838 conversion from 'int' to 'uint32_t' requires a narrowing conversion
 #endif

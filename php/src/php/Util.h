@@ -51,12 +51,12 @@ struct Wrapper
 
     static Wrapper<T>* extract(zval* zv)
     {
-        return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char *>(extractWrapper(zv)) - XtOffsetOf(Wrapper<T>, zobj));
+        return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char *>(extractWrapper(zv)) - offsetof(Wrapper<T>, zobj));
     }
 
     static Wrapper<T>* fetch(zend_object* object)
     {
-        return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char *>(object) - XtOffsetOf(Wrapper<T>, zobj));
+        return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char *>(object) - offsetof(Wrapper<T>, zobj));
     }
 
     static T value(zval* zv)

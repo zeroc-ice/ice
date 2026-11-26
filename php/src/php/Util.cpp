@@ -819,8 +819,8 @@ invokeMethodHelper(zval* obj, const string& name, zval* param)
         status = FAILURE;
     }
     zend_end_try();
-    zval_dtor(&method);
-    zval_dtor(&ret);
+    zval_ptr_dtor_nogc(&method);
+    zval_ptr_dtor_nogc(&ret);
     if(status == FAILURE || EG(exception))
     {
         return false;
@@ -872,7 +872,8 @@ ZEND_FUNCTION(Ice_stringVersion)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     RETURN_STRINGL(STRCAST(ICE_STRING_VERSION), static_cast<int>(strlen(ICE_STRING_VERSION)));
@@ -882,7 +883,8 @@ ZEND_FUNCTION(Ice_intVersion)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     RETURN_LONG(ICE_INT_VERSION);
@@ -892,7 +894,8 @@ ZEND_FUNCTION(Ice_generateUUID)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     string uuid = Ice::generateUUID();
@@ -903,7 +906,8 @@ ZEND_FUNCTION(Ice_currentProtocol)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     if(!createProtocolVersion(return_value, Ice::currentProtocol))
@@ -916,7 +920,8 @@ ZEND_FUNCTION(Ice_currentProtocolEncoding)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     if(!createEncodingVersion(return_value, Ice::currentProtocolEncoding))
@@ -929,7 +934,8 @@ ZEND_FUNCTION(Ice_currentEncoding)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     if(!createEncodingVersion(return_value, Ice::currentEncoding))
