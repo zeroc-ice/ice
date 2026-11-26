@@ -1,3 +1,10 @@
+zeroc-ice (3.8.3-2) unstable; urgency=medium
+
+  * Add upstream patch to fix the build with OpenSSL 4.0 and the IceSSL
+    configuration test with OpenSSL 4.1 (Closes: #1154855).
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 26 Nov 2026 17:12:18 +0100
+
 zeroc-ice (3.8.3-1) unstable; urgency=medium
 
   * New upstream version 3.8.3
