@@ -1,1 +1,0 @@
-- The IceXML source code now builds against Expat 2.9.0 without deprecation warnings.
