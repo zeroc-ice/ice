@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <PropertyGroup Label="Globals">
-    <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
+    <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v142</DefaultPlatformToolset>
     <McppSourceDir Condition="'$(McppSourceDir)' == ''">$(MSBuildThisFileDirectory)..\sources\mcpp\</McppSourceDir>
     <OutRoot Condition="'$(OutRoot)' == ''">$(MSBuildThisFileDirectory)..\out\mcpp</OutRoot>
   </PropertyGroup>

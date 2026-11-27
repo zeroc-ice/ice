@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ZeroC.LMDB.Tools</id>
-    <version>0.9.36</version>
+    <version>$version$</version>
     <authors>Howard Chu</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="file">LICENSE.txt</license>

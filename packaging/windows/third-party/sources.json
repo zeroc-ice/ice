@@ -21,10 +21,10 @@
     "patches": []
   },
   "mcpp": {
-    "version": "2.7.2.20",
-    "url": "https://github.com/zeroc-ice/mcpp/archive/refs/tags/v2.7.2.20.tar.gz",
-    "sha256": "8eea2e805d8d19412b6ca2582058460e86616f27a754e64873b47b91e5de276d",
-    "root": "mcpp-2.7.2.20",
+    "version": "2.7.2.21",
+    "url": "https://github.com/zeroc-ice/mcpp/archive/refs/tags/v2.7.2.21.tar.gz",
+    "sha256": "bcfee266aa9c1ec4a9dffb8a22bc508e504e43d83920615eeff8b3553f2acd1b",
+    "root": "mcpp-2.7.2.21",
     "patches": []
   },
   "openssl": {

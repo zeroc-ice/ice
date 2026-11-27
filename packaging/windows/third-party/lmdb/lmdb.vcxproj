@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <PropertyGroup Label="Globals">
-    <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v143</DefaultPlatformToolset>
+    <DefaultPlatformToolset Condition="'$(DefaultPlatformToolset)' == ''">v142</DefaultPlatformToolset>
     <LmdbSourceDir Condition="'$(LmdbSourceDir)' == ''">$(MSBuildThisFileDirectory)..\sources\lmdb\libraries\liblmdb\</LmdbSourceDir>
     <OutRoot Condition="'$(OutRoot)' == ''">$(MSBuildThisFileDirectory)..\out\lmdb</OutRoot>
   </PropertyGroup>

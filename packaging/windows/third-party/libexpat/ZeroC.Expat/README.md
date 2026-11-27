@@ -3,6 +3,8 @@
 This package provides the [Expat] debug and release DLLs, their corresponding import libraries, and the Expat header
 files.
 
+The DLLs are built with the v142 platform toolset and can be used from projects built with v142 or later.
+
 ## Source Code
 
 The binaries are built from the unmodified upstream Expat sources. The MSBuild project, nuspec and targets that

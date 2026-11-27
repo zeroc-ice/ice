@@ -3,6 +3,8 @@
 This package provides the [mcpp] static libraries for both debug and release builds. Both the shared and static CRT
 variants are included.
 
+The libraries are built with the v142 platform toolset and can be used from projects built with v142 or later.
+
 ## Source
 
 The libraries are built from the unmodified sources of ZeroC's mcpp fork, which is mcpp 2.7.2 simplified for the

@@ -3,27 +3,31 @@
     "dependency": "libexpat",
     "project": "packaging/windows/third-party/libexpat/expat.proj",
     "package": "ZeroC.Expat",
-    "toolset": "v143",
+    "version": "2.11.0.1",
+    "toolset": "v142",
     "sign_filter": "dll"
   },
   {
     "dependency": "bzip2",
     "project": "packaging/windows/third-party/bzip2/bzip2.proj",
     "package": "ZeroC.Bzip2",
-    "toolset": "v143",
+    "version": "1.0.8.1",
+    "toolset": "v142",
     "sign_filter": "dll"
   },
   {
     "dependency": "lmdb",
     "project": "packaging/windows/third-party/lmdb/lmdb.proj",
     "package": "ZeroC.LMDB",
-    "toolset": "v143",
+    "version": "0.9.36.1",
+    "toolset": "v142",
     "sign_filter": ""
   },
   {
     "dependency": "lmdb",
     "project": "packaging/windows/third-party/lmdb/lmdb-tools.proj",
     "package": "ZeroC.LMDB.Tools",
+    "version": "0.9.36",
     "toolset": "mingw64",
     "sign_filter": "exe"
   },
@@ -31,13 +35,15 @@
     "dependency": "mcpp",
     "project": "packaging/windows/third-party/mcpp/mcpp.proj",
     "package": "ZeroC.MCPP",
-    "toolset": "v143",
+    "version": "2.7.2.21",
+    "toolset": "v142",
     "sign_filter": ""
   },
   {
     "dependency": "openssl",
     "project": "packaging/windows/third-party/openssl/openssl.proj",
     "package": "ZeroC.OpenSSL",
+    "version": "3.5.9",
     "toolset": "v142",
     "sign_filter": "dll,exe"
   }

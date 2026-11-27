@@ -18,4 +18,16 @@
         <Error Condition="!Exists('$(ThirdPartyRoot)sources\$(Dependency)\.source-stamp')"
                Text="The $(Dependency) sources are missing. Run the Build target first." />
     </Target>
+
+    <!--
+        Sets PackageVersion to the version packages.json gives $(PackageName). It is the upstream version from
+        sources.json, followed by a revision when the package was rebuilt without a new upstream release.
+    -->
+    <Target Name="GetPackageVersion">
+        <Exec Command="&quot;$(PowerShellExe)&quot; -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)get-package-version.ps1&quot; -Package &quot;$(PackageName)&quot;"
+              ConsoleToMSBuild="true"
+              StandardOutputImportance="low">
+            <Output TaskParameter="ConsoleOutput" PropertyName="PackageVersion" />
+        </Exec>
+    </Target>
 </Project>

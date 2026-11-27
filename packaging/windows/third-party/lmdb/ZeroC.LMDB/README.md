@@ -2,6 +2,8 @@
 
 This package provides the [LMDB] static libraries for both debug and release builds.
 
+The libraries are built with the v142 platform toolset and can be used from projects built with v142 or later.
+
 ## Source
 
 The libraries are built from the unmodified upstream LMDB sources. The MSBuild project, nuspec and targets that
