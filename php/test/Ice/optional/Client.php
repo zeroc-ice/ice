@@ -188,6 +188,34 @@ function allTests($helper)
 
     test($mo5->bos == $mo1->bos);
 
+    // An optional member set to null is marshaled like an unset member.
+    $moNull = new Test\MultiOptional;
+    $moNull->a = null;
+    $moNull->d = null;
+    $moNull->h = null;
+    $moNull->i = null;
+    $moNull->j = null;
+    $moNull->oprx = null;
+    $moNull->bs = null;
+    $moNull->ss = null;
+    $moNull->iid = null;
+    $moNull->fs = null;
+    $moNull->vs = null;
+    $moNull->imipd = null;
+    $moNull = $initial->pingPong($moNull);
+    test($moNull->a === Ice\None);
+    test($moNull->d === Ice\None);
+    test($moNull->h === Ice\None);
+    test($moNull->i === Ice\None);
+    test($moNull->j === Ice\None);
+    test($moNull->oprx === Ice\None);
+    test($moNull->bs === Ice\None);
+    test($moNull->ss === Ice\None);
+    test($moNull->iid === Ice\None);
+    test($moNull->fs === Ice\None);
+    test($moNull->vs === Ice\None);
+    test($moNull->imipd === Ice\None);
+
     // Clear the first half of the optional members
     $mo6 = new Test\MultiOptional;
     $mo6->b = $mo5->b;
@@ -417,6 +445,27 @@ function allTests($helper)
     flush();
 
     $p2 = 0;
+
+    // An optional parameter set to null is marshaled like an unset parameter.
+    $p3 = $initial->opInt(null, $p2);
+    test($p2 === Ice\None && $p3 === Ice\None);
+    $p3 = $initial->opString(null, $p2);
+    test($p2 === Ice\None && $p3 === Ice\None);
+    $p3 = $initial->opMyEnum(null, $p2);
+    test($p2 === Ice\None && $p3 === Ice\None);
+    $p3 = $initial->opFixedStruct(null, $p2);
+    test($p2 === Ice\None && $p3 === Ice\None);
+    $p3 = $initial->opVarStruct(null, $p2);
+    test($p2 === Ice\None && $p3 === Ice\None);
+    $p3 = $initial->opMyInterfaceProxy(null, $p2);
+    test($p2 === Ice\None && $p3 === Ice\None);
+    $p3 = $initial->opByteSeq(null, $p2);
+    test($p2 === Ice\None && $p3 === Ice\None);
+    $p3 = $initial->opStringSeq(null, $p2);
+    test($p2 === Ice\None && $p3 === Ice\None);
+    $p3 = $initial->opIntIntDict(null, $p2);
+    test($p2 === Ice\None && $p3 === Ice\None);
+
     $p3 = $initial->opByte(Ice\None, $p2);
     test($p2 == Ice\None && $p3 == Ice\None);
     $p3 = $initial->opByte(56, $p2);

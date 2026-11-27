@@ -397,7 +397,7 @@ IcePHP::TypedInvocation::prepareRequest(
                 zval* arg = &args[info->pos];
                 assert(!Z_ISREF_P(arg));
 
-                if ((!info->optional || !isUnset(arg)) && !info->type->validate(arg, false))
+                if ((!info->optional || !isUnsetOrNull(arg)) && !info->type->validate(arg, false))
                 {
                     ostringstream os;
                     os << "invalid value for argument " << info->pos + 1 << " in operation '" << _op->mappedName << "'";
@@ -424,7 +424,7 @@ IcePHP::TypedInvocation::prepareRequest(
                 zval* arg = &args[info->pos];
                 assert(!Z_ISREF_P(arg));
 
-                if (!isUnset(arg) && os->writeOptional(info->tag, info->type->optionalFormat()))
+                if (!isUnsetOrNull(arg) && os->writeOptional(info->tag, info->type->optionalFormat()))
                 {
                     info->type->marshal(arg, os, &objectMap, true);
                 }
