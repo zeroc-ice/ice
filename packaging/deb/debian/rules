@@ -17,7 +17,9 @@ include /usr/share/dpkg/default.mk
 
 PHP_VERSIONS 		:= $(shell /usr/sbin/phpquery -V)
 
-export PYTHON3DIR 	:= $(shell python3 -c "import sys;print('python{0}.{1}'.format(sys.version_info.major, sys.version_info.minor))")
+# The Python extension is built for every supported Python 3 version. As for PHP, each version is built in its
+# own copy of the python directory, because the IcePy object files are not placed in a per-version directory.
+PY3_VERSIONS		:= $(shell py3versions -sv)
 
 export VERSION   := $(shell echo $(DEB_VERSION_UPSTREAM) | sed -e 's,^\([.0-9|.a-z]*\).*,\1,')
 
@@ -51,7 +53,10 @@ MAKEOPTS = V=1 prefix=/usr DESTDIR=$(DESTDIR)
 override_dh_auto_build-arch:
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES="cpp" CONFIGS="shared static" srcs
 ifeq (,$(filter nopython,$(DEB_BUILD_PROFILES)))
-	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="python" srcs
+	for v in $(PY3_VERSIONS); do \
+	  cp -a python python-$${v}; \
+	  $(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python$${v} -C python-$${v} srcs; \
+	done
 endif
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES=cpp CONFIGS="shared" tests
@@ -67,7 +72,9 @@ override_dh_auto_build-indep:
 override_dh_auto_install-arch:
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES="cpp" CONFIGS="shared static" install
 ifeq (,$(filter nopython,$(DEB_BUILD_PROFILES)))
-	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="python" install
+	for v in $(PY3_VERSIONS); do \
+	  $(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python$${v} -C python-$${v} install; \
+	done
 endif
 	for v in $(PHP_VERSIONS); do \
 	  PHP_CONFIG=php-config$${v} $(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) -C php-$${v} install; \
@@ -80,6 +87,9 @@ override_dh_auto_clean-arch:
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES="cpp" CONFIGS="shared static" distclean
 ifeq (,$(filter nopython,$(DEB_BUILD_PROFILES)))
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="python" distclean
+	for v in $(PY3_VERSIONS); do \
+	  rm -rf python-$${v}; \
+	done
 endif
 	for v in $(PHP_VERSIONS); do \
 	  rm -rf php-$${v}; \

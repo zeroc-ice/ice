@@ -23,8 +23,7 @@ Build-Depends: debhelper,
                openssl,
                php-all-dev,
                php-cli,
-               python3 (>= 3.12) <!nopython>,
-               python3-dev (>= 3.12) <!nopython>,
+               python3-all-dev (>= 3.12) <!nopython>,
                python3-setuptools,
                python3-passlib
 Standards-Version: 4.7.3
