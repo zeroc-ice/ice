@@ -21,7 +21,7 @@ public class Client : Test.TestHelper
         //
         // Shutdown the IceBox server.
         //
-        Ice.ObjectPrx prx = communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996");
+        Ice.ObjectPrx prx = communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9990");
         Ice.ProcessPrxHelper.uncheckedCast(prx).shutdown();
     }
 

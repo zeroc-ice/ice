@@ -29,7 +29,7 @@ Acceptor::listen()
     return _endpoint;
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
 void
 Acceptor::startAccept()
 {

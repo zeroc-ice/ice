@@ -17,7 +17,7 @@ namespace IceInternal
     class EventHandler : public std::enable_shared_from_this<EventHandler>
     {
     public:
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         //
         // Called to start a new asynchronous read or write operation.
         //
@@ -48,7 +48,7 @@ namespace IceInternal
     protected:
         virtual ~EventHandler();
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         SocketOperation _pending{SocketOperationNone};
         SocketOperation _started{SocketOperationNone};
         SocketOperation _completed{SocketOperationNone};
@@ -62,9 +62,6 @@ namespace IceInternal
         friend class ThreadPool;
         friend class ThreadPoolCurrent;
         friend class Selector;
-#ifdef ICE_USE_CFSTREAM
-        friend class EventHandlerWrapper;
-#endif
     };
 }
 

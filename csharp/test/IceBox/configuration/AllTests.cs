@@ -9,14 +9,16 @@ public class AllTests : Test.AllTests
     public static void allTests(Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        TestIntfPrx service1 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
-                                                                                          helper.getTestEndpoint(0)));
-        TestIntfPrx service2 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
-                                                                                          helper.getTestEndpoint(1)));
-        TestIntfPrx service3 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
-                                                                                          helper.getTestEndpoint(2)));
-        TestIntfPrx service4 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
-                                                                                          helper.getTestEndpoint(3)));
+        // The services listen on the fixed ports of their configuration files, outside the test port range: on
+        // macOS, a server of the C++ test suites cannot bind a port that a C# server left in TIME_WAIT.
+        TestIntfPrx service1 =
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:default -p 9991 -h 127.0.0.1"));
+        TestIntfPrx service2 =
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:default -p 9992 -h 127.0.0.1"));
+        TestIntfPrx service3 =
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:default -p 9993 -h 127.0.0.1"));
+        TestIntfPrx service4 =
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:default -p 9994 -h 127.0.0.1"));
 
         if (service1.getProperty("TestInheritProperties").Length == 0)
         {

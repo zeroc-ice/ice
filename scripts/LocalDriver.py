@@ -11,6 +11,7 @@ import traceback
 from typing import Any
 
 from Util import (
+    Darwin,
     Driver,
     Expect,
     IceProcess,
@@ -23,6 +24,7 @@ from Util import (
     TestCase,
     TestSuite,
     parseOptions,
+    platform,
 )
 
 #
@@ -570,6 +572,10 @@ class LocalDriver(Driver):
             current.result.write("*** [{0}/{1}] ".format(current.index, current.total))
         current.result.writeln("Running {0}/{1} tests ***".format(current.testsuite.getMapping(), current.testsuite))
 
+        self.setServerMapping(
+            current.testsuite, current.testsuite.getMapping().getServerMapping(current.testsuite.getId())
+        )
+
         success = False
         try:
             try:
@@ -636,6 +642,7 @@ class LocalDriver(Driver):
             server = testcase.getServerTestCase(cross)
             if not server:
                 continue
+            self.setServerMapping(server.getTestSuite(), server.getMapping())
 
             current.writeln("[ running {0} test - {1} ]".format(testcase, time.strftime("%x %X")))
             if not self.all:
@@ -729,12 +736,31 @@ class LocalDriver(Driver):
     def setInterrupt(self, value: bool) -> None:
         self.executor.setInterrupt(value)
 
-    def getTestPort(self, portnum: int) -> int:
-        # Return a port number in the range 14000-14099 for the first thread, 14100-14199 for the
-        # second thread, etc.
-        assert portnum < 100
+    def setServerMapping(self, testsuite: TestSuite, mapping: Mapping) -> None:
+        # Records, for the worker thread, whether the servers about to start listen through Network.framework,
+        # which getBasePort() needs to pick their port range. A test suite pinned to the main thread keeps the
+        # default range: such suites hardcode ports, which is why they never run on a worker thread.
+        self.threadlocal.networkFrameworkServers = (
+            isinstance(platform, Darwin) and mapping.usesCppRuntime() and not testsuite.isMainThreadOnly(self)
+        )
+
+    def getBasePort(self) -> int:
+        # Each worker thread owns a range of 100 ports: 14000-14099 for the first thread, 14100-14199 for the
+        # second thread, etc. Without workers, the range starts at 12010, the TestHelper default.
         baseport = 14000 + self.threadlocal.num * 100 if hasattr(self.threadlocal, "num") else 12010
-        return baseport + portnum
+
+        # On Apple platforms, a Network.framework listener cannot bind a port that a BSD socket left in TIME_WAIT
+        # until the TIME_WAIT expires (2 x MSL, 30 s): the kernel port registrar keeps the BSD reservation for that
+        # long and refuses the port to Network.framework, whatever SO_REUSEADDR or reuse_local_address say. The
+        # mappings on the Ice C++ runtime (Network.framework) and the others (BSD sockets) therefore use disjoint
+        # port ranges, so that a test case never binds a port a server of the other kind used shortly before.
+        if getattr(self.threadlocal, "networkFrameworkServers", False):
+            baseport += 10000
+        return baseport
+
+    def getTestPort(self, portnum: int) -> int:
+        assert portnum < 100
+        return self.getBasePort() + portnum
 
     def getProps(self, process: Process, current: Driver.Current) -> Props:
         props = Driver.getProps(self, process, current)
@@ -742,8 +768,8 @@ class LocalDriver(Driver):
             if current.host:
                 props["Ice.Default.Host"] = current.host
             # Ice process from the bin directory don't support Test.BasePort
-            if not process.isFromBinDir() and hasattr(self.threadlocal, "num"):
-                props["Test.BasePort"] = 14000 + self.threadlocal.num * 100
+            if not process.isFromBinDir() and self.getBasePort() != 12010:
+                props["Test.BasePort"] = self.getBasePort()
         return props
 
     def crossMappings(self) -> list[Mapping]:

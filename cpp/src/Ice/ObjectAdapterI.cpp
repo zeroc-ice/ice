@@ -865,7 +865,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(
     {
         CertDuplicateStore(_serverAuthenticationOptions->trustedRootCertificates);
     }
-#elif defined(ICE_USE_SECURE_TRANSPORT)
+#elif defined(ICE_USE_APPLE_SSL)
     if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
     {
         CFRetain(_serverAuthenticationOptions->trustedRootCertificates);
@@ -1085,7 +1085,7 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
     {
         CertCloseStore(_serverAuthenticationOptions->trustedRootCertificates, 0);
     }
-#elif defined(ICE_USE_SECURE_TRANSPORT)
+#elif defined(ICE_USE_APPLE_SSL)
     if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
     {
         CFRelease(_serverAuthenticationOptions->trustedRootCertificates);

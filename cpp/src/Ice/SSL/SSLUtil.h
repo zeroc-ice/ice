@@ -14,7 +14,7 @@ namespace Ice::SSL
 {
 #if defined(__APPLE__)
     //
-    // Helper functions to use by Secure Transport.
+    // Helper functions used by Apple SSL.
     //
     std::string fromCFString(CFStringRef);
 
@@ -70,7 +70,7 @@ namespace Ice::SSL
         PCCERT_CONTEXT _certificate;
     };
     ICE_API PCCERT_CONTEXT decodeCertificate(const std::string&);
-#elif defined(ICE_USE_SECURE_TRANSPORT)
+#elif defined(ICE_USE_APPLE_SSL)
     std::string certificateOIDAlias(const std::string&);
     ICE_API std::string getSubjectName(SecCertificateRef);
     std::vector<std::pair<int, std::string>> getSubjectAltNames(SecCertificateRef);

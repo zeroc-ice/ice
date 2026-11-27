@@ -192,7 +192,7 @@ namespace IceInternal
         // Operations from EventHandler
         //
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         bool startAsync(SocketOperation) final;
         bool finishAsync(SocketOperation) final;
 #endif
@@ -247,7 +247,7 @@ namespace IceInternal
         std::set<Ice::ConnectionIPtr> _connections;
         State _state{StateHolding};
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         std::exception_ptr _acceptorException;
 #endif
         mutable std::mutex _mutex;

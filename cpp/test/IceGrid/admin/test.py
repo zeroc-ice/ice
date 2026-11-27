@@ -8,7 +8,7 @@ import os
 from Expect import ExpectPattern
 from Glacier2Util import Glacier2Router
 from IceGridUtil import IceGridAdmin, IceGridTestCase
-from Util import Driver, Process, Props, TestSuite, Windows, platform
+from Util import Darwin, Driver, Process, Props, TestSuite, Windows, platform
 
 
 class IceGridAdminTestCase(IceGridTestCase):
@@ -164,7 +164,7 @@ class IceGridAdminTestCase(IceGridTestCase):
 def routerProps(process: Process, current: Driver.Current) -> Props:
     testcase = current.getTestCase()
     assert isinstance(testcase, IceGridTestCase)
-    return {
+    props: Props = {
         "Glacier2.SessionManager": "TestIceGrid/AdminSessionManager",
         "Glacier2.PermissionsVerifier": "Glacier2/NullPermissionsVerifier",
         "Glacier2.SSLSessionManager": "TestIceGrid/AdminSSLSessionManager",
@@ -172,8 +172,12 @@ def routerProps(process: Process, current: Driver.Current) -> Props:
         "Ice.Connection.Client.InactivityTimeout": "0",
         "Glacier2.SSLPermissionsVerifier": "Glacier2/NullSSLPermissionsVerifier",
         "Ice.Default.Locator": testcase.getLocator(current),
-        "IceSSL.VerifyPeer": 1,
     }
+    # IceSSL.VerifyPeer=1 is not supported on Apple platforms. The router keeps the default (2) there, which the admin
+    # clients satisfy because they all present a certificate.
+    if not isinstance(platform, Darwin):
+        props["IceSSL.VerifyPeer"] = 1
+    return props
 
 
 if isinstance(platform, Windows) or os.getuid() != 0:

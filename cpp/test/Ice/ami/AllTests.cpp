@@ -1417,6 +1417,43 @@ allTests(TestHelper* helper, bool collocated)
                 {
                     // Expected.
                 }
+
+                //
+                // Remote case with requests queued behind the one that aborts the connection: while the adapter is
+                // held, the server receives the first request and the others remain queued, so it receives them
+                // together once the adapter is resumed and aborts the connection with the requests that follow
+                // abortConnection not yet read. Each of them fails with ConnectionLostException, or succeeds if it
+                // is dispatched before the abort or retried on a new connection.
+                //
+                p->ice_ping();
+                testController->holdAdapter();
+                vector<future<void>> futures;
+                futures.push_back(p->opAsync());
+                auto abortFuture = p->abortConnectionAsync();
+                for (int i = 0; i < 10; ++i)
+                {
+                    futures.push_back(p->opAsync());
+                }
+                testController->resumeAdapter();
+                try
+                {
+                    abortFuture.get();
+                    test(false);
+                }
+                catch (const ConnectionLostException&)
+                {
+                    // Expected.
+                }
+                for (auto& future : futures)
+                {
+                    try
+                    {
+                        future.get();
+                    }
+                    catch (const ConnectionLostException&)
+                    {
+                    }
+                }
             }
             cout << "ok" << endl;
         }

@@ -20,10 +20,13 @@ public class AllTests {
     public static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
-        var service1 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(0));
-        var service2 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(1));
-        var service3 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(2));
-        var service4 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(3));
+        // The services listen on the fixed ports of their configuration files, outside the test
+        // port range: on macOS, a server of the C++ test suites cannot bind a port that a Java
+        // server left in TIME_WAIT.
+        var service1 = TestIntfPrx.createProxy(communicator, "test:default -p 9991 -h 127.0.0.1");
+        var service2 = TestIntfPrx.createProxy(communicator, "test:default -p 9992 -h 127.0.0.1");
+        var service3 = TestIntfPrx.createProxy(communicator, "test:default -p 9993 -h 127.0.0.1");
+        var service4 = TestIntfPrx.createProxy(communicator, "test:default -p 9994 -h 127.0.0.1");
 
         if (service1.getProperty("TestInheritProperties").isEmpty()) {
             out.print("testing service properties... ");

@@ -112,7 +112,7 @@ Ice::SSL::readFile(const string& file, vector<char>& buffer)
 optional<string>
 Ice::SSL::resolveFilePath(const string& path, const string& parentDir)
 {
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+#if defined(ICE_USE_APPLE_SSL_IOS)
     CFBundleRef bundle = CFBundleGetMainBundle();
     if (bundle)
     {
@@ -163,7 +163,7 @@ Ice::SSL::resolveFilePath(const string& path, const string& parentDir)
 optional<string>
 Ice::SSL::resolveDirPath(const string& path, const string& parentDir)
 {
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+#if defined(ICE_USE_APPLE_SSL_IOS)
     CFBundleRef bundle = CFBundleGetMainBundle();
     if (bundle)
     {
@@ -448,7 +448,7 @@ Ice::SSL::decodeCertificate(const string& data)
     }
     return certContext;
 }
-#elif defined(ICE_USE_SECURE_TRANSPORT)
+#elif defined(ICE_USE_APPLE_SSL)
 string
 Ice::SSL::certificateOIDAlias(const string& name)
 {

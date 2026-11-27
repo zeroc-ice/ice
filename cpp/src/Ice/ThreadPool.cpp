@@ -42,7 +42,7 @@ IceInternal::ThreadPoolWorkQueue::destroy()
     // lock_guard lock(_mutex); Called with the thread pool locked
     assert(!_destroyed);
     _destroyed = true;
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
     _threadPool._selector.completed(this, SocketOperationRead);
 #else
     _threadPool._selector.ready(this, SocketOperationRead, true);
@@ -54,7 +54,7 @@ IceInternal::ThreadPoolWorkQueue::queue(function<void(ThreadPoolCurrent&)> item)
 {
     // lock_guard lock(_mutex); Called with the thread pool locked
     _workItems.push_back(std::move(item));
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
     _threadPool._selector.completed(this, SocketOperationRead);
 #else
     if (_workItems.size() == 1)
@@ -64,7 +64,7 @@ IceInternal::ThreadPoolWorkQueue::queue(function<void(ThreadPoolCurrent&)> item)
 #endif
 }
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
 bool
 IceInternal::ThreadPoolWorkQueue::startAsync(SocketOperation)
 {
@@ -91,7 +91,7 @@ IceInternal::ThreadPoolWorkQueue::message(ThreadPoolCurrent& current)
             workItem = std::move(_workItems.front());
             _workItems.pop_front();
         }
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         else
         {
             assert(_destroyed);
@@ -150,7 +150,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, string prefix, 
       _selector(instance),
       _serialize(_instance->initializationData().properties->getPropertyAsInt(_prefix + ".Serialize") > 0),
       _serverIdleTime(timeout)
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
       ,
       _nextHandler(_handlers.end())
 #endif
@@ -235,7 +235,7 @@ IceInternal::ThreadPool::initialize()
     const_cast<int&>(_sizeIO) = min(sizeMax, nProcessors);
     const_cast<int&>(_threadIdleTime) = threadIdleTime;
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
     _selector.setup(_sizeIO);
 #endif
 
@@ -345,7 +345,7 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
 {
     lock_guard lock(_mutex);
     assert(!_destroyed);
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
     closeNow = _selector.finish(handler.get(), closeNow); // This must be called before!
     _workQueue->queue(
         [handler, closeNow](ThreadPoolCurrent& current)
@@ -362,7 +362,7 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
         });
     return closeNow;
 #else
-    UNREFERENCED_PARAMETER(closeNow);
+    (void)closeNow;
 
     // If there are no pending asynchronous operations, we can call finish on the handler now.
     if (!handler->_pending)
@@ -471,7 +471,7 @@ IceInternal::ThreadPool::joinWithAllThreads()
 void
 IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 {
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
     ThreadPoolCurrent current(shared_from_this(), thread);
     bool select = false;
     while (true)
@@ -623,6 +623,15 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
     ThreadPoolCurrent current(shared_from_this(), thread);
     while (true)
     {
+#    if defined(ICE_USE_NETWORK_FRAMEWORK)
+        current._ioCompleted = false;
+        EventHandler* handler = waitForCompletion(current, thread);
+        if (!handler)
+        {
+            return; // The thread was idle for the thread idle time and the pool shrank.
+        }
+        current._handler = handler->shared_from_this();
+#    else
         try
         {
             current._ioCompleted = false;
@@ -642,12 +651,14 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 }
                 else if (_inUse < static_cast<int>(_threads.size() - 1)) // If not the last idle thread, we can exit.
                 {
+#        if defined(ICE_USE_IOCP)
                     BOOL hasIO = false;
                     GetThreadIOPendingFlag(GetCurrentThread(), &hasIO);
                     if (hasIO)
                     {
                         continue;
                     }
+#        endif
 
                     if (_instance->traceLevels()->threadPool >= 1)
                     {
@@ -687,9 +698,13 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 continue;
             }
         }
+#    endif
 
         {
             lock_guard lock(_mutex);
+#    if defined(ICE_USE_NETWORK_FRAMEWORK)
+            ++_inUseCompletion;
+#    endif
             thread->setState(ThreadState::ThreadStateInUseForIO);
         }
 
@@ -700,6 +715,10 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         }
         catch (const ThreadPoolDestroyedException&)
         {
+#    if defined(ICE_USE_NETWORK_FRAMEWORK)
+            lock_guard lock(_mutex);
+            --_inUseCompletion;
+#    endif
             return;
         }
         catch (const exception& ex)
@@ -720,11 +739,97 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 assert(_inUse > 0);
                 --_inUse;
             }
+#    if defined(ICE_USE_NETWORK_FRAMEWORK)
+            assert(_inUseCompletion > 0);
+            if (--_inUseCompletion == 0)
+            {
+                _idleSince = chrono::steady_clock::now();
+            }
+#    endif
             thread->setState(ThreadState::ThreadStateIdle);
         }
     }
 #endif
 }
+
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+EventHandler*
+IceInternal::ThreadPool::waitForCompletion(ThreadPoolCurrent& current, const EventHandlerThreadPtr& thread)
+{
+    // In the readiness-based loop, the leader alone waits for the server idle time and the followers for the thread
+    // idle time. Here, all the threads wait for completions alike, so each one waits until the earliest of its own
+    // thread idle deadline and the server idle deadline, and checks both when the wait times out. The thread that
+    // leaves the pool idle waits for exactly the server idle time.
+    auto threadIdleSince = chrono::steady_clock::now();
+    while (true)
+    {
+        auto deadline = chrono::steady_clock::time_point::max();
+        {
+            lock_guard lock(_mutex);
+            if (_sizeMax > 1 && _threadIdleTime > 0)
+            {
+                deadline = threadIdleSince + chrono::seconds(_threadIdleTime);
+            }
+
+            // While other threads process completions, the server cannot become idle before the last of them is
+            // done, and that thread computes the exact deadline; this one checks again after the server idle time.
+            if (_serverIdleTime > 0 && !_destroyed)
+            {
+                auto serverIdleSince = _inUseCompletion == 0 ? _idleSince : chrono::steady_clock::now();
+                deadline = min(deadline, serverIdleSince + chrono::seconds(_serverIdleTime));
+            }
+        }
+
+        chrono::milliseconds timeout{0}; // Waits until a completion arrives.
+        if (deadline != chrono::steady_clock::time_point::max())
+        {
+            // A deadline that already passed still needs a non-zero timeout, which only checks for a completion.
+            timeout = max(chrono::ceil<chrono::milliseconds>(deadline - chrono::steady_clock::now()), 1ms);
+        }
+
+        try
+        {
+            return _selector.getNextHandler(current.operation, current._count, current._error, timeout);
+        }
+        catch (const SelectorTimeoutException&)
+        {
+        }
+
+        lock_guard lock(_mutex);
+        auto now = chrono::steady_clock::now();
+        if (_destroyed)
+        {
+            threadIdleSince = now;
+            continue;
+        }
+
+        if (_serverIdleTime > 0 && _inUseCompletion == 0 && now >= _idleSince + chrono::seconds(_serverIdleTime))
+        {
+            // Restart the server idle time, so that the other waiting threads don't queue the shutdown again.
+            _idleSince = now;
+            _workQueue->queue([instance = _instance](ThreadPoolCurrent& shutdownCurrent)
+                              { shutdown(shutdownCurrent, instance); });
+            continue;
+        }
+
+        if (_sizeMax > 1 && _threadIdleTime > 0 && now >= threadIdleSince + chrono::seconds(_threadIdleTime))
+        {
+            if (_inUse < static_cast<int>(_threads.size() - 1)) // If not the last idle thread, we can exit.
+            {
+                if (_instance->traceLevels()->threadPool >= 1)
+                {
+                    Trace out(_instance->initializationData().logger, _instance->traceLevels()->threadPoolCat);
+                    out << "shrinking " << _prefix << ": Size = " << (_threads.size() - 1);
+                }
+                _threads.erase(thread);
+                _workQueue->queue([thread](ThreadPoolCurrent&) { joinThread(thread); });
+                return nullptr;
+            }
+            threadIdleSince = now; // The last idle thread waits for another thread idle time.
+        }
+    }
+}
+#endif
 
 bool
 IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
@@ -737,7 +842,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 
     if (_sizeMax > 1)
     {
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
         --_inUseIO;
 
         if (!_destroyed)
@@ -802,7 +907,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
     return _sizeMax > 1 && _serialize && current._handler.get() != _workQueue.get();
 }
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
 bool
 IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
 {
@@ -814,9 +919,11 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         current._handler->_completed = static_cast<SocketOperation>(current._handler->_completed | current.operation);
         current._handler->_started = static_cast<SocketOperation>(current._handler->_started & ~current.operation);
 
+#    if defined(ICE_USE_IOCP)
         AsyncInfo* info = current._handler->getNativeInfo()->getAsyncInfo(current.operation);
         info->count = current._count;
         info->error = current._error;
+#    endif
 
         if (!current._handler->finishAsync(current.operation)) // Returns false if the handler is finished.
         {
@@ -898,7 +1005,7 @@ IceInternal::ThreadPool::finishMessage(ThreadPoolCurrent& current)
         finish(current._handler, false);
     }
 }
-#else
+#else // readiness-based (epoll/kqueue)
 void
 IceInternal::ThreadPool::promoteFollower(ThreadPoolCurrent& current)
 {
