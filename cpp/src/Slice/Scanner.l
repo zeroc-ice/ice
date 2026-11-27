@@ -117,10 +117,10 @@ whitespace          [[:space:]]{-}[\n]
 preprocessor_prefix [[:blank:]]*#[[:blank:]]*
 preprocessor_lineno {preprocessor_prefix}(line[[:blank:]]+)?{dec}+
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
-integer_constant    (\+|-)?((0{oct}+)|(0x{hex}+)|({dec}+))
 fractional_constant (\+|-)?(({dec}*\.{dec}+)|({dec}+\.))
 exponent_part       (e|E)(\+|-)?{dec}+
 floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{exponent_part}))[fF]?
+integer_constant    (\+|-)?{dec}[[:alnum:]]*
 
 %%
 
@@ -288,29 +288,6 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
         "encountered invalid control character while scanning a string literal; use '" + escape + "' instead");
 }
 
-{integer_constant} {
-    setLocation(yylloc);
-
-    IntegerTokPtr itp = make_shared<IntegerTok>();
-    itp->literal = string(yytext);
-    *yylval = itp;
-    try
-    {
-        itp->v = std::stoll(string(yytext), nullptr, 0);
-    }
-    catch (const std::out_of_range&)
-    {
-        currentUnit->error("integer constant '" + string(yytext) + "' out of range");
-        itp->v = INT64_MAX;
-    }
-    catch (const std::invalid_argument&)
-    {
-        currentUnit->error("invalid integer constant '" + string(yytext) + "'");
-        itp->v = INT64_MAX;
-    }
-    return ICE_INTEGER_LITERAL;
-}
-
 {floating_literal} {
     setLocation(yylloc);
 
@@ -334,6 +311,37 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
         currentUnit->error("floating-point constant '" + string{yytext} + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
+}
+
+  /* This rule is intentionally over-wide to match invalid integer literals in addition to valid ones. This lets us
+   * report specific errors for invalid literals, instead of getting a generic syntax error by default. That being said,
+   * valid literals must match `(\+|-)?((0{oct}+)|(0x{hex}+)|([1-9]{dec}*))`; anything else is reported as an error. */
+{integer_constant} {
+    setLocation(yylloc);
+
+    IntegerTokPtr itp = make_shared<IntegerTok>();
+    itp->v = 0;
+    itp->literal = string(yytext);
+    *yylval = itp;
+    try
+    {
+        size_t pos = 0;
+        itp->v = std::stoll(string(yytext), &pos, 0);
+        // Ensure that 'stoll' read the entire literal. If it didn't, then this literal must be invalid.
+        if (pos != itp->literal.size())
+        {
+            currentUnit->error("invalid integer constant '" + itp->literal + "'");
+        }
+    }
+    catch (const std::out_of_range&)
+    {
+        currentUnit->error("integer constant '" + string(yytext) + "' out of range");
+    }
+    catch (const std::invalid_argument&)
+    {
+        currentUnit->error("invalid integer constant '" + string(yytext) + "'");
+    }
+    return ICE_INTEGER_LITERAL;
 }
 
   /* ========== Comments ========== */
@@ -562,7 +570,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     s << "illegal input character: '\\";
     s.width(3);
     s.fill('0');
-    s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
+    s << std::oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
     s << "'";
 
     currentUnit->error(s.str());
