@@ -108,7 +108,7 @@ export class Client extends TestHelper {
                 await controller.resumeAdapter();
             }
         }
-        controller.shutdown();
+        await controller.shutdown();
         out.writeLine("ok");
     }
 
