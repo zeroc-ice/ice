@@ -19,7 +19,7 @@ extern "C"
 namespace IcePHP
 {
 #if PHP_VERSION_ID >= 80600
-    // The argument info type of internal functions; PHP 8.6 replaced zend_internal_arg_info with zend_arg_info.
+    // The element type of zend_internal_function::arg_info, which changed in PHP 8.6.
     using ArgInfo = zend_arg_info;
 #else
     using ArgInfo = zend_internal_arg_info;
