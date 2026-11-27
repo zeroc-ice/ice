@@ -18,6 +18,13 @@ extern "C"
 
 namespace IcePHP
 {
+#if PHP_VERSION_ID >= 80600
+    // The element type of zend_internal_function::arg_info, which changed in PHP 8.6.
+    using ArgInfo = zend_arg_info;
+#else
+    using ArgInfo = zend_internal_arg_info;
+#endif
+
     class ParamInfo
     {
     public:
@@ -83,7 +90,7 @@ namespace IcePHP
 
         static void convertParams(zval*, ParamInfoList&, bool&);
         static ParamInfoPtr convertParam(zval*, int);
-        static void getArgInfo(zend_internal_arg_info&, const ParamInfoPtr&, bool);
+        static void getArgInfo(ArgInfo&, const ParamInfoPtr&, bool);
     };
     using OperationIPtr = std::shared_ptr<OperationI>;
 
@@ -243,6 +250,14 @@ IcePHP::OperationI::~OperationI()
 {
     if (_zendFunction)
     {
+#if PHP_VERSION_ID >= 80600
+        // zend_convert_internal_arg_info created these names. Releasing an interned name does nothing, but with
+        // opcache enabled a name created during a request is a regular string that we must release.
+        for (uint32_t i = 0; i < _zendFunction->num_args; ++i)
+        {
+            zend_string_release(_zendFunction->arg_info[i].name);
+        }
+#endif
         delete[] _zendFunction->arg_info;
         zend_string_release(_zendFunction->function_name);
         efree(_zendFunction);
@@ -255,7 +270,7 @@ IcePHP::OperationI::function()
     if (!_zendFunction)
     {
         // Create an array that indicates how arguments are passed to the operation.
-        zend_internal_arg_info* argInfo = new zend_internal_arg_info[numParams];
+        ArgInfo* argInfo = new ArgInfo[numParams];
 
         int i = 0;
         for (ParamInfoList::const_iterator p = inParams.begin(); p != inParams.end(); ++p, ++i)
@@ -325,23 +340,30 @@ IcePHP::OperationI::convertParam(zval* p, int pos)
 }
 
 void
-IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& info, bool out)
+IcePHP::OperationI::getArgInfo(ArgInfo& arg, const ParamInfoPtr& info, bool out)
 {
     const zend_uchar pass_by_ref = out ? 1 : 0;
     const zend_bool allow_null = 1;
+    zend_internal_arg_info internalArgInfo;
     if (!info->optional &&
         (dynamic_pointer_cast<SequenceInfo>(info->type) || dynamic_pointer_cast<DictionaryInfo>(info->type)))
     {
         zend_internal_arg_info ai[] = {
             ZEND_ARG_ARRAY_INFO(pass_by_ref, static_cast<uint32_t>(0), static_cast<uint32_t>(allow_null))};
-        arg = ai[0];
+        internalArgInfo = ai[0];
     }
     else
     {
         zend_internal_arg_info ai[] = {
             ZEND_ARG_CALLABLE_INFO(pass_by_ref, static_cast<uint32_t>(0), static_cast<uint32_t>(allow_null))};
-        arg = ai[0];
+        internalArgInfo = ai[0];
     }
+#if PHP_VERSION_ID >= 80600
+    // Performs the conversion that zend_register_functions applies to the arg_info of registered functions.
+    zend_convert_internal_arg_info(&arg, &internalArgInfo, false, false);
+#else
+    arg = internalArgInfo;
+#endif
 }
 
 // Invocation

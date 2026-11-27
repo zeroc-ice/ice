@@ -263,7 +263,8 @@ ZEND_METHOD(Ice_Communicator, stringToProxy)
     // The second argument (the Slice type ID) is optional.
     if (ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 2)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     char* str;
@@ -487,7 +488,8 @@ ZEND_METHOD(Ice_Communicator, getProperties)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -512,7 +514,8 @@ ZEND_METHOD(Ice_Communicator, getLogger)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -537,7 +540,8 @@ ZEND_METHOD(Ice_Communicator, getDefaultRouter)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -618,7 +622,8 @@ ZEND_METHOD(Ice_Communicator, getDefaultLocator)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -907,7 +912,7 @@ ZEND_FUNCTION(Ice_initialize)
 
         initData.properties = Ice::createProperties(seq);
 
-        zval_dtor(zvargs);
+        zval_ptr_dtor_nogc(zvargs);
         if (!createStringArray(zvargs, seq))
         {
             RETURN_NULL();
@@ -1512,17 +1517,21 @@ IcePHP::communicatorInit(void)
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _handlers.clone_obj = nullptr;
     _handlers.free_obj = handleFreeStorage;
-    _handlers.offset = XtOffsetOf(Wrapper<CommunicatorInfoIPtr>, zobj);
+    _handlers.offset = offsetof(Wrapper<CommunicatorInfoIPtr>, zobj);
     zend_class_implements(communicatorClassEntry, 1, interface);
+
+    // Returns the value of the given php.ini setting, or nullptr if it has no value.
+    auto getIniString = [](const char* name) -> const char*
+    { return zend_ini_string_ex(name, strlen(name), 0, nullptr); };
 
     // Create the profiles from configuration settings.
     const char* empty = "";
-    const char* config = INI_STR("ice.config"); // Needs to be a string literal!
+    const char* config = getIniString("ice.config");
     if (!config)
     {
         config = empty;
     }
-    const char* options = INI_STR("ice.options"); // Needs to be a string literal!
+    const char* options = getIniString("ice.options");
     if (!options)
     {
         options = empty;
@@ -1532,7 +1541,7 @@ IcePHP::communicatorInit(void)
         return false;
     }
 
-    const char* profiles = INI_STR("ice.profiles"); // Needs to be a string literal!
+    const char* profiles = getIniString("ice.profiles");
     if (!profiles)
     {
         profiles = empty;

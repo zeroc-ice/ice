@@ -3028,7 +3028,7 @@ void
 IcePHP::ReadObjectCallback::invoke(const shared_ptr<Ice::Value>& p)
 {
 #ifdef HT_ALLOW_COW_VIOLATION
-    if (!ZVAL_IS_NULL(&_target))
+    if (!Z_ISNULL_P(&_target))
     {
         HT_ALLOW_COW_VIOLATION(Z_ARRVAL(_target));
     }
@@ -3615,7 +3615,8 @@ ZEND_FUNCTION(IcePHP_stringify)
 {
     if (ZEND_NUM_ARGS() != 2)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     zval* v;
@@ -3643,7 +3644,8 @@ ZEND_FUNCTION(IcePHP_stringifyException)
 {
     if (ZEND_NUM_ARGS() != 2)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     zval* v;
@@ -3710,7 +3712,7 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _typeInfoHandlers.clone_obj = nullptr;
     _typeInfoHandlers.free_obj = handleTypeInfoFreeStorage;
-    _typeInfoHandlers.offset = XtOffsetOf(Wrapper<TypeInfoPtr>, zobj);
+    _typeInfoHandlers.offset = offsetof(Wrapper<TypeInfoPtr>, zobj);
 
     // Register the IcePHP_ExceptionInfo class.
     INIT_CLASS_ENTRY(ce, "IcePHP_ExceptionInfo", _exceptionInfoMethods);
@@ -3724,7 +3726,7 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _exceptionInfoHandlers.clone_obj = nullptr;
     _exceptionInfoHandlers.free_obj = handleExceptionInfoFreeStorage;
-    _exceptionInfoHandlers.offset = XtOffsetOf(Wrapper<ExceptionInfoPtr>, zobj);
+    _exceptionInfoHandlers.offset = offsetof(Wrapper<ExceptionInfoPtr>, zobj);
 
     REGISTER_NS_STRING_CONSTANT("Ice", "None", const_cast<char*>(_unsetGUID.c_str()), CONST_CS | CONST_PERSISTENT);
     return true;
@@ -3792,7 +3794,7 @@ IcePHP::typesRequestShutdown(void)
 
     delete static_cast<ExceptionInfoMap*>(ICE_G(exceptionInfoMap));
 
-    zval_dtor(ICE_G(unset));
+    zval_ptr_dtor_nogc(ICE_G(unset));
     efree(ICE_G(unset));
     return true;
 }

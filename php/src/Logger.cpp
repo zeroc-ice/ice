@@ -29,7 +29,8 @@ ZEND_METHOD(Ice_Logger, __toString)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     RETURN_NULL();
@@ -250,7 +251,7 @@ IcePHP::loggerInit(void)
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _loggerHandlers.clone_obj = nullptr;
     _loggerHandlers.free_obj = handleFreeStorage;
-    _loggerHandlers.offset = XtOffsetOf(Wrapper<Ice::LoggerPtr>, zobj);
+    _loggerHandlers.offset = offsetof(Wrapper<Ice::LoggerPtr>, zobj);
     zend_class_implements(loggerClassEntry, 1, interface);
 
     return true;
@@ -274,7 +275,7 @@ IcePHP::createLogger(zval* zv, const Ice::LoggerPtr& p)
 bool
 IcePHP::fetchLogger(zval* zv, Ice::LoggerPtr& p)
 {
-    if (!ZVAL_IS_NULL(zv))
+    if (!Z_ISNULL_P(zv))
     {
         if (Z_TYPE_P(zv) != IS_OBJECT || Z_OBJCE_P(zv) != loggerClassEntry)
         {

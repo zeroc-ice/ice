@@ -39,7 +39,8 @@ ZEND_METHOD(Ice_Endpoint, __toString)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::EndpointPtr _this = Wrapper<Ice::EndpointPtr>::value(getThis());
@@ -63,7 +64,8 @@ ZEND_METHOD(Ice_Endpoint, getInfo)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::EndpointPtr _this = Wrapper<Ice::EndpointPtr>::value(getThis());
@@ -100,7 +102,8 @@ ZEND_METHOD(Ice_EndpointInfo, type)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::EndpointInfoPtr _this = Wrapper<Ice::EndpointInfoPtr>::value(getThis());
@@ -122,7 +125,8 @@ ZEND_METHOD(Ice_EndpointInfo, datagram)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::EndpointInfoPtr _this = Wrapper<Ice::EndpointInfoPtr>::value(getThis());
@@ -143,7 +147,8 @@ ZEND_METHOD(Ice_EndpointInfo, secure)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::EndpointInfoPtr _this = Wrapper<Ice::EndpointInfoPtr>::value(getThis());
@@ -229,7 +234,7 @@ IcePHP::endpointInit(void)
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _endpointHandlers.clone_obj = nullptr;
     _endpointHandlers.free_obj = handleEndpointFreeStorage;
-    _endpointHandlers.offset = XtOffsetOf(Wrapper<Ice::EndpointPtr>, zobj);
+    _endpointHandlers.offset = offsetof(Wrapper<Ice::EndpointPtr>, zobj);
     zend_class_implements(endpointClassEntry, 1, endpointInterface);
 
     // Define the EndpointInfo class.
@@ -243,7 +248,7 @@ IcePHP::endpointInit(void)
     // A null clone_obj makes the object uncloneable: clone throws an Error.
     _endpointInfoHandlers.clone_obj = nullptr;
     _endpointInfoHandlers.free_obj = handleEndpointInfoFreeStorage;
-    _endpointInfoHandlers.offset = XtOffsetOf(Wrapper<Ice::EndpointInfoPtr>, zobj);
+    _endpointInfoHandlers.offset = offsetof(Wrapper<Ice::EndpointInfoPtr>, zobj);
     zend_declare_property_bool(endpointInfoClassEntry, "compress", sizeof("compress") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_null(endpointInfoClassEntry, "underlying", sizeof("underlying") - 1, ZEND_ACC_PUBLIC);
 
@@ -318,7 +323,7 @@ IcePHP::createEndpoint(zval* zv, const Ice::EndpointPtr& p)
 bool
 IcePHP::fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint)
 {
-    if (ZVAL_IS_NULL(zv))
+    if (Z_ISNULL_P(zv))
     {
         endpoint = 0;
     }

@@ -41,7 +41,8 @@ ZEND_METHOD(Ice_Connection, __toString)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
@@ -63,7 +64,8 @@ ZEND_METHOD(Ice_Connection, abort)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
@@ -76,7 +78,8 @@ ZEND_METHOD(Ice_Connection, close)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
@@ -97,7 +100,8 @@ ZEND_METHOD(Ice_Connection, disableInactivityCheck)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
@@ -110,7 +114,8 @@ ZEND_METHOD(Ice_Connection, getEndpoint)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
@@ -167,7 +172,8 @@ ZEND_METHOD(Ice_Connection, type)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
@@ -190,7 +196,8 @@ ZEND_METHOD(Ice_Connection, getInfo)
 {
     if (ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
@@ -248,7 +255,8 @@ ZEND_METHOD(Ice_Connection, throwException)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
@@ -370,7 +378,7 @@ IcePHP::connectionInit(void)
     _connectionHandlers.clone_obj = nullptr;
     _connectionHandlers.compare = handleConnectionCompare;
     _connectionHandlers.free_obj = handleConnectionFreeStorage;
-    _connectionHandlers.offset = XtOffsetOf(Wrapper<Ice::ConnectionPtr>, zobj);
+    _connectionHandlers.offset = offsetof(Wrapper<Ice::ConnectionPtr>, zobj);
     zend_class_implements(connectionClassEntry, 1, interface);
 
     // Register the ConnectionInfo class. It's a plain PHP class: its instances carry no native state.
@@ -461,7 +469,7 @@ IcePHP::createConnection(zval* zv, const Ice::ConnectionPtr& p)
 bool
 IcePHP::fetchConnection(zval* zv, Ice::ConnectionPtr& connection)
 {
-    if (ZVAL_IS_NULL(zv))
+    if (Z_ISNULL_P(zv))
     {
         connection = 0;
     }

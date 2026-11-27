@@ -33,7 +33,8 @@ ZEND_METHOD(Ice_Properties, __toString)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
@@ -439,7 +440,8 @@ ZEND_METHOD(Ice_Properties, getCommandLineOptions)
 {
     if (ZEND_NUM_ARGS() != 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
@@ -580,7 +582,8 @@ ZEND_METHOD(Ice_Properties, clone)
 {
     if (ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        RETURN_THROWS();
     }
 
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
@@ -689,7 +692,7 @@ ZEND_FUNCTION(Ice_createProperties)
 
         if (arglist)
         {
-            zval_dtor(arglist);
+            zval_ptr_dtor_nogc(arglist);
             if (!createStringArray(arglist, seq))
             {
                 RETURN_NULL();
@@ -779,7 +782,7 @@ IcePHP::propertiesInit(void)
     memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _handlers.clone_obj = handleClone;
     _handlers.free_obj = handleFreeStorage;
-    _handlers.offset = XtOffsetOf(Wrapper<Ice::PropertiesPtr>, zobj);
+    _handlers.offset = offsetof(Wrapper<Ice::PropertiesPtr>, zobj);
     zend_class_implements(propertiesClassEntry, 1, interface);
 
     return true;
@@ -804,7 +807,7 @@ IcePHP::createProperties(zval* zv, const Ice::PropertiesPtr& p)
 bool
 IcePHP::fetchProperties(zval* zv, Ice::PropertiesPtr& p)
 {
-    if (!ZVAL_IS_NULL(zv))
+    if (!Z_ISNULL_P(zv))
     {
         if (Z_TYPE_P(zv) != IS_OBJECT || Z_OBJCE_P(zv) != propertiesClassEntry)
         {
