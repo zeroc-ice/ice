@@ -14,3 +14,4 @@ ChangedMeaning.ice:173: data member 'X' differs only in capitalization from data
 ChangedMeaning.ice:179: data member 'X' differs only in capitalization from data member 'x'
 ChangedMeaning.ice:184: parameter 'A' differs only in capitalization from parameter 'a'
 ChangedMeaning.ice:192: data member 'X' differs only in capitalization from data member 'x'
+ChangedMeaning.ice:203: 'H' has changed meaning

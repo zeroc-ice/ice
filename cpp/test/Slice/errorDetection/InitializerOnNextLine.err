@@ -1,0 +1,2 @@
+InitializerOnNextLine.ice:6: initializer of type 'string' is incompatible with the type 'int' of constant 'X'
+InitializerOnNextLine.ice:11: initializer of type 'string' is incompatible with the type 'int' of data member 'x'

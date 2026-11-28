@@ -193,6 +193,19 @@ module Test
     }
 }
 
+module BraceOnNextLine
+{
+    class H {}
+
+    module Inner
+    {
+        sequence<H> HSeq;
+        class H // Changed meaning
+        {
+        }
+    }
+}
+
 module ElementsCanHaveTheSameNameAsTheirContainer
 {
     interface IFoo

@@ -8,7 +8,7 @@
 
 %code requires{
 
-// Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
+// Included first to get 'SourceSpan' which we need to define YYLTYPE before flex does.
 #include "GrammarUtil.h"
 
 // I must set the initial stack depth to the maximum stack depth to
@@ -20,7 +20,7 @@
 #define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
 // Newer bison versions allow to disable stack resizing by defining yyoverflow.
-#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
+#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(&yylloc, a)
 
 }
 
@@ -101,10 +101,10 @@ using namespace std;
 using namespace Slice;
 
 void
-slice_error(const char* s)
+slice_error(const SourceSpan* span, const char* s)
 {
     // We want 'unit' to emit the error so its error count is incremented.
-    currentUnit->error(s);
+    currentUnit->error(*span, s);
 }
 
 namespace
@@ -112,34 +112,40 @@ namespace
     /// Resolves a `Type` named `name` from the current scope and returns it.
     /// If no such type could be found, this returns `nullptr` instead.
     /// @param name The (possibly scoped) name to resolve.
+    /// @param span The span of the name, where errors are reported.
     /// @param expectInterfaceType `true` if the type ends with '*' (indicated a proxy), false otherwise.
     ///        This function will automatically emit errors for interfaces missing '*', or non-interfaces using '*'.
-    [[nodiscard]] TypePtr lookupTypeByName(const string& name, bool expectInterfaceType);
+    [[nodiscard]] TypePtr lookupTypeByName(const string& name, const SourceSpan& span, bool expectInterfaceType);
 
     /// Resolves an `InterfaceDef` named `name` from the current scope and returns it.
     /// If no such interface could be found, this returns `nullptr` instead.
     /// @param name The (possibly scoped) name to resolve.
-    [[nodiscard]] InterfaceDefPtr lookupInterfaceByName(const string& name);
+    /// @param span The span of the name, where errors are reported.
+    [[nodiscard]] InterfaceDefPtr lookupInterfaceByName(const string& name, const SourceSpan& span);
 
     /// Checks if the provided integer token's value is within the range ['0' ... 'int32_t::max'] (inclusive).
     /// If it is within this range, this function will return `true`.
     /// Otherwise this will return `false`, and automatically emit an error stating the issue.
     /// @param token An integer token to check the value of.
+    /// @param span The span of the integer, where the error is reported.
     /// @param kindString A string describing what the integer is being used for ("tag", "compact id", etc.).
     ///                   It is only used to emit a more descriptive error message.
-    bool checkIntegerBounds(const IntegerTokPtr& token, string_view kindString);
+    bool checkIntegerBounds(const IntegerTokPtr& token, const SourceSpan& span, string_view kindString);
+
+    /// Returns the empty span at the end of @p span.
+    [[nodiscard]] SourceSpan endOf(const SourceSpan& span);
 }
 
 %}
 
 // Directs Bison to generate a re-entrant parser.
-%define api.pure
+%define api.pure full
 // Specifies what type to back the tokens with (their semantic values).
 %define api.value.type {Slice::GrammarBasePtr}
 // Enables Bison's token location tracking functionality.
 %locations
 // Specify a custom location type for storing the location & filename of tokens.
-%define api.location.type {Slice::TokenContext}
+%define api.location.type {Slice::SourceSpan}
 
 // Tell Bison to emit additional information with its syntax error messages (like which tokens it expected).
 %define parse.error detailed
@@ -236,7 +242,7 @@ file_metadata
 }
 | ICE_FILE_METADATA_OPEN ICE_FILE_METADATA_CLOSE
 {
-    currentUnit->warning(WarningCategory::All, "No directives were provided in metadata list");
+    currentUnit->warning(@$, WarningCategory::All, "No directives were provided in metadata list");
     $$ = make_shared<MetadataListTok>();
 }
 ;
@@ -254,7 +260,7 @@ local_metadata
 }
 | ICE_METADATA_OPEN ICE_METADATA_CLOSE
 {
-    currentUnit->warning(WarningCategory::All, "No directives were provided in metadata list");
+    currentUnit->warning(@$, WarningCategory::All, "No directives were provided in metadata list");
     $$ = make_shared<MetadataListTok>();
 }
 ;
@@ -295,7 +301,7 @@ definitions
     auto metadata = dynamic_pointer_cast<MetadataListTok>($2);
     if (!metadata->v.empty())
     {
-        currentUnit->addFileMetadata(std::move(metadata->v));
+        currentUnit->addFileMetadata(std::move(metadata->v), @2);
     }
 }
 | definitions metadata definition
@@ -382,9 +388,9 @@ module_def
 
     auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
-    ModulePtr module = cont->createModule(ident->v, false);
+    ModulePtr module = cont->createModule(ident->v, @2, false);
 
-    cont->checkHasChangedMeaning(ident->v, module);
+    cont->checkHasChangedMeaning(ident->v, @2, module);
     currentUnit->pushContainer(module);
     $$ = module;
 }
@@ -403,7 +409,7 @@ module_def
     size_t startPos = 0;
     if (ident->v.find("::") == 0)
     {
-        currentUnit->error("illegal identifier: module identifiers cannot start with '::' prefix");
+        currentUnit->error(@2, "illegal identifier: module identifiers cannot start with '::' prefix");
         startPos += 2; // Skip the leading "::".
     }
 
@@ -422,9 +428,9 @@ module_def
     for (size_t i = 0; i < modules.size(); i++)
     {
         const auto currentModuleName = modules[i];
-        ModulePtr module = cont->createModule(currentModuleName, true);
+        ModulePtr module = cont->createModule(currentModuleName, @2, true);
 
-        cont->checkHasChangedMeaning(currentModuleName, module);
+        cont->checkHasChangedMeaning(currentModuleName, @2, module);
         currentUnit->pushContainer(module);
         $$ = cont = module;
     }
@@ -460,7 +466,7 @@ exception_decl
 // ----------------------------------------------------------------------
 : ICE_EXCEPTION definition_name
 {
-    currentUnit->error("exceptions cannot be forward declared");
+    currentUnit->error(@$, "exceptions cannot be forward declared");
     $$ = nullptr;
 }
 ;
@@ -473,9 +479,9 @@ exception_def
     auto ident = dynamic_pointer_cast<StringTok>($2);
     auto base = dynamic_pointer_cast<Exception>($3);
     ContainerPtr cont = currentUnit->currentContainer();
-    ExceptionPtr ex = cont->createException(ident->v, base);
+    ExceptionPtr ex = cont->createException(ident->v, @2, base);
 
-    cont->checkHasChangedMeaning(ident->v, ex);
+    cont->checkHasChangedMeaning(ident->v, @2, ex);
     currentUnit->pushContainer(ex);
     $$ = ex;
 }
@@ -493,8 +499,8 @@ exception_extends
 {
     auto scoped = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
-    ContainedPtr contained = cont->lookupException(scoped->v, true);
-    cont->checkHasChangedMeaning(scoped->v);
+    ContainedPtr contained = cont->lookupException(scoped->v, &@2);
+    cont->checkHasChangedMeaning(scoped->v, @2);
     $$ = contained;
 }
 | %empty
@@ -510,7 +516,7 @@ type_id
 {
     auto type = dynamic_pointer_cast<Type>($1);
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    $$ = make_shared<TypeStringTok>(type, ident->v);
+    $$ = make_shared<TypeStringTok>(type, ident->v, @2);
 }
 ;
 
@@ -522,7 +528,7 @@ optional
     auto integer = dynamic_pointer_cast<IntegerTok>($2);
     int32_t tag = -1;
 
-    if (integer && checkIntegerBounds(integer, "tag"))
+    if (integer && checkIntegerBounds(integer, @2, "tag"))
     {
         tag = static_cast<int32_t>(integer->v);
     }
@@ -532,13 +538,13 @@ optional
 }
 | ICE_OPTIONAL_OPEN ')'
 {
-    currentUnit->error("missing tag");
+    currentUnit->error(@$, "missing tag");
     auto m = make_shared<OptionalDefTok>(-1); // Dummy
     $$ = m;
 }
 | ICE_OPTIONAL
 {
-    currentUnit->error("missing tag");
+    currentUnit->error(@$, "missing tag");
     auto m = make_shared<OptionalDefTok>(-1); // Dummy
     $$ = m;
 }
@@ -553,13 +559,14 @@ optional_type_id
     auto ts = dynamic_pointer_cast<TypeStringTok>($2);
     m->type = ts->type;
     m->name = ts->name;
+    m->nameSpan = ts->nameSpan;
 
     // It's safe to perform this check in the parser, since we already have enough information to know whether a type
     // can be optional. This is because the only types that can be forward declared (classes/interfaces) have constant
     // values for `usesClasses` (true/false respectively).
     if (m->type && m->type->usesClasses())
     {
-        currentUnit->error("types that use classes cannot be marked with 'optional'");
+        currentUnit->error(@1, "types that use classes cannot be marked with 'optional'");
     }
 
     $$ = m;
@@ -570,6 +577,7 @@ optional_type_id
     auto m = make_shared<OptionalDefTok>(-1);
     m->type = ts->type;
     m->name = ts->name;
+    m->nameSpan = ts->nameSpan;
     $$ = m;
 }
 ;
@@ -579,7 +587,7 @@ struct_decl
 // ----------------------------------------------------------------------
 : ICE_STRUCT definition_name
 {
-    currentUnit->error("structs cannot be forward declared");
+    currentUnit->error(@$, "structs cannot be forward declared");
     $$ = nullptr; // Dummy
 }
 ;
@@ -591,9 +599,9 @@ struct_def
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
-    StructPtr st = cont->createStruct(ident->v);
+    StructPtr st = cont->createStruct(ident->v, @2);
 
-    cont->checkHasChangedMeaning(ident->v, st);
+    cont->checkHasChangedMeaning(ident->v, @2, st);
     currentUnit->pushContainer(st);
     $$ = st;
 }
@@ -605,7 +613,7 @@ struct_def
     auto st = dynamic_pointer_cast<Struct>($3);
     if (st->dataMembers().empty())
     {
-        currentUnit->error("struct '" + st->name() + "' must have at least one member");
+        currentUnit->error(st->span(), "struct '" + st->name() + "' must have at least one member");
     }
     $$ = st;
 }
@@ -616,13 +624,16 @@ class_name
 // ----------------------------------------------------------------------
 : ICE_CLASS ICE_IDENTIFIER
 {
+    // The span of a class name is its identifier's, like its value.
     $$ = $2;
+    @$ = @2;
 }
 | ICE_CLASS keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as class name");
+    currentUnit->error(@2, "keyword '" + ident->v + "' cannot be used as class name");
     $$ = $2; // Dummy
+    @$ = @2;
 }
 ;
 
@@ -634,18 +645,19 @@ class_id
     auto integer = dynamic_pointer_cast<IntegerTok>($3);
     int32_t id = -1;
 
-    if (integer && checkIntegerBounds(integer, "compact id"))
+    if (integer && checkIntegerBounds(integer, @3, "compact id"))
     {
         id = static_cast<int32_t>(integer->v);
         string typeId = currentUnit->getTypeId(id);
         if (!typeId.empty())
         {
-            currentUnit->error("invalid compact id for class: already assigned to class '" + typeId + "'");
+            currentUnit->error(@3, "invalid compact id for class: already assigned to class '" + typeId + "'");
         }
     }
 
     auto classId = make_shared<ClassIdTok>();
     classId->v = dynamic_pointer_cast<StringTok>($2)->v;
+    classId->span = @2;
     classId->t = id;
     $$ = classId;
 }
@@ -653,6 +665,7 @@ class_id
 {
     auto classId = make_shared<ClassIdTok>();
     classId->v = dynamic_pointer_cast<StringTok>($1)->v;
+    classId->span = @1;
     classId->t = -1;
     $$ = classId;
 }
@@ -665,7 +678,7 @@ class_decl
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     ContainerPtr cont = currentUnit->currentContainer();
-    ClassDeclPtr cl = cont->createClassDecl(ident->v);
+    ClassDeclPtr cl = cont->createClassDecl(ident->v, @1);
     $$ = cl;
 }
 ;
@@ -678,10 +691,10 @@ class_def
     auto ident = dynamic_pointer_cast<ClassIdTok>($1);
     ContainerPtr cont = currentUnit->currentContainer();
     auto base = dynamic_pointer_cast<ClassDef>($2);
-    ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, base);
+    ClassDefPtr cl = cont->createClassDef(ident->v, ident->span, ident->t, base);
     if (cl)
     {
-        cont->checkHasChangedMeaning(ident->v, cl);
+        cont->checkHasChangedMeaning(ident->v, ident->span, cl);
         currentUnit->pushContainer(cl);
         $$ = cl;
     }
@@ -711,7 +724,7 @@ class_extends
 {
     auto scoped = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
-    TypePtr resolvedType = cont->lookupType(scoped->v);
+    TypePtr resolvedType = cont->lookupType(scoped->v, @2);
     $$ = nullptr;
     if (resolvedType)
     {
@@ -719,17 +732,17 @@ class_extends
         {
             if (ClassDefPtr def = cl->definition())
             {
-                cont->checkHasChangedMeaning(scoped->v);
+                cont->checkHasChangedMeaning(scoped->v, @2);
                 $$ = def;
             }
             else
             {
-                currentUnit->error("'" + scoped->v + "' has been declared but not defined");
+                currentUnit->error(@2, "'" + scoped->v + "' has been declared but not defined");
             }
         }
         else
         {
-            currentUnit->error("'" + scoped->v + "' is not a class");
+            currentUnit->error(@2, "'" + scoped->v + "' is not a class");
         }
     }
 }
@@ -767,7 +780,7 @@ data_members
 }
 | metadata data_member
 {
-    currentUnit->error("';' missing after definition");
+    currentUnit->error(endOf(@2), "';' missing after definition");
 }
 | %empty
 {
@@ -784,24 +797,40 @@ data_member
 
     if (auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer()))
     {
-        dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, nullptr, std::nullopt);
+        dm = cl->createDataMember(
+            def->name,
+            def->nameSpan,
+            def->type,
+            def->isOptional,
+            def->tag,
+            nullptr,
+            std::nullopt,
+            {});
     }
     else if (auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer()))
     {
         if (def->isOptional)
         {
-            currentUnit->error("optional data members are not supported in structs");
+            currentUnit->error(@1, "optional data members are not supported in structs");
         }
-        dm = st->createDataMember(def->name, def->type, nullptr, std::nullopt);
+        dm = st->createDataMember(def->name, def->nameSpan, def->type, nullptr, std::nullopt, {});
     }
     else if (auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer()))
     {
-        dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, nullptr, std::nullopt);
+        dm = ex->createDataMember(
+            def->name,
+            def->nameSpan,
+            def->type,
+            def->isOptional,
+            def->tag,
+            nullptr,
+            std::nullopt,
+            {});
     }
 
     if (dm)
     {
-        currentUnit->currentContainer()->checkHasChangedMeaning(def->name, dm);
+        currentUnit->currentContainer()->checkHasChangedMeaning(def->name, def->nameSpan, dm);
     }
     $$ = dm;
 }
@@ -813,24 +842,40 @@ data_member
 
     if (auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer()))
     {
-        dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v, value->valueAsString);
+        dm = cl->createDataMember(
+            def->name,
+            def->nameSpan,
+            def->type,
+            def->isOptional,
+            def->tag,
+            value->v,
+            value->valueAsString,
+            @3);
     }
     else if (auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer()))
     {
         if (def->isOptional)
         {
-            currentUnit->error("optional data members are not supported in structs");
+            currentUnit->error(@1, "optional data members are not supported in structs");
         }
-        dm = st->createDataMember(def->name, def->type, value->v, value->valueAsString);
+        dm = st->createDataMember(def->name, def->nameSpan, def->type, value->v, value->valueAsString, @3);
     }
     else if (auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer()))
     {
-        dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v, value->valueAsString);
+        dm = ex->createDataMember(
+            def->name,
+            def->nameSpan,
+            def->type,
+            def->isOptional,
+            def->tag,
+            value->v,
+            value->valueAsString,
+            @3);
     }
 
     if (dm)
     {
-        currentUnit->currentContainer()->checkHasChangedMeaning(def->name, dm);
+        currentUnit->currentContainer()->checkHasChangedMeaning(def->name, def->nameSpan, dm);
     }
     $$ = dm;
 }
@@ -849,7 +894,7 @@ return_type
     // values for `usesClasses` (true/false respectively).
     if (m->type && m->type->usesClasses())
     {
-        currentUnit->error("types that use classes cannot be marked with 'optional'");
+        currentUnit->error(@1, "types that use classes cannot be marked with 'optional'");
     }
 
     $$ = m;
@@ -893,12 +938,13 @@ operation_preamble
     {
         OperationPtr op = interface->createOperation(
             name,
+            @3,
             returnType->type,
             returnType->isOptional,
             returnType->tag,
             isIdempotent ? Operation::Idempotent : Operation::Normal);
 
-        interface->checkHasChangedMeaning(name, op);
+        interface->checkHasChangedMeaning(name, @3, op);
         currentUnit->pushContainer(op);
         $$ = op;
     }
@@ -924,7 +970,9 @@ operation
             const bool isOutParam = param->isOutParam();
             if (!isOutParam && seenOutParam)
             {
-                currentUnit->error("parameter '" + param->name() + "': in-parameters cannot come after out-parameters");
+                currentUnit->error(
+                    param->span(),
+                    "parameter '" + param->name() + "': in-parameters cannot come after out-parameters");
             }
             seenOutParam |= isOutParam;
         }
@@ -940,7 +988,7 @@ throws
     assert(el);
     if (op)
     {
-        op->setExceptionList(el->v);
+        op->setExceptionList(el->v, @5);
     }
 }
 | operation_preamble error ')'
@@ -959,7 +1007,7 @@ throws
     assert(el);
     if (op)
     {
-        op->setExceptionList(el->v); // Dummy
+        op->setExceptionList(el->v, @5); // Dummy
     }
 }
 ;
@@ -969,13 +1017,16 @@ interface_id
 // ----------------------------------------------------------------------
 : ICE_INTERFACE ICE_IDENTIFIER
 {
+    // The span of an interface ID is its identifier's, like its value.
     $$ = $2;
+    @$ = @2;
 }
 | ICE_INTERFACE keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as interface name");
+    currentUnit->error(@2, "keyword '" + ident->v + "' cannot be used as interface name");
     $$ = $2; // Dummy
+    @$ = @2;
 }
 ;
 
@@ -986,8 +1037,8 @@ interface_decl
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     auto cont = currentUnit->currentContainer();
-    InterfaceDeclPtr cl = cont->createInterfaceDecl(ident->v);
-    cont->checkHasChangedMeaning(ident->v, cl);
+    InterfaceDeclPtr cl = cont->createInterfaceDecl(ident->v, @1);
+    cont->checkHasChangedMeaning(ident->v, @1, cl);
     $$ = cl;
 }
 ;
@@ -1000,10 +1051,10 @@ interface_def
     auto ident = dynamic_pointer_cast<StringTok>($1);
     ContainerPtr cont = currentUnit->currentContainer();
     auto bases = dynamic_pointer_cast<InterfaceListTok>($2);
-    InterfaceDefPtr interface = cont->createInterfaceDef(ident->v, bases->v);
+    InterfaceDefPtr interface = cont->createInterfaceDef(ident->v, @1, bases->v);
     if (interface)
     {
-        cont->checkHasChangedMeaning(ident->v, interface);
+        cont->checkHasChangedMeaning(ident->v, @1, interface);
         currentUnit->pushContainer(interface);
         $$ = interface;
     }
@@ -1033,7 +1084,7 @@ interface_list
 {
     auto interfaces = dynamic_pointer_cast<InterfaceListTok>($1);
     auto scoped = dynamic_pointer_cast<StringTok>($3);
-    if (auto interfaceDef = lookupInterfaceByName(scoped->v))
+    if (auto interfaceDef = lookupInterfaceByName(scoped->v, @3))
     {
         interfaces->v.push_back(interfaceDef);
     }
@@ -1043,7 +1094,7 @@ interface_list
 {
     auto interfaces = make_shared<InterfaceListTok>();
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    if (auto interfaceDef = lookupInterfaceByName(scoped->v))
+    if (auto interfaceDef = lookupInterfaceByName(scoped->v, @1))
     {
         interfaces->v.push_back(interfaceDef);
     }
@@ -1051,12 +1102,12 @@ interface_list
 }
 | ICE_OBJECT
 {
-    currentUnit->error("illegal inheritance from type Object");
+    currentUnit->error(@1, "illegal inheritance from type Object");
     $$ = make_shared<InterfaceListTok>(); // Dummy
 }
 | ICE_VALUE
 {
-    currentUnit->error("illegal inheritance from type Value");
+    currentUnit->error(@1, "illegal inheritance from type Value");
     $$ = make_shared<InterfaceListTok>(); // Dummy
 }
 ;
@@ -1091,7 +1142,7 @@ operations
 }
 | metadata operation
 {
-    currentUnit->error("';' missing after definition");
+    currentUnit->error(endOf(@2), "';' missing after definition");
 }
 | %empty
 {
@@ -1130,22 +1181,22 @@ exception
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
     ContainerPtr cont = currentUnit->currentContainer();
-    ExceptionPtr exception = cont->lookupException(scoped->v, true);
+    ExceptionPtr exception = cont->lookupException(scoped->v, &@1);
     if (exception)
     {
-        cont->checkHasChangedMeaning(scoped->v, exception);
+        cont->checkHasChangedMeaning(scoped->v, @1, exception);
     }
     $$ = exception;
 }
 | keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as a name");
+    currentUnit->error(@1, "keyword '" + ident->v + "' cannot be used as a name");
     ContainerPtr cont = currentUnit->currentContainer();
-    ExceptionPtr exception = cont->lookupException(ident->v, false);
+    ExceptionPtr exception = cont->lookupException(ident->v, nullptr);
     if (exception)
     {
-        cont->checkHasChangedMeaning(ident->v, exception);
+        cont->checkHasChangedMeaning(ident->v, @1, exception);
     }
     $$ = exception;
 }
@@ -1160,7 +1211,7 @@ sequence_def
     auto metadata = dynamic_pointer_cast<MetadataListTok>($3);
     auto type = dynamic_pointer_cast<Type>($4);
     ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, std::move(metadata->v));
+    $$ = cont->createSequence(ident->v, @6, type, std::move(metadata->v));
 }
 ;
 
@@ -1175,7 +1226,13 @@ dictionary_def
     auto valueMetadata = dynamic_pointer_cast<MetadataListTok>($6);
     auto valueType = dynamic_pointer_cast<Type>($7);
     ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v));
+    $$ = cont->createDictionary(
+        ident->v,
+        @9,
+        keyType,
+        std::move(keyMetadata->v),
+        valueType,
+        std::move(valueMetadata->v));
 }
 ;
 
@@ -1186,8 +1243,8 @@ enum_def
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
-    EnumPtr en = cont->createEnum(ident->v);
-    cont->checkHasChangedMeaning(ident->v, en);
+    EnumPtr en = cont->createEnum(ident->v, @2);
+    cont->checkHasChangedMeaning(ident->v, @2, en);
     currentUnit->pushContainer(en);
     $$ = en;
 }
@@ -1197,7 +1254,7 @@ enum_def
     auto enumerators = dynamic_pointer_cast<EnumeratorListTok>($5);
     if (enumerators->v.empty())
     {
-        currentUnit->error("enum '" + en->name() + "' must have at least one enumerator");
+        currentUnit->error(en->span(), "enum '" + en->name() + "' must have at least one enumerator");
     }
     currentUnit->popContainer();
     $$ = en;
@@ -1254,7 +1311,7 @@ enumerator
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
-    $$ = cont->createEnumerator(ident->v, nullopt);
+    $$ = cont->createEnumerator(ident->v, @1, nullopt);
 }
 | ICE_IDENTIFIER '=' integer_constant
 {
@@ -1264,20 +1321,20 @@ enumerator
     if (intVal)
     {
         // We report numbers that are out of range, but always create the enumerator no matter what.
-        checkIntegerBounds(intVal, "enumerator value");
-        $$ = cont->createEnumerator(ident->v, static_cast<int32_t>(intVal->v));
+        checkIntegerBounds(intVal, @3, "enumerator value");
+        $$ = cont->createEnumerator(ident->v, @1, static_cast<int32_t>(intVal->v));
     }
     else
     {
-        $$ = cont->createEnumerator(ident->v, nullopt); // Dummy
+        $$ = cont->createEnumerator(ident->v, @1, nullopt); // Dummy
     }
 }
 | keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as enumerator");
-    $$ = cont->createEnumerator(ident->v, nullopt); // Dummy
+    currentUnit->error(@1, "keyword '" + ident->v + "' cannot be used as enumerator");
+    $$ = cont->createEnumerator(ident->v, @1, nullopt); // Dummy
 }
 ;
 
@@ -1292,8 +1349,8 @@ parameter
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        param = op->createParameter(tsp->name, tsp->type, tsp->isOptional, tsp->tag);
-        currentUnit->currentContainer()->checkHasChangedMeaning(tsp->name, param);
+        param = op->createParameter(tsp->name, tsp->nameSpan, tsp->type, tsp->isOptional, tsp->tag);
+        currentUnit->currentContainer()->checkHasChangedMeaning(tsp->name, tsp->nameSpan, param);
     }
     $$ = param;
 }
@@ -1383,12 +1440,12 @@ type
 | scoped_name
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    $$ = lookupTypeByName(scoped->v, false);
+    $$ = lookupTypeByName(scoped->v, @1, false);
 }
 | scoped_name '*'
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    $$ = lookupTypeByName(scoped->v, true);
+    $$ = lookupTypeByName(scoped->v, @1, true);
 }
 ;
 
@@ -1403,7 +1460,7 @@ integer_constant
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
     ContainerPtr cont = currentUnit->currentContainer();
-    ContainedList cl = cont->lookupContained(scoped->v, false);
+    ContainedList cl = cont->lookupContained(scoped->v, nullptr);
 
     if (cl.empty())
     {
@@ -1430,7 +1487,7 @@ integer_constant
 
                 os << " '" << p->scoped() << "'";
             }
-            currentUnit->error(os.str());
+            currentUnit->error(@1, os.str());
 
             // Use the first enumerator we found, so parsing can continue.
             cl.push_back(enumerators.front());
@@ -1441,11 +1498,11 @@ integer_constant
     if (cl.empty())
     {
         // If we couldn't find any Slice types matching the provided name, report an error.
-        currentUnit->error("'" + scoped->v + "' is not defined");
+        currentUnit->error(@1, "'" + scoped->v + "' is not defined");
     }
     else
     {
-        cont->checkHasChangedMeaning(scoped->v);
+        cont->checkHasChangedMeaning(scoped->v, @1);
         if (auto constant = dynamic_pointer_cast<Const>(cl.front()))
         {
             auto b = dynamic_pointer_cast<Builtin>(constant->type());
@@ -1462,7 +1519,9 @@ integer_constant
         // If the provided name resolved to a non-integer-constant Slice type, report an error.
         if (!integerValue)
         {
-            currentUnit->error(cl.front()->kindOf() + " '" + scoped->v + "' cannot be used as an integer constant");
+            currentUnit->error(
+                @1,
+                cl.front()->kindOf() + " '" + scoped->v + "' cannot be used as an integer constant");
         }
     }
 
@@ -1503,7 +1562,7 @@ metadata_list
     auto str = dynamic_pointer_cast<StringTok>($3);
     auto metadataList = dynamic_pointer_cast<MetadataListTok>($1);
 
-    auto metadata = make_shared<Metadata>(str->v, currentUnit->currentFile(), currentUnit->currentLine());
+    auto metadata = make_shared<Metadata>(str->v, @3);
     metadataList->v.push_back(metadata);
 
     $$ = metadataList;
@@ -1513,7 +1572,7 @@ metadata_list
     auto str = dynamic_pointer_cast<StringTok>($1);
     auto metadataList = make_shared<MetadataListTok>();
 
-    auto metadata = make_shared<Metadata>(str->v, currentUnit->currentFile(), currentUnit->currentLine());
+    auto metadata = make_shared<Metadata>(str->v, @1);
     metadataList->v.push_back(metadata);
 
     $$ = metadataList;
@@ -1545,7 +1604,7 @@ const_initializer
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
     ConstDefTokPtr def;
-    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v, false);
+    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v, nullptr);
     if (cl.empty())
     {
         // Could be an enumerator
@@ -1557,12 +1616,12 @@ const_initializer
         auto constant = dynamic_pointer_cast<Const>(cl.front());
         if (enumerator)
         {
-            currentUnit->currentContainer()->checkHasChangedMeaning(scoped->v, enumerator);
+            currentUnit->currentContainer()->checkHasChangedMeaning(scoped->v, @1, enumerator);
             def = make_shared<ConstDefTok>(enumerator, scoped->v);
         }
         else if (constant)
         {
-            currentUnit->currentContainer()->checkHasChangedMeaning(scoped->v, constant);
+            currentUnit->currentContainer()->checkHasChangedMeaning(scoped->v, @1, constant);
             def = make_shared<ConstDefTok>(constant, constant->value());
         }
         else
@@ -1571,7 +1630,7 @@ const_initializer
             string msg = "illegal initializer: '" + scoped->v + "' is ";
             string kindOf = cl.front()->kindOf();
             msg += getArticleFor(kindOf) + " " + kindOf;
-            currentUnit->error(msg); // $$ is dummy
+            currentUnit->error(@1, msg); // $$ is dummy
         }
     }
     $$ = def;
@@ -1608,8 +1667,14 @@ const_def
     auto const_type = dynamic_pointer_cast<Type>($3);
     auto ident = dynamic_pointer_cast<StringTok>($4);
     auto value = dynamic_pointer_cast<ConstDefTok>($6);
-    $$ = currentUnit->currentContainer()->createConst(ident->v, const_type, std::move(metadata->v), value->v,
-                                                      value->valueAsString);
+    $$ = currentUnit->currentContainer()->createConst(
+        ident->v,
+        @4,
+        const_type,
+        std::move(metadata->v),
+        value->v,
+        value->valueAsString,
+        @6);
 }
 ;
 
@@ -1626,14 +1691,14 @@ definition_name
     // If an un-escaped keyword was used as an identifier, we emit an error,
     // but continue along, pretending like the user escaped the keyword.
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as a name");
+    currentUnit->error(@1, "keyword '" + ident->v + "' cannot be used as a name");
     $$ = ident;
 }
 | %empty %prec EMPTY_PREC
 {
     // If the user forgot to give a name to a Slice definition, we emit an error,
     // but continue along, returning an empty string instead of an identifier.
-    currentUnit->error("missing name");
+    currentUnit->error(@$, "missing name");
     $$ = make_shared<StringTok>();
 }
 ;
@@ -1651,7 +1716,7 @@ definition_name_open
     // If an un-escaped keyword was used as an identifier, we emit an error,
     // but continue along, pretending like the user escaped the keyword.
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as a name");
+    currentUnit->error(@1, "keyword '" + ident->v + "' cannot be used as a name");
     $$ = ident;
 }
 ;
@@ -1694,10 +1759,10 @@ keyword
 
 namespace
 {
-    TypePtr lookupTypeByName(const string& name, bool expectInterfaceType)
+    TypePtr lookupTypeByName(const string& name, const SourceSpan& span, bool expectInterfaceType)
     {
         ContainerPtr cont = currentUnit->currentContainer();
-        TypePtr resolvedType = cont->lookupType(name);
+        TypePtr resolvedType = cont->lookupType(name, span);
         if (resolvedType == nullptr)
         {
             return nullptr;
@@ -1707,30 +1772,30 @@ namespace
         if (interface && !expectInterfaceType)
         {
             string msg = "add a '*' after the interface name to specify its proxy type: '" + name + "*'";
-            currentUnit->error(msg);
+            currentUnit->error(span, msg);
         }
         if (!interface && expectInterfaceType)
         {
             string msg = "'" + name + "' must be an interface";
-            currentUnit->error(msg);
+            currentUnit->error(span, msg);
         }
 
-        cont->checkHasChangedMeaning(name);
+        cont->checkHasChangedMeaning(name, span);
         return resolvedType;
     }
 
-    InterfaceDefPtr lookupInterfaceByName(const string& name)
+    InterfaceDefPtr lookupInterfaceByName(const string& name, const SourceSpan& span)
     {
         ContainerPtr cont = currentUnit->currentContainer();
-        InterfaceDefPtr interfaceDef = cont->lookupInterfaceDef(name, true);
+        InterfaceDefPtr interfaceDef = cont->lookupInterfaceDef(name, span);
         if (interfaceDef)
         {
-            cont->checkHasChangedMeaning(name);
+            cont->checkHasChangedMeaning(name, span);
         }
         return interfaceDef;
     }
 
-    bool checkIntegerBounds(const IntegerTokPtr& token, string_view kindString)
+    bool checkIntegerBounds(const IntegerTokPtr& token, const SourceSpan& span, string_view kindString)
     {
         const int32_t max_value = std::numeric_limits<int32_t>::max();
         optional<string> errorReason;
@@ -1755,12 +1820,17 @@ namespace
                 msg << " (" << token->v << ")";
             }
             msg << ": " << kindString << "s " << *errorReason;
-            currentUnit->error(msg.str());
+            currentUnit->error(span, msg.str());
             return false;
         }
         else
         {
             return true;
         }
+    }
+
+    SourceSpan endOf(const SourceSpan& span)
+    {
+        return {span.filename, span.lastLine, span.lastColumn, span.lastLine, span.lastColumn};
     }
 }
