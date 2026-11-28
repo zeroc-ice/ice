@@ -12,6 +12,8 @@
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #  // Ignore OpenSSL 3.0 deprecation warning
 #  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(_MSC_VER)
+#  pragma warning(disable:4996) // OpenSSL 3.0 deprecation warning
 #endif
 
 using namespace std;
