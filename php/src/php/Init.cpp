@@ -344,14 +344,7 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 {
     UNREGISTER_INI_ENTRIES();
 
-    ZEND_RESULT_CODE status = SUCCESS;
-
-    if(!communicatorShutdown())
-    {
-        status = FAILURE;
-    }
-
-    return status;
+    return communicatorShutdown() ? SUCCESS : FAILURE;
 }
 
 ZEND_RINIT_FUNCTION(ice)

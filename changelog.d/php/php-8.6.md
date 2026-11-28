@@ -1,0 +1,1 @@
+- Added support for PHP 8.6.

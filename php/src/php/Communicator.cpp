@@ -655,7 +655,8 @@ ZEND_METHOD(Ice_Communicator, getValueFactoryManager)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -692,7 +693,8 @@ ZEND_METHOD(Ice_Communicator, getProperties)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -717,7 +719,8 @@ ZEND_METHOD(Ice_Communicator, getLogger)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -742,7 +745,8 @@ ZEND_METHOD(Ice_Communicator, getDefaultRouter)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -823,7 +827,8 @@ ZEND_METHOD(Ice_Communicator, getDefaultLocator)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-        WRONG_PARAM_COUNT;
+        zend_wrong_param_count();
+        return;
     }
 
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -1347,7 +1352,7 @@ ZEND_FUNCTION(Ice_initialize)
     //
     if(zvargs)
     {
-        zval_dtor(zvargs);
+        zval_ptr_dtor_nogc(zvargs);
         if(!createStringArray(zvargs, seq))
         {
             RETURN_NULL();
@@ -1585,8 +1590,7 @@ ZEND_FUNCTION(Ice_stringToIdentity)
 }
 
 //
-// Necessary to suppress warnings from zend_function_entry in php-5.2
-// and INI_STR macro.
+// Necessary to suppress warnings from zend_function_entry in php-5.2.
 //
 #ifdef __GNUC__
 #   pragma GCC diagnostic ignored "-Wwrite-strings"
@@ -1821,6 +1825,21 @@ parseProfiles(const string& file)
     return true;
 }
 
+// Returns the value of the given php.ini setting, or null if it has no value. The const_cast is required because
+// PHP 7 declares the name parameter of the zend_ini functions as char*.
+static const char*
+getIniString(const char* name)
+{
+    return zend_ini_string_ex(const_cast<char*>(name), strlen(name), 0, 0);
+}
+
+// Returns the value of the given php.ini boolean setting.
+static bool
+getIniBool(const char* name)
+{
+    return zend_ini_long(const_cast<char*>(name), strlen(name), 0) != 0;
+}
+
 bool
 IcePHP::communicatorInit(void)
 {
@@ -1849,7 +1868,7 @@ IcePHP::communicatorInit(void)
     memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _handlers.clone_obj = handleClone;
     _handlers.free_obj = handleFreeStorage;
-    _handlers.offset = XtOffsetOf(Wrapper<CommunicatorInfoIPtr>, zobj);
+    _handlers.offset = offsetof(Wrapper<CommunicatorInfoIPtr>, zobj);
     zend_class_implements(communicatorClassEntry, 1, interface);
 
     //
@@ -1871,19 +1890,19 @@ IcePHP::communicatorInit(void)
     memcpy(&_vfmHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _vfmHandlers.clone_obj = handleVfmClone;
     _vfmHandlers.free_obj = handleVfmFreeStorage;
-    _vfmHandlers.offset   = XtOffsetOf(Wrapper<ValueFactoryManagerPtr>, zobj);
+    _vfmHandlers.offset   = offsetof(Wrapper<ValueFactoryManagerPtr>, zobj);
     zend_class_implements(valueFactoryManagerClassEntry, 1, vfmInterface);
 
     //
     // Create the profiles from configuration settings.
     //
     const char* empty = "";
-    const char* config = INI_STR("ice.config"); // Needs to be a string literal!
+    const char* config = getIniString("ice.config");
     if(!config)
     {
         config = empty;
     }
-    const char* options = INI_STR("ice.options"); // Needs to be a string literal!
+    const char* options = getIniString("ice.options");
     if(!options)
     {
         options = empty;
@@ -1893,7 +1912,7 @@ IcePHP::communicatorInit(void)
         return false;
     }
 
-    const char* profiles = INI_STR("ice.profiles"); // Needs to be a string literal!
+    const char* profiles = getIniString("ice.profiles");
     if(!profiles)
     {
         profiles = empty;
@@ -1905,7 +1924,7 @@ IcePHP::communicatorInit(void)
             return false;
         }
 
-        if(INI_BOOL(const_cast<char*>("ice.hide_profiles")))
+        if(getIniBool("ice.hide_profiles"))
         {
             memset(const_cast<char*>(profiles), '*', strlen(profiles));
             //
