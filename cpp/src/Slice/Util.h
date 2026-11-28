@@ -21,8 +21,36 @@ namespace Slice
     /// Converts a string to camel case. For example, "MyClass" becomes "myClass".
     std::string toCamelCase(const std::string& s);
 
+    /// An error or warning reported by the Slice preprocessor or parser.
+    struct Diagnostic
+    {
+        enum class Severity
+        {
+            Error,
+            Warning
+        };
+
+        Severity severity;
+
+        /// The file the diagnostic is about, or empty when it isn't about a file.
+        std::string file;
+
+        /// The line the diagnostic is about, counted from 1, or -1 when it isn't about a line.
+        int line;
+
+        std::string message;
+    };
+
+    /// Sends each diagnostic of the preprocessor and parser to @p handler instead of writing it to standard error. The
+    /// handler applies to the whole process, and a null handler restores standard error.
+    void setDiagnosticHandler(std::function<void(const Diagnostic&)> handler);
+
     void emitError(std::string_view file, int line, std::string_view message);
     void emitWarning(std::string_view file, int line, std::string_view message);
+
+    /// Emits a line of mcpp's error output: a '<file>:<line>: error: <text>' or '<file>:<line>: warning: <text>'
+    /// diagnostic, or a line of context such as the offending source line. A diagnostic handler receives only the
+    /// diagnostics.
     void emitRaw(const char* message);
     std::vector<std::string> filterMcppWarnings(const std::string& message);
     void printGeneratedHeader(IceInternal::Output& out, std::string_view path, std::string_view commentStyle = "//");

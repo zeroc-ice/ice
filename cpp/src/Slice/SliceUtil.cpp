@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cctype>
+#include <charconv>
 #include <climits>
 #include <cstring>
 #include <iomanip>
@@ -386,9 +387,26 @@ Slice::toCamelCase(const string& s)
     return result;
 }
 
+namespace
+{
+    function<void(const Diagnostic&)> diagnosticHandler;
+}
+
+void
+Slice::setDiagnosticHandler(function<void(const Diagnostic&)> handler)
+{
+    diagnosticHandler = std::move(handler);
+}
+
 void
 Slice::emitError(string_view file, int line, string_view message)
 {
+    if (diagnosticHandler)
+    {
+        diagnosticHandler({Diagnostic::Severity::Error, string{file}, line, string{message}});
+        return;
+    }
+
     if (!file.empty())
     {
         consoleErr << file;
@@ -404,6 +422,12 @@ Slice::emitError(string_view file, int line, string_view message)
 void
 Slice::emitWarning(string_view file, int line, string_view message)
 {
+    if (diagnosticHandler)
+    {
+        diagnosticHandler({Diagnostic::Severity::Warning, string{file}, line, string{message}});
+        return;
+    }
+
     if (!file.empty())
     {
         consoleErr << file;
@@ -419,7 +443,47 @@ Slice::emitWarning(string_view file, int line, string_view message)
 void
 Slice::emitRaw(const char* message)
 {
-    consoleErr << message << flush;
+    if (!diagnosticHandler)
+    {
+        consoleErr << message << flush;
+        return;
+    }
+
+    string_view text{message};
+    if (!text.empty() && text.back() == '\n')
+    {
+        text.remove_suffix(1);
+    }
+
+    // The file name can itself contain ':', as in 'C:\', so the location ends at the first ':<line>: '. A line without
+    // a location, such as the source line that follows each diagnostic, isn't a diagnostic.
+    const char* textEnd = text.data() + text.size();
+    for (size_t colon = text.find(':'); colon != string_view::npos; colon = text.find(':', colon + 1))
+    {
+        int line = 0;
+        auto [lineEnd, result] = from_chars(text.data() + colon + 1, textEnd, line);
+        string_view rest{lineEnd, static_cast<size_t>(textEnd - lineEnd)};
+        if (result != errc{} || rest.substr(0, 2) != ": ")
+        {
+            continue;
+        }
+        rest.remove_prefix(2);
+
+        constexpr string_view warningPrefix = "warning: ";
+        constexpr string_view errorPrefix = "error: ";
+        Diagnostic::Severity severity = Diagnostic::Severity::Error;
+        if (rest.substr(0, warningPrefix.size()) == warningPrefix)
+        {
+            severity = Diagnostic::Severity::Warning;
+            rest.remove_prefix(warningPrefix.size());
+        }
+        else if (rest.substr(0, errorPrefix.size()) == errorPrefix)
+        {
+            rest.remove_prefix(errorPrefix.size());
+        }
+        diagnosticHandler({severity, string{text.substr(0, colon)}, line, string{rest}});
+        return;
+    }
 }
 
 vector<string>
